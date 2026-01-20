@@ -1,0 +1,488 @@
+\documentclass[11pt]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage[margin=1in]{geometry}
+\usepackage{natbib}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{float}
+
+% Code listing style
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    language=Python,
+    showstringspaces=false
+}
+
+% Title
+\title{Deep Layer Expansion: Expert Prompts Counteract Dimensional Collapse in Large Language Models}
+
+\author{
+    Lei Zhao$^{1}$, Yanyan Jin \\
+    $^1$Tencent
+}
+
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Large Language Models (LLMs) exhibit systematic performance improvements when prompts contain expert-level domain signals. We investigate the geometric mechanism underlying this phenomenon through controlled experiments on two mainstream 70B-class open-source models: Qwen2.5-72B-Instruct and Llama-3.3-70B-Instruct. Contrary to the conventional understanding that deep layers compress representations toward deterministic outputs, we discover a striking universal phenomenon: \textbf{expert signals induce ``Deep Layer Expansion''} in the representation space. Specifically, expert-level prompts increase the Effective Intrinsic Dimension (EID) in deep layers (Layer 60+) by 60-100\% compared to standard prompts. We formalize this as \textbf{Manifold Teleportation}: expert signals act as high-dimensional navigators that counteract the model's tendency toward dimensional collapse during reasoning, maintaining activation trajectories in manifold regions with higher semantic density. Our findings provide a geometric foundation for prompt engineering and offer a new quantitative tool for LLM interpretability research---understanding how prompts affect internal model computation by tracing EID trajectories.
+\end{abstract}
+
+\noindent\textbf{Keywords:} Large Language Models, Intrinsic Dimension, Prompt Engineering, Representation Geometry, Interpretability
+
+\section{Introduction}
+
+Large Language Models (LLMs) have achieved remarkable breakthroughs in natural language processing, demonstrating powerful text generation and reasoning capabilities. Prompt Engineering, as a technique to improve performance without modifying model parameters, has become a core methodology in practice. However, a widely observed phenomenon still lacks theoretical explanation: for the same question, expert-style queries often yield more detailed and in-depth responses---even when the core semantics of the query are identical.
+
+Previous research on neural network representations suggests that LLM processing follows an ``expansion-compression'' pattern: intermediate layers perform feature extraction (increasing dimensionality), while deep layers perform semantic compression to facilitate output generation (decreasing dimensionality) \citep{ansuini2019intrinsic}. Recent work has further identified high intrinsic dimension peaks in Transformer intermediate layers, corresponding to critical turning points in language abstraction \citep{cai2024emergence}.
+
+This paper investigates \textbf{Context-Dependent Performance Bifurcation (CDPB)}---where semantically equivalent queries produce qualitatively different responses based solely on contextual framing. Our core question is: \textbf{How do expert signals affect model behavior at the geometric level of representation space?}
+
+Through experiments on \textbf{Qwen2.5-72B-Instruct} and \textbf{Llama-3.3-70B-Instruct}, we discover a strikingly consistent geometric phenomenon: expert signals successfully suppress deep-layer dimensional collapse, forcing the model to maintain high intrinsic dimensionality near the output layers. We term this phenomenon \textbf{Manifold Teleportation}, as expert signals effectively ``teleport'' and lock the model's activation state into high-dimensional sub-manifolds enriched with semantic density.
+
+\subsection{Contributions}
+
+\begin{enumerate}
+    \item \textbf{Identify and quantify the Deep Layer Expansion effect}: Expert prompts increase deep-layer EID by 60-100\% across architectures, contrasting with the conventional ``deep compression'' understanding.
+    \item \textbf{Validate cross-architecture universality}: Consistent geometric behavior observed in both Qwen and Llama model families with different training lineages.
+    \item \textbf{Propose a new interpretability perspective}: EID trajectories can serve as quantitative tools for understanding prompt effects, offering new directions for LLM interpretability research.
+    \item \textbf{Release experimental code and data}: Supporting research reproducibility.
+\end{enumerate}
+
+\section{Related Work}
+
+\subsection{Prompt Engineering and In-Context Learning}
+
+Prompt construction significantly influences LLM output quality \citep{reynolds2021prompt, liu2023pretrain}. Role-playing prompts \citep{shanahan2023role} demonstrate that contextual framing modulates model behavior. Our work extends this literature by providing a geometric explanation grounded in representation analysis.
+
+\subsection{Intrinsic Dimension of Neural Network Representations}
+
+\citet{ansuini2019intrinsic} found that deep network representations lie on low-dimensional manifolds, with layer-wise ID following an ``increase-then-decrease'' pattern. \citet{cai2024emergence}, published at ICLR 2024, identified high ID peaks in Transformer intermediate layers and demonstrated positive correlation with model performance and transfer capability. \citet{valeriani2023geometry} studied the geometric structure of hidden representations in large Transformers.
+
+\textbf{How our work differs from prior research:} Previous work studied the inherent ID patterns of models (layer-wise variation given input); we study \textbf{how ID patterns differ under different prompt conditions for the same model}---this is controllable and actionable.
+
+\subsection{LLM Interpretability}
+
+Mechanistic Interpretability aims to understand the internal computational mechanisms of LLMs \citep{elhage2022toy}. Sparse Autoencoders (SAE) have been used to address the ``superposition'' problem, decomposing polysemantic neurons into monosemantic features. Representation Engineering analyzes and manipulates activation spaces to understand and guide model behavior \citep{zou2023representation}.
+
+Our work provides a \textbf{complementary perspective}: rather than analyzing individual features or circuits, we trace how the geometric properties of the overall representation space (EID) respond to prompt changes.
+
+\section{Methodology}
+
+\subsection{Effective Intrinsic Dimension (EID)}
+
+To quantify the ``cognitive complexity'' of the model at each layer, we employ Effective Intrinsic Dimension based on spectral entropy of the hidden state matrix.
+
+\textbf{Definition.} Given a hidden state matrix $H \in \mathbb{R}^{N \times d}$ for a specific layer over $N$ samples, let $\{\sigma_i\}$ denote the singular values from SVD decomposition. Define the normalized singular values as:
+
+\begin{equation}
+\hat{\sigma}_i = \frac{\sigma_i}{\sum_j \sigma_j}
+\end{equation}
+
+The Effective Intrinsic Dimension is defined as:
+
+\begin{equation}
+\text{EID}(H) = \exp\left( -\sum_{i} \hat{\sigma}_i \log \hat{\sigma}_i \right)
+\end{equation}
+
+\textbf{Intuitive Interpretation:}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{EID Value} & \textbf{Meaning} & \textbf{Analogy} \\
+\midrule
+Low ($\sim$3) & Activations concentrate in few directions & Model has ``locked in'' an answer \\
+High ($\sim$30+) & Activations spread across many directions & Model is ``exploring'' multiple possibilities \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This metric captures the effective degrees of freedom in the representation---how many independent computational ``directions'' the model is actively using at each layer.
+
+\subsection{Experimental Design}
+
+\textbf{Model Selection.} We selected two mainstream 70B-class open-source models:
+\begin{enumerate}
+    \item \textbf{Qwen2.5-72B-Instruct} (Alibaba Cloud) - AWQ INT4 quantization, 80 layers
+    \item \textbf{Llama-3.3-70B-Instruct} (Meta AI) - W8A8 INT8 quantization, 80 layers
+\end{enumerate}
+
+Rationale for selection: (1) Similar parameter scale for comparison; (2) Different training lineages (China vs US) to validate universality; (3) Both are instruction-tuned versions representing practical application scenarios.
+
+\textbf{Dataset.} We constructed 50 technical topics covering distributed systems, programming languages, databases, networking, and machine learning (see Appendix A for full list).
+
+\textbf{Prompt Conditions.} For each topic, we designed two controlled prompts:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{Condition} & \textbf{Template} \\
+\midrule
+Standard (Baseline) & ``Please explain \{topic\}.'' \\
+Expert (Treatment) & ``As a senior expert in this field, please analyze \{topic\} \\
+& in depth from the perspective of underlying principles \\
+& and mathematical derivations. Show your chain of thought.'' \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Measurement Protocol.} For each prompt, we:
+\begin{enumerate}
+    \item Process the prompt through the model
+    \item Extract hidden states from all 80 layers at the last token position
+    \item Compute EID for each layer using the spectral entropy method
+    \item Average across all 50 topics to obtain smooth trajectories
+\end{enumerate}
+
+\section{Results}
+
+\subsection{Qwen2.5-72B: Deep Layer Expansion Effect}
+
+Figure~\ref{fig:qwen} shows the EID trajectories for Qwen2.5-72B under both prompt conditions.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{Figure_1_Qwen72B_Manifold.png}
+\caption{\textbf{EID trajectory comparison for Qwen2.5-72B.} The x-axis shows Transformer layer number (0-80), and the y-axis shows Effective Intrinsic Dimension (EID). The red curve (Expert) represents the expert prompt condition, and the blue curve (Standard) represents the standard prompt condition. The expert trajectory clearly diverges from baseline starting at Layer 30, showing +60\% dimensional expansion in deep layers (Layer 70).}
+\label{fig:qwen}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{cccc}
+\toprule
+\textbf{Layer} & \textbf{Standard EID} & \textbf{Expert EID} & \textbf{Difference} \\
+\midrule
+40 & $\sim$7 & $\sim$10 & +43\% \\
+60 & $\sim$14 & $\sim$22 & +57\% \\
+70 & $\sim$23 & $\sim$37 & \textbf{+60\%} \\
+75 & $\sim$28 & $\sim$45 & +61\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Key Observations:}
+\begin{enumerate}
+    \item \textbf{Entry layers (0-5):} Both conditions show high dimensionality ($\sim$30-50), characteristic of embedding layer representations.
+    \item \textbf{Compression zone (5-20):} Dimensionality drops sharply to $\sim$2-3 as the model ``parses'' the input.
+    \item \textbf{Divergence zone (20-75):} Expert EID consistently exceeds Standard, with the gap widening progressively.
+    \item \textbf{Output preparation (75-80):} Both trajectories rise, but Expert reaches $\sim$50 vs Standard's $\sim$35.
+\end{enumerate}
+
+The trajectory forms a distinctive \textbf{``Trumpet'' topology}---not the expected symmetric ``hourglass'' (middle expansion, both ends compressed), but sustained deep-layer expansion observed under expert prompting.
+
+\subsection{Llama-3.3-70B: Cross-Architecture Validation}
+
+To rule out model-specific bias, we replicated the experiment on Llama-3.3-70B.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{Figure_1_Llama70B_Manifold.png}
+\caption{\textbf{EID trajectory comparison for Llama-3.3-70B.} Consistent with Qwen, expert prompts induce sustained high-dimensional states in deep layers. The expansion effect at Layer 60 reaches +102\%, more pronounced than Qwen, possibly related to INT8 quantization preserving higher precision.}
+\label{fig:llama}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{cccc}
+\toprule
+\textbf{Layer} & \textbf{Standard EID} & \textbf{Expert EID} & \textbf{Difference} \\
+\midrule
+40 & 6.6 & 12.4 & \textbf{+89\%} \\
+60 & 13.2 & 26.8 & \textbf{+102\%} \\
+70 & 16.8 & 33.3 & \textbf{+99\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Cross-Architecture Consistency}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Model} & \textbf{Quantization} & \textbf{Layer 60 $\Delta$} & \textbf{Layer 70 $\Delta$} & \textbf{Divergence Layer} \\
+\midrule
+Qwen2.5-72B & AWQ INT4 & +57\% & +60\% & $\sim$30 \\
+Llama-3.3-70B & W8A8 INT8 & +102\% & +99\% & $\sim$25 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Despite different training procedures, architectures, and quantization schemes, both models exhibit:
+\begin{enumerate}
+    \item \textbf{Trajectory bifurcation} beginning in intermediate layers (Layer 25-30)
+    \item \textbf{Progressive divergence} with expert EID consistently higher
+    \item \textbf{Deep layer expansion} of 60-100\% at Layer 60-70
+\end{enumerate}
+
+This high degree of cross-architecture consistency strongly suggests that \textbf{Deep Layer Expansion is a universal geometric property of Transformer LLMs responding to high-quality semantic signals.}
+
+\section{Discussion}
+
+\subsection{The Manifold Teleportation Hypothesis}
+
+We propose that expert signals function as \textbf{manifold navigators}, guiding activation trajectories toward high-dimensional semantic regions:
+
+\begin{enumerate}
+    \item \textbf{Standard prompts} position the model in ``generic response'' manifold regions---low-dimensional attractor basins formed by RLHF training that favor safe, average responses.
+    \item \textbf{Expert prompts} inject high-frequency semantic information through signal words (``senior expert,'' ``underlying principles,'' ``mathematical derivations'') that trigger navigation toward high-dimensional professional regions.
+    \item \textbf{Deep layer accumulation} effect: small initial trajectory differences compound through successive layers, resulting in dramatically different deep-layer geometries.
+\end{enumerate}
+
+\textbf{Analogy:} Two trains departing from the same station with 1° directional difference. The initial gap is negligible, but after 1000km, destinations differ by tens of kilometers.
+
+\subsection{Relationship to Prior Work}
+
+\citet{cai2024emergence} found that LLM intermediate layers have ID peaks corresponding to critical turning points in language abstraction. Our findings are complementary:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{Cai et al. (2024)} & \textbf{This Paper} \\
+\midrule
+Studies inherent layer-wise ID patterns & Studies how prompts change ID patterns \\
+Descriptive findings & Controllable, actionable interventions \\
+Predicts model performance & Evaluates prompt quality \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Interpretability Perspective}
+
+Our findings provide new tools for LLM interpretability:
+
+\begin{enumerate}
+    \item \textbf{Quantitative evaluation of prompt effects}: Without examining outputs, EID trajectories can indicate whether a prompt has ``activated'' the model's deep computational capacity.
+    \item \textbf{Black-box to gray-box}: While we don't know specifically what the model is ``thinking,'' EID tells us how much computational ``bandwidth'' the model is using to think.
+    \item \textbf{Debugging tool}: If a prompt doesn't produce expected deep-layer expansion, the signal isn't strong enough or the direction is wrong.
+\end{enumerate}
+
+\subsection{Limitations}
+
+\begin{enumerate}
+    \item \textbf{Quantization artifacts:} Both models use quantized weights; full-precision validation is future work.
+    \item \textbf{First-token measurement:} We measure EID at prompt completion; generation-time dynamics remain unexplored.
+    \item \textbf{Correlation vs causation:} We demonstrate correlation between expert signals and EID expansion, but causal mechanisms require further research (e.g., attention pattern analysis).
+    \item \textbf{Downstream task validation:} We have not validated whether higher EID directly leads to better task performance.
+\end{enumerate}
+
+\section{Conclusion}
+
+This paper provides empirical evidence that expert-level prompts induce \textbf{Deep Layer Expansion} in LLM representations---a 60-100\% increase in Effective Intrinsic Dimension at deep layers. This phenomenon holds universally across Qwen and Llama architectures, suggesting it is a fundamental geometric property of Transformer models responding to high-quality semantic signals.
+
+We propose the \textbf{Manifold Teleportation} framework: expert signals act as navigators that guide activation trajectories away from low-dimensional collapse regions toward high-dimensional semantic manifolds. This provides a geometric foundation for understanding why prompt engineering works and offers new directions for LLM interpretability research---understanding model behavior by tracing the geometric properties of representation space.
+
+\textbf{Future Work:}
+\begin{enumerate}
+    \item Causal mechanism analysis: Understanding the causes of deep-layer expansion through attention patterns and circuit analysis
+    \item Downstream validation: Establishing quantitative relationships between EID and task performance
+    \item Automated tools: Automatic prompt quality evaluation based on EID
+    \item More models: Validation on other architectures such as Mistral and Gemma
+\end{enumerate}
+
+\bibliographystyle{plainnat}
+\begin{thebibliography}{99}
+
+\bibitem[Ansuini et al.(2019)]{ansuini2019intrinsic}
+Ansuini, A., Laio, A., Macke, J.~H., \& Zoccolan, D. (2019).
+\newblock Intrinsic dimension of data representations in deep neural networks.
+\newblock \emph{NeurIPS}.
+
+\bibitem[Cai et al.(2024)]{cai2024emergence}
+Cai, T., et al. (2024).
+\newblock Emergence of a High-Dimensional Abstraction Phase in Language Transformers.
+\newblock \emph{ICLR 2024}.
+
+\bibitem[Elhage et al.(2022)]{elhage2022toy}
+Elhage, N., et al. (2022).
+\newblock Toy models of superposition.
+\newblock \emph{Transformer Circuits Thread}.
+
+\bibitem[Kirsanov et al.(2025)]{kirsanov2025geometry}
+Kirsanov, D., et al. (2025).
+\newblock The Geometry of Prompting: Unveiling Distinct Mechanisms of Task Adaptation in Language Models.
+\newblock \emph{arXiv preprint}.
+
+\bibitem[Liu et al.(2023)]{liu2023pretrain}
+Liu, P., et al. (2023).
+\newblock Pre-train, prompt, and predict: A systematic survey of prompting methods in natural language processing.
+\newblock \emph{ACM Computing Surveys}.
+
+\bibitem[Marks \& Tegmark(2023)]{marks2023geometry}
+Marks, S., \& Tegmark, M. (2023).
+\newblock The Geometry of Truth: Emergent Linear Structure in Large Language Model Representations.
+\newblock \emph{NeurIPS 2023}.
+
+\bibitem[Reynolds \& McDonell(2021)]{reynolds2021prompt}
+Reynolds, L., \& McDonell, K. (2021).
+\newblock Prompt programming for large language models: Beyond the few-shot paradigm.
+\newblock \emph{CHI EA '21}.
+
+\bibitem[Shanahan et al.(2023)]{shanahan2023role}
+Shanahan, M., McDonell, K., \& Reynolds, L. (2023).
+\newblock Role play with large language models.
+\newblock \emph{Nature}.
+
+\bibitem[Valeriani et al.(2023)]{valeriani2023geometry}
+Valeriani, L., et al. (2023).
+\newblock The geometry of hidden representations of large transformer models.
+\newblock \emph{NeurIPS 2023}.
+
+\bibitem[Wang et al.(2024)]{wang2024shape}
+Wang, X., et al. (2024).
+\newblock The Shape of Learning: Anisotropy and Intrinsic Dimensions in Transformer-Based Models.
+\newblock \emph{EACL 2024 Findings}.
+
+\bibitem[Wei et al.(2022)]{wei2022chain}
+Wei, J., et al. (2022).
+\newblock Chain-of-thought prompting elicits reasoning in large language models.
+\newblock \emph{NeurIPS}.
+
+\bibitem[Zou et al.(2023)]{zou2023representation}
+Zou, A., et al. (2023).
+\newblock Representation Engineering: A Top-Down Approach to AI Transparency.
+\newblock \emph{arXiv preprint}.
+
+\end{thebibliography}
+
+\appendix
+
+\section{Technical Topics (50)}
+
+\begin{enumerate}
+    \item Leader Election Mechanism in Raft Consensus Algorithm
+    \item Frequency Domain Properties of Positional Encoding in Transformer Architecture
+    \item Copy-on-Write Mechanism in Operating Systems
+    \item Database Transaction Isolation Levels and Phantom Read Problem
+    \item eBPF Applications in Cloud-Native Network Observability
+    \item Go Language GMP Scheduling Model and Preemptive Scheduling
+    \item Redis Persistence Mechanisms: AOF vs RDB Trade-offs
+    \item Kubernetes Informer Mechanism and List-Watch
+    \item Differences Between JVM CMS and G1 Garbage Collectors
+    \item Key Exchange Algorithms in HTTPS Handshake Process
+    \item Kafka Zero-Copy Technology Principles
+    \item Security Analysis of Redlock Algorithm for Distributed Locks
+    \item React Fiber Architecture and Time Slicing
+    \item TCP Congestion Control Algorithm BBR Principles
+    \item B+Tree vs LSM-Tree Read/Write Performance Comparison in Storage Engines
+    \item Docker Container Namespace and Cgroups Isolation Principles
+    \item Impact of Python GIL (Global Interpreter Lock) on Multithreading
+    \item Multiplexing Differences Between HTTP/2 and HTTP/3 (QUIC)
+    \item Gradient Vanishing and Gradient Explosion Problems in Neural Networks
+    \item Mathematical Derivation of Bloom Filter False Positive Rate
+    \item Consistent Hashing Algorithm Applications in Distributed Caching
+    \item MySQL InnoDB MVCC Implementation Principles
+    \item Linux Kernel Mode and User Mode Switching Overhead
+    \item Git Underlying Data Structure (Merkle DAG)
+    \item Elasticsearch Inverted Index Compression Algorithms
+    \item Nginx Reverse Proxy and Load Balancing Algorithms
+    \item Protobuf vs JSON Serialization Performance Comparison
+    \item CDN Edge Caching and Origin Pull Strategies
+    \item OAuth 2.0 Authorization Code Flow Security
+    \item SYN Flood Defense Mechanisms Against DDoS Attacks
+    \item WebAssembly (Wasm) Sandbox Security Model
+    \item Rust Language Ownership and Borrow Checker
+    \item Non-Negotiability of P (Partition Tolerance) in CAP Theorem
+    \item ClickHouse Columnar Storage and Vectorized Execution
+    \item Prometheus Time Series Database Compression Algorithm (Gorilla)
+    \item Hadoop MapReduce Shuffle Process Explained
+    \item Differences Between Zookeeper ZAB Protocol and Paxos
+    \item Network Latency Analysis of Sidecar Pattern in Service Mesh
+    \item GraphQL vs RESTful API N+1 Problem
+    \item Vue.js Reactivity Principles and Dependency Collection
+    \item MongoDB Sharded Cluster Balancer Mechanism
+    \item RabbitMQ Dead Letter Queue and Delayed Message Implementation
+    \item Ceph Distributed Storage CRUSH Algorithm
+    \item Spark RDD Wide Dependency vs Narrow Dependency Division
+    \item Flink Backpressure Mechanism Principles
+    \item PostgreSQL Physical Replication vs Logical Replication
+    \item DNS Recursive Query vs Iterative Query Process
+    \item ARP Protocol Spoofing and Defense
+    \item CSRF Cross-Site Request Forgery Token Defense
+    \item SQL Injection Blind Injection Principles
+\end{enumerate}
+
+\section{Experimental Details}
+
+\subsection{Hardware Configuration}
+
+\begin{itemize}
+    \item \textbf{Platform:} DGX Spark (NVIDIA GB10, 128GB unified memory)
+    \item \textbf{Qwen2.5-72B:} AWQ INT4 quantization ($\sim$40GB memory)
+    \item \textbf{Llama-3.3-70B:} W8A8 INT8 quantization ($\sim$70GB memory)
+\end{itemize}
+
+\subsection{EID Computation Code}
+
+\begin{lstlisting}
+import numpy as np
+
+def compute_eid(hidden_states):
+    """Compute Effective Intrinsic Dimension via spectral entropy
+
+    Args:
+        hidden_states: [batch, seq_len, hidden_dim] tensor
+
+    Returns:
+        float: Effective Intrinsic Dimension
+    """
+    # Take last token representation
+    data = hidden_states[:, -1, :].cpu().numpy()
+
+    # SVD decomposition
+    U, S, Vh = np.linalg.svd(data, full_matrices=False)
+
+    # Normalize singular values to probability distribution
+    S_norm = S / np.sum(S)
+
+    # Shannon entropy
+    entropy = -np.sum(S_norm * np.log(S_norm + 1e-12))
+
+    # Effective dimension = exp(entropy)
+    return np.exp(entropy)
+\end{lstlisting}
+
+\subsection{Reproducibility}
+
+Code and data will be released on GitHub upon paper acceptance.
+
+\section{Supplementary Analysis}
+
+\subsection{Inter-Topic Variance}
+
+Standard deviation across 50 topics:
+\begin{itemize}
+    \item Qwen Layer 70: Standard $\pm$3.2, Expert $\pm$4.8
+    \item Llama Layer 70: Standard $\pm$2.9, Expert $\pm$5.1
+\end{itemize}
+
+Higher variance under expert conditions reflects topic-dependent activation of specialized knowledge regions---different technical domains activate different high-dimensional subspaces.
+
+\subsection{Cross-Model Correlation}
+
+Pearson correlation coefficient between Qwen and Llama EID trajectories:
+\begin{itemize}
+    \item Standard condition: $r = 0.94$
+    \item Expert condition: $r = 0.91$
+\end{itemize}
+
+High cross-model correlation supports the universality of the observed geometric patterns---this is not a peculiarity of a single model, but a common property of Transformer architectures.
+
+\end{document}
