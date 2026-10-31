@@ -394,12 +394,17 @@ def train_das(bundle, pairs, layer, rank=1, T=8, epochs=10, lr=1e-3, seed=42, cl
             opt.step()
             ep_loss += loss_val
             ep_steps += n_steps
-            if tr is not None and log_fn:
-                log_fn("  [DAS L%d anchor=%s] position trace, first pair: %s" % (
-                    layer, anchor, "; ".join("t=%d len(base,src)=(%d,%d) write_base=%d read_src=%d" % (
-                        d["t"], d["len_base"], d["len_src"], d["write_base_pos"], d["read_src_pos"]) for d in tr[:3])))
+            if tr is not None:
+                # acceptance check (GPT review round 2) -- independent of logging, so it also runs with log_fn=None
                 if anchor == "prompt" and len({(d["write_base_pos"], d["read_src_pos"]) for d in tr}) != 1:
                     raise RuntimeError("anchor=prompt but read/write indices moved across steps: %s" % tr)
+                if log_fn:
+                    tok = getattr(bundle, "tokenizer", None)      # show the teacher tokens (one-word answer + EOS => ~2 steps)
+                    teacher = repr(tok.decode(p["y_src"], skip_special_tokens=False)) if tok is not None else "n/a"
+                    log_fn("  [DAS L%d anchor=%s] position trace, first pair: %s | teacher tokens (%d): %s" % (
+                        layer, anchor, "; ".join("t=%d len(base,src)=(%d,%d) write_base=%d read_src=%d" % (
+                            d["t"], d["len_base"], d["len_src"], d["write_base_pos"], d["read_src_pos"]) for d in tr[:3]),
+                        int(p["y_src"].numel()), teacher))
         avg = ep_loss / max(len(pairs), 1)
         losses.append(avg)
         if log_fn and (ep % log_every == 0 or ep == epochs - 1):

@@ -128,7 +128,8 @@ def main():
     ap.add_argument("--split-wording", default="know_yn", choices=sorted(SPLIT_WORDINGS), help="pass-A question wording for the split protocol")
     ap.add_argument("--no-reestimate", action="store_true", help="use the E1 directions for every protocol instead of re-estimating them under each protocol's own prompt")
     args = ap.parse_args()
-    SPLIT_A.clear(); SPLIT_A.update(SPLIT_WORDINGS[args.split_wording])
+    chosen = dict(SPLIT_WORDINGS[args.split_wording])   # copy first: SPLIT_A *is* SPLIT_WORDINGS["know_yn"]; clear() would empty both (GPT review round 4)
+    SPLIT_A.clear(); SPLIT_A.update(chosen)
 
     exp = load_experiment(args.exp)
     if args.model:

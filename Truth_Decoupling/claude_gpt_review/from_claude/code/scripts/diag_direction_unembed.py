@@ -80,7 +80,7 @@ def main():
     exp = load_experiment(args.exp)
     mcfg = load_model_config(args.model)
     prompts = exp["prompts"]; st = prompts["statement"]
-    e22.SPLIT_A.clear(); e22.SPLIT_A.update(e22.SPLIT_WORDINGS[args.wording])
+    e22.SPLIT_A = dict(e22.SPLIT_WORDINGS[args.wording])   # rebind a copy; SPLIT_A is the same object as SPLIT_WORDINGS["know_yn"] (GPT review round 4)
     bundle = load_model(mcfg)
     norm, norm_attr = final_norm(bundle)
     tok = bundle.tokenizer

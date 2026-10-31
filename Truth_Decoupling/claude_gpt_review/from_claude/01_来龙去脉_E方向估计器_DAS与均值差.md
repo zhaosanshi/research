@@ -26,11 +26,40 @@
 
 **发现**：提示词修复通过代码审查。新问题：训练损失的 8 步里，从第 2 步起，读 source、写 base 的位置跟着拼接上的答案前缀后移到答案 token 上；而评测只在原始提示的末位置干预一次。训练损失混合了"回答前干预"和"答案已给出后在答案位置干预"两种条件。建议：保留 8 步损失，把读写位置固定在各自原始提示的末 token；验收看一对样本前三步，长度增长、索引不动。
 
-**核验**：成立。`multistep_kl_loss` 每步先 `_append_prefix`，再用 `[:, -1, :]` 读 source、写 base，所以第 t 步是在第 t 个答案 token 上换分量。这是 v12 的"连续模式"设计：旧协议评测是自由生成、每个解码步都干预，训练和评测在那时是一致的；最终协议只读首 token、只在提示末位置干预一次，不一致。影响：表 1（旧协议，生成式评测）训练与评测一致；表 2 和新一轮都按首 token 读，不一致。这也给 §4 的解释多了一个机制：从第 2 步起，换的是已经说出来的答案 token 上的表示，这会把 w 往"嘴"的方向拉。
+**核验**：成立。`multistep_kl_loss` 每步先 `_append_prefix`，再用 `[:, -1, :]` 读 source、写 base，所以第 t 步是在第 t 个答案 token 上换分量。这是 v12 的"连续模式"设计（v12 的评测是自由生成、每个解码步都干预）。**第 3 轮更正**：原先这里写"表 1（旧协议）训练与评测一致、不受影响"，核对代码后不成立——本仓库里表 1 的评测（`e7_multilayer.py` → `e2b_h1_rescue.run` → `core.intervene.next_token_logits`）同样只读首 token、只在提示末位置干预一次，所以位置错位**同样影响表 1**，表 2 和新一轮也受影响。另外旧训练日志显示实际教师步数平均 2.0–2.9 步（一词答案 + 结束符就停），不是 8 步：第 1 步在提示末（与评测一致），之后的 1–2 步在答案 token 上（不一致）。这也给 §4 的解释多了一个机制：从第 2 步起，换的是已经说出来的答案 token 上的表示，这会把 w 往"嘴"的方向拉。
 
 **处理**：`train_das` / `multistep_kl_loss` 新增 `anchor`。`prompt`：每一步都在原始提示的末 token（索引 len(prompt) − 1）读 source、写 base，答案前缀照常拼接，只用来观察这一次干预对后续输出的影响；`current`：旧行为。`e1_directions.py` 新增 `--das-anchor`，默认 `prompt`。**验收**：按 GPT 的要求，训练时记录第一对前三步的输入长度和读写索引并打印；`anchor=prompt` 下索引若在步间移动直接报错。文件名后缀自动带 `tf`（强制 True / False 提示）和 `cur`（旧锚点），新一轮文件形如 `das_E_L12_r1_s42_tf.pt`，全层扫描用 `--das-variant tf` 读取。
 
 **一次改两处的说明**：提示和位置这两处都是"训练与评测协议不一致"的修正，不是方法变体，所以第一轮重训同时含两处；若需要分离各自的贡献，可加跑 `--das-anchor current` 作对照（Llama 单种子约 1 小时）。
+
+### 第 3 轮（GPT，2026-11-01 01:08；原文 `from_gpt/review_20261101_03.md` 与 `verify_20261101_03.py`；审的是提交 9c5ccf7）
+
+**GPT 结论**：提示与位置两处修复的逻辑和代码通过，可以进入真实模型的少量样本验收。附一个不加载大模型的 CPU 验证脚本：用一个冻结的小型因果网络调用真实的 `directions.py` / `model_io.py`，断言假句长 3、真句长 4 时三步内长度增至 5 / 6 而写入索引恒为 2、读取索引恒为 3；实际被改的张量位置与日志一致；固定位置的 source 激活三步相同；方向梯度与数值差分一致；旧锚点仍后移；两轮更新后方向变、模型参数不变。两条保留：两处修复一起上，新旧差异不能单独归因；"旧评测是否自由生成"因快照缺 `e2b_h1_rescue.py` 无法核验，不据此宣布旧实验不受影响。
+
+**我们的核验**：
+
+- 本机没有 torch，把快照同步到服务器容器，用真实 torch（2.13）在 CPU 上跑 `verify_20261101_03.py`：**PASS**，各项数值与 GPT 描述一致。
+- GPT 的保留意见是对的，**我们此前的说法要更正**：本仓库表 1 的旧协议评测也是"只读首 token、只在提示末位置干预一次"，不是自由生成，所以位置错位同样影响表 1（详见第 2 轮核验里的更正）。"自由生成、每步干预"是 v12 时代的评测，本仓库没有沿用。
+- 旧训练日志里的实际教师步数平均 **2.0–2.9 步**，不是 8 步。错位的是第 2 步起的 1–2 步，占损失的一半到三分之二。此前"8 步里 7 步错位"的描述夸大了比例；错位本身成立。
+- 顺带发现我们自己代码的一个问题：`train_das` 里"锚点漂移就报错"的验收断言写在 `if log_fn:` 里，`log_fn=None` 时不检查（GPT 的验证脚本恰好传 `log_fn=None`，所以这条断言在它那里没有跑到）。已把断言移出日志条件；首对的教师 token 也随位置轨迹一起打印，验收时能直接看到"参考输出"是不是一词答案 + 结束符。
+- 补齐快照缺的 `core/{config,io_utils,layer_score,metrics,__init__}.py` 和 `scripts/e2b_h1_rescue.py`，下一轮可以直接核验旧评测的 `run` 和完整入口。
+
+### 第 4 轮（GPT，2026-11-01 01:36；原文 `from_gpt/review_20261101_04.md` 与 `verify_20261101_04.py`；GPT 直接改了代码，提交 4e93acf）
+
+**GPT 做了什么**：约定"读层（特征最容易读出的层）与写层（干预最有效的层）分开定，每层各训各评，不按训练损失或读出分数预先排除层"。① `e1_directions.py` 加 `--das-all-layers`（含首末层；与 `--das-layers`、`--das-topk` 互斥；校验层号；summary 多记 `num_layers`、`direction_prompt_allow_idk`、`layer_roles`、`das.E_trained_layers`）。② `e23_knob_sweep.py` 加 `--all-layers`；缺 DAS 文件改为立即报错而不是丢层；结果多记 `num_layers`、`tune_pairs`、`e_alphas` 等；把 `e22.SPLIT_A.clear(); update()` 改成赋值一个副本。③ 新脚本 `report_read_write_layers.py`：读层 = E1 探针分数最高层（并列保留），写层候选 = 调参集上 |Δ作答率| ≤ 0.03 内 ΔJ 最大（同 E23 现有规则），逐层列调参与测试结果，首末层或任一强度缺失则拒绝出报告，不算置信区间、不宣告 2×2。④ 10 项单测：真实 argparse 与选层表达式、合成数据上读写分离、缺层 / 缺强度 / 提示不符 / 种子不符拒绝、CLI 落盘与拒绝覆盖。
+
+**我们的核验（逐项）**：
+
+- `verify_20261101_04.py` 本机运行：**10 / 10 通过**。
+- GPT 改动与本地主代码的差异只有它声明的那几处（diff 核过），已接回主代码。`e_idk`、`summary["das"]` 都在使用点之前定义；`missing` 仍有初始化，`dropped_layers` 恒为空，无害。
+- 报告脚本读的字段逐一对过 E1 / E23 的真实输出：`summary.json` 的 `n_E`、`das.{variant,seeds,n_pairs,E_trained_layers}`；`layer_scores.json` 的 `E.rows[l].sep`（探针五折 AUROC，下限 0.5）；`knob_sweep_*.json` 的 `conds[name][A|B]`、`n_est`（192 句 = 96 对 × 2）、`das.per_layer[l].seeds`（整数）。**接口没有编造，能跑在真实输出上。**
+- `clear()` 隐患**属实**：`e22.SPLIT_A` 就是 `SPLIT_WORDINGS["know_yn"]` 这个对象，老写法在 `--wording know_yn` 下会先清空再"更新"回一个空字典。E23 默认 pik，旧结果不受影响；但 `e22_two_stage.py` 自己的入口（默认 know_yn）和 `diag_direction_unembed.py` 还留着同样的写法，GPT 没改到，已一并改掉。
+- GPT 的运行命令少一样东西：**同一口径下的均值差全层基线**。旧的均值差全层结果是分块跑再用 `e23_merge.py` 合并的，JSON 没有 `layers`、`num_layers`、`e_alphas` 等新字段，报告脚本读不了。处理：在同一新结果根目录下用新 `e23_knob_sweep.py --all-layers --e-estimator meandiff` 重跑一遍（代码路径、调参集抽样种子完全相同），报告脚本对两份输出各出一份再并排。
+- 为省时间的偏离：本审核点只问 E，两次 E23 扫描都加 `--skip-cp --no-cs` 不跑 C 条件（每层条件数 6 → 2，耗时约三分之一）；C 等 E 的估计器定下后再扫。
+- 教师步数的事实（第 3 轮）意味着 `T=8` 名义值下实际只有 2–3 步；更贴评测的变体是 `T=1`（只匹配首 token 分布），留作第二轮变体，第一轮不动。
+- 首末层也训也评：成本约多 6%，作为对照无害；最后一层的方向预计就是"嘴"（§4），正好是检验。
+
+**结论**：第 3、4 轮内容核验属实，代码可用。按约定先冒烟（Llama 一层、32 句），再三模型全层。
 
 ## 1. 背景：E、C、2×2 与读出方式
 
@@ -85,6 +114,8 @@ L = (1/T) Σ_{t<T} KL( p_src(· | y_<t) ‖ p_int(· | y_<t) )
 | Qwen3-1.7B | +0.074 | +0.005 | DAS 方向是偏置杆，B → 0.998 |
 | Gemma-3-12B | 零效果 | **没跑** | 见 §5a |
 
+> 更正（审核记录第 3 轮）：表 1 的 DAS 方向是在旧锚点下训的（第 2 步起在答案 token 上换分量），而表 1 的评测同样只在提示末位置干预一次，所以表 1 的 DAS 数字也带位置错位，不能当作估计器本身的结论。
+
 **表 2：新读出协议（E22，问法 A 用"sure"措辞），α=3，变化量相对基线。** 文件：`two_stage_sure.md`（均值差）、`two_stage_das.md`（DAS）。
 
 | 模型 | 方向 | ΔJ | ΔAUROC | ΔB | Δ作答率 |
@@ -135,7 +166,7 @@ L = (1/T) Σ_{t<T} KL( p_src(· | y_<t) ‖ p_int(· | y_<t) )
 ### 7.1 `code/core/directions.py`
 
 - `_interchange_hook_factory(W_fn, src_act_holder, positions)`：新增 `positions="all"`，把 source 末 token 的投影 z_src 钳到 base 所有位置：`delta = (z_src[:, None] − h @ W) @ Wᵀ`。对子是逐条编码的，没有 padding。
-- `multistep_kl_loss(..., anchor)` 与 `_interchange_hook_factory(..., write_pos)`：`anchor="prompt"` 时每步在原始提示末 token（`len(prompt) − 1`）读 source、写 base，`anchor="current"` 为旧行为；`trace` 记录每步的长度与读写索引，`train_das` 打印第一对前三步并在 `prompt` 锚点下校验索引不动（第 2 轮审核）。
+- `multistep_kl_loss(..., anchor)` 与 `_interchange_hook_factory(..., write_pos)`：`anchor="prompt"` 时每步在原始提示末 token（`len(prompt) − 1`）读 source、写 base，`anchor="current"` 为旧行为；`trace` 记录每步的长度与读写索引，`train_das` 打印第一对前三步并在 `prompt` 锚点下校验索引不动（第 2 轮审核）；第 3 轮后该校验不再依赖 `log_fn`，并把首对的教师 token 解码后一起打印。
 - `_divergence(int_logits, src_logits, kind)`：`kl` 为原来的前向 KL；`jsd` 用对数空间算混合分布 `logm = logsumexp([logp_int, logp_src]) − log 2`，再 `0.5·KL(p_int‖m) + 0.5·KL(p_src‖m)`。依赖 `F.kl_div(input=log q, target=log p, log_target=True) == KL(p‖q)`。
 - `multistep_kl_loss(..., loss, positions, base_key, source_key)`：名字没改；`base_key / source_key` 让调用方交换两句的角色。
 - `train_das(..., loss, bidirectional, positions, pair_weights, trim)`：双向时 D⁺ 用 source 的贪心 token 做 teacher forcing，D⁻ 用 base 自己的贪心 token，各乘 0.5 分别 backward 再一起 step（峰值显存只有一项）；`pair_weights` 逐对乘到损失上；`trim` 只作用于 `mean_gap`（DAS 里唯一的"激活差均值"）。
@@ -143,11 +174,11 @@ L = (1/T) Σ_{t<T} KL( p_src(· | y_<t) ‖ p_int(· | y_<t) )
 
 ### 7.2 `code/scripts/e1_directions.py`
 
-新参数 `--das-seeds 42 43 44`、`--das-loss`、`--das-bidir`、`--das-positions`、`--das-balance`、`--das-trim 0.1`、`--das-variant`、`--trim`，以及 `--direction-prompt {config,tf,idk}`（估 E 和训 DAS 用哪种陈述提示；`tf` = 最终协议的无 Unknown 提示；默认沿用配置）。变体文件名加后缀，例如 `das_E_L12_r1_s43_jsd-bidir-allpos.pt`；默认变体文件名与旧版完全一致。平衡加权的"类别"取记录里 `meta.category`（TruthfulQA 自带的 38 个类别），"长度"取真假两句 token 数之和的三分位。多种子时记录种子间 |cos|。
+新参数 `--das-seeds 42 43 44`、`--das-loss`、`--das-bidir`、`--das-positions`、`--das-balance`、`--das-trim 0.1`、`--das-variant`、`--trim`，以及 `--direction-prompt {config,tf,idk}`（估 E 和训 DAS 用哪种陈述提示；`tf` = 最终协议的无 Unknown 提示；默认沿用配置）、`--das-anchor {prompt,current}`（第 2 轮）、`--das-all-layers`（第 4 轮，GPT 加：全部层各训一个方向，含首末层）。变体文件名加后缀，例如 `das_E_L12_r1_s43_jsd-bidir-allpos.pt`；默认变体文件名与旧版完全一致。平衡加权的"类别"取记录里 `meta.category`（TruthfulQA 自带的 38 个类别），"长度"取真假两句 token 数之和的三分位。多种子时记录种子间 |cos|。
 
 ### 7.3 `code/scripts/e23_knob_sweep.py`
 
-`--e-estimator das --das-dir <目录> [--das-variant <后缀>]`：每层读入该层所有种子的 DAS 方向，与均值差方向对齐符号后平均，其余流程与均值差完全相同（同中点、同算子、同规则选层）。某层没有 DAS 文件则该层整体丢弃并打印。`--plan-split` 跑原方案的 32 / 64 / 其余切分。
+`--e-estimator das --das-dir <目录> [--das-variant <后缀>]`：每层读入该层所有种子的 DAS 方向，与均值差方向对齐符号后平均，其余流程与均值差完全相同（同中点、同算子、同规则选层）。某层没有 DAS 文件直接报错（第 4 轮 GPT 改，原先是丢弃该层）。`--all-layers`（第 4 轮 GPT 加）对每一层各自干预；`--plan-split` 跑原方案的 32 / 64 / 其余切分。
 
 ### 7.4 `code/scripts/diag_direction_unembed.py`（新）
 
@@ -164,18 +195,31 @@ L = (1/T) Σ_{t<T} KL( p_src(· | y_<t) ‖ p_int(· | y_<t) )
 7. e23 里 DAS 方向配的中点 c 仍是估计集真假两类均值的中点。DAS 自己没有中点，这样配合理吗？
 8. 诊断脚本忽略了 Gemma 的 logit softcapping（单调，不改名次）；"前 20 名算嘴"是拍的。
 
-## 8. 运行计划与成本
+### 7.6 `code/scripts/report_read_write_layers.py`（第 4 轮，GPT 写）
 
-0. **诊断（几分钟）**：Llama、Qwen 现有的全层 DAS 方向与均值差方向过输出层。
+只用标准库。输入同一轮的 E1 `summary.json` / `layer_scores.json` 和一份覆盖全部层的 E23 JSON；先核对模型名、层数、提示选项、估计集规模、DAS 变体 / 层覆盖 / 种子是否一致，不一致就拒绝。读层 = 探针分数最高层（并列保留）；每层按调参集规则（|Δ作答率| ≤ 0.03 内 ΔJ 最大，强度并列取小）选一个配置，再跨层取调参 ΔJ 最大者为写层候选（并列取浅层）；逐层列调参与测试的 ΔJ / ΔAUROC / Δ作答率 / ΔB；输出 `.json` 与 `.md`，拒绝覆盖已有文件。
+
+## 8. 运行计划与成本（第 4 轮后的版本）
+
+一律在独立的新结果根目录下跑（`TD_RESULTS_DIR`），不与旧结果混。三模型各占一张卡。
+
+0. **诊断（几分钟，不占卡）**：Llama、Qwen 现有的全层 DAS 方向与均值差方向过输出层。
    `python3 scripts/diag_direction_unembed.py --model llama3.1-8b --e1-dir results_tqa/E1/llama3.1-8b --das-dir results_das/E1/llama3.1-8b`
-1. **重训 DAS，第一轮只做两处协议对齐**（提示 = 评测提示；读写位置 = 提示末 token），三个模型全层，其余训练设置与旧版相同（单种子、KL、单位置）：
-   `python3 scripts/e1_directions.py --exp E1_directions_tqa --model <m> --direction-prompt tf --das-anchor prompt --das-tags E --das-pairs 96 --das-layers <1..L−2>`
-   输出文件 `das_E_L<l>_r1_s42_tf.pt`。先用 `--limit 4 --das-layers 12` 跑一次冒烟，检查打印出的位置轨迹（长度增长、索引不动）。
-   第二轮再加方案规格：`--das-seeds 42 43 44 --das-balance --das-trim 0.1`（文件名后缀 `tf-bal-trim0.1`，与第一轮并存）。
-   估算：Llama 30 层单种子约 1 到 1.5 小时单卡，三种子约 3 到 4 小时；Gemma-12B 46 层三种子约 9 小时单卡；四卡分层并行。
-2. **最终口径下重比**：`e23_knob_sweep.py --tune-pairs 192 --e-estimator das --das-dir <第 1 步的输出目录> --das-variant tf`（第二轮 `--das-variant tf-bal-trim0.1`），与均值差、探针各一轮，`e23_merge.py` 合并，同一规则选层。
-3. **CDAS 式变体**（`--das-loss jsd --das-bidir --das-positions all`）先在 Llama 单种子跑，看方向和效果有没有变化，再决定要不要扩到三个模型。
-4. **泛化测试**（下一个审核点）：各种 E 都搬到 HaluEval、BBQ、知识集，看谁搬得动。均值差 E 已知搬不动；DAS E 没测过。
+1. **冒烟（Llama 一层、32 句，根目录 `results_smoke_das_tf`）**：
+   `python3 scripts/e1_directions.py --exp E1_directions_tqa --model llama3.1-8b --direction-prompt tf --das-anchor prompt --das-tags E --das-pairs 96 --das-layers 12 --limit 32`
+   看三样：打印的教师 token（应为一词答案 + 结束符）、位置轨迹（长度增长、索引不动，否则直接报错）、训出的方向与均值差的余弦。
+2. **全层重训，第一轮只做两处协议对齐**（提示 = 评测提示；读写位置 = 提示末 token），其余训练设置与旧版相同（单种子、KL、单位置；`T=8` 名义，实际 2–3 步）：
+   `python3 scripts/e1_directions.py --exp E1_directions_tqa --model <m> --direction-prompt tf --das-anchor prompt --das-tags E --das-pairs 96 --das-all-layers`
+   输出 `E1/<m>/das_E_L<l>_r1_s42_tf.pt`（Llama 32、Qwen 36、Gemma 48 个）。估算单卡：Llama 约 1 小时，Qwen 约 1.2 小时，Gemma-12B 约 3 到 4 小时。
+3. **同一口径下两份全层扫描（只跑 E 条件，192 对调参、529 对测试）**：
+   `python3 scripts/e23_knob_sweep.py --exp E2b_tqa --model <m> --all-layers --tune-pairs 192 --skip-cp --no-cs --e-estimator das --das-dir $TD_RESULTS_DIR/E1/<m> --das-variant tf --tag das_tf_full`
+   `python3 scripts/e23_knob_sweep.py --exp E2b_tqa --model <m> --all-layers --tune-pairs 192 --skip-cp --no-cs --e-estimator meandiff --tag meandiff_full`
+   每份估算单卡：Llama 约 0.5 小时，Gemma 约 1.5 小时。
+4. **读写层对照报告（CPU）**：
+   `python3 scripts/report_read_write_layers.py --e1-dir $TD_RESULTS_DIR/E1/<m> --sweep $TD_RESULTS_DIR/E23/<m>/knob_sweep_das_tf_full.json --out $TD_RESULTS_DIR/E23/<m>/read_write_das_tf`
+   均值差同理（`knob_sweep_meandiff_full.json` → `read_write_meandiff`）。两份并排就是本审核点的主表：同层、同强度、同中点、同规则下 DAS 与均值差的 ΔJ / ΔAUROC / Δ作答率 / ΔB（调参集与测试集）。
+5. **第二轮变体（按第一轮结果决定）**：方案规格 `--das-seeds 42 43 44 --das-balance --das-trim 0.1`（后缀 `tf-bal-trim0.1`）；`T=1`（只匹配首 token）；旧锚点对照 `--das-anchor current`（后缀 `tf-cur`，用于分离两处修复各自的贡献）；CDAS 式 `--das-loss jsd --das-bidir --das-positions all`（先 Llama 单种子）。
+6. **泛化测试**（下一个审核点）：各种 E 都搬到 HaluEval、BBQ、知识集，看谁搬得动。均值差 E 已知搬不动；DAS E 没测过。
 
 ## 9. 请你回答
 
