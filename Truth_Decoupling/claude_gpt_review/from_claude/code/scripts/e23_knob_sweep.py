@@ -44,7 +44,10 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--exp", default="E2b_tqa")
     ap.add_argument("--model", required=True)
-    ap.add_argument("--layers", nargs="+", type=int, required=True)
+    layer_choice = ap.add_mutually_exclusive_group(required=True)
+    layer_choice.add_argument("--layers", nargs="+", type=int)
+    layer_choice.add_argument("--all-layers", action="store_true",
+                             help="evaluate a separate intervention at every loaded decoder layer, including first and last")
     ap.add_argument("--e-alphas", nargs="+", type=float, default=[2.0, 3.0])
     ap.add_argument("--c-alphas", nargs="+", type=float, default=[1.0, 2.0])
     ap.add_argument("--wording", default="pik")
@@ -65,7 +68,7 @@ def main():
     args = ap.parse_args()
     if args.e_estimator == "das" and not args.das_dir:
         raise SystemExit("--e-estimator das needs --das-dir")
-    e22.SPLIT_A.clear(); e22.SPLIT_A.update(e22.SPLIT_WORDINGS[args.wording])
+    e22.SPLIT_A = dict(e22.SPLIT_WORDINGS[args.wording])
 
     exp = load_experiment(args.exp)
     mcfg = load_model_config(args.model)
@@ -108,8 +111,10 @@ def main():
     dB = [tf_prompt(bundle, prompts, r["text"], allow_idk=False) for r in dev]
     conf = [bundle.build_chat(cc["confident_system"], e22.split_user(r, e22.SPLIT_A["instr"])) for r in est]
     caut = [bundle.build_chat(cc["cautious_system"], e22.split_user(r, e22.SPLIT_A["instr"])) for r in est]
-    L = args.layers
+    L = list(range(bundle.num_layers)) if args.all_layers else args.layers
     Lall = sorted(set(L) | {l for sp in spans for l in sp})      # directions needed at every layer any candidate touches
+    if len(set(L)) != len(L) or any(l < 0 or l >= bundle.num_layers for l in Lall):
+        raise ValueError("requested layers must be unique valid decoder indices")
 
     # ---- activations on the estimation set ----------------------------- #
     aB, _ = capture_last_token(bundle, eB, Lall, components=("resid",), batch_size=bs)
@@ -132,9 +137,8 @@ def main():
         elif args.e_estimator == "das":                       # DAS direction trained at this layer; seeds averaged, sign-aligned to mean-diff (true = positive)
             wD, das_meta = load_das_direction(args.das_dir, "E", l, variant=args.das_variant, align_to=wE)
             if wD is None:
-                print("L%02d  no DAS direction in %s (variant %r) -- layer dropped" % (l, args.das_dir, args.das_variant), flush=True)
-                missing.add(l)
-                continue
+                raise FileNotFoundError("missing DAS direction at layer %d in %s (variant %r); refusing an incomplete layer comparison"
+                                        % (l, args.das_dir, args.das_variant))
             wE = wD
             print("L%02d  DAS: %d seed(s), final loss %s, cos(seed, mean) %s, cos(DAS, meandiff) %+.3f" % (
                 l, das_meta["n_seeds"], ["%.4f" % x for x in das_meta["final_losses"]], ["%.3f" % x for x in das_meta["cos_seed_vs_mean"]], das_meta["cos_with_align_to"]), flush=True)
@@ -147,13 +151,6 @@ def main():
             wCs, cosCs, gCs = None, float("nan"), float("nan")
         dirs[l] = {"wE": wE, "cA": cA, "cB": cB, "wCp": wCp, "gCp": float(mCp["gap"]), "cosCp": cosCp, "wCs": wCs, "gCs": gCs, "cosCs": cosCs, "das_meta": das_meta}
         print("L%02d  gap_Cprompt %.2f cos(Cp,E) %+.3f | gap_Cself %.2f cos(Cs,E) %+.3f" % (l, mCp["gap"], cosCp, gCs, cosCs), flush=True)
-    if missing:                                                # layers without a DAS direction carry no conditions at all (E or C)
-        L = [l for l in L if l not in missing]
-        spans = [sp for sp in spans if not (set(sp) & missing)]
-        print("layers without DAS directions dropped: %s -> remaining %s, spans %s" % (sorted(missing), L, spans), flush=True)
-        if not L and not spans:
-            raise SystemExit("no DAS direction found for any requested layer in %s" % args.das_dir)
-
     # ---- conditions -------------------------------------------------------- #
     conds = [("baseline", None, None)]
     for l in L:
@@ -185,6 +182,10 @@ def main():
         return e22.tf_scores(lg, lab_map)
 
     res = {"model": mcfg["name"], "n": len(recs), "n_est": len(est), "layers": L, "conds": {},
+           "num_layers": bundle.num_layers, "all_layers_requested": args.all_layers,
+           "tune_pairs": args.tune_pairs, "teacher_split": args.teacher_split,
+           "wording": args.wording, "direction_prompt_allow_idk": False,
+           "e_alphas": args.e_alphas,
            "e_estimator": args.e_estimator,
            "das": ({"dir": args.das_dir, "variant": args.das_variant, "dropped_layers": sorted(missing),
                     "per_layer": {str(l): dirs[l]["das_meta"] for l in dirs}} if args.e_estimator == "das" else None)}

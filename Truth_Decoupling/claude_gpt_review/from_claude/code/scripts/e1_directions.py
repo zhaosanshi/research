@@ -40,12 +40,15 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--exp", default="E1_directions")
     ap.add_argument("--model", default=None, help="override experiment model")
-    ap.add_argument("--das-topk", type=int, default=0)
+    layer_choice = ap.add_mutually_exclusive_group()
+    layer_choice.add_argument("--das-topk", type=int, default=0)
     ap.add_argument("--das-tags", default="C,E", help="which directions to fit with DAS (comma list of C,E); E alone halves the cost")
     ap.add_argument("--das-pairs", type=int, default=None, help="number of estimation pairs for DAS (default: experiment das.n_train_pairs); "
                     "set to the full calib+dev pair count so DAS and mean-diff see the same data")
-    ap.add_argument("--das-layers", nargs="*", type=int, default=None,
+    layer_choice.add_argument("--das-layers", nargs="+", type=int, default=None,
                     help="explicit layers for DAS (overrides the LA-Score top-k choice)")
+    layer_choice.add_argument("--das-all-layers", action="store_true",
+                    help="fit a separate DAS direction at EVERY loaded decoder layer, including first and last; do not preselect by readout score")
     ap.add_argument("--limit", type=int, default=None, help="limit statements per contrast (debug)")
     # DAS variants (2026-10-31). Defaults reproduce the previous behaviour and file names exactly.
     ap.add_argument("--das-seeds", nargs="*", type=int, default=None, help="DAS seeds (default: the experiment seed only); the plan's setting is 42 43 44")
@@ -80,6 +83,9 @@ def main():
 
     bundle = load_model(mcfg)
     layers = list(range(bundle.num_layers))
+    if args.das_layers is not None and (len(set(args.das_layers)) != len(args.das_layers)
+                                       or not set(args.das_layers).issubset(layers)):
+        raise ValueError("--das-layers must contain unique indices in [0, %d)" % bundle.num_layers)
     bs = exp.get("batch_size", 8)
 
     # ---- E contrast ------------------------------------------------------- #
@@ -166,6 +172,10 @@ def main():
 
     summary = {
         "experiment": exp_name("E1", model=mcfg["name"], s=seed), "model": mcfg["name"], "started": now_iso(),
+        "num_layers": bundle.num_layers, "direction_prompt_allow_idk": e_idk,
+        "layer_roles": {"read": "probe separability on estimation data",
+                        "score_proposed_write": "LA-Score proposal only; not measured intervention benefit",
+                        "measured_write": "selected later by E23 tuning-set intervention results"},
         "n_E": [len(e_pos), len(e_neg)], "n_C": len(conf_texts), "rows": rows, "null_cos_p99": null_cos_p99,
         "label_token_map": lab_map,
         "E_read_layer": scores_E["read_layer"], "E_write_layer": scores_E["write_layer"], "E_delta": scores_E["delta_read_write"],
@@ -174,7 +184,7 @@ def main():
     }
 
     # ---- optional DAS at top-k layers ------------------------------------ #
-    if args.das_topk > 0 or args.das_layers:
+    if args.das_all_layers or args.das_topk > 0 or args.das_layers:
         das_cfg = exp.get("das", {})
         n_pairs = args.das_pairs or das_cfg.get("n_train_pairs", 64)
         def n_tok(text):
@@ -225,7 +235,9 @@ def main():
             if weights is not None:
                 print("  [DAS %s] balanced weights over %d cells: min %.3f max %.3f" % (
                     tag, len(set((k[0], b) for k, b in zip(keys, length_bins([k[1] for k in keys], 3)))), min(weights), max(weights)), flush=True)
-            for l in (args.das_layers if args.das_layers else top_k_layers(sc, args.das_topk)):
+            train_layers = layers if args.das_all_layers else (args.das_layers if args.das_layers else top_k_layers(sc, args.das_topk))
+            summary["das"]["%s_trained_layers" % tag] = list(train_layers)
+            for l in train_layers:
                 ws = []
                 for s in seeds:
                     res = train_das(bundle, pairs, l, rank=das_cfg.get("rank", 1), T=das_cfg.get("T", 8),
