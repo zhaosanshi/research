@@ -54,7 +54,12 @@ def main():
     ap.add_argument("--das-positions", choices=["last", "all"], default="last", help="clamp the last position only (one-to-one) or every base position with the source's last-token projection (CDAS one-to-many)")
     ap.add_argument("--das-balance", action="store_true", help="inverse-frequency pair weights so every (category, length tertile) cell carries equal weight")
     ap.add_argument("--das-trim", type=float, default=0.0, help="trimmed-mean fraction for the DAS mean projection gap (0.1 = drop 10%% of each tail)")
-    ap.add_argument("--das-variant", default=None, help="file-name suffix for non-default DAS variants (default: derived from the flags, e.g. jsd-bidir-allpos)")
+    ap.add_argument("--das-anchor", choices=["prompt", "current"], default="prompt",
+                    help="where the interchange reads the source and writes the base at every teacher-forced step: 'prompt' = the original "
+                         "prompts' last token, fixed while the answer prefix grows (= the evaluation's intervention position; GPT review "
+                         "2026-11-01 round 2); 'current' = the growing sequence's last token (v12 behaviour, swaps answer tokens from step 2 on)")
+    ap.add_argument("--das-variant", default=None, help="file-name suffix for non-default DAS variants (default: derived from the flags, "
+                    "e.g. tf-jsd-bidir-allpos; 'tf' marks the forced True/False estimation prompt, 'cur' the v12 anchor)")
     ap.add_argument("--trim", type=float, default=0.0, help="trimmed-mean fraction for the mean-difference directions and centres (default 0 = plain mean)")
     ap.add_argument("--direction-prompt", choices=["config", "tf", "idk"], default="config",
                     help="statement prompt under which E (mean-diff AND the DAS pairs) is estimated: 'tf' = forced True/False, i.e. the final "
@@ -199,13 +204,15 @@ def main():
 
         seeds = args.das_seeds or [seed]
         variant = args.das_variant if args.das_variant is not None else "-".join(
-            ([args.das_loss] if args.das_loss != "kl" else []) + (["bidir"] if args.das_bidir else [])
+            (["tf"] if not e_idk else []) + (["cur"] if args.das_anchor == "current" else [])
+            + ([args.das_loss] if args.das_loss != "kl" else []) + (["bidir"] if args.das_bidir else [])
             + (["allpos"] if args.das_positions == "all" else []) + (["bal"] if args.das_balance else [])
             + (["trim%g" % args.das_trim] if args.das_trim > 0 else []))
         summary["das"] = {"variant": variant, "seeds": seeds, "loss": args.das_loss, "bidirectional": bool(args.das_bidir),
-                          "positions": args.das_positions, "balanced": bool(args.das_balance), "trim": args.das_trim, "n_pairs": {}}
-        print("[DAS] variant=%r seeds=%s loss=%s bidir=%s positions=%s balanced=%s trim=%g" % (
-            variant, seeds, args.das_loss, args.das_bidir, args.das_positions, args.das_balance, args.das_trim), flush=True)
+                          "positions": args.das_positions, "anchor": args.das_anchor, "prompt_allow_idk": e_idk,
+                          "balanced": bool(args.das_balance), "trim": args.das_trim, "n_pairs": {}}
+        print("[DAS] variant=%r seeds=%s loss=%s bidir=%s positions=%s anchor=%s prompt_allow_idk=%s balanced=%s trim=%g" % (
+            variant, seeds, args.das_loss, args.das_bidir, args.das_positions, args.das_anchor, e_idk, args.das_balance, args.das_trim), flush=True)
         das_tags = [t.strip() for t in args.das_tags.split(",") if t.strip()]
         for tag, pairs, keys, sc in (("C", pairs_C, keys_C, scores_C), ("E", pairs_E, keys_E, scores_E)):
             if tag not in das_tags:
@@ -224,7 +231,7 @@ def main():
                     res = train_das(bundle, pairs, l, rank=das_cfg.get("rank", 1), T=das_cfg.get("T", 8),
                                     epochs=das_cfg.get("epochs", 10), lr=das_cfg.get("lr", 1e-3), seed=s,
                                     loss=args.das_loss, bidirectional=args.das_bidir, positions=args.das_positions,
-                                    pair_weights=weights, trim=args.das_trim)
+                                    pair_weights=weights, trim=args.das_trim, anchor=args.das_anchor)
                     w = res["W"][:, 0].numpy()
                     ws.append(w)
                     torch.save(res, os.path.join(out_dir, das_file_name(tag, l, res["rank"], s, variant)))

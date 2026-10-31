@@ -25,6 +25,11 @@ Variants of the DAS objective (2026-10-31; all default to the v12 behaviour abov
                         projection (CDAS one-to-many) instead of the last position only
     pair_weights        per-pair loss weights (balanced by category x length cell, see balanced_pair_weights)
     trim                trimmed-mean fraction for the mean projection gap
+    anchor="prompt"     read the source projection and write the base at the ORIGINAL prompts' last token at every
+                        teacher-forced step (the position the evaluation intervenes at); the appended answer prefix
+                        only observes the downstream effect. anchor="current" is v12: follow the growing sequence's
+                        last position, i.e. from step 2 on the swap happens on already-emitted answer tokens
+                        (GPT review round 2, 2026-11-01).
 """
 import math
 import re
@@ -218,13 +223,14 @@ class OrthoBasis:
         return self().detach().float().cpu()
 
 
-def _interchange_hook_factory(W_fn, src_act_holder, positions="last"):
-    """Forward hook: replace the W-subspace component of the base with the source's last-token value.
+def _interchange_hook_factory(W_fn, src_act_holder, positions="last", write_pos=-1):
+    """Forward hook: replace the W-subspace component of the base with the source's value.
 
     W_fn returns the current orthonormal basis [d, r] (float32, requires grad).
-    src_act_holder["h"] is the source activation at its last token, [B, d] (float32, same device).
-    positions="last": only the base's last position is changed (one-to-one; the v12 default).
-    positions="all" : every position of the base sequence takes the source's last-token projection
+    src_act_holder["h"] is the source activation at its read position, [B, d] (float32, same device).
+    positions="last": only one base position is changed, index `write_pos` (-1 = the sequence's last token, v12;
+                      the original prompt's last token under anchor="prompt").
+    positions="all" : every position of the base sequence takes the source's projection
                       (CDAS-style one-to-many clamp). Pairs are encoded one at a time, so there is no padding.
     """
     import torch
@@ -235,10 +241,10 @@ def _interchange_hook_factory(W_fn, src_act_holder, positions="last"):
         src = src_act_holder["h"].to(h.device).float()    # [B, d]
         z_src = src @ W                                   # [B, r]
         if positions == "last":
-            h_last = h[:, -1, :].float()                  # [B, d]
-            delta = (z_src - h_last @ W) @ W.T            # [B, d]  == ((src - h_last) @ W) @ W.T
+            h_pos = h[:, write_pos, :].float()            # [B, d]
+            delta = (z_src - h_pos @ W) @ W.T             # [B, d]  == ((src - h_pos) @ W) @ W.T
             h_new = h.clone()
-            h_new[:, -1, :] = (h_last + delta).to(h.dtype)
+            h_new[:, write_pos, :] = (h_pos + delta).to(h.dtype)
         else:
             hf = h.float()                                # [B, T, d]
             delta = (z_src.unsqueeze(1) - hf @ W) @ W.T   # [B, T, d]
@@ -290,24 +296,39 @@ def _divergence(int_logits, src_logits, kind="kl"):
 
 
 def multistep_kl_loss(bundle, basis, pair, layer, y_src, T, loss="kl", positions="last",
-                      base_key="base", source_key="source"):
+                      base_key="base", source_key="source", anchor="current", trace=None):
     """One pair's teacher-forced multi-step divergence between p_int(base <- source) and p_src.
 
     y_src are the source's own greedy tokens (teacher forcing). base_key / source_key let the caller swap
     the roles of the two prompts (the D- term of the bidirectional objective). Name kept for compatibility;
-    loss="kl" reproduces v12 exactly.
+    loss="kl", anchor="current" reproduces v12 exactly.
+
+    anchor="prompt" : read the source and write the base at their ORIGINAL prompts' last token (index
+                      len(prompt) - 1, fixed while the teacher prefix grows) -- the position the evaluation
+                      intervenes at. The next-token distributions compared are still those at the current last
+                      position, so steps >= 1 measure the downstream effect of that one intervention.
+    anchor="current": read/write at the growing sequence's last token (from step 1 on: an answer token).
+    trace: optional list; one dict per step with lengths and read/write indices (acceptance check).
     """
     from .model_io import capture_hooks, forward_logits
 
     total, n_steps = 0.0, 0
     holder = {}
+    len_b, len_s = int(pair[base_key]["input_ids"].shape[1]), int(pair[source_key]["input_ids"].shape[1])
     for t in range(min(T, int(y_src.numel()))):
         base_t = _append_prefix(pair[base_key], y_src[:t])
         src_t = _append_prefix(pair[source_key], y_src[:t])
-        with capture_hooks(bundle, [layer], ("resid",)) as store:
+        if anchor == "prompt":
+            pos_s, pos_b = len_s - 1, len_b - 1
+        else:
+            pos_s, pos_b = int(src_t["input_ids"].shape[1]) - 1, int(base_t["input_ids"].shape[1]) - 1
+        if trace is not None:
+            trace.append({"t": t, "len_base": int(base_t["input_ids"].shape[1]), "len_src": int(src_t["input_ids"].shape[1]),
+                          "read_src_pos": pos_s, "write_base_pos": pos_b})
+        with capture_hooks(bundle, [layer], ("resid",), position="all") as store:
             src_logits = forward_logits(bundle, src_t, grad=False)[:, -1, :].float()
-        holder["h"] = store[("resid", layer)].to(bundle.device)
-        handle = bundle.layer(layer).register_forward_hook(_interchange_hook_factory(basis, holder, positions))
+        holder["h"] = store[("resid", layer)][:, pos_s, :].detach().float().to(bundle.device)
+        handle = bundle.layer(layer).register_forward_hook(_interchange_hook_factory(basis, holder, positions, write_pos=pos_b))
         try:
             int_logits = forward_logits(bundle, base_t, grad=True)[:, -1, :].float()
         finally:
@@ -319,13 +340,15 @@ def multistep_kl_loss(bundle, basis, pair, layer, y_src, T, loss="kl", positions
 
 def train_das(bundle, pairs, layer, rank=1, T=8, epochs=10, lr=1e-3, seed=42, clip=1.0,
               log_every=1, log_fn=print, loss="kl", bidirectional=False, positions="last",
-              pair_weights=None, trim=0.0):
-    """Rank-r DAS at `layer` on `pairs` (each: {"base": inputs, "source": inputs}).
+              pair_weights=None, trim=0.0, anchor="current"):
+    """Rank-r DAS at `layer` on `pairs` (each: {"base": inputs, "source": inputs}, batch size 1 each).
 
-    Defaults reproduce v12 (forward KL, base <- source only, last position, unweighted, plain mean gap).
-    loss / bidirectional / positions / pair_weights / trim: see the module docstring.
+    Defaults reproduce v12 (forward KL, base <- source only, current last position, unweighted, plain mean gap).
+    loss / bidirectional / positions / pair_weights / trim / anchor: see the module docstring.
     Returns dict: W [d, r] float32 cpu, losses per epoch, mean_gap (mean of z_src - z_base over training
-    pairs at t=0; the natural unit for source-free steering), gap_std, n_pairs and the variant settings.
+    pairs at t=0; the natural unit for source-free steering), gap_std, n_pairs, the variant settings and
+    `position_trace` (lengths and read/write indices of the first pair's first steps; with anchor="prompt"
+    the indices must stay fixed while the lengths grow).
     """
     import torch
     from .io_utils import set_seed
@@ -333,6 +356,9 @@ def train_das(bundle, pairs, layer, rank=1, T=8, epochs=10, lr=1e-3, seed=42, cl
 
     if pair_weights is not None and len(pair_weights) != len(pairs):
         raise ValueError("pair_weights has %d entries for %d pairs" % (len(pair_weights), len(pairs)))
+    for p in pairs:
+        if p["base"]["input_ids"].shape[0] != 1 or p["source"]["input_ids"].shape[0] != 1:
+            raise ValueError("DAS pairs must be encoded one sequence at a time (no padding): position indices assume batch size 1")
     wts = [1.0] * len(pairs) if pair_weights is None else [float(x) for x in pair_weights]
     set_seed(seed)
     basis = OrthoBasis(bundle.hidden_size, rank, seed=seed, device=bundle.device)
@@ -346,18 +372,21 @@ def train_das(bundle, pairs, layer, rank=1, T=8, epochs=10, lr=1e-3, seed=42, cl
             p["y_base"] = teacher_tokens(bundle, p["base"], T)
 
     losses = []
+    position_trace = []
     for ep in range(epochs):
         ep_loss, ep_steps = 0.0, 0
-        for p, wt in zip(pairs, wts):
+        for i, (p, wt) in enumerate(zip(pairs, wts)):
             opt.zero_grad()
+            tr = position_trace if (ep == 0 and i == 0) else None      # acceptance trace: first pair, first epoch
             # D+: base <- source, match the source's distribution. Backward per term keeps peak memory at one term.
-            l_fwd, n_steps = multistep_kl_loss(bundle, basis, p, layer, p["y_src"], T, loss=loss, positions=positions)
+            l_fwd, n_steps = multistep_kl_loss(bundle, basis, p, layer, p["y_src"], T, loss=loss, positions=positions,
+                                               anchor=anchor, trace=tr)
             (wt * (0.5 if bidirectional else 1.0) * l_fwd).backward()
             loss_val = float(l_fwd.item())
             if bidirectional:
                 # D-: source <- base, match the base's own distribution (teacher-forced on the base's tokens)
                 l_rev, n_rev = multistep_kl_loss(bundle, basis, p, layer, p["y_base"], T, loss=loss, positions=positions,
-                                                 base_key="source", source_key="base")
+                                                 base_key="source", source_key="base", anchor=anchor)
                 (wt * 0.5 * l_rev).backward()
                 loss_val = 0.5 * (loss_val + float(l_rev.item()))
                 n_steps += n_rev
@@ -365,11 +394,17 @@ def train_das(bundle, pairs, layer, rank=1, T=8, epochs=10, lr=1e-3, seed=42, cl
             opt.step()
             ep_loss += loss_val
             ep_steps += n_steps
+            if tr is not None and log_fn:
+                log_fn("  [DAS L%d anchor=%s] position trace, first pair: %s" % (
+                    layer, anchor, "; ".join("t=%d len(base,src)=(%d,%d) write_base=%d read_src=%d" % (
+                        d["t"], d["len_base"], d["len_src"], d["write_base_pos"], d["read_src_pos"]) for d in tr[:3])))
+                if anchor == "prompt" and len({(d["write_base_pos"], d["read_src_pos"]) for d in tr}) != 1:
+                    raise RuntimeError("anchor=prompt but read/write indices moved across steps: %s" % tr)
         avg = ep_loss / max(len(pairs), 1)
         losses.append(avg)
         if log_fn and (ep % log_every == 0 or ep == epochs - 1):
-            log_fn("  [DAS L%d r%d %s%s%s] epoch %d/%d loss=%.6f (avg %.1f teacher steps)" % (
-                layer, rank, loss, "+bidir" if bidirectional else "", "+allpos" if positions == "all" else "",
+            log_fn("  [DAS L%d r%d %s%s%s anchor=%s] epoch %d/%d loss=%.6f (avg %.1f teacher steps)" % (
+                layer, rank, loss, "+bidir" if bidirectional else "", "+allpos" if positions == "all" else "", anchor,
                 ep, epochs, avg, ep_steps / max(len(pairs), 1)))
 
     W = basis.detached()  # [d, r]
@@ -388,7 +423,7 @@ def train_das(bundle, pairs, layer, rank=1, T=8, epochs=10, lr=1e-3, seed=42, cl
     return {"W": W, "losses": losses, "mean_gap": mean_gap, "gap_std": gaps.std(0).tolist(),
             "n_pairs": len(pairs), "layer": layer, "rank": rank, "T": T, "epochs": epochs, "lr": lr, "seed": seed,
             "loss_kind": loss, "bidirectional": bool(bidirectional), "positions": positions, "trim": float(trim),
-            "weighted": pair_weights is not None}
+            "weighted": pair_weights is not None, "anchor": anchor, "position_trace": position_trace}
 
 
 def principal_cosines(W1, W2):

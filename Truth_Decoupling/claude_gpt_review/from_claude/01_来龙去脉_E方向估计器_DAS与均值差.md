@@ -22,6 +22,16 @@
 
 **处理**：`e1_directions.py` 新增 `--direction-prompt {config,tf,idk}`，`tf` 即最终协议的问法 B 提示（无 Unknown），同时作用于均值差和 DAS 对子；§8 第 1 步的命令已加 `--direction-prompt tf`。按 GPT 建议，第一轮重训只改这一处，其余训练设置不动（单种子、无截尾、无平衡加权），三种子等规格放到第二轮，一次只改一个变量。协议背景（切分、提示词原文、读出、已踩的坑）另见 `02_已定协议与经验_切分_提示词_读出_选层.md`。
 
+### 第 2 轮（GPT，2026-11-01；原文 `from_gpt/review_20261101_02.md`；审的是提交 5b97148）
+
+**发现**：提示词修复通过代码审查。新问题：训练损失的 8 步里，从第 2 步起，读 source、写 base 的位置跟着拼接上的答案前缀后移到答案 token 上；而评测只在原始提示的末位置干预一次。训练损失混合了"回答前干预"和"答案已给出后在答案位置干预"两种条件。建议：保留 8 步损失，把读写位置固定在各自原始提示的末 token；验收看一对样本前三步，长度增长、索引不动。
+
+**核验**：成立。`multistep_kl_loss` 每步先 `_append_prefix`，再用 `[:, -1, :]` 读 source、写 base，所以第 t 步是在第 t 个答案 token 上换分量。这是 v12 的"连续模式"设计：旧协议评测是自由生成、每个解码步都干预，训练和评测在那时是一致的；最终协议只读首 token、只在提示末位置干预一次，不一致。影响：表 1（旧协议，生成式评测）训练与评测一致；表 2 和新一轮都按首 token 读，不一致。这也给 §4 的解释多了一个机制：从第 2 步起，换的是已经说出来的答案 token 上的表示，这会把 w 往"嘴"的方向拉。
+
+**处理**：`train_das` / `multistep_kl_loss` 新增 `anchor`。`prompt`：每一步都在原始提示的末 token（索引 len(prompt) − 1）读 source、写 base，答案前缀照常拼接，只用来观察这一次干预对后续输出的影响；`current`：旧行为。`e1_directions.py` 新增 `--das-anchor`，默认 `prompt`。**验收**：按 GPT 的要求，训练时记录第一对前三步的输入长度和读写索引并打印；`anchor=prompt` 下索引若在步间移动直接报错。文件名后缀自动带 `tf`（强制 True / False 提示）和 `cur`（旧锚点），新一轮文件形如 `das_E_L12_r1_s42_tf.pt`，全层扫描用 `--das-variant tf` 读取。
+
+**一次改两处的说明**：提示和位置这两处都是"训练与评测协议不一致"的修正，不是方法变体，所以第一轮重训同时含两处；若需要分离各自的贡献，可加跑 `--das-anchor current` 作对照（Llama 单种子约 1 小时）。
+
 ## 1. 背景：E、C、2×2 与读出方式
 
 - 模型每一层算完后传给下一层的向量叫残差流（residual stream）。我们取提示词最后一个 token 位置的残差流 h（Llama 是 4096 维）。
@@ -125,6 +135,7 @@ L = (1/T) Σ_{t<T} KL( p_src(· | y_<t) ‖ p_int(· | y_<t) )
 ### 7.1 `code/core/directions.py`
 
 - `_interchange_hook_factory(W_fn, src_act_holder, positions)`：新增 `positions="all"`，把 source 末 token 的投影 z_src 钳到 base 所有位置：`delta = (z_src[:, None] − h @ W) @ Wᵀ`。对子是逐条编码的，没有 padding。
+- `multistep_kl_loss(..., anchor)` 与 `_interchange_hook_factory(..., write_pos)`：`anchor="prompt"` 时每步在原始提示末 token（`len(prompt) − 1`）读 source、写 base，`anchor="current"` 为旧行为；`trace` 记录每步的长度与读写索引，`train_das` 打印第一对前三步并在 `prompt` 锚点下校验索引不动（第 2 轮审核）。
 - `_divergence(int_logits, src_logits, kind)`：`kl` 为原来的前向 KL；`jsd` 用对数空间算混合分布 `logm = logsumexp([logp_int, logp_src]) − log 2`，再 `0.5·KL(p_int‖m) + 0.5·KL(p_src‖m)`。依赖 `F.kl_div(input=log q, target=log p, log_target=True) == KL(p‖q)`。
 - `multistep_kl_loss(..., loss, positions, base_key, source_key)`：名字没改；`base_key / source_key` 让调用方交换两句的角色。
 - `train_das(..., loss, bidirectional, positions, pair_weights, trim)`：双向时 D⁺ 用 source 的贪心 token 做 teacher forcing，D⁻ 用 base 自己的贪心 token，各乘 0.5 分别 backward 再一起 step（峰值显存只有一项）；`pair_weights` 逐对乘到损失上；`trim` 只作用于 `mean_gap`（DAS 里唯一的"激活差均值"）。
@@ -157,11 +168,12 @@ L = (1/T) Σ_{t<T} KL( p_src(· | y_<t) ‖ p_int(· | y_<t) )
 
 0. **诊断（几分钟）**：Llama、Qwen 现有的全层 DAS 方向与均值差方向过输出层。
    `python3 scripts/diag_direction_unembed.py --model llama3.1-8b --e1-dir results_tqa/E1/llama3.1-8b --das-dir results_das/E1/llama3.1-8b`
-1. **重训 DAS，第一轮只改提示**（GPT 第 1 轮建议：一次只对齐一处），三个模型全层，训练设置与旧版相同（单种子、KL、末 token）：
-   `python3 scripts/e1_directions.py --exp E1_directions_tqa --model <m> --direction-prompt tf --das-tags E --das-pairs 96 --das-layers <1..L−2>`
-   第二轮再加方案规格：`--das-seeds 42 43 44 --das-balance --das-trim 0.1`（文件名自动带后缀 `bal-trim0.1`，与第一轮并存）。
+1. **重训 DAS，第一轮只做两处协议对齐**（提示 = 评测提示；读写位置 = 提示末 token），三个模型全层，其余训练设置与旧版相同（单种子、KL、单位置）：
+   `python3 scripts/e1_directions.py --exp E1_directions_tqa --model <m> --direction-prompt tf --das-anchor prompt --das-tags E --das-pairs 96 --das-layers <1..L−2>`
+   输出文件 `das_E_L<l>_r1_s42_tf.pt`。先用 `--limit 4 --das-layers 12` 跑一次冒烟，检查打印出的位置轨迹（长度增长、索引不动）。
+   第二轮再加方案规格：`--das-seeds 42 43 44 --das-balance --das-trim 0.1`（文件名后缀 `tf-bal-trim0.1`，与第一轮并存）。
    估算：Llama 30 层单种子约 1 到 1.5 小时单卡，三种子约 3 到 4 小时；Gemma-12B 46 层三种子约 9 小时单卡；四卡分层并行。
-2. **最终口径下重比**：`e23_knob_sweep.py --tune-pairs 192 --e-estimator das --das-dir ... [--das-variant bal-trim0.1]`，与均值差、探针各一轮，`e23_merge.py` 合并，同一规则选层。
+2. **最终口径下重比**：`e23_knob_sweep.py --tune-pairs 192 --e-estimator das --das-dir <第 1 步的输出目录> --das-variant tf`（第二轮 `--das-variant tf-bal-trim0.1`），与均值差、探针各一轮，`e23_merge.py` 合并，同一规则选层。
 3. **CDAS 式变体**（`--das-loss jsd --das-bidir --das-positions all`）先在 Llama 单种子跑，看方向和效果有没有变化，再决定要不要扩到三个模型。
 4. **泛化测试**（下一个审核点）：各种 E 都搬到 HaluEval、BBQ、知识集，看谁搬得动。均值差 E 已知搬不动；DAS E 没测过。
 
