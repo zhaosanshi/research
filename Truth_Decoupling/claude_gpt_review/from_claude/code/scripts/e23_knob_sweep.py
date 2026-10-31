@@ -49,7 +49,7 @@ def main():
     ap.add_argument("--c-alphas", nargs="+", type=float, default=[1.0, 2.0])
     ap.add_argument("--wording", default="pik")
     ap.add_argument("--limit", type=int, default=None)
-    ap.add_argument("--plan-split", "--teacher-split", dest="teacher_split", action="store_true",
+    ap.add_argument("--plan-split", dest="teacher_split", action="store_true",
                     help="the original plan's split: directions from calib (32 pairs) only; selection on dev (64 pairs); report on test")
     ap.add_argument("--tune-pairs", type=int, default=0, help="1:2:7 split: draw this many test pairs (seeded) as the tuning set; select there, report on the remaining test pairs")
     ap.add_argument("--e-spans", nargs="*", default=[], help="multi-layer E candidates, e.g. 12,13,14 13,14,15 (each layer uses its own direction/centre)")
