@@ -95,7 +95,7 @@ def main():
         dev += load_split(ds, "dev")
     y_est = np.array([bool(r["label"]) for r in est])
     y_dev = np.array([bool(r["label"]) for r in dev])
-    print("directions from %d statements (%s); selection set for --teacher-split = dev %d statements" % (len(est), "calib only" if args.teacher_split else "calib+dev", len(dev)), flush=True)
+    print("directions from %d statements (%s); selection set for --plan-split = dev %d statements" % (len(est), "calib only" if args.teacher_split else "calib+dev", len(dev)), flush=True)
 
     # ---- texts and label maps -------------------------------------------- #
     tA = [bundle.build_chat(st["system"], e22.split_user(r, e22.SPLIT_A["instr"])) for r in recs]

@@ -121,7 +121,7 @@ L = (1/T) Σ_{t<T} KL( p_src(· | y_<t) ‖ p_int(· | y_<t) )
 
 ### 7.3 `code/scripts/e23_knob_sweep.py`
 
-`--e-estimator das --das-dir <目录> [--das-variant <后缀>]`：每层读入该层所有种子的 DAS 方向，与均值差方向对齐符号后平均，其余流程与均值差完全相同（同中点、同算子、同规则选层）。某层没有 DAS 文件则该层整体丢弃并打印。`--plan-split` 是旧参数 `--teacher-split` 的别名。
+`--e-estimator das --das-dir <目录> [--das-variant <后缀>]`：每层读入该层所有种子的 DAS 方向，与均值差方向对齐符号后平均，其余流程与均值差完全相同（同中点、同算子、同规则选层）。某层没有 DAS 文件则该层整体丢弃并打印。`--plan-split` 跑原方案的 32 / 64 / 其余切分。
 
 ### 7.4 `code/scripts/diag_direction_unembed.py`（新）
 
