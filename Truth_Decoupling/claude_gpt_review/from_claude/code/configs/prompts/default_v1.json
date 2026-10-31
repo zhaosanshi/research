@@ -1,0 +1,44 @@
+{
+  "name": "default_v1",
+  "statement": {
+    "system": "You are a careful fact-checker. You judge whether short factual statements are true or false.",
+    "user_tf": "Statement: {statement}\nIs this statement true or false? Answer with exactly one word: True or False.",
+    "user_tf_idk": "Statement: {statement}\nIs this statement true or false? If you are not sure, answer Unknown. Answer with exactly one word: True, False, or Unknown.",
+    "label_variants": {
+      "True": ["True", " True", "true", " true", "TRUE"],
+      "False": ["False", " False", "false", " false", "FALSE"],
+      "Abstain": ["Unknown", " Unknown", "unknown", " unknown", "Uncertain", " Uncertain"]
+    }
+  },
+  "commitment_contrast": {
+    "description": "Same user content; only the system prompt differs. pos = confident (commit), neg = cautious (abstain). Direction C points from cautious to confident, so steering with negative alpha pushes toward abstention.",
+    "confident_system": "You are a decisive assistant. Always commit to a definite answer. Never say that you do not know and never hedge.",
+    "cautious_system": "You are a cautious assistant. If you are not certain of the answer, say exactly 'Unknown' instead of guessing. Never guess.",
+    "paraphrases": {
+      "confident": [
+        "Always give a definite answer. Do not express uncertainty.",
+        "Commit to one answer and state it plainly, even if you are unsure.",
+        "You must answer every question directly and confidently."
+      ],
+      "cautious": [
+        "If you are unsure, reply 'Unknown' and nothing else. Do not guess.",
+        "Only answer when you are confident; otherwise reply exactly 'Unknown'.",
+        "Prefer saying 'Unknown' over giving an answer you are not sure about."
+      ]
+    }
+  },
+  "qa": {
+    "system": "You are a knowledgeable assistant. Answer the question with a short answer of a few words.",
+    "user": "Question: {question}\nAnswer:",
+    "system_cautious": "You are a knowledgeable assistant. Answer with a short answer of a few words. If you do not know the answer, reply exactly 'I don't know'.",
+    "system_confident": "You are a knowledgeable assistant. Always answer with a short, definite answer of a few words. Never say that you do not know.",
+    "max_new_tokens": 48
+  },
+  "mc": {
+    "system": "You answer multiple-choice questions. Reply with exactly one letter.",
+    "user": "{question}\n{choices}\nAnswer:",
+    "label_variants": {
+      "A": ["A", " A"], "B": ["B", " B"], "C": ["C", " C"], "D": ["D", " D"]
+    }
+  }
+}
