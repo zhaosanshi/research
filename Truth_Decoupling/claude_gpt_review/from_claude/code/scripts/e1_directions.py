@@ -56,6 +56,10 @@ def main():
     ap.add_argument("--das-trim", type=float, default=0.0, help="trimmed-mean fraction for the DAS mean projection gap (0.1 = drop 10%% of each tail)")
     ap.add_argument("--das-variant", default=None, help="file-name suffix for non-default DAS variants (default: derived from the flags, e.g. jsd-bidir-allpos)")
     ap.add_argument("--trim", type=float, default=0.0, help="trimmed-mean fraction for the mean-difference directions and centres (default 0 = plain mean)")
+    ap.add_argument("--direction-prompt", choices=["config", "tf", "idk"], default="config",
+                    help="statement prompt under which E (mean-diff AND the DAS pairs) is estimated: 'tf' = forced True/False, i.e. the final "
+                         "protocol's pass-B prompt; 'idk' = True/False/Unknown; 'config' = the experiment's direction_prompt_allow_idk. "
+                         "Estimation prompt must equal the evaluation prompt (GPT review 2026-11-01)")
     args = ap.parse_args()
 
     exp = load_experiment(args.exp)
@@ -85,8 +89,8 @@ def main():
     # Estimate E under the SAME statement prompt the evaluations use (with the Unknown option) unless the
     # experiment config says otherwise; a prompt mismatch shifts the last-token mean and turns the
     # amplify operator's (h - center) into a constant offset along w, i.e. a hidden additive bias.
-    e_idk = bool(exp.get("direction_prompt_allow_idk", True))
-    print("[E] %d true / %d false statements (prompt allow_idk=%s)" % (len(e_pos), len(e_neg), e_idk), flush=True)
+    e_idk = bool(exp.get("direction_prompt_allow_idk", True)) if args.direction_prompt == "config" else (args.direction_prompt == "idk")
+    print("[E] %d true / %d false statements (prompt allow_idk=%s, source=%s)" % (len(e_pos), len(e_neg), e_idk, args.direction_prompt), flush=True)
     E_pos_r, E_pos_a = collect(bundle, [tf_prompt(bundle, prompts, r["text"], allow_idk=e_idk) for r in e_pos], layers, bs)
     E_neg_r, E_neg_a = collect(bundle, [tf_prompt(bundle, prompts, r["text"], allow_idk=e_idk) for r in e_neg], layers, bs)
 

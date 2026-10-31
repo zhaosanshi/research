@@ -8,6 +8,20 @@
 2. 我们按方案做了。五个模型、三轮越来越公平的对照，DAS 没有一次显著赢过均值差，于是主方法换成均值差，DAS 退为对照。
 3. 现在回头审这个决定，有四处站不稳：三个主模型之一 Gemma-3-12B 从没比过 DAS，而它恰好是 E 推不动的模型；我们的 DAS 比方案规格缩水（单种子、无截尾、无平衡加权）；最终读出口径下 DAS 一次没比过；我们此前引用 CDAS 论文来支持"DAS 推不动"，引过头了。另外，"DAS 在深层换分量近乎完美、推了却没用"这个现象需要一个能验证的解释。
 
+## 审核记录
+
+### 第 1 轮（GPT，2026-11-01 00:11；原文 `from_gpt/review_20261101_01.md`）
+
+**发现**：DAS 训练用的陈述提示允许答 Unknown（`configs/experiments/E1_directions_tqa.json` 第 9 行 `direction_prompt_allow_idk: true`），而最终评测和均值差估计用的是强制 True / False 的提示（`e23_knob_sweep.py` 里 `allow_idk=False`）。直接重比会把提示差异混进估计器差异。建议第一步只对齐这一处。
+
+**核验**：成立。`e1_directions.py` 用同一个 `e_idk` 开关构造均值差的句子和 DAS 的对子，该配置下两者都在带 Unknown 的提示下估。影响范围：
+
+- 表 1（旧协议）**不受影响**：当时估方向和评测都用带 Unknown 的提示，两边一致。
+- 表 2（新读出协议）**受影响**：`e22_two_stage.py --e-source das` 把 `results_das/E1` 里带 Unknown 提示下训的 DAS 方向，配上无 Unknown 提示下估的中心点和评测；均值差则是在无 Unknown 提示下估的。表 2 里 DAS 的劣势有一部分可能来自提示不一致，不能当作估计器的结论。
+- 所有旧 DAS 方向文件（`results_das/E1/<model>/das_E_*.pt`）都属于带 Unknown 的提示，**新一轮重比不能复用**，必须重训。
+
+**处理**：`e1_directions.py` 新增 `--direction-prompt {config,tf,idk}`，`tf` 即最终协议的问法 B 提示（无 Unknown），同时作用于均值差和 DAS 对子；§8 第 1 步的命令已加 `--direction-prompt tf`。按 GPT 建议，第一轮重训只改这一处，其余训练设置不动（单种子、无截尾、无平衡加权），三种子等规格放到第二轮，一次只改一个变量。协议背景（切分、提示词原文、读出、已踩的坑）另见 `02_已定协议与经验_切分_提示词_读出_选层.md`。
+
 ## 1. 背景：E、C、2×2 与读出方式
 
 - 模型每一层算完后传给下一层的向量叫残差流（residual stream）。我们取提示词最后一个 token 位置的残差流 h（Llama 是 4096 维）。
@@ -70,7 +84,7 @@ L = (1/T) Σ_{t<T} KL( p_src(· | y_<t) ‖ p_int(· | y_<t) )
 | Qwen3-8B | 均值差 | **+0.122** [+0.081, +0.167] | +0.015 [−0.001, +0.031] | +0.022 | −0.154 |
 | Qwen3-8B | DAS | +0.072 [+0.033, +0.112] | −0.021 [−0.036, −0.004] | +0.054 | −0.173 |
 
-读法：DAS 判别力涨得少、偏置漂得多、作答率漏得也不少。两家作答率都在动，是当时"sure"措辞的极性伪影（"你确定吗"被模型当成"你觉得它是真的吗"来答），换成问题级问法后均值差 E 的作答率变化降到 +0.007（不显著）。DAS 在新问法下没有重测。
+读法：DAS 判别力涨得少、偏置漂得多、作答率漏得也不少。两家作答率都在动，是当时"sure"措辞的极性伪影（"你确定吗"被模型当成"你觉得它是真的吗"来答），换成问题级问法后均值差 E 的作答率变化降到 +0.007（不显著）。DAS 在新问法下没有重测。**另外，表 2 里的 DAS 方向是在带 Unknown 的提示下训的，均值差和评测是无 Unknown 提示，两边不一致（审核记录第 1 轮），表 2 只能作参考。**
 
 **Gemma-3-12B（最终协议，`gemma3-12b/knob_sweep_all.md`、`knob_sweep_probe.md`）**：均值差 E 和探针 E 都是零效果。但探针能从 Gemma 中层读出真假的 AUROC 是 0.950，模型嘴上只有 0.856，说明知识在里面。
 
@@ -90,6 +104,7 @@ L = (1/T) Σ_{t<T} KL( p_src(· | y_<t) ‖ p_int(· | y_<t) )
 - **(a) Gemma 没比过 DAS。** 三个主模型里 E 唯一不成立的是 Gemma-3-12B，它恰好是唯一没比过 DAS 的。而且 Gemma 是"知识在、方向推不动"的情形（探针 0.950 对嘴 0.856），正是 DAS 这类"训练出能改输出的方向"的方法该发挥作用的场景。
 - **(b) 我们的 DAS 比方案规格缩水。** 方案要求三个随机种子（42、43、44）、对归一化后的激活差取 10% 截尾均值、按类别和长度平衡加权。我们单种子、无截尾、无平衡加权。"DAS 输了"对 DAS 可能不公平。
 - **(c) 最终口径下 DAS 一次没比过。** 表 2 是问法 A 还用"sure"措辞时跑的。换成问题级问法、全层扫描、192 对调参这套最终口径后，三个模型都没再比过 DAS。
+- **(e) 训练提示与评测提示不一致（GPT 第 1 轮发现）。** 旧 DAS 方向在带 Unknown 的问法 B 下训，均值差和最终评测用无 Unknown 版本。表 2 因此混入提示差异；表 1 不受影响。旧 DAS 文件不能复用，重训时统一用无 Unknown 提示。
 - **(d) 引用过头。** 我们此前写"CDAS（ICLR 2026）证明原版 DAS 目标做 steering 几乎无效"。精读后发现：那篇论文批的"DAS"是"交换干预 + 交叉熵拟合固定标签词"，而我们的 DAS 是"交换干预 + KL 逼近 source 的输出分布"，其实更接近它改良后的 CDAS；并且该论文没有任何真假判断任务。所以"DAS 不如均值差"只能靠我们自己的数据撑。
 
 ## 6. CDAS 与我们的 DAS 差四处
@@ -117,7 +132,7 @@ L = (1/T) Σ_{t<T} KL( p_src(· | y_<t) ‖ p_int(· | y_<t) )
 
 ### 7.2 `code/scripts/e1_directions.py`
 
-新参数 `--das-seeds 42 43 44`、`--das-loss`、`--das-bidir`、`--das-positions`、`--das-balance`、`--das-trim 0.1`、`--das-variant`、`--trim`。变体文件名加后缀，例如 `das_E_L12_r1_s43_jsd-bidir-allpos.pt`；默认变体文件名与旧版完全一致。平衡加权的"类别"取记录里 `meta.category`（TruthfulQA 自带的 38 个类别），"长度"取真假两句 token 数之和的三分位。多种子时记录种子间 |cos|。
+新参数 `--das-seeds 42 43 44`、`--das-loss`、`--das-bidir`、`--das-positions`、`--das-balance`、`--das-trim 0.1`、`--das-variant`、`--trim`，以及 `--direction-prompt {config,tf,idk}`（估 E 和训 DAS 用哪种陈述提示；`tf` = 最终协议的无 Unknown 提示；默认沿用配置）。变体文件名加后缀，例如 `das_E_L12_r1_s43_jsd-bidir-allpos.pt`；默认变体文件名与旧版完全一致。平衡加权的"类别"取记录里 `meta.category`（TruthfulQA 自带的 38 个类别），"长度"取真假两句 token 数之和的三分位。多种子时记录种子间 |cos|。
 
 ### 7.3 `code/scripts/e23_knob_sweep.py`
 
@@ -142,9 +157,10 @@ L = (1/T) Σ_{t<T} KL( p_src(· | y_<t) ‖ p_int(· | y_<t) )
 
 0. **诊断（几分钟）**：Llama、Qwen 现有的全层 DAS 方向与均值差方向过输出层。
    `python3 scripts/diag_direction_unembed.py --model llama3.1-8b --e1-dir results_tqa/E1/llama3.1-8b --das-dir results_das/E1/llama3.1-8b`
-1. **按方案规格重训 DAS**，三个模型全层：
-   `python3 scripts/e1_directions.py --exp E1_directions_tqa --model <m> --das-tags E --das-pairs 96 --das-layers <1..L−2> --das-seeds 42 43 44 --das-balance --das-trim 0.1`
-   估算：Llama 30 层 × 3 种子约 3 到 4 小时单卡，Gemma-12B 46 层 × 3 种子约 9 小时单卡，四卡分层并行。
+1. **重训 DAS，第一轮只改提示**（GPT 第 1 轮建议：一次只对齐一处），三个模型全层，训练设置与旧版相同（单种子、KL、末 token）：
+   `python3 scripts/e1_directions.py --exp E1_directions_tqa --model <m> --direction-prompt tf --das-tags E --das-pairs 96 --das-layers <1..L−2>`
+   第二轮再加方案规格：`--das-seeds 42 43 44 --das-balance --das-trim 0.1`（文件名自动带后缀 `bal-trim0.1`，与第一轮并存）。
+   估算：Llama 30 层单种子约 1 到 1.5 小时单卡，三种子约 3 到 4 小时；Gemma-12B 46 层三种子约 9 小时单卡；四卡分层并行。
 2. **最终口径下重比**：`e23_knob_sweep.py --tune-pairs 192 --e-estimator das --das-dir ... [--das-variant bal-trim0.1]`，与均值差、探针各一轮，`e23_merge.py` 合并，同一规则选层。
 3. **CDAS 式变体**（`--das-loss jsd --das-bidir --das-positions all`）先在 Llama 单种子跑，看方向和效果有没有变化，再决定要不要扩到三个模型。
 4. **泛化测试**（下一个审核点）：各种 E 都搬到 HaluEval、BBQ、知识集，看谁搬得动。均值差 E 已知搬不动；DAS E 没测过。
