@@ -234,7 +234,7 @@ L = (1/T) Σ_{t<T} KL( p_src(· | y_<t) ‖ p_int(· | y_<t) )
 
 一律在独立的新结果根目录下跑（`TD_RESULTS_DIR`），不与旧结果混。三模型各占一张卡。
 
-**状态（2026-11-01，第 5 轮后）**：步骤 1–4 已完成（Llama 2 h 50 min、Qwen 2 h 33 min、Gemma 5 h 24 min，各一张卡；链脚本 `code/scripts/das_tf_chain.sh`），结果见审核记录"第 4 轮运行结果"。步骤 5 ①三层窗口对照已出（`第5轮_窗口_C行_Gemma定位/汇总.md` §2）；②旧锚点对照已出——锚点修复零贡献，改善全来自提示对齐（§5）；③新加：Gemma 定位诊断已出（§3）；秩 4 / 16 中层试训已出——第 18–20 层 16 维仍换不动，子空间放大不必跑（§3.5）；全位置交换试训在跑（§3.6，检验"证据在句子 token 上、第 23 层全局注意力才拉到末 token"）。另加 **C 行**：Llama、Qwen 全层 C 条件对 DAS-tf E 正交化重扫（`code/scripts/c_das_tf_chain.sh`），在跑。
+**状态（2026-11-01，第 5 轮后）**：步骤 1–4 已完成（Llama 2 h 50 min、Qwen 2 h 33 min、Gemma 5 h 24 min，各一张卡；链脚本 `code/scripts/das_tf_chain.sh`），结果见审核记录"第 4 轮运行结果"。步骤 5 ①三层窗口对照已出（`第5轮_窗口_C行_Gemma定位/汇总.md` §2）；②旧锚点对照已出——锚点修复零贡献，改善全来自提示对齐（§5）；③新加：Gemma 定位诊断已出（§3）；秩 4 / 16 中层试训已出——第 18–20 层 16 维仍换不动，子空间放大不必跑（§3.5）；全位置交换试训已出——第 18–24 层损失 0.11–0.19，但两道检查都没过：交换后所有句子都答 True（B 0.96–0.98），方向在句子 token 上读出 ≈ 0.5，学到的是分布在全句的"说 True"杠杆，不是证据（§3.6）；第三条单变量线（双向目标 `--das-bidir`，堵这条捷径）在跑（§3.7）。另加 **C 行**：Llama、Qwen 全层 C 条件对 DAS-tf E 正交化重扫（`code/scripts/c_das_tf_chain.sh`），在跑。
 
 0. **诊断（几分钟，不占卡）**：Llama、Qwen 现有的全层 DAS 方向与均值差方向过输出层。
    `python3 scripts/diag_direction_unembed.py --model llama3.1-8b --e1-dir results_tqa/E1/llama3.1-8b --das-dir results_das/E1/llama3.1-8b`
@@ -283,4 +283,5 @@ L = (1/T) Σ_{t<T} KL( p_src(· | y_<t) ‖ p_int(· | y_<t) )
 19. 三层窗口上 Llama 的 J 平手但 AUROC 与 B 相反：怎么报？"DAS 更干净"要不要撤回？
 20. Qwen 所有窗口都漏作答率：接受"Qwen 只能单层"，还是 E 的选层规则该加 AUROC / B 的约束（你第 4 轮前就提过 J 会被阈值漂移骗）？
 21. C 行结果出来后，2×2 的报法（新 E + 新 C）；旧锚点对照出来后，两处修复各自贡献的报法。
-22. 顺带审：`code/scripts/diag_trace_direction.py`（含保真检查的设计）、`c_das_tf_chain.sh`、`das_rank_pilot.sh`、`e1_directions.py` 的 `--das-rank`。
+22. 顺带审：`code/scripts/diag_trace_direction.py`（含保真检查的设计，以及 `--positions all` 的全位置分支与 token 级读出）、`c_das_tf_chain.sh`、`das_rank_pilot.sh`、`das_allpos_pilot.sh` / `das_allpos_bidir_pilot.sh`、`e1_directions.py` 的 `--das-rank`、`report_2x2.py`。
+23. Gemma 的三条单变量线（秩、位置、目标）之后：单向全位置 DAS 学到的是"说 True"杠杆——我们判定"证据在句子 token 上"的假设未被支持也未被否定，对吗？若双向目标也降不下去或读出仍 ≈ 0.5，你认为 Gemma 上还有没有值得试的**单变量**改动（例如写在句子位置的放大式需要怎样的中点；或者 Gemma 就该作为"可读不可推"的反例来写）？

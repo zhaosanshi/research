@@ -115,43 +115,67 @@ def clean(o):
 # --------------------------------------------------------------------------- #
 
 class TraceHook:
-    """Applies one SteerSpec at the last position exactly like LayerSteerHook (float32 edit, cast back to the model
-    dtype) and records what happened to the vector. spec=None applies a zero edit (identity control)."""
+    """Applies one SteerSpec exactly like LayerSteerHook (float32 edit, cast back to the model dtype) and records what
+    happened to the vector. positions="last": the last position only (the sweep's E). positions="all": every position
+    of the sequence (the CDAS one-to-many form the all-positions DAS was trained with; the interchange clamps every
+    position's projection to the source's last-token projection). spec=None applies a zero edit (identity control)."""
 
-    def __init__(self, spec, w_ref, massive_idx):
-        self.spec, self.w_ref, self.massive_idx = spec, w_ref, massive_idx
+    def __init__(self, spec, w_ref, massive_idx, positions="last"):
+        self.spec, self.w_ref, self.massive_idx, self.positions = spec, w_ref, massive_idx, positions
         self.calls, self.rec = 0, None
 
     def __call__(self, module, inp, out):
         self.calls += 1
         h = out[0] if isinstance(out, tuple) else out
-        pos = h.shape[1] - 1                                       # LayerSteerHook writes h[:, -1, :]
-        h_pos = h[:, pos, :].float()
-        delta = self.spec.delta(h_pos) if self.spec is not None else torch.zeros_like(h_pos)
-        h_new = h.clone()
-        h_new[:, pos, :] = (h_pos + delta).to(h.dtype)
-        kept = h_new[:, pos, :].float() - h_pos                    # the part of the edit the model dtype keeps
-        w = self.w_ref.to(h_pos.device)
-        mi = self.massive_idx.to(h_pos.device)
+        B, T, d = h.shape
+        pos = T - 1                                                 # LayerSteerHook writes h[:, -1, :]
+        w = self.w_ref.to(h.device)
+        mi = self.massive_idx.to(h.device)
 
         def n(x):
             return float(torch.linalg.vector_norm(x))
-        h_n, d_n, k_n = n(h_pos), n(delta), n(kept)
-        self.rec = {
-            "pos": int(pos), "seq_len": int(h.shape[1]), "h_norm": h_n, "delta_norm": d_n, "delta_over_h": d_n / max(h_n, 1e-12),
-            "kept_norm": k_n, "kept_over_delta": (k_n / d_n) if d_n > 0 else None,
-            "cos_kept_delta": float((kept * delta).sum() / (k_n * d_n)) if (d_n > 0 and k_n > 0) else None,
-            "proj_before": float(h_pos @ w), "proj_intended": float((h_pos + delta) @ w), "proj_kept": float(h_new[:, pos, :].float() @ w),
-            "n_changed": int((h_new[:, pos, :] != h[:, pos, :]).sum()), "n_delta_nonzero": int((delta != 0).sum()),
-            "delta_share_massive": float((delta[:, mi] ** 2).sum() / (delta ** 2).sum()) if d_n > 0 else None,
-            "kept_share_massive": float((kept[:, mi] ** 2).sum() / (kept ** 2).sum()) if k_n > 0 else None,
-            "h_share_massive": float((h_pos[:, mi] ** 2).sum() / (h_pos ** 2).sum()),
-        }
+        if self.positions == "last":
+            h_pos = h[:, pos, :].float()
+            delta = self.spec.delta(h_pos) if self.spec is not None else torch.zeros_like(h_pos)
+            h_new = h.clone()
+            h_new[:, pos, :] = (h_pos + delta).to(h.dtype)
+            kept = h_new[:, pos, :].float() - h_pos                # the part of the edit the model dtype keeps
+            h_n, d_n, k_n = n(h_pos), n(delta), n(kept)
+            self.rec = {
+                "pos": int(pos), "seq_len": int(T), "h_norm": h_n, "delta_norm": d_n, "delta_over_h": d_n / max(h_n, 1e-12),
+                "kept_norm": k_n, "kept_over_delta": (k_n / d_n) if d_n > 0 else None,
+                "cos_kept_delta": float((kept * delta).sum() / (k_n * d_n)) if (d_n > 0 and k_n > 0) else None,
+                "proj_before": float(h_pos @ w), "proj_intended": float((h_pos + delta) @ w), "proj_kept": float(h_new[:, pos, :].float() @ w),
+                "n_changed": int((h_new[:, pos, :] != h[:, pos, :]).sum()), "n_delta_nonzero": int((delta != 0).sum()),
+                "delta_share_massive": float((delta[:, mi] ** 2).sum() / (delta ** 2).sum()) if d_n > 0 else None,
+                "kept_share_massive": float((kept[:, mi] ** 2).sum() / (kept ** 2).sum()) if k_n > 0 else None,
+                "h_share_massive": float((h_pos[:, mi] ** 2).sum() / (h_pos ** 2).sum()),
+            }
+        else:                                                       # every position, as LayerSteerHook(position="all")
+            flat = h.reshape(B * T, d).float()
+            delta = self.spec.delta(flat) if self.spec is not None else torch.zeros_like(flat)
+            h_new = (flat + delta).to(h.dtype).reshape(B, T, d)
+            kept = h_new.reshape(B * T, d).float() - flat
+            hn, dn, kn = flat.norm(dim=1), delta.norm(dim=1), kept.norm(dim=1)
+            d_tot, k_tot = n(delta), n(kept)
+            z_before, z_int, z_kept = flat @ w, (flat + delta) @ w, h_new.reshape(B * T, d).float() @ w
+            self.rec = {
+                "pos": -1, "seq_len": int(T), "h_norm": float(hn.mean()), "delta_norm": float(dn.mean()),
+                "delta_over_h": float((dn / hn.clamp_min(1e-12)).mean()),
+                "kept_norm": float(kn.mean()), "kept_over_delta": (k_tot / d_tot) if d_tot > 0 else None,
+                "cos_kept_delta": float((kept * delta).sum() / (k_tot * d_tot)) if (d_tot > 0 and k_tot > 0) else None,
+                "proj_before": float(z_before[-1]), "proj_intended": float(z_int[-1]), "proj_kept": float(z_kept[-1]),
+                "proj_mean_before": float(z_before.mean()), "proj_mean_kept": float(z_kept.mean()),
+                "n_changed": int((h_new != h).sum()), "n_delta_nonzero": int((delta != 0).sum()),
+                "delta_share_massive": float((delta[:, mi] ** 2).sum() / (delta ** 2).sum()) if d_tot > 0 else None,
+                "kept_share_massive": float((kept[:, mi] ** 2).sum() / (kept ** 2).sum()) if k_tot > 0 else None,
+                "h_share_massive": float((flat[:, mi] ** 2).sum() / (flat ** 2).sum()),
+            }
         return (h_new,) + tuple(out[1:]) if isinstance(out, tuple) else h_new
 
 
-def forward_traced(bundle, inputs, layer, spec, w_ref, massive_idx):
-    hk = TraceHook(spec, w_ref, massive_idx)
+def forward_traced(bundle, inputs, layer, spec, w_ref, massive_idx, positions="last"):
+    hk = TraceHook(spec, w_ref, massive_idx, positions)
     handle = bundle.layer(layer).register_forward_hook(hk)
     try:
         lg = forward_logits(bundle, inputs, grad=False)[:, -1, :].float().cpu().numpy()[0]
@@ -174,7 +198,7 @@ def forward_capture(bundle, inputs, layer):
 # 1. trace on fixed pairs
 # --------------------------------------------------------------------------- #
 
-def trace_pair(bundle, d, layer, fams, cB, mB, tok, massive_idx, alphas, prompts, topk):
+def trace_pair(bundle, d, layer, fams, cB, mB, tok, massive_idx, alphas, prompts, topk, positions="last"):
     enc = {lab: bundle.encode(tf_prompt(bundle, prompts, d[lab]["text"], allow_idk=False)) for lab in (True, False)}
     base = {}
     for lab in (True, False):
@@ -201,17 +225,17 @@ def trace_pair(bundle, d, layer, fams, cB, mB, tok, massive_idx, alphas, prompts
             row["kl_src_int"] = kl(base[other]["logp"], logp)
             row["kl_base_int"] = kl(base[lab]["logp"], logp)
             rows.append(row)
-        lg, hr = forward_traced(bundle, enc[lab], layer, None, w_das, massive_idx)
+        lg, hr = forward_traced(bundle, enc[lab], layer, None, w_das, massive_idx, positions)
         add("identity", lg, hr, {"bit_identical_to_baseline": bool(np.array_equal(lg, base[lab]["lg"]))})
         for name, w in fams.items():
             wt = torch.as_tensor(w, dtype=torch.float32)
             src_h = base[other]["h"].cpu()[0]
-            spec = SteerSpec(w, layer, mode="interchange", alpha=1.0, source_act=src_h)
-            lg, hr = forward_traced(bundle, enc[lab], layer, spec, wt, massive_idx)
+            spec = SteerSpec(w, layer, mode="interchange", alpha=1.0, source_act=src_h, position=positions)
+            lg, hr = forward_traced(bundle, enc[lab], layer, spec, wt, massive_idx, positions)
             add("swap_%s" % name, lg, hr, {"source_proj": float(src_h.double().numpy() @ w)})
             for a in alphas:
-                spec = SteerSpec(w, layer, mode="amplify", alpha=a, center=cB)
-                lg, hr = forward_traced(bundle, enc[lab], layer, spec, wt, massive_idx)
+                spec = SteerSpec(w, layer, mode="amplify", alpha=a, center=cB, position=positions)
+                lg, hr = forward_traced(bundle, enc[lab], layer, spec, wt, massive_idx, positions)
                 add("amp_%s_a%g" % (name, a), lg, hr, {"centre_proj": float(cB @ w)})
         rec["statements"][str(lab)] = {
             "label": lab, "id": d[lab]["id"], "text": d[lab]["text"], "n_tokens": int(enc[lab]["input_ids"].shape[1]),
@@ -224,7 +248,7 @@ def trace_pair(bundle, d, layer, fams, cB, mB, tok, massive_idx, alphas, prompts
 # 2. stats over all pairs of a set
 # --------------------------------------------------------------------------- #
 
-def swap_amp_stats(bundle, pairs, layer, fams, cB, mB, tok, massive_idx, alphas, prompts):
+def swap_amp_stats(bundle, pairs, layer, fams, cB, mB, tok, massive_idx, alphas, prompts, positions="last"):
     labels, p_base, informative, kl_src_base = [], [], [], []
     p_swap = {f: [] for f in fams}
     ok_swap = {f: [] for f in fams}
@@ -252,8 +276,8 @@ def swap_amp_stats(bundle, pairs, layer, fams, cB, mB, tok, massive_idx, alphas,
             kl_src_base.append(kl(b[other][2], b[lab][2]))
             for name, w in fams.items():
                 wt = torch.as_tensor(w, dtype=torch.float32)
-                spec = SteerSpec(w, layer, mode="interchange", alpha=1.0, source_act=b[other][0].cpu()[0])
-                lg, hr = forward_traced(bundle, enc[lab], layer, spec, wt, massive_idx)
+                spec = SteerSpec(w, layer, mode="interchange", alpha=1.0, source_act=b[other][0].cpu()[0], position=positions)
+                lg, hr = forward_traced(bundle, enc[lab], layer, spec, wt, massive_idx, positions)
                 ro, logp = readout(lg, mB, tok, 0)
                 p_swap[name].append(ro["p_true"])
                 ok_swap[name].append(ro["argmax_id"] == b[other][1]["argmax_id"])
@@ -261,8 +285,8 @@ def swap_amp_stats(bundle, pairs, layer, fams, cB, mB, tok, massive_idx, alphas,
                 kept_swap[name].append(hr["kept_over_delta"] if hr["kept_over_delta"] is not None else float("nan"))
                 doh_swap[name].append(hr["delta_over_h"])
                 for a in alphas:
-                    spec = SteerSpec(w, layer, mode="amplify", alpha=a, center=cB)
-                    lg, hr = forward_traced(bundle, enc[lab], layer, spec, wt, massive_idx)
+                    spec = SteerSpec(w, layer, mode="amplify", alpha=a, center=cB, position=positions)
+                    lg, hr = forward_traced(bundle, enc[lab], layer, spec, wt, massive_idx, positions)
                     ro, _ = readout(lg, mB, tok, 0)
                     p_amp[(name, a)].append(ro["p_true"])
                     kept_amp[(name, a)].append(hr["kept_over_delta"] if hr["kept_over_delta"] is not None else float("nan"))
@@ -301,6 +325,34 @@ def swap_amp_stats(bundle, pairs, layer, fams, cB, mB, tok, massive_idx, alphas,
 
 
 # --------------------------------------------------------------------------- #
+# token-level readout: does the direction read truth from the statement tokens, not only from the last token?
+# --------------------------------------------------------------------------- #
+
+def token_level_readout(bundle, texts, layer, fams, y):
+    """For every estimation statement (batch 1, no padding) project EVERY position of the layer's residual on each
+    direction; AUROC of four per-sequence summaries (last token, mean / max / min over all positions) against the
+    truth labels. A direction whose mean-over-positions reads truth better than the last token carries evidence on
+    the statement tokens. Also returns the mean |h| over positions vs at the last token (scale of the write)."""
+    feats = {name: {"last": [], "mean": [], "max": [], "min": []} for name in fams}
+    hn_all, hn_last = [], []
+    ws = {name: torch.as_tensor(w, dtype=torch.float32) for name, w in fams.items()}
+    for t in texts:
+        inputs = bundle.encode(t)
+        with capture_hooks(bundle, [layer], ("resid",), position="all") as store:
+            forward_logits(bundle, inputs, grad=False)
+        H = store[("resid", layer)][0].float()                      # [T, d]
+        hn = H.norm(dim=1)
+        hn_all.append(float(hn.mean())); hn_last.append(float(hn[-1]))
+        for name, w in ws.items():
+            z = H @ w.to(H.device)
+            feats[name]["last"].append(float(z[-1])); feats[name]["mean"].append(float(z.mean()))
+            feats[name]["max"].append(float(z.max())); feats[name]["min"].append(float(z.min()))
+    out = {name: {k: float(auroc(np.array(v), y)) for k, v in f.items()} for name, f in feats.items()}
+    out["_scale"] = {"mean_h_norm_all_positions": float(np.mean(hn_all)), "mean_h_norm_last": float(np.mean(hn_last))}
+    return out
+
+
+# --------------------------------------------------------------------------- #
 # report
 # --------------------------------------------------------------------------- #
 
@@ -331,9 +383,9 @@ def trace_table(rec, tok_topk):
                 extra = " (source %.2f)" % r["source_proj"]
             if "centre_proj" in r:
                 extra = " (centre %.2f)" % r["centre_proj"]
-            lines.append("| %s%s | %d/%d | %.1f | %s | %s | %s | %s | %.2f -> %.2f -> %.2f%s | %d/%d | %.3f | %.3f | %.3f | %r | %.3f | %.3f |" % (
+            lines.append("| %s%s | %s/%d | %.1f | %s | %s | %s | %s | %.2f -> %.2f -> %.2f%s | %d/%d | %.3f | %.3f | %.3f | %r | %.3f | %.3f |" % (
                 r["cond"], (" (bit-identical: %s)" % r["bit_identical_to_baseline"]) if "bit_identical_to_baseline" in r else "",
-                r["pos"], r["seq_len"], r["h_norm"], fmt_sci(r["delta_norm"]), fmt_sci(r["delta_over_h"]), f3(r["kept_over_delta"]), f3(r["cos_kept_delta"]),
+                "all" if r["pos"] < 0 else str(r["pos"]), r["seq_len"], r["h_norm"], fmt_sci(r["delta_norm"]), fmt_sci(r["delta_over_h"]), f3(r["kept_over_delta"]), f3(r["cos_kept_delta"]),
                 r["proj_before"], r["proj_intended"], r["proj_kept"], extra, r["n_changed"], r["n_delta_nonzero"],
                 r["P_True"], r["P_False"], r["p_true"], r["argmax"], r["kl_src_int"], r["kl_base_int"]))
     return lines
@@ -417,6 +469,9 @@ def main():
     ap.add_argument("--n-massive", type=int, default=8, help="how many largest coordinates to report")
     ap.add_argument("--topk", type=int, default=5)
     ap.add_argument("--skip-stats", action="store_true", help="only the detailed traces, no all-pair statistics")
+    ap.add_argument("--positions", choices=["last", "all"], default="last",
+                    help="where swap and amplify write: the last token (the sweep's E) or every position (for directions trained with "
+                         "--das-positions all; the amplify there still uses the last-token centre, which is NOT a designed operator -- read it as exploratory)")
     ap.add_argument("--out", required=True, help="output stem; writes <out>.json and <out>.md (refuses to overwrite)")
     args = ap.parse_args()
     for ext in (".json", ".md"):
@@ -524,10 +579,13 @@ def main():
         print("L%02d  mean|h| %.1f, top coords %s (share of |h|^2 %.3f); w^2 share on them meandiff %.3f / das %.3f; readout AUROC est meandiff %.3f / das %.3f; cos %.3f; DAS loss %s" % (
             l, scale["mean_h_norm"], [m["dim"] for m in scale["massive"][:4]], scale["h_share_massive"], dstat["meandiff"]["w_share_massive"], dstat["das"]["w_share_massive"],
             dstat["meandiff"]["readout_auroc_est"], dstat["das"]["readout_auroc_est"], dstat["das"]["cos_with_meandiff"], meta["final_losses"]), flush=True)
-        lrep = {"scale": scale, "directions": dstat, "centre_proj": {n: float(cB @ w) for n, w in fams.items()}, "traces": [], "stats": {}}
+        tl = token_level_readout(bundle, eB, l, fams, y_est)
+        print("L%02d  token-level readout AUROC (est): %s; mean|h| all positions %.1f vs last %.1f" % (
+            l, {n: {k: round(v, 3) for k, v in tl[n].items()} for n in fams}, tl["_scale"]["mean_h_norm_all_positions"], tl["_scale"]["mean_h_norm_last"]), flush=True)
+        lrep = {"scale": scale, "directions": dstat, "token_level_readout": tl, "centre_proj": {n: float(cB @ w) for n, w in fams.items()}, "traces": [], "stats": {}}
         for set_name, pairs in (("train", train_pairs[:args.n_train_pairs]), ("tune", tune_pairs[:args.n_tune_pairs])):
             for d in pairs:
-                tr = trace_pair(bundle, d, l, fams, cB, mB, tok, massive_idx, args.e_alphas, prompts, args.topk)
+                tr = trace_pair(bundle, d, l, fams, cB, mB, tok, massive_idx, args.e_alphas, prompts, args.topk, args.positions)
                 tr["set"] = set_name
                 lrep["traces"].append(tr)
                 for lab_key, s in tr["statements"].items():
@@ -536,7 +594,7 @@ def main():
                         "; ".join("%s p_true %.3f %r kept %s" % (r["cond"], r["p_true"], r["argmax"], f3(r["kept_over_delta"])) for r in s["rows"])), flush=True)
         if not args.skip_stats:
             for set_name, pairs in (("train", train_pairs), ("tune", tune_pairs)):
-                lrep["stats"][set_name] = swap_amp_stats(bundle, pairs, l, fams, cB, mB, tok, massive_idx, args.e_alphas, prompts)
+                lrep["stats"][set_name] = swap_amp_stats(bundle, pairs, l, fams, cB, mB, tok, massive_idx, args.e_alphas, prompts, args.positions)
                 s = lrep["stats"][set_name]
                 print("  L%02d %s stats: swap success informative das %s / meandiff %s; amplify a%g dAUROC das %+.3f meandiff %+.3f; kept/delta min das %.3f" % (
                     l, set_name, f3(s["swap"]["das"]["first_token_success_informative"]), f3(s["swap"]["meandiff"]["first_token_success_informative"]),
@@ -559,7 +617,7 @@ def main():
     with open(args.out + ".json", "w", encoding="utf-8") as f:
         json.dump(clean(report), f, indent=1, ensure_ascii=False)
     pt = report["prompt_tokens"]
-    lines = ["# Direction trace: write position -> first token, %s" % mcfg["name"], "",
+    lines = ["# Direction trace: write position -> first token, %s%s" % (mcfg["name"], " (ALL positions written)" if args.positions == "all" else ""), "",
              "Layers %s; DAS files `%s` (variant %s); amplify alphas %s; estimation set %d statements; traced training pairs %s, traced tuning pairs %s (fixed order). "
              "Identity = zero edit through the same hook (must be bit-identical). Swap = write the paired statement's coordinate along w (alpha 1). Amplify = the sweep's operator with the sweep's centre." % (
                  args.layers, args.das_dir, args.das_variant, args.e_alphas, len(est), report["sets"]["traced_train"], report["sets"]["traced_tune"]), "",
@@ -582,7 +640,13 @@ def main():
             d = ds[name]
             lines.append("| %s | %.3f | %s | %.3f | %.2f | %.2f | %.3f | %.2f |" % (
                 name, d["cos_with_meandiff"], ("%.4f" % d["final_losses"][0]) if name == "das" else "-", d["readout_auroc_est"], d["gap_est"], d["within_sd_est"], d["w_share_massive"], lr["centre_proj"][name]))
-        lines += ["", "### Trace on the fixed pairs", ""]
+        tl = lr["token_level_readout"]
+        lines += ["", "Token-level readout on the estimation set (AUROC of the direction's projection summarised per sequence; mean |h| over all positions %.1f vs last token %.1f):" % (
+                      tl["_scale"]["mean_h_norm_all_positions"], tl["_scale"]["mean_h_norm_last"]), "",
+                  "| direction | last token | mean over positions | max over positions | min over positions |", "|---|---|---|---|---|"]
+        for name in ("meandiff", "das"):
+            lines.append("| %s | %.3f | %.3f | %.3f | %.3f |" % (name, tl[name]["last"], tl[name]["mean"], tl[name]["max"], tl[name]["min"]))
+        lines += ["", "### Trace on the fixed pairs%s" % (" (swap and amplify written at EVERY position; amplify uses the last-token centre and is exploratory only)" if args.positions == "all" else ""), ""]
         for tr in lr["traces"]:
             lines += ["#### %s pair `%s` -- baseline first tokens differ: %s; p_true gap %.3f; %s" % (
                           tr["set"], tr["pair_id"], tr["baseline_argmax_differs"], tr["baseline_p_true_gap"],
