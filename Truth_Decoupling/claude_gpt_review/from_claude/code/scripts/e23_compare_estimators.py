@@ -37,12 +37,16 @@ def layers_of(name):
 
 
 def rule_pick(conds, names):
-    """Pre-declared E rule on the tuning half: feasible = |d ans| <= E_LEAK; best = max dJ (ties: smaller alpha, name)."""
+    """Pre-declared E rule on the tuning half: feasible = |d ans| <= E_LEAK; best = max dJ.
+    Tie-break = the sweep's own: plain max over the conditions in the sweep's recorded order (layer ascending, alpha
+    ascending), so equal tune dJ -- quantised at 1/192 on 192 pairs, exact ties happen (Mistral-7B: L11/L12/L13 a3) --
+    resolves to the first (lowest layer, smaller alpha) exactly as e23_knob_sweep.py recorded it. An earlier version
+    broke ties by name and could pick a different layer than the sweep."""
     b = conds["baseline"]
     ok = [n for n in names if abs(conds[n]["A"]["ans"] - b["A"]["ans"]) <= E_LEAK + 1e-12]
     if not ok:
         return None
-    return max(ok, key=lambda n: (conds[n]["A"]["J"] - b["A"]["J"], -layers_of(n)[1], n))
+    return max(ok, key=lambda n: conds[n]["A"]["J"] - b["A"]["J"])
 
 
 def main():

@@ -43,7 +43,8 @@ def pick_e(conds):
     b = conds["baseline"]
     names = [n for n in conds if n.startswith("E_")]
     ok = [n for n in names if abs(conds[n]["A"]["ans"] - b["A"]["ans"]) <= E_LEAK + 1e-12]
-    return (max(ok, key=lambda n: (conds[n]["A"]["J"] - b["A"]["J"], -alpha_of(n), n)) if ok else None), len(ok), len(names)
+    # Tie-break = the sweep's (plain max in the sweep's recorded order), same as pick_c below; see e23_compare_estimators.rule_pick.
+    return (max(ok, key=lambda n: conds[n]["A"]["J"] - b["A"]["J"]) if ok else None), len(ok), len(names)
 
 
 def pick_c(conds, kind, dname):
