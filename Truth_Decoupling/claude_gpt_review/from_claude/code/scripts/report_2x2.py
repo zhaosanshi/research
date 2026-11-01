@@ -47,12 +47,15 @@ def pick_e(conds):
 
 
 def pick_c(conds, kind, dname):
+    """The sweep's C rule, including its tie-break: plain max over the conditions in the sweep's own order (layer
+    ascending, alpha ascending), so equal answer-rate changes -- common when the answer rate saturates -- resolve to
+    the first (lowest layer, smaller alpha) exactly as e23_knob_sweep.py recorded them."""
     sign = -1 if dname == "abst" else 1
     b = conds["baseline"]
     names = [n for n in conds if n.startswith(kind + "_") and ("_%s_" % dname) in n]
     ok = [n for n in names if abs(conds[n]["A"]["J"] - b["A"]["J"]) <= C_J + 1e-12 and abs(conds[n]["A"]["B"] - b["A"]["B"]) <= C_B + 1e-12
           and sign * (conds[n]["A"]["ans"] - b["A"]["ans"]) > 0]
-    return (max(ok, key=lambda n: (sign * (conds[n]["A"]["ans"] - b["A"]["ans"]), -alpha_of(n), n)) if ok else None), len(ok), len(names)
+    return (max(ok, key=lambda n: sign * (conds[n]["A"]["ans"] - b["A"]["ans"])) if ok else None), len(ok), len(names)
 
 
 def main():
@@ -158,7 +161,7 @@ def main():
                     cells += ["leak (a%g: d ans %+.3f, dJ %+.3f, dB %+.3f on tune)" % (alpha_of(worst), jc["conds"][worst]["A"]["ans"] - bc["A"]["ans"],
                                                                                      jc["conds"][worst]["A"]["J"] - bc["A"]["J"], jc["conds"][worst]["A"]["B"] - bc["A"]["B"]), "", "", ""]
                     continue
-                ch = max(ok, key=lambda n: (sign * (jc["conds"][n]["A"]["ans"] - bc["A"]["ans"]), -alpha_of(n), n))
+                ch = max(ok, key=lambda n: sign * (jc["conds"][n]["A"]["ans"] - bc["A"]["ans"]))
                 m = jc["conds"][ch]["B"]
                 cells += ["a%g" % alpha_of(ch), "%+.3f" % (m["ans"] - bc["B"]["ans"]), "%+.3f" % (m["J"] - bc["B"]["J"]), "%+.3f" % (m["B"] - bc["B"]["B"])]
         out.append("| " + " | ".join(cells) + " |")
