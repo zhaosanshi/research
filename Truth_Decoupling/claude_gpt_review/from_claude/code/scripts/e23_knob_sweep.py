@@ -179,7 +179,12 @@ def main():
         lg = np.concatenate(out)
         if stage == "A":
             return np.array([label_logprobs_from_logits(x, lab_map)["Answer"] > label_logprobs_from_logits(x, lab_map)["Abstain"] for x in lg])
-        return e22.tf_scores(lg, lab_map)
+        # Stage B returns p_true (renormalised over True/False) AND the log-odds margin log p_True - log p_False (float64).
+        # p_true saturates to exactly 1.0 / 0.0 once |margin| exceeds ~36 nat (Gemma-3-12B: 93% of statements), which ties
+        # the AUROC; the margin keeps the ranking among confident statements. J (threshold 0.5 <=> margin 0) is unchanged.
+        # Added after the Mistral/Gemma results (review round 7 candidate 2); stored as <cond>__margin and AUROC_margin.
+        lp = [label_logprobs_from_logits(x, lab_map, use_abstain=False) for x in lg]
+        return e22.tf_scores(lg, lab_map), np.array([d["True"] - d["False"] for d in lp], dtype=np.float64)
 
     res = {"model": mcfg["name"], "n": len(recs), "n_est": len(est), "layers": L, "conds": {},
            "num_layers": bundle.num_layers, "all_layers_requested": args.all_layers,
@@ -191,18 +196,21 @@ def main():
                     "per_layer": {str(l): dirs[l]["das_meta"] for l in dirs}} if args.e_estimator == "das" else None)}
     per = {}
     for name, sA, sB in conds:
-        ans = run(tA, sA, mA, "A"); p = run(tB, sB, mB, "B")
-        ans_e = run(eA, sA, mA, "A"); p_e = run(eB, sB, mB, "B")          # the 96 estimation pairs (directions were fitted here)
-        per[name] = (ans, p)
+        ans = run(tA, sA, mA, "A"); p, mg = run(tB, sB, mB, "B")
+        ans_e = run(eA, sA, mA, "A"); p_e, mg_e = run(eB, sB, mB, "B")    # the 96 estimation pairs (directions were fitted here)
+        per[name] = (ans, p, mg)
         m = {}
         for hname, mask in (("A", half_a), ("B", ~half_a), ("all", np.ones(len(recs), dtype=bool))):
             pred = p[mask] > 0.5; lab = labels[mask]
-            m[hname] = {"ans": float(ans[mask].mean()), "J": e22.j_stat(pred, lab), "AUROC": float(auroc(p[mask], lab)), "B": float(pred.mean())}
+            m[hname] = {"ans": float(ans[mask].mean()), "J": e22.j_stat(pred, lab), "AUROC": float(auroc(p[mask], lab)), "B": float(pred.mean()),
+                        "AUROC_margin": float(auroc(mg[mask], lab))}
         pred_e = p_e > 0.5
-        m["est"] = {"ans": float(ans_e.mean()), "J": e22.j_stat(pred_e, y_est), "AUROC": float(auroc(p_e, y_est)), "B": float(pred_e.mean())}
+        m["est"] = {"ans": float(ans_e.mean()), "J": e22.j_stat(pred_e, y_est), "AUROC": float(auroc(p_e, y_est)), "B": float(pred_e.mean()),
+                    "AUROC_margin": float(auroc(mg_e, y_est))}
         if args.teacher_split:
-            ans_d = run(dA, sA, mA, "A"); p_d = run(dB, sB, mB, "B"); pred_d = p_d > 0.5
-            m["dev"] = {"ans": float(ans_d.mean()), "J": e22.j_stat(pred_d, y_dev), "AUROC": float(auroc(p_d, y_dev)), "B": float(pred_d.mean())}
+            ans_d = run(dA, sA, mA, "A"); p_d, mg_d = run(dB, sB, mB, "B"); pred_d = p_d > 0.5
+            m["dev"] = {"ans": float(ans_d.mean()), "J": e22.j_stat(pred_d, y_dev), "AUROC": float(auroc(p_d, y_dev)), "B": float(pred_d.mean()),
+                        "AUROC_margin": float(auroc(mg_d, y_dev))}
         res["conds"][name] = m
         b = res["conds"]["baseline"]["all"]
         print("  %-18s ans %.3f (%+.3f) | J %+.3f (%+.3f) | AUROC %.3f (%+.3f) | B %.3f (%+.3f)  (%.0fs)" % (
@@ -263,7 +271,8 @@ def main():
     res["elapsed_s"] = time.time() - t0
     atomic_json_dump(res, os.path.join(out_dir, stem + ".json"))
     np.savez(os.path.join(out_dir, stem + ".npz"), ids=np.array([r["id"] for r in recs]), labels=labels, half_a=half_a,
-             **{n + "__answer": v[0] for n, v in per.items()}, **{n + "__ptrue": v[1] for n, v in per.items()})
+             **{n + "__answer": v[0] for n, v in per.items()}, **{n + "__ptrue": v[1] for n, v in per.items()},
+             **{n + "__margin": v[2] for n, v in per.items()})
     lines = ["# E23 knob sweep, %s (n=%d; layers %s; wording %s; E estimator %s%s)" % (
                  mcfg["name"], len(recs), L, args.wording, args.e_estimator,
                  (" variant=%s dir=%s" % (args.das_variant or "default", args.das_dir)) if args.e_estimator == "das" else ""), "",
