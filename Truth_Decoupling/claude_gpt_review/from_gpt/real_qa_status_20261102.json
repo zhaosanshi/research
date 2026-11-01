@@ -1,0 +1,143 @@
+{
+  "read_at_beijing": "2026-11-02 07:07",
+  "code_commit": "71c408a8b520c0cff0a73f7c46ac0fcf5b99772a",
+  "scope": "Status check of completed generation and single-judge scoring; not a full independent grading audit",
+  "models": {
+    "llama3.1-8b": {
+      "n_generated": 529,
+      "n_main": 521,
+      "n_abstention_gold_separate": 8,
+      "counts": {
+        "baseline": {
+          "wrong": 302,
+          "correct": 142,
+          "abstain": 77
+        },
+        "E": {
+          "wrong": 302,
+          "correct": 144,
+          "abstain": 75
+        },
+        "C_abst": {
+          "abstain": 207,
+          "correct": 116,
+          "wrong": 198
+        }
+      },
+      "judge_only_counts": {
+        "baseline": {
+          "wrong": 302,
+          "correct": 142,
+          "abstain": 77
+        },
+        "E": {
+          "wrong": 302,
+          "correct": 144,
+          "abstain": 75
+        },
+        "C_abst": {
+          "abstain": 172,
+          "correct": 127,
+          "wrong": 222
+        }
+      },
+      "E_exact_output_matches_baseline": 446,
+      "C_rule_overrides": {
+        "correct->abstain": 11,
+        "wrong->abstain": 24
+      },
+      "transitions": {
+        "E": {
+          "correct->correct": 137,
+          "correct->wrong": 5,
+          "correct->abstain": 0,
+          "wrong->correct": 5,
+          "wrong->wrong": 294,
+          "wrong->abstain": 3,
+          "abstain->correct": 2,
+          "abstain->wrong": 3,
+          "abstain->abstain": 72
+        },
+        "C_abst": {
+          "correct->correct": 101,
+          "correct->wrong": 7,
+          "correct->abstain": 34,
+          "wrong->correct": 9,
+          "wrong->wrong": 191,
+          "wrong->abstain": 102,
+          "abstain->correct": 6,
+          "abstain->wrong": 0,
+          "abstain->abstain": 71
+        }
+      }
+    },
+    "qwen3-8b": {
+      "n_generated": 529,
+      "n_main": 521,
+      "n_abstention_gold_separate": 8,
+      "counts": {
+        "baseline": {
+          "abstain": 192,
+          "wrong": 194,
+          "correct": 135
+        },
+        "E": {
+          "abstain": 191,
+          "wrong": 195,
+          "correct": 135
+        },
+        "C_abst": {
+          "abstain": 169,
+          "correct": 156,
+          "wrong": 196
+        }
+      },
+      "judge_only_counts": {
+        "baseline": {
+          "abstain": 190,
+          "wrong": 195,
+          "correct": 136
+        },
+        "E": {
+          "abstain": 191,
+          "wrong": 195,
+          "correct": 135
+        },
+        "C_abst": {
+          "abstain": 167,
+          "correct": 157,
+          "wrong": 197
+        }
+      },
+      "E_exact_output_matches_baseline": 493,
+      "C_rule_overrides": {
+        "correct->abstain": 1,
+        "wrong->abstain": 1
+      },
+      "transitions": {
+        "E": {
+          "correct->correct": 133,
+          "correct->wrong": 2,
+          "correct->abstain": 0,
+          "wrong->correct": 1,
+          "wrong->wrong": 188,
+          "wrong->abstain": 5,
+          "abstain->correct": 1,
+          "abstain->wrong": 5,
+          "abstain->abstain": 186
+        },
+        "C_abst": {
+          "correct->correct": 98,
+          "correct->wrong": 31,
+          "correct->abstain": 6,
+          "wrong->correct": 26,
+          "wrong->wrong": 149,
+          "wrong->abstain": 19,
+          "abstain->correct": 32,
+          "abstain->wrong": 16,
+          "abstain->abstain": 144
+        }
+      }
+    }
+  }
+}
