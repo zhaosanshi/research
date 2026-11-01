@@ -10,8 +10,11 @@ Outputs results_tqa/E23/<model>/knob_sweep_<out-tag>.{md,json}:
 usage: python3 scripts/e23_merge.py --model llama3.1-8b --tags all_a all_b --out-tag all
 Runs on CPU (numpy only); results dirs are read relative to --root.
 """
-import argparse, json, os, re
+import argparse, json, os, re, sys
 import numpy as np
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from core.metrics import auroc  # Share the sweep's tie-aware implementation.
 
 E_LEAK, C_J, C_B = 0.03, 0.02, 0.05          # the pre-declared rule
 
@@ -39,14 +42,6 @@ def centre(name):
 
 def j_stat(pred, lab):
     return float(pred[lab].mean() - pred[~lab].mean())
-
-
-def auroc(score, lab):
-    pos, neg = score[lab], score[~lab]
-    if len(pos) == 0 or len(neg) == 0:
-        return float("nan")
-    r = np.argsort(np.argsort(np.concatenate([pos, neg]), kind="mergesort"), kind="mergesort").astype(float) + 1
-    return float((r[: len(pos)].sum() - len(pos) * (len(pos) + 1) / 2) / (len(pos) * len(neg)))
 
 
 def metrics(ans, p, lab):

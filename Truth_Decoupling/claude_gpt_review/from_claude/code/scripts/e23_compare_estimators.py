@@ -12,8 +12,11 @@ Runs on CPU (numpy only).
 usage: python3 scripts/e23_compare_estimators.py --root /path/to/results_das_tf --model llama3.1-8b \
            --tag-a das_tf_full --label-a DAS --tag-b meandiff_full --label-b meandiff --out /path/out.md
 """
-import argparse, json, os, re
+import argparse, json, os, re, sys
 import numpy as np
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from core.metrics import auroc  # Same tie-aware implementation as the E23 sweep.
 
 E_LEAK = 0.03
 K = ("J", "AUROC", "ans", "B")
@@ -21,12 +24,6 @@ K = ("J", "AUROC", "ans", "B")
 
 def j_stat(pred, lab):
     return float(pred[lab].mean() - pred[~lab].mean())
-
-
-def auroc(score, lab):
-    pos, neg = score[lab], score[~lab]
-    r = np.argsort(np.argsort(np.concatenate([pos, neg]), kind="mergesort"), kind="mergesort").astype(float) + 1
-    return float((r[: len(pos)].sum() - len(pos) * (len(pos) + 1) / 2) / (len(pos) * len(neg)))
 
 
 def metrics(ans, p, lab):
