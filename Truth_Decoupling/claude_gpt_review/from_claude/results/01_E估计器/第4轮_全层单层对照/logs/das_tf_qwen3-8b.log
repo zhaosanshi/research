@@ -1,0 +1,778 @@
+== 2026-11-01 02:02:39 chain start gpu=1 model=qwen3-8b
+== 2026-11-01 02:02:39 step 2: E1 DAS all layers (tf prompt, prompt anchor)
+W1031 18:02:43.457000 92805 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1031 18:02:43.477000 92805 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:00<00:00, 351.92it/s]
+[E] 96 true / 96 false statements (prompt allow_idk=False, source=tf)
+[C] 192 confident/cautious prompt pairs
+  L00 sepE=0.500 sepC=1.000 S_E=+0.47 S_C=-2.43 cos=-0.109 cosW=-0.095 cos(C,unk)=0.014 cos(E,T-F)=-0.029
+  L01 sepE=0.500 sepC=1.000 S_E=-0.46 S_C=-2.23 cos=-0.146 cosW=-0.090 cos(C,unk)=0.002 cos(E,T-F)=-0.011
+  L02 sepE=0.500 sepC=1.000 S_E=-0.64 S_C=-1.91 cos=-0.093 cosW=-0.072 cos(C,unk)=0.002 cos(E,T-F)=-0.015
+  L03 sepE=0.500 sepC=1.000 S_E=-0.55 S_C=-1.69 cos=-0.041 cosW=-0.043 cos(C,unk)=0.032 cos(E,T-F)=-0.024
+  L04 sepE=0.500 sepC=1.000 S_E=-0.39 S_C=-2.11 cos=-0.027 cosW=-0.038 cos(C,unk)=0.008 cos(E,T-F)=-0.013
+  L05 sepE=0.500 sepC=1.000 S_E=-0.44 S_C=-2.32 cos=-0.033 cosW=-0.039 cos(C,unk)=0.006 cos(E,T-F)=-0.006
+  L06 sepE=0.500 sepC=1.000 S_E=+0.03 S_C=-2.17 cos=-0.021 cosW=-0.039 cos(C,unk)=0.009 cos(E,T-F)=-0.001
+  L07 sepE=0.500 sepC=1.000 S_E=-0.59 S_C=-2.21 cos=0.013 cosW=0.004 cos(C,unk)=-0.015 cos(E,T-F)=-0.003
+  L08 sepE=0.500 sepC=1.000 S_E=-0.42 S_C=-1.72 cos=0.044 cosW=0.033 cos(C,unk)=-0.009 cos(E,T-F)=0.017
+  L09 sepE=0.500 sepC=1.000 S_E=-0.62 S_C=-0.89 cos=0.070 cosW=0.058 cos(C,unk)=-0.012 cos(E,T-F)=0.024
+  L10 sepE=0.500 sepC=1.000 S_E=-0.52 S_C=-1.68 cos=0.129 cosW=0.131 cos(C,unk)=-0.010 cos(E,T-F)=0.004
+  L11 sepE=0.500 sepC=1.000 S_E=-0.84 S_C=-1.37 cos=0.121 cosW=0.116 cos(C,unk)=-0.026 cos(E,T-F)=0.002
+  L12 sepE=0.506 sepC=1.000 S_E=-0.69 S_C=-1.33 cos=0.144 cosW=0.131 cos(C,unk)=-0.022 cos(E,T-F)=-0.015
+  L13 sepE=0.524 sepC=1.000 S_E=-0.36 S_C=-0.29 cos=0.123 cosW=0.126 cos(C,unk)=-0.016 cos(E,T-F)=-0.006
+  L14 sepE=0.551 sepC=1.000 S_E=-0.49 S_C=-0.17 cos=0.081 cosW=0.096 cos(C,unk)=-0.017 cos(E,T-F)=0.002
+  L15 sepE=0.580 sepC=1.000 S_E=-0.28 S_C=-0.69 cos=0.030 cosW=0.020 cos(C,unk)=0.001 cos(E,T-F)=0.008
+  L16 sepE=0.650 sepC=1.000 S_E=+0.35 S_C=+0.54 cos=-0.026 cosW=-0.026 cos(C,unk)=-0.005 cos(E,T-F)=-0.003
+  L17 sepE=0.719 sepC=1.000 S_E=+0.11 S_C=+1.30 cos=-0.029 cosW=-0.040 cos(C,unk)=-0.007 cos(E,T-F)=0.012
+  L18 sepE=0.732 sepC=1.000 S_E=+0.10 S_C=+0.74 cos=-0.023 cosW=-0.025 cos(C,unk)=-0.017 cos(E,T-F)=0.010
+  L19 sepE=0.821 sepC=1.000 S_E=+0.94 S_C=+1.80 cos=-0.062 cosW=-0.042 cos(C,unk)=-0.068 cos(E,T-F)=0.047
+  L20 sepE=0.828 sepC=1.000 S_E=+0.88 S_C=+1.07 cos=0.009 cosW=0.022 cos(C,unk)=-0.062 cos(E,T-F)=0.067
+  L21 sepE=0.839 sepC=1.000 S_E=+1.24 S_C=+2.26 cos=0.021 cosW=0.006 cos(C,unk)=-0.062 cos(E,T-F)=0.093
+  L22 sepE=0.826 sepC=1.000 S_E=+1.75 S_C=+1.52 cos=-0.078 cosW=-0.077 cos(C,unk)=-0.088 cos(E,T-F)=0.139
+  L23 sepE=0.850 sepC=1.000 S_E=+1.65 S_C=+2.24 cos=-0.212 cosW=-0.201 cos(C,unk)=-0.092 cos(E,T-F)=0.162
+  L24 sepE=0.847 sepC=1.000 S_E=+3.40 S_C=+5.48 cos=-0.182 cosW=-0.203 cos(C,unk)=-0.080 cos(E,T-F)=0.189
+  L25 sepE=0.849 sepC=1.000 S_E=+2.80 S_C=+4.33 cos=-0.196 cosW=-0.197 cos(C,unk)=-0.065 cos(E,T-F)=0.161
+  L26 sepE=0.853 sepC=1.000 S_E=+1.81 S_C=+4.41 cos=-0.258 cosW=-0.248 cos(C,unk)=-0.077 cos(E,T-F)=0.237
+  L27 sepE=0.846 sepC=1.000 S_E=+1.98 S_C=+4.95 cos=-0.273 cosW=-0.276 cos(C,unk)=-0.065 cos(E,T-F)=0.276
+  L28 sepE=0.841 sepC=1.000 S_E=+1.73 S_C=+4.98 cos=-0.242 cosW=-0.248 cos(C,unk)=-0.069 cos(E,T-F)=0.258
+  L29 sepE=0.837 sepC=1.000 S_E=+3.43 S_C=+4.39 cos=-0.165 cosW=-0.184 cos(C,unk)=-0.089 cos(E,T-F)=0.277
+  L30 sepE=0.847 sepC=1.000 S_E=+2.38 S_C=+4.02 cos=-0.250 cosW=-0.227 cos(C,unk)=-0.144 cos(E,T-F)=0.499
+  L31 sepE=0.851 sepC=1.000 S_E=+1.66 S_C=+4.70 cos=-0.100 cosW=-0.116 cos(C,unk)=-0.145 cos(E,T-F)=0.419
+  L32 sepE=0.845 sepC=1.000 S_E=+1.81 S_C=+3.41 cos=-0.124 cosW=-0.136 cos(C,unk)=-0.150 cos(E,T-F)=0.347
+  L33 sepE=0.841 sepC=1.000 S_E=+0.94 S_C=+3.12 cos=-0.135 cosW=-0.142 cos(C,unk)=-0.147 cos(E,T-F)=0.372
+  L34 sepE=0.835 sepC=1.000 S_E=-0.09 S_C=+1.97 cos=-0.159 cosW=-0.143 cos(C,unk)=-0.148 cos(E,T-F)=0.359
+  L35 sepE=0.836 sepC=1.000 S_E=+2.45 S_C=+4.00 cos=0.014 cosW=-0.156 cos(C,unk)=-0.107 cos(E,T-F)=0.249
+[DAS] variant='tf' seeds=[42] loss=kl bidir=False positions=last anchor=prompt prompt_allow_idk=False balanced=False trim=0
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  [DAS L0 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L0 r1 kl anchor=prompt] epoch 0/10 loss=5.250040 (avg 2.0 teacher steps)
+  [DAS L0 r1 kl anchor=prompt] epoch 1/10 loss=5.226255 (avg 2.0 teacher steps)
+  [DAS L0 r1 kl anchor=prompt] epoch 2/10 loss=5.220942 (avg 2.0 teacher steps)
+  [DAS L0 r1 kl anchor=prompt] epoch 3/10 loss=5.225654 (avg 2.0 teacher steps)
+  [DAS L0 r1 kl anchor=prompt] epoch 4/10 loss=5.219920 (avg 2.0 teacher steps)
+  [DAS L0 r1 kl anchor=prompt] epoch 5/10 loss=5.217527 (avg 2.0 teacher steps)
+  [DAS L0 r1 kl anchor=prompt] epoch 6/10 loss=5.214011 (avg 2.0 teacher steps)
+  [DAS L0 r1 kl anchor=prompt] epoch 7/10 loss=5.223386 (avg 2.0 teacher steps)
+  [DAS L0 r1 kl anchor=prompt] epoch 8/10 loss=5.217606 (avg 2.0 teacher steps)
+  [DAS L0 r1 kl anchor=prompt] epoch 9/10 loss=5.205977 (avg 2.0 teacher steps)
+  [DAS E L0 s42] loss=5.20598 cos(meandiff)=0.660 cos(other)=-0.118
+  [DAS L1 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L1 r1 kl anchor=prompt] epoch 0/10 loss=5.251787 (avg 2.0 teacher steps)
+  [DAS L1 r1 kl anchor=prompt] epoch 1/10 loss=5.171181 (avg 2.0 teacher steps)
+  [DAS L1 r1 kl anchor=prompt] epoch 2/10 loss=5.152257 (avg 2.0 teacher steps)
+  [DAS L1 r1 kl anchor=prompt] epoch 3/10 loss=5.142558 (avg 2.0 teacher steps)
+  [DAS L1 r1 kl anchor=prompt] epoch 4/10 loss=5.149486 (avg 2.0 teacher steps)
+  [DAS L1 r1 kl anchor=prompt] epoch 5/10 loss=5.140187 (avg 2.0 teacher steps)
+  [DAS L1 r1 kl anchor=prompt] epoch 6/10 loss=5.138002 (avg 2.0 teacher steps)
+  [DAS L1 r1 kl anchor=prompt] epoch 7/10 loss=5.136714 (avg 2.0 teacher steps)
+  [DAS L1 r1 kl anchor=prompt] epoch 8/10 loss=5.151725 (avg 2.0 teacher steps)
+  [DAS L1 r1 kl anchor=prompt] epoch 9/10 loss=5.139844 (avg 2.0 teacher steps)
+  [DAS E L1 s42] loss=5.13984 cos(meandiff)=0.678 cos(other)=-0.135
+  [DAS L2 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L2 r1 kl anchor=prompt] epoch 0/10 loss=5.242453 (avg 2.0 teacher steps)
+  [DAS L2 r1 kl anchor=prompt] epoch 1/10 loss=5.184318 (avg 2.0 teacher steps)
+  [DAS L2 r1 kl anchor=prompt] epoch 2/10 loss=5.135883 (avg 2.0 teacher steps)
+  [DAS L2 r1 kl anchor=prompt] epoch 3/10 loss=5.132427 (avg 2.0 teacher steps)
+  [DAS L2 r1 kl anchor=prompt] epoch 4/10 loss=5.122989 (avg 2.0 teacher steps)
+  [DAS L2 r1 kl anchor=prompt] epoch 5/10 loss=5.122500 (avg 2.0 teacher steps)
+  [DAS L2 r1 kl anchor=prompt] epoch 6/10 loss=5.112353 (avg 2.0 teacher steps)
+  [DAS L2 r1 kl anchor=prompt] epoch 7/10 loss=5.125144 (avg 2.0 teacher steps)
+  [DAS L2 r1 kl anchor=prompt] epoch 8/10 loss=5.114667 (avg 2.0 teacher steps)
+  [DAS L2 r1 kl anchor=prompt] epoch 9/10 loss=5.103276 (avg 2.0 teacher steps)
+  [DAS E L2 s42] loss=5.10328 cos(meandiff)=0.680 cos(other)=-0.091
+  [DAS L3 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L3 r1 kl anchor=prompt] epoch 0/10 loss=5.235446 (avg 2.0 teacher steps)
+  [DAS L3 r1 kl anchor=prompt] epoch 1/10 loss=5.144835 (avg 2.0 teacher steps)
+  [DAS L3 r1 kl anchor=prompt] epoch 2/10 loss=5.107161 (avg 2.0 teacher steps)
+  [DAS L3 r1 kl anchor=prompt] epoch 3/10 loss=5.098684 (avg 2.0 teacher steps)
+  [DAS L3 r1 kl anchor=prompt] epoch 4/10 loss=5.099104 (avg 2.0 teacher steps)
+  [DAS L3 r1 kl anchor=prompt] epoch 5/10 loss=5.092936 (avg 2.0 teacher steps)
+  [DAS L3 r1 kl anchor=prompt] epoch 6/10 loss=5.101715 (avg 2.0 teacher steps)
+  [DAS L3 r1 kl anchor=prompt] epoch 7/10 loss=5.102264 (avg 2.0 teacher steps)
+  [DAS L3 r1 kl anchor=prompt] epoch 8/10 loss=5.095675 (avg 2.0 teacher steps)
+  [DAS L3 r1 kl anchor=prompt] epoch 9/10 loss=5.091329 (avg 2.0 teacher steps)
+  [DAS E L3 s42] loss=5.09133 cos(meandiff)=0.686 cos(other)=-0.067
+  [DAS L4 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L4 r1 kl anchor=prompt] epoch 0/10 loss=5.220648 (avg 2.0 teacher steps)
+  [DAS L4 r1 kl anchor=prompt] epoch 1/10 loss=5.124584 (avg 2.0 teacher steps)
+  [DAS L4 r1 kl anchor=prompt] epoch 2/10 loss=5.087541 (avg 2.0 teacher steps)
+  [DAS L4 r1 kl anchor=prompt] epoch 3/10 loss=5.081269 (avg 2.0 teacher steps)
+  [DAS L4 r1 kl anchor=prompt] epoch 4/10 loss=5.090393 (avg 2.0 teacher steps)
+  [DAS L4 r1 kl anchor=prompt] epoch 5/10 loss=5.071091 (avg 2.0 teacher steps)
+  [DAS L4 r1 kl anchor=prompt] epoch 6/10 loss=5.074920 (avg 2.0 teacher steps)
+  [DAS L4 r1 kl anchor=prompt] epoch 7/10 loss=5.067542 (avg 2.0 teacher steps)
+  [DAS L4 r1 kl anchor=prompt] epoch 8/10 loss=5.066889 (avg 2.0 teacher steps)
+  [DAS L4 r1 kl anchor=prompt] epoch 9/10 loss=5.074764 (avg 2.0 teacher steps)
+  [DAS E L4 s42] loss=5.07476 cos(meandiff)=-0.685 cos(other)=0.070
+  [DAS L5 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L5 r1 kl anchor=prompt] epoch 0/10 loss=5.240166 (avg 2.0 teacher steps)
+  [DAS L5 r1 kl anchor=prompt] epoch 1/10 loss=5.126217 (avg 2.0 teacher steps)
+  [DAS L5 r1 kl anchor=prompt] epoch 2/10 loss=5.071209 (avg 2.0 teacher steps)
+  [DAS L5 r1 kl anchor=prompt] epoch 3/10 loss=5.046176 (avg 2.0 teacher steps)
+  [DAS L5 r1 kl anchor=prompt] epoch 4/10 loss=5.054265 (avg 2.0 teacher steps)
+  [DAS L5 r1 kl anchor=prompt] epoch 5/10 loss=5.042909 (avg 2.0 teacher steps)
+  [DAS L5 r1 kl anchor=prompt] epoch 6/10 loss=5.035193 (avg 2.0 teacher steps)
+  [DAS L5 r1 kl anchor=prompt] epoch 7/10 loss=5.041289 (avg 2.0 teacher steps)
+  [DAS L5 r1 kl anchor=prompt] epoch 8/10 loss=5.035783 (avg 2.0 teacher steps)
+  [DAS L5 r1 kl anchor=prompt] epoch 9/10 loss=5.026126 (avg 2.0 teacher steps)
+  [DAS E L5 s42] loss=5.02613 cos(meandiff)=-0.685 cos(other)=0.090
+  [DAS L6 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L6 r1 kl anchor=prompt] epoch 0/10 loss=5.242364 (avg 2.0 teacher steps)
+  [DAS L6 r1 kl anchor=prompt] epoch 1/10 loss=5.103990 (avg 2.0 teacher steps)
+  [DAS L6 r1 kl anchor=prompt] epoch 2/10 loss=5.038254 (avg 2.0 teacher steps)
+  [DAS L6 r1 kl anchor=prompt] epoch 3/10 loss=5.042858 (avg 2.0 teacher steps)
+  [DAS L6 r1 kl anchor=prompt] epoch 4/10 loss=5.018742 (avg 2.0 teacher steps)
+  [DAS L6 r1 kl anchor=prompt] epoch 5/10 loss=5.029225 (avg 2.0 teacher steps)
+  [DAS L6 r1 kl anchor=prompt] epoch 6/10 loss=5.018531 (avg 2.0 teacher steps)
+  [DAS L6 r1 kl anchor=prompt] epoch 7/10 loss=5.024113 (avg 2.0 teacher steps)
+  [DAS L6 r1 kl anchor=prompt] epoch 8/10 loss=5.021021 (avg 2.0 teacher steps)
+  [DAS L6 r1 kl anchor=prompt] epoch 9/10 loss=5.019855 (avg 2.0 teacher steps)
+  [DAS E L6 s42] loss=5.01985 cos(meandiff)=0.684 cos(other)=-0.072
+  [DAS L7 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L7 r1 kl anchor=prompt] epoch 0/10 loss=5.221208 (avg 2.0 teacher steps)
+  [DAS L7 r1 kl anchor=prompt] epoch 1/10 loss=5.072811 (avg 2.0 teacher steps)
+  [DAS L7 r1 kl anchor=prompt] epoch 2/10 loss=5.010019 (avg 2.0 teacher steps)
+  [DAS L7 r1 kl anchor=prompt] epoch 3/10 loss=5.019341 (avg 2.0 teacher steps)
+  [DAS L7 r1 kl anchor=prompt] epoch 4/10 loss=5.009739 (avg 2.0 teacher steps)
+  [DAS L7 r1 kl anchor=prompt] epoch 5/10 loss=5.007499 (avg 2.0 teacher steps)
+  [DAS L7 r1 kl anchor=prompt] epoch 6/10 loss=5.002045 (avg 2.0 teacher steps)
+  [DAS L7 r1 kl anchor=prompt] epoch 7/10 loss=4.999940 (avg 2.0 teacher steps)
+  [DAS L7 r1 kl anchor=prompt] epoch 8/10 loss=5.003967 (avg 2.0 teacher steps)
+  [DAS L7 r1 kl anchor=prompt] epoch 9/10 loss=4.994638 (avg 2.0 teacher steps)
+  [DAS E L7 s42] loss=4.99464 cos(meandiff)=0.681 cos(other)=-0.046
+  [DAS L8 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L8 r1 kl anchor=prompt] epoch 0/10 loss=5.214376 (avg 2.0 teacher steps)
+  [DAS L8 r1 kl anchor=prompt] epoch 1/10 loss=5.055135 (avg 2.0 teacher steps)
+  [DAS L8 r1 kl anchor=prompt] epoch 2/10 loss=5.022956 (avg 2.0 teacher steps)
+  [DAS L8 r1 kl anchor=prompt] epoch 3/10 loss=5.010758 (avg 2.0 teacher steps)
+  [DAS L8 r1 kl anchor=prompt] epoch 4/10 loss=5.013949 (avg 2.0 teacher steps)
+  [DAS L8 r1 kl anchor=prompt] epoch 5/10 loss=5.000530 (avg 2.0 teacher steps)
+  [DAS L8 r1 kl anchor=prompt] epoch 6/10 loss=5.002402 (avg 2.0 teacher steps)
+  [DAS L8 r1 kl anchor=prompt] epoch 7/10 loss=5.004530 (avg 2.0 teacher steps)
+  [DAS L8 r1 kl anchor=prompt] epoch 8/10 loss=4.993217 (avg 2.0 teacher steps)
+  [DAS L8 r1 kl anchor=prompt] epoch 9/10 loss=5.008143 (avg 2.0 teacher steps)
+  [DAS E L8 s42] loss=5.00814 cos(meandiff)=0.678 cos(other)=-0.017
+  [DAS L9 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L9 r1 kl anchor=prompt] epoch 0/10 loss=5.208859 (avg 2.0 teacher steps)
+  [DAS L9 r1 kl anchor=prompt] epoch 1/10 loss=5.057416 (avg 2.0 teacher steps)
+  [DAS L9 r1 kl anchor=prompt] epoch 2/10 loss=5.020350 (avg 2.0 teacher steps)
+  [DAS L9 r1 kl anchor=prompt] epoch 3/10 loss=5.005018 (avg 2.0 teacher steps)
+  [DAS L9 r1 kl anchor=prompt] epoch 4/10 loss=5.011189 (avg 2.0 teacher steps)
+  [DAS L9 r1 kl anchor=prompt] epoch 5/10 loss=4.992450 (avg 2.0 teacher steps)
+  [DAS L9 r1 kl anchor=prompt] epoch 6/10 loss=4.998554 (avg 2.0 teacher steps)
+  [DAS L9 r1 kl anchor=prompt] epoch 7/10 loss=4.988798 (avg 2.0 teacher steps)
+  [DAS L9 r1 kl anchor=prompt] epoch 8/10 loss=5.001176 (avg 2.0 teacher steps)
+  [DAS L9 r1 kl anchor=prompt] epoch 9/10 loss=4.978692 (avg 2.0 teacher steps)
+  [DAS E L9 s42] loss=4.97869 cos(meandiff)=0.670 cos(other)=-0.009
+  [DAS L10 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L10 r1 kl anchor=prompt] epoch 0/10 loss=5.202036 (avg 2.0 teacher steps)
+  [DAS L10 r1 kl anchor=prompt] epoch 1/10 loss=5.038740 (avg 2.0 teacher steps)
+  [DAS L10 r1 kl anchor=prompt] epoch 2/10 loss=4.999991 (avg 2.0 teacher steps)
+  [DAS L10 r1 kl anchor=prompt] epoch 3/10 loss=4.984735 (avg 2.0 teacher steps)
+  [DAS L10 r1 kl anchor=prompt] epoch 4/10 loss=4.977093 (avg 2.0 teacher steps)
+  [DAS L10 r1 kl anchor=prompt] epoch 5/10 loss=4.985196 (avg 2.0 teacher steps)
+  [DAS L10 r1 kl anchor=prompt] epoch 6/10 loss=4.983000 (avg 2.0 teacher steps)
+  [DAS L10 r1 kl anchor=prompt] epoch 7/10 loss=4.978429 (avg 2.0 teacher steps)
+  [DAS L10 r1 kl anchor=prompt] epoch 8/10 loss=4.963400 (avg 2.0 teacher steps)
+  [DAS L10 r1 kl anchor=prompt] epoch 9/10 loss=4.973143 (avg 2.0 teacher steps)
+  [DAS E L10 s42] loss=4.97314 cos(meandiff)=-0.668 cos(other)=-0.012
+  [DAS L11 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L11 r1 kl anchor=prompt] epoch 0/10 loss=5.205215 (avg 2.0 teacher steps)
+  [DAS L11 r1 kl anchor=prompt] epoch 1/10 loss=5.020166 (avg 2.0 teacher steps)
+  [DAS L11 r1 kl anchor=prompt] epoch 2/10 loss=4.970238 (avg 2.0 teacher steps)
+  [DAS L11 r1 kl anchor=prompt] epoch 3/10 loss=4.950368 (avg 2.0 teacher steps)
+  [DAS L11 r1 kl anchor=prompt] epoch 4/10 loss=4.949199 (avg 2.0 teacher steps)
+  [DAS L11 r1 kl anchor=prompt] epoch 5/10 loss=4.958646 (avg 2.0 teacher steps)
+  [DAS L11 r1 kl anchor=prompt] epoch 6/10 loss=4.944595 (avg 2.0 teacher steps)
+  [DAS L11 r1 kl anchor=prompt] epoch 7/10 loss=4.945644 (avg 2.0 teacher steps)
+  [DAS L11 r1 kl anchor=prompt] epoch 8/10 loss=4.946858 (avg 2.0 teacher steps)
+  [DAS L11 r1 kl anchor=prompt] epoch 9/10 loss=4.942104 (avg 2.0 teacher steps)
+  [DAS E L11 s42] loss=4.94210 cos(meandiff)=0.670 cos(other)=0.009
+  [DAS L12 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L12 r1 kl anchor=prompt] epoch 0/10 loss=5.172173 (avg 2.0 teacher steps)
+  [DAS L12 r1 kl anchor=prompt] epoch 1/10 loss=4.995217 (avg 2.0 teacher steps)
+  [DAS L12 r1 kl anchor=prompt] epoch 2/10 loss=4.953520 (avg 2.0 teacher steps)
+  [DAS L12 r1 kl anchor=prompt] epoch 3/10 loss=4.940980 (avg 2.0 teacher steps)
+  [DAS L12 r1 kl anchor=prompt] epoch 4/10 loss=4.947642 (avg 2.0 teacher steps)
+  [DAS L12 r1 kl anchor=prompt] epoch 5/10 loss=4.948368 (avg 2.0 teacher steps)
+  [DAS L12 r1 kl anchor=prompt] epoch 6/10 loss=4.932379 (avg 2.0 teacher steps)
+  [DAS L12 r1 kl anchor=prompt] epoch 7/10 loss=4.926734 (avg 2.0 teacher steps)
+  [DAS L12 r1 kl anchor=prompt] epoch 8/10 loss=4.943102 (avg 2.0 teacher steps)
+  [DAS L12 r1 kl anchor=prompt] epoch 9/10 loss=4.928579 (avg 2.0 teacher steps)
+  [DAS E L12 s42] loss=4.92858 cos(meandiff)=0.672 cos(other)=0.041
+  [DAS L13 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L13 r1 kl anchor=prompt] epoch 0/10 loss=5.185164 (avg 2.0 teacher steps)
+  [DAS L13 r1 kl anchor=prompt] epoch 1/10 loss=4.980017 (avg 2.0 teacher steps)
+  [DAS L13 r1 kl anchor=prompt] epoch 2/10 loss=4.947177 (avg 2.0 teacher steps)
+  [DAS L13 r1 kl anchor=prompt] epoch 3/10 loss=4.929283 (avg 2.0 teacher steps)
+  [DAS L13 r1 kl anchor=prompt] epoch 4/10 loss=4.933265 (avg 2.0 teacher steps)
+  [DAS L13 r1 kl anchor=prompt] epoch 5/10 loss=4.932428 (avg 2.0 teacher steps)
+  [DAS L13 r1 kl anchor=prompt] epoch 6/10 loss=4.926980 (avg 2.0 teacher steps)
+  [DAS L13 r1 kl anchor=prompt] epoch 7/10 loss=4.921806 (avg 2.0 teacher steps)
+  [DAS L13 r1 kl anchor=prompt] epoch 8/10 loss=4.915930 (avg 2.0 teacher steps)
+  [DAS L13 r1 kl anchor=prompt] epoch 9/10 loss=4.903882 (avg 2.0 teacher steps)
+  [DAS E L13 s42] loss=4.90388 cos(meandiff)=-0.675 cos(other)=-0.047
+  [DAS L14 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L14 r1 kl anchor=prompt] epoch 0/10 loss=5.170011 (avg 2.0 teacher steps)
+  [DAS L14 r1 kl anchor=prompt] epoch 1/10 loss=4.958934 (avg 2.0 teacher steps)
+  [DAS L14 r1 kl anchor=prompt] epoch 2/10 loss=4.903818 (avg 2.0 teacher steps)
+  [DAS L14 r1 kl anchor=prompt] epoch 3/10 loss=4.900260 (avg 2.0 teacher steps)
+  [DAS L14 r1 kl anchor=prompt] epoch 4/10 loss=4.902514 (avg 2.0 teacher steps)
+  [DAS L14 r1 kl anchor=prompt] epoch 5/10 loss=4.915627 (avg 2.0 teacher steps)
+  [DAS L14 r1 kl anchor=prompt] epoch 6/10 loss=4.903686 (avg 2.0 teacher steps)
+  [DAS L14 r1 kl anchor=prompt] epoch 7/10 loss=4.895432 (avg 2.0 teacher steps)
+  [DAS L14 r1 kl anchor=prompt] epoch 8/10 loss=4.890862 (avg 2.0 teacher steps)
+  [DAS L14 r1 kl anchor=prompt] epoch 9/10 loss=4.886371 (avg 2.0 teacher steps)
+  [DAS E L14 s42] loss=4.88637 cos(meandiff)=-0.677 cos(other)=-0.029
+  [DAS L15 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L15 r1 kl anchor=prompt] epoch 0/10 loss=5.149957 (avg 2.0 teacher steps)
+  [DAS L15 r1 kl anchor=prompt] epoch 1/10 loss=4.934590 (avg 2.0 teacher steps)
+  [DAS L15 r1 kl anchor=prompt] epoch 2/10 loss=4.893418 (avg 2.0 teacher steps)
+  [DAS L15 r1 kl anchor=prompt] epoch 3/10 loss=4.891980 (avg 2.0 teacher steps)
+  [DAS L15 r1 kl anchor=prompt] epoch 4/10 loss=4.882377 (avg 2.0 teacher steps)
+  [DAS L15 r1 kl anchor=prompt] epoch 5/10 loss=4.880133 (avg 2.0 teacher steps)
+  [DAS L15 r1 kl anchor=prompt] epoch 6/10 loss=4.885707 (avg 2.0 teacher steps)
+  [DAS L15 r1 kl anchor=prompt] epoch 7/10 loss=4.892926 (avg 2.0 teacher steps)
+  [DAS L15 r1 kl anchor=prompt] epoch 8/10 loss=4.874878 (avg 2.0 teacher steps)
+  [DAS L15 r1 kl anchor=prompt] epoch 9/10 loss=4.869153 (avg 2.0 teacher steps)
+  [DAS E L15 s42] loss=4.86915 cos(meandiff)=0.677 cos(other)=0.003
+  [DAS L16 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L16 r1 kl anchor=prompt] epoch 0/10 loss=5.104546 (avg 2.0 teacher steps)
+  [DAS L16 r1 kl anchor=prompt] epoch 1/10 loss=4.852617 (avg 2.0 teacher steps)
+  [DAS L16 r1 kl anchor=prompt] epoch 2/10 loss=4.816569 (avg 2.0 teacher steps)
+  [DAS L16 r1 kl anchor=prompt] epoch 3/10 loss=4.825521 (avg 2.0 teacher steps)
+  [DAS L16 r1 kl anchor=prompt] epoch 4/10 loss=4.812181 (avg 2.0 teacher steps)
+  [DAS L16 r1 kl anchor=prompt] epoch 5/10 loss=4.806732 (avg 2.0 teacher steps)
+  [DAS L16 r1 kl anchor=prompt] epoch 6/10 loss=4.802357 (avg 2.0 teacher steps)
+  [DAS L16 r1 kl anchor=prompt] epoch 7/10 loss=4.807954 (avg 2.0 teacher steps)
+  [DAS L16 r1 kl anchor=prompt] epoch 8/10 loss=4.806577 (avg 2.0 teacher steps)
+  [DAS L16 r1 kl anchor=prompt] epoch 9/10 loss=4.804949 (avg 2.0 teacher steps)
+  [DAS E L16 s42] loss=4.80495 cos(meandiff)=0.658 cos(other)=-0.022
+  [DAS L17 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L17 r1 kl anchor=prompt] epoch 0/10 loss=5.065689 (avg 2.0 teacher steps)
+  [DAS L17 r1 kl anchor=prompt] epoch 1/10 loss=4.766477 (avg 2.0 teacher steps)
+  [DAS L17 r1 kl anchor=prompt] epoch 2/10 loss=4.725478 (avg 2.0 teacher steps)
+  [DAS L17 r1 kl anchor=prompt] epoch 3/10 loss=4.721531 (avg 2.0 teacher steps)
+  [DAS L17 r1 kl anchor=prompt] epoch 4/10 loss=4.723800 (avg 2.0 teacher steps)
+  [DAS L17 r1 kl anchor=prompt] epoch 5/10 loss=4.707889 (avg 2.0 teacher steps)
+  [DAS L17 r1 kl anchor=prompt] epoch 6/10 loss=4.717385 (avg 2.0 teacher steps)
+  [DAS L17 r1 kl anchor=prompt] epoch 7/10 loss=4.710373 (avg 2.0 teacher steps)
+  [DAS L17 r1 kl anchor=prompt] epoch 8/10 loss=4.707850 (avg 2.0 teacher steps)
+  [DAS L17 r1 kl anchor=prompt] epoch 9/10 loss=4.701634 (avg 2.0 teacher steps)
+  [DAS E L17 s42] loss=4.70163 cos(meandiff)=0.661 cos(other)=-0.039
+  [DAS L18 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L18 r1 kl anchor=prompt] epoch 0/10 loss=4.959611 (avg 2.0 teacher steps)
+  [DAS L18 r1 kl anchor=prompt] epoch 1/10 loss=4.602145 (avg 2.0 teacher steps)
+  [DAS L18 r1 kl anchor=prompt] epoch 2/10 loss=4.579693 (avg 2.0 teacher steps)
+  [DAS L18 r1 kl anchor=prompt] epoch 3/10 loss=4.570443 (avg 2.0 teacher steps)
+  [DAS L18 r1 kl anchor=prompt] epoch 4/10 loss=4.568342 (avg 2.0 teacher steps)
+  [DAS L18 r1 kl anchor=prompt] epoch 5/10 loss=4.555412 (avg 2.0 teacher steps)
+  [DAS L18 r1 kl anchor=prompt] epoch 6/10 loss=4.550792 (avg 2.0 teacher steps)
+  [DAS L18 r1 kl anchor=prompt] epoch 7/10 loss=4.555432 (avg 2.0 teacher steps)
+  [DAS L18 r1 kl anchor=prompt] epoch 8/10 loss=4.553971 (avg 2.0 teacher steps)
+  [DAS L18 r1 kl anchor=prompt] epoch 9/10 loss=4.552373 (avg 2.0 teacher steps)
+  [DAS E L18 s42] loss=4.55237 cos(meandiff)=0.646 cos(other)=-0.007
+  [DAS L19 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L19 r1 kl anchor=prompt] epoch 0/10 loss=4.445985 (avg 2.0 teacher steps)
+  [DAS L19 r1 kl anchor=prompt] epoch 1/10 loss=3.852449 (avg 2.0 teacher steps)
+  [DAS L19 r1 kl anchor=prompt] epoch 2/10 loss=3.850428 (avg 2.0 teacher steps)
+  [DAS L19 r1 kl anchor=prompt] epoch 3/10 loss=3.830658 (avg 2.0 teacher steps)
+  [DAS L19 r1 kl anchor=prompt] epoch 4/10 loss=3.841294 (avg 2.0 teacher steps)
+  [DAS L19 r1 kl anchor=prompt] epoch 5/10 loss=3.826226 (avg 2.0 teacher steps)
+  [DAS L19 r1 kl anchor=prompt] epoch 6/10 loss=3.823161 (avg 2.0 teacher steps)
+  [DAS L19 r1 kl anchor=prompt] epoch 7/10 loss=3.826978 (avg 2.0 teacher steps)
+  [DAS L19 r1 kl anchor=prompt] epoch 8/10 loss=3.811894 (avg 2.0 teacher steps)
+  [DAS L19 r1 kl anchor=prompt] epoch 9/10 loss=3.819878 (avg 2.0 teacher steps)
+  [DAS E L19 s42] loss=3.81988 cos(meandiff)=0.649 cos(other)=-0.051
+  [DAS L20 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L20 r1 kl anchor=prompt] epoch 0/10 loss=3.587347 (avg 2.0 teacher steps)
+  [DAS L20 r1 kl anchor=prompt] epoch 1/10 loss=2.543000 (avg 2.0 teacher steps)
+  [DAS L20 r1 kl anchor=prompt] epoch 2/10 loss=2.515435 (avg 2.0 teacher steps)
+  [DAS L20 r1 kl anchor=prompt] epoch 3/10 loss=2.499946 (avg 2.0 teacher steps)
+  [DAS L20 r1 kl anchor=prompt] epoch 4/10 loss=2.502662 (avg 2.0 teacher steps)
+  [DAS L20 r1 kl anchor=prompt] epoch 5/10 loss=2.488006 (avg 2.0 teacher steps)
+  [DAS L20 r1 kl anchor=prompt] epoch 6/10 loss=2.475336 (avg 2.0 teacher steps)
+  [DAS L20 r1 kl anchor=prompt] epoch 7/10 loss=2.479679 (avg 2.0 teacher steps)
+  [DAS L20 r1 kl anchor=prompt] epoch 8/10 loss=2.467681 (avg 2.0 teacher steps)
+  [DAS L20 r1 kl anchor=prompt] epoch 9/10 loss=2.466952 (avg 2.0 teacher steps)
+  [DAS E L20 s42] loss=2.46695 cos(meandiff)=0.687 cos(other)=-0.016
+  [DAS L21 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L21 r1 kl anchor=prompt] epoch 0/10 loss=2.545956 (avg 2.0 teacher steps)
+  [DAS L21 r1 kl anchor=prompt] epoch 1/10 loss=0.879777 (avg 2.0 teacher steps)
+  [DAS L21 r1 kl anchor=prompt] epoch 2/10 loss=0.880769 (avg 2.0 teacher steps)
+  [DAS L21 r1 kl anchor=prompt] epoch 3/10 loss=0.875968 (avg 2.0 teacher steps)
+  [DAS L21 r1 kl anchor=prompt] epoch 4/10 loss=0.873430 (avg 2.0 teacher steps)
+  [DAS L21 r1 kl anchor=prompt] epoch 5/10 loss=0.868817 (avg 2.0 teacher steps)
+  [DAS L21 r1 kl anchor=prompt] epoch 6/10 loss=0.861284 (avg 2.0 teacher steps)
+  [DAS L21 r1 kl anchor=prompt] epoch 7/10 loss=0.860759 (avg 2.0 teacher steps)
+  [DAS L21 r1 kl anchor=prompt] epoch 8/10 loss=0.851286 (avg 2.0 teacher steps)
+  [DAS L21 r1 kl anchor=prompt] epoch 9/10 loss=0.844464 (avg 2.0 teacher steps)
+  [DAS E L21 s42] loss=0.84446 cos(meandiff)=0.714 cos(other)=-0.012
+  [DAS L22 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L22 r1 kl anchor=prompt] epoch 0/10 loss=1.526365 (avg 2.0 teacher steps)
+  [DAS L22 r1 kl anchor=prompt] epoch 1/10 loss=0.156155 (avg 2.0 teacher steps)
+  [DAS L22 r1 kl anchor=prompt] epoch 2/10 loss=0.145745 (avg 2.0 teacher steps)
+  [DAS L22 r1 kl anchor=prompt] epoch 3/10 loss=0.106421 (avg 2.0 teacher steps)
+  [DAS L22 r1 kl anchor=prompt] epoch 4/10 loss=0.089946 (avg 2.0 teacher steps)
+  [DAS L22 r1 kl anchor=prompt] epoch 5/10 loss=0.093704 (avg 2.0 teacher steps)
+  [DAS L22 r1 kl anchor=prompt] epoch 6/10 loss=0.101675 (avg 2.0 teacher steps)
+  [DAS L22 r1 kl anchor=prompt] epoch 7/10 loss=0.088944 (avg 2.0 teacher steps)
+  [DAS L22 r1 kl anchor=prompt] epoch 8/10 loss=0.078240 (avg 2.0 teacher steps)
+  [DAS L22 r1 kl anchor=prompt] epoch 9/10 loss=0.078418 (avg 2.0 teacher steps)
+  [DAS E L22 s42] loss=0.07842 cos(meandiff)=0.698 cos(other)=-0.116
+  [DAS L23 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L23 r1 kl anchor=prompt] epoch 0/10 loss=1.221772 (avg 2.0 teacher steps)
+  [DAS L23 r1 kl anchor=prompt] epoch 1/10 loss=0.065760 (avg 2.0 teacher steps)
+  [DAS L23 r1 kl anchor=prompt] epoch 2/10 loss=0.042293 (avg 2.0 teacher steps)
+  [DAS L23 r1 kl anchor=prompt] epoch 3/10 loss=0.017118 (avg 2.0 teacher steps)
+  [DAS L23 r1 kl anchor=prompt] epoch 4/10 loss=0.051480 (avg 2.0 teacher steps)
+  [DAS L23 r1 kl anchor=prompt] epoch 5/10 loss=0.026883 (avg 2.0 teacher steps)
+  [DAS L23 r1 kl anchor=prompt] epoch 6/10 loss=0.010587 (avg 2.0 teacher steps)
+  [DAS L23 r1 kl anchor=prompt] epoch 7/10 loss=0.016477 (avg 2.0 teacher steps)
+  [DAS L23 r1 kl anchor=prompt] epoch 8/10 loss=0.010182 (avg 2.0 teacher steps)
+  [DAS L23 r1 kl anchor=prompt] epoch 9/10 loss=0.014581 (avg 2.0 teacher steps)
+  [DAS E L23 s42] loss=0.01458 cos(meandiff)=0.700 cos(other)=-0.189
+  [DAS L24 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L24 r1 kl anchor=prompt] epoch 0/10 loss=0.908406 (avg 2.0 teacher steps)
+  [DAS L24 r1 kl anchor=prompt] epoch 1/10 loss=0.018131 (avg 2.0 teacher steps)
+  [DAS L24 r1 kl anchor=prompt] epoch 2/10 loss=0.009156 (avg 2.0 teacher steps)
+  [DAS L24 r1 kl anchor=prompt] epoch 3/10 loss=0.014013 (avg 2.0 teacher steps)
+  [DAS L24 r1 kl anchor=prompt] epoch 4/10 loss=0.015391 (avg 2.0 teacher steps)
+  [DAS L24 r1 kl anchor=prompt] epoch 5/10 loss=0.018731 (avg 2.0 teacher steps)
+  [DAS L24 r1 kl anchor=prompt] epoch 6/10 loss=0.010850 (avg 2.0 teacher steps)
+  [DAS L24 r1 kl anchor=prompt] epoch 7/10 loss=0.014300 (avg 2.0 teacher steps)
+  [DAS L24 r1 kl anchor=prompt] epoch 8/10 loss=0.017514 (avg 2.0 teacher steps)
+  [DAS L24 r1 kl anchor=prompt] epoch 9/10 loss=0.006747 (avg 2.0 teacher steps)
+  [DAS E L24 s42] loss=0.00675 cos(meandiff)=0.670 cos(other)=-0.151
+  [DAS L25 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L25 r1 kl anchor=prompt] epoch 0/10 loss=0.921216 (avg 2.0 teacher steps)
+  [DAS L25 r1 kl anchor=prompt] epoch 1/10 loss=0.044404 (avg 2.0 teacher steps)
+  [DAS L25 r1 kl anchor=prompt] epoch 2/10 loss=0.020013 (avg 2.0 teacher steps)
+  [DAS L25 r1 kl anchor=prompt] epoch 3/10 loss=0.035103 (avg 2.0 teacher steps)
+  [DAS L25 r1 kl anchor=prompt] epoch 4/10 loss=0.007441 (avg 2.0 teacher steps)
+  [DAS L25 r1 kl anchor=prompt] epoch 5/10 loss=0.045402 (avg 2.0 teacher steps)
+  [DAS L25 r1 kl anchor=prompt] epoch 6/10 loss=0.006926 (avg 2.0 teacher steps)
+  [DAS L25 r1 kl anchor=prompt] epoch 7/10 loss=0.020492 (avg 2.0 teacher steps)
+  [DAS L25 r1 kl anchor=prompt] epoch 8/10 loss=0.008946 (avg 2.0 teacher steps)
+  [DAS L25 r1 kl anchor=prompt] epoch 9/10 loss=0.036885 (avg 2.0 teacher steps)
+  [DAS E L25 s42] loss=0.03689 cos(meandiff)=0.673 cos(other)=-0.161
+  [DAS L26 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L26 r1 kl anchor=prompt] epoch 0/10 loss=0.818347 (avg 2.0 teacher steps)
+  [DAS L26 r1 kl anchor=prompt] epoch 1/10 loss=0.024084 (avg 2.0 teacher steps)
+  [DAS L26 r1 kl anchor=prompt] epoch 2/10 loss=0.006836 (avg 2.0 teacher steps)
+  [DAS L26 r1 kl anchor=prompt] epoch 3/10 loss=0.010886 (avg 2.0 teacher steps)
+  [DAS L26 r1 kl anchor=prompt] epoch 4/10 loss=0.026401 (avg 2.0 teacher steps)
+  [DAS L26 r1 kl anchor=prompt] epoch 5/10 loss=0.022804 (avg 2.0 teacher steps)
+  [DAS L26 r1 kl anchor=prompt] epoch 6/10 loss=0.005973 (avg 2.0 teacher steps)
+  [DAS L26 r1 kl anchor=prompt] epoch 7/10 loss=0.005872 (avg 2.0 teacher steps)
+  [DAS L26 r1 kl anchor=prompt] epoch 8/10 loss=0.010295 (avg 2.0 teacher steps)
+  [DAS L26 r1 kl anchor=prompt] epoch 9/10 loss=0.003453 (avg 2.0 teacher steps)
+  [DAS E L26 s42] loss=0.00345 cos(meandiff)=0.692 cos(other)=-0.178
+  [DAS L27 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L27 r1 kl anchor=prompt] epoch 0/10 loss=0.768148 (avg 2.0 teacher steps)
+  [DAS L27 r1 kl anchor=prompt] epoch 1/10 loss=0.013413 (avg 2.0 teacher steps)
+  [DAS L27 r1 kl anchor=prompt] epoch 2/10 loss=0.012711 (avg 2.0 teacher steps)
+  [DAS L27 r1 kl anchor=prompt] epoch 3/10 loss=0.008003 (avg 2.0 teacher steps)
+  [DAS L27 r1 kl anchor=prompt] epoch 4/10 loss=0.023504 (avg 2.0 teacher steps)
+  [DAS L27 r1 kl anchor=prompt] epoch 5/10 loss=0.012201 (avg 2.0 teacher steps)
+  [DAS L27 r1 kl anchor=prompt] epoch 6/10 loss=0.009067 (avg 2.0 teacher steps)
+  [DAS L27 r1 kl anchor=prompt] epoch 7/10 loss=0.009077 (avg 2.0 teacher steps)
+  [DAS L27 r1 kl anchor=prompt] epoch 8/10 loss=0.007216 (avg 2.0 teacher steps)
+  [DAS L27 r1 kl anchor=prompt] epoch 9/10 loss=0.009326 (avg 2.0 teacher steps)
+  [DAS E L27 s42] loss=0.00933 cos(meandiff)=0.690 cos(other)=-0.198
+  [DAS L28 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L28 r1 kl anchor=prompt] epoch 0/10 loss=0.731084 (avg 2.0 teacher steps)
+  [DAS L28 r1 kl anchor=prompt] epoch 1/10 loss=0.014902 (avg 2.0 teacher steps)
+  [DAS L28 r1 kl anchor=prompt] epoch 2/10 loss=0.005612 (avg 2.0 teacher steps)
+  [DAS L28 r1 kl anchor=prompt] epoch 3/10 loss=0.006487 (avg 2.0 teacher steps)
+  [DAS L28 r1 kl anchor=prompt] epoch 4/10 loss=0.015909 (avg 2.0 teacher steps)
+  [DAS L28 r1 kl anchor=prompt] epoch 5/10 loss=0.011647 (avg 2.0 teacher steps)
+  [DAS L28 r1 kl anchor=prompt] epoch 6/10 loss=0.007475 (avg 2.0 teacher steps)
+  [DAS L28 r1 kl anchor=prompt] epoch 7/10 loss=0.009369 (avg 2.0 teacher steps)
+  [DAS L28 r1 kl anchor=prompt] epoch 8/10 loss=0.018025 (avg 2.0 teacher steps)
+  [DAS L28 r1 kl anchor=prompt] epoch 9/10 loss=0.006148 (avg 2.0 teacher steps)
+  [DAS E L28 s42] loss=0.00615 cos(meandiff)=0.704 cos(other)=-0.185
+  [DAS L29 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L29 r1 kl anchor=prompt] epoch 0/10 loss=0.666205 (avg 2.0 teacher steps)
+  [DAS L29 r1 kl anchor=prompt] epoch 1/10 loss=0.014356 (avg 2.0 teacher steps)
+  [DAS L29 r1 kl anchor=prompt] epoch 2/10 loss=0.002420 (avg 2.0 teacher steps)
+  [DAS L29 r1 kl anchor=prompt] epoch 3/10 loss=0.008071 (avg 2.0 teacher steps)
+  [DAS L29 r1 kl anchor=prompt] epoch 4/10 loss=0.020907 (avg 2.0 teacher steps)
+  [DAS L29 r1 kl anchor=prompt] epoch 5/10 loss=0.029718 (avg 2.0 teacher steps)
+  [DAS L29 r1 kl anchor=prompt] epoch 6/10 loss=0.007353 (avg 2.0 teacher steps)
+  [DAS L29 r1 kl anchor=prompt] epoch 7/10 loss=0.024799 (avg 2.0 teacher steps)
+  [DAS L29 r1 kl anchor=prompt] epoch 8/10 loss=0.015576 (avg 2.0 teacher steps)
+  [DAS L29 r1 kl anchor=prompt] epoch 9/10 loss=0.006996 (avg 2.0 teacher steps)
+  [DAS E L29 s42] loss=0.00700 cos(meandiff)=0.717 cos(other)=-0.126
+  [DAS L30 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L30 r1 kl anchor=prompt] epoch 0/10 loss=0.655714 (avg 2.0 teacher steps)
+  [DAS L30 r1 kl anchor=prompt] epoch 1/10 loss=0.011445 (avg 2.0 teacher steps)
+  [DAS L30 r1 kl anchor=prompt] epoch 2/10 loss=0.021155 (avg 2.0 teacher steps)
+  [DAS L30 r1 kl anchor=prompt] epoch 3/10 loss=0.004590 (avg 2.0 teacher steps)
+  [DAS L30 r1 kl anchor=prompt] epoch 4/10 loss=0.005224 (avg 2.0 teacher steps)
+  [DAS L30 r1 kl anchor=prompt] epoch 5/10 loss=0.012250 (avg 2.0 teacher steps)
+  [DAS L30 r1 kl anchor=prompt] epoch 6/10 loss=0.002211 (avg 2.0 teacher steps)
+  [DAS L30 r1 kl anchor=prompt] epoch 7/10 loss=0.009393 (avg 2.0 teacher steps)
+  [DAS L30 r1 kl anchor=prompt] epoch 8/10 loss=0.003777 (avg 2.0 teacher steps)
+  [DAS L30 r1 kl anchor=prompt] epoch 9/10 loss=0.003779 (avg 2.0 teacher steps)
+  [DAS E L30 s42] loss=0.00378 cos(meandiff)=0.711 cos(other)=-0.157
+  [DAS L31 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L31 r1 kl anchor=prompt] epoch 0/10 loss=0.594875 (avg 2.0 teacher steps)
+  [DAS L31 r1 kl anchor=prompt] epoch 1/10 loss=0.010770 (avg 2.0 teacher steps)
+  [DAS L31 r1 kl anchor=prompt] epoch 2/10 loss=0.012056 (avg 2.0 teacher steps)
+  [DAS L31 r1 kl anchor=prompt] epoch 3/10 loss=0.005664 (avg 2.0 teacher steps)
+  [DAS L31 r1 kl anchor=prompt] epoch 4/10 loss=0.018176 (avg 2.0 teacher steps)
+  [DAS L31 r1 kl anchor=prompt] epoch 5/10 loss=0.015322 (avg 2.0 teacher steps)
+  [DAS L31 r1 kl anchor=prompt] epoch 6/10 loss=0.011320 (avg 2.0 teacher steps)
+  [DAS L31 r1 kl anchor=prompt] epoch 7/10 loss=0.004163 (avg 2.0 teacher steps)
+  [DAS L31 r1 kl anchor=prompt] epoch 8/10 loss=0.006189 (avg 2.0 teacher steps)
+  [DAS L31 r1 kl anchor=prompt] epoch 9/10 loss=0.001796 (avg 2.0 teacher steps)
+  [DAS E L31 s42] loss=0.00180 cos(meandiff)=0.658 cos(other)=-0.069
+  [DAS L32 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L32 r1 kl anchor=prompt] epoch 0/10 loss=0.603134 (avg 2.0 teacher steps)
+  [DAS L32 r1 kl anchor=prompt] epoch 1/10 loss=0.012826 (avg 2.0 teacher steps)
+  [DAS L32 r1 kl anchor=prompt] epoch 2/10 loss=0.019134 (avg 2.0 teacher steps)
+  [DAS L32 r1 kl anchor=prompt] epoch 3/10 loss=0.010958 (avg 2.0 teacher steps)
+  [DAS L32 r1 kl anchor=prompt] epoch 4/10 loss=0.005258 (avg 2.0 teacher steps)
+  [DAS L32 r1 kl anchor=prompt] epoch 5/10 loss=0.004165 (avg 2.0 teacher steps)
+  [DAS L32 r1 kl anchor=prompt] epoch 6/10 loss=0.002342 (avg 2.0 teacher steps)
+  [DAS L32 r1 kl anchor=prompt] epoch 7/10 loss=0.013217 (avg 2.0 teacher steps)
+  [DAS L32 r1 kl anchor=prompt] epoch 8/10 loss=0.003914 (avg 2.0 teacher steps)
+  [DAS L32 r1 kl anchor=prompt] epoch 9/10 loss=0.005794 (avg 2.0 teacher steps)
+  [DAS E L32 s42] loss=0.00579 cos(meandiff)=0.682 cos(other)=-0.079
+  [DAS L33 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L33 r1 kl anchor=prompt] epoch 0/10 loss=0.595764 (avg 2.0 teacher steps)
+  [DAS L33 r1 kl anchor=prompt] epoch 1/10 loss=0.012349 (avg 2.0 teacher steps)
+  [DAS L33 r1 kl anchor=prompt] epoch 2/10 loss=0.017736 (avg 2.0 teacher steps)
+  [DAS L33 r1 kl anchor=prompt] epoch 3/10 loss=0.001812 (avg 2.0 teacher steps)
+  [DAS L33 r1 kl anchor=prompt] epoch 4/10 loss=0.005357 (avg 2.0 teacher steps)
+  [DAS L33 r1 kl anchor=prompt] epoch 5/10 loss=0.022756 (avg 2.0 teacher steps)
+  [DAS L33 r1 kl anchor=prompt] epoch 6/10 loss=0.004623 (avg 2.0 teacher steps)
+  [DAS L33 r1 kl anchor=prompt] epoch 7/10 loss=0.002380 (avg 2.0 teacher steps)
+  [DAS L33 r1 kl anchor=prompt] epoch 8/10 loss=0.008675 (avg 2.0 teacher steps)
+  [DAS L33 r1 kl anchor=prompt] epoch 9/10 loss=0.016375 (avg 2.0 teacher steps)
+  [DAS E L33 s42] loss=0.01637 cos(meandiff)=0.623 cos(other)=-0.060
+  [DAS L34 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L34 r1 kl anchor=prompt] epoch 0/10 loss=0.735514 (avg 2.0 teacher steps)
+  [DAS L34 r1 kl anchor=prompt] epoch 1/10 loss=0.026111 (avg 2.0 teacher steps)
+  [DAS L34 r1 kl anchor=prompt] epoch 2/10 loss=0.013949 (avg 2.0 teacher steps)
+  [DAS L34 r1 kl anchor=prompt] epoch 3/10 loss=0.011392 (avg 2.0 teacher steps)
+  [DAS L34 r1 kl anchor=prompt] epoch 4/10 loss=0.011746 (avg 2.0 teacher steps)
+  [DAS L34 r1 kl anchor=prompt] epoch 5/10 loss=0.008648 (avg 2.0 teacher steps)
+  [DAS L34 r1 kl anchor=prompt] epoch 6/10 loss=0.009549 (avg 2.0 teacher steps)
+  [DAS L34 r1 kl anchor=prompt] epoch 7/10 loss=0.014274 (avg 2.0 teacher steps)
+  [DAS L34 r1 kl anchor=prompt] epoch 8/10 loss=0.007732 (avg 2.0 teacher steps)
+  [DAS L34 r1 kl anchor=prompt] epoch 9/10 loss=0.016310 (avg 2.0 teacher steps)
+  [DAS E L34 s42] loss=0.01631 cos(meandiff)=0.670 cos(other)=-0.111
+  [DAS L35 anchor=prompt] position trace, first pair: t=0 len(base,src)=(80,79) write_base=79 read_src=78; t=1 len(base,src)=(81,80) write_base=79 read_src=78 | teacher tokens (2): 'True<|im_end|>'
+  [DAS L35 r1 kl anchor=prompt] epoch 0/10 loss=0.595294 (avg 2.0 teacher steps)
+  [DAS L35 r1 kl anchor=prompt] epoch 1/10 loss=0.122967 (avg 2.0 teacher steps)
+  [DAS L35 r1 kl anchor=prompt] epoch 2/10 loss=0.123115 (avg 2.0 teacher steps)
+  [DAS L35 r1 kl anchor=prompt] epoch 3/10 loss=0.135592 (avg 2.0 teacher steps)
+  [DAS L35 r1 kl anchor=prompt] epoch 4/10 loss=0.114553 (avg 2.0 teacher steps)
+  [DAS L35 r1 kl anchor=prompt] epoch 5/10 loss=0.130418 (avg 2.0 teacher steps)
+  [DAS L35 r1 kl anchor=prompt] epoch 6/10 loss=0.109445 (avg 2.0 teacher steps)
+  [DAS L35 r1 kl anchor=prompt] epoch 7/10 loss=0.115090 (avg 2.0 teacher steps)
+  [DAS L35 r1 kl anchor=prompt] epoch 8/10 loss=0.117342 (avg 2.0 teacher steps)
+  [DAS L35 r1 kl anchor=prompt] epoch 9/10 loss=0.104675 (avg 2.0 teacher steps)
+  [DAS E L35 s42] loss=0.10468 cos(meandiff)=0.484 cos(other)=-0.120
+
+E1 done -> /workspace/Truth_Decoupling/results_das_tf/E1/qwen3-8b (4162s)
+== 2026-11-01 03:12:03 step 3a: E23 all layers, DAS E, E conditions only
+W1031 19:12:08.183000 94771 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1031 19:12:08.202000 94771 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:00<00:00, 359.72it/s]
+tune set: 192 pairs (384 statements); remaining test: 1058 statements
+directions from 192 statements (calib+dev); selection set for --plan-split = dev 128 statements
+estimation set: 192 statements; model says Yes on 82 of them (self-report direction)
+L00  DAS: 1 seed(s), final loss ['5.2060'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.660
+L00  gap_Cprompt 0.13 cos(Cp,E) -0.108 | gap_Cself nan cos(Cs,E) +nan
+L01  DAS: 1 seed(s), final loss ['5.1398'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.677
+L01  gap_Cprompt 0.52 cos(Cp,E) -0.056 | gap_Cself nan cos(Cs,E) +nan
+L02  DAS: 1 seed(s), final loss ['5.1033'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.680
+L02  gap_Cprompt 0.63 cos(Cp,E) -0.043 | gap_Cself nan cos(Cs,E) +nan
+L03  DAS: 1 seed(s), final loss ['5.0913'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.686
+L03  gap_Cprompt 0.92 cos(Cp,E) -0.050 | gap_Cself nan cos(Cs,E) +nan
+L04  DAS: 1 seed(s), final loss ['5.0748'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.686
+L04  gap_Cprompt 1.23 cos(Cp,E) -0.059 | gap_Cself nan cos(Cs,E) +nan
+L05  DAS: 1 seed(s), final loss ['5.0261'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.683
+L05  gap_Cprompt 1.46 cos(Cp,E) -0.064 | gap_Cself nan cos(Cs,E) +nan
+L06  DAS: 1 seed(s), final loss ['5.0199'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.681
+L06  gap_Cprompt 1.72 cos(Cp,E) -0.088 | gap_Cself nan cos(Cs,E) +nan
+L07  DAS: 1 seed(s), final loss ['4.9946'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.677
+L07  gap_Cprompt 1.98 cos(Cp,E) -0.059 | gap_Cself nan cos(Cs,E) +nan
+L08  DAS: 1 seed(s), final loss ['5.0081'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.676
+L08  gap_Cprompt 2.76 cos(Cp,E) -0.027 | gap_Cself nan cos(Cs,E) +nan
+L09  DAS: 1 seed(s), final loss ['4.9787'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.671
+L09  gap_Cprompt 4.48 cos(Cp,E) -0.025 | gap_Cself nan cos(Cs,E) +nan
+L10  DAS: 1 seed(s), final loss ['4.9731'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.669
+L10  gap_Cprompt 4.52 cos(Cp,E) -0.010 | gap_Cself nan cos(Cs,E) +nan
+L11  DAS: 1 seed(s), final loss ['4.9421'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.672
+L11  gap_Cprompt 5.17 cos(Cp,E) -0.009 | gap_Cself nan cos(Cs,E) +nan
+L12  DAS: 1 seed(s), final loss ['4.9286'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.673
+L12  gap_Cprompt 5.62 cos(Cp,E) -0.002 | gap_Cself nan cos(Cs,E) +nan
+L13  DAS: 1 seed(s), final loss ['4.9039'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.676
+L13  gap_Cprompt 7.61 cos(Cp,E) +0.014 | gap_Cself nan cos(Cs,E) +nan
+L14  DAS: 1 seed(s), final loss ['4.8864'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.675
+L14  gap_Cprompt 8.95 cos(Cp,E) -0.011 | gap_Cself nan cos(Cs,E) +nan
+L15  DAS: 1 seed(s), final loss ['4.8692'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.673
+L15  gap_Cprompt 10.13 cos(Cp,E) -0.040 | gap_Cself nan cos(Cs,E) +nan
+L16  DAS: 1 seed(s), final loss ['4.8049'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.656
+L16  gap_Cprompt 11.13 cos(Cp,E) -0.029 | gap_Cself nan cos(Cs,E) +nan
+L17  DAS: 1 seed(s), final loss ['4.7016'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.659
+L17  gap_Cprompt 13.08 cos(Cp,E) -0.026 | gap_Cself nan cos(Cs,E) +nan
+L18  DAS: 1 seed(s), final loss ['4.5524'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.646
+L18  gap_Cprompt 14.34 cos(Cp,E) -0.010 | gap_Cself nan cos(Cs,E) +nan
+L19  DAS: 1 seed(s), final loss ['3.8199'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.650
+L19  gap_Cprompt 17.71 cos(Cp,E) -0.015 | gap_Cself nan cos(Cs,E) +nan
+L20  DAS: 1 seed(s), final loss ['2.4670'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.688
+L20  gap_Cprompt 19.90 cos(Cp,E) +0.014 | gap_Cself nan cos(Cs,E) +nan
+L21  DAS: 1 seed(s), final loss ['0.8445'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.715
+L21  gap_Cprompt 25.37 cos(Cp,E) +0.030 | gap_Cself nan cos(Cs,E) +nan
+L22  DAS: 1 seed(s), final loss ['0.0784'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.698
+L22  gap_Cprompt 26.99 cos(Cp,E) -0.009 | gap_Cself nan cos(Cs,E) +nan
+L23  DAS: 1 seed(s), final loss ['0.0146'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.701
+L23  gap_Cprompt 32.19 cos(Cp,E) +0.000 | gap_Cself nan cos(Cs,E) +nan
+L24  DAS: 1 seed(s), final loss ['0.0067'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.670
+L24  gap_Cprompt 40.56 cos(Cp,E) -0.014 | gap_Cself nan cos(Cs,E) +nan
+L25  DAS: 1 seed(s), final loss ['0.0369'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.673
+L25  gap_Cprompt 43.71 cos(Cp,E) +0.008 | gap_Cself nan cos(Cs,E) +nan
+L26  DAS: 1 seed(s), final loss ['0.0035'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.692
+L26  gap_Cprompt 49.72 cos(Cp,E) +0.004 | gap_Cself nan cos(Cs,E) +nan
+L27  DAS: 1 seed(s), final loss ['0.0093'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.690
+L27  gap_Cprompt 55.97 cos(Cp,E) +0.029 | gap_Cself nan cos(Cs,E) +nan
+L28  DAS: 1 seed(s), final loss ['0.0061'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.705
+L28  gap_Cprompt 60.98 cos(Cp,E) +0.039 | gap_Cself nan cos(Cs,E) +nan
+L29  DAS: 1 seed(s), final loss ['0.0070'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.718
+L29  gap_Cprompt 67.31 cos(Cp,E) +0.066 | gap_Cself nan cos(Cs,E) +nan
+L30  DAS: 1 seed(s), final loss ['0.0038'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.711
+L30  gap_Cprompt 83.55 cos(Cp,E) +0.084 | gap_Cself nan cos(Cs,E) +nan
+L31  DAS: 1 seed(s), final loss ['0.0018'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.658
+L31  gap_Cprompt 92.67 cos(Cp,E) +0.073 | gap_Cself nan cos(Cs,E) +nan
+L32  DAS: 1 seed(s), final loss ['0.0058'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.681
+L32  gap_Cprompt 104.33 cos(Cp,E) +0.039 | gap_Cself nan cos(Cs,E) +nan
+L33  DAS: 1 seed(s), final loss ['0.0164'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.623
+L33  gap_Cprompt 129.00 cos(Cp,E) +0.031 | gap_Cself nan cos(Cs,E) +nan
+L34  DAS: 1 seed(s), final loss ['0.0163'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.669
+L34  gap_Cprompt 146.29 cos(Cp,E) +0.011 | gap_Cself nan cos(Cs,E) +nan
+L35  DAS: 1 seed(s), final loss ['0.1047'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.487
+L35  gap_Cprompt 189.67 cos(Cp,E) +0.003 | gap_Cself nan cos(Cs,E) +nan
+73 conditions
+  baseline           ans 0.473 (+0.000) | J +0.426 (+0.000) | AUROC 0.809 (+0.000) | B 0.443 (+0.000)  (44s)
+  E_L0_a2            ans 0.474 (+0.001) | J +0.426 (+0.000) | AUROC 0.809 (+0.000) | B 0.443 (+0.000)  (78s)
+  E_L0_a3            ans 0.476 (+0.003) | J +0.423 (-0.003) | AUROC 0.809 (+0.001) | B 0.445 (+0.001)  (112s)
+  E_L1_a2            ans 0.479 (+0.006) | J +0.429 (+0.003) | AUROC 0.809 (+0.001) | B 0.446 (+0.003)  (146s)
+  E_L1_a3            ans 0.474 (+0.001) | J +0.430 (+0.004) | AUROC 0.809 (+0.000) | B 0.448 (+0.005)  (181s)
+  E_L2_a2            ans 0.474 (+0.001) | J +0.433 (+0.007) | AUROC 0.810 (+0.001) | B 0.448 (+0.005)  (215s)
+  E_L2_a3            ans 0.474 (+0.001) | J +0.433 (+0.007) | AUROC 0.810 (+0.001) | B 0.449 (+0.006)  (249s)
+  E_L3_a2            ans 0.474 (+0.001) | J +0.431 (+0.006) | AUROC 0.811 (+0.002) | B 0.447 (+0.004)  (283s)
+  E_L3_a3            ans 0.474 (+0.001) | J +0.441 (+0.015) | AUROC 0.811 (+0.002) | B 0.452 (+0.009)  (318s)
+  E_L4_a2            ans 0.474 (+0.001) | J +0.440 (+0.014) | AUROC 0.812 (+0.003) | B 0.454 (+0.011)  (352s)
+  E_L4_a3            ans 0.476 (+0.003) | J +0.444 (+0.018) | AUROC 0.813 (+0.004) | B 0.460 (+0.017)  (386s)
+  E_L5_a2            ans 0.472 (-0.001) | J +0.438 (+0.012) | AUROC 0.813 (+0.004) | B 0.454 (+0.010)  (420s)
+  E_L5_a3            ans 0.472 (-0.001) | J +0.449 (+0.024) | AUROC 0.814 (+0.005) | B 0.460 (+0.017)  (454s)
+  E_L6_a2            ans 0.473 (+0.000) | J +0.444 (+0.018) | AUROC 0.814 (+0.005) | B 0.456 (+0.013)  (489s)
+  E_L6_a3            ans 0.476 (+0.003) | J +0.451 (+0.025) | AUROC 0.814 (+0.006) | B 0.463 (+0.019)  (523s)
+  E_L7_a2            ans 0.474 (+0.001) | J +0.444 (+0.018) | AUROC 0.814 (+0.005) | B 0.455 (+0.012)  (557s)
+  E_L7_a3            ans 0.476 (+0.003) | J +0.449 (+0.024) | AUROC 0.815 (+0.006) | B 0.462 (+0.019)  (592s)
+  E_L8_a2            ans 0.473 (+0.000) | J +0.438 (+0.012) | AUROC 0.813 (+0.005) | B 0.452 (+0.009)  (626s)
+  E_L8_a3            ans 0.476 (+0.003) | J +0.444 (+0.018) | AUROC 0.814 (+0.006) | B 0.459 (+0.016)  (660s)
+  E_L9_a2            ans 0.474 (+0.001) | J +0.441 (+0.015) | AUROC 0.814 (+0.005) | B 0.454 (+0.010)  (694s)
+  E_L9_a3            ans 0.477 (+0.004) | J +0.445 (+0.019) | AUROC 0.815 (+0.006) | B 0.461 (+0.018)  (728s)
+  E_L10_a2           ans 0.476 (+0.003) | J +0.442 (+0.017) | AUROC 0.814 (+0.006) | B 0.457 (+0.014)  (763s)
+  E_L10_a3           ans 0.480 (+0.007) | J +0.451 (+0.025) | AUROC 0.815 (+0.007) | B 0.461 (+0.018)  (797s)
+  E_L11_a2           ans 0.477 (+0.004) | J +0.441 (+0.015) | AUROC 0.815 (+0.006) | B 0.454 (+0.010)  (831s)
+  E_L11_a3           ans 0.479 (+0.006) | J +0.451 (+0.025) | AUROC 0.816 (+0.007) | B 0.460 (+0.017)  (866s)
+  E_L12_a2           ans 0.476 (+0.003) | J +0.434 (+0.008) | AUROC 0.813 (+0.004) | B 0.453 (+0.010)  (900s)
+  E_L12_a3           ans 0.479 (+0.006) | J +0.447 (+0.021) | AUROC 0.813 (+0.004) | B 0.458 (+0.015)  (934s)
+  E_L13_a2           ans 0.479 (+0.006) | J +0.440 (+0.014) | AUROC 0.813 (+0.004) | B 0.453 (+0.010)  (968s)
+  E_L13_a3           ans 0.479 (+0.006) | J +0.442 (+0.017) | AUROC 0.812 (+0.004) | B 0.454 (+0.011)  (1003s)
+  E_L14_a2           ans 0.479 (+0.006) | J +0.437 (+0.011) | AUROC 0.813 (+0.004) | B 0.451 (+0.008)  (1037s)
+  E_L14_a3           ans 0.479 (+0.006) | J +0.448 (+0.022) | AUROC 0.812 (+0.003) | B 0.457 (+0.014)  (1071s)
+  E_L15_a2           ans 0.479 (+0.006) | J +0.438 (+0.012) | AUROC 0.812 (+0.003) | B 0.452 (+0.009)  (1105s)
+  E_L15_a3           ans 0.477 (+0.004) | J +0.445 (+0.019) | AUROC 0.812 (+0.003) | B 0.457 (+0.014)  (1140s)
+  E_L16_a2           ans 0.473 (+0.000) | J +0.441 (+0.015) | AUROC 0.815 (+0.007) | B 0.452 (+0.009)  (1174s)
+  E_L16_a3           ans 0.473 (+0.000) | J +0.454 (+0.028) | AUROC 0.816 (+0.008) | B 0.454 (+0.011)  (1208s)
+  E_L17_a2           ans 0.470 (-0.003) | J +0.449 (+0.024) | AUROC 0.818 (+0.009) | B 0.452 (+0.009)  (1242s)
+  E_L17_a3           ans 0.470 (-0.003) | J +0.459 (+0.033) | AUROC 0.820 (+0.011) | B 0.451 (+0.008)  (1277s)
+  E_L18_a2           ans 0.474 (+0.001) | J +0.460 (+0.035) | AUROC 0.821 (+0.012) | B 0.456 (+0.013)  (1311s)
+  E_L18_a3           ans 0.479 (+0.006) | J +0.484 (+0.058) | AUROC 0.823 (+0.015) | B 0.453 (+0.010)  (1345s)
+  E_L19_a2           ans 0.492 (+0.019) | J +0.458 (+0.032) | AUROC 0.816 (+0.008) | B 0.456 (+0.013)  (1379s)
+  E_L19_a3           ans 0.508 (+0.035) | J +0.476 (+0.050) | AUROC 0.817 (+0.008) | B 0.458 (+0.015)  (1413s)
+  E_L20_a2           ans 0.526 (+0.053) | J +0.452 (+0.026) | AUROC 0.813 (+0.004) | B 0.470 (+0.027)  (1447s)
+  E_L20_a3           ans 0.533 (+0.060) | J +0.460 (+0.035) | AUROC 0.813 (+0.004) | B 0.477 (+0.034)  (1481s)
+  E_L21_a2           ans 0.533 (+0.060) | J +0.444 (+0.018) | AUROC 0.811 (+0.002) | B 0.479 (+0.035)  (1515s)
+  E_L21_a3           ans 0.548 (+0.075) | J +0.454 (+0.028) | AUROC 0.811 (+0.002) | B 0.483 (+0.040)  (1549s)
+  E_L22_a2           ans 0.551 (+0.078) | J +0.438 (+0.012) | AUROC 0.809 (+0.000) | B 0.497 (+0.053)  (1584s)
+  E_L22_a3           ans 0.562 (+0.089) | J +0.438 (+0.012) | AUROC 0.809 (+0.001) | B 0.503 (+0.060)  (1618s)
+  E_L23_a2           ans 0.534 (+0.061) | J +0.438 (+0.012) | AUROC 0.806 (-0.003) | B 0.479 (+0.035)  (1652s)
+  E_L23_a3           ans 0.541 (+0.068) | J +0.438 (+0.012) | AUROC 0.805 (-0.003) | B 0.481 (+0.038)  (1686s)
+  E_L24_a2           ans 0.521 (+0.049) | J +0.429 (+0.003) | AUROC 0.805 (-0.004) | B 0.489 (+0.046)  (1720s)
+  E_L24_a3           ans 0.538 (+0.065) | J +0.431 (+0.006) | AUROC 0.805 (-0.004) | B 0.494 (+0.051)  (1754s)
+  E_L25_a2           ans 0.517 (+0.044) | J +0.431 (+0.006) | AUROC 0.804 (-0.005) | B 0.469 (+0.026)  (1788s)
+  E_L25_a3           ans 0.531 (+0.058) | J +0.433 (+0.007) | AUROC 0.802 (-0.006) | B 0.473 (+0.030)  (1822s)
+  E_L26_a2           ans 0.534 (+0.061) | J +0.437 (+0.011) | AUROC 0.805 (-0.003) | B 0.475 (+0.032)  (1856s)
+  E_L26_a3           ans 0.548 (+0.075) | J +0.438 (+0.012) | AUROC 0.804 (-0.004) | B 0.480 (+0.037)  (1890s)
+  E_L27_a2           ans 0.510 (+0.037) | J +0.427 (+0.001) | AUROC 0.809 (-0.000) | B 0.458 (+0.015)  (1925s)
+  E_L27_a3           ans 0.520 (+0.047) | J +0.424 (-0.001) | AUROC 0.809 (-0.000) | B 0.459 (+0.016)  (1959s)
+  E_L28_a2           ans 0.506 (+0.033) | J +0.433 (+0.007) | AUROC 0.810 (+0.002) | B 0.447 (+0.003)  (1993s)
+  E_L28_a3           ans 0.510 (+0.037) | J +0.433 (+0.007) | AUROC 0.810 (+0.001) | B 0.448 (+0.005)  (2027s)
+  E_L29_a2           ans 0.501 (+0.028) | J +0.436 (+0.010) | AUROC 0.807 (-0.002) | B 0.449 (+0.006)  (2061s)
+  E_L29_a3           ans 0.505 (+0.032) | J +0.436 (+0.010) | AUROC 0.806 (-0.002) | B 0.451 (+0.008)  (2095s)
+  E_L30_a2           ans 0.487 (+0.014) | J +0.429 (+0.003) | AUROC 0.811 (+0.002) | B 0.446 (+0.003)  (2129s)
+  E_L30_a3           ans 0.492 (+0.019) | J +0.427 (+0.001) | AUROC 0.810 (+0.002) | B 0.447 (+0.003)  (2164s)
+  E_L31_a2           ans 0.485 (+0.012) | J +0.431 (+0.006) | AUROC 0.811 (+0.003) | B 0.446 (+0.003)  (2198s)
+  E_L31_a3           ans 0.490 (+0.017) | J +0.429 (+0.003) | AUROC 0.810 (+0.001) | B 0.447 (+0.004)  (2232s)
+  E_L32_a2           ans 0.491 (+0.018) | J +0.438 (+0.012) | AUROC 0.813 (+0.004) | B 0.459 (+0.016)  (2266s)
+  E_L32_a3           ans 0.502 (+0.029) | J +0.437 (+0.011) | AUROC 0.814 (+0.005) | B 0.461 (+0.018)  (2300s)
+  E_L33_a2           ans 0.484 (+0.011) | J +0.434 (+0.008) | AUROC 0.814 (+0.006) | B 0.463 (+0.019)  (2335s)
+  E_L33_a3           ans 0.485 (+0.012) | J +0.440 (+0.014) | AUROC 0.815 (+0.007) | B 0.465 (+0.022)  (2369s)
+  E_L34_a2           ans 0.484 (+0.011) | J +0.430 (+0.004) | AUROC 0.811 (+0.002) | B 0.454 (+0.010)  (2403s)
+  E_L34_a3           ans 0.485 (+0.012) | J +0.431 (+0.006) | AUROC 0.812 (+0.003) | B 0.456 (+0.012)  (2437s)
+  E_L35_a2           ans 0.484 (+0.011) | J +0.434 (+0.008) | AUROC 0.811 (+0.002) | B 0.451 (+0.008)  (2471s)
+  E_L35_a3           ans 0.484 (+0.011) | J +0.434 (+0.008) | AUROC 0.810 (+0.001) | B 0.454 (+0.011)  (2505s)
+# E23 knob sweep, qwen3-8b (n=1442; layers [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35]; wording pik; E estimator das variant=tf dir=/workspace/Truth_Decoupling/results_das_tf/E1/qwen3-8b)
+
+Selection on tune set (192 pairs) (E: max dJ s.t. |d ans| <= 0.03; C: max |d ans| s.t. |dJ| <= 0.02, |dB| <= 0.05), reported on remaining test (529 pairs).
+
+| knob | chosen | feasible on A | remaining test (529 pairs): d ans | d J | d AUROC | d B |
+|---|---|---|---|---|---|---|
+| E | E_L18_a3 | 55 | +0.008 | +0.051 | +0.013 | +0.010 |
+
+## Selection on the 96 estimation pairs instead (reported on ALL 721 test pairs)
+
+| knob | chosen on est | feasible on est | test: d ans | d J | d AUROC | d B |
+|---|---|---|---|---|---|---|
+== 2026-11-01 03:53:56 step 3b: E23 all layers, mean-diff E, E conditions only
+W1031 19:54:00.492000 96239 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1031 19:54:00.511000 96239 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:00<00:00, 356.69it/s]
+tune set: 192 pairs (384 statements); remaining test: 1058 statements
+directions from 192 statements (calib+dev); selection set for --plan-split = dev 128 statements
+estimation set: 192 statements; model says Yes on 82 of them (self-report direction)
+L00  gap_Cprompt 0.13 cos(Cp,E) -0.085 | gap_Cself nan cos(Cs,E) +nan
+L01  gap_Cprompt 0.52 cos(Cp,E) -0.060 | gap_Cself nan cos(Cs,E) +nan
+L02  gap_Cprompt 0.63 cos(Cp,E) -0.043 | gap_Cself nan cos(Cs,E) +nan
+L03  gap_Cprompt 0.92 cos(Cp,E) -0.030 | gap_Cself nan cos(Cs,E) +nan
+L04  gap_Cprompt 1.23 cos(Cp,E) -0.026 | gap_Cself nan cos(Cs,E) +nan
+L05  gap_Cprompt 1.46 cos(Cp,E) -0.028 | gap_Cself nan cos(Cs,E) +nan
+L06  gap_Cprompt 1.72 cos(Cp,E) -0.066 | gap_Cself nan cos(Cs,E) +nan
+L07  gap_Cprompt 1.98 cos(Cp,E) -0.037 | gap_Cself nan cos(Cs,E) +nan
+L08  gap_Cprompt 2.76 cos(Cp,E) +0.007 | gap_Cself nan cos(Cs,E) +nan
+L09  gap_Cprompt 4.48 cos(Cp,E) +0.019 | gap_Cself nan cos(Cs,E) +nan
+L10  gap_Cprompt 4.52 cos(Cp,E) +0.073 | gap_Cself nan cos(Cs,E) +nan
+L11  gap_Cprompt 5.17 cos(Cp,E) +0.074 | gap_Cself nan cos(Cs,E) +nan
+L12  gap_Cprompt 5.62 cos(Cp,E) +0.077 | gap_Cself nan cos(Cs,E) +nan
+L13  gap_Cprompt 7.61 cos(Cp,E) +0.056 | gap_Cself nan cos(Cs,E) +nan
+L14  gap_Cprompt 8.95 cos(Cp,E) +0.024 | gap_Cself nan cos(Cs,E) +nan
+L15  gap_Cprompt 10.13 cos(Cp,E) -0.044 | gap_Cself nan cos(Cs,E) +nan
+L16  gap_Cprompt 11.13 cos(Cp,E) -0.056 | gap_Cself nan cos(Cs,E) +nan
+L17  gap_Cprompt 13.08 cos(Cp,E) -0.038 | gap_Cself nan cos(Cs,E) +nan
+L18  gap_Cprompt 14.34 cos(Cp,E) -0.037 | gap_Cself nan cos(Cs,E) +nan
+L19  gap_Cprompt 17.71 cos(Cp,E) -0.016 | gap_Cself nan cos(Cs,E) +nan
+L20  gap_Cprompt 19.90 cos(Cp,E) +0.045 | gap_Cself nan cos(Cs,E) +nan
+L21  gap_Cprompt 25.37 cos(Cp,E) +0.051 | gap_Cself nan cos(Cs,E) +nan
+L22  gap_Cprompt 26.99 cos(Cp,E) +0.019 | gap_Cself nan cos(Cs,E) +nan
+L23  gap_Cprompt 32.19 cos(Cp,E) +0.044 | gap_Cself nan cos(Cs,E) +nan
+L24  gap_Cprompt 40.56 cos(Cp,E) +0.031 | gap_Cself nan cos(Cs,E) +nan
+L25  gap_Cprompt 43.71 cos(Cp,E) +0.023 | gap_Cself nan cos(Cs,E) +nan
+L26  gap_Cprompt 49.72 cos(Cp,E) +0.004 | gap_Cself nan cos(Cs,E) +nan
+L27  gap_Cprompt 55.97 cos(Cp,E) +0.028 | gap_Cself nan cos(Cs,E) +nan
+L28  gap_Cprompt 60.98 cos(Cp,E) +0.050 | gap_Cself nan cos(Cs,E) +nan
+L29  gap_Cprompt 67.31 cos(Cp,E) +0.077 | gap_Cself nan cos(Cs,E) +nan
+L30  gap_Cprompt 83.55 cos(Cp,E) +0.063 | gap_Cself nan cos(Cs,E) +nan
+L31  gap_Cprompt 92.67 cos(Cp,E) +0.054 | gap_Cself nan cos(Cs,E) +nan
+L32  gap_Cprompt 104.33 cos(Cp,E) +0.037 | gap_Cself nan cos(Cs,E) +nan
+L33  gap_Cprompt 129.00 cos(Cp,E) +0.005 | gap_Cself nan cos(Cs,E) +nan
+L34  gap_Cprompt 146.29 cos(Cp,E) +0.040 | gap_Cself nan cos(Cs,E) +nan
+L35  gap_Cprompt 189.67 cos(Cp,E) +0.327 | gap_Cself nan cos(Cs,E) +nan
+73 conditions
+  baseline           ans 0.473 (+0.000) | J +0.426 (+0.000) | AUROC 0.809 (+0.000) | B 0.443 (+0.000)  (43s)
+  E_L0_a2            ans 0.472 (-0.001) | J +0.423 (-0.003) | AUROC 0.808 (-0.001) | B 0.443 (+0.000)  (78s)
+  E_L0_a3            ans 0.472 (-0.001) | J +0.422 (-0.004) | AUROC 0.808 (-0.000) | B 0.445 (+0.002)  (112s)
+  E_L1_a2            ans 0.476 (+0.003) | J +0.426 (+0.000) | AUROC 0.808 (-0.000) | B 0.443 (+0.000)  (146s)
+  E_L1_a3            ans 0.473 (+0.000) | J +0.420 (-0.006) | AUROC 0.808 (-0.000) | B 0.443 (+0.000)  (180s)
+  E_L2_a2            ans 0.473 (+0.000) | J +0.424 (-0.001) | AUROC 0.808 (-0.001) | B 0.442 (-0.001)  (214s)
+  E_L2_a3            ans 0.472 (-0.001) | J +0.420 (-0.006) | AUROC 0.808 (-0.001) | B 0.443 (+0.000)  (249s)
+  E_L3_a2            ans 0.473 (+0.000) | J +0.423 (-0.003) | AUROC 0.808 (-0.000) | B 0.443 (+0.000)  (283s)
+  E_L3_a3            ans 0.474 (+0.001) | J +0.417 (-0.008) | AUROC 0.808 (-0.001) | B 0.443 (+0.000)  (317s)
+  E_L4_a2            ans 0.470 (-0.003) | J +0.423 (-0.003) | AUROC 0.808 (-0.000) | B 0.445 (+0.001)  (351s)
+  E_L4_a3            ans 0.477 (+0.004) | J +0.424 (-0.001) | AUROC 0.808 (-0.001) | B 0.444 (+0.001)  (385s)
+  E_L5_a2            ans 0.469 (-0.004) | J +0.422 (-0.004) | AUROC 0.808 (-0.000) | B 0.442 (-0.001)  (420s)
+  E_L5_a3            ans 0.472 (-0.001) | J +0.422 (-0.004) | AUROC 0.808 (-0.000) | B 0.442 (-0.001)  (454s)
+  E_L6_a2            ans 0.477 (+0.004) | J +0.426 (+0.000) | AUROC 0.808 (-0.001) | B 0.445 (+0.001)  (488s)
+  E_L6_a3            ans 0.473 (+0.000) | J +0.420 (-0.006) | AUROC 0.808 (-0.001) | B 0.442 (-0.001)  (522s)
+  E_L7_a2            ans 0.476 (+0.003) | J +0.423 (-0.003) | AUROC 0.809 (-0.000) | B 0.443 (+0.000)  (557s)
+  E_L7_a3            ans 0.476 (+0.003) | J +0.423 (-0.003) | AUROC 0.808 (-0.000) | B 0.442 (-0.001)  (591s)
+  E_L8_a2            ans 0.473 (+0.000) | J +0.426 (+0.000) | AUROC 0.809 (-0.000) | B 0.443 (+0.000)  (625s)
+  E_L8_a3            ans 0.472 (-0.001) | J +0.420 (-0.006) | AUROC 0.808 (-0.000) | B 0.443 (+0.000)  (659s)
+  E_L9_a2            ans 0.476 (+0.003) | J +0.424 (-0.001) | AUROC 0.808 (-0.000) | B 0.442 (-0.001)  (694s)
+  E_L9_a3            ans 0.477 (+0.004) | J +0.424 (-0.001) | AUROC 0.808 (-0.000) | B 0.442 (-0.001)  (728s)
+  E_L10_a2           ans 0.472 (-0.001) | J +0.423 (-0.003) | AUROC 0.808 (-0.000) | B 0.445 (+0.001)  (762s)
+  E_L10_a3           ans 0.477 (+0.004) | J +0.422 (-0.004) | AUROC 0.808 (-0.000) | B 0.444 (+0.001)  (796s)
+  E_L11_a2           ans 0.474 (+0.001) | J +0.423 (-0.003) | AUROC 0.809 (-0.000) | B 0.445 (+0.001)  (830s)
+  E_L11_a3           ans 0.474 (+0.001) | J +0.420 (-0.006) | AUROC 0.808 (-0.000) | B 0.443 (+0.000)  (864s)
+  E_L12_a2           ans 0.472 (-0.001) | J +0.422 (-0.004) | AUROC 0.808 (-0.001) | B 0.442 (-0.001)  (899s)
+  E_L12_a3           ans 0.474 (+0.001) | J +0.423 (-0.003) | AUROC 0.808 (-0.001) | B 0.443 (+0.000)  (933s)
+  E_L13_a2           ans 0.474 (+0.001) | J +0.422 (-0.004) | AUROC 0.809 (-0.000) | B 0.442 (-0.001)  (967s)
+  E_L13_a3           ans 0.473 (+0.000) | J +0.424 (-0.001) | AUROC 0.809 (-0.000) | B 0.442 (-0.001)  (1001s)
+  E_L14_a2           ans 0.474 (+0.001) | J +0.426 (+0.000) | AUROC 0.809 (-0.000) | B 0.445 (+0.001)  (1036s)
+  E_L14_a3           ans 0.472 (-0.001) | J +0.429 (+0.003) | AUROC 0.809 (+0.000) | B 0.445 (+0.001)  (1070s)
+  E_L15_a2           ans 0.470 (-0.003) | J +0.422 (-0.004) | AUROC 0.808 (-0.000) | B 0.445 (+0.002)  (1104s)
+  E_L15_a3           ans 0.473 (+0.000) | J +0.423 (-0.003) | AUROC 0.808 (-0.000) | B 0.445 (+0.001)  (1138s)
+  E_L16_a2           ans 0.472 (-0.001) | J +0.427 (+0.001) | AUROC 0.809 (+0.000) | B 0.445 (+0.002)  (1173s)
+  E_L16_a3           ans 0.476 (+0.003) | J +0.429 (+0.003) | AUROC 0.809 (+0.000) | B 0.447 (+0.004)  (1207s)
+  E_L17_a2           ans 0.473 (+0.000) | J +0.427 (+0.001) | AUROC 0.809 (-0.000) | B 0.447 (+0.003)  (1241s)
+  E_L17_a3           ans 0.476 (+0.003) | J +0.423 (-0.003) | AUROC 0.809 (+0.000) | B 0.447 (+0.004)  (1275s)
+  E_L18_a2           ans 0.474 (+0.001) | J +0.431 (+0.006) | AUROC 0.810 (+0.001) | B 0.447 (+0.004)  (1310s)
+  E_L18_a3           ans 0.481 (+0.008) | J +0.430 (+0.004) | AUROC 0.810 (+0.001) | B 0.449 (+0.006)  (1344s)
+  E_L19_a2           ans 0.477 (+0.004) | J +0.444 (+0.018) | AUROC 0.816 (+0.007) | B 0.451 (+0.008)  (1378s)
+  E_L19_a3           ans 0.480 (+0.007) | J +0.452 (+0.026) | AUROC 0.819 (+0.010) | B 0.454 (+0.010)  (1412s)
+  E_L20_a2           ans 0.490 (+0.017) | J +0.449 (+0.024) | AUROC 0.816 (+0.007) | B 0.452 (+0.009)  (1446s)
+  E_L20_a3           ans 0.497 (+0.024) | J +0.466 (+0.040) | AUROC 0.818 (+0.009) | B 0.456 (+0.013)  (1481s)
+  E_L21_a2           ans 0.503 (+0.031) | J +0.455 (+0.029) | AUROC 0.819 (+0.011) | B 0.460 (+0.017)  (1515s)
+  E_L21_a3           ans 0.516 (+0.043) | J +0.473 (+0.047) | AUROC 0.822 (+0.014) | B 0.468 (+0.025)  (1549s)
+  E_L22_a2           ans 0.538 (+0.065) | J +0.472 (+0.046) | AUROC 0.819 (+0.010) | B 0.484 (+0.041)  (1584s)
+  E_L22_a3           ans 0.548 (+0.075) | J +0.474 (+0.049) | AUROC 0.820 (+0.011) | B 0.492 (+0.049)  (1618s)
+  E_L23_a2           ans 0.535 (+0.062) | J +0.454 (+0.028) | AUROC 0.813 (+0.004) | B 0.475 (+0.032)  (1652s)
+  E_L23_a3           ans 0.544 (+0.071) | J +0.459 (+0.033) | AUROC 0.813 (+0.004) | B 0.478 (+0.035)  (1686s)
+  E_L24_a2           ans 0.535 (+0.062) | J +0.445 (+0.019) | AUROC 0.810 (+0.002) | B 0.485 (+0.042)  (1721s)
+  E_L24_a3           ans 0.553 (+0.080) | J +0.448 (+0.022) | AUROC 0.810 (+0.002) | B 0.489 (+0.046)  (1755s)
+  E_L25_a2           ans 0.544 (+0.071) | J +0.454 (+0.028) | AUROC 0.809 (+0.001) | B 0.493 (+0.050)  (1789s)
+  E_L25_a3           ans 0.560 (+0.087) | J +0.459 (+0.033) | AUROC 0.808 (-0.001) | B 0.501 (+0.058)  (1823s)
+  E_L26_a2           ans 0.542 (+0.069) | J +0.449 (+0.024) | AUROC 0.810 (+0.002) | B 0.485 (+0.042)  (1857s)
+  E_L26_a3           ans 0.553 (+0.080) | J +0.466 (+0.040) | AUROC 0.809 (+0.000) | B 0.495 (+0.052)  (1892s)
+  E_L27_a2           ans 0.528 (+0.055) | J +0.451 (+0.025) | AUROC 0.813 (+0.004) | B 0.463 (+0.019)  (1926s)
+  E_L27_a3           ans 0.545 (+0.072) | J +0.452 (+0.026) | AUROC 0.813 (+0.005) | B 0.465 (+0.021)  (1960s)
+  E_L28_a2           ans 0.521 (+0.049) | J +0.449 (+0.024) | AUROC 0.812 (+0.004) | B 0.460 (+0.017)  (1994s)
+  E_L28_a3           ans 0.540 (+0.067) | J +0.454 (+0.028) | AUROC 0.812 (+0.004) | B 0.463 (+0.019)  (2029s)
+  E_L29_a2           ans 0.512 (+0.039) | J +0.448 (+0.022) | AUROC 0.810 (+0.002) | B 0.461 (+0.018)  (2063s)
+  E_L29_a3           ans 0.526 (+0.053) | J +0.455 (+0.029) | AUROC 0.809 (+0.001) | B 0.465 (+0.021)  (2097s)
+  E_L30_a2           ans 0.491 (+0.018) | J +0.442 (+0.017) | AUROC 0.810 (+0.002) | B 0.458 (+0.015)  (2131s)
+  E_L30_a3           ans 0.506 (+0.033) | J +0.441 (+0.015) | AUROC 0.810 (+0.001) | B 0.459 (+0.016)  (2166s)
+  E_L31_a2           ans 0.485 (+0.012) | J +0.448 (+0.022) | AUROC 0.809 (+0.000) | B 0.463 (+0.019)  (2200s)
+  E_L31_a3           ans 0.495 (+0.022) | J +0.448 (+0.022) | AUROC 0.806 (-0.003) | B 0.465 (+0.022)  (2234s)
+  E_L32_a2           ans 0.488 (+0.015) | J +0.447 (+0.021) | AUROC 0.809 (+0.001) | B 0.462 (+0.019)  (2268s)
+  E_L32_a3           ans 0.499 (+0.026) | J +0.448 (+0.022) | AUROC 0.806 (-0.002) | B 0.464 (+0.021)  (2302s)
+  E_L33_a2           ans 0.483 (+0.010) | J +0.447 (+0.021) | AUROC 0.813 (+0.005) | B 0.465 (+0.021)  (2336s)
+  E_L33_a3           ans 0.487 (+0.014) | J +0.451 (+0.025) | AUROC 0.813 (+0.005) | B 0.465 (+0.022)  (2371s)
+  E_L34_a2           ans 0.484 (+0.011) | J +0.451 (+0.025) | AUROC 0.811 (+0.003) | B 0.465 (+0.022)  (2405s)
+  E_L34_a3           ans 0.491 (+0.018) | J +0.452 (+0.026) | AUROC 0.810 (+0.001) | B 0.467 (+0.024)  (2439s)
+  E_L35_a2           ans 0.512 (+0.039) | J +0.463 (+0.037) | AUROC 0.816 (+0.007) | B 0.469 (+0.026)  (2473s)
+  E_L35_a3           ans 0.524 (+0.051) | J +0.465 (+0.039) | AUROC 0.817 (+0.008) | B 0.467 (+0.024)  (2507s)
+# E23 knob sweep, qwen3-8b (n=1442; layers [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35]; wording pik; E estimator meandiff)
+
+Selection on tune set (192 pairs) (E: max dJ s.t. |d ans| <= 0.03; C: max |d ans| s.t. |dJ| <= 0.02, |dB| <= 0.05), reported on remaining test (529 pairs).
+
+| knob | chosen | feasible on A | remaining test (529 pairs): d ans | d J | d AUROC | d B |
+|---|---|---|---|---|---|---|
+| E | E_L20_a3 | 54 | +0.028 | +0.032 | +0.009 | +0.012 |
+
+## Selection on the 96 estimation pairs instead (reported on ALL 721 test pairs)
+
+| knob | chosen on est | feasible on est | test: d ans | d J | d AUROC | d B |
+|---|---|---|---|---|---|---|
+== 2026-11-01 04:35:50 step 4a: read/write report, DAS
+读层=[26]；写层候选=E_L18_a3
+== 2026-11-01 04:35:50 step 4b: read/write report, mean-diff
+读层=[26]；写层候选=E_L20_a3
+== 2026-11-01 04:35:50 chain done
