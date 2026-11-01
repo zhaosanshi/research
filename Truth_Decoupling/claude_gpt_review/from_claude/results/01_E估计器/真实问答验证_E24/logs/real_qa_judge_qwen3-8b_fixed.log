@@ -1,0 +1,18 @@
+== 2026-11-01 20:17:01 real_qa judge start gpu= model=qwen3-8b tag=fixed cfg=[--e-layers 18 --e-alpha 3 --c-kind Cs --c-layer 30 --c-alpha 2]
+judge calls 757, cache hits 830
+# 真实问答验证：qwen3-8b（fixed）
+
+529 道测试问题（与两上下文协议的 529 测试对相同），三条件同一提示、贪心生成、只在提示末位置干预。裁判 deepseek（A 对 / B 错 / C 未作答），规则弃答短语或裁判 C 记为弃答。金标只用实质性答案（TruthfulQA 把 "I have no comment" 一类也列为正确答案，已剔除）；金标全为弃答型的问题 8 道另列。主表统计所有条件都有判定且金标实质的问题 521 道；未判定：{'baseline': 0, 'E': 0, 'C_abst': 0}；被 max_new_tokens 截断的比例：{'baseline': 0.008, 'E': 0.008, 'C_abst': 0.009}。
+
+E：{'estimator': 'das', 'variant': 'tf', 'layers': [18], 'alpha': 3.0, 'mode': 'amplify', 'centre': "mean of the 96 estimation questions' last-prompt-token activations under the QA prompt"}；C：{'kind': 'Cs', 'layer': 30, 'alpha': -2.0, 'mode': 'add', 'coef': 'gap', 'orthogonal_to': 'DAS-tf E of the same layer'}。
+
+| 条件 | 答对 | 答错 | 弃答 | 作答率 | 已作答中答对比例 | 只看裁判（不叠规则）：答对 / 弃答 |
+|---|---|---|---|---|---|---|
+| baseline | 0.259 | 0.372 | 0.369 | 0.631 | 0.410 | 0.261 / 0.365 |
+| E | 0.259 | 0.374 | 0.367 | 0.633 | 0.409 | 0.259 / 0.367 |
+| C_abst | 0.299 | 0.376 | 0.324 | 0.676 | 0.443 | 0.301 / 0.321 |
+
+金标全为弃答型的 8 道问题（真话就是不知道）：各条件的结果计数 {'baseline': {'correct': 0, 'wrong': 4, 'abstain': 4, 'unresolved': 0}, 'E': {'correct': 0, 'wrong': 4, 'abstain': 4, 'unresolved': 0}, 'C_abst': {'correct': 0, 'wrong': 4, 'abstain': 4, 'unresolved': 0}}
+
+saved /workspace/Truth_Decoupling/results_das_tf/E24/qwen3-8b/real_qa_fixed_judged.md
+== 2026-11-01 20:25:58 real_qa judge done

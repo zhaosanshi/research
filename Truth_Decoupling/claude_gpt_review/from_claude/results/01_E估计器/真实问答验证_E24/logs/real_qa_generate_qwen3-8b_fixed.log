@@ -1,0 +1,17 @@
+== 2026-11-01 20:14:53 real_qa generate start gpu=2 model=qwen3-8b tag=fixed cfg=[--e-layers 18 --e-alpha 3 --c-kind Cs --c-layer 30 --c-alpha 2]
+test questions: 529 (tune pairs 192, statements 1442); estimation statements 192, questions 96
+W1101 12:14:57.385000 125884 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1101 12:14:57.405000 125884 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:00<00:00, 360.13it/s]
+L18  DAS loss ['4.5524'] cos(DAS,meandiff) +0.646 | wE.cQ -5.139 vs wE.cB -2.048 | QA proj sd 0.825 |h| 83.5 | gap Cp 14.34 Cs 2.59
+L30  DAS loss ['0.0038'] cos(DAS,meandiff) +0.711 | wE.cQ -9.075 vs wE.cB -20.542 | QA proj sd 13.117 |h| 552.5 | gap Cp 83.55 Cs 149.75
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  8/529 (2s) audit E: {'forward_calls_per_layer': {'18': 14}, 'first_forward_T': {'18': 93}, 'n_new_tokens': 14, 'edits_per_spec': {'E_L18': 1}}
+  88/529 (19s) audit E: {'forward_calls_per_layer': {'18': 15}, 'first_forward_T': {'18': 74}, 'n_new_tokens': 15, 'edits_per_spec': {'E_L18': 1}}
+  168/529 (31s) audit E: {'forward_calls_per_layer': {'18': 11}, 'first_forward_T': {'18': 70}, 'n_new_tokens': 11, 'edits_per_spec': {'E_L18': 1}}
+  248/529 (47s) audit E: {'forward_calls_per_layer': {'18': 15}, 'first_forward_T': {'18': 70}, 'n_new_tokens': 15, 'edits_per_spec': {'E_L18': 1}}
+  328/529 (65s) audit E: {'forward_calls_per_layer': {'18': 8}, 'first_forward_T': {'18': 73}, 'n_new_tokens': 8, 'edits_per_spec': {'E_L18': 1}}
+  408/529 (84s) audit E: {'forward_calls_per_layer': {'18': 21}, 'first_forward_T': {'18': 94}, 'n_new_tokens': 21, 'edits_per_spec': {'E_L18': 1}}
+  488/529 (101s) audit E: {'forward_calls_per_layer': {'18': 20}, 'first_forward_T': {'18': 91}, 'n_new_tokens': 20, 'edits_per_spec': {'E_L18': 1}}
+saved /workspace/Truth_Decoupling/results_das_tf/E24/qwen3-8b/real_qa_fixed.json
+== 2026-11-01 20:16:58 real_qa generate done

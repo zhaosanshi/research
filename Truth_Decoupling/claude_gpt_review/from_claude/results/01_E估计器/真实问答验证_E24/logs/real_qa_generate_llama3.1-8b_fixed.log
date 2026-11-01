@@ -1,0 +1,19 @@
+== 2026-11-01 20:14:52 real_qa generate start gpu=0 model=llama3.1-8b tag=fixed cfg=[--e-layers 10 11 12 --e-alpha 2 --c-kind Cp --c-layer 28 --c-alpha 2]
+test questions: 529 (tune pairs 192, statements 1442); estimation statements 192, questions 96
+W1101 12:14:57.291000 125878 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1101 12:14:57.310000 125878 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00, 386.51it/s]
+L10  DAS loss ['0.7814'] cos(DAS,meandiff) +0.670 | wE.cQ +0.254 vs wE.cB +0.118 | QA proj sd 0.087 |h| 6.6 | gap Cp 1.17 Cs 0.29
+L11  DAS loss ['0.7576'] cos(DAS,meandiff) +0.672 | wE.cQ +0.194 vs wE.cB +0.220 | QA proj sd 0.096 |h| 6.7 | gap Cp 1.43 Cs 0.33
+L12  DAS loss ['0.5898'] cos(DAS,meandiff) +0.673 | wE.cQ -0.631 vs wE.cB -0.481 | QA proj sd 0.150 |h| 7.1 | gap Cp 1.60 Cs 0.67
+L28  DAS loss ['0.0215'] cos(DAS,meandiff) +0.624 | wE.cQ -0.061 vs wE.cB -0.435 | QA proj sd 0.991 |h| 36.9 | gap Cp 8.48 Cs 10.80
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  8/529 (1s) audit E: {'forward_calls_per_layer': {'10': 8, '11': 8, '12': 8}, 'first_forward_T': {'10': 111, '11': 111, '12': 111}, 'n_new_tokens': 8, 'edits_per_spec': {'E_L10': 1, 'E_L11': 1, 'E_L12': 1}}
+  88/529 (12s) audit E: {'forward_calls_per_layer': {'10': 8, '11': 8, '12': 8}, 'first_forward_T': {'10': 92, '11': 92, '12': 92}, 'n_new_tokens': 8, 'edits_per_spec': {'E_L10': 1, 'E_L11': 1, 'E_L12': 1}}
+  168/529 (22s) audit E: {'forward_calls_per_layer': {'10': 9, '11': 9, '12': 9}, 'first_forward_T': {'10': 88, '11': 88, '12': 88}, 'n_new_tokens': 9, 'edits_per_spec': {'E_L10': 1, 'E_L11': 1, 'E_L12': 1}}
+  248/529 (33s) audit E: {'forward_calls_per_layer': {'10': 17, '11': 17, '12': 17}, 'first_forward_T': {'10': 88, '11': 88, '12': 88}, 'n_new_tokens': 17, 'edits_per_spec': {'E_L10': 1, 'E_L11': 1, 'E_L12': 1}}
+  328/529 (45s) audit E: {'forward_calls_per_layer': {'10': 12, '11': 12, '12': 12}, 'first_forward_T': {'10': 91, '11': 91, '12': 91}, 'n_new_tokens': 12, 'edits_per_spec': {'E_L10': 1, 'E_L11': 1, 'E_L12': 1}}
+  408/529 (64s) audit E: {'forward_calls_per_layer': {'10': 17, '11': 17, '12': 17}, 'first_forward_T': {'10': 112, '11': 112, '12': 112}, 'n_new_tokens': 17, 'edits_per_spec': {'E_L10': 1, 'E_L11': 1, 'E_L12': 1}}
+  488/529 (73s) audit E: {'forward_calls_per_layer': {'10': 8, '11': 8, '12': 8}, 'first_forward_T': {'10': 107, '11': 107, '12': 107}, 'n_new_tokens': 8, 'edits_per_spec': {'E_L10': 1, 'E_L11': 1, 'E_L12': 1}}
+saved /workspace/Truth_Decoupling/results_das_tf/E24/llama3.1-8b/real_qa_fixed.json
+== 2026-11-01 20:16:28 real_qa generate done
