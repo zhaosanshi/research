@@ -249,7 +249,7 @@ def trace_pair(bundle, d, layer, fams, cB, mB, tok, massive_idx, alphas, prompts
 # --------------------------------------------------------------------------- #
 
 def swap_amp_stats(bundle, pairs, layer, fams, cB, mB, tok, massive_idx, alphas, prompts, positions="last"):
-    labels, p_base, informative, kl_src_base = [], [], [], []
+    labels, p_base, p_src, informative, kl_src_base = [], [], [], [], []
     p_swap = {f: [] for f in fams}
     ok_swap = {f: [] for f in fams}
     kl_src_swap = {f: [] for f in fams}
@@ -272,6 +272,7 @@ def swap_amp_stats(bundle, pairs, layer, fams, cB, mB, tok, massive_idx, alphas,
             ids.append(d[lab]["id"])
             labels.append(lab)
             p_base.append(b[lab][1]["p_true"])
+            p_src.append(b[other][1]["p_true"])   # the paired statement's ACTUAL baseline p_true: the swap target
             informative.append(inf)
             kl_src_base.append(kl(b[other][2], b[lab][2]))
             for name, w in fams.items():
@@ -293,13 +294,18 @@ def swap_amp_stats(bundle, pairs, layer, fams, cB, mB, tok, massive_idx, alphas,
                     doh_amp[(name, a)].append(hr["delta_over_h"])
     lab = np.array(labels, dtype=bool)
     pb = np.array(p_base)
+    psrc = np.array(p_src)
     inf = np.array(informative, dtype=bool)
     out = {"n_pairs": len(pairs), "n_statements": int(len(lab)), "n_informative_statements": int(inf.sum()),
            "baseline": j_b(pb, lab), "baseline_TPR": float((pb[lab] > 0.5).mean()), "baseline_FPR": float((pb[~lab] > 0.5).mean()),
            "mean_kl_src_base": float(np.mean(kl_src_base)), "swap": {}, "amplify": {}, "ids": ids}
     for name in fams:
         ps = np.array(p_swap[name])
-        toward = np.where(lab, pb - ps, ps - pb)          # true<-false source: p_true should fall; false<-true: rise
+        # Reduction of the distance to the source's ACTUAL p_true: |p_base - p_src| - |p_swapped - p_src|; positive = the
+        # swapped statement's output moved towards what the model actually says on the source statement. (GPT review
+        # round 6: the earlier `np.where(lab, pb - ps, ps - pb)` used the truth label to fix the sign, so when the model's
+        # own judgement of the source was reversed a correct swap scored negative. First-token match and KL are unaffected.)
+        toward = np.abs(pb - psrc) - np.abs(ps - psrc)
         ok = np.array(ok_swap[name], dtype=bool)
         out["swap"][name] = {
             "first_token_success_informative": float(ok[inf].mean()) if inf.any() else None,
@@ -395,7 +401,7 @@ def stats_table(st, fams, alphas, sweep_cmp):
     b = st["baseline"]
     lines = ["%d pairs, %d statements, %d statements in informative pairs (baseline first tokens differ). Baseline J %.3f, AUROC %.3f, B %.3f (TPR %.3f, FPR %.3f); mean KL(p_source \\|\\| p_base) %.3f." % (
                  st["n_pairs"], st["n_statements"], st["n_informative_statements"], b["J"], b["AUROC"], b["B"], st["baseline_TPR"], st["baseline_FPR"], st["mean_kl_src_base"]), "",
-             "| swap along | first-token success on informative | match, all | mean KL(src\\|\\|swapped) | KL closed | p_true moved towards source (all / informative) | J after | AUROC after | B after | kept/delta mean (min) | delta/\\|h\\| mean |",
+             "| swap along | first-token success on informative | match, all | mean KL(src\\|\\|swapped) | KL closed | \\|p_true - p_true(src)\\| reduced (all / informative) | J after | AUROC after | B after | kept/delta mean (min) | delta/\\|h\\| mean |",
              "|---|---|---|---|---|---|---|---|---|---|---|"]
     for name in fams:
         s = st["swap"][name]
