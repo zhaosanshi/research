@@ -1,0 +1,129 @@
+{
+  "policy_sha256": "8a84259e8b0b9ef79d2b99b0b115dcdb1432078237e0a7b017c273c0aaeb1d53",
+  "scope": "retrospective B evaluation after this round's A-only selection; B was used in earlier rounds",
+  "models": {
+    "llama3.1-8b": {
+      "policy": {
+        "kind": "confidence_band",
+        "condition": "E_L10-11-12_a2",
+        "lo": 0.6,
+        "hi": 0.7,
+        "name": "band:E_L10-11-12_a2:0.6:0.7",
+        "cost": [
+          2,
+          3,
+          0.0
+        ]
+      },
+      "tune": {
+        "n": 384,
+        "baseline_correct": 264,
+        "corrected": 12,
+        "harmed": 1,
+        "net": 11,
+        "harm_rate": 0.003787878787878788,
+        "accuracy_gain_pp": 2.8645833333333335,
+        "accuracy_after": 0.7161458333333334
+      },
+      "original_test": {
+        "n": 1058,
+        "baseline_correct": 725,
+        "corrected": 140,
+        "harmed": 61,
+        "net": 79,
+        "harm_rate": 0.08413793103448276,
+        "accuracy_gain_pp": 7.466918714555765,
+        "accuracy_after": 0.7599243856332704
+      },
+      "protected_test": {
+        "n": 1058,
+        "baseline_correct": 725,
+        "corrected": 20,
+        "harmed": 9,
+        "net": 11,
+        "harm_rate": 0.012413793103448275,
+        "accuracy_gain_pp": 1.0396975425330812,
+        "accuracy_after": 0.6956521739130435
+      },
+      "paired_bootstrap_95": {
+        "original_gain_pp": [
+          5.196124763705105,
+          9.92438563327032
+        ],
+        "selected_gain_pp": [
+          0.0,
+          2.1739130434782608
+        ],
+        "harm_reduction_pp": [
+          5.419594396774992,
+          9.103265554722638
+        ],
+        "selected_minus_original_gain_pp": [
+          -8.79017013232514,
+          -4.250945179584133
+        ]
+      }
+    },
+    "qwen3-8b": {
+      "policy": {
+        "kind": "steer",
+        "source": "low",
+        "condition": "E_L18_a1.5",
+        "name": "low:E_L18_a1.5",
+        "cost": [
+          1,
+          1,
+          1.5
+        ]
+      },
+      "tune": {
+        "n": 384,
+        "baseline_correct": 266,
+        "corrected": 10,
+        "harmed": 0,
+        "net": 10,
+        "harm_rate": 0.0,
+        "accuracy_gain_pp": 2.6041666666666665,
+        "accuracy_after": 0.71875
+      },
+      "original_test": {
+        "n": 1058,
+        "baseline_correct": 762,
+        "corrected": 41,
+        "harmed": 14,
+        "net": 27,
+        "harm_rate": 0.01837270341207349,
+        "accuracy_gain_pp": 2.551984877126654,
+        "accuracy_after": 0.7457466918714556
+      },
+      "protected_test": {
+        "n": 1058,
+        "baseline_correct": 762,
+        "corrected": 20,
+        "harmed": 10,
+        "net": 10,
+        "harm_rate": 0.013123359580052493,
+        "accuracy_gain_pp": 0.945179584120983,
+        "accuracy_after": 0.7296786389413988
+      },
+      "paired_bootstrap_95": {
+        "original_gain_pp": [
+          1.3232514177693762,
+          3.8752362948960304
+        ],
+        "selected_gain_pp": [
+          0.0,
+          1.890359168241966
+        ],
+        "harm_reduction_pp": [
+          0.1270648030495553,
+          1.0709863583018397
+        ],
+        "selected_minus_original_gain_pp": [
+          -2.551984877126654,
+          -0.7561436672967863
+        ]
+      }
+    }
+  }
+}
