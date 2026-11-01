@@ -1,0 +1,28 @@
+== 2026-11-01 09:34:18 diag start gpu=2 model=gemma3-12b layers=20 25
+W1101 01:34:23.666000 106261 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1101 01:34:23.686000 106261 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:00<00:00, 133.77it/s]
+estimation 192 statements; test 1442 statements, tune 192 pairs (first traced: ['tqa:685', 'tqa:270']); DAS training pairs 96 (first traced: ['tqa:765'])
+label tokens: {'True': [' true', 'true', 'True', ' True', 'TRUE'], 'False': [' false', 'false', ' False', 'False', 'FALSE']}
+L20  mean|h| 46193.3, top coords [2339, 601, 3499, 3071] (share of |h|^2 0.998); w^2 share on them meandiff 0.512 / das 0.044; readout AUROC est meandiff 0.682 / das 0.804; cos 0.599; DAS loss [4.699158738174532]
+The following generation flags are not valid and may be ignored: ['top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  L20 train pair tqa:765 T stmt: base p_true 0.000 'False' | identity p_true 0.000 'False' kept n/a; swap_meandiff p_true 0.000 'False' kept 0.706; amp_meandiff_a3 p_true 0.000 'False' kept 0.910; swap_das p_true 0.000 'False' kept 0.977; amp_das_a3 p_true 0.000 'False' kept 0.984
+  L20 train pair tqa:765 F stmt: base p_true 0.000 'False' | identity p_true 0.000 'False' kept n/a; swap_meandiff p_true 0.000 'False' kept 0.706; amp_meandiff_a3 p_true 0.000 'False' kept 0.866; swap_das p_true 0.000 'False' kept 0.978; amp_das_a3 p_true 0.000 'False' kept 0.984
+  L20 tune pair tqa:685 T stmt: base p_true 1.000 'True' | identity p_true 1.000 'True' kept n/a; swap_meandiff p_true 1.000 'True' kept 0.704; amp_meandiff_a3 p_true 1.000 'True' kept 0.943; swap_das p_true 1.000 'True' kept 0.990; amp_das_a3 p_true 1.000 'True' kept 0.984
+  L20 tune pair tqa:685 F stmt: base p_true 0.000 'False' | identity p_true 0.000 'False' kept n/a; swap_meandiff p_true 0.000 'False' kept 0.705; amp_meandiff_a3 p_true 0.000 'False' kept 1.148; swap_das p_true 0.000 'False' kept 0.989; amp_das_a3 p_true 0.000 'False' kept 0.984
+  L20 tune pair tqa:270 T stmt: base p_true 1.000 'True' | identity p_true 1.000 'True' kept n/a; swap_meandiff p_true 1.000 'True' kept 0.704; amp_meandiff_a3 p_true 1.000 'True' kept 1.077; swap_das p_true 1.000 'True' kept 0.990; amp_das_a3 p_true 1.000 'True' kept 0.887
+  L20 tune pair tqa:270 F stmt: base p_true 0.000 'False' | identity p_true 0.000 'False' kept n/a; swap_meandiff p_true 0.000 'False' kept 0.704; amp_meandiff_a3 p_true 0.000 'False' kept 0.879; swap_das p_true 0.000 'False' kept 0.991; amp_das_a3 p_true 0.000 'False' kept 0.985
+  L20 train stats: swap success informative das 0.014 / meandiff 0.000; amplify a3 dAUROC das -0.001 meandiff +0.000; kept/delta min das 0.876
+  L20 tune stats: swap success informative das 0.035 / meandiff 0.014; amplify a3 dAUROC das -0.006 meandiff +0.000; kept/delta min das 0.487
+L25  mean|h| 69800.9, top coords [2339, 601, 3499, 3071] (share of |h|^2 0.994); w^2 share on them meandiff 0.125 / das 0.004; readout AUROC est meandiff 0.880 / das 0.859; cos 0.662; DAS loss [0.03899611439469405]
+  L25 train pair tqa:765 T stmt: base p_true 0.000 'False' | identity p_true 0.000 'False' kept n/a; swap_meandiff p_true 0.000 'False' kept 0.942; amp_meandiff_a3 p_true 0.000 'False' kept 1.002; swap_das p_true 0.000 'False' kept 1.009; amp_das_a3 p_true 0.000 'False' kept 1.000
+  L25 train pair tqa:765 F stmt: base p_true 0.000 'False' | identity p_true 0.000 'False' kept n/a; swap_meandiff p_true 0.000 'False' kept 0.942; amp_meandiff_a3 p_true 0.000 'False' kept 1.133; swap_das p_true 0.000 'False' kept 1.009; amp_das_a3 p_true 0.000 'False' kept 1.000
+  L25 tune pair tqa:685 T stmt: base p_true 1.000 'True' | identity p_true 1.000 'True' kept n/a; swap_meandiff p_true 0.924 'True' kept 1.147; amp_meandiff_a3 p_true 1.000 'True' kept 0.941; swap_das p_true 0.004 'False' kept 1.000; amp_das_a3 p_true 1.000 'True' kept 1.001
+  L25 tune pair tqa:685 F stmt: base p_true 0.000 'False' | identity p_true 0.000 'False' kept n/a; swap_meandiff p_true 0.076 'False' kept 1.147; amp_meandiff_a3 p_true 0.000 'False' kept 1.024; swap_das p_true 1.000 'True' kept 1.000; amp_das_a3 p_true 0.000 'False' kept 1.000
+  L25 tune pair tqa:270 T stmt: base p_true 1.000 'True' | identity p_true 1.000 'True' kept n/a; swap_meandiff p_true 1.000 'True' kept 0.995; amp_meandiff_a3 p_true 1.000 'True' kept 1.023; swap_das p_true 1.000 'True' kept 1.000; amp_das_a3 p_true 1.000 'True' kept 1.000
+  L25 tune pair tqa:270 F stmt: base p_true 0.000 'False' | identity p_true 0.000 'False' kept n/a; swap_meandiff p_true 0.182 'False' kept 0.996; amp_meandiff_a3 p_true 0.000 'False' kept 0.970; swap_das p_true 1.000 'True' kept 1.000; amp_das_a3 p_true 0.000 'False' kept 1.002
+  L25 train stats: swap success informative das 0.890 / meandiff 0.158; amplify a3 dAUROC das -0.005 meandiff +0.004; kept/delta min das 0.424
+  L25 tune stats: swap success informative das 0.798 / meandiff 0.160; amplify a3 dAUROC das -0.009 meandiff +0.005; kept/delta min das 0.999
+
+written /workspace/Truth_Decoupling/results_das_tf/diag/gemma3-12b/trace_direction_L20_L25.{json,md} (599s)
+== 2026-11-01 09:44:20 diag done

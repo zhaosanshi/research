@@ -63,6 +63,8 @@ def main():
                          "2026-11-01 round 2); 'current' = the growing sequence's last token (v12 behaviour, swaps answer tokens from step 2 on)")
     ap.add_argument("--das-variant", default=None, help="file-name suffix for non-default DAS variants (default: derived from the flags, "
                     "e.g. tf-jsd-bidir-allpos; 'tf' marks the forced True/False estimation prompt, 'cur' the v12 anchor)")
+    ap.add_argument("--das-rank", type=int, default=None, help="DAS subspace rank (default: the experiment's das.rank, 1). The rank is part of the "
+                    "file name (das_E_L<l>_r<rank>_s<seed>[_<variant>].pt); rank > 1 is a pilot of whether a low-rank subspace swaps where no single direction does")
     ap.add_argument("--trim", type=float, default=0.0, help="trimmed-mean fraction for the mean-difference directions and centres (default 0 = plain mean)")
     ap.add_argument("--direction-prompt", choices=["config", "tf", "idk"], default="config",
                     help="statement prompt under which E (mean-diff AND the DAS pairs) is estimated: 'tf' = forced True/False, i.e. the final "
@@ -221,8 +223,12 @@ def main():
         summary["das"] = {"variant": variant, "seeds": seeds, "loss": args.das_loss, "bidirectional": bool(args.das_bidir),
                           "positions": args.das_positions, "anchor": args.das_anchor, "prompt_allow_idk": e_idk,
                           "balanced": bool(args.das_balance), "trim": args.das_trim, "n_pairs": {}}
-        print("[DAS] variant=%r seeds=%s loss=%s bidir=%s positions=%s anchor=%s prompt_allow_idk=%s balanced=%s trim=%g" % (
-            variant, seeds, args.das_loss, args.das_bidir, args.das_positions, args.das_anchor, e_idk, args.das_balance, args.das_trim), flush=True)
+        das_rank = args.das_rank if args.das_rank is not None else das_cfg.get("rank", 1)
+        if das_rank < 1 or das_rank > bundle.hidden_size:
+            raise ValueError("--das-rank must be in [1, %d]" % bundle.hidden_size)
+        summary["das"]["rank"] = das_rank
+        print("[DAS] variant=%r rank=%d seeds=%s loss=%s bidir=%s positions=%s anchor=%s prompt_allow_idk=%s balanced=%s trim=%g" % (
+            variant, das_rank, seeds, args.das_loss, args.das_bidir, args.das_positions, args.das_anchor, e_idk, args.das_balance, args.das_trim), flush=True)
         das_tags = [t.strip() for t in args.das_tags.split(",") if t.strip()]
         for tag, pairs, keys, sc in (("C", pairs_C, keys_C, scores_C), ("E", pairs_E, keys_E, scores_E)):
             if tag not in das_tags:
@@ -240,7 +246,7 @@ def main():
             for l in train_layers:
                 ws = []
                 for s in seeds:
-                    res = train_das(bundle, pairs, l, rank=das_cfg.get("rank", 1), T=das_cfg.get("T", 8),
+                    res = train_das(bundle, pairs, l, rank=das_rank, T=das_cfg.get("T", 8),
                                     epochs=das_cfg.get("epochs", 10), lr=das_cfg.get("lr", 1e-3), seed=s,
                                     loss=args.das_loss, bidirectional=args.das_bidir, positions=args.das_positions,
                                     pair_weights=weights, trim=args.das_trim, anchor=args.das_anchor)
@@ -248,11 +254,17 @@ def main():
                     ws.append(w)
                     torch.save(res, os.path.join(out_dir, das_file_name(tag, l, res["rank"], s, variant)))
                     key = "%s_L%d_s%d" % (tag, l, s)
-                    summary["das"][key] = {"final_loss": res["losses"][-1], "mean_gap": res["mean_gap"],
-                                           "cos_with_meandiff": cosine(w, (wC if tag == "C" else wE)[l]),
-                                           "cos_with_other_meandiff": cosine(w, (wE if tag == "C" else wC)[l])}
-                    print("  [DAS %s L%d s%d] loss=%.5f cos(meandiff)=%.3f cos(other)=%.3f" % (
-                        tag, l, s, res["losses"][-1], summary["das"][key]["cos_with_meandiff"],
+                    own, other = (wC if tag == "C" else wE)[l], (wE if tag == "C" else wC)[l]
+                    if das_rank == 1:
+                        cos_own, cos_other = cosine(w, own), cosine(w, other)
+                    else:   # rank > 1: how much of the mean-diff direction lies in the subspace (largest principal cosine)
+                        from core.directions import principal_cosines
+                        cos_own = float(max(principal_cosines(res["W"].numpy(), own.reshape(-1, 1))))
+                        cos_other = float(max(principal_cosines(res["W"].numpy(), other.reshape(-1, 1))))
+                    summary["das"][key] = {"final_loss": res["losses"][-1], "mean_gap": res["mean_gap"], "rank": das_rank,
+                                           "cos_with_meandiff": cos_own, "cos_with_other_meandiff": cos_other}
+                    print("  [DAS %s L%d s%d r%d] loss=%.5f cos(meandiff)=%.3f cos(other)=%.3f" % (
+                        tag, l, s, das_rank, res["losses"][-1], summary["das"][key]["cos_with_meandiff"],
                         summary["das"][key]["cos_with_other_meandiff"]), flush=True)
                 if len(ws) > 1:
                     pc = [abs(cosine(ws[i], ws[j])) for i in range(len(ws)) for j in range(i + 1, len(ws))]
