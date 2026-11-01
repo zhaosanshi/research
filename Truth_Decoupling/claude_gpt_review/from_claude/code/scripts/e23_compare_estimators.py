@@ -48,6 +48,7 @@ def rule_pick(conds, names):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", required=True, help="results root holding E23/<model>/knob_sweep_<tag>.{json,npz}")
+    ap.add_argument("--root-b", default=None, help="results root of sweep B when it lives elsewhere (e.g. the old-anchor DAS run under results_das_tf_cur); default: --root")
     ap.add_argument("--model", required=True)
     ap.add_argument("--tag-a", required=True); ap.add_argument("--label-a", default=None)
     ap.add_argument("--tag-b", required=True); ap.add_argument("--label-b", default=None)
@@ -59,12 +60,13 @@ def main():
         raise SystemExit("refusing to overwrite %s" % args.out)
     la, lb = args.label_a or args.tag_a, args.label_b or args.tag_b
     d = os.path.join(args.root, "E23", args.model)
+    d_b = os.path.join(args.root_b, "E23", args.model) if args.root_b else d
 
-    def load(tag):
-        j = json.load(open(os.path.join(d, "knob_sweep_%s.json" % tag)))
-        z = np.load(os.path.join(d, "knob_sweep_%s.npz" % tag), allow_pickle=True)
+    def load(dir_, tag):
+        j = json.load(open(os.path.join(dir_, "knob_sweep_%s.json" % tag)))
+        z = np.load(os.path.join(dir_, "knob_sweep_%s.npz" % tag), allow_pickle=True)
         return j, z
-    ja, za = load(args.tag_a); jb, zb = load(args.tag_b)
+    ja, za = load(d, args.tag_a); jb, zb = load(d_b, args.tag_b)
     if not (np.array_equal(za["ids"], zb["ids"]) and np.array_equal(za["half_a"], zb["half_a"])):
         raise SystemExit("the two sweeps have different items or a different tuning split; a paired comparison is meaningless")
     if ja["model"] != jb["model"] or ja.get("wording") != jb.get("wording") or ja.get("e_alphas") != jb.get("e_alphas"):
@@ -91,9 +93,9 @@ def main():
         return "%+.3f [%+.3f, %+.3f]" % (v, np.percentile(arr, 2.5), np.percentile(arr, 97.5))
 
     out = ["# %s: %s vs %s (paired, same %d test pairs)" % (args.model, la, lb, len(test_pairs)), "",
-           "Sweeps `%s` / `%s` under `%s`. Rule on the tuning half (%d pairs): E = max dJ s.t. |d ans| <= %.2f. "
+           "Sweeps `%s` / `%s` under `%s`%s. Rule on the tuning half (%d pairs): E = max dJ s.t. |d ans| <= %.2f. "
            "Test half reported with pair-bootstrap 95%% CIs (%d resamples, seed %d). Baseline arrays identical across the two sweeps: %s."
-           % (args.tag_a, args.tag_b, d, int(za["half_a"].sum()) // 2, E_LEAK, args.n_boot, args.seed, same_base), ""]
+           % (args.tag_a, args.tag_b, d, (" / `%s`" % d_b) if d_b != d else "", int(za["half_a"].sum()) // 2, E_LEAK, args.n_boot, args.seed, same_base), ""]
     e = ja["conds"]["baseline"].get("est")
     if e:
         tpr, fpr = e["B"] + e["J"] / 2, e["B"] - e["J"] / 2
