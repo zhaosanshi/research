@@ -58,7 +58,7 @@ class PolicyTests(unittest.TestCase):
                                  baseline__ptrue=b, **{name + "__ptrue": v})
 
             save()
-            args = SimpleNamespace(old_root=old, low_root=low, harm_cap=.005, policy=root / "policy1.json", out=root / "test.json")
+            args = SimpleNamespace(old_root=old, low_root=low, harm_cap=.005, fallback_band=True, policy=root / "policy1.json", out=root / "test.json")
             with contextlib.redirect_stdout(io.StringIO()):
                 module.fit(args); module.evaluate(args)
             first = json.loads(args.policy.read_text())
@@ -72,6 +72,14 @@ class PolicyTests(unittest.TestCase):
             for model in module.MODELS:
                 self.assertEqual(first["models"][model]["chosen"], second["models"][model]["chosen"])
                 self.assertEqual(first["models"][model]["chosen"]["policy"]["name"], "low:E_L1_a0.5")
+
+    def test_confidence_band_uses_only_baseline_scores(self):
+        base = np.array([.5, .61, .31, .7, .9])
+        changed = 1 - base
+        data = {"old": {"baseline__ptrue": base, "E_L1_a2__ptrue": changed}}
+        p = {"kind": "confidence_band", "condition": "E_L1_a2", "lo": .6, "hi": .7}
+        actual = module.predictions(data, p, np.ones(5, dtype=bool))
+        np.testing.assert_array_equal(actual, [base[0], changed[1], changed[2], base[3], base[4]])
 
 
 if __name__ == "__main__":

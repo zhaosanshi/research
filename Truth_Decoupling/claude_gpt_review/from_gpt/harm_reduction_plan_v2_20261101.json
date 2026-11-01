@@ -1,0 +1,52 @@
+{
+  "created_at": "2026-11-01T17:27:20.353040+08:00",
+  "training": "existing 96-pair DAS tf/prompt/seed42 directions unchanged",
+  "tuning": "original half_a: 192 pairs",
+  "evaluation": "original B: 529 pairs; previously inspected in earlier rounds, retrospective validation",
+  "teacher_harm_target": 0.01,
+  "primary_tune_harm_cap": 0.005,
+  "selection": "maximize corrections minus harms; tie: fewer harms, then simpler/cheaper policy, then lexical name; include unchanged baseline",
+  "candidate_sources": [
+    "all saved single/window DAS conditions in das_tf_spans",
+    "fixed original DAS/mean-difference selected conditions: accept changed label only when both agree",
+    "new low-strength single/window DAS conditions specified below"
+  ],
+  "low_strength": {
+    "llama3.1-8b": {
+      "single_layers": [
+        11,
+        12
+      ],
+      "spans": [
+        [
+          10,
+          11,
+          12
+        ]
+      ],
+      "alphas": [
+        0.25,
+        0.5,
+        1.0,
+        1.5
+      ]
+    },
+    "qwen3-8b": {
+      "single_layers": [
+        18
+      ],
+      "spans": [],
+      "alphas": [
+        0.25,
+        0.5,
+        1.0,
+        1.5
+      ]
+    }
+  },
+  "no_test_feedback": "fit writes selected policies using only A; evaluate selected policies on B once, do not change after B",
+  "scope": "binary statement accuracy and baseline-correct harm; does not certify open-QA or full 2x2",
+  "amended_at": "2026-11-01T17:40:11.027990+08:00",
+  "amendment_reason": "A-only primary fit selected baseline for Llama (no positive candidate within 0.5% harm); Qwen selected alpha1.5. No new B outcome evaluated.",
+  "fallback": "Only when primary fit selects baseline, try original fixed E with baseline confidence lo<=max(p,1-p)<hi; grid [.5,.6,.7,.8,.9,.95,1.01]; same harm cap/objective. Otherwise retain primary."
+}

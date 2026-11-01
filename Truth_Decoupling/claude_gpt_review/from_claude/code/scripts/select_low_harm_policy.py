@@ -91,6 +91,11 @@ def predictions(data, policy, mask):
     if policy["kind"] == "consensus":
         return consensus(base, data["old"][policy["das_condition"] + "__ptrue"][mask],
                          data["md"][policy["md_condition"] + "__ptrue"][mask])
+    if policy["kind"] == "confidence_band":
+        confidence = np.maximum(base, 1 - base)
+        use = (confidence >= policy["lo"]) & (confidence < policy["hi"])
+        steered = data["old"][policy["condition"] + "__ptrue"][mask]
+        return np.where(use, steered, base)
     raise ValueError("unknown policy")
 
 
@@ -111,6 +116,7 @@ def write_new(path, content):
 def fit(args):
     result = {"created_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
               "tune_harm_cap": args.harm_cap, "teacher_target": .01,
+              "fallback_band": args.fallback_band,
               "selection": "maximize A net corrections within cap; tie fewer harms, lower cost, name",
               "evaluation_status": "not evaluated on B by this fitting program", "models": {}}
     for model in MODELS:
@@ -121,7 +127,21 @@ def fit(args):
         rows = [{"policy": p, "tune": stats(labels, base, predictions(data, p, mask))}
                 for p in candidates(data, metadata)]
         selected = select(rows, args.harm_cap)
+        fallback_used = args.fallback_band and selected["policy"]["kind"] == "baseline"
+        if fallback_used:
+            # A-only refinement: only models with no positive primary candidate
+            # try a middle-confidence gate on their already fixed original E.
+            original = metadata["old"]["selection"]["E"]["chosen"]
+            grid = [.5, .6, .7, .8, .9, .95, 1.01]
+            for i, lo in enumerate(grid[:-1]):
+                for hi in grid[i + 1:]:
+                    policy = {"kind": "confidence_band", "condition": original,
+                              "lo": lo, "hi": hi, "name": "band:%s:%g:%g" % (original, lo, hi),
+                              "cost": [2, len(original.split("_L")[1].split("_a")[0].split("-")), 0.]}
+                    rows.append({"policy": policy, "tune": stats(labels, base, predictions(data, policy, mask))})
+            selected = select(rows, args.harm_cap)
         result["models"][model] = {"input_hashes": hashes, "chosen": selected,
+                                    "fallback_triggered_on_A": fallback_used,
                                     "original_condition": metadata["old"]["selection"]["E"]["chosen"],
                                     "candidates_on_A": rows}
         print(model, selected["policy"]["name"], selected["tune"])
@@ -178,6 +198,8 @@ def main():
     parser.add_argument("--low-root", type=Path, required=True)
     parser.add_argument("--policy", type=Path, required=True)
     parser.add_argument("--harm-cap", type=float, default=.005)
+    parser.add_argument("--fallback-band", action="store_true",
+                        help="if A selects baseline, try predeclared confidence bands on the fixed original E")
     parser.add_argument("--out", type=Path)
     args = parser.parse_args()
     if not 0 <= args.harm_cap <= 1:
