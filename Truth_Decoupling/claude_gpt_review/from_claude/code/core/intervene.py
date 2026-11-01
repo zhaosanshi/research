@@ -37,6 +37,7 @@ class SteerSpec:
         self.z_target = None if z_target is None else torch.as_tensor(z_target, dtype=torch.float32).reshape(-1)
         self.position = position
         self.name = name or mode
+        self.n_applied = 0              # how many forward calls this spec actually edited (audit of max_calls / prefill-only use)
         if mode == "add" and self.coef is None:
             self.coef = torch.ones(self.W.shape[1])
         if mode == "interchange" and self.source_act is None:
@@ -98,16 +99,20 @@ class LayerSteerHook:
         self.specs = list(specs)
         self.call_count = 0
         self.applied_count = 0
+        self.first_shape = None         # [B, T, d] of the first forward call: lets a caller assert that call 1 was the full prompt
 
     def __call__(self, module, inp, out):
         self.call_count += 1
         h = out[0] if isinstance(out, tuple) else out
+        if self.call_count == 1:
+            self.first_shape = tuple(h.shape)
         if not self.specs:
             return out
         h_new = h.clone()
         for spec in self.specs:
             if spec.max_calls is not None and self.call_count > spec.max_calls:
                 continue
+            spec.n_applied += 1
             if spec.position == "last":
                 h_pos = h_new[:, -1, :].float()
                 h_new[:, -1, :] = (h_pos + spec.delta(h_pos)).to(h.dtype)
