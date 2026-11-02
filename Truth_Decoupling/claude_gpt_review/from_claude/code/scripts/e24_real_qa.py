@@ -22,9 +22,10 @@ Bridging rules (review round 8):
 
 Phases:
   --phase generate  (GPU)  -> <results>/E24/<model>/real_qa_<tag>.json : all three outputs per question (resumable)
-  --phase judge     (API)  -> rule abstention + DeepSeek A/B/C grade per answer, outcome = abstain if either says so;
+  --phase judge     (API)  -> semantic DeepSeek grade; keywords flag review and cannot override correct/wrong;
                              rates per condition, 3x3 transitions vs baseline, question-bootstrap CIs;
-                             real_qa_<tag>_judged.{json,md}
+                             versioned *_judge_primary_v2 outputs; original files preserved
+  --phase rescore   (CPU)  -> recompute with cached grades only; no API or generation
 """
 import argparse
 import os
@@ -42,7 +43,7 @@ from core.config import load_experiment, load_model_config                      
 from core.directions import load_das_direction, mean_diff_direction                 # noqa: E402
 from core.intervene import SteerSpec, steer                                         # noqa: E402
 from core.io_utils import ResumableResults, atomic_json_dump, load_json, set_seed   # noqa: E402
-from core.judge import combine_outcome, judge_from_config                           # noqa: E402
+from core.qa_scoring import OUTCOME_POLICY, judged_outcome, rule_conflicts_with_judge, reference_answers  # noqa: E402
 from core.metrics import qa_rates                                                   # noqa: E402
 from core.model_io import capture_last_token, greedy_generate, load_model           # noqa: E402
 from core.readout import build_label_token_map, label_logprobs_from_logits, rule_abstains  # noqa: E402
@@ -244,28 +245,67 @@ def phase_generate(args):
 
 # --------------------------------------------------------------------------- #
 def phase_judge(args):
-    exp_j = load_experiment(args.judge_exp)
     mcfg = load_model_config(args.model)
     d, path, stem = out_paths(mcfg["name"], args.tag)
+    if args.input_file:
+        path = args.input_file
     data = load_json(path)
-    judge = judge_from_config(exp_j["judge"], cache_dir=os.path.join(RESULTS_DIR, "judge_cache"))
+    if data.get("model") != mcfg["name"]:
+        raise ValueError("input file and requested model differ")
+    # Preserve original generated/cached and legacy-judged files for comparison.
+    gold_policy = "cached_original_cohort" if args.phase == "rescore" else "exact_personal_refusals_v1"
+    stem = args.output_prefix or (stem + "_" + OUTCOME_POLICY + "_" + gold_policy)
+    scored_path = stem + "_items.json"
+    if any(os.path.abspath(p) == os.path.abspath(path) for p in (scored_path, stem + ".json", stem + ".md")):
+        raise ValueError("scored outputs must not overwrite the input")
+    if args.phase == "rescore" and any(os.path.exists(p) for p in (scored_path, stem + ".json", stem + ".md")):
+        raise FileExistsError("rescored output exists; choose a new --output-prefix")
+    os.makedirs(os.path.dirname(os.path.abspath(stem)), exist_ok=True)
+    if args.phase == "rescore":
+        judge = None
+        judge_name = (data.get("judge_summary") or {}).get("judge", "cached")
+    else:
+        from core.judge import judge_from_config
+        exp_j = load_experiment(args.judge_exp)
+        judge = judge_from_config(exp_j["judge"], cache_dir=os.path.join(RESULTS_DIR, "judge_cache"))
+        judge_name = judge.name
     items = sorted({e["idx"]: e for e in data["evaluations"]}.values(), key=lambda e: e["idx"])   # dedupe a resumed partial batch
     data["evaluations"] = items
     for e in items:
         e.setdefault("judge", {}); e.setdefault("outcome", {}); e.setdefault("outcome_judge_only", {})
+        e.setdefault("outcome_legacy", dict(e["outcome"]))
+        e.setdefault("rule_judge_disagreement", {})
         # TruthfulQA lists "I have no comment" (and a few "Unknown"-type phrases) among the CORRECT answers of many questions.
         # Handing those to the grader as gold targets would score an abstention as "correct" exactly in the condition that pushes
         # towards abstention. Grade against the substantive gold answers only; questions whose gold is abstention-only are flagged
         # and reported separately (their truthful answer IS to abstain).
-        gold_sub = [g for g in e["gold"] if not rule_abstains(g)]
-        e["gold_is_abstention"] = not gold_sub
+        legacy_gold_sub = [g for g in e["gold"] if not rule_abstains(g)]
+        current_gold, only_personal_refusal = reference_answers(e["gold"])
+        previous_gold = e.get("judge_reference_answers", legacy_gold_sub or e["gold"])
+        gold_changed = previous_gold != current_gold
+        if args.phase == "rescore":
+            if "gold_is_abstention" not in e:
+                raise ValueError("cached rescore requires the original cohort flags")
+        else:
+            e["gold_is_abstention"] = only_personal_refusal
         for c in CONDS:
-            if c not in e["judge"] or e["judge"][c].get("label") == "unresolved" or args.rejudge:
-                g = judge.qa_grade(e["question"], gold_sub or e["gold"], e["outputs"][c], incorrect=e.get("incorrect") or None)
+            if args.phase == "rescore":
+                if c not in e["judge"]:
+                    raise ValueError("cached judge missing for %s/%s" % (e["pair_id"], c))
+            elif c not in e["judge"] or e["judge"][c].get("label") == "unresolved" or args.rejudge or gold_changed:
+                g = judge.qa_grade(e["question"], current_gold, e["outputs"][c], incorrect=e.get("incorrect") or None)
                 e["judge"][c] = g
-            e["outcome"][c] = combine_outcome(e["judge"][c]["label"], e["rule_abstain"][c])
+            e["outcome"][c] = judged_outcome(e["judge"][c]["label"])
+            e["rule_judge_disagreement"][c] = rule_conflicts_with_judge(e["judge"][c]["label"], e["rule_abstain"][c])
             e["outcome_judge_only"][c] = e["judge"][c]["label"]
-    print("judge calls %d, cache hits %d" % (judge.n_calls, judge.n_cache_hits), flush=True)
+        if args.phase != "rescore":
+            e["judge_reference_answers"] = current_gold
+    data["outcome_policy"] = OUTCOME_POLICY
+    data["gold_policy"] = gold_policy
+    if judge is None:
+        print("reusing cached semantic grades; zero API and generation calls", flush=True)
+    else:
+        print("judge calls %d, cache hits %d" % (judge.n_calls, judge.n_cache_hits), flush=True)
     # ---- rates, transitions, bootstrap ---------------------------------- #
     substantive = np.array([not e["gold_is_abstention"] for e in items])
     labs = {c: np.array([e["outcome"][c] for e in items]) for c in CONDS}
@@ -296,18 +336,20 @@ def phase_judge(args):
                 for b in ("correct", "wrong", "abstain"):
                     t["%s->%s" % (a, b)] = int(((labs["baseline"] == a) & (labs[c] == b) & ok).sum())
             trans[c] = t
-    summary = {"model": mcfg["name"], "tag": args.tag, "judge": judge.name, "n_questions": len(items), "n_substantive_gold": int(substantive.sum()),
+    summary = {"model": mcfg["name"], "tag": args.tag, "judge": judge_name, "outcome_policy": OUTCOME_POLICY, "gold_policy": gold_policy,
+               "n_rule_judge_disagreements": {c: sum(e["rule_judge_disagreement"][c] for e in items) for c in CONDS},
+               "n_questions": len(items), "n_substantive_gold": int(substantive.sum()),
                "n_resolved_all_conditions": n, "rates": rows, "transitions_vs_baseline": trans,
                "header": {k: data[k] for k in data if k not in ("evaluations", "judge_summary")}}
     data["judge_summary"] = summary
-    atomic_json_dump(data, path)
+    atomic_json_dump(data, scored_path)
     atomic_json_dump(summary, stem + ".json")
     # ---- markdown --------------------------------------------------------- #
     L = ["# 真实问答验证：%s（%s）" % (mcfg["name"], args.tag), "",
          "%d 道测试问题（与两上下文协议的 529 测试对相同），三条件同一提示、贪心生成、只在提示末位置干预。裁判 %s（A 对 / B 错 / C 未作答），"
-         "规则弃答短语或裁判 C 记为弃答。金标只用实质性答案（TruthfulQA 把 \"I have no comment\" 一类也列为正确答案，已剔除）；金标全为弃答型的问题 %d 道另列。"
+         "按语义裁判判定，关键词仅标记复核，不能覆盖正确或错误为弃答。参考答案分区口径：%s；其中单列的问题 %d 道。"
          "主表统计所有条件都有判定且金标实质的问题 %d 道；未判定：%s；被 max_new_tokens 截断的比例：%s。" % (
-             len(items), judge.name, len(items) - int(substantive.sum()), n, unresolved, {c: round(v, 3) for c, v in trunc.items()}), "",
+             len(items), judge_name, gold_policy, len(items) - int(substantive.sum()), n, unresolved, {c: round(v, 3) for c, v in trunc.items()}), "",
          "E：%s；C：%s。" % (data["E"], data["C"]), "",
          "| 条件 | 答对 | 答错 | 弃答 | 作答率 | 已作答中答对比例 | 只看裁判（不叠规则）：答对 / 弃答 |", "|---|---|---|---|---|---|---|"]
     for c in CONDS:
@@ -339,12 +381,12 @@ def main():
     ap.add_argument("--exp", default="E2b_tqa", help="experiment config for prompts / datasets / seed (same as the E23 sweeps)")
     ap.add_argument("--judge-exp", default="E4_qa", help="experiment config holding the judge section")
     ap.add_argument("--model", required=True)
-    ap.add_argument("--phase", choices=["generate", "judge"], required=True)
-    ap.add_argument("--e-layers", nargs="+", type=int, required=True)
-    ap.add_argument("--e-alpha", type=float, required=True)
-    ap.add_argument("--c-kind", choices=["Cp", "Cs"], required=True)
-    ap.add_argument("--c-layer", type=int, required=True)
-    ap.add_argument("--c-alpha", type=float, required=True)
+    ap.add_argument("--phase", choices=["generate", "judge", "rescore"], required=True)
+    ap.add_argument("--e-layers", nargs="+", type=int)
+    ap.add_argument("--e-alpha", type=float)
+    ap.add_argument("--c-kind", choices=["Cp", "Cs"])
+    ap.add_argument("--c-layer", type=int)
+    ap.add_argument("--c-alpha", type=float)
     ap.add_argument("--das-dir", default=None); ap.add_argument("--das-variant", default="tf")
     ap.add_argument("--wording", default="pik")
     ap.add_argument("--tune-pairs", type=int, default=192)
@@ -354,9 +396,15 @@ def main():
     ap.add_argument("--tag", default="fixed")
     ap.add_argument("--n-boot", type=int, default=2000)
     ap.add_argument("--rejudge", action="store_true")
+    ap.add_argument("--input-file", default=None, help="judge/rescore an explicit generated JSON")
+    ap.add_argument("--output-prefix", default=None, help="new prefix for versioned scored outputs")
     args = ap.parse_args()
     if args.tune_pairs <= 0:
         raise SystemExit("--tune-pairs must be the E23 value (192)")
+    if args.phase == "generate" and any(getattr(args, k) is None for k in ("e_layers", "e_alpha", "c_kind", "c_layer", "c_alpha")):
+        ap.error("generation requires --e-layers, --e-alpha, --c-kind, --c-layer and --c-alpha")
+    if args.phase == "rescore" and args.rejudge:
+        ap.error("rescore reuses cached grades; --rejudge would change the experiment")
     (phase_generate if args.phase == "generate" else phase_judge)(args)
 
 
