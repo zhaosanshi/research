@@ -28,6 +28,7 @@ Phases:
   --phase rescore   (CPU)  -> recompute with cached grades only; no API or generation
 """
 import argparse
+import hashlib
 import os
 import sys
 import time
@@ -250,6 +251,13 @@ def phase_judge(args):
     if args.input_file:
         path = args.input_file
     data = load_json(path)
+    with open(path, "rb") as source_file:
+        source_generation_sha256 = hashlib.sha256(source_file.read()).hexdigest()
+    conditions = tuple(data.get("conditions", CONDS))
+    if not conditions or conditions[0] != "baseline" or len(set(conditions)) != len(conditions):
+        raise ValueError("conditions must start with baseline and have unique names")
+    if any(set(conditions) - set(e.get("outputs", {})) for e in data["evaluations"]):
+        raise ValueError("cannot grade incomplete generated conditions")
     if data.get("model") != mcfg["name"]:
         raise ValueError("input file and requested model differ")
     # Preserve original generated/cached and legacy-judged files for comparison.
@@ -288,11 +296,12 @@ def phase_judge(args):
                 raise ValueError("cached rescore requires the original cohort flags")
         else:
             e["gold_is_abstention"] = only_personal_refusal
-        for c in CONDS:
+        for c in conditions:
             if args.phase == "rescore":
                 if c not in e["judge"]:
                     raise ValueError("cached judge missing for %s/%s" % (e["pair_id"], c))
-            elif c not in e["judge"] or e["judge"][c].get("label") == "unresolved" or args.rejudge or gold_changed:
+            elif (c not in e["judge"] or e["judge"][c].get("label") == "unresolved" or args.rejudge or gold_changed
+                  or e["judge"][c].get("rubric_id") != getattr(judge, "qa_rubric_id", None)):
                 g = judge.qa_grade(e["question"], current_gold, e["outputs"][c], incorrect=e.get("incorrect") or None)
                 e["judge"][c] = g
             e["outcome"][c] = judged_outcome(e["judge"][c]["label"])
@@ -300,6 +309,8 @@ def phase_judge(args):
             e["outcome_judge_only"][c] = e["judge"][c]["label"]
         if args.phase != "rescore":
             e["judge_reference_answers"] = current_gold
+    rubric_ids = {e["judge"][c].get("rubric_id", "legacy_unversioned") for e in items for c in conditions}
+    data["judge_rubric_id"] = next(iter(rubric_ids)) if len(rubric_ids) == 1 else "mixed_rubrics"
     data["outcome_policy"] = OUTCOME_POLICY
     data["gold_policy"] = gold_policy
     if judge is None:
@@ -308,13 +319,15 @@ def phase_judge(args):
         print("judge calls %d, cache hits %d" % (judge.n_calls, judge.n_cache_hits), flush=True)
     # ---- rates, transitions, bootstrap ---------------------------------- #
     substantive = np.array([not e["gold_is_abstention"] for e in items])
-    labs = {c: np.array([e["outcome"][c] for e in items]) for c in CONDS}
-    labs_j = {c: np.array([e["outcome_judge_only"][c] for e in items]) for c in CONDS}
-    unresolved = {c: int((labs[c] == "unresolved").sum()) for c in CONDS}
-    ok = np.all([labs[c] != "unresolved" for c in CONDS], axis=0) & substantive
+    labs = {c: np.array([e["outcome"][c] for e in items]) for c in conditions}
+    labs_j = {c: np.array([e["outcome_judge_only"][c] for e in items]) for c in conditions}
+    unresolved = {c: int((labs[c] == "unresolved").sum()) for c in conditions}
+    ok = np.all([labs[c] != "unresolved" for c in conditions], axis=0) & substantive
     n = int(ok.sum())
-    abst_only = {c: {o: int(((labs[c] == o) & ~substantive).sum()) for o in ("correct", "wrong", "abstain", "unresolved")} for c in CONDS}
-    trunc = {c: float(np.mean([not e.get("finished", {}).get(c, True) for e in items])) for c in CONDS}
+    if n == 0:
+        raise ValueError("no jointly resolved substantive questions to score")
+    abst_only = {c: {o: int(((labs[c] == o) & ~substantive).sum()) for o in ("correct", "wrong", "abstain", "unresolved")} for c in conditions}
+    trunc = {c: float(np.mean([not e.get("finished", {}).get(c, True) for e in items])) for c in conditions}
     rng = np.random.default_rng(0)
     boot = [rng.choice(np.where(ok)[0], n, replace=True) for _ in range(args.n_boot)]
     K = ("correct", "wrong", "abstain", "answer_rate", "precision_answered")
@@ -324,7 +337,7 @@ def phase_judge(args):
 
     base_full = rates(np.where(ok)[0], "baseline")
     rows, trans = {}, {}
-    for c in CONDS:
+    for c in conditions:
         full = rates(np.where(ok)[0], c)
         rows[c] = {"rates": full, "rates_judge_only": qa_rates(labs_j[c][ok]), "n_unresolved": unresolved[c],
                    "abstention_only_gold_questions": abst_only[c], "truncated_rate": trunc[c]}
@@ -336,8 +349,9 @@ def phase_judge(args):
                 for b in ("correct", "wrong", "abstain"):
                     t["%s->%s" % (a, b)] = int(((labs["baseline"] == a) & (labs[c] == b) & ok).sum())
             trans[c] = t
-    summary = {"model": mcfg["name"], "tag": args.tag, "judge": judge_name, "outcome_policy": OUTCOME_POLICY, "gold_policy": gold_policy,
-               "n_rule_judge_disagreements": {c: sum(e["rule_judge_disagreement"][c] for e in items) for c in CONDS},
+    summary = {"model": mcfg["name"], "tag": args.tag, "judge": judge_name, "outcome_policy": OUTCOME_POLICY, "gold_policy": gold_policy, "judge_rubric_id": data["judge_rubric_id"],
+               "source_generation_sha256": source_generation_sha256,
+               "n_rule_judge_disagreements": {c: sum(e["rule_judge_disagreement"][c] for e in items) for c in conditions},
                "n_questions": len(items), "n_substantive_gold": int(substantive.sum()),
                "n_resolved_all_conditions": n, "rates": rows, "transitions_vs_baseline": trans,
                "header": {k: data[k] for k in data if k not in ("evaluations", "judge_summary")}}
@@ -346,29 +360,30 @@ def phase_judge(args):
     atomic_json_dump(summary, stem + ".json")
     # ---- markdown --------------------------------------------------------- #
     L = ["# 真实问答验证：%s（%s）" % (mcfg["name"], args.tag), "",
-         "%d 道测试问题（与两上下文协议的 529 测试对相同），三条件同一提示、贪心生成、只在提示末位置干预。裁判 %s（A 对 / B 错 / C 未作答），"
+         "%d 道问题，分区 `%s`，共 %d 个条件；生成与干预设置以输入文件记录为准。裁判 %s（A 对 / B 错 / C 未作答），"
          "按语义裁判判定，关键词仅标记复核，不能覆盖正确或错误为弃答。参考答案分区口径：%s；其中单列的问题 %d 道。"
          "主表统计所有条件都有判定且金标实质的问题 %d 道；未判定：%s；被 max_new_tokens 截断的比例：%s。" % (
-             len(items), judge_name, gold_policy, len(items) - int(substantive.sum()), n, unresolved, {c: round(v, 3) for c, v in trunc.items()}), "",
+             len(items), data.get("split", "E24 test"), len(conditions), judge_name, gold_policy,
+             len(items) - int(substantive.sum()), n, unresolved, {c: round(v, 3) for c, v in trunc.items()}), "",
          "E：%s；C：%s。" % (data["E"], data["C"]), "",
          "| 条件 | 答对 | 答错 | 弃答 | 作答率 | 已作答中答对比例 | 只看裁判（不叠规则）：答对 / 弃答 |", "|---|---|---|---|---|---|---|"]
-    for c in CONDS:
+    for c in conditions:
         r = rows[c]["rates"]; rj = rows[c]["rates_judge_only"]
         L.append("| %s | %.3f | %.3f | %.3f | %.3f | %.3f | %.3f / %.3f |" % (c, r["correct"], r["wrong"], r["abstain"], r["answer_rate"], r["precision_answered"], rj["correct"], rj["abstain"]))
-    L += ["", "金标全为弃答型的 %d 道问题（真话就是不知道）：各条件的结果计数 %s" % (len(items) - int(substantive.sum()), abst_only)]
+    L += ["", "按当前参考答案分区规则单列的 %d 道问题：各条件的结果计数 %s" % (len(items) - int(substantive.sum()), abst_only)]
     L += ["", "## 相对基线的变化（问题自举 %d 次，95%% 区间）" % args.n_boot, "", "| 条件 | Δ答对 | Δ答错 | Δ弃答 | Δ作答率 | Δ已作答中答对比例 |", "|---|---|---|---|---|---|"]
-    for c in CONDS[1:]:
+    for c in conditions[1:]:
         dd = rows[c]["delta_vs_baseline"]
         L.append("| %s | %s |" % (c, " | ".join("%+.3f [%+.3f, %+.3f]" % (dd[k]["value"], dd[k]["ci95"][0], dd[k]["ci95"][1]) for k in K)))
     L += ["", "## 三类状态转换（基线 → 条件；题数）", "", "| 条件 | 对→对 | 对→错 | 对→弃答 | 错→对 | 错→错 | 错→弃答 | 弃答→对 | 弃答→错 | 弃答→弃答 |", "|---|---|---|---|---|---|---|---|---|---|"]
-    for c in CONDS[1:]:
+    for c in conditions[1:]:
         t = trans[c]
         L.append("| %s | %s |" % (c, " | ".join(str(t[k]) for k in ("correct->correct", "correct->wrong", "correct->abstain", "wrong->correct", "wrong->wrong", "wrong->abstain", "abstain->correct", "abstain->wrong", "abstain->abstain"))))
-    L += ["", "## 干预审计", "", "`%s`；每批每条方向的实际写入次数 = 1（见 JSON `audit`）。" % data["intervention_position"], ""]
+    L += ["", "## 干预审计", "", "`%s`；各条件的实际写入次数及输入长度见 JSON `audit`。" % data["intervention_position"], ""]
     L += ["## 前 3 题原文", ""]
     for e in items[:3]:
         L.append("- **%s** %s  \n  金标：%s" % (e["pair_id"], e["question"], " | ".join(e["gold"][:3])))
-        for c in CONDS:
+        for c in conditions:
             L.append("  - %s：`%s` → %s" % (c, e["outputs"][c].strip().replace("`", "'")[:300], e["outcome"][c]))
     with open(stem + ".md", "w", encoding="utf-8") as f:
         f.write("\n".join(L) + "\n")
