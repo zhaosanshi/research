@@ -1,0 +1,14 @@
+{
+  "name": "E1_directions_tqa_ep30",
+  "description": "E1_directions_tqa with 30 DAS epochs instead of 10: the optimizer-step control for the estimation-set size experiment (96 pairs x 30 epochs = 2880 updates = 288 pairs x 10 epochs). Everything else identical. Run under its own results root (results_das_tf_ep30).",
+  "model": "llama3.1-8b",
+  "prompts": "default_v1",
+  "e_datasets": ["truthfulqa_tf"],
+  "c_datasets": null,
+  "direction_splits": ["calib", "dev"],
+  "direction_prompt_allow_idk": true,
+  "batch_size": 8,
+  "seed": 42,
+  "layer_score": {"eps_sigma": 0.5, "lam": 1.0, "k_folds": 5, "l2": 1.0},
+  "das": {"rank": 1, "T": 8, "epochs": 30, "lr": 0.001, "n_train_pairs": 64}
+}

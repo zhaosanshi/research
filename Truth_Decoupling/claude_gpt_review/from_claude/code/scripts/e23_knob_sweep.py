@@ -55,6 +55,10 @@ def main():
     ap.add_argument("--plan-split", dest="teacher_split", action="store_true",
                     help="the original plan's split: directions from calib (32 pairs) only; selection on dev (64 pairs); report on test")
     ap.add_argument("--tune-pairs", type=int, default=0, help="1:2:7 split: draw this many test pairs (seeded) as the tuning set; select there, report on the remaining test pairs")
+    ap.add_argument("--est-extra-pairs", type=int, default=0,
+                    help="estimation-set size experiment: move this many pairs (the FIRST seeded draw, i.e. the old --tune-pairs set when equal) "
+                         "from the evaluation pool into the estimation set (mean-diff directions, centres, C directions); the tuning set is "
+                         "then drawn from the remaining pairs. e1_directions.py --est-extra-pairs N trains DAS on the same pairs (ids cross-checked)")
     ap.add_argument("--e-spans", nargs="*", default=[], help="multi-layer E candidates, e.g. 12,13,14 13,14,15 (each layer uses its own direction/centre)")
     ap.add_argument("--no-cs", action="store_true", help="skip the self-report C estimator (ablation only)")
     ap.add_argument("--skip-e", action="store_true", help="no E conditions (C-only sweep)")
@@ -68,13 +72,14 @@ def main():
     args = ap.parse_args()
     if args.e_estimator == "das" and not args.das_dir:
         raise SystemExit("--e-estimator das needs --das-dir")
+    if args.est_extra_pairs < 0:
+        raise SystemExit("--est-extra-pairs must be >= 0")
     e22.SPLIT_A = dict(e22.SPLIT_WORDINGS[args.wording])
 
     exp = load_experiment(args.exp)
     mcfg = load_model_config(args.model)
     prompts = exp["prompts"]; st = prompts["statement"]; cc = prompts["commitment_contrast"]
     set_seed(exp.get("seed", 42)); bs = exp.get("batch_size", 8)
-    bundle = load_model(mcfg)
     t0 = time.time()
 
     recs = []
@@ -82,11 +87,29 @@ def main():
         recs += load_split(ds, exp.get("eval_split", "test"))
     if args.limit:
         recs = recs[: args.limit]
+    rng = np.random.default_rng(exp.get("seed", 42))          # one stream: the extra-estimation draw first (if any), then the tuning draw
+    extra_recs, extra_ids = [], set()
+    if args.est_extra_pairs > 0:
+        # Estimation-set size experiment (赵磊 2026-11-02). The first draw of the stream is identical to the old --tune-pairs draw
+        # (fresh default_rng(seed).choice on the sorted unique pair ids), so --est-extra-pairs 192 moves exactly the old tuning
+        # pairs into the estimation set; the tuning set is then redrawn from the remaining pairs and the test set shrinks.
+        if args.teacher_split:
+            raise SystemExit("--est-extra-pairs cannot be combined with --plan-split")
+        uniq0 = sorted(set(str(r.get("pair_id") or r["id"]) for r in recs))
+        if args.est_extra_pairs + max(args.tune_pairs, 0) >= len(uniq0):
+            raise SystemExit("--est-extra-pairs %d + --tune-pairs %d leave no test pairs out of %d" % (args.est_extra_pairs, args.tune_pairs, len(uniq0)))
+        extra_ids = set(rng.choice(uniq0, args.est_extra_pairs, replace=False).tolist())
+        extra_recs = [r for r in recs if str(r.get("pair_id") or r["id"]) in extra_ids]
+        recs = [r for r in recs if str(r.get("pair_id") or r["id"]) not in extra_ids]
+        if len(extra_recs) != 2 * args.est_extra_pairs or sum(bool(r["label"]) for r in extra_recs) != args.est_extra_pairs:
+            raise SystemExit("the moved pairs are not complete true/false pairs (%d statements for %d pairs)" % (len(extra_recs), args.est_extra_pairs))
+        print("estimation pool: +%d pairs (%d statements) moved out of the evaluation pool; %d statements remain for tuning/test" % (
+            args.est_extra_pairs, len(extra_recs), len(recs)), flush=True)
     labels = np.array([bool(r["label"]) for r in recs])
     pair_ids = [r.get("pair_id") or r["id"] for r in recs]
     if args.tune_pairs > 0:                                   # 赵磊's 1:2:7: tune set drawn once from the test pool, fixed seed
         uniq = sorted(set(map(str, pair_ids)))
-        tune = set(np.random.default_rng(exp.get("seed", 42)).choice(uniq, args.tune_pairs, replace=False).tolist())
+        tune = set(rng.choice(uniq, args.tune_pairs, replace=False).tolist())
         half_a = np.array([str(p) in tune for p in pair_ids])
         print("tune set: %d pairs (%d statements); remaining test: %d statements" % (args.tune_pairs, int(half_a.sum()), int((~half_a).sum())), flush=True)
     else:
@@ -96,9 +119,24 @@ def main():
     for ds in exp["eval_datasets"]:
         est += load_split(ds, "calib") + ([] if args.teacher_split else load_split(ds, "dev"))
         dev += load_split(ds, "dev")
+    est += extra_recs                                         # order: calib, dev, extra -- the same order e1_directions.py builds its pool
+    if args.e_estimator == "das":
+        # The DAS directions must not have been trained on pairs that are still in this sweep's tuning/test pool. The pair ids
+        # come from e1's summary.json (its own record of the draw); the per-layer pair COUNT is checked again from the .pt files below.
+        sm_path = os.path.join(args.das_dir, "summary.json")
+        if not os.path.exists(sm_path):
+            raise SystemExit("no summary.json in %s: cannot verify which pairs the DAS directions were trained on" % args.das_dir)
+        das_ids = set((load_json(sm_path).get("est_extra") or {}).get("pair_ids") or [])
+        if not das_ids <= extra_ids:
+            raise SystemExit("DAS directions in %s were trained on %d extra pairs that this sweep keeps in its tuning/test pool "
+                             "(run both with the same --est-extra-pairs and seed)" % (args.das_dir, len(das_ids - extra_ids)))
+        if das_ids != extra_ids:
+            print("note: DAS trained with %d extra estimation pairs, this sweep moves %d; no leak, but the estimators do not see the same data" % (
+                len(das_ids), len(extra_ids)), flush=True)
     y_est = np.array([bool(r["label"]) for r in est])
     y_dev = np.array([bool(r["label"]) for r in dev])
     print("directions from %d statements (%s); selection set for --plan-split = dev %d statements" % (len(est), "calib only" if args.teacher_split else "calib+dev", len(dev)), flush=True)
+    bundle = load_model(mcfg)                                 # after every data/leak check, so a mismatch fails before the model loads
 
     # ---- texts and label maps -------------------------------------------- #
     tA = [bundle.build_chat(st["system"], e22.split_user(r, e22.SPLIT_A["instr"])) for r in recs]
@@ -140,6 +178,11 @@ def main():
                 raise FileNotFoundError("missing DAS direction at layer %d in %s (variant %r); refusing an incomplete layer comparison"
                                         % (l, args.das_dir, args.das_variant))
             wE = wD
+            if any(n != len(est) // 2 for n in das_meta["n_pairs"]):
+                msg = "L%02d: DAS trained on %s pairs but the estimation set holds %d pairs" % (l, das_meta["n_pairs"], len(est) // 2)
+                if args.est_extra_pairs > 0:
+                    raise SystemExit(msg + " (both estimators must see the same data in the estimation-set size experiment)")
+                print("note: " + msg, flush=True)
             print("L%02d  DAS: %d seed(s), final loss %s, cos(seed, mean) %s, cos(DAS, meandiff) %+.3f" % (
                 l, das_meta["n_seeds"], ["%.4f" % x for x in das_meta["final_losses"]], ["%.3f" % x for x in das_meta["cos_seed_vs_mean"]], das_meta["cos_with_align_to"]), flush=True)
         cB = (HB[y_est].mean(0) + HB[~y_est].mean(0)) / 2; cA = HA.mean(0)
@@ -189,6 +232,7 @@ def main():
     res = {"model": mcfg["name"], "n": len(recs), "n_est": len(est), "layers": L, "conds": {},
            "num_layers": bundle.num_layers, "all_layers_requested": args.all_layers,
            "tune_pairs": args.tune_pairs, "teacher_split": args.teacher_split,
+           "est_extra_pairs": args.est_extra_pairs, "est_extra_ids": sorted(extra_ids),
            "wording": args.wording, "direction_prompt_allow_idk": False,
            "e_alphas": args.e_alphas,
            "e_estimator": args.e_estimator,
@@ -273,9 +317,10 @@ def main():
     np.savez(os.path.join(out_dir, stem + ".npz"), ids=np.array([r["id"] for r in recs]), labels=labels, half_a=half_a,
              **{n + "__answer": v[0] for n, v in per.items()}, **{n + "__ptrue": v[1] for n, v in per.items()},
              **{n + "__margin": v[2] for n, v in per.items()})
-    lines = ["# E23 knob sweep, %s (n=%d; layers %s; wording %s; E estimator %s%s)" % (
+    lines = ["# E23 knob sweep, %s (n=%d; layers %s; wording %s; E estimator %s%s; estimation set %d statements%s)" % (
                  mcfg["name"], len(recs), L, args.wording, args.e_estimator,
-                 (" variant=%s dir=%s" % (args.das_variant or "default", args.das_dir)) if args.e_estimator == "das" else ""), "",
+                 (" variant=%s dir=%s" % (args.das_variant or "default", args.das_dir)) if args.e_estimator == "das" else "",
+                 len(est), (" incl. %d pairs moved from the evaluation pool" % args.est_extra_pairs) if args.est_extra_pairs else ""), "",
              "Selection on half A (E: max dJ s.t. |d ans| <= 0.03; C: max |d ans| s.t. |dJ| <= 0.02, |dB| <= 0.05), reported on half B.", "",
              "| knob | chosen | feasible on A | half B: d ans | d J | d AUROC | d B |", "|---|---|---|---|---|---|---|"]
     for k, v in sel.items():
@@ -283,7 +328,8 @@ def main():
             h = v["B_half"]; lines.append("| %s | %s | %d | %+.3f | %+.3f | %+.3f | %+.3f |" % (k, v["chosen"], v["feasible_on_A"], h["ans"], h["J"], h["AUROC"], h["B"]))
         else:
             lines.append("| %s | none feasible | 0 | | | | |" % k)
-    lines += ["", "## Selection on the 96 estimation pairs instead (reported on ALL 721 test pairs)", "", "| knob | chosen on est | feasible on est | test: d ans | d J | d AUROC | d B |", "|---|---|---|---|---|---|---|"]
+    lines += ["", "## Selection on the %d estimation pairs instead (reported on ALL %d evaluation pairs)" % (len(est) // 2, len(set(map(str, pair_ids)))), "",
+              "| knob | chosen on est | feasible on est | test: d ans | d J | d AUROC | d B |", "|---|---|---|---|---|---|---|"]
     for k, v in sel_est.items():
         if v["chosen"]:
             h = v["test_all"]; lines.append("| %s | %s | %d | %+.3f | %+.3f | %+.3f | %+.3f |" % (k, v["chosen"], v["feasible_on_est"], h["ans"], h["J"], h["AUROC"], h["B"]))

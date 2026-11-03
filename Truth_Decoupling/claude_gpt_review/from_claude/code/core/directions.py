@@ -480,18 +480,19 @@ def load_das_direction(das_dir, tag, layer, variant="", align_to=None, rank=1):
     files = sorted(f for f in glob.glob(os.path.join(das_dir, "das_%s_L%d_r%d_s*.pt" % (tag, layer, rank))) if pat.match(os.path.basename(f)))
     if not files:
         return None, None
-    ws, gaps, losses, seeds = [], [], [], []
+    ws, gaps, losses, seeds, n_pairs = [], [], [], [], []
     for f in files:
         res = torch.load(f, map_location="cpu", weights_only=False)
         ws.append(unit(np.asarray(res["W"], dtype=np.float64)[:, 0]))
         gaps.append(float(res["mean_gap"][0]))
         losses.append(float(res["losses"][-1]))
         seeds.append(int(res.get("seed", -1)))
+        n_pairs.append(int(res.get("n_pairs", -1)))
     ref = unit(align_to) if align_to is not None else ws[0]
     signs = [1.0 if float(np.dot(w, ref)) >= 0 else -1.0 for w in ws]
     aligned = [s * w for s, w in zip(signs, ws)]
     w_mean = unit(np.mean(aligned, axis=0))
-    meta = {"n_seeds": len(ws), "seeds": seeds, "final_losses": losses,
+    meta = {"n_seeds": len(ws), "seeds": seeds, "final_losses": losses, "n_pairs": n_pairs,
             "mean_gap": float(np.mean([s * g for s, g in zip(signs, gaps)])),
             "cos_seed_vs_mean": [float(np.dot(a, w_mean)) for a in aligned],
             "cos_with_align_to": float(np.dot(w_mean, ref)) if align_to is not None else None,

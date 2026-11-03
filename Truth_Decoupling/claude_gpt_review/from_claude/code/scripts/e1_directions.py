@@ -45,6 +45,14 @@ def main():
     ap.add_argument("--das-tags", default="C,E", help="which directions to fit with DAS (comma list of C,E); E alone halves the cost")
     ap.add_argument("--das-pairs", type=int, default=None, help="number of estimation pairs for DAS (default: experiment das.n_train_pairs); "
                     "set to the full calib+dev pair count so DAS and mean-diff see the same data")
+    # Estimation-set size experiment (赵磊 2026-11-02: is DAS data-starved under the 1:2:7 split?). The extra pairs join the
+    # pool for BOTH estimators (mean-diff directions and the DAS pairs); e23_knob_sweep.py must get the same --est-extra-pairs.
+    ap.add_argument("--est-extra-pairs", type=int, default=0,
+                    help="add this many pairs, drawn from --est-extra-split with the SAME seeded draw as e23_knob_sweep.py --tune-pairs "
+                         "(sorted unique pair ids, default_rng(seed).choice), to the estimation pool; 192 = exactly the old tuning pairs")
+    ap.add_argument("--est-extra-split", default="test", help="split the extra estimation pairs come from (the evaluation split)")
+    ap.add_argument("--est-extra-seed", type=int, default=None,
+                    help="seed of the extra-pair draw (default: the experiment seed); must equal the evaluation experiment's seed")
     layer_choice.add_argument("--das-layers", nargs="+", type=int, default=None,
                     help="explicit layers for DAS (overrides the LA-Score top-k choice)")
     layer_choice.add_argument("--das-all-layers", action="store_true",
@@ -71,6 +79,8 @@ def main():
                          "protocol's pass-B prompt; 'idk' = True/False/Unknown; 'config' = the experiment's direction_prompt_allow_idk. "
                          "Estimation prompt must equal the evaluation prompt (GPT review 2026-11-01)")
     args = ap.parse_args()
+    if args.est_extra_pairs < 0:
+        raise SystemExit("--est-extra-pairs must be >= 0")
 
     exp = load_experiment(args.exp)
     if args.model:
@@ -95,8 +105,42 @@ def main():
     for ds in exp["e_datasets"]:
         for split in exp.get("direction_splits", ["calib", "dev"]):
             e_recs += load_split(ds, split)
+    est_extra = None
+    if args.est_extra_pairs > 0:
+        # Same draw as e23_knob_sweep.py's tuning set (its FIRST draw from default_rng(seed)): with N = the old --tune-pairs the
+        # added pairs are exactly the old tuning pairs, so the old test pairs are untouched. e23 --est-extra-pairs N removes the
+        # same pairs from its tuning/test pool and cross-checks the ids recorded in summary.json["est_extra"].
+        ex_seed = args.est_extra_seed if args.est_extra_seed is not None else seed
+        extra_recs = []
+        for ds in exp["e_datasets"]:
+            extra_recs += load_split(ds, args.est_extra_split)
+        pool_ids = {str(r.get("pair_id") or r["id"]) for r in e_recs}
+        ex_pids = [str(r.get("pair_id") or r["id"]) for r in extra_recs]
+        uniq = sorted(set(ex_pids))
+        if args.est_extra_pairs > len(uniq):
+            raise ValueError("--est-extra-pairs %d exceeds the %d pairs of split %s" % (args.est_extra_pairs, len(uniq), args.est_extra_split))
+        chosen = set(np.random.default_rng(ex_seed).choice(uniq, args.est_extra_pairs, replace=False).tolist())
+        if chosen & pool_ids:
+            raise ValueError("extra pairs overlap the calib/dev estimation pool, e.g. %s" % sorted(chosen & pool_ids)[:5])
+        added = [r for r, p in zip(extra_recs, ex_pids) if p in chosen]
+        n_t = sum(1 for r in added if r["label"] is True)
+        n_f = sum(1 for r in added if r["label"] is False)
+        if not all(r.get("pair_id") for r in added) or n_t != args.est_extra_pairs or n_f != args.est_extra_pairs:
+            raise ValueError("extra pairs must be complete true/false pairs with a pair_id: %d true / %d false for %d pairs" % (n_t, n_f, args.est_extra_pairs))
+        e_recs += added
+        est_extra = {"n_pairs": args.est_extra_pairs, "split": args.est_extra_split, "seed": ex_seed, "pair_ids": sorted(chosen)}
+        print("[E] estimation pool extended by %d pairs from split %s (seed %d): %d statements" % (
+            args.est_extra_pairs, args.est_extra_split, ex_seed, len(e_recs)), flush=True)
     if args.limit:
         e_recs = e_recs[: args.limit]
+    if args.das_pairs is not None:                              # fail before any GPU work, not after the contrasts are captured
+        bp = {}
+        for r in e_recs:
+            if r.get("pair_id"):
+                bp.setdefault(r["pair_id"], set()).add(r["label"])
+        n_complete = sum(1 for s in bp.values() if {True, False} <= s)
+        if n_complete < args.das_pairs:
+            raise ValueError("--das-pairs %d requested but the estimation pool holds only %d complete pairs" % (args.das_pairs, n_complete))
     e_pos = [r for r in e_recs if r["label"] is True]
     e_neg = [r for r in e_recs if r["label"] is False]
     # Estimate E under the SAME statement prompt the evaluations use (with the Unknown option) unless the
@@ -178,7 +222,7 @@ def main():
         "layer_roles": {"read": "probe separability on estimation data",
                         "score_proposed_write": "LA-Score proposal only; not measured intervention benefit",
                         "measured_write": "selected later by E23 tuning-set intervention results"},
-        "n_E": [len(e_pos), len(e_neg)], "n_C": len(conf_texts), "rows": rows, "null_cos_p99": null_cos_p99,
+        "n_E": [len(e_pos), len(e_neg)], "n_C": len(conf_texts), "est_extra": est_extra, "rows": rows, "null_cos_p99": null_cos_p99,
         "label_token_map": lab_map,
         "E_read_layer": scores_E["read_layer"], "E_write_layer": scores_E["write_layer"], "E_delta": scores_E["delta_read_write"],
         "C_read_layer": scores_C["read_layer"], "C_write_layer": scores_C["write_layer"], "C_delta": scores_C["delta_read_write"],

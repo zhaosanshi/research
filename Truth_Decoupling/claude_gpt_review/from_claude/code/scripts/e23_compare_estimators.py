@@ -107,11 +107,20 @@ def main():
                 "(the model answers False to %.1f%% of true statements and True to %.1f%% of false ones)." % (e["J"], e["B"], tpr, fpr, 100 * (1 - tpr), 100 * fpr), ""]
 
     # ---- chosen conditions, CIs, paired difference ------------------------------------------ #
+    # Candidates are restricted to the layers BOTH sweeps cover (a no-op when both sweeps are full-layer sweeps): a partial
+    # sweep (e.g. the 30-epoch control at 6 layers) must not be compared "best of 6" against "best of 32" (red-team review 2026-11-02).
+    layer_sets = {}
+    for lbl, j in ((la, ja), (lb, jb)):
+        layer_sets[lbl] = {tuple(layers_of(n)[0]) for n in j["conds"] if n.startswith("E_") and layers_of(n)[0]}
+    common = layer_sets[la] & layer_sets[lb]
+    if layer_sets[la] != layer_sets[lb]:
+        out += ["> candidate layers restricted to the %d layer sets both sweeps cover (%s has %d, %s has %d); the rule is applied within that set"
+                % (len(common), la, len(layer_sets[la]), lb, len(layer_sets[lb])), ""]
     res = {}
     out += ["## Rule-chosen condition of each estimator (test half)", "",
             "| estimator | chosen on tune | tune dJ | test dJ [CI] | test dAUROC [CI] | test d ans [CI] | test dB [CI] | oracle on test (dJ) |", "|---|---|---|---|---|---|---|---|"]
     for lbl, j, z, bt in ((la, ja, za, base["a"]), (lb, jb, zb, base["b"])):
-        names = [n for n in j["conds"] if n.startswith("E_")]
+        names = [n for n in j["conds"] if n.startswith("E_") and layers_of(n)[0] and tuple(layers_of(n)[0]) in common]
         ch = rule_pick(j["conds"], names)
         rec = j.get("selection", {}).get("E", {}).get("chosen")
         if rec is not None and ch != rec:
