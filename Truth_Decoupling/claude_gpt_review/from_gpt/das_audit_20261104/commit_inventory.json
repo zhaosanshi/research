@@ -1,0 +1,2341 @@
+[
+  {
+    "sha": "cb3f67b846a89cbb25c0bd28140514a43c228556",
+    "date": "2026-11-04T01:53:38Z",
+    "message": "Record the positive reading of the estimation-set result (96 pairs suffice; data efficiency as a feature; expansion line closed; effort moves to method) and add a consolidated catalogue of every exploration line to date (24 reviewed lines, 18 earlier lines, items not yet on GitHub, three questions) for a unified GPT review",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/01_来龙去脉_E方向估计器_DAS与均值差.md",
+        "status": "modified",
+        "additions": 4,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/06_探索方法总清单_给GPT统一看.md",
+        "status": "added",
+        "additions": 94,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/README.md",
+        "status": "modified",
+        "additions": 2,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/汇总.md",
+        "status": "modified",
+        "additions": 2,
+        "deletions": 0
+      }
+    ]
+  },
+  {
+    "sha": "9502cbc756f96e16f4ef608f0ab4938abece208b",
+    "date": "2026-11-04T01:45:32Z",
+    "message": "Estimation-set size result (96 -> 288 pairs, DAS vs mean-difference, same tuning/test pairs, paired bootstrap): 3x data does not rescue DAS (Llama +0.015, Qwen +0.009, CIs include 0; directions cos 0.96-0.99 at effective layers); mean-difference gains more from data (Llama +0.039); Qwen DAS wins at both sizes, Llama tie with cleaner DAS; layer-band pattern unchanged; next DAS variable to check = train (interchange) vs eval (amplify) mismatch; question 32; result files and logs",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/01_来龙去脉_E方向估计器_DAS与均值差.md",
+        "status": "modified",
+        "additions": 35,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/README.md",
+        "status": "modified",
+        "additions": 1,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/估计集扩样_96vs288对/llama3.1-8b_das_cos_96_vs_288.json",
+        "status": "added",
+        "additions": 616,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/估计集扩样_96vs288对/llama3.1-8b_das_cos_96_vs_288.md",
+        "status": "added",
+        "additions": 36,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/估计集扩样_96vs288对/llama3.1-8b_est_size.json",
+        "status": "added",
+        "additions": 866,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/估计集扩样_96vs288对/llama3.1-8b_est_size.md",
+        "status": "added",
+        "additions": 67,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/估计集扩样_96vs288对/logs/das_est_size_llama3.1-8b.log",
+        "status": "added",
+        "additions": 803,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/估计集扩样_96vs288对/logs/das_est_size_qwen3-8b.log",
+        "status": "added",
+        "additions": 891,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/估计集扩样_96vs288对/qwen3-8b_das_cos_96_vs_288.json",
+        "status": "added",
+        "additions": 692,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/估计集扩样_96vs288对/qwen3-8b_das_cos_96_vs_288.md",
+        "status": "added",
+        "additions": 40,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/估计集扩样_96vs288对/qwen3-8b_est_size.json",
+        "status": "added",
+        "additions": 798,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/估计集扩样_96vs288对/qwen3-8b_est_size.md",
+        "status": "added",
+        "additions": 71,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/汇总.md",
+        "status": "modified",
+        "additions": 13,
+        "deletions": 0
+      }
+    ]
+  },
+  {
+    "sha": "f138fdeb0d82c1cb5341ee137d4cb975011f2bfa",
+    "date": "2026-11-03T04:59:54Z",
+    "message": "For GPT: top-venue practice on DAS in the QA context (training target, position, single vs multi-layer) and on the TruthfulQA generation prompt; 17 papers read in full; route A (DAS + P(True) readout) vs B (ReFT-style), prompt options, five questions; decision: E25 first stage with mean-difference, DAS as second-stage comparison",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/05_给GPT_顶会做法_问答上下文DAS与开场白.md",
+        "status": "added",
+        "additions": 191,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/README.md",
+        "status": "modified",
+        "additions": 2,
+        "deletions": 0
+      }
+    ]
+  },
+  {
+    "sha": "2280b3ee3971a89ebb1a6ff2c67f7715b37aa532",
+    "date": "2026-11-03T03:58:39Z",
+    "message": "Review of GPT round 12 E25 code, E path only (Llama / Qwen): 1 blocker (E freeze tied to C artifacts), 5 must-fix (estimation vs write position and no DAS arm; E rule lacks answer-rate constraint and margin; changed QA system prompt; tf arm is not the production E; bf16 paired-score resolution), 6 suggestions; evidence: 55 GPT tests pass, intervene.py 320-case bitwise regression, real-tokenizer and real-data checks, red-team agent concurs; QA-context DAS arm design proposal",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/04_审核_GPT第12轮E25代码_E专审.md",
+        "status": "added",
+        "additions": 198,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/README.md",
+        "status": "modified",
+        "additions": 2,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/review_checks/chk_e25_data_tokens.py",
+        "status": "added",
+        "additions": 146,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/review_checks/chk_intervene_regress.py",
+        "status": "added",
+        "additions": 145,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/review_checks/run_all.sh",
+        "status": "added",
+        "additions": 27,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第12轮E专审_核验/e25_data_tokens.json",
+        "status": "added",
+        "additions": 755,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第12轮E专审_核验/gpt_tests.log",
+        "status": "added",
+        "additions": 62,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第12轮E专审_核验/intervene_regress.json",
+        "status": "added",
+        "additions": 5143,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第12轮E专审_核验/run_all.log",
+        "status": "added",
+        "additions": 7,
+        "deletions": 0
+      }
+    ]
+  },
+  {
+    "sha": "4f85729f78759e4b315a067b7229fc9239ab2b9d",
+    "date": "2026-11-03T01:57:58Z",
+    "message": "Fix E25 QA context controls, scoring alignment and semantic grading; add review 12",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/configs/experiments/E25_qa_context.json",
+        "status": "added",
+        "additions": 33,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/core/intervene.py",
+        "status": "modified",
+        "additions": 100,
+        "deletions": 24
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/core/judge.py",
+        "status": "modified",
+        "additions": 42,
+        "deletions": 11
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/core/qa_context.py",
+        "status": "added",
+        "additions": 237,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e24_real_qa.py",
+        "status": "modified",
+        "additions": 34,
+        "deletions": 19
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e25_qa_context.py",
+        "status": "added",
+        "additions": 533,
+        "deletions": 0
+      }
+    ]
+  },
+  {
+    "sha": "2f715e73427bad4c830032f17badc61ca1e2e539",
+    "date": "2026-11-03T00:26:30Z",
+    "message": "Estimation-set size experiment (96 -> 288 pairs) for the DAS vs mean-difference question: audit record, question 31, code snapshot (--est-extra-pairs, report_est_size, das_cos_dirs, chains, 30-epoch control config)",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/01_来龙去脉_E方向估计器_DAS与均值差.md",
+        "status": "modified",
+        "additions": 18,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/README.md",
+        "status": "modified",
+        "additions": 1,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/configs/experiments/E1_directions_tqa_ep30.json",
+        "status": "added",
+        "additions": 14,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/core/directions.py",
+        "status": "modified",
+        "additions": 3,
+        "deletions": 2
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/das_cos_dirs.py",
+        "status": "added",
+        "additions": 83,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/das_ep30_control.sh",
+        "status": "added",
+        "additions": 54,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/das_est_size_chain.sh",
+        "status": "added",
+        "additions": 54,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/das_seed_check.sh",
+        "status": "added",
+        "additions": 46,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e1_directions.py",
+        "status": "modified",
+        "additions": 45,
+        "deletions": 1
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e23_compare_estimators.py",
+        "status": "modified",
+        "additions": 10,
+        "deletions": 1
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e23_knob_sweep.py",
+        "status": "modified",
+        "additions": 51,
+        "deletions": 5
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/report_est_size.py",
+        "status": "added",
+        "additions": 234,
+        "deletions": 0
+      }
+    ]
+  },
+  {
+    "sha": "50b0aa6d33b79461ac5b79b8994e3287271c75a3",
+    "date": "2026-11-02T15:49:22Z",
+    "message": "Fix real-QA scoring and reference filtering; audit context, training pairs and E25 token alignment",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/core/judge.py",
+        "status": "added",
+        "additions": 149,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/core/qa_scoring.py",
+        "status": "added",
+        "additions": 38,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e24_real_qa.py",
+        "status": "modified",
+        "additions": 69,
+        "deletions": 21
+      }
+    ]
+  },
+  {
+    "sha": "e438514e7b17672eef8b9d38d0bda883af92b3c5",
+    "date": "2026-11-01T23:28:33Z",
+    "message": "Request: re-audit the real-QA code path (the code the red-team subagent reviewed) and review the E25 design before implementation\n\n- 03_请审_真实问答验证代码与方向上下文.md: the diagnosis that E and C were estimated in the forced true/false context and then applied in free-form QA; the audit checklist (e24_real_qa.py, core/intervene.py, model_io.py, directions.py, e23, e1, judge/readout/metrics) with five concrete questions; evidence from the October E4b runs that true/false-estimated E is null in free-form QA whether written continuously or once; the E25 design (E_QA from question+true/false answer at the answer's last token, C_QA from confident/cautious QA prompts with paraphrase averaging, MC1-based selection on the tuning questions, conditions matrix separating context from write mode) for review before any code is written\n- snapshot gains the October free-form QA code for comparison: e4_qa_conditions.py, e4b_qa_gated.py, e10_gating.py, core/gate.py, configs/experiments/E4_qa.json\n- 汇总.md 9.4 withdraws 'prefill-only is the prime suspect'; 01 audit record and question 30; README",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/01_来龙去脉_E方向估计器_DAS与均值差.md",
+        "status": "modified",
+        "additions": 6,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/03_请审_真实问答验证代码与方向上下文.md",
+        "status": "added",
+        "additions": 71,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/README.md",
+        "status": "modified",
+        "additions": 2,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/configs/experiments/E4_qa.json",
+        "status": "added",
+        "additions": 39,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/core/gate.py",
+        "status": "added",
+        "additions": 110,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e10_gating.py",
+        "status": "added",
+        "additions": 228,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e4_qa_conditions.py",
+        "status": "added",
+        "additions": 156,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e4b_qa_gated.py",
+        "status": "added",
+        "additions": 330,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/汇总.md",
+        "status": "modified",
+        "additions": 1,
+        "deletions": 1
+      }
+    ]
+  },
+  {
+    "sha": "907058dc19cc80af745bfb89516ca8443ca2b08b",
+    "date": "2026-11-01T23:14:21Z",
+    "message": "Real-QA validation (E24) results and Gemma-3-4B 2x2\n\n- 真实问答验证_E24/: per-question outputs and judgements, summaries, pilot, logs for Llama and Qwen\n- 汇总.md section 9: E has no effect on free-form answers for either model (correct +0.004 / +0.000, CIs include 0, symmetric transitions); Llama's prompt-contrast C raises real abstention +0.250 (wrong -0.200, correct -0.050, precision among answered +0.050) but 133/136 new abstentions insert the word 'Unknown'; Qwen's self-report C goes the other way (abstain -0.044, correct +0.040; answers change, abstention does not). Reading, not verdict; proposed single-variable follow-up: same configuration with per-step steering\n- 汇总.md section 8.5: Gemma-3-4B C row orthogonal to the mean-diff E; the 2x2 holds as point estimates (E +0.055 / self-report -0.011; Cp L23/L33 -0.694 / +0.253 with J +0.004 / +0.002); both C estimators shown, main rule still open\n- 01: section 0 update block, E24 audit record results, section 8 status, questions 28-29; README",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/01_来龙去脉_E方向估计器_DAS与均值差.md",
+        "status": "modified",
+        "additions": 14,
+        "deletions": 3
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/README.md",
+        "status": "modified",
+        "additions": 1,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/真实问答验证_E24/llama3.1-8b/real_qa_fixed.json",
+        "status": "added",
+        "additions": 36550,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/真实问答验证_E24/llama3.1-8b/real_qa_fixed_judged.json",
+        "status": "added",
+        "additions": 2996,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/真实问答验证_E24/llama3.1-8b/real_qa_fixed_judged.md",
+        "status": "added",
+        "additions": 49,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/真实问答验证_E24/llama3.1-8b/real_qa_pilot3_judged.md",
+        "status": "added",
+        "additions": 49,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/真实问答验证_E24/logs/real_qa_generate_llama3.1-8b_fixed.log",
+        "status": "added",
+        "additions": 19,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/真实问答验证_E24/logs/real_qa_generate_llama3.1-8b_pilot3.log",
+        "status": "added",
+        "additions": 34,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/真实问答验证_E24/logs/real_qa_generate_qwen3-8b_fixed.log",
+        "status": "added",
+        "additions": 17,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/真实问答验证_E24/logs/real_qa_generate_qwen3-8b_pilot3.log",
+        "status": "added",
+        "additions": 32,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/真实问答验证_E24/logs/real_qa_judge_llama3.1-8b_fixed.log",
+        "status": "added",
+        "additions": 18,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/真实问答验证_E24/logs/real_qa_judge_qwen3-8b_fixed.log",
+        "status": "added",
+        "additions": 18,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/真实问答验证_E24/qwen3-8b/real_qa_fixed.json",
+        "status": "added",
+        "additions": 35674,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/真实问答验证_E24/qwen3-8b/real_qa_fixed_judged.json",
+        "status": "added",
+        "additions": 2558,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/真实问答验证_E24/qwen3-8b/real_qa_fixed_judged.md",
+        "status": "added",
+        "additions": 49,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/真实问答验证_E24/qwen3-8b/real_qa_pilot3_judged.md",
+        "status": "added",
+        "additions": 49,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-4b/knob_sweep_meandiff_C.json",
+        "status": "added",
+        "additions": 8380,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-4b/knob_sweep_meandiff_C.md",
+        "status": "added",
+        "additions": 299,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-4b/report_2x2_meandiff.md",
+        "status": "added",
+        "additions": 57,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/logs/c_meandiff_gemma3-4b.log",
+        "status": "added",
+        "additions": 328,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/汇总.md",
+        "status": "modified",
+        "additions": 54,
+        "deletions": 1
+      }
+    ]
+  },
+  {
+    "sha": "71c408a8b520c0cff0a73f7c46ac0fcf5b99772a",
+    "date": "2026-11-01T12:18:07Z",
+    "message": "Real-QA validation (E24): code reviewed by a red-team subagent before running; pilot passed; 529-question generation done, judging in progress\n\n- scripts/e24_real_qa.py + real_qa_run.sh: original TruthfulQA questions of the 529 test pairs, three conditions (baseline / E only / C towards abstention) with one shared IDK-permitting prompt and greedy decoding; fixed reported configurations (Llama DAS 10-11-12 a2 + Cp L28 a2; Qwen DAS L18 a3 + Cs L30 a2); directions rebuilt on e23's code path; E centre recomputed from the 96 estimation questions under the QA prompt; intervention only on the prefill's last prompt token (max_calls=1) with a three-part audit (edits per spec, first-forward length, forward calls); DeepSeek A/B/C judge + rule abstention; question-bootstrap CIs and 3x3 transitions\n- review fixes: abstention-type gold answers ('I have no comment', 72/529 questions, 8 abstention-only) removed from the grader's gold and reported separately with a judge-only column; audit strengthened; unresolved judge labels retried; truncation flagged; resume guarded against configuration drift and duplicates; pilot prints the full prompt\n- core/intervene.py: SteerSpec.n_applied, LayerSteerHook.first_shape; configs/prompts/default_v1.json: qa.system_idk_ok\n- 01 audit record 'E24' (design, review findings, pilot facts); README",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/01_来龙去脉_E方向估计器_DAS与均值差.md",
+        "status": "modified",
+        "additions": 8,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/README.md",
+        "status": "modified",
+        "additions": 1,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/configs/prompts/default_v1.json",
+        "status": "modified",
+        "additions": 1,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/core/intervene.py",
+        "status": "modified",
+        "additions": 5,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e24_real_qa.py",
+        "status": "added",
+        "additions": 364,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/real_qa_run.sh",
+        "status": "added",
+        "additions": 32,
+        "deletions": 0
+      }
+    ]
+  },
+  {
+    "sha": "ab8064bd21f67ecc3253583a3ef285553c26317d",
+    "date": "2026-11-01T12:01:00Z",
+    "message": "Review point 1: archive GPT round 9 (low-harm policies: harm down, gain mostly gone; doubling the tuning set is not a fix) in the audit record; Gemma request no longer numbered by round",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/01_来龙去脉_E方向估计器_DAS与均值差.md",
+        "status": "modified",
+        "additions": 8,
+        "deletions": 2
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/README.md",
+        "status": "modified",
+        "additions": 1,
+        "deletions": 1
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/汇总.md",
+        "status": "modified",
+        "additions": 3,
+        "deletions": 3
+      }
+    ]
+  },
+  {
+    "sha": "c9e0225cf36a309566b40202a9289af794944b21",
+    "date": "2026-11-01T11:57:59Z",
+    "message": "Review point 1, round 9 (part 1): Gemma-3-4B on the same chain -- E row holds with mean-diff (L16 a2 dJ +0.055 [+0.025,+0.085], dAUROC +0.029), not with DAS; saturation hypothesis weakened\n\n- results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-4b/: both all-layer sweeps (with the new __margin / AUROC_margin columns), paired comparison, read/write reports, E1 summary, layer scores; logs/das_tf_gemma3-4b.log\n- 汇总.md section 8.4: 4B vs 12B side by side (baselines, FPR 0.427 vs 0.203, saturation 90% vs 93%, probe/read layer, DAS loss onset, both estimators with CIs, per-statement transitions), reading left to GPT; section 0 item 7 updated\n- 01: section 0 decision block, audit record, section 8 status updated\n- c_meandiff_gemma4b.sh: C row for 4B orthogonalised to the mean-diff E (running)",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/01_来龙去脉_E方向估计器_DAS与均值差.md",
+        "status": "modified",
+        "additions": 3,
+        "deletions": 3
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/README.md",
+        "status": "modified",
+        "additions": 1,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/c_meandiff_gemma4b.sh",
+        "status": "added",
+        "additions": 7,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-4b/E1_summary.json",
+        "status": "added",
+        "additions": 930,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-4b/compare_das_vs_meandiff.md",
+        "status": "added",
+        "additions": 57,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-4b/knob_sweep_das_tf_full.json",
+        "status": "added",
+        "additions": 2740,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-4b/knob_sweep_das_tf_full.md",
+        "status": "added",
+        "additions": 87,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-4b/knob_sweep_meandiff_full.json",
+        "status": "added",
+        "additions": 2156,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-4b/knob_sweep_meandiff_full.md",
+        "status": "added",
+        "additions": 87,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-4b/layer_scores.json",
+        "status": "added",
+        "additions": 908,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-4b/read_write_das_tf.json",
+        "status": "added",
+        "additions": 532,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-4b/read_write_das_tf.md",
+        "status": "added",
+        "additions": 48,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-4b/read_write_meandiff.json",
+        "status": "added",
+        "additions": 542,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-4b/read_write_meandiff.md",
+        "status": "added",
+        "additions": 48,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/logs/das_tf_gemma3-4b.log",
+        "status": "added",
+        "additions": 738,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/汇总.md",
+        "status": "modified",
+        "additions": 24,
+        "deletions": 1
+      }
+    ]
+  },
+  {
+    "sha": "b49756ccac275fecdbb77341d319ac517618d60c",
+    "date": "2026-11-01T09:40:35Z",
+    "message": "Freeze A-selected low-harm policies before retrospective B validation",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/select_low_harm_policy.py",
+        "status": "modified",
+        "additions": 22,
+        "deletions": 0
+      }
+    ]
+  },
+  {
+    "sha": "6259b40a4846474a113b089ed65d87f19b8a32eb",
+    "date": "2026-11-01T09:33:32Z",
+    "message": "Predeclare harm-limited selection before B evaluation; add reproducible selector tests",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/select_low_harm_policy.py",
+        "status": "added",
+        "additions": 194,
+        "deletions": 0
+      }
+    ]
+  },
+  {
+    "sha": "ae746cd8a5a77c70d2bdcfbae7cb09abd7a5079e",
+    "date": "2026-11-01T09:27:47Z",
+    "message": "Review point 1: verify GPT rounds 7-8 (corrections/harms reproduced byte-identical; single-layer vs window harm contrast added); Gemma request renumbered to round 9\n\n- 01 audit record 'rounds 7-8': GPT's correction/harm table re-run locally on the same sweeps -- identical; added corrections_das_tf_full.md (Llama single layer L11 a3: 6 statements harmed vs 61 for the 3-layer window, net +32 vs +79); the real-QA validation request will be executed once confirmed on our side\n- our Gemma request is now 'round 9' everywhere (01 section 9, 汇总 section 8, README) since GPT's files already use 7 and 8\n- README update record",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/01_来龙去脉_E方向估计器_DAS与均值差.md",
+        "status": "modified",
+        "additions": 13,
+        "deletions": 3
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/README.md",
+        "status": "modified",
+        "additions": 2,
+        "deletions": 1
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/corrections_das_tf_full.md",
+        "status": "added",
+        "additions": 8,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/corrections_das_tf_spans.md",
+        "status": "added",
+        "additions": 8,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/汇总.md",
+        "status": "modified",
+        "additions": 3,
+        "deletions": 3
+      }
+    ]
+  },
+  {
+    "sha": "9626a934805264ba4b12f10e9944809ceefe720d",
+    "date": "2026-11-01T09:23:31Z",
+    "message": "Review point 1, round 7 request: Mistral dropped, back to Gemma -- the 2x2 must reproduce on a third model\n\n- decision recorded verbatim in 01 (section 0 block, audit record 'decision and round-7 request', section 8) and 汇总.md section 0 item 7; Mistral C re-sweep aborted, section 7 kept as a negative record\n- 汇总.md section 8: new fact -- first-token p_true saturation (<0.001 or >0.999) across the four models is 9% / 74% / 86% / 93% (Llama / Qwen / Mistral / Gemma) and moves with the E effect (+0.149 / +0.051 / 0 / 0); Gemma's 653 ties are almost all saturated statements (36 in 0.05-0.95). Hypothesis stated as a hypothesis. Single-variable candidate table for GPT to rank: Gemma-3-4B same chain (launched), 27B, log-odds-margin AUROC, amplify-trained oracle direction, alpha dose, float32, massive-coordinate-standardised mean-diff, statement-span write\n- questions 25-27 (01 section 9 / 汇总 8.3)\n- e23_knob_sweep.py: additionally stores <cond>__margin and AUROC_margin (log p_True - log p_False, float64); additive only; smoke-tested on Llama at one layer (p_true == sigmoid(margin) to 1e-16, identical AUROC when nothing saturates); not yet run on Gemma",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/01_来龙去脉_E方向估计器_DAS与均值差.md",
+        "status": "modified",
+        "additions": 15,
+        "deletions": 1
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/README.md",
+        "status": "modified",
+        "additions": 1,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e23_knob_sweep.py",
+        "status": "modified",
+        "additions": 18,
+        "deletions": 9
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/汇总.md",
+        "status": "modified",
+        "additions": 44,
+        "deletions": 3
+      }
+    ]
+  },
+  {
+    "sha": "df994d5ba41877f0be7df61c5d163ce589899235",
+    "date": "2026-11-01T08:46:49Z",
+    "message": "Answer gain-comparison questions and add correction/harm reporting from saved outputs",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/report_corrections.py",
+        "status": "added",
+        "additions": 76,
+        "deletions": 0
+      }
+    ]
+  },
+  {
+    "sha": "3298e006cacf28241bbe5e763643a3a5ec859fd5",
+    "date": "2026-11-01T08:40:49Z",
+    "message": "Review point 1, round 6 (part 1): three-model direction trace (Llama/Qwen/Mistral) and verification of GPT's round-6 points\n\n- 汇总.md section 7.8: trace of the DAS and mean-diff directions at the chosen write layers and the read layer of Llama (11/13/16), Qwen (18/20/26), Mistral (11/15/23): readout AUROC vs output, swap success, amplify a3. The two working E layers (Llama 11, Qwen 18) have standalone readout BELOW the output and swap failure, yet amplify works -- the 'coordinate must beat the output' criterion is withdrawn (GPT's counterexample confirmed locally)\n- batch-size numerical noise: sweep (batch 8) vs diagnostic (batch 1) differ by 1-4 statements in J on the same 192 pairs, all four models\n- GPT round 6 verified item by item: C-estimator choice for Llama used test-half numbers and had no pre-declared cross-estimator rule (confirmed from the C sweep JSON); 2x2 is point estimates; self-report saturates to 0/1 under Cs; Gemma: conditional swap rate (141 pairs), norm ratios, batch discrepancy -- all confirmed; correction blocks added to sections 0/3/4/5, 01 section 0 and the round-5 conclusion amended, audit record 'round 6' added; direction-level items left for the decision\n- diag_trace_direction.py: 'moved towards source' now measures the reduction of |p_true - p_true(source)| instead of a label-signed difference (reports uploaded so far still carry the old column)\n- diag reports and logs for the three models staged",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/01_来龙去脉_E方向估计器_DAS与均值差.md",
+        "status": "modified",
+        "additions": 16,
+        "deletions": 3
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/README.md",
+        "status": "modified",
+        "additions": 1,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/diag_trace_direction.py",
+        "status": "modified",
+        "additions": 9,
+        "deletions": 3
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/llama3.1-8b/trace_direction_L11_L13_L16.json",
+        "status": "added",
+        "additions": 7997,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/llama3.1-8b/trace_direction_L11_L13_L16.md",
+        "status": "added",
+        "additions": 448,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/logs/diag_trace_direction_L11_L13_L16_llama3.1-8b.log",
+        "status": "added",
+        "additions": 40,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/logs/diag_trace_direction_L11_L15_L23_mistral-7b.log",
+        "status": "added",
+        "additions": 39,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/logs/diag_trace_direction_L18_L20_L26_qwen3-8b.log",
+        "status": "added",
+        "additions": 40,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/mistral-7b/trace_direction_L11_L15_L23.json",
+        "status": "added",
+        "additions": 7997,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/mistral-7b/trace_direction_L11_L15_L23.md",
+        "status": "added",
+        "additions": 448,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/qwen3-8b/trace_direction_L18_L20_L26.json",
+        "status": "added",
+        "additions": 7999,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/qwen3-8b/trace_direction_L18_L20_L26.md",
+        "status": "added",
+        "additions": 448,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/汇总.md",
+        "status": "modified",
+        "additions": 34,
+        "deletions": 6
+      }
+    ]
+  },
+  {
+    "sha": "18a61811f17b2dbcba528253e2058d2a5159f65e",
+    "date": "2026-11-01T08:28:53Z",
+    "message": "Review point 1, round 5 (part 6): Mistral-7B as the third model -- same chain, no E effect from either estimator\n\n- results/01_E估计器/第5轮_窗口_C行_Gemma定位/mistral-7b/: paired DAS vs mean-diff comparison, both all-layer sweeps (md+json), both read/write-layer reports, E1 summary, layer scores; logs/das_tf_mistral-7b.log\n- 汇总.md: section 0 item 6, questions 23-24, new section 7 (baselines across the four models, DAS losses, rule-chosen points with CIs, per-layer pattern, tie note, reading left to GPT)\n- 01: section 0 update block, audit-record paragraph, section 8 status, question 24; README file table and update record\n- e23_compare_estimators.py / report_2x2.py: E-rule tie-break aligned to the sweep (plain max in sweep order); Mistral had a three-way exact tie on tune dJ; the 10 earlier reports regress byte-identical\n- code/configs/models/mistral-7b.json added to the snapshot",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/01_来龙去脉_E方向估计器_DAS与均值差.md",
+        "status": "modified",
+        "additions": 7,
+        "deletions": 2
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/README.md",
+        "status": "modified",
+        "additions": 4,
+        "deletions": 3
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/configs/models/mistral-7b.json",
+        "status": "added",
+        "additions": 14,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e23_compare_estimators.py",
+        "status": "modified",
+        "additions": 6,
+        "deletions": 2
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/report_2x2.py",
+        "status": "modified",
+        "additions": 2,
+        "deletions": 1
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/logs/das_tf_mistral-7b.log",
+        "status": "added",
+        "additions": 697,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/mistral-7b/E1_summary.json",
+        "status": "added",
+        "additions": 879,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/mistral-7b/compare_das_vs_meandiff.md",
+        "status": "added",
+        "additions": 55,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/mistral-7b/knob_sweep_das_tf_full.json",
+        "status": "added",
+        "additions": 2324,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/mistral-7b/knob_sweep_das_tf_full.md",
+        "status": "added",
+        "additions": 83,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/mistral-7b/knob_sweep_meandiff_full.json",
+        "status": "added",
+        "additions": 1774,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/mistral-7b/knob_sweep_meandiff_full.md",
+        "status": "added",
+        "additions": 83,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/mistral-7b/layer_scores.json",
+        "status": "added",
+        "additions": 856,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/mistral-7b/read_write_das_tf.json",
+        "status": "added",
+        "additions": 508,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/mistral-7b/read_write_das_tf.md",
+        "status": "added",
+        "additions": 46,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/mistral-7b/read_write_meandiff.json",
+        "status": "added",
+        "additions": 478,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/mistral-7b/read_write_meandiff.md",
+        "status": "added",
+        "additions": 46,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/汇总.md",
+        "status": "modified",
+        "additions": 61,
+        "deletions": 4
+      }
+    ]
+  },
+  {
+    "sha": "389fbafaf7980b583a6b887a9f7351d3f9779632",
+    "date": "2026-11-01T05:03:09Z",
+    "message": "Review point 1, round 5 (part 5): Qwen C row with the new E -- 2x2 holds (self-report C -0.482/+0.518 with J -0.004/+0.011); two-model 2x2 side by side",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/01_来龙去脉_E方向估计器_DAS与均值差.md",
+        "status": "modified",
+        "additions": 2,
+        "deletions": 2
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/README.md",
+        "status": "modified",
+        "additions": 1,
+        "deletions": 1
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/logs/c_das_tf_qwen3-8b.log",
+        "status": "added",
+        "additions": 383,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/qwen3-8b/knob_sweep_das_tf_C.json",
+        "status": "added",
+        "additions": 8324,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/qwen3-8b/knob_sweep_das_tf_C.md",
+        "status": "added",
+        "additions": 315,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/qwen3-8b/report_2x2_das_tf.md",
+        "status": "added",
+        "additions": 59,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/汇总.md",
+        "status": "modified",
+        "additions": 22,
+        "deletions": 3
+      }
+    ]
+  },
+  {
+    "sha": "d4604da52513c1b7f05c911db2f38ed302750e31",
+    "date": "2026-11-01T04:34:06Z",
+    "message": "Round 5 docs: Gemma three-line outcome stated as a reading for GPT to judge, not a conclusion; Mistral-7B added as the third model on the same chain",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/01_来龙去脉_E方向估计器_DAS与均值差.md",
+        "status": "modified",
+        "additions": 2,
+        "deletions": 2
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/README.md",
+        "status": "modified",
+        "additions": 1,
+        "deletions": 1
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/汇总.md",
+        "status": "modified",
+        "additions": 2,
+        "deletions": 2
+      }
+    ]
+  },
+  {
+    "sha": "3a488d9e5a5a96234dc4931e47df39fbc3329db0",
+    "date": "2026-11-01T04:16:33Z",
+    "message": "Review point 1, round 5 (part 4): bidirectional all-positions pilot on Gemma (two-way swap works on 86-93% of unseen pairs but the direction reads truth at chance on natural activations; all three single-variable lines agree); Llama C row with the new E -- 2x2 holds and is cleaner (report_2x2.py with the sweep's tie-break)",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/01_来龙去脉_E方向估计器_DAS与均值差.md",
+        "status": "modified",
+        "additions": 6,
+        "deletions": 2
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/README.md",
+        "status": "modified",
+        "additions": 1,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/report_2x2.py",
+        "status": "modified",
+        "additions": 5,
+        "deletions": 2
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-12b/E1_summary_allpos_bidir.json",
+        "status": "added",
+        "additions": 850,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-12b/trace_direction_tf_bidir_allpos_L18_L20_L22_L23_L24.json",
+        "status": "added",
+        "additions": 13457,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-12b/trace_direction_tf_bidir_allpos_L18_L20_L22_L23_L24.md",
+        "status": "added",
+        "additions": 718,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/llama3.1-8b/knob_sweep_das_tf_C.json",
+        "status": "added",
+        "additions": 7420,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/llama3.1-8b/knob_sweep_das_tf_C.md",
+        "status": "added",
+        "additions": 283,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/llama3.1-8b/report_2x2_das_tf.md",
+        "status": "added",
+        "additions": 55,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/logs/c_das_tf_llama3.1-8b.log",
+        "status": "added",
+        "additions": 343,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/logs/das_allpos_bidir_pilot_gemma3-12b.log",
+        "status": "added",
+        "additions": 119,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/logs/diag_trace_direction_tf_bidir_allpos_L18_L20_L22_L23_L24_gemma3-12b.log",
+        "status": "added",
+        "additions": 60,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/汇总.md",
+        "status": "modified",
+        "additions": 34,
+        "deletions": 6
+      }
+    ]
+  },
+  {
+    "sha": "581b55b2eb48864dc3da60acde31706d44bbd553",
+    "date": "2026-11-01T03:29:05Z",
+    "message": "Review point 1, round 5 (part 3): Gemma all-positions pilot fits (loss 0.11-0.19 at layers 18-24) but the diagnostic shows a one-sided 'say True' lever (B 0.96-0.98 after swap in both directions, token-level readout at chance); bidirectional all-positions pilot launched; diagnostic gains --positions all and token-level readout",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/01_来龙去脉_E方向估计器_DAS与均值差.md",
+        "status": "modified",
+        "additions": 3,
+        "deletions": 2
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/das_allpos_bidir_pilot.sh",
+        "status": "added",
+        "additions": 31,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/diag_trace_allpos_run.sh",
+        "status": "added",
+        "additions": 29,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/diag_trace_direction.py",
+        "status": "modified",
+        "additions": 107,
+        "deletions": 43
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-12b/E1_summary_allpos.json",
+        "status": "added",
+        "additions": 850,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-12b/trace_direction_allpos_L18_L20_L22_L23_L24.json",
+        "status": "added",
+        "additions": 13457,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-12b/trace_direction_allpos_L18_L20_L22_L23_L24.md",
+        "status": "added",
+        "additions": 718,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/logs/das_allpos_pilot_gemma3-12b.log",
+        "status": "added",
+        "additions": 119,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/logs/diag_trace_direction_allpos_L18_L20_L22_L23_L24_gemma3-12b.log",
+        "status": "added",
+        "additions": 60,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/汇总.md",
+        "status": "modified",
+        "additions": 30,
+        "deletions": 2
+      }
+    ]
+  },
+  {
+    "sha": "9e2e9224ab11399d7239f065d59c7fcdb1c1f2ec",
+    "date": "2026-11-01T03:03:22Z",
+    "message": "Review point 1, round 5 (part 2): old-anchor ablation on Llama and Qwen (anchor fix has zero measured effect; all DAS gain came from prompt alignment), Gemma rank-4/16 pilot (layers 18-20 remain unswappable), full-attention-layer fact and all-positions pilot, cross-root option in the comparison script, 2x2 report script",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/01_来龙去脉_E方向估计器_DAS与均值差.md",
+        "status": "modified",
+        "additions": 4,
+        "deletions": 3
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/das_allpos_pilot.sh",
+        "status": "added",
+        "additions": 34,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e23_compare_estimators.py",
+        "status": "modified",
+        "additions": 8,
+        "deletions": 6
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/report_2x2.py",
+        "status": "added",
+        "additions": 176,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-12b/E1_summary_rank16.json",
+        "status": "added",
+        "additions": 900,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-12b/E1_summary_rank4.json",
+        "status": "added",
+        "additions": 852,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/llama3.1-8b/E1_summary_tfcur.json",
+        "status": "added",
+        "additions": 847,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/llama3.1-8b/compare_anchor_prompt_vs_current.md",
+        "status": "added",
+        "additions": 55,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/llama3.1-8b/knob_sweep_das_tfcur_full.json",
+        "status": "added",
+        "additions": 2324,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/llama3.1-8b/knob_sweep_das_tfcur_full.md",
+        "status": "added",
+        "additions": 83,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/llama3.1-8b/read_write_das_tfcur.json",
+        "status": "added",
+        "additions": 568,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/llama3.1-8b/read_write_das_tfcur.md",
+        "status": "added",
+        "additions": 46,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/logs/das_rank_pilot_gemma3-12b.log",
+        "status": "added",
+        "additions": 214,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/logs/das_tf_followup_llama3.1-8b.log",
+        "status": "added",
+        "additions": 734,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/logs/das_tf_followup_qwen3-8b.log",
+        "status": "added",
+        "additions": 780,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/qwen3-8b/E1_summary_tfcur.json",
+        "status": "added",
+        "additions": 943,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/qwen3-8b/compare_anchor_prompt_vs_current.md",
+        "status": "added",
+        "additions": 59,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/qwen3-8b/knob_sweep_das_tfcur_full.json",
+        "status": "added",
+        "additions": 2604,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/qwen3-8b/knob_sweep_das_tfcur_full.md",
+        "status": "added",
+        "additions": 91,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/qwen3-8b/read_write_das_tfcur.json",
+        "status": "added",
+        "additions": 586,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/qwen3-8b/read_write_das_tfcur.md",
+        "status": "added",
+        "additions": 50,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/汇总.md",
+        "status": "modified",
+        "additions": 34,
+        "deletions": 6
+      }
+    ]
+  },
+  {
+    "sha": "5b166d1c7bc09244a809edfbb57d7a53638fae9a",
+    "date": "2026-11-01T01:52:24Z",
+    "message": "Review point 1, round 5: verify tie-aware AUROC fix (recomputed comparisons, conclusions unchanged), three-layer-window comparison for three models, Gemma write-to-first-token trace diagnostic (write intact; L20 no swappable direction; L25 DAS swaps but is the output's decision variable, amplify no gain; massive coordinate 2339 corrupts mean-diff), C-row sweeps and rank-4/16 pilot launched; questions 15-22 for round 6",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/01_来龙去脉_E方向估计器_DAS与均值差.md",
+        "status": "modified",
+        "additions": 30,
+        "deletions": 3
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/README.md",
+        "status": "modified",
+        "additions": 3,
+        "deletions": 2
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/c_das_tf_chain.sh",
+        "status": "added",
+        "additions": 39,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/das_rank_pilot.sh",
+        "status": "added",
+        "additions": 43,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/diag_trace_direction.py",
+        "status": "added",
+        "additions": 605,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/diag_trace_run.sh",
+        "status": "added",
+        "additions": 25,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e1_directions.py",
+        "status": "modified",
+        "additions": 20,
+        "deletions": 8
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-12b/compare_das_vs_meandiff_tiesfixed.md",
+        "status": "added",
+        "additions": 71,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-12b/compare_spans_das_vs_meandiff.md",
+        "status": "added",
+        "additions": 80,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-12b/knob_sweep_das_tf_spans.json",
+        "status": "added",
+        "additions": 1322,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-12b/knob_sweep_das_tf_spans.md",
+        "status": "added",
+        "additions": 59,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-12b/knob_sweep_meandiff_spans.json",
+        "status": "added",
+        "additions": 1129,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-12b/knob_sweep_meandiff_spans.md",
+        "status": "added",
+        "additions": 59,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-12b/trace_direction_L20_L25.json",
+        "status": "added",
+        "additions": 5322,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/gemma3-12b/trace_direction_L20_L25.md",
+        "status": "added",
+        "additions": 288,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/llama3.1-8b/compare_das_vs_meandiff_tiesfixed.md",
+        "status": "added",
+        "additions": 55,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/llama3.1-8b/compare_spans_das_vs_meandiff.md",
+        "status": "added",
+        "additions": 80,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/llama3.1-8b/knob_sweep_das_tf_spans.json",
+        "status": "added",
+        "additions": 1322,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/llama3.1-8b/knob_sweep_das_tf_spans.md",
+        "status": "added",
+        "additions": 59,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/llama3.1-8b/knob_sweep_meandiff_spans.json",
+        "status": "added",
+        "additions": 1129,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/llama3.1-8b/knob_sweep_meandiff_spans.md",
+        "status": "added",
+        "additions": 59,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/logs/das_tf_followup_gemma3-12b.log",
+        "status": "added",
+        "additions": 157,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/logs/diag_trace_direction_L20_L25_gemma3-12b.log",
+        "status": "added",
+        "additions": 28,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/qwen3-8b/compare_das_vs_meandiff_tiesfixed.md",
+        "status": "added",
+        "additions": 59,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/qwen3-8b/compare_spans_das_vs_meandiff.md",
+        "status": "added",
+        "additions": 70,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/qwen3-8b/knob_sweep_das_tf_spans.json",
+        "status": "added",
+        "additions": 1078,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/qwen3-8b/knob_sweep_das_tf_spans.md",
+        "status": "added",
+        "additions": 51,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/qwen3-8b/knob_sweep_meandiff_spans.json",
+        "status": "added",
+        "additions": 919,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/qwen3-8b/knob_sweep_meandiff_spans.md",
+        "status": "added",
+        "additions": 51,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/汇总.md",
+        "status": "added",
+        "additions": 116,
+        "deletions": 0
+      }
+    ]
+  },
+  {
+    "sha": "ec7ddc0e57651a7f7a0f8c778a6ffe09141fbfac",
+    "date": "2026-11-01T01:09:47Z",
+    "message": "Review new DAS results; fix tied-score AUC and narrow Gemma diagnosis",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e23_compare_estimators.py",
+        "status": "modified",
+        "additions": 4,
+        "deletions": 7
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e23_merge.py",
+        "status": "modified",
+        "additions": 4,
+        "deletions": 9
+      }
+    ]
+  },
+  {
+    "sha": "d86d874f98a60b336496d0c1b5be81ef3b156996",
+    "date": "2026-11-01T00:05:24Z",
+    "message": "Review point 1, round 4 results: three-model all-layer single-layer comparison of DAS vs mean-difference under the fixed protocol (Llama tie with cleaner bias, Qwen DAS wins, Gemma both null), paired-bootstrap comparison script, read/write-layer reports, chain logs; follow-up runs (3-layer windows, old-anchor ablation) launched; questions 7-14 for round 5",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/01_来龙去脉_E方向估计器_DAS与均值差.md",
+        "status": "modified",
+        "additions": 28,
+        "deletions": 1
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/README.md",
+        "status": "modified",
+        "additions": 3,
+        "deletions": 2
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/das_tf_chain.sh",
+        "status": "added",
+        "additions": 51,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/das_tf_followup.sh",
+        "status": "added",
+        "additions": 61,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e23_compare_estimators.py",
+        "status": "added",
+        "additions": 182,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/gemma3-12b/E1_summary.json",
+        "status": "added",
+        "additions": 1231,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/gemma3-12b/compare_das_vs_meandiff.md",
+        "status": "added",
+        "additions": 71,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/gemma3-12b/knob_sweep_das_tf_full.json",
+        "status": "added",
+        "additions": 3444,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/gemma3-12b/knob_sweep_das_tf_full.md",
+        "status": "added",
+        "additions": 115,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/gemma3-12b/knob_sweep_meandiff_full.json",
+        "status": "added",
+        "additions": 2622,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/gemma3-12b/knob_sweep_meandiff_full.md",
+        "status": "added",
+        "additions": 115,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/gemma3-12b/layer_scores.json",
+        "status": "added",
+        "additions": 1272,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/gemma3-12b/read_write_das_tf.json",
+        "status": "added",
+        "additions": 850,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/gemma3-12b/read_write_das_tf.md",
+        "status": "added",
+        "additions": 62,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/gemma3-12b/read_write_meandiff.json",
+        "status": "added",
+        "additions": 810,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/gemma3-12b/read_write_meandiff.md",
+        "status": "added",
+        "additions": 62,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/llama3.1-8b/E1_summary.json",
+        "status": "added",
+        "additions": 847,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/llama3.1-8b/compare_das_vs_meandiff.md",
+        "status": "added",
+        "additions": 55,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/llama3.1-8b/knob_sweep_das_tf_full.json",
+        "status": "added",
+        "additions": 2324,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/llama3.1-8b/knob_sweep_das_tf_full.md",
+        "status": "added",
+        "additions": 83,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/llama3.1-8b/knob_sweep_meandiff_full.json",
+        "status": "added",
+        "additions": 1774,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/llama3.1-8b/knob_sweep_meandiff_full.md",
+        "status": "added",
+        "additions": 83,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/llama3.1-8b/layer_scores.json",
+        "status": "added",
+        "additions": 856,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/llama3.1-8b/read_write_das_tf.json",
+        "status": "added",
+        "additions": 568,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/llama3.1-8b/read_write_das_tf.md",
+        "status": "added",
+        "additions": 46,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/llama3.1-8b/read_write_meandiff.json",
+        "status": "added",
+        "additions": 568,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/llama3.1-8b/read_write_meandiff.md",
+        "status": "added",
+        "additions": 46,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/logs/das_tf_gemma3-12b.log",
+        "status": "added",
+        "additions": 1018,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/logs/das_tf_llama3.1-8b.log",
+        "status": "added",
+        "additions": 698,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/logs/das_tf_qwen3-8b.log",
+        "status": "added",
+        "additions": 778,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/qwen3-8b/E1_summary.json",
+        "status": "added",
+        "additions": 943,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/qwen3-8b/compare_das_vs_meandiff.md",
+        "status": "added",
+        "additions": 59,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/qwen3-8b/knob_sweep_das_tf_full.json",
+        "status": "added",
+        "additions": 0,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/qwen3-8b/knob_sweep_das_tf_full.md",
+        "status": "added",
+        "additions": 91,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/qwen3-8b/knob_sweep_meandiff_full.json",
+        "status": "added",
+        "additions": 1986,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/qwen3-8b/knob_sweep_meandiff_full.md",
+        "status": "added",
+        "additions": 91,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/qwen3-8b/layer_scores.json",
+        "status": "added",
+        "additions": 960,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/qwen3-8b/read_write_das_tf.json",
+        "status": "added",
+        "additions": 566,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/qwen3-8b/read_write_das_tf.md",
+        "status": "added",
+        "additions": 50,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/qwen3-8b/read_write_meandiff.json",
+        "status": "added",
+        "additions": 566,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/qwen3-8b/read_write_meandiff.md",
+        "status": "added",
+        "additions": 50,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第4轮_全层单层对照/汇总.md",
+        "status": "added",
+        "additions": 85,
+        "deletions": 0
+      }
+    ]
+  },
+  {
+    "sha": "76eed3b8d2bc3dcc87d6a2044143648e2f635360",
+    "date": "2026-10-31T18:02:37Z",
+    "message": "Review point 1, rounds 3-4: verify GPT's checks on real torch, port full-layer changes into the main code, fix clear() in two more scripts, anchor check independent of logging, correct the Table 1 claim, add missing core modules; smoke run passed",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/01_来龙去脉_E方向估计器_DAS与均值差.md",
+        "status": "modified",
+        "additions": 58,
+        "deletions": 14
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/README.md",
+        "status": "modified",
+        "additions": 3,
+        "deletions": 2
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/core/__init__.py",
+        "status": "added",
+        "additions": 19,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/core/config.py",
+        "status": "added",
+        "additions": 108,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/core/directions.py",
+        "status": "modified",
+        "additions": 9,
+        "deletions": 4
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/core/io_utils.py",
+        "status": "added",
+        "additions": 179,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/core/layer_score.py",
+        "status": "added",
+        "additions": 93,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/core/metrics.py",
+        "status": "added",
+        "additions": 273,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/diag_direction_unembed.py",
+        "status": "modified",
+        "additions": 1,
+        "deletions": 1
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e22_two_stage.py",
+        "status": "modified",
+        "additions": 2,
+        "deletions": 1
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e2b_h1_rescue.py",
+        "status": "added",
+        "additions": 187,
+        "deletions": 0
+      }
+    ]
+  },
+  {
+    "sha": "4e93acf2ee0f97282eeb833f299a22263ce31599",
+    "date": "2026-10-31T17:36:52Z",
+    "message": "Separate readout and write-layer selection; add full-layer DAS controls",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e1_directions.py",
+        "status": "modified",
+        "additions": 16,
+        "deletions": 4
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e23_knob_sweep.py",
+        "status": "modified",
+        "additions": 14,
+        "deletions": 13
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/report_read_write_layers.py",
+        "status": "added",
+        "additions": 141,
+        "deletions": 0
+      }
+    ]
+  },
+  {
+    "sha": "9c5ccf7d773b0b801c836bf3dacae60fe3230852",
+    "date": "2026-10-31T16:44:14Z",
+    "message": "Review point 1, round 2: fix interchange read/write position (anchor=prompt) with position-trace acceptance check",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/01_来龙去脉_E方向估计器_DAS与均值差.md",
+        "status": "modified",
+        "additions": 16,
+        "deletions": 4
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/README.md",
+        "status": "modified",
+        "additions": 1,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/core/directions.py",
+        "status": "modified",
+        "additions": 59,
+        "deletions": 24
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e1_directions.py",
+        "status": "modified",
+        "additions": 13,
+        "deletions": 6
+      }
+    ]
+  },
+  {
+    "sha": "5b97148d2b3c640999ea32b8d5aca009fe1851b9",
+    "date": "2026-10-31T16:24:13Z",
+    "message": "Review point 1, round 1: GPT finding on prompt mismatch confirmed; --direction-prompt flag; protocol background doc",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/01_来龙去脉_E方向估计器_DAS与均值差.md",
+        "status": "modified",
+        "additions": 21,
+        "deletions": 5
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/02_已定协议与经验_切分_提示词_读出_选层.md",
+        "status": "added",
+        "additions": 228,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/README.md",
+        "status": "modified",
+        "additions": 3,
+        "deletions": 1
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e1_directions.py",
+        "status": "modified",
+        "additions": 6,
+        "deletions": 2
+      }
+    ]
+  },
+  {
+    "sha": "76bbbae7a084cca592ba9f899d49bd8d9dc5aa4a",
+    "date": "2026-10-31T15:45:30Z",
+    "message": "Finish flag rename in log line and writeup",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/01_来龙去脉_E方向估计器_DAS与均值差.md",
+        "status": "modified",
+        "additions": 1,
+        "deletions": 1
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e23_knob_sweep.py",
+        "status": "modified",
+        "additions": 1,
+        "deletions": 1
+      }
+    ]
+  },
+  {
+    "sha": "d6d8d5b48f118d69e81d2e04c9112bda87d2ca7a",
+    "date": "2026-10-31T15:45:08Z",
+    "message": "Rename --teacher-split to --plan-split",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e23_knob_sweep.py",
+        "status": "modified",
+        "additions": 1,
+        "deletions": 1
+      }
+    ]
+  },
+  {
+    "sha": "3d41b286e7182e09729787976bc82e6ab8947c15",
+    "date": "2026-10-31T15:44:40Z",
+    "message": "Review point 1: E-direction estimator (DAS vs mean-difference) -- writeup, code snapshot, results",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/00_给GPT的审核提示.md",
+        "status": "added",
+        "additions": 31,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/01_来龙去脉_E方向估计器_DAS与均值差.md",
+        "status": "added",
+        "additions": 159,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/README.md",
+        "status": "modified",
+        "additions": 22,
+        "deletions": 6
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/configs/experiments/E1_directions_tqa.json",
+        "status": "added",
+        "additions": 14,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/configs/experiments/E2b_tqa.json",
+        "status": "added",
+        "additions": 18,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/configs/models/gemma3-12b.json",
+        "status": "added",
+        "additions": 14,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/configs/models/llama3.1-8b.json",
+        "status": "added",
+        "additions": 14,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/configs/models/qwen3-8b.json",
+        "status": "added",
+        "additions": 14,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/configs/prompts/default_v1.json",
+        "status": "added",
+        "additions": 44,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/core/directions.py",
+        "status": "added",
+        "additions": 459,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/core/intervene.py",
+        "status": "added",
+        "additions": 170,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/core/model_io.py",
+        "status": "added",
+        "additions": 204,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/core/readout.py",
+        "status": "added",
+        "additions": 128,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/common.py",
+        "status": "added",
+        "additions": 41,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/diag_direction_unembed.py",
+        "status": "added",
+        "additions": 192,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e1_directions.py",
+        "status": "added",
+        "additions": 245,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e22_two_stage.py",
+        "status": "added",
+        "additions": 416,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e23_knob_sweep.py",
+        "status": "added",
+        "additions": 303,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e23_merge.py",
+        "status": "added",
+        "additions": 216,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e7_multilayer.py",
+        "status": "added",
+        "additions": 161,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e7_select_layer.py",
+        "status": "added",
+        "additions": 166,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/gemma3-12b/knob_sweep_all.md",
+        "status": "added",
+        "additions": 388,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/gemma3-12b/knob_sweep_probe.md",
+        "status": "added",
+        "additions": 186,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/llama3.1-8b/E1_das_summary.json",
+        "status": "added",
+        "additions": 616,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/llama3.1-8b/knob_sweep_all.md",
+        "status": "added",
+        "additions": 274,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/llama3.1-8b/multilayer_das_all.md",
+        "status": "added",
+        "additions": 126,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/llama3.1-8b/multilayer_meandiff_all.md",
+        "status": "added",
+        "additions": 126,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/llama3.1-8b/select_layer_acc.md",
+        "status": "added",
+        "additions": 25,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/llama3.1-8b/select_layer_acc_all.md",
+        "status": "added",
+        "additions": 29,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/llama3.1-8b/select_layer_auroc.md",
+        "status": "added",
+        "additions": 25,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/llama3.1-8b/select_layer_auroc_all.md",
+        "status": "added",
+        "additions": 29,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/llama3.1-8b/select_layer_penalised.md",
+        "status": "added",
+        "additions": 25,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/llama3.1-8b/select_layer_penalised_all.md",
+        "status": "added",
+        "additions": 29,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/llama3.1-8b/two_stage_das.md",
+        "status": "added",
+        "additions": 17,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/llama3.1-8b/two_stage_sure.md",
+        "status": "added",
+        "additions": 36,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/other_models/mistral-7b/multilayer_das.md",
+        "status": "added",
+        "additions": 11,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/other_models/mistral-7b/multilayer_meandiff.md",
+        "status": "added",
+        "additions": 11,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/other_models/qwen3-1.7b/multilayer_das.md",
+        "status": "added",
+        "additions": 11,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/other_models/qwen3-1.7b/multilayer_meandiff.md",
+        "status": "added",
+        "additions": 11,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/other_models/qwen3-4b/multilayer_das.md",
+        "status": "added",
+        "additions": 11,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/other_models/qwen3-4b/multilayer_meandiff.md",
+        "status": "added",
+        "additions": 11,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/qwen3-8b/E1_das_summary.json",
+        "status": "added",
+        "additions": 620,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/qwen3-8b/knob_sweep_all.md",
+        "status": "added",
+        "additions": 300,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/qwen3-8b/multilayer_das.md",
+        "status": "added",
+        "additions": 11,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/qwen3-8b/multilayer_meandiff.md",
+        "status": "added",
+        "additions": 11,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/qwen3-8b/two_stage_das.md",
+        "status": "added",
+        "additions": 17,
+        "deletions": 0
+      },
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/qwen3-8b/two_stage_sure.md",
+        "status": "added",
+        "additions": 36,
+        "deletions": 0
+      }
+    ]
+  },
+  {
+    "sha": "596c1349ecfd53564bf484b6fd9afa9b7573482b",
+    "date": "2026-10-31T14:46:27Z",
+    "message": "Add Truth_Decoupling and Claude x GPT review directory skeleton",
+    "files": [
+      {
+        "filename": "Truth_Decoupling/claude_gpt_review/from_claude/README.md",
+        "status": "added",
+        "additions": 10,
+        "deletions": 0
+      }
+    ]
+  }
+]
