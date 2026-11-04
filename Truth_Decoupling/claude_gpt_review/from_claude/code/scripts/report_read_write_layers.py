@@ -70,6 +70,15 @@ def summarize(summary, profile, sweep):
             candidates[layer].append((alpha, name))
     per_layer = []
     eligible = []
+    # dJ on the tuning set is an exact multiple of 1/(n_pos*n_neg) (balanced pairs: n_pos = n_neg = tune_pairs, because the sweep
+    # draws whole true/false pairs; the JSON carries no per-split counts, so this assumes that pairing). Compare it as that
+    # integer, not as a float: a 1.1e-16 rounding difference must not break a genuine tie (review round 13, 2026-11-04). Any
+    # scale >= the true n_pos*n_neg keeps distinct values distinct, and equal values are equal either way.
+    n_tune_pairs = int(sweep["tune_pairs"])
+
+    def j_key(dj):
+        return int(round(dj * n_tune_pairs * n_tune_pairs))
+
     for layer in sorted(expected):
         if {a for a, _ in candidates[layer]} != expected_alphas:
             raise ValueError("incomplete E strength grid at layer %d" % layer)
@@ -78,8 +87,8 @@ def summarize(summary, profile, sweep):
             change = delta(name, "A")  # A is the fixed tuning set, B the test set.
             if not all(math.isfinite(v) for v in change.values()):
                 raise ValueError("non-finite tuning metric in %s" % name)
-            if abs(change["ans"]) <= E_LEAK:
-                ok.append((change["J"], -alpha, name))
+            if abs(change["ans"]) <= E_LEAK + 1e-12:
+                ok.append((j_key(change["J"]), -alpha, name))
         chosen = max(ok)[2] if ok else None
         per_layer.append({"layer": layer, "read_sep": finite_read.get(layer), "condition": chosen,
                           "tune": delta(chosen, "A") if chosen else None,
@@ -87,7 +96,7 @@ def summarize(summary, profile, sweep):
         if chosen:
             eligible.append(per_layer[-1])
     # Stable tie break: smaller layer number; alpha ties were handled above.
-    best = max(eligible, key=lambda row: (row["tune"]["J"], -row["layer"])) if eligible else None
+    best = max(eligible, key=lambda row: (j_key(row["tune"]["J"]), -row["layer"])) if eligible else None
     return {"model": sweep["model"], "num_layers": n_layers, "read_layers": read_layers,
             "read_sep": top_read, "read_basis": "E1 estimation-set probe separability",
             "write_candidate": best, "write_basis": "tuning dJ, subject to |d self-report| <= 0.03",

@@ -364,12 +364,19 @@ def train_das(bundle, pairs, layer, rank=1, T=8, epochs=10, lr=1e-3, seed=42, cl
     basis = OrthoBasis(bundle.hidden_size, rank, seed=seed, device=bundle.device)
     opt = torch.optim.Adam(basis.parameters(), lr=lr)
 
-    # teacher tokens once per pair (cached on the pair dict, shared across seeds / variants)
+    # teacher tokens once per pair (cached on the pair dict, shared across seeds / variants that use the same T). A cache
+    # made for another T is regenerated (review round 14, D4: the metadata said T=3 while the cached teacher had 1 step).
+    # A caller that pre-fills y_src / y_base manages its own cache; the T it was made for is recorded from here on.
     for p in pairs:
+        stale = p.get("_teacher_T", T) != T
+        if stale:                       # drop BOTH cached teachers, so a later bidirectional call cannot pick up a y_base made for the old T
+            p.pop("y_src", None)
+            p.pop("y_base", None)
         if "y_src" not in p:
             p["y_src"] = teacher_tokens(bundle, p["source"], T)
         if bidirectional and "y_base" not in p:
             p["y_base"] = teacher_tokens(bundle, p["base"], T)
+        p["_teacher_T"] = T
 
     losses = []
     position_trace = []
@@ -466,35 +473,77 @@ def das_file_name(tag, layer, rank, seed, variant=""):
     return "das_%s_L%d_r%d_s%d%s.pt" % (tag, layer, rank, seed, ("_" + variant) if variant else "")
 
 
-def load_das_direction(das_dir, tag, layer, variant="", align_to=None, rank=1):
-    """Average the rank-1 DAS directions of every seed found for (tag, layer, variant), after sign alignment.
+DAS_PROTOCOL_KEYS = ("anchor", "loss_kind", "positions", "rank", "n_pairs", "T", "bidirectional", "epochs", "lr", "trim", "weighted")
 
-    Files: das_<tag>_L<layer>_r<rank>_s<seed>[_<variant>].pt (torch.save of train_das' dict). variant="" matches
-    only files WITHOUT a suffix. Sign: each seed's w is flipped to agree with `align_to` (default: the first seed);
-    its mean_gap (z_src - z_base along w) flips with it. Returns (unit np.float64 [d], meta) or (None, None).
+
+def load_das_direction(das_dir, tag, layer, variant="", align_to=None, rank=1, min_seed_cos=0.5):
+    """Load the rank-1 DAS direction of (tag, layer, variant); several seeds are merged by a fixed, sign-insensitive rule.
+
+    Files: das_<tag>_L<layer>_r<rank>_s<seed>[_<variant>].pt (torch.save of train_das' dict). variant="" matches only
+    files WITHOUT a suffix. Returns (unit np.float64 [d], meta) or (None, None) when no file matches.
+
+    Review round 14 (2026-11-04) fixes:
+      D2  rank must be 1. This interface returns ONE direction; taking the first column of a higher-rank basis silently
+          dropped trained dimensions. A higher-rank checkpoint needs a subspace loader, not this function.
+      D5  every seed must record the same training protocol (DAS_PROTOCOL_KEYS, compared when both files carry a key).
+      D1  seeds are sign-aligned to the FIRST seed (a reference inside the subspace), never to an external reference:
+          aligning two near-identical seeds to a near-orthogonal `align_to` could cancel them to a zero vector or rotate
+          the merge to a direction nearly orthogonal to both. Seeds must agree with the first to |cos| >= min_seed_cos and
+          the mean must have norm >= 1e-6, otherwise the function refuses to average them.
+      D3  the merged mean_gap is the mean of the aligned per-seed gaps divided by the norm of the un-normalised mean
+          (exact for untrimmed gaps; the single-seed case is unchanged).
+    `align_to` (e.g. the mean-difference direction) only chooses the SIGN of the merged direction and gap for display, so
+    true = positive. With one seed the result is identical to the previous implementation.
     """
     import glob
     import os
     import torch
+    if rank != 1:
+        raise ValueError("load_das_direction returns one direction; rank=%d checkpoints need a subspace loader (review round 14, D2)" % rank)
     pat = re.compile(r"^das_%s_L%d_r%d_s(\d+)%s\.pt$" % (re.escape(tag), layer, rank, ("_" + re.escape(variant)) if variant else ""))
     files = sorted(f for f in glob.glob(os.path.join(das_dir, "das_%s_L%d_r%d_s*.pt" % (tag, layer, rank))) if pat.match(os.path.basename(f)))
     if not files:
         return None, None
-    ws, gaps, losses, seeds, n_pairs = [], [], [], [], []
+    ws, gaps, losses, seeds, n_pairs, protocols = [], [], [], [], [], []
     for f in files:
         res = torch.load(f, map_location="cpu", weights_only=False)
-        ws.append(unit(np.asarray(res["W"], dtype=np.float64)[:, 0]))
+        W = np.asarray(res["W"], dtype=np.float64)
+        if W.ndim != 2 or W.shape[1] != 1:
+            raise ValueError("%s holds a basis of shape %s, not a rank-1 direction" % (os.path.basename(f), list(W.shape)))
+        if np.linalg.norm(W[:, 0]) < 1e-6:
+            raise ValueError("%s holds a zero direction" % os.path.basename(f))
+        ws.append(unit(W[:, 0]))
         gaps.append(float(res["mean_gap"][0]))
         losses.append(float(res["losses"][-1]))
         seeds.append(int(res.get("seed", -1)))
         n_pairs.append(int(res.get("n_pairs", -1)))
-    ref = unit(align_to) if align_to is not None else ws[0]
-    signs = [1.0 if float(np.dot(w, ref)) >= 0 else -1.0 for w in ws]
+        protocols.append({k: res[k] for k in DAS_PROTOCOL_KEYS if k in res})
+    for f, p in zip(files[1:], protocols[1:]):
+        for k in sorted(set(p) & set(protocols[0])):
+            if p[k] != protocols[0][k]:
+                raise ValueError("DAS seeds %s and %s record different training protocols (%s: %r vs %r); refusing to merge them"
+                                 % (os.path.basename(files[0]), os.path.basename(f), k, protocols[0][k], p[k]))
+    signs = [1.0 if float(np.dot(w, ws[0])) >= 0 else -1.0 for w in ws]          # D1: align to the first seed, inside the subspace
     aligned = [s * w for s, w in zip(signs, ws)]
-    w_mean = unit(np.mean(aligned, axis=0))
-    meta = {"n_seeds": len(ws), "seeds": seeds, "final_losses": losses, "n_pairs": n_pairs,
-            "mean_gap": float(np.mean([s * g for s, g in zip(signs, gaps)])),
-            "cos_seed_vs_mean": [float(np.dot(a, w_mean)) for a in aligned],
-            "cos_with_align_to": float(np.dot(w_mean, ref)) if align_to is not None else None,
+    cos_first = [float(np.dot(a, aligned[0])) for a in aligned]
+    if min(cos_first) < min_seed_cos:
+        raise ValueError("DAS seeds at %s L%d disagree (cos with the first seed %s < %.2f); refusing to average them"
+                         % (tag, layer, ["%.3f" % c for c in cos_first], min_seed_cos))
+    mean_vec = np.mean(aligned, axis=0)
+    norm = float(np.linalg.norm(mean_vec))
+    if norm < 1e-6:
+        raise ValueError("DAS seeds at %s L%d average to a zero vector" % (tag, layer))
+    w_mean = mean_vec / norm
+    gap = float(np.mean([s * g for s, g in zip(signs, gaps)])) / norm        # D3: the gap along the merged unit direction
+    flip = 1.0
+    if align_to is not None:                                                # display sign only: true = positive
+        flip = 1.0 if float(np.dot(w_mean, unit(align_to))) >= 0 else -1.0
+        w_mean, gap = flip * w_mean, flip * gap
+    meta = {"n_seeds": len(ws), "seeds": seeds, "final_losses": losses, "n_pairs": n_pairs, "mean_gap": gap,
+            "cos_seed_vs_mean": [float(np.dot(flip * a, w_mean)) for a in aligned],
+            "cos_with_align_to": float(np.dot(w_mean, unit(align_to))) if align_to is not None else None,
+            "protocol": protocols[0],
+            "merge": "seeds sign-aligned to the first seed, averaged, renormalised; align_to sets the final sign only; "
+                     "mean_gap = mean of aligned per-seed gaps / norm of the un-normalised mean",
             "files": [os.path.basename(f) for f in files]}
     return w_mean, meta

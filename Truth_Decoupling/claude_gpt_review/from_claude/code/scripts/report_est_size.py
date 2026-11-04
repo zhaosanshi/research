@@ -22,7 +22,7 @@ import sys
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from core.metrics import auroc  # noqa: E402  (the sweeps' tie-aware implementation)
+from core.metrics import auroc, sel_key  # noqa: E402  (the sweeps' tie-aware AUROC and exact-count selection key)
 
 E_LEAK = 0.03
 K = ("J", "AUROC", "ans", "B")
@@ -74,8 +74,12 @@ class Sweep:
         return self.m(name, mask)[key] - self.m("baseline", mask)[key]
 
     def rule_pick(self, names, mask):
+        """E rule on `mask`: feasible = |d ans| <= E_LEAK; best = max dJ; ties -> first in sweep order. dJ is compared as an exact
+        integer count (core.metrics.sel_key; dJ is a multiple of 1/(n_pos*n_neg) on a fixed split): the raw float let a 1.1e-16
+        rounding difference pick Qwen3-8B MD-288 L35 a2 over the tied, earlier L34 a3 (GPT review round 13, 2026-11-04)."""
         ok = [n for n in names if abs(self.delta(n, mask, "ans")) <= E_LEAK + 1e-12]
-        return max(ok, key=lambda n: self.delta(n, mask, "J")) if ok else None
+        scale = int(self.lab[mask].sum()) * int((~self.lab[mask]).sum())
+        return max(ok, key=lambda n: sel_key(self.delta(n, mask, "J"), scale)) if ok else None
 
     def est_delta_J(self, name):
         """In-sample: dJ of `name` on the sweep's own estimation pairs (from the sweep json; 96 or 288 pairs)."""
@@ -137,7 +141,7 @@ def main():
     out = ["# %s: estimation-set size, %d vs %d pairs, DAS and mean-difference (same %d tuning pairs, same %d test pairs)" % (
                args.model, old_das.n_est_pairs, new_das.n_est_pairs, len(tune_pairs), len(test_pairs)), "",
            "Old sweeps `%s/E23/%s/knob_sweep_{%s,%s}` (%d items) re-cut to the new split defined by `%s/E23/%s` (%d items; %d pairs moved into "
-           "the estimation set). Rule on the tuning pairs: E = max dJ s.t. |d ans| <= %.2f, tie-break = sweep order. Test pairs reported with "
+           "the estimation set). Rule on the tuning pairs: E = max dJ s.t. |d ans| <= %.2f, tie-break = sweep order (dJ compared as an exact integer count). Test pairs reported with "
            "pair-bootstrap 95%% CIs (%d resamples, seed %d); differences are paired on the same resamples." % (
                args.root_old, args.model, args.tag_das, args.tag_md, old_das.n_items_total, args.root_new, args.model, len(ids), n_extra,
                E_LEAK, args.n_boot, args.seed), ""]
@@ -169,8 +173,7 @@ def main():
         a, p = s.ans[ch], s.p[ch]
         full[s.label] = {k: metrics(a[test], p[test], lab[test])[k] - metrics(bA[test], bP[test], lab[test])[k] for k in K}
         arrs[s.label] = {k: np.array([metrics(a[ii], p[ii], lab[ii])[k] - metrics(bA[ii], bP[ii], lab[ii])[k] for ii in boot]) for k in K}
-        feas_test = [n for n in s.names if abs(s.delta(n, test, "ans")) <= E_LEAK + 1e-12]
-        orc = max(feas_test, key=lambda n: s.delta(n, test, "J")) if feas_test else None
+        orc = s.rule_pick(s.names, test)                     # the same rule applied on the test pairs themselves (oracle)
         out.append("| %s | %s | %+.3f | %s | %s | %s | %s | %+.3f (%d pairs) | %s (%+.3f) |" % (
             s.label, ch, s.delta(ch, tune, "J"), ci_cell(full[s.label]["J"], arrs[s.label]["J"]), ci_cell(full[s.label]["AUROC"], arrs[s.label]["AUROC"]),
             ci_cell(full[s.label]["ans"], arrs[s.label]["ans"]), ci_cell(full[s.label]["B"], arrs[s.label]["B"]),

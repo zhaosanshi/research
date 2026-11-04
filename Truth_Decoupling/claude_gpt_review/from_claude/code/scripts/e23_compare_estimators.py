@@ -16,7 +16,7 @@ import argparse, json, os, re, sys
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from core.metrics import auroc  # Same tie-aware implementation as the E23 sweep.
+from core.metrics import auroc, sel_key  # Same tie-aware implementation and exact-count selection key as the E23 sweep.
 
 E_LEAK = 0.03
 K = ("J", "AUROC", "ans", "B")
@@ -36,17 +36,19 @@ def layers_of(name):
     return ([int(x) for x in m.group(1).split("-")], float(m.group(2))) if m else (None, None)
 
 
-def rule_pick(conds, names):
+def rule_pick(conds, names, scale, split="A"):
     """Pre-declared E rule on the tuning half: feasible = |d ans| <= E_LEAK; best = max dJ.
     Tie-break = the sweep's own: plain max over the conditions in the sweep's recorded order (layer ascending, alpha
     ascending), so equal tune dJ -- quantised at 1/192 on 192 pairs, exact ties happen (Mistral-7B: L11/L12/L13 a3) --
-    resolves to the first (lowest layer, smaller alpha) exactly as e23_knob_sweep.py recorded it. An earlier version
-    broke ties by name and could pick a different layer than the sweep."""
+    resolves to the first (lowest layer, smaller alpha) exactly as e23_knob_sweep.py records it. An earlier version
+    broke ties by name and could pick a different layer than the sweep. `scale` = n_pos*n_neg of the split: dJ is compared
+    as an exact integer count (core.metrics.sel_key), because the raw float dJ let a 1.1e-16 rounding difference break a
+    genuine tie (review round 13, 2026-11-04)."""
     b = conds["baseline"]
-    ok = [n for n in names if abs(conds[n]["A"]["ans"] - b["A"]["ans"]) <= E_LEAK + 1e-12]
+    ok = [n for n in names if abs(conds[n][split]["ans"] - b[split]["ans"]) <= E_LEAK + 1e-12]
     if not ok:
         return None
-    return max(ok, key=lambda n: conds[n]["A"]["J"] - b["A"]["J"])
+    return max(ok, key=lambda n: sel_key(conds[n][split]["J"] - b[split]["J"], scale))
 
 
 def main():
@@ -119,24 +121,34 @@ def main():
     res = {}
     out += ["## Rule-chosen condition of each estimator (test half)", "",
             "| estimator | chosen on tune | tune dJ | test dJ [CI] | test dAUROC [CI] | test d ans [CI] | test dB [CI] | oracle on test (dJ) |", "|---|---|---|---|---|---|---|---|"]
+    scale_A = int(lab[~test].sum()) * int((~lab[~test]).sum())       # exact-count keys: dJ on a split is a multiple of 1/(n_pos*n_neg)
+    scale_B = int(lab[test].sum()) * int((~lab[test]).sum())
     for lbl, j, z, bt in ((la, ja, za, base["a"]), (lb, jb, zb, base["b"])):
         names = [n for n in j["conds"] if n.startswith("E_") and layers_of(n)[0] and tuple(layers_of(n)[0]) in common]
-        ch = rule_pick(j["conds"], names)
+        ch = rule_pick(j["conds"], names, scale_A)
         rec = j.get("selection", {}).get("E", {}).get("chosen")
         if rec is not None and ch != rec:
             out.append("> note: recomputed choice %s differs from the sweep's recorded choice %s" % (ch, rec))
+        if ch is None:
+            res[lbl] = None
+            out.append("| %s | none feasible (every condition moves the tuning answer rate by more than %.2f) | | | | | | |" % (lbl, E_LEAK))
+            continue
         b = j["conds"]["baseline"]
-        orc = max((n for n in names if abs(j["conds"][n]["B"]["ans"] - b["B"]["ans"]) <= E_LEAK), key=lambda n: j["conds"][n]["B"]["J"] - b["B"]["J"])
+        orc = rule_pick(j["conds"], names, scale_B, split="B")          # the same rule applied on the test half itself
         full, arr = deltas(z, ch, *bt); res[lbl] = (ch, full, arr)
-        out.append("| %s | %s | %+.3f | %s | %s | %s | %s | %s (%+.3f) |" % (
+        out.append("| %s | %s | %+.3f | %s | %s | %s | %s | %s |" % (
             lbl, ch, j["conds"][ch]["A"]["J"] - b["A"]["J"], ci_cell(full["J"], arr["J"]), ci_cell(full["AUROC"], arr["AUROC"]),
-            ci_cell(full["ans"], arr["ans"]), ci_cell(full["B"], arr["B"]), orc, j["conds"][orc]["B"]["J"] - b["B"]["J"]))
-    (cha, fa, aa), (chb, fb, ab) = res[la], res[lb]
-    out += ["", "## Paired difference %s(%s) - %s(%s) on the same resamples" % (la, cha, lb, chb), "",
-            "| dJ | dAUROC | d ans | dB | P(dJ_%s > dJ_%s) | P(dAUROC_%s > dAUROC_%s) |" % (la, lb, la, lb), "|---|---|---|---|---|---|",
-            "| %s | %s | %s | %s | %.3f | %.3f |" % (ci_cell(fa["J"] - fb["J"], aa["J"] - ab["J"]), ci_cell(fa["AUROC"] - fb["AUROC"], aa["AUROC"] - ab["AUROC"]),
-                                                   ci_cell(fa["ans"] - fb["ans"], aa["ans"] - ab["ans"]), ci_cell(fa["B"] - fb["B"], aa["B"] - ab["B"]),
-                                                   (aa["J"] > ab["J"]).mean(), (aa["AUROC"] > ab["AUROC"]).mean()), ""]
+            ci_cell(full["ans"], arr["ans"]), ci_cell(full["B"], arr["B"]),
+            ("%s (%+.3f)" % (orc, j["conds"][orc]["B"]["J"] - b["B"]["J"])) if orc else "none feasible"))
+    if res.get(la) is None or res.get(lb) is None:
+        out += ["", "> no paired difference: at least one estimator has no feasible condition on the tuning half", ""]
+    else:
+        (cha, fa, aa), (chb, fb, ab) = res[la], res[lb]
+        out += ["", "## Paired difference %s(%s) - %s(%s) on the same resamples" % (la, cha, lb, chb), "",
+                "| dJ | dAUROC | d ans | dB | P(dJ_%s > dJ_%s) | P(dAUROC_%s > dAUROC_%s) |" % (la, lb, la, lb), "|---|---|---|---|---|---|",
+                "| %s | %s | %s | %s | %.3f | %.3f |" % (ci_cell(fa["J"] - fb["J"], aa["J"] - ab["J"]), ci_cell(fa["AUROC"] - fb["AUROC"], aa["AUROC"] - ab["AUROC"]),
+                                                       ci_cell(fa["ans"] - fb["ans"], aa["ans"] - ab["ans"]), ci_cell(fa["B"] - fb["B"], aa["B"] - ab["B"]),
+                                                       (aa["J"] > ab["J"]).mean(), (aa["AUROC"] > ab["AUROC"]).mean()), ""]
 
     # ---- per layer (single-layer conditions) -------------------------------------------------- #
     def per_layer(j):
@@ -147,7 +159,7 @@ def main():
                 tab.setdefault(L[0], []).append(n)
         rows = {}
         for l, names in tab.items():
-            ch = rule_pick(j["conds"], names)
+            ch = rule_pick(j["conds"], names, scale_A)
             rows[l] = (ch, {k: j["conds"][ch]["B"][k] - b["B"][k] for k in K} if ch else None,
                        [(n, j["conds"][n]["A"]["ans"] - b["A"]["ans"]) for n in sorted(names)])
         return rows

@@ -31,7 +31,7 @@ from core.config import load_experiment, load_model_config       # noqa: E402
 from core.directions import load_das_direction, mean_diff_direction  # noqa: E402
 from core.intervene import SteerSpec, next_token_logits          # noqa: E402
 from core.io_utils import atomic_json_dump, load_json, set_seed  # noqa: E402
-from core.metrics import auroc                                   # noqa: E402
+from core.metrics import auroc, sel_key                          # noqa: E402
 from core.model_io import capture_last_token, load_model         # noqa: E402
 from core.readout import build_label_token_map, label_logprobs_from_logits  # noqa: E402
 
@@ -182,6 +182,8 @@ def main():
                 msg = "L%02d: DAS trained on %s pairs but the estimation set holds %d pairs" % (l, das_meta["n_pairs"], len(est) // 2)
                 if args.est_extra_pairs > 0:
                     raise SystemExit(msg + " (both estimators must see the same data in the estimation-set size experiment)")
+                if args.teacher_split:   # review round 14 (6.2): --plan-split selects on the dev pairs, so the directions must come from calib only
+                    raise SystemExit(msg + " (--plan-split selects on the dev pairs; load DAS directions trained on the calib pairs only)")
                 print("note: " + msg, flush=True)
             print("L%02d  DAS: %d seed(s), final loss %s, cos(seed, mean) %s, cos(DAS, meandiff) %+.3f" % (
                 l, das_meta["n_seeds"], ["%.4f" % x for x in das_meta["final_losses"]], ["%.3f" % x for x in das_meta["cos_seed_vs_mean"]], das_meta["cos_with_align_to"]), flush=True)
@@ -263,52 +265,63 @@ def main():
     # ---- pre-declared selection on half A, report on half B ------------ #
     def delta(name, h, key):
         return res["conds"][name][h][key] - res["conds"]["baseline"][h][key]
-    sel = {}
-    e_c = [n for n in res["conds"] if n.startswith("E_")] or ["baseline"]
-    ok = [n for n in e_c if abs(delta(n, "A", "ans")) <= 0.03]
-    bestE = max(ok or e_c, key=lambda n: delta(n, "A", "J"))
-    sel["E"] = {"chosen": bestE, "feasible_on_A": len(ok), "B_half": {k: delta(bestE, "B", k) for k in ("ans", "J", "AUROC", "B")}, "A_half": {k: delta(bestE, "A", k) for k in ("ans", "J", "AUROC", "B")}}
-    for kind in ("Cp", "Cs"):
-        for dname, sign in (("abst", -1), ("ans", 1)):
-            cands = [n for n in res["conds"] if n.startswith(kind + "_") and ("_%s_" % dname) in n]
-            if not cands:
-                continue
-            ok = [n for n in cands if abs(delta(n, "A", "J")) <= 0.02 and abs(delta(n, "A", "B")) <= 0.05 and sign * delta(n, "A", "ans") > 0]
-            best = max(ok, key=lambda n: sign * delta(n, "A", "ans")) if ok else None
-            sel["%s_%s" % (kind, dname)] = {"chosen": best, "feasible_on_A": len(ok),
-                                            "B_half": {k: delta(best, "B", k) for k in ("ans", "J", "AUROC", "B")} if best else None,
-                                            "A_half": {k: delta(best, "A", k) for k in ("ans", "J", "AUROC", "B")} if best else None}
-    res["selection"] = sel
-    sel_est = {}
-    ok = [n for n in e_c if abs(delta(n, "est", "ans")) <= 0.03]
-    bestE = max(ok or e_c, key=lambda n: delta(n, "est", "J"))
-    sel_est["E"] = {"chosen": bestE, "feasible_on_est": len(ok), "test_all": {k: delta(bestE, "all", k) for k in ("ans", "J", "AUROC", "B")}}
-    for kind in ("Cp", "Cs"):
-        for dname, sign in (("abst", -1), ("ans", 1)):
-            cands = [n for n in res["conds"] if n.startswith(kind + "_") and ("_%s_" % dname) in n]
-            if not cands:
-                continue
-            ok = [n for n in cands if abs(delta(n, "est", "J")) <= 0.02 and abs(delta(n, "est", "B")) <= 0.05 and sign * delta(n, "est", "ans") > 0]
-            best = max(ok, key=lambda n: sign * delta(n, "est", "ans")) if ok else None
-            sel_est["%s_%s" % (kind, dname)] = {"chosen": best, "feasible_on_est": len(ok), "test_all": {k: delta(best, "all", k) for k in ("ans", "J", "AUROC", "B")} if best else None}
-    res["selection_on_est"] = sel_est
+    # Review round 13/14 (2026-11-04): (i) ties are compared on exact integer counts (core.metrics.sel_key), so two
+    # conditions with the same number of correct tuning statements are equal and the FIRST in sweep order wins, as the
+    # rule states -- the raw float dJ let a 1.1e-16 rounding difference pick Qwen3-8B's L35 a2 over L34 a3; (ii) when no
+    # condition satisfies the answer-rate constraint the selection is None ("none feasible"), never a violating fallback.
+    ys = {"A": labels[half_a], "B": labels[~half_a], "all": labels, "est": y_est}
     if args.teacher_split:
-        sel_dev = {}
-        ok = [n for n in e_c if abs(delta(n, "dev", "ans")) <= 0.03]
-        bestE = max(ok or e_c, key=lambda n: delta(n, "dev", "J"))
-        okt = [n for n in e_c if abs(delta(n, "all", "ans")) <= 0.03]      # oracle obeys the same leak constraint
-        oracleE = max(okt or e_c, key=lambda n: delta(n, "all", "J"))
-        sel_dev["E"] = {"chosen": bestE, "oracle_on_test": oracleE, "feasible_on_dev": len(ok), "test_all": {k: delta(bestE, "all", k) for k in ("ans", "J", "AUROC", "B")}}
+        ys["dev"] = y_dev
+
+    def scale_J(h):          # dJ on split h is an exact multiple of 1/(n_pos*n_neg)
+        return int(ys[h].sum()) * int((~ys[h]).sum())
+
+    def scale_rate(h):       # d answer rate on split h is an exact multiple of 1/n_items
+        return int(len(ys[h]))
+
+    e_c = [n for n in res["conds"] if n.startswith("E_")] or ["baseline"]
+
+    def pick_E(h):
+        """E rule on split h: feasible = |d ans| <= 0.03; best = max dJ; ties -> first in sweep order. (None, 0) if none feasible."""
+        ok = [n for n in e_c if abs(delta(n, h, "ans")) <= 0.03 + 1e-12]
+        return (max(ok, key=lambda n: sel_key(delta(n, h, "J"), scale_J(h))) if ok else None), len(ok)
+
+    def pick_C(h, cands, sign):
+        """C rule on split h: feasible = |dJ| <= 0.02, |dB| <= 0.05, moves the answer rate the requested way; best = max |d ans|."""
+        ok = [n for n in cands if abs(delta(n, h, "J")) <= 0.02 + 1e-12 and abs(delta(n, h, "B")) <= 0.05 + 1e-12 and sign * delta(n, h, "ans") > 0]
+        return (max(ok, key=lambda n: sel_key(sign * delta(n, h, "ans"), scale_rate(h))) if ok else None), len(ok)
+
+    def report(name, h):
+        return {k: delta(name, h, k) for k in ("ans", "J", "AUROC", "B")} if name else None
+
+    def c_groups():
         for kind in ("Cp", "Cs"):
             for dname, sign in (("abst", -1), ("ans", 1)):
                 cands = [n for n in res["conds"] if n.startswith(kind + "_") and ("_%s_" % dname) in n]
-                if not cands:
-                    continue
-                ok = [n for n in cands if abs(delta(n, "dev", "J")) <= 0.02 and abs(delta(n, "dev", "B")) <= 0.05 and sign * delta(n, "dev", "ans") > 0]
-                best = max(ok, key=lambda n: sign * delta(n, "dev", "ans")) if ok else None
-                okt = [n for n in cands if abs(delta(n, "all", "J")) <= 0.02 and abs(delta(n, "all", "B")) <= 0.05 and sign * delta(n, "all", "ans") > 0]
-                oracle = max(okt, key=lambda n: sign * delta(n, "all", "ans")) if okt else None
-                sel_dev["%s_%s" % (kind, dname)] = {"chosen": best, "oracle_on_test": oracle, "feasible_on_dev": len(ok), "test_all": {k: delta(best, "all", k) for k in ("ans", "J", "AUROC", "B")} if best else None}
+                if cands:
+                    yield "%s_%s" % (kind, dname), cands, sign
+
+    sel = {}
+    bestE, n_ok = pick_E("A")
+    sel["E"] = {"chosen": bestE, "feasible_on_A": n_ok, "B_half": report(bestE, "B"), "A_half": report(bestE, "A")}
+    for key, cands, sign in c_groups():
+        best, n_ok = pick_C("A", cands, sign)
+        sel[key] = {"chosen": best, "feasible_on_A": n_ok, "B_half": report(best, "B"), "A_half": report(best, "A")}
+    res["selection"] = sel
+    sel_est = {}
+    bestE, n_ok = pick_E("est")
+    sel_est["E"] = {"chosen": bestE, "feasible_on_est": n_ok, "test_all": report(bestE, "all")}
+    for key, cands, sign in c_groups():
+        best, n_ok = pick_C("est", cands, sign)
+        sel_est[key] = {"chosen": best, "feasible_on_est": n_ok, "test_all": report(best, "all")}
+    res["selection_on_est"] = sel_est
+    if args.teacher_split:
+        sel_dev = {}
+        bestE, n_ok = pick_E("dev"); oracleE, _ = pick_E("all")          # oracle obeys the same leak constraint
+        sel_dev["E"] = {"chosen": bestE, "oracle_on_test": oracleE, "feasible_on_dev": n_ok, "test_all": report(bestE, "all")}
+        for key, cands, sign in c_groups():
+            best, n_ok = pick_C("dev", cands, sign); oracle, _ = pick_C("all", cands, sign)
+            sel_dev[key] = {"chosen": best, "oracle_on_test": oracle, "feasible_on_dev": n_ok, "test_all": report(best, "all")}
         res["selection_on_dev"] = sel_dev
     out_dir = os.path.join(RESULTS_DIR, "E23", mcfg["name"]); os.makedirs(out_dir, exist_ok=True)
     stem = "knob_sweep" + (("_" + args.tag) if args.tag else "")
@@ -339,9 +352,9 @@ def main():
         lines += ["", "## Original plan's split: directions from calib (32 pairs), selection on dev (64 pairs), reported on ALL test pairs; oracle = best on test", "", "| knob | chosen on dev | oracle on test | feasible on dev | test: d ans | d J | d AUROC | d B |", "|---|---|---|---|---|---|---|---|"]
         for k, v in res["selection_on_dev"].items():
             if v["chosen"]:
-                h = v["test_all"]; lines.append("| %s | %s | %s | %d | %+.3f | %+.3f | %+.3f | %+.3f |" % (k, v["chosen"], v["oracle_on_test"], v["feasible_on_dev"], h["ans"], h["J"], h["AUROC"], h["B"]))
+                h = v["test_all"]; lines.append("| %s | %s | %s | %d | %+.3f | %+.3f | %+.3f | %+.3f |" % (k, v["chosen"], v["oracle_on_test"] or "none feasible", v["feasible_on_dev"], h["ans"], h["J"], h["AUROC"], h["B"]))
             else:
-                lines.append("| %s | none feasible | %s | 0 | | | | |" % (k, v["oracle_on_test"]))
+                lines.append("| %s | none feasible | %s | 0 | | | | |" % (k, v["oracle_on_test"] or "none feasible"))
     lines += ["", "## All conditions (all items; d = change vs baseline)", "", "| condition | ans (d) | J (d) | AUROC (d) | B (d) |", "|---|---|---|---|---|"]
     b = res["conds"]["baseline"]["all"]
     for name in res["conds"]:

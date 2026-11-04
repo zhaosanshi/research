@@ -116,12 +116,15 @@ for model in ("llama3.1-8b", "qwen3-8b"):
                     m["samples"].append({"prefix_tail": e["prefix_text"][-70:], "answer": e["answer_text"],
                                          "answer_tokens": [tok.decode([i]) for i in e["answer_ids"][:10]],
                                          "prefix_last_tokens": [tok.decode([i]) for i in e["prefix_ids"][-4:]]})
-    packed = pack_answers(enc_all[:8], tok.pad_token_id, "cpu")
+    # Mask geometry on EVERY encoded answer (review round 13: the first version checked only the first 8 per model and the
+    # summary over-stated the coverage). One pack of all answers; the longest answer sets the width.
+    packed = pack_answers(enc_all, tok.pad_token_id, "cpu")
     ids, att = packed["inputs"]["input_ids"], packed["inputs"]["attention_mask"]
     tgt, prd, pe = packed["target_mask"], packed["predictor_mask"], packed["prompt_end_mask"]
     width = ids.shape[1]
     geom = []
-    for i, e in enumerate(enc_all[:8]):
+    m["special_in_answer"] = int(sum(any(i in set(tok.all_special_ids) for i in e["answer_ids"]) for e in enc_all))
+    for i, e in enumerate(enc_all):
         P, M = e["prompt_length"], e["answer_length"]
         geom.append({"P": P, "M": M, "prompt_end_idx": int(pe[i].nonzero()[0]), "expected_prompt_end_idx": width - M - 1,
                      "n_target": int(tgt[i].sum()), "n_predictor": int(prd[i].sum()), "overlap": int((tgt[i] & prd[i]).sum()),
@@ -132,6 +135,7 @@ for model in ("llama3.1-8b", "qwen3-8b"):
                                 and g["overlap"] == g["M"] - 1 and g["first_target_idx"] == g["prompt_end_idx"] + 1
                                 and g["last_predictor_idx"] == width - 2 and g["pad_in_masks"] == 0 for g in geom)
     m["mask_geometry"] = geom[:3]
+    m["n_geometry_checked"] = len(geom)
     m["prompt_len_minmax"] = [min(m["prompt_len"]), max(m["prompt_len"])]
     m["answer_len_minmax_mean"] = [min(m["answer_len"]), max(m["answer_len"]), float(np.mean(m["answer_len"]))]
     m["errors"] = dict(m["errors"])
@@ -142,5 +146,25 @@ print(json.dumps({k: v for k, v in rep.items() if k not in ("train", "tune")}, i
 for name in ("train", "tune"):
     print(name, {k: rep[name][k] for k in ("n_input", "n_retained", "n_excluded", "positive_source", "negative_source")},
           "excluded:", rep[name]["excluded"], "positive_not_best:", [x["pair_id"] for x in rep[name]["positive_not_best_answer"]])
+# Pass/fail (review round 13: a check that only writes its findings into a JSON and exits 0 cannot be trusted by a runner).
+failures = []
+if not rep["tune_ids_equal_e23_draw"]:
+    failures.append("tune ids differ from the E23 draw")
+for model in ("llama3.1-8b", "qwen3-8b"):
+    m = rep[model]
+    expected = 2 * (rep["train"]["n_retained"] + rep["tune"]["n_retained"])
+    if m["errors"]:
+        failures.append("%s: encode_answer errors %s" % (model, m["errors"]))
+    if m["n_encoded"] != expected:
+        failures.append("%s: encoded %d answers, expected %d" % (model, m["n_encoded"], expected))
+    if m["n_geometry_checked"] != m["n_encoded"] or not m["mask_geometry_ok"]:
+        failures.append("%s: mask geometry failed (%d of %d checked)" % (model, m["n_geometry_checked"], m["n_encoded"]))
+    if m["roundtrip_mismatch"] or m["special_in_answer"]:
+        failures.append("%s: %d round-trip mismatches, %d answers containing special tokens" % (model, m["roundtrip_mismatch"], m["special_in_answer"]))
+rep["failures"] = failures
 with open(sys.argv[2], "w", encoding="utf-8") as f:
     json.dump(rep, f, indent=1, ensure_ascii=False)
+if failures:
+    print("FAILED:", failures)
+    sys.exit(1)
+print("PASSED: all E25 data / tokenizer checks")

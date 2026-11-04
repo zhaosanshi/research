@@ -18,7 +18,7 @@ import argparse, json, os, re, sys
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from core.metrics import auroc  # tie-aware, same as the sweep
+from core.metrics import auroc, sel_key  # tie-aware AUROC and exact-count selection key, same as the sweep
 
 E_LEAK, C_J, C_B = 0.03, 0.02, 0.05
 K = ("ans", "J", "AUROC", "B")
@@ -39,24 +39,27 @@ def layer_of(name):
     return int(m.group(1)) if m else None
 
 
-def pick_e(conds):
+def pick_e(conds, scale_J):
+    """The sweep's E rule on the tuning half. `scale_J` = n_pos*n_neg of the tuning half: dJ is compared as an exact integer
+    count (core.metrics.sel_key) so genuine ties resolve to the first condition in sweep order, as the rule states; the raw
+    float let a 1.1e-16 rounding difference break a tie (review round 13, 2026-11-04). Same key as e23_compare_estimators.rule_pick."""
     b = conds["baseline"]
     names = [n for n in conds if n.startswith("E_")]
     ok = [n for n in names if abs(conds[n]["A"]["ans"] - b["A"]["ans"]) <= E_LEAK + 1e-12]
-    # Tie-break = the sweep's (plain max in the sweep's recorded order), same as pick_c below; see e23_compare_estimators.rule_pick.
-    return (max(ok, key=lambda n: conds[n]["A"]["J"] - b["A"]["J"]) if ok else None), len(ok), len(names)
+    return (max(ok, key=lambda n: sel_key(conds[n]["A"]["J"] - b["A"]["J"], scale_J)) if ok else None), len(ok), len(names)
 
 
-def pick_c(conds, kind, dname):
+def pick_c(conds, kind, dname, scale_rate):
     """The sweep's C rule, including its tie-break: plain max over the conditions in the sweep's own order (layer
     ascending, alpha ascending), so equal answer-rate changes -- common when the answer rate saturates -- resolve to
-    the first (lowest layer, smaller alpha) exactly as e23_knob_sweep.py recorded them."""
+    the first (lowest layer, smaller alpha) exactly as e23_knob_sweep.py records them. `scale_rate` = n_items of the
+    tuning half: d ans is compared as an exact integer count."""
     sign = -1 if dname == "abst" else 1
     b = conds["baseline"]
     names = [n for n in conds if n.startswith(kind + "_") and ("_%s_" % dname) in n]
     ok = [n for n in names if abs(conds[n]["A"]["J"] - b["A"]["J"]) <= C_J + 1e-12 and abs(conds[n]["A"]["B"] - b["A"]["B"]) <= C_B + 1e-12
           and sign * (conds[n]["A"]["ans"] - b["A"]["ans"]) > 0]
-    return (max(ok, key=lambda n: sign * (conds[n]["A"]["ans"] - b["A"]["ans"])) if ok else None), len(ok), len(names)
+    return (max(ok, key=lambda n: sel_key(sign * (conds[n]["A"]["ans"] - b["A"]["ans"]), scale_rate)) if ok else None), len(ok), len(names)
 
 
 def main():
@@ -107,8 +110,10 @@ def main():
                bt["ans"], bt["J"], bt["AUROC"], bt["B"]), ""]
 
     # ---- chosen knobs ---- #
+    tune = ~test
+    scale_J, scale_rate = int(lab[tune].sum()) * int((~lab[tune]).sum()), int(tune.sum())   # exact-count selection keys
     rows = []
-    chE, okE, nE = pick_e(je["conds"])
+    chE, okE, nE = pick_e(je["conds"], scale_J)
     rec = (je.get("selection") or {}).get("E", {}).get("chosen")
     if chE is None:
         rows.append(("E (amplify)", None, "none feasible of %d" % nE, None, None))
@@ -119,7 +124,7 @@ def main():
             out.append("> note: recomputed E choice %s differs from the sweep's recorded choice %s" % (chE, rec))
     for kind, kname in (("Cp", "C prompt-contrast"), ("Cs", "C self-report")):
         for dname, dlabel in (("abst", "toward abstention"), ("ans", "toward answering")):
-            ch, ok, n = pick_c(jc["conds"], kind, dname)
+            ch, ok, n = pick_c(jc["conds"], kind, dname, scale_rate)
             if n == 0:
                 continue
             rec = ((jc.get("selection") or {}).get("%s_%s" % (kind, dname)) or {}).get("chosen")
@@ -158,11 +163,11 @@ def main():
                 ok = [n for n in names if abs(jc["conds"][n]["A"]["J"] - bc["A"]["J"]) <= C_J + 1e-12 and abs(jc["conds"][n]["A"]["B"] - bc["A"]["B"]) <= C_B + 1e-12
                       and sign * (jc["conds"][n]["A"]["ans"] - bc["A"]["ans"]) > 0]
                 if not ok:
-                    worst = max(names, key=lambda n: sign * (jc["conds"][n]["A"]["ans"] - bc["A"]["ans"]))
+                    worst = max(names, key=lambda n: sel_key(sign * (jc["conds"][n]["A"]["ans"] - bc["A"]["ans"]), scale_rate))
                     cells += ["leak (a%g: d ans %+.3f, dJ %+.3f, dB %+.3f on tune)" % (alpha_of(worst), jc["conds"][worst]["A"]["ans"] - bc["A"]["ans"],
                                                                                      jc["conds"][worst]["A"]["J"] - bc["A"]["J"], jc["conds"][worst]["A"]["B"] - bc["A"]["B"]), "", "", ""]
                     continue
-                ch = max(ok, key=lambda n: sign * (jc["conds"][n]["A"]["ans"] - bc["A"]["ans"]))
+                ch = max(ok, key=lambda n: sel_key(sign * (jc["conds"][n]["A"]["ans"] - bc["A"]["ans"]), scale_rate))   # same key as pick_c
                 m = jc["conds"][ch]["B"]
                 cells += ["a%g" % alpha_of(ch), "%+.3f" % (m["ans"] - bc["B"]["ans"]), "%+.3f" % (m["J"] - bc["B"]["J"]), "%+.3f" % (m["B"] - bc["B"]["B"])]
         out.append("| " + " | ".join(cells) + " |")

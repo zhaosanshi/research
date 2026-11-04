@@ -141,5 +141,14 @@ print(json.dumps({k: (v if k != "value_mismatch" else len(v)) for k, v in rep.it
 print("count_diffs:", len(rep["count_diffs"]), "value_mismatch:", len(rep["value_mismatch"]), "errors:", len(rep["errors"]))
 if rep["count_diffs"]:
     print("first count diff:", json.dumps(rep["count_diffs"][0]))
+# Pass/fail (review round 13): value mismatches, exceptions, or a failed new-feature check are failures; applied_count
+# differences are the documented semantic change and are reported, not failed.
+failed_flags = [k for k, v in rep["new_only"].items() if isinstance(v, bool) and not v]
+rep["failures"] = (["%d value mismatches" % len(rep["value_mismatch"])] if rep["value_mismatch"] else []) + \
+                  (["%d errors" % len(rep["errors"])] if rep["errors"] else []) + ["new-only check failed: %s" % k for k in failed_flags]
 with open(sys.argv[3], "w", encoding="utf-8") as f:
     json.dump(rep, f, indent=1)
+if rep["failures"]:
+    print("FAILED:", rep["failures"])
+    sys.exit(1)
+print("PASSED: %d cases bitwise identical; %d applied_count differences (documented semantic change)" % (rep["cases"], len(rep["count_diffs"])))

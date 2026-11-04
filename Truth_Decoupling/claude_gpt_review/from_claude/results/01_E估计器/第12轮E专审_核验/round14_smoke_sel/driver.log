@@ -1,0 +1,39 @@
+== 2026-11-04 20:43:14 report_est_size (ties fixed) llama3.1-8b
+exit 0
+== 2026-11-04 20:43:35 report_est_size (ties fixed) qwen3-8b
+exit 0
+== 2026-11-04 20:43:55 review checks (run_all.sh)
+exit 0
+== 2026-11-04 20:43:55 GPT offline tests (55)
+exit 0
+== 2026-11-04 20:44:00 intervene.py old-vs-new regression
+exit 0
+== 2026-11-04 20:44:01 E25 data + tokenizer checks
+exit 0
+== 2026-11-04 20:44:07 DAS loader + teacher cache (round 14, D1-D5)
+exit 0
+== 2026-11-04 20:44:09 done
+ALL CHECKS PASSED
+== 2026-11-04 20:44:09 smoke: e23_knob_sweep selection path (GPU 0, Llama, L11 L12, DAS, 400 items, 50 tuning pairs)
+exit 1
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/transformers/modeling_utils.py", line 4343, in to
+    return super().to(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1383, in to
+    return self._apply(convert)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 933, in _apply
+    module._apply(fn)
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 933, in _apply
+    module._apply(fn)
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 964, in _apply
+    param_applied = fn(param)
+                    ^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1369, in convert
+    return t.to(
+           ^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py", line 491, in _lazy_init
+    torch._C._cuda_init()
+RuntimeError: No CUDA GPUs are available
+== 2026-11-04 20:44:14 done; fail=1

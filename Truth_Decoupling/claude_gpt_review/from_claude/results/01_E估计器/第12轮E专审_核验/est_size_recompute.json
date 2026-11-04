@@ -1,0 +1,1689 @@
+{
+  "pinned_commit": "cb3f67b846a89cbb25c0bd28140514a43c228556",
+  "bootstrap_repeats": 2000,
+  "bootstrap_seed": 0,
+  "models": {
+    "llama3.1-8b": {
+      "input_manifest": {
+        "DAS-96": {
+          "json": "/workspace/Truth_Decoupling/results_das_tf/E23/llama3.1-8b/knob_sweep_das_tf_full.json",
+          "json_sha256": "07328651977c4ecdfd2bf62501054af8798a37f8b0f5b3e0f27f1ba950f7572d",
+          "npz": "/workspace/Truth_Decoupling/results_das_tf/E23/llama3.1-8b/knob_sweep_das_tf_full.npz",
+          "npz_sha256": "c00704a767b7945dc9b38f936018650e9a3af9d93df92c9497f02103c611fb18"
+        },
+        "MD-96": {
+          "json": "/workspace/Truth_Decoupling/results_das_tf/E23/llama3.1-8b/knob_sweep_meandiff_full.json",
+          "json_sha256": "2297d5eef29ac378f2058c66688cab79e137c92cf8a662ebd22d9e5881af852f",
+          "npz": "/workspace/Truth_Decoupling/results_das_tf/E23/llama3.1-8b/knob_sweep_meandiff_full.npz",
+          "npz_sha256": "71ae2a0f9e0beace7cc414b1d3823b6f221d24c532ef2515dd1ece9f93038b55"
+        },
+        "DAS-288": {
+          "json": "/workspace/Truth_Decoupling/results_das_tf_r288/E23/llama3.1-8b/knob_sweep_das_tf_full.json",
+          "json_sha256": "bcff3f577b2a4eb7e2cbc3155d2b8f4713e97d680486318fcc51c889c3baf235",
+          "npz": "/workspace/Truth_Decoupling/results_das_tf_r288/E23/llama3.1-8b/knob_sweep_das_tf_full.npz",
+          "npz_sha256": "74b4d16327aadd9afbfd3bd0c6f564c4b4309f623765a1c041218f71e8b09858"
+        },
+        "MD-288": {
+          "json": "/workspace/Truth_Decoupling/results_das_tf_r288/E23/llama3.1-8b/knob_sweep_meandiff_full.json",
+          "json_sha256": "20f9ed4a3c66d0aba05bcab7f90f537eb6036c748da2ffba018740bb6226f7ec",
+          "npz": "/workspace/Truth_Decoupling/results_das_tf_r288/E23/llama3.1-8b/knob_sweep_meandiff_full.npz",
+          "npz_sha256": "3c9b7337dad1b99516f38780797d77f0d84cb1d9b70f5e26420e21ddbed1ce17"
+        }
+      },
+      "split_verified": {
+        "original_train": 96,
+        "moved_old_tune": 192,
+        "new_tune": 192,
+        "new_test": 337,
+        "all_disjoint": true,
+        "same_candidate_grid": true,
+        "new_tune_and_test_are_subsets_of_previously_seen_old_test": true
+      },
+      "selections": {
+        "DAS-96": {
+          "published_float_choice": "E_L13_a3",
+          "integer_scan_order_choice": "E_L13_a3",
+          "exact_best_ties": [
+            {
+              "name": "E_L13_a3",
+              "correct_count": 280,
+              "float_delta_J": 0.06770833333333337
+            }
+          ]
+        },
+        "MD-96": {
+          "published_float_choice": "E_L31_a2",
+          "integer_scan_order_choice": "E_L31_a2",
+          "exact_best_ties": [
+            {
+              "name": "E_L31_a2",
+              "correct_count": 282,
+              "float_delta_J": 0.078125
+            }
+          ]
+        },
+        "DAS-288": {
+          "published_float_choice": "E_L11_a3",
+          "integer_scan_order_choice": "E_L11_a3",
+          "exact_best_ties": [
+            {
+              "name": "E_L11_a3",
+              "correct_count": 281,
+              "float_delta_J": 0.07291666666666663
+            },
+            {
+              "name": "E_L12_a2",
+              "correct_count": 281,
+              "float_delta_J": 0.07291666666666663
+            },
+            {
+              "name": "E_L12_a3",
+              "correct_count": 281,
+              "float_delta_J": 0.07291666666666663
+            }
+          ]
+        },
+        "MD-288": {
+          "published_float_choice": "E_L15_a3",
+          "integer_scan_order_choice": "E_L15_a3",
+          "exact_best_ties": [
+            {
+              "name": "E_L15_a3",
+              "correct_count": 284,
+              "float_delta_J": 0.08854166666666674
+            },
+            {
+              "name": "E_L31_a2",
+              "correct_count": 284,
+              "float_delta_J": 0.08854166666666663
+            }
+          ]
+        }
+      },
+      "versions": {
+        "published_float": {
+          "arms": {
+            "DAS-96": {
+              "chosen": "E_L13_a3",
+              "test_metrics": {
+                "J": 0.4065281899109792,
+                "AUROC": 0.7797726492264615,
+                "ans": 0.6795252225519288,
+                "B": 0.5207715133531158
+              },
+              "baseline_metrics": {
+                "J": 0.35905044510385753,
+                "AUROC": 0.7640465267810759,
+                "ans": 0.655786350148368,
+                "B": 0.443620178041543
+              },
+              "delta": {
+                "J": 0.04747774480712169,
+                "AUROC": 0.015726122445385626,
+                "ans": 0.023738872403560873,
+                "B": 0.07715133531157276
+              },
+              "ci95": {
+                "J": [
+                  0.0,
+                  0.09198813056379823
+                ],
+                "AUROC": [
+                  0.005898836830473195,
+                  0.02594127798959217
+                ],
+                "ans": [
+                  0.0,
+                  0.047477744807121636
+                ],
+                "B": [
+                  0.054859050445103814,
+                  0.10237388724035607
+                ]
+              },
+              "corrections": {
+                "n": 674,
+                "baseline_correct": 458,
+                "corrected": 44,
+                "harmed": 28,
+                "net": 16,
+                "harm_percent_of_baseline_correct": 6.11353711790393,
+                "accuracy_gain_pp": 2.373887240356083,
+                "baseline_accuracy": 0.6795252225519288,
+                "accuracy": 0.7032640949554896
+              }
+            },
+            "MD-96": {
+              "chosen": "E_L31_a2",
+              "test_metrics": {
+                "J": 0.3976261127596439,
+                "AUROC": 0.7771663041851209,
+                "ans": 0.6824925816023739,
+                "B": 0.5400593471810089
+              },
+              "baseline_metrics": {
+                "J": 0.35905044510385753,
+                "AUROC": 0.7640465267810759,
+                "ans": 0.655786350148368,
+                "B": 0.443620178041543
+              },
+              "delta": {
+                "J": 0.03857566765578635,
+                "AUROC": 0.013119777404045019,
+                "ans": 0.02670623145400597,
+                "B": 0.09643916913946587
+              },
+              "ci95": {
+                "J": [
+                  -0.0029673590504450953,
+                  0.08605341246290799
+                ],
+                "AUROC": [
+                  0.008188634222366967,
+                  0.01808746224762046
+                ],
+                "ans": [
+                  0.011869436201780381,
+                  0.04451038575667654
+                ],
+                "B": [
+                  0.0741839762611276,
+                  0.11869436201780414
+                ]
+              },
+              "corrections": {
+                "n": 674,
+                "baseline_correct": 458,
+                "corrected": 39,
+                "harmed": 26,
+                "net": 13,
+                "harm_percent_of_baseline_correct": 5.676855895196507,
+                "accuracy_gain_pp": 1.9287833827893175,
+                "baseline_accuracy": 0.6795252225519288,
+                "accuracy": 0.6988130563798219
+              }
+            },
+            "DAS-288": {
+              "chosen": "E_L11_a3",
+              "test_metrics": {
+                "J": 0.4243323442136499,
+                "AUROC": 0.7855400681524007,
+                "ans": 0.6528189910979229,
+                "B": 0.46735905044510384
+              },
+              "baseline_metrics": {
+                "J": 0.3620178041543026,
+                "AUROC": 0.7645396190861943,
+                "ans": 0.655786350148368,
+                "B": 0.44510385756676557
+              },
+              "delta": {
+                "J": 0.06231454005934728,
+                "AUROC": 0.02100044906620646,
+                "ans": -0.0029673590504450953,
+                "B": 0.02225519287833827
+              },
+              "ci95": {
+                "J": [
+                  0.032640949554896104,
+                  0.09495548961424333
+                ],
+                "AUROC": [
+                  0.013251415439072222,
+                  0.029444874921853628
+                ],
+                "ans": [
+                  -0.023738872403560873,
+                  0.020771513353115667
+                ],
+                "B": [
+                  0.007381305637982178,
+                  0.03857566765578635
+                ]
+              },
+              "corrections": {
+                "n": 674,
+                "baseline_correct": 459,
+                "corrected": 25,
+                "harmed": 4,
+                "net": 21,
+                "harm_percent_of_baseline_correct": 0.8714596949891068,
+                "accuracy_gain_pp": 3.115727002967359,
+                "baseline_accuracy": 0.6810089020771514,
+                "accuracy": 0.712166172106825
+              }
+            },
+            "MD-288": {
+              "chosen": "E_L15_a3",
+              "test_metrics": {
+                "J": 0.4391691394658754,
+                "AUROC": 0.7930245049265204,
+                "ans": 0.6498516320474778,
+                "B": 0.5014836795252225
+              },
+              "baseline_metrics": {
+                "J": 0.3620178041543026,
+                "AUROC": 0.7645396190861943,
+                "ans": 0.655786350148368,
+                "B": 0.44510385756676557
+              },
+              "delta": {
+                "J": 0.07715133531157276,
+                "AUROC": 0.028484885840326157,
+                "ans": -0.005934718100890191,
+                "B": 0.05637982195845698
+              },
+              "ci95": {
+                "J": [
+                  0.03857566765578635,
+                  0.11572700296735905
+                ],
+                "AUROC": [
+                  0.020938592397573265,
+                  0.03605825533376192
+                ],
+                "ans": [
+                  -0.023738872403560873,
+                  0.011869436201780381
+                ],
+                "B": [
+                  0.038538575667655735,
+                  0.07715133531157264
+                ]
+              },
+              "corrections": {
+                "n": 674,
+                "baseline_correct": 459,
+                "corrected": 36,
+                "harmed": 10,
+                "net": 26,
+                "harm_percent_of_baseline_correct": 2.178649237472767,
+                "accuracy_gain_pp": 3.857566765578635,
+                "baseline_accuracy": 0.6810089020771514,
+                "accuracy": 0.7195845697329377
+              }
+            }
+          },
+          "paired_differences": {
+            "DAS-288 - DAS-96": {
+              "J": {
+                "value": 0.014836795252225587,
+                "ci95": [
+                  -0.023738872403560873,
+                  0.05637982195845698
+                ]
+              },
+              "AUROC": {
+                "value": 0.005274326620820835,
+                "ci95": [
+                  -0.005654491982847498,
+                  0.01668765244036669
+                ]
+              },
+              "ans": {
+                "value": -0.02670623145400597,
+                "ci95": [
+                  -0.05044510385756673,
+                  -0.0029673590504450953
+                ]
+              },
+              "B": {
+                "value": -0.054896142433234485,
+                "ci95": [
+                  -0.07863501483679525,
+                  -0.03115727002967361
+                ]
+              }
+            },
+            "MD-288 - MD-96": {
+              "J": {
+                "value": 0.038575667655786405,
+                "ci95": [
+                  0.005934718100890191,
+                  0.07121661721068251
+                ]
+              },
+              "AUROC": {
+                "value": 0.015365108436281139,
+                "ci95": [
+                  0.009844235662901043,
+                  0.021062525865333012
+                ]
+              },
+              "ans": {
+                "value": -0.03264094955489616,
+                "ci95": [
+                  -0.05637982195845703,
+                  -0.011869436201780381
+                ]
+              },
+              "B": {
+                "value": -0.0400593471810089,
+                "ci95": [
+                  -0.057863501483679525,
+                  -0.022255192878338326
+                ]
+              }
+            },
+            "DAS-288 - MD-288": {
+              "J": {
+                "value": -0.014836795252225476,
+                "ci95": [
+                  -0.047477744807121636,
+                  0.014836795252225532
+                ]
+              },
+              "AUROC": {
+                "value": -0.007484436774119696,
+                "ci95": [
+                  -0.016633280208507593,
+                  0.0015512595866829931
+                ]
+              },
+              "ans": {
+                "value": 0.0029673590504450953,
+                "ci95": [
+                  -0.017804154302670572,
+                  0.023738872403560873
+                ]
+              },
+              "B": {
+                "value": -0.03412462908011871,
+                "ci95": [
+                  -0.053412462908011826,
+                  -0.01632047477744808
+                ]
+              }
+            },
+            "DAS-96 - MD-96": {
+              "J": {
+                "value": 0.008902077151335341,
+                "ci95": [
+                  -0.03264094955489616,
+                  0.050445103857566786
+                ]
+              },
+              "AUROC": {
+                "value": 0.0026063450413406075,
+                "ci95": [
+                  -0.006956563851050859,
+                  0.012142838274529156
+                ]
+              },
+              "ans": {
+                "value": -0.0029673590504450953,
+                "ci95": [
+                  -0.02670623145400597,
+                  0.020771513353115667
+                ]
+              },
+              "B": {
+                "value": -0.01928783382789312,
+                "ci95": [
+                  -0.041543026706231445,
+                  0.0029673590504450953
+                ]
+              }
+            }
+          }
+        },
+        "integer_scan_order": {
+          "arms": {
+            "DAS-96": {
+              "chosen": "E_L13_a3",
+              "test_metrics": {
+                "J": 0.4065281899109792,
+                "AUROC": 0.7797726492264615,
+                "ans": 0.6795252225519288,
+                "B": 0.5207715133531158
+              },
+              "baseline_metrics": {
+                "J": 0.35905044510385753,
+                "AUROC": 0.7640465267810759,
+                "ans": 0.655786350148368,
+                "B": 0.443620178041543
+              },
+              "delta": {
+                "J": 0.04747774480712169,
+                "AUROC": 0.015726122445385626,
+                "ans": 0.023738872403560873,
+                "B": 0.07715133531157276
+              },
+              "ci95": {
+                "J": [
+                  0.0,
+                  0.09198813056379823
+                ],
+                "AUROC": [
+                  0.005898836830473195,
+                  0.02594127798959217
+                ],
+                "ans": [
+                  0.0,
+                  0.047477744807121636
+                ],
+                "B": [
+                  0.054859050445103814,
+                  0.10237388724035607
+                ]
+              },
+              "corrections": {
+                "n": 674,
+                "baseline_correct": 458,
+                "corrected": 44,
+                "harmed": 28,
+                "net": 16,
+                "harm_percent_of_baseline_correct": 6.11353711790393,
+                "accuracy_gain_pp": 2.373887240356083,
+                "baseline_accuracy": 0.6795252225519288,
+                "accuracy": 0.7032640949554896
+              }
+            },
+            "MD-96": {
+              "chosen": "E_L31_a2",
+              "test_metrics": {
+                "J": 0.3976261127596439,
+                "AUROC": 0.7771663041851209,
+                "ans": 0.6824925816023739,
+                "B": 0.5400593471810089
+              },
+              "baseline_metrics": {
+                "J": 0.35905044510385753,
+                "AUROC": 0.7640465267810759,
+                "ans": 0.655786350148368,
+                "B": 0.443620178041543
+              },
+              "delta": {
+                "J": 0.03857566765578635,
+                "AUROC": 0.013119777404045019,
+                "ans": 0.02670623145400597,
+                "B": 0.09643916913946587
+              },
+              "ci95": {
+                "J": [
+                  -0.0029673590504450953,
+                  0.08605341246290799
+                ],
+                "AUROC": [
+                  0.008188634222366967,
+                  0.01808746224762046
+                ],
+                "ans": [
+                  0.011869436201780381,
+                  0.04451038575667654
+                ],
+                "B": [
+                  0.0741839762611276,
+                  0.11869436201780414
+                ]
+              },
+              "corrections": {
+                "n": 674,
+                "baseline_correct": 458,
+                "corrected": 39,
+                "harmed": 26,
+                "net": 13,
+                "harm_percent_of_baseline_correct": 5.676855895196507,
+                "accuracy_gain_pp": 1.9287833827893175,
+                "baseline_accuracy": 0.6795252225519288,
+                "accuracy": 0.6988130563798219
+              }
+            },
+            "DAS-288": {
+              "chosen": "E_L11_a3",
+              "test_metrics": {
+                "J": 0.4243323442136499,
+                "AUROC": 0.7855400681524007,
+                "ans": 0.6528189910979229,
+                "B": 0.46735905044510384
+              },
+              "baseline_metrics": {
+                "J": 0.3620178041543026,
+                "AUROC": 0.7645396190861943,
+                "ans": 0.655786350148368,
+                "B": 0.44510385756676557
+              },
+              "delta": {
+                "J": 0.06231454005934728,
+                "AUROC": 0.02100044906620646,
+                "ans": -0.0029673590504450953,
+                "B": 0.02225519287833827
+              },
+              "ci95": {
+                "J": [
+                  0.032640949554896104,
+                  0.09495548961424333
+                ],
+                "AUROC": [
+                  0.013251415439072222,
+                  0.029444874921853628
+                ],
+                "ans": [
+                  -0.023738872403560873,
+                  0.020771513353115667
+                ],
+                "B": [
+                  0.007381305637982178,
+                  0.03857566765578635
+                ]
+              },
+              "corrections": {
+                "n": 674,
+                "baseline_correct": 459,
+                "corrected": 25,
+                "harmed": 4,
+                "net": 21,
+                "harm_percent_of_baseline_correct": 0.8714596949891068,
+                "accuracy_gain_pp": 3.115727002967359,
+                "baseline_accuracy": 0.6810089020771514,
+                "accuracy": 0.712166172106825
+              }
+            },
+            "MD-288": {
+              "chosen": "E_L15_a3",
+              "test_metrics": {
+                "J": 0.4391691394658754,
+                "AUROC": 0.7930245049265204,
+                "ans": 0.6498516320474778,
+                "B": 0.5014836795252225
+              },
+              "baseline_metrics": {
+                "J": 0.3620178041543026,
+                "AUROC": 0.7645396190861943,
+                "ans": 0.655786350148368,
+                "B": 0.44510385756676557
+              },
+              "delta": {
+                "J": 0.07715133531157276,
+                "AUROC": 0.028484885840326157,
+                "ans": -0.005934718100890191,
+                "B": 0.05637982195845698
+              },
+              "ci95": {
+                "J": [
+                  0.03857566765578635,
+                  0.11572700296735905
+                ],
+                "AUROC": [
+                  0.020938592397573265,
+                  0.03605825533376192
+                ],
+                "ans": [
+                  -0.023738872403560873,
+                  0.011869436201780381
+                ],
+                "B": [
+                  0.038538575667655735,
+                  0.07715133531157264
+                ]
+              },
+              "corrections": {
+                "n": 674,
+                "baseline_correct": 459,
+                "corrected": 36,
+                "harmed": 10,
+                "net": 26,
+                "harm_percent_of_baseline_correct": 2.178649237472767,
+                "accuracy_gain_pp": 3.857566765578635,
+                "baseline_accuracy": 0.6810089020771514,
+                "accuracy": 0.7195845697329377
+              }
+            }
+          },
+          "paired_differences": {
+            "DAS-288 - DAS-96": {
+              "J": {
+                "value": 0.014836795252225587,
+                "ci95": [
+                  -0.023738872403560873,
+                  0.05637982195845698
+                ]
+              },
+              "AUROC": {
+                "value": 0.005274326620820835,
+                "ci95": [
+                  -0.005654491982847498,
+                  0.01668765244036669
+                ]
+              },
+              "ans": {
+                "value": -0.02670623145400597,
+                "ci95": [
+                  -0.05044510385756673,
+                  -0.0029673590504450953
+                ]
+              },
+              "B": {
+                "value": -0.054896142433234485,
+                "ci95": [
+                  -0.07863501483679525,
+                  -0.03115727002967361
+                ]
+              }
+            },
+            "MD-288 - MD-96": {
+              "J": {
+                "value": 0.038575667655786405,
+                "ci95": [
+                  0.005934718100890191,
+                  0.07121661721068251
+                ]
+              },
+              "AUROC": {
+                "value": 0.015365108436281139,
+                "ci95": [
+                  0.009844235662901043,
+                  0.021062525865333012
+                ]
+              },
+              "ans": {
+                "value": -0.03264094955489616,
+                "ci95": [
+                  -0.05637982195845703,
+                  -0.011869436201780381
+                ]
+              },
+              "B": {
+                "value": -0.0400593471810089,
+                "ci95": [
+                  -0.057863501483679525,
+                  -0.022255192878338326
+                ]
+              }
+            },
+            "DAS-288 - MD-288": {
+              "J": {
+                "value": -0.014836795252225476,
+                "ci95": [
+                  -0.047477744807121636,
+                  0.014836795252225532
+                ]
+              },
+              "AUROC": {
+                "value": -0.007484436774119696,
+                "ci95": [
+                  -0.016633280208507593,
+                  0.0015512595866829931
+                ]
+              },
+              "ans": {
+                "value": 0.0029673590504450953,
+                "ci95": [
+                  -0.017804154302670572,
+                  0.023738872403560873
+                ]
+              },
+              "B": {
+                "value": -0.03412462908011871,
+                "ci95": [
+                  -0.053412462908011826,
+                  -0.01632047477744808
+                ]
+              }
+            },
+            "DAS-96 - MD-96": {
+              "J": {
+                "value": 0.008902077151335341,
+                "ci95": [
+                  -0.03264094955489616,
+                  0.050445103857566786
+                ]
+              },
+              "AUROC": {
+                "value": 0.0026063450413406075,
+                "ci95": [
+                  -0.006956563851050859,
+                  0.012142838274529156
+                ]
+              },
+              "ans": {
+                "value": -0.0029673590504450953,
+                "ci95": [
+                  -0.02670623145400597,
+                  0.020771513353115667
+                ]
+              },
+              "B": {
+                "value": -0.01928783382789312,
+                "ci95": [
+                  -0.041543026706231445,
+                  0.0029673590504450953
+                ]
+              }
+            }
+          }
+        }
+      },
+      "published_values_and_all_paired_CIs_reproduced": true,
+      "baseline_drift": {
+        "common_529": {
+          "max_abs_ptrue_change": 0.06240540583762544,
+          "tf_label_flips": 5,
+          "self_report_flips": 0,
+          "new_minus_old_metrics": {
+            "J": 0.001890359168241984,
+            "AUROC": 0.0003680661518505879,
+            "ans": 0.0,
+            "B": 0.000945179584120992
+          }
+        },
+        "tune_192": {
+          "max_abs_ptrue_change": 0.06240540583762544,
+          "tf_label_flips": 2,
+          "self_report_flips": 0,
+          "new_minus_old_metrics": {
+            "J": 0.0,
+            "AUROC": 0.00048828125,
+            "ans": 0.0,
+            "B": 0.0
+          }
+        },
+        "test_337": {
+          "max_abs_ptrue_change": 0.062173087822875395,
+          "tf_label_flips": 3,
+          "self_report_flips": 0,
+          "new_minus_old_metrics": {
+            "J": 0.0029673590504450953,
+            "AUROC": 0.0004930923051184033,
+            "ans": 0.0,
+            "B": 0.0014836795252225476
+          }
+        },
+        "largest_ptrue_changes": [
+          {
+            "id": "tqa:681:F",
+            "label": false,
+            "old_ptrue": 0.5312544419282296,
+            "new_ptrue": 0.46884903609060413,
+            "in_new_tune": true
+          },
+          {
+            "id": "tqa:693:F",
+            "label": false,
+            "old_ptrue": 0.43788461061903017,
+            "new_ptrue": 0.5000604616348704,
+            "in_new_tune": true
+          },
+          {
+            "id": "tqa:581:T",
+            "label": true,
+            "old_ptrue": 0.5000175155365393,
+            "new_ptrue": 0.4378444277136639,
+            "in_new_tune": false
+          },
+          {
+            "id": "tqa:289:T",
+            "label": true,
+            "old_ptrue": 0.5621808208374647,
+            "new_ptrue": 0.5000086625033955,
+            "in_new_tune": false
+          },
+          {
+            "id": "tqa:802:F",
+            "label": false,
+            "old_ptrue": 0.46878323329553784,
+            "new_ptrue": 0.4073295638338677,
+            "in_new_tune": false
+          }
+        ]
+      },
+      "fixed_config_decomposition": {
+        "DAS": {
+          "old_choice": "E_L13_a3",
+          "new_choice": "E_L11_a3",
+          "total_delta_J_change": 0.014836795252225587,
+          "change_at_fixed_new_choice": 0.0029673590504450953,
+          "choice_change_at_old_direction": 0.011869436201780492
+        },
+        "MD": {
+          "old_choice": "E_L31_a2",
+          "new_choice": "E_L15_a3",
+          "total_delta_J_change": 0.038575667655786405,
+          "change_at_fixed_new_choice": 0.0029673590504450953,
+          "choice_change_at_old_direction": 0.03560830860534131
+        }
+      }
+    },
+    "qwen3-8b": {
+      "input_manifest": {
+        "DAS-96": {
+          "json": "/workspace/Truth_Decoupling/results_das_tf/E23/qwen3-8b/knob_sweep_das_tf_full.json",
+          "json_sha256": "b91d1fde705d427dbe54297deb486cd7feb02ab78b8645a133e0a31bc6c1db56",
+          "npz": "/workspace/Truth_Decoupling/results_das_tf/E23/qwen3-8b/knob_sweep_das_tf_full.npz",
+          "npz_sha256": "812707f4344ffa19a33cb915d917c288dd8c44d27f77f3dd90c76a6be5d218d0"
+        },
+        "MD-96": {
+          "json": "/workspace/Truth_Decoupling/results_das_tf/E23/qwen3-8b/knob_sweep_meandiff_full.json",
+          "json_sha256": "43a6f0f303cf0b5ec07ec7ae08a368c41dacbd468aa187e654d7f328a381c520",
+          "npz": "/workspace/Truth_Decoupling/results_das_tf/E23/qwen3-8b/knob_sweep_meandiff_full.npz",
+          "npz_sha256": "eb6198518f962422a3b08a1293906e7a9998e34aa0ba3c2ce5623897cf2db15a"
+        },
+        "DAS-288": {
+          "json": "/workspace/Truth_Decoupling/results_das_tf_r288/E23/qwen3-8b/knob_sweep_das_tf_full.json",
+          "json_sha256": "836ae5f073a0ae15ada459bd0ef5032acfc7de2a748d19563aac3d45ffa4125c",
+          "npz": "/workspace/Truth_Decoupling/results_das_tf_r288/E23/qwen3-8b/knob_sweep_das_tf_full.npz",
+          "npz_sha256": "d844817f38d61161d161c5a2cef6b4715ba96804bd49b15b980e12f8babc2005"
+        },
+        "MD-288": {
+          "json": "/workspace/Truth_Decoupling/results_das_tf_r288/E23/qwen3-8b/knob_sweep_meandiff_full.json",
+          "json_sha256": "1a082d89bb175b5037a65557291270f8d403a0e4fb8a8d925ceb23b36bcd46ad",
+          "npz": "/workspace/Truth_Decoupling/results_das_tf_r288/E23/qwen3-8b/knob_sweep_meandiff_full.npz",
+          "npz_sha256": "4387c988dc501d425fc3493b2481b2415be6087aa14919dd35fec5a5a3a38270"
+        }
+      },
+      "split_verified": {
+        "original_train": 96,
+        "moved_old_tune": 192,
+        "new_tune": 192,
+        "new_test": 337,
+        "all_disjoint": true,
+        "same_candidate_grid": true,
+        "new_tune_and_test_are_subsets_of_previously_seen_old_test": true
+      },
+      "selections": {
+        "DAS-96": {
+          "published_float_choice": "E_L18_a3",
+          "integer_scan_order_choice": "E_L18_a3",
+          "exact_best_ties": [
+            {
+              "name": "E_L18_a3",
+              "correct_count": 296,
+              "float_delta_J": 0.03645833333333337
+            }
+          ]
+        },
+        "MD-96": {
+          "published_float_choice": "E_L31_a3",
+          "integer_scan_order_choice": "E_L31_a3",
+          "exact_best_ties": [
+            {
+              "name": "E_L31_a3",
+              "correct_count": 296,
+              "float_delta_J": 0.03645833333333348
+            },
+            {
+              "name": "E_L34_a2",
+              "correct_count": 296,
+              "float_delta_J": 0.03645833333333348
+            },
+            {
+              "name": "E_L34_a3",
+              "correct_count": 296,
+              "float_delta_J": 0.03645833333333337
+            }
+          ]
+        },
+        "DAS-288": {
+          "published_float_choice": "E_L18_a3",
+          "integer_scan_order_choice": "E_L18_a3",
+          "exact_best_ties": [
+            {
+              "name": "E_L18_a3",
+              "correct_count": 299,
+              "float_delta_J": 0.05729166666666663
+            }
+          ]
+        },
+        "MD-288": {
+          "published_float_choice": "E_L35_a2",
+          "integer_scan_order_choice": "E_L34_a3",
+          "exact_best_ties": [
+            {
+              "name": "E_L34_a3",
+              "correct_count": 298,
+              "float_delta_J": 0.05208333333333326
+            },
+            {
+              "name": "E_L35_a2",
+              "correct_count": 298,
+              "float_delta_J": 0.05208333333333337
+            }
+          ]
+        }
+      },
+      "versions": {
+        "published_float": {
+          "arms": {
+            "DAS-96": {
+              "chosen": "E_L18_a3",
+              "test_metrics": {
+                "J": 0.4629080118694362,
+                "AUROC": 0.8138752652572445,
+                "ans": 0.4658753709198813,
+                "B": 0.4540059347181009
+              },
+              "baseline_metrics": {
+                "J": 0.4035608308605342,
+                "AUROC": 0.7977925314126214,
+                "ans": 0.45103857566765576,
+                "B": 0.44510385756676557
+              },
+              "delta": {
+                "J": 0.05934718100890202,
+                "AUROC": 0.01608273384462311,
+                "ans": 0.014836795252225532,
+                "B": 0.008902077151335341
+              },
+              "ci95": {
+                "J": [
+                  0.026706231454005913,
+                  0.09198813056379823
+                ],
+                "AUROC": [
+                  0.007915782475851691,
+                  0.02429987496587986
+                ],
+                "ans": [
+                  -0.008902077151335341,
+                  0.03857566765578635
+                ],
+                "B": [
+                  -0.010385756676557889,
+                  0.028189910979228516
+                ]
+              },
+              "corrections": {
+                "n": 674,
+                "baseline_correct": 473,
+                "corrected": 31,
+                "harmed": 11,
+                "net": 20,
+                "harm_percent_of_baseline_correct": 2.3255813953488373,
+                "accuracy_gain_pp": 2.9673590504451037,
+                "baseline_accuracy": 0.701780415430267,
+                "accuracy": 0.7314540059347181
+              }
+            },
+            "MD-96": {
+              "chosen": "E_L31_a3",
+              "test_metrics": {
+                "J": 0.427299703264095,
+                "AUROC": 0.7946930940661624,
+                "ans": 0.486646884272997,
+                "B": 0.4688427299703264
+              },
+              "baseline_metrics": {
+                "J": 0.4035608308605342,
+                "AUROC": 0.7977925314126214,
+                "ans": 0.45103857566765576,
+                "B": 0.44510385756676557
+              },
+              "delta": {
+                "J": 0.023738872403560818,
+                "AUROC": -0.003099437346459011,
+                "ans": 0.035608308605341255,
+                "B": 0.023738872403560818
+              },
+              "ci95": {
+                "J": [
+                  0.0,
+                  0.047477744807121636
+                ],
+                "AUROC": [
+                  -0.007731092991925631,
+                  0.0011271781912317418
+                ],
+                "ans": [
+                  0.017804154302670572,
+                  0.05637982195845698
+                ],
+                "B": [
+                  0.013353115727002984,
+                  0.035608308605341255
+                ]
+              },
+              "corrections": {
+                "n": 674,
+                "baseline_correct": 473,
+                "corrected": 12,
+                "harmed": 4,
+                "net": 8,
+                "harm_percent_of_baseline_correct": 0.8456659619450317,
+                "accuracy_gain_pp": 1.1869436201780414,
+                "baseline_accuracy": 0.701780415430267,
+                "accuracy": 0.7136498516320475
+              }
+            },
+            "DAS-288": {
+              "chosen": "E_L18_a3",
+              "test_metrics": {
+                "J": 0.4688427299703264,
+                "AUROC": 0.8178111984784581,
+                "ans": 0.4688427299703264,
+                "B": 0.4629080118694362
+              },
+              "baseline_metrics": {
+                "J": 0.40059347181008903,
+                "AUROC": 0.7976208296278033,
+                "ans": 0.44807121661721067,
+                "B": 0.4465875370919881
+              },
+              "delta": {
+                "J": 0.06824925816023736,
+                "AUROC": 0.020190368850654727,
+                "ans": 0.020771513353115723,
+                "B": 0.01632047477744808
+              },
+              "ci95": {
+                "J": [
+                  0.03264094955489616,
+                  0.10385756676557861
+                ],
+                "AUROC": [
+                  0.011459002896917186,
+                  0.029309054407452767
+                ],
+                "ans": [
+                  -0.0029673590504450953,
+                  0.047477744807121636
+                ],
+                "B": [
+                  -0.004451038575667643,
+                  0.0370919881305638
+                ]
+              },
+              "corrections": {
+                "n": 674,
+                "baseline_correct": 472,
+                "corrected": 35,
+                "harmed": 12,
+                "net": 23,
+                "harm_percent_of_baseline_correct": 2.542372881355932,
+                "accuracy_gain_pp": 3.4124629080118694,
+                "baseline_accuracy": 0.7002967359050445,
+                "accuracy": 0.7344213649851632
+              }
+            },
+            "MD-288": {
+              "chosen": "E_L35_a2",
+              "test_metrics": {
+                "J": 0.4302670623145401,
+                "AUROC": 0.8051140716216573,
+                "ans": 0.4807121661721068,
+                "B": 0.46735905044510384
+              },
+              "baseline_metrics": {
+                "J": 0.40059347181008903,
+                "AUROC": 0.7976208296278033,
+                "ans": 0.44807121661721067,
+                "B": 0.4465875370919881
+              },
+              "delta": {
+                "J": 0.029673590504451064,
+                "AUROC": 0.007493241993853927,
+                "ans": 0.03264094955489616,
+                "B": 0.020771513353115723
+              },
+              "ci95": {
+                "J": [
+                  0.0,
+                  0.05934718100890207
+                ],
+                "AUROC": [
+                  0.002676236472981178,
+                  0.012495817520626264
+                ],
+                "ans": [
+                  0.005934718100890191,
+                  0.05934718100890213
+                ],
+                "B": [
+                  0.005934718100890191,
+                  0.0370919881305638
+                ]
+              },
+              "corrections": {
+                "n": 674,
+                "baseline_correct": 472,
+                "corrected": 19,
+                "harmed": 9,
+                "net": 10,
+                "harm_percent_of_baseline_correct": 1.9067796610169492,
+                "accuracy_gain_pp": 1.4836795252225519,
+                "baseline_accuracy": 0.7002967359050445,
+                "accuracy": 0.7151335311572701
+              }
+            }
+          },
+          "paired_differences": {
+            "DAS-288 - DAS-96": {
+              "J": {
+                "value": 0.008902077151335341,
+                "ci95": [
+                  -0.014836795252225476,
+                  0.032640949554896104
+                ]
+              },
+              "AUROC": {
+                "value": 0.004107635006031618,
+                "ci95": [
+                  0.0021659739893808067,
+                  0.006199094823411373
+                ]
+              },
+              "ans": {
+                "value": 0.005934718100890191,
+                "ci95": [
+                  -0.005934718100890191,
+                  0.020771513353115778
+                ]
+              },
+              "B": {
+                "value": 0.007418397626112738,
+                "ci95": [
+                  -0.0014836795252226032,
+                  0.017804154302670572
+                ]
+              }
+            },
+            "MD-288 - MD-96": {
+              "J": {
+                "value": 0.005934718100890246,
+                "ci95": [
+                  -0.020771513353115723,
+                  0.0356083086053412
+                ]
+              },
+              "AUROC": {
+                "value": 0.010592679340312938,
+                "ci95": [
+                  0.004947102642446346,
+                  0.0165245357447895
+                ]
+              },
+              "ans": {
+                "value": -0.0029673590504450953,
+                "ci95": [
+                  -0.026780415430267143,
+                  0.023738872403560818
+                ]
+              },
+              "B": {
+                "value": -0.0029673590504450953,
+                "ci95": [
+                  -0.01632047477744808,
+                  0.011869436201780381
+                ]
+              }
+            },
+            "DAS-288 - MD-288": {
+              "J": {
+                "value": 0.038575667655786294,
+                "ci95": [
+                  0.0029673590504450953,
+                  0.07715133531157264
+                ]
+              },
+              "AUROC": {
+                "value": 0.0126971268568008,
+                "ci95": [
+                  0.00397082390441055,
+                  0.02215569389534117
+                ]
+              },
+              "ans": {
+                "value": -0.011869436201780437,
+                "ci95": [
+                  -0.047477744807121636,
+                  0.023738872403560818
+                ]
+              },
+              "B": {
+                "value": -0.004451038575667643,
+                "ci95": [
+                  -0.023738872403560873,
+                  0.013353115727002984
+                ]
+              }
+            },
+            "DAS-96 - MD-96": {
+              "J": {
+                "value": 0.0356083086053412,
+                "ci95": [
+                  0.005934718100890191,
+                  0.06528189910979226
+                ]
+              },
+              "AUROC": {
+                "value": 0.01918217119108212,
+                "ci95": [
+                  0.010419106446301448,
+                  0.028570076341255173
+                ]
+              },
+              "ans": {
+                "value": -0.020771513353115723,
+                "ci95": [
+                  -0.047477744807121636,
+                  0.005934718100890191
+                ]
+              },
+              "B": {
+                "value": -0.014836795252225476,
+                "ci95": [
+                  -0.032640949554896104,
+                  0.0014836795252225476
+                ]
+              }
+            }
+          }
+        },
+        "integer_scan_order": {
+          "arms": {
+            "DAS-96": {
+              "chosen": "E_L18_a3",
+              "test_metrics": {
+                "J": 0.4629080118694362,
+                "AUROC": 0.8138752652572445,
+                "ans": 0.4658753709198813,
+                "B": 0.4540059347181009
+              },
+              "baseline_metrics": {
+                "J": 0.4035608308605342,
+                "AUROC": 0.7977925314126214,
+                "ans": 0.45103857566765576,
+                "B": 0.44510385756676557
+              },
+              "delta": {
+                "J": 0.05934718100890202,
+                "AUROC": 0.01608273384462311,
+                "ans": 0.014836795252225532,
+                "B": 0.008902077151335341
+              },
+              "ci95": {
+                "J": [
+                  0.026706231454005913,
+                  0.09198813056379823
+                ],
+                "AUROC": [
+                  0.007915782475851691,
+                  0.02429987496587986
+                ],
+                "ans": [
+                  -0.008902077151335341,
+                  0.03857566765578635
+                ],
+                "B": [
+                  -0.010385756676557889,
+                  0.028189910979228516
+                ]
+              },
+              "corrections": {
+                "n": 674,
+                "baseline_correct": 473,
+                "corrected": 31,
+                "harmed": 11,
+                "net": 20,
+                "harm_percent_of_baseline_correct": 2.3255813953488373,
+                "accuracy_gain_pp": 2.9673590504451037,
+                "baseline_accuracy": 0.701780415430267,
+                "accuracy": 0.7314540059347181
+              }
+            },
+            "MD-96": {
+              "chosen": "E_L31_a3",
+              "test_metrics": {
+                "J": 0.427299703264095,
+                "AUROC": 0.7946930940661624,
+                "ans": 0.486646884272997,
+                "B": 0.4688427299703264
+              },
+              "baseline_metrics": {
+                "J": 0.4035608308605342,
+                "AUROC": 0.7977925314126214,
+                "ans": 0.45103857566765576,
+                "B": 0.44510385756676557
+              },
+              "delta": {
+                "J": 0.023738872403560818,
+                "AUROC": -0.003099437346459011,
+                "ans": 0.035608308605341255,
+                "B": 0.023738872403560818
+              },
+              "ci95": {
+                "J": [
+                  0.0,
+                  0.047477744807121636
+                ],
+                "AUROC": [
+                  -0.007731092991925631,
+                  0.0011271781912317418
+                ],
+                "ans": [
+                  0.017804154302670572,
+                  0.05637982195845698
+                ],
+                "B": [
+                  0.013353115727002984,
+                  0.035608308605341255
+                ]
+              },
+              "corrections": {
+                "n": 674,
+                "baseline_correct": 473,
+                "corrected": 12,
+                "harmed": 4,
+                "net": 8,
+                "harm_percent_of_baseline_correct": 0.8456659619450317,
+                "accuracy_gain_pp": 1.1869436201780414,
+                "baseline_accuracy": 0.701780415430267,
+                "accuracy": 0.7136498516320475
+              }
+            },
+            "DAS-288": {
+              "chosen": "E_L18_a3",
+              "test_metrics": {
+                "J": 0.4688427299703264,
+                "AUROC": 0.8178111984784581,
+                "ans": 0.4688427299703264,
+                "B": 0.4629080118694362
+              },
+              "baseline_metrics": {
+                "J": 0.40059347181008903,
+                "AUROC": 0.7976208296278033,
+                "ans": 0.44807121661721067,
+                "B": 0.4465875370919881
+              },
+              "delta": {
+                "J": 0.06824925816023736,
+                "AUROC": 0.020190368850654727,
+                "ans": 0.020771513353115723,
+                "B": 0.01632047477744808
+              },
+              "ci95": {
+                "J": [
+                  0.03264094955489616,
+                  0.10385756676557861
+                ],
+                "AUROC": [
+                  0.011459002896917186,
+                  0.029309054407452767
+                ],
+                "ans": [
+                  -0.0029673590504450953,
+                  0.047477744807121636
+                ],
+                "B": [
+                  -0.004451038575667643,
+                  0.0370919881305638
+                ]
+              },
+              "corrections": {
+                "n": 674,
+                "baseline_correct": 472,
+                "corrected": 35,
+                "harmed": 12,
+                "net": 23,
+                "harm_percent_of_baseline_correct": 2.542372881355932,
+                "accuracy_gain_pp": 3.4124629080118694,
+                "baseline_accuracy": 0.7002967359050445,
+                "accuracy": 0.7344213649851632
+              }
+            },
+            "MD-288": {
+              "chosen": "E_L34_a3",
+              "test_metrics": {
+                "J": 0.4362017804154303,
+                "AUROC": 0.798188766300663,
+                "ans": 0.4807121661721068,
+                "B": 0.4732937685459941
+              },
+              "baseline_metrics": {
+                "J": 0.40059347181008903,
+                "AUROC": 0.7976208296278033,
+                "ans": 0.44807121661721067,
+                "B": 0.4465875370919881
+              },
+              "delta": {
+                "J": 0.035608308605341255,
+                "AUROC": 0.0005679366728597035,
+                "ans": 0.03264094955489616,
+                "B": 0.02670623145400597
+              },
+              "ci95": {
+                "J": [
+                  0.011869436201780381,
+                  0.05934718100890213
+                ],
+                "AUROC": [
+                  -0.002980566880046445,
+                  0.004077256997948409
+                ],
+                "ans": [
+                  0.014836795252225532,
+                  0.053412462908011826
+                ],
+                "B": [
+                  0.014836795252225476,
+                  0.04005934718100895
+                ]
+              },
+              "corrections": {
+                "n": 674,
+                "baseline_correct": 472,
+                "corrected": 16,
+                "harmed": 4,
+                "net": 12,
+                "harm_percent_of_baseline_correct": 0.847457627118644,
+                "accuracy_gain_pp": 1.7804154302670623,
+                "baseline_accuracy": 0.7002967359050445,
+                "accuracy": 0.7181008902077152
+              }
+            }
+          },
+          "paired_differences": {
+            "DAS-288 - DAS-96": {
+              "J": {
+                "value": 0.008902077151335341,
+                "ci95": [
+                  -0.014836795252225476,
+                  0.032640949554896104
+                ]
+              },
+              "AUROC": {
+                "value": 0.004107635006031618,
+                "ci95": [
+                  0.0021659739893808067,
+                  0.006199094823411373
+                ]
+              },
+              "ans": {
+                "value": 0.005934718100890191,
+                "ci95": [
+                  -0.005934718100890191,
+                  0.020771513353115778
+                ]
+              },
+              "B": {
+                "value": 0.007418397626112738,
+                "ci95": [
+                  -0.0014836795252226032,
+                  0.017804154302670572
+                ]
+              }
+            },
+            "MD-288 - MD-96": {
+              "J": {
+                "value": 0.011869436201780437,
+                "ci95": [
+                  -5.551115123125783e-17,
+                  0.026706231454005913
+                ]
+              },
+              "AUROC": {
+                "value": 0.0036673740193187143,
+                "ci95": [
+                  0.000642450844860859,
+                  0.006939173542075746
+                ]
+              },
+              "ans": {
+                "value": -0.0029673590504450953,
+                "ci95": [
+                  -0.011869436201780492,
+                  0.005934718100890246
+                ]
+              },
+              "B": {
+                "value": 0.002967359050445151,
+                "ci95": [
+                  -0.004451038575667643,
+                  0.010385756676557889
+                ]
+              }
+            },
+            "DAS-288 - MD-288": {
+              "J": {
+                "value": 0.032640949554896104,
+                "ci95": [
+                  0.0,
+                  0.06528189910979232
+                ]
+              },
+              "AUROC": {
+                "value": 0.019622432177795024,
+                "ci95": [
+                  0.01104075495953997,
+                  0.029050511143005508
+                ]
+              },
+              "ans": {
+                "value": -0.011869436201780437,
+                "ci95": [
+                  -0.03857566765578635,
+                  0.014836795252225476
+                ]
+              },
+              "B": {
+                "value": -0.010385756676557889,
+                "ci95": [
+                  -0.029710682492581623,
+                  0.007418397626112794
+                ]
+              }
+            },
+            "DAS-96 - MD-96": {
+              "J": {
+                "value": 0.0356083086053412,
+                "ci95": [
+                  0.005934718100890191,
+                  0.06528189910979226
+                ]
+              },
+              "AUROC": {
+                "value": 0.01918217119108212,
+                "ci95": [
+                  0.010419106446301448,
+                  0.028570076341255173
+                ]
+              },
+              "ans": {
+                "value": -0.020771513353115723,
+                "ci95": [
+                  -0.047477744807121636,
+                  0.005934718100890191
+                ]
+              },
+              "B": {
+                "value": -0.014836795252225476,
+                "ci95": [
+                  -0.032640949554896104,
+                  0.0014836795252225476
+                ]
+              }
+            }
+          }
+        }
+      },
+      "published_values_and_all_paired_CIs_reproduced": true,
+      "baseline_drift": {
+        "common_529": {
+          "max_abs_ptrue_change": 0.31757447636931,
+          "tf_label_flips": 4,
+          "self_report_flips": 2,
+          "new_minus_old_metrics": {
+            "J": -0.003780718336483857,
+            "AUROC": -0.00014472504029072741,
+            "ans": -0.001890359168241984,
+            "B": 0.001890359168241984
+          }
+        },
+        "tune_192": {
+          "max_abs_ptrue_change": 0.31757447636931,
+          "tf_label_flips": 1,
+          "self_report_flips": 0,
+          "new_minus_old_metrics": {
+            "J": -0.005208333333333259,
+            "AUROC": -6.781684027779011e-05,
+            "ans": 0.0,
+            "B": 0.002604166666666685
+          }
+        },
+        "test_337": {
+          "max_abs_ptrue_change": 0.25539797538973685,
+          "tf_label_flips": 3,
+          "self_report_flips": 2,
+          "new_minus_old_metrics": {
+            "J": -0.002967359050445151,
+            "AUROC": -0.00017170178481806797,
+            "ans": -0.0029673590504450953,
+            "B": 0.0014836795252225476
+          }
+        },
+        "largest_ptrue_changes": [
+          {
+            "id": "tqa:439:F",
+            "label": false,
+            "old_ptrue": 0.4999999993379447,
+            "new_ptrue": 0.8175744757072547,
+            "in_new_tune": true
+          },
+          {
+            "id": "tqa:244:F",
+            "label": false,
+            "old_ptrue": 0.5621764999331299,
+            "new_ptrue": 0.8175744753228668,
+            "in_new_tune": false
+          },
+          {
+            "id": "tqa:85:F",
+            "label": false,
+            "old_ptrue": 0.18242552293719344,
+            "new_ptrue": 0.4378234980420462,
+            "in_new_tune": true
+          },
+          {
+            "id": "tqa:597:F",
+            "label": false,
+            "old_ptrue": 0.43782349508345786,
+            "new_ptrue": 0.2689414177496935,
+            "in_new_tune": false
+          },
+          {
+            "id": "tqa:663:F",
+            "label": false,
+            "old_ptrue": 0.1824255233433699,
+            "new_ptrue": 0.32082129993767156,
+            "in_new_tune": false
+          }
+        ]
+      },
+      "fixed_config_decomposition": {
+        "DAS": {
+          "old_choice": "E_L18_a3",
+          "new_choice": "E_L18_a3",
+          "total_delta_J_change": 0.008902077151335341,
+          "change_at_fixed_new_choice": 0.008902077151335341,
+          "choice_change_at_old_direction": 0.0
+        },
+        "MD": {
+          "old_choice": "E_L31_a3",
+          "new_choice": "E_L35_a2",
+          "total_delta_J_change": 0.005934718100890246,
+          "change_at_fixed_new_choice": 0.008902077151335341,
+          "choice_change_at_old_direction": -0.0029673590504450953
+        }
+      }
+    }
+  }
+}

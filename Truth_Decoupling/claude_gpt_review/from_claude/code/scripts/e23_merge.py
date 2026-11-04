@@ -14,7 +14,7 @@ import argparse, json, os, re, sys
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from core.metrics import auroc  # Share the sweep's tie-aware implementation.
+from core.metrics import auroc, sel_key  # Share the sweep's tie-aware AUROC and exact-count selection key.
 
 E_LEAK, C_J, C_B = 0.03, 0.02, 0.05          # the pre-declared rule
 
@@ -94,18 +94,31 @@ def main():
         return conds[name][h][k] - conds["baseline"][h][k]
 
     # ---- selection on the tuning set (A), oracle on the test set (B) ----------- #
-    E = sorted(n for n in conds if n.startswith("E_"))
+    # Review round 14 (2026-11-04): conditions are ordered numerically (layer centre, then alpha; a string sort put L10 before
+    # L2), ties are compared on exact integer counts (core.metrics.sel_key), and an E rule with no feasible condition
+    # returns None instead of a candidate that violates the answer-rate constraint.
+    def alpha_of(name):
+        m = re.search(r"_a([0-9.]+)$", name)
+        return float(m.group(1)) if m else float("nan")
+
+    def sweep_order(name):   # the sweep records single-layer conditions first (layer, alpha ascending), then the multi-layer spans
+        return (len(layers_of(name)) > 1, centre(name), alpha_of(name), name)
+    E = sorted((n for n in conds if n.startswith("E_")), key=sweep_order)
     cp = args.c_prefix + "_"
-    Cab = sorted(n for n in conds if n.startswith(cp) and "_abst_" in n)
-    Can = sorted(n for n in conds if n.startswith(cp) and "_ans_" in n)
+    Cab = sorted((n for n in conds if n.startswith(cp) and "_abst_" in n), key=sweep_order)
+    Can = sorted((n for n in conds if n.startswith(cp) and "_ans_" in n), key=sweep_order)
+    ys = {"A": lab.astype(bool)[tune], "B": lab.astype(bool)[test]}
+
+    def scale_J(h):
+        return int(ys[h].sum()) * int((~ys[h]).sum())
 
     def pick_E(h):
-        ok = [n for n in E if abs(delta(n, h, "ans")) <= E_LEAK]
-        return (max(ok, key=lambda n: delta(n, h, "J")), True) if ok else (max(E, key=lambda n: delta(n, h, "J")), False)
+        ok = [n for n in E if abs(delta(n, h, "ans")) <= E_LEAK + 1e-12]
+        return (max(ok, key=lambda n: sel_key(delta(n, h, "J"), scale_J(h))), True) if ok else (None, False)
 
     def pick_C(h, names, sign):
-        ok = [n for n in names if abs(delta(n, h, "J")) <= C_J and abs(delta(n, h, "B")) <= C_B and sign * delta(n, h, "ans") > 0]
-        return max(ok, key=lambda n: sign * delta(n, h, "ans")) if ok else None
+        ok = [n for n in names if abs(delta(n, h, "J")) <= C_J + 1e-12 and abs(delta(n, h, "B")) <= C_B + 1e-12 and sign * delta(n, h, "ans") > 0]
+        return max(ok, key=lambda n: sel_key(sign * delta(n, h, "ans"), int(len(ys[h])))) if ok else None
 
     # ---- pair bootstrap on the test set ---------------------------------------- #
     rng = np.random.default_rng(args.seed)
@@ -123,13 +136,16 @@ def main():
         return out
 
     sel = {}
+    e_ch, e_or, e_ok = None, None, False
     if E:
         e_ch, e_ok = pick_E("A"); e_or, _ = pick_E("B")
+    if e_ch is not None:
         sel["E"] = {"chosen": e_ch, "feasible": e_ok, "oracle": e_or, "test": {k: delta(e_ch, "B", k) for k in ("ans", "J", "AUROC", "B")}, "ci": ci(e_ch),
-                    "oracle_test": {k: delta(e_or, "B", k) for k in ("ans", "J", "AUROC", "B")}, "layer_error": abs(centre(e_ch) - centre(e_or))}
-    else:
-        e_ch = None
-        sel["E"] = {"chosen": None, "oracle": None, "test": None, "ci": None, "oracle_test": None, "layer_error": float("nan")}
+                    "oracle_test": {k: delta(e_or, "B", k) for k in ("ans", "J", "AUROC", "B")} if e_or else None,
+                    "layer_error": abs(centre(e_ch) - centre(e_or)) if e_or else float("nan")}
+    else:   # no E conditions, or none within the answer-rate constraint: report none, never a violating fallback
+        sel["E"] = {"chosen": None, "feasible": False, "oracle": e_or, "test": None, "ci": None,
+                    "oracle_test": {k: delta(e_or, "B", k) for k in ("ans", "J", "AUROC", "B")} if e_or else None, "layer_error": float("nan")}
     for key, names, sign in (("C_abst", Cab, -1), ("C_ans", Can, 1)):
         ch, orc = pick_C("A", names, sign), pick_C("B", names, sign)
         sel[key] = {"chosen": ch, "oracle": orc,
@@ -176,16 +192,18 @@ def main():
         s = sel[key]
         if s["chosen"]:
             t, c = s["test"], s["ci"]
-            L.append("| %s | %s%s | %s | %s | %s | %s | %s (%+.3f ans, %+.3f J) | %.1f |" % (
-                key, s["chosen"], "" if s.get("feasible", True) else " (no candidate within the leak limit)", fmt(t["ans"], c["ans"]), fmt(t["J"], c["J"]), fmt(t["AUROC"], c["AUROC"]), fmt(t["B"], c["B"]),
-                s["oracle"], s["oracle_test"]["ans"], s["oracle_test"]["J"], s["layer_error"]))
+            L.append("| %s | %s | %s | %s | %s | %s | %s | %s |" % (
+                key, s["chosen"], fmt(t["ans"], c["ans"]), fmt(t["J"], c["J"]), fmt(t["AUROC"], c["AUROC"]), fmt(t["B"], c["B"]),
+                ("%s (%+.3f ans, %+.3f J)" % (s["oracle"], s["oracle_test"]["ans"], s["oracle_test"]["J"])) if s["oracle"] else "none feasible",
+                ("%.1f" % s["layer_error"]) if s["oracle"] else ""))
         else:
-            L.append("| %s | none feasible | | | | | %s | |" % (key, s["oracle"]))
+            L.append("| %s | none feasible | | | | | %s | |" % (key, s["oracle"] or "none feasible"))
     if la_cmp:
         L += ["", "## LA-Score (the original plan's training-free layer score) vs measured effect", "",
               "| quantity | value |", "|---|---|",
               "| LA-Score E write layer W* / read layer R* | %s / %s |" % (la_cmp["E_write_layer"], la_cmp["E_read_layer"]),
-              "| effect-selected E (centre layer) | %s (%.1f) |" % (e_ch, la_cmp["E_chosen_centre"]) if e_ch else "| effect-selected E | (no E conditions in this run) |",
+              "| effect-selected E (centre layer) | %s (%.1f) |" % (e_ch, la_cmp["E_chosen_centre"]) if e_ch else
+              "| effect-selected E | (%s) |" % ("no E condition within the answer-rate limit" if E else "no E conditions in this run"),
               "| LA-Score C write layer | %s |" % la_cmp["C_write_layer"],
               "| effect-selected C toward abstention (centre layer) | %s (%.1f) |" % (sel["C_abst"]["chosen"], la_cmp["C_abst_chosen_centre"]),
               "| Spearman rho: S_E(l) vs dJ(E, a3) over layers | %.2f |" % la_cmp["rho_S_E_vs_dJ"],

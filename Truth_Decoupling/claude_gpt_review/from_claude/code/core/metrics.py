@@ -233,6 +233,22 @@ def sign_invariant_auroc(scores, labels):
     return max(a, 1 - a) if not math.isnan(a) else a
 
 
+def sel_key(delta, scale=None):
+    """Comparison key for the pre-declared selection rules ("max dJ / max |d ans|, ties -> first in sweep order").
+
+    On a fixed evaluation split J = TP/n_pos - FP/n_neg is an exact multiple of 1/(n_pos*n_neg) and a rate (answer rate,
+    B) an exact multiple of 1/n_items, so a difference of two such values times `scale` (n_pos*n_neg for J, n_items for a
+    rate) is an integer. Rounding to that integer makes mathematically equal values compare equal, and Python's max()
+    then keeps the FIRST maximal condition in sweep order, as every selection rule in this repository states. Comparing
+    the raw floats did not: Qwen3-8B, mean-difference E, 288-pair estimation set, L34 a3 and L35 a2 were both 298/384
+    correct on the tuning pairs, their float dJ differed by 1.1e-16 and the later condition won (GPT review round 13,
+    2026-11-04). Without `scale` the value is rounded to 9 decimals, far below the smallest genuine step on any split
+    used here (1/529^2 = 3.6e-6) and far above float noise.
+    """
+    x = float(delta)
+    return int(round(x * scale)) if scale else round(x, 9)
+
+
 def ece(confidences, correct, n_bins=10):
     confidences, correct = np.asarray(confidences, dtype=float), np.asarray(correct, dtype=float)
     bins = np.linspace(0, 1, n_bins + 1)

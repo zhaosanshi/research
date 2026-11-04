@@ -140,6 +140,9 @@ def main():
             tag, l, rank, variant = m.group(1), int(m.group(2)), int(m.group(3)), m.group(5) or ""
             if l not in layers or (tag, l, rank, variant) in seen:
                 continue
+            if rank != 1:   # the rank-1 loader refuses higher-rank checkpoints (review round 14, D2); this diagnostic reads single directions only
+                print("skip rank-%d checkpoint %s (this diagnostic reads rank-1 directions only)" % (rank, os.path.basename(f)), flush=True)
+                continue
             seen.add((tag, l, rank, variant))
             ref = unit(z["%s_L%d" % (tag, l)]) if ("%s_L%d" % (tag, l)) in z.files else None
             w, meta = load_das_direction(args.das_dir, tag, l, variant=variant, align_to=ref, rank=rank)

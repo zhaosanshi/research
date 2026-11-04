@@ -1,0 +1,44 @@
+tune set: 50 pairs (100 statements); remaining test: 300 statements
+directions from 192 statements (calib+dev); selection set for --plan-split = dev 128 statements
+W1104 12:47:06.584000 213 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1104 12:47:06.775000 213 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00, 381.01it/s]
+estimation set: 192 statements; model says Yes on 114 of them (self-report direction)
+L11  DAS: 1 seed(s), final loss ['0.7576'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.672
+L11  gap_Cprompt 1.43 cos(Cp,E) +0.088 | gap_Cself 0.33 cos(Cs,E) +0.184
+L12  DAS: 1 seed(s), final loss ['0.5898'], cos(seed, mean) ['1.000'], cos(DAS, meandiff) +0.673
+L12  gap_Cprompt 1.60 cos(Cp,E) +0.058 | gap_Cself 0.67 cos(Cs,E) +0.398
+21 conditions
+  baseline           ans 0.685 (+0.000) | J +0.400 (+0.000) | AUROC 0.773 (+0.000) | B 0.425 (+0.000)  (27s)
+  E_L11_a2           ans 0.670 (-0.015) | J +0.440 (+0.040) | AUROC 0.794 (+0.021) | B 0.435 (+0.010)  (41s)
+  E_L11_a3           ans 0.670 (-0.015) | J +0.450 (+0.050) | AUROC 0.799 (+0.026) | B 0.435 (+0.010)  (54s)
+  Cp_L11_abst_a1     ans 0.690 (+0.005) | J +0.385 (-0.015) | AUROC 0.773 (+0.000) | B 0.427 (+0.003)  (68s)
+  Cs_L11_abst_a1     ans 0.685 (+0.000) | J +0.390 (-0.010) | AUROC 0.774 (+0.002) | B 0.430 (+0.005)  (81s)
+  Cp_L11_ans_a1      ans 0.650 (-0.035) | J +0.390 (-0.010) | AUROC 0.771 (-0.001) | B 0.425 (+0.000)  (95s)
+  Cs_L11_ans_a1      ans 0.685 (+0.000) | J +0.395 (-0.005) | AUROC 0.771 (-0.001) | B 0.427 (+0.003)  (108s)
+  Cp_L11_abst_a2     ans 0.715 (+0.030) | J +0.370 (-0.030) | AUROC 0.770 (-0.002) | B 0.435 (+0.010)  (122s)
+  Cs_L11_abst_a2     ans 0.680 (-0.005) | J +0.385 (-0.015) | AUROC 0.776 (+0.003) | B 0.432 (+0.008)  (135s)
+  Cp_L11_ans_a2      ans 0.585 (-0.100) | J +0.370 (-0.030) | AUROC 0.768 (-0.004) | B 0.415 (-0.010)  (149s)
+  Cs_L11_ans_a2      ans 0.685 (+0.000) | J +0.395 (-0.005) | AUROC 0.770 (-0.002) | B 0.422 (-0.003)  (162s)
+  E_L12_a2           ans 0.675 (-0.010) | J +0.425 (+0.025) | AUROC 0.798 (+0.026) | B 0.448 (+0.023)  (176s)
+  E_L12_a3           ans 0.670 (-0.015) | J +0.455 (+0.055) | AUROC 0.803 (+0.030) | B 0.453 (+0.028)  (189s)
+  Cp_L12_abst_a1     ans 0.680 (-0.005) | J +0.390 (-0.010) | AUROC 0.775 (+0.002) | B 0.425 (+0.000)  (203s)
+  Cs_L12_abst_a1     ans 0.695 (+0.010) | J +0.410 (+0.010) | AUROC 0.776 (+0.004) | B 0.465 (+0.040)  (216s)
+  Cp_L12_ans_a1      ans 0.685 (+0.000) | J +0.395 (-0.005) | AUROC 0.770 (-0.003) | B 0.443 (+0.018)  (230s)
+  Cs_L12_ans_a1      ans 0.645 (-0.040) | J +0.375 (-0.025) | AUROC 0.768 (-0.005) | B 0.403 (-0.022)  (243s)
+  Cp_L12_abst_a2     ans 0.720 (+0.035) | J +0.370 (-0.030) | AUROC 0.775 (+0.002) | B 0.425 (+0.000)  (257s)
+  Cs_L12_abst_a2     ans 0.725 (+0.040) | J +0.460 (+0.060) | AUROC 0.776 (+0.004) | B 0.550 (+0.125)  (270s)
+  Cp_L12_ans_a2      ans 0.675 (-0.010) | J +0.390 (-0.010) | AUROC 0.765 (-0.008) | B 0.465 (+0.040)  (284s)
+  Cs_L12_ans_a2      ans 0.585 (-0.100) | J +0.340 (-0.060) | AUROC 0.760 (-0.013) | B 0.365 (-0.060)  (297s)
+# E23 knob sweep, llama3.1-8b (n=400; layers [11, 12]; wording pik; E estimator das variant=tf dir=/workspace/Truth_Decoupling/results_das_tf/E1/llama3.1-8b; estimation set 192 statements)
+
+Selection on tune set (50 pairs) (E: max dJ s.t. |d ans| <= 0.03; C: max |d ans| s.t. |dJ| <= 0.02, |dB| <= 0.05), reported on remaining test (150 pairs).
+
+| knob | chosen | feasible on A | remaining test (150 pairs): d ans | d J | d AUROC | d B |
+|---|---|---|---|---|---|---|
+| E | E_L11_a3 | 4 | -0.013 | +0.033 | +0.021 | +0.003 |
+| Cp_abst | Cp_L12_abst_a1 | 1 | +0.000 | -0.007 | +0.001 | +0.003 |
+| Cp_ans | Cp_L12_ans_a2 | 1 | -0.020 | -0.013 | -0.008 | +0.047 |
+| Cs_abst | Cs_L11_abst_a2 | 1 | +0.000 | -0.013 | +0.002 | +0.007 |
+| Cs_ans | none feasible | 0 | | | | |
+
