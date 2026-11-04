@@ -1,0 +1,184 @@
+{
+  "reviewed_commit": "d267f7a4507ce9f8a6aba13552db4b0b58dae438",
+  "base_commit": "6d0547c02fb95cc44354446f3425cb9a0064147c",
+  "commits": [
+    {
+      "sha": "2de4823e80afbf9fcdf304a2c4122473b5773edf",
+      "message": "Reply to GPT rounds 13-14: every verifiable claim reproduced (float tie-break bug in six selection scripts, Qwen MD-288 L35->L34 and the 288-pair DAS J advantage now [0, +0.065]; DAS loader defects D1-D5; literature errata RAVEL/ReFT/ITI/Knob; four errors in 06; check-script gaps; 7/19 no-comment pairs); new measurement: baseline drift is bf16 output quantisation (Qwen margins all on a 0.25-nat grid, Llama half on 0.125) = the real magnitude behind M5; fixes: exact-integer selection key in e23_knob_sweep/compare/2x2/read_write/est_size/merge with None when nothing is feasible and a hard fail for DAS under --plan-split, loader D1-D5 + teacher cache keyed by T (single-seed path bitwise unchanged), review checks with exit codes and full mask coverage plus chk_das_loader; corrected est-size reports kept beside the originals; docs 01/05/06/summary corrected; 07 = verification, done list, three reservations (Gemma per the owner, route A v1 lacks an interchange-vs-amplify control, M5 as a pre-registered fp32 readout), seven unanswered questions, six-step division of labour; code written by Claude, red-teamed, awaiting GPT review"
+    },
+    {
+      "sha": "86e72900abb61a0418a239468fb707edd68a2719",
+      "message": "Owner decisions on the round 13-14 reply (07 section 6-7): route A v1 qa_das_ptrue_ce_bidir_v1 approved for GPT to implement; Gemma enters the main line (reservation withdrawn; 4B proposed as third model, 12B diagnostics kept as failure analysis, GPT to confirm); the tie-corrected Qwen result is read as positive for the paper (96 pairs already show the DAS advantage, more data adds nothing: data efficiency), recorded verbatim in 01, 06 and the round-5 summary with the evidence stated unchanged; the real-answer-rate constraint explained and awaiting one-word confirmation; GPT asked to neutralise three wordings in review_20261104_13 and to review claims, logic and code together next round"
+    },
+    {
+      "sha": "d267f7a4507ce9f8a6aba13552db4b0b58dae438",
+      "message": "Owner decisions, part 2: the real-answer-rate constraint for E is adopted (self-report Yes/No kept as a diagnostic; GPT to fix the measurement, budget and report template in v1); the request to neutralise three wordings in review_20261104_13 is withdrawn: the repository rule is that the advisor's name must never appear, the word itself is fine"
+    }
+  ],
+  "changed_files": [
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/01_来龙去脉_E方向估计器_DAS与均值差.md",
+      "status": "modified"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/05_给GPT_顶会做法_问答上下文DAS与开场白.md",
+      "status": "modified"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/06_探索方法总清单_给GPT统一看.md",
+      "status": "modified"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/07_回复GPT第13_14轮_核验_照做与催答.md",
+      "status": "added"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/README.md",
+      "status": "modified"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/code/core/directions.py",
+      "status": "modified"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/code/core/metrics.py",
+      "status": "modified"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/diag_direction_unembed.py",
+      "status": "modified"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e23_compare_estimators.py",
+      "status": "modified"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e23_knob_sweep.py",
+      "status": "modified"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e23_merge.py",
+      "status": "modified"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/report_2x2.py",
+      "status": "modified"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/report_est_size.py",
+      "status": "modified"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/report_read_write_layers.py",
+      "status": "modified"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/review_checks/chk_das_loader.py",
+      "status": "added"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/review_checks/chk_e25_data_tokens.py",
+      "status": "modified"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/review_checks/chk_intervene_regress.py",
+      "status": "modified"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/review_checks/run_all.sh",
+      "status": "modified"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/估计集扩样_96vs288对/并列修正后/est_size_llama3.1-8b.log",
+      "status": "added"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/估计集扩样_96vs288对/并列修正后/est_size_qwen3-8b.log",
+      "status": "added"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/估计集扩样_96vs288对/并列修正后/llama3.1-8b_est_size.json",
+      "status": "added"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/估计集扩样_96vs288对/并列修正后/llama3.1-8b_est_size.md",
+      "status": "added"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/估计集扩样_96vs288对/并列修正后/qwen3-8b_est_size.json",
+      "status": "added"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/估计集扩样_96vs288对/并列修正后/qwen3-8b_est_size.md",
+      "status": "added"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第12轮E专审_核验/das_loader.json",
+      "status": "added"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第12轮E专审_核验/das_loader.log",
+      "status": "added"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第12轮E专审_核验/e25_data_tokens.json",
+      "status": "modified"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第12轮E专审_核验/e25_data_tokens.log",
+      "status": "added"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第12轮E专审_核验/est_size_recompute.json",
+      "status": "added"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第12轮E专审_核验/est_size_recompute.log",
+      "status": "added"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第12轮E专审_核验/gpt_tests.log",
+      "status": "modified"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第12轮E专审_核验/intervene_regress.json",
+      "status": "modified"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第12轮E专审_核验/intervene_regress.log",
+      "status": "added"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第12轮E专审_核验/round14_smoke_sel/driver.log",
+      "status": "added"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第12轮E专审_核验/round14_smoke_sel/knob_sweep_smoke_sel.json",
+      "status": "added"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第12轮E专审_核验/round14_smoke_sel/knob_sweep_smoke_sel.md",
+      "status": "added"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第12轮E专审_核验/round14_smoke_sel/smoke_sel.log",
+      "status": "added"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第12轮E专审_核验/run_all.log",
+      "status": "modified"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第12轮E专审_核验/training_checks_claude.json",
+      "status": "added"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第12轮E专审_核验/training_checks_claude.log",
+      "status": "added"
+    },
+    {
+      "path": "Truth_Decoupling/claude_gpt_review/from_claude/results/01_E估计器/第5轮_窗口_C行_Gemma定位/汇总.md",
+      "status": "modified"
+    }
+  ]
+}

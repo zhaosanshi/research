@@ -1,0 +1,148 @@
+{
+  "missing_first_key_hides_anchor_conflict": {
+    "accepted": true,
+    "W": [
+      1.0,
+      0.0
+    ],
+    "gap": 1.0,
+    "protocol": {
+      "loss_kind": "kl",
+      "positions": "last",
+      "rank": 1,
+      "n_pairs": 96,
+      "T": 2,
+      "bidirectional": false,
+      "epochs": 10,
+      "lr": 0.001,
+      "trim": 0.0,
+      "weighted": false
+    }
+  },
+  "full_protocol_conflict_rejected": {
+    "accepted": false,
+    "type": "ValueError",
+    "message": "DAS seeds das_E_L0_r1_s42.pt and das_E_L0_r1_s43.pt record different training protocols (anchor: 'prompt' vs 'current'); refusing to merge them"
+  },
+  "different_models_and_data_accepted": {
+    "accepted": true,
+    "W": [
+      1.0,
+      0.0
+    ],
+    "gap": 1.0,
+    "protocol": {
+      "anchor": "prompt",
+      "loss_kind": "kl",
+      "positions": "last",
+      "rank": 1,
+      "n_pairs": 96,
+      "T": 2,
+      "bidirectional": false,
+      "epochs": 10,
+      "lr": 0.001,
+      "trim": 0.0,
+      "weighted": false
+    }
+  },
+  "nan_direction_accepted": {
+    "accepted": true,
+    "W": [
+      "nan",
+      "nan"
+    ],
+    "gap": "nan",
+    "protocol": {
+      "anchor": "prompt",
+      "loss_kind": "kl",
+      "positions": "last",
+      "rank": 1,
+      "n_pairs": 96,
+      "T": 2,
+      "bidirectional": false,
+      "epochs": 10,
+      "lr": 0.001,
+      "trim": 0.0,
+      "weighted": false
+    }
+  },
+  "infinite_gap_accepted": {
+    "accepted": true,
+    "W": [
+      1.0,
+      0.0
+    ],
+    "gap": "inf",
+    "protocol": {
+      "anchor": "prompt",
+      "loss_kind": "kl",
+      "positions": "last",
+      "rank": 1,
+      "n_pairs": 96,
+      "T": 2,
+      "bidirectional": false,
+      "epochs": 10,
+      "lr": 0.001,
+      "trim": 0.0,
+      "weighted": false
+    }
+  },
+  "multi_seed_trimmed_gap_not_exact": {
+    "accepted": true,
+    "W": [
+      0.9486832961656495,
+      0.3162277716714309
+    ],
+    "gap": 1.6338434573871612,
+    "protocol": {
+      "anchor": "prompt",
+      "loss_kind": "kl",
+      "positions": "last",
+      "rank": 1,
+      "n_pairs": 96,
+      "T": 2,
+      "bidirectional": false,
+      "epochs": 10,
+      "lr": 0.001,
+      "trim": 0.1,
+      "weighted": false
+    },
+    "per_seed_gaps": [
+      0.875,
+      2.224999993145466
+    ],
+    "actual_trimmed_gap_on_merged_W": 1.8973666135360228,
+    "difference": -0.26352315614886157
+  },
+  "single_seed_compatibility_200": {
+    "cases": 200,
+    "direction_not_bit_equal": 0,
+    "gap_not_bit_equal": 51,
+    "max_gap_absolute_difference": 4.440892098500626e-16
+  },
+  "teacher_cache_identity": {
+    "requests_after_T_change": 6,
+    "base_cache_cleared": true,
+    "requests_after_bidir_restored": 8,
+    "requests_after_source_input_change": 8,
+    "requests_after_model_change": 8,
+    "teacher_T_sequence": [
+      1,
+      1,
+      1,
+      1,
+      2,
+      2,
+      2,
+      2
+    ],
+    "cached_source_after_input_change": [
+      6,
+      7
+    ],
+    "expected_source_after_input_change": [
+      10,
+      11
+    ]
+  }
+}
