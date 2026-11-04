@@ -264,6 +264,15 @@ def teacher_tokens(bundle, source_inputs, T):
     return out[0, source_inputs["input_ids"].shape[1]:]  # [<=T]
 
 
+def _teacher_cache_key(bundle, inputs, T):
+    """Identity of a cached teacher sequence: the T it was generated for, the model object and the exact prompt token ids
+    (review round 14 D4: another T; round 15 §3.5: the same T with another prompt or another model must not reuse the cache).
+    id(model) is unique only among LIVE objects: a caller that releases a model and loads another while keeping the same pair
+    dicts must use fresh pair dicts (the production flow keeps one bundle alive for the whole run)."""
+    ids = inputs["input_ids"]
+    return (int(T), id(getattr(bundle, "model", bundle)), tuple(int(x) for x in ids.reshape(-1).tolist()))
+
+
 def _append_prefix(inputs, prefix_ids):
     import torch
     if prefix_ids.numel() == 0:
@@ -364,19 +373,27 @@ def train_das(bundle, pairs, layer, rank=1, T=8, epochs=10, lr=1e-3, seed=42, cl
     basis = OrthoBasis(bundle.hidden_size, rank, seed=seed, device=bundle.device)
     opt = torch.optim.Adam(basis.parameters(), lr=lr)
 
-    # teacher tokens once per pair (cached on the pair dict, shared across seeds / variants that use the same T). A cache
-    # made for another T is regenerated (review round 14, D4: the metadata said T=3 while the cached teacher had 1 step).
-    # A caller that pre-fills y_src / y_base manages its own cache; the T it was made for is recorded from here on.
+    # Teacher tokens once per pair, cached on the pair dict and shared across seeds / variants. Each cached teacher carries the
+    # identity it was made for (T, model object, exact prompt token ids; _teacher_cache_key) and is regenerated when any of them
+    # differs (review round 14 D4: another T; round 15 §3.5: same T, other prompt or model). A stale SOURCE cache drops both
+    # teachers, so a later bidirectional call cannot pick up a y_base made for the old T. A caller that pre-fills y_src / y_base
+    # without a stamp manages its own cache: the pre-filled teacher is adopted and stamped from here on.
     for p in pairs:
-        stale = p.get("_teacher_T", T) != T
-        if stale:                       # drop BOTH cached teachers, so a later bidirectional call cannot pick up a y_base made for the old T
+        k_src = _teacher_cache_key(bundle, p["source"], T)
+        if p.get("_teacher_key_src", k_src) != k_src:
             p.pop("y_src", None)
             p.pop("y_base", None)
+            p.pop("_teacher_key_base", None)
         if "y_src" not in p:
             p["y_src"] = teacher_tokens(bundle, p["source"], T)
-        if bidirectional and "y_base" not in p:
-            p["y_base"] = teacher_tokens(bundle, p["base"], T)
-        p["_teacher_T"] = T
+        p["_teacher_key_src"] = k_src
+        if bidirectional:
+            k_base = _teacher_cache_key(bundle, p["base"], T)
+            if p.get("_teacher_key_base", k_base) != k_base:
+                p.pop("y_base", None)
+            if "y_base" not in p:
+                p["y_base"] = teacher_tokens(bundle, p["base"], T)
+            p["_teacher_key_base"] = k_base
 
     losses = []
     position_trace = []
@@ -474,6 +491,24 @@ def das_file_name(tag, layer, rank, seed, variant=""):
 
 
 DAS_PROTOCOL_KEYS = ("anchor", "loss_kind", "positions", "rank", "n_pairs", "T", "bidirectional", "epochs", "lr", "trim", "weighted")
+# Fields that legitimately differ between seeds of one training run. Every OTHER stored field (protocol, model / data / template
+# identity, anything else the trainer recorded) must agree before seeds are merged (review round 15 §3.1-3.2). A trainer that
+# stores per-seed bookkeeping (timings, traces) puts it under "per_seed" or in one of these keys.
+DAS_PER_SEED_KEYS = frozenset({"W", "losses", "mean_gap", "gap_std", "seed", "position_trace", "per_seed"})
+
+
+def _plain(v):
+    """torch / numpy values as plain Python, so checkpoint fields can be compared with ==. A non-finite float becomes its string
+    (NaN != NaN would otherwise report a field as conflicting with itself; the string is also JSON-safe)."""
+    if hasattr(v, "tolist"):
+        v = v.tolist()
+    if isinstance(v, dict):
+        return {k: _plain(x) for k, x in v.items()}
+    if isinstance(v, (list, tuple)):
+        return [_plain(x) for x in v]
+    if isinstance(v, float) and not math.isfinite(v):
+        return repr(v)
+    return v
 
 
 def load_das_direction(das_dir, tag, layer, variant="", align_to=None, rank=1, min_seed_cos=0.5):
@@ -485,15 +520,22 @@ def load_das_direction(das_dir, tag, layer, variant="", align_to=None, rank=1, m
     Review round 14 (2026-11-04) fixes:
       D2  rank must be 1. This interface returns ONE direction; taking the first column of a higher-rank basis silently
           dropped trained dimensions. A higher-rank checkpoint needs a subspace loader, not this function.
-      D5  every seed must record the same training protocol (DAS_PROTOCOL_KEYS, compared when both files carry a key).
+      D5  a multi-seed merge needs the full protocol (DAS_PROTOCOL_KEYS) in EVERY file, and every stored field outside
+          DAS_PER_SEED_KEYS must agree with the first file key by key (a key only one side has is a conflict). Round 15
+          §3.1-3.2: comparing the key intersection let a file lacking `anchor` hide a conflict between two other seeds, and
+          model / data identity fields were not compared at all. A single seed loads with whatever fields it has
+          (meta["protocol_complete"] says whether the protocol is fully recorded).
       D1  seeds are sign-aligned to the FIRST seed (a reference inside the subspace), never to an external reference:
           aligning two near-identical seeds to a near-orthogonal `align_to` could cancel them to a zero vector or rotate
           the merge to a direction nearly orthogonal to both. Seeds must agree with the first to |cos| >= min_seed_cos and
           the mean must have norm >= 1e-6, otherwise the function refuses to average them.
-      D3  the merged mean_gap is the mean of the aligned per-seed gaps divided by the norm of the un-normalised mean
-          (exact for untrimmed gaps; the single-seed case is unchanged).
+      D3  the merged mean_gap is the mean of the aligned per-seed gaps divided by the norm of the un-normalised mean; this is
+          exact for untrimmed gaps only, so for several seeds trained with trim > 0 the gap is reported as None
+          (meta["mean_gap_available"] False) instead of a wrong number (round 15 §3.4). One seed returns its stored gap
+          bit for bit (round 15 §4).
+    Round 15 §3.3: directions and gaps must be finite, per file and after the merge; NaN / Inf pass a `norm < eps` test.
     `align_to` (e.g. the mean-difference direction) only chooses the SIGN of the merged direction and gap for display, so
-    true = positive. With one seed the result is identical to the previous implementation.
+    true = positive. With one seed the direction and the gap are identical to the previous implementation.
     """
     import glob
     import os
@@ -504,25 +546,42 @@ def load_das_direction(das_dir, tag, layer, variant="", align_to=None, rank=1, m
     files = sorted(f for f in glob.glob(os.path.join(das_dir, "das_%s_L%d_r%d_s*.pt" % (tag, layer, rank))) if pat.match(os.path.basename(f)))
     if not files:
         return None, None
-    ws, gaps, losses, seeds, n_pairs, protocols = [], [], [], [], [], []
+    ws, gaps, losses, seeds, n_pairs, protocols, fields = [], [], [], [], [], [], []
     for f in files:
+        name = os.path.basename(f)
         res = torch.load(f, map_location="cpu", weights_only=False)
         W = np.asarray(res["W"], dtype=np.float64)
         if W.ndim != 2 or W.shape[1] != 1:
-            raise ValueError("%s holds a basis of shape %s, not a rank-1 direction" % (os.path.basename(f), list(W.shape)))
+            raise ValueError("%s holds a basis of shape %s, not a rank-1 direction" % (name, list(W.shape)))
+        if not np.all(np.isfinite(W)):
+            raise ValueError("%s holds a non-finite direction" % name)
         if np.linalg.norm(W[:, 0]) < 1e-6:
-            raise ValueError("%s holds a zero direction" % os.path.basename(f))
+            raise ValueError("%s holds a zero direction" % name)
+        g = float(np.asarray(res["mean_gap"], dtype=np.float64).reshape(-1)[0])
+        if not math.isfinite(g):
+            raise ValueError("%s records a non-finite mean_gap (%r)" % (name, g))
+        final_loss = float(res["losses"][-1])
+        if not math.isfinite(final_loss):
+            raise ValueError("%s records a non-finite final training loss (%r): the training diverged" % (name, final_loss))
         ws.append(unit(W[:, 0]))
-        gaps.append(float(res["mean_gap"][0]))
-        losses.append(float(res["losses"][-1]))
+        gaps.append(g)
+        losses.append(final_loss)
         seeds.append(int(res.get("seed", -1)))
         n_pairs.append(int(res.get("n_pairs", -1)))
-        protocols.append({k: res[k] for k in DAS_PROTOCOL_KEYS if k in res})
-    for f, p in zip(files[1:], protocols[1:]):
-        for k in sorted(set(p) & set(protocols[0])):
-            if p[k] != protocols[0][k]:
-                raise ValueError("DAS seeds %s and %s record different training protocols (%s: %r vs %r); refusing to merge them"
-                                 % (os.path.basename(files[0]), os.path.basename(f), k, protocols[0][k], p[k]))
+        protocols.append({k: _plain(res[k]) for k in DAS_PROTOCOL_KEYS if k in res})
+        fields.append({k: _plain(v) for k, v in res.items() if k not in DAS_PER_SEED_KEYS})
+    protocol_complete = all(k in protocols[0] for k in DAS_PROTOCOL_KEYS)
+    if len(files) > 1:                                                      # D5: full protocol in every file, then every field key by key
+        for f, p in zip(files, protocols):
+            missing = [k for k in DAS_PROTOCOL_KEYS if k not in p]
+            if missing:
+                raise ValueError("%s lacks the protocol fields %s; a multi-seed merge with an unverified protocol is refused "
+                                 "(load that seed alone, or retrain with the fields recorded)" % (os.path.basename(f), missing))
+        for f, fl in zip(files[1:], fields[1:]):
+            for k in sorted(set(fl) | set(fields[0])):
+                if k not in fl or k not in fields[0] or fl[k] != fields[0][k]:
+                    raise ValueError("DAS seeds %s and %s differ in %s (%r vs %r); refusing to merge them"
+                                     % (os.path.basename(files[0]), os.path.basename(f), k, fields[0].get(k, "<missing>"), fl.get(k, "<missing>")))
     signs = [1.0 if float(np.dot(w, ws[0])) >= 0 else -1.0 for w in ws]          # D1: align to the first seed, inside the subspace
     aligned = [s * w for s, w in zip(signs, ws)]
     cos_first = [float(np.dot(a, aligned[0])) for a in aligned]
@@ -534,16 +593,32 @@ def load_das_direction(das_dir, tag, layer, variant="", align_to=None, rank=1, m
     if norm < 1e-6:
         raise ValueError("DAS seeds at %s L%d average to a zero vector" % (tag, layer))
     w_mean = mean_vec / norm
-    gap = float(np.mean([s * g for s, g in zip(signs, gaps)])) / norm        # D3: the gap along the merged unit direction
+    if not np.all(np.isfinite(w_mean)):
+        raise ValueError("DAS seeds at %s L%d merge to a non-finite direction" % (tag, layer))
+    trim = float(protocols[0].get("trim", 0.0) or 0.0)
+    if len(ws) == 1:
+        gap = signs[0] * gaps[0]                                            # one seed: the stored gap, bit for bit
+        gap_note = "single seed: the stored mean_gap"
+    elif trim > 0:
+        gap = None                                                          # D3 (round 15 §3.4): trimming is not linear
+        gap_note = ("unavailable: %d seeds trained with trim=%g; per-seed trimmed gaps cannot be projected onto the merged "
+                    "direction, recompute the trimmed gap from activations along it" % (len(ws), trim))
+    else:
+        gap = float(np.mean([s * g for s, g in zip(signs, gaps)])) / norm    # D3: the gap along the merged unit direction (exact: untrimmed)
+        gap_note = "mean of aligned per-seed gaps / norm of the un-normalised mean (exact for untrimmed gaps)"
+    if gap is not None and not math.isfinite(gap):
+        raise ValueError("DAS seeds at %s L%d merge to a non-finite mean_gap" % (tag, layer))
     flip = 1.0
     if align_to is not None:                                                # display sign only: true = positive
         flip = 1.0 if float(np.dot(w_mean, unit(align_to))) >= 0 else -1.0
-        w_mean, gap = flip * w_mean, flip * gap
+        w_mean = flip * w_mean
+        gap = flip * gap if gap is not None else None
     meta = {"n_seeds": len(ws), "seeds": seeds, "final_losses": losses, "n_pairs": n_pairs, "mean_gap": gap,
+            "mean_gap_available": gap is not None, "mean_gap_note": gap_note,
             "cos_seed_vs_mean": [float(np.dot(flip * a, w_mean)) for a in aligned],
             "cos_with_align_to": float(np.dot(w_mean, unit(align_to))) if align_to is not None else None,
-            "protocol": protocols[0],
+            "protocol": protocols[0], "protocol_complete": protocol_complete,
             "merge": "seeds sign-aligned to the first seed, averaged, renormalised; align_to sets the final sign only; "
-                     "mean_gap = mean of aligned per-seed gaps / norm of the un-normalised mean",
+                     "all non-per-seed checkpoint fields must agree; mean_gap: see mean_gap_note",
             "files": [os.path.basename(f) for f in files]}
     return w_mean, meta

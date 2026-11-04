@@ -1,0 +1,14 @@
+{
+  "name": "qwen3-8b",
+  "family": "qwen3",
+  "path": "${TD_MODEL_ROOT:-/workspace/Truth_Decoupling/models}/Qwen3-8B",
+  "modelscope_repo": "Qwen/Qwen3-8B",
+  "hidden_size": 4096,
+  "num_layers": 36,
+  "dtype": "bfloat16",
+  "device": "cuda",
+  "layers_attr": "model.layers",
+  "attn_attr": "self_attn",
+  "chat": {"supports_system": true, "thinking_stub": "<think>\n\n</think>\n\n"},
+  "notes": "v12 peak layer for JSON->prose DAS was L23 (66.7% depth). Thinking stub matches v12 build_input_v3."
+}

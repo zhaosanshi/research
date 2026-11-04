@@ -1,0 +1,14 @@
+{
+  "name": "gemma3-4b",
+  "family": "gemma3",
+  "path": "${TD_MODEL_ROOT:-/workspace/Truth_Decoupling/models}/gemma-3-4b-it",
+  "modelscope_repo": "google/gemma-3-4b-it",
+  "hidden_size": 2560,
+  "num_layers": 34,
+  "dtype": "bfloat16",
+  "device": "cuda",
+  "layers_attr": "model.language_model.layers",
+  "attn_attr": "self_attn",
+  "chat": {"supports_system": true, "thinking_stub": ""},
+  "notes": "Gemma3ForConditionalGeneration (vision tower loaded but unused); LM sizes live in config.text_config. Chat template folds the system prompt into the first user turn."
+}

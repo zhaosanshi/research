@@ -14,20 +14,27 @@ import argparse, json, os, re, sys
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from core.metrics import auroc, sel_key  # Share the sweep's tie-aware AUROC and exact-count selection key.
+from core.metrics import auroc, sel_key, spearman_rho  # Share the sweep's tie-aware AUROC, exact-count selection key and tie-aware Spearman.
 
 E_LEAK, C_J, C_B = 0.03, 0.02, 0.05          # the pre-declared rule
+# Fields that identify ONE sweep; chunks whose values differ are not pieces of the same run (review round 15 §2.2).
+IDENTITY_KEYS = ("model", "n", "n_est", "num_layers", "tune_pairs", "teacher_split", "est_extra_pairs", "est_extra_ids", "wording",
+                 "direction_prompt_allow_idk", "e_alphas", "e_estimator")
 
 
 def spearman(x, y):
+    """Tie-aware Spearman rho over the finite pairs (core.metrics.spearman_rho: average ranks, NaN for a constant input).
+    Review round 15 §2.2: the previous double-argsort forced an order onto ties and gave rho = 1 for a constant input."""
     x, y = np.asarray(x, float), np.asarray(y, float)
     m = np.isfinite(x) & np.isfinite(y)
-    if m.sum() < 3:
-        return float("nan")
-    rx = np.argsort(np.argsort(x[m])); ry = np.argsort(np.argsort(y[m]))
-    rx = rx - rx.mean(); ry = ry - ry.mean()
-    d = np.sqrt((rx ** 2).sum() * (ry ** 2).sum())
-    return float((rx * ry).sum() / d) if d > 0 else float("nan")
+    return spearman_rho(x[m], y[m]) if m.sum() >= 3 else float("nan")
+
+
+def run_identity(j):
+    das = j.get("das")
+    if isinstance(das, dict):   # the DAS source directory is compared as a normalised path, so "a/b/" and "a//b" are the same source
+        das = {"dir": os.path.normpath(str(das["dir"])) if das.get("dir") is not None else None, "variant": das.get("variant")}
+    return dict({k: j.get(k) for k in IDENTITY_KEYS}, das=das)
 
 
 def layers_of(name):
@@ -63,26 +70,42 @@ def main():
     d = os.path.join(args.root, "results_tqa", "E23", args.model)
 
     # ---- load and check chunks ------------------------------------------------ #
+    # Review round 15 (§2.2): chunks must be pieces of ONE sweep. Besides the item order and the tuning split, every chunk's labels,
+    # run identity (model, estimator, wording, pool sizes, DAS source) and PER-ITEM baseline (answers, predictions, probabilities)
+    # must equal the first chunk's -- equal aggregate baseline scores do not imply equal per-item baselines, and the per-item
+    # baseline is what the paired bootstrap resamples. A conflict refuses the merge; the first chunk's baseline is the one kept.
     conds, per, ids, lab, half_a = {}, {}, None, None, None
-    base_check = None
+    first_tag, base_check, ident0 = None, None, None
     for t in args.tags:
         j = json.load(open(os.path.join(d, "knob_sweep_%s.json" % t)))
         z = np.load(os.path.join(d, "knob_sweep_%s.npz" % t), allow_pickle=True)
+        ident = run_identity(j)
+        b = j["conds"]["baseline"]
+        bA_, bP_ = z["baseline__answer"].astype(bool), z["baseline__ptrue"].astype(float)
         if ids is None:
-            ids, lab, half_a = z["ids"], z["labels"], z["half_a"]
+            ids, lab, half_a = z["ids"], z["labels"].astype(bool), z["half_a"]
+            first_tag, base_check, ident0 = t, b, ident
+            conds["baseline"], per["baseline"] = b, (bA_, bP_)
         else:
             if not (np.array_equal(ids, z["ids"]) and np.array_equal(half_a, z["half_a"])):
-                raise SystemExit("chunk %s has a different item order or tuning split; refusing to merge" % t)
-        b = j["conds"]["baseline"]
-        if base_check is None:
-            base_check = b
-        else:
+                raise SystemExit("chunk %s has a different item order or tuning split than %s; refusing to merge" % (t, first_tag))
+            if not np.array_equal(lab, z["labels"].astype(bool)):
+                raise SystemExit("chunk %s has different labels than %s; refusing to merge" % (t, first_tag))
+            for k in ident:
+                if ident[k] != ident0[k]:
+                    raise SystemExit("chunk %s is not the same run as %s (%s: %r vs %r); refusing to merge" % (t, first_tag, k, ident0[k], ident[k]))
             for h in ("A", "B"):
                 for k in ("ans", "J", "B"):
                     if abs(b[h][k] - base_check[h][k]) > 1e-6:
                         raise SystemExit("baseline differs between chunks (%s %s): %.4f vs %.4f" % (h, k, b[h][k], base_check[h][k]))
+            bA0, bP0 = per["baseline"]
+            if not (np.array_equal(bA0, bA_) and np.array_equal(bP0 > 0.5, bP_ > 0.5) and np.allclose(bP0, bP_, rtol=0, atol=1e-6)):
+                raise SystemExit("chunk %s records a different per-item baseline than %s (%d answers, %d predictions, %d probabilities differ); refusing to merge"
+                                 % (t, first_tag, int((bA0 != bA_).sum()), int(((bP0 > 0.5) != (bP_ > 0.5)).sum()), int((np.abs(bP0 - bP_) > 1e-6).sum())))
         for name, m in j["conds"].items():
-            if name in conds and name != "baseline":
+            if name == "baseline":
+                continue                                   # the first chunk's baseline stays, aggregate and per item
+            if name in conds:
                 raise SystemExit("duplicate condition %s across chunks" % name)
             conds[name] = m
             per[name] = (z[name + "__answer"].astype(bool), z[name + "__ptrue"].astype(float))

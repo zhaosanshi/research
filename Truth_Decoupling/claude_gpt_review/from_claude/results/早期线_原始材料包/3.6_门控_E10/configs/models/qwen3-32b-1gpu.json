@@ -1,0 +1,17 @@
+{
+  "name": "qwen3-32b-1gpu",
+  "family": "qwen3",
+  "path": "${TD_MODEL_ROOT:-/workspace/Truth_Decoupling/models}/Qwen3-32B",
+  "modelscope_repo": "Qwen/Qwen3-32B",
+  "hidden_size": 5120,
+  "num_layers": 64,
+  "dtype": "bfloat16",
+  "device": "cuda",
+  "layers_attr": "model.layers",
+  "attn_attr": "self_attn",
+  "chat": {
+    "supports_system": true,
+    "thinking_stub": "<think>\n\n</think>\n\n"
+  },
+  "notes": "diagnostic: Qwen3-32B on ONE 72 GB GPU (no device_map); ~66 GB weights"
+}

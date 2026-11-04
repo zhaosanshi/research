@@ -1,0 +1,30 @@
+W1027 06:53:43.738000 126408 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1027 06:53:43.758000 126408 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00, 388.80it/s]
+E4b generate llama3.1-8b/truthfulqa: 717 questions (96 estimation questions excluded) | E layers [12, 13, 14] | probe L14 | C layer 20 | conditions ['baseline', 'cautious_prompt', 'E_a1', 'E_a2', 'E_a3', 'E_p5', 'C_abst_a1', 'E_a2+C_abst_a1', 'gate_disagree_a3', 'gate_disagree_abst_a3', 'gate_probeneg_a3', 'gate_disagree_p5']
+  ITI heads loaded: 48 heads from /workspace/Truth_Decoupling/results_tqa/E16/llama3.1-8b/iti_heads.npz
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  baseline done (45s); rule-abstain 0.008
+  cautious_prompt done (75s); rule-abstain 0.126
+  E_a1 done (117s); rule-abstain 0.006
+  E_a2 done (158s); rule-abstain 0.007
+  E_a3 done (204s); rule-abstain 0.008
+  E_p5 done (256s); rule-abstain 0.010
+  C_abst_a1 done (301s); rule-abstain 0.006
+  E_a2+C_abst_a1 done (346s); rule-abstain 0.008
+  gate pass: probe mean 0.37 | own verdict True 0.633 False 0.353 Unknown 0.014 | disagree 223 | abstained 6
+  gate_disagree_a3 done: fired 222 / 717 (385s)
+  gate_disagree_abst_a3 done: fired 228 / 717 (385s)
+  gate_probeneg_a3 done: fired 250 / 717 (385s)
+  gate_disagree_p5 done: fired 222 / 717 (385s)
+generation finished (385s)
+W1027 07:00:18.733000 128424 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1027 07:00:18.753000 128424 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00, 377.57it/s]
+E4b generate llama3.1-8b/truthfulqa: 717 questions (96 estimation questions excluded) | E layers [12, 13, 14] | probe L14 | C layer 20 | conditions ['iti_k48_a5', 'iti_k48_a15']
+  ITI heads loaded: 48 heads from /workspace/Truth_Decoupling/results_tqa/E16/llama3.1-8b/iti_heads.npz
+  baseline done (0s); rule-abstain 0.008
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  iti_k48_a5 done (43s); rule-abstain 0.004
+  iti_k48_a15 done (95s); rule-abstain 0.015
+generation finished (95s)

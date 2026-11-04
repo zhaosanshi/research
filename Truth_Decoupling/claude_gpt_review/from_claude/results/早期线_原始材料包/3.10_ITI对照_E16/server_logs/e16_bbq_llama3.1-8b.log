@@ -1,0 +1,14 @@
+W1027 07:26:27.297000 139568 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1027 07:26:27.317000 139568 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00, 372.66it/s]
+E16 llama3.1-8b: 192 estimation statements, 32 heads x 32 layers, head_dim 128 | top-48 heads val acc 0.896..0.922 (median over all heads 0.844) | layers of chosen heads: [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 25, 27, 28, 31] (10s)
+  iti_k48_a5       correct 0.486 wrong 0.178 abstain 0.336 | fixed  74 damaged  47 (known dmg  4.8%) | AUROC -0.015 J 0.425 B 0.357 ans 0.664 (79s)
+  iti_k48_a10      correct 0.355 wrong 0.072 abstain 0.574 | fixed  44 damaged  15 (known dmg  1.5%) | AUROC -0.001 J 0.641 B 0.383 ans 0.426 (113s)
+  iti_k48_a15      correct 0.011 wrong 0.000 abstain 0.989 | fixed   0 damaged   0 (known dmg  0.0%) | AUROC -0.012 J 1.000 B 0.684 ans 0.011 (148s)
+  iti_k48_a20      correct 0.000 wrong 0.000 abstain 1.000 | fixed   0 damaged   0 (known dmg  0.0%) | AUROC -0.070 J nan B nan ans 0.000 (182s)
+  MC baseline         MC1 0.561 argmax 0.561 MC2 0.503 | fixed 0 damaged 0 (233s)
+  MC iti_k48_a5       MC1 0.545 argmax 0.545 MC2 0.485 | fixed 24 damaged 38 (284s)
+  MC iti_k48_a10      MC1 0.562 argmax 0.562 MC2 0.474 | fixed 37 damaged 36 (335s)
+  MC iti_k48_a15      MC1 0.552 argmax 0.552 MC2 0.432 | fixed 40 damaged 48 (386s)
+  MC iti_k48_a20      MC1 0.528 argmax 0.528 MC2 0.363 | fixed 54 damaged 84 (437s)
+wrote /workspace/Truth_Decoupling/results_bbq/E16/llama3.1-8b/iti.md

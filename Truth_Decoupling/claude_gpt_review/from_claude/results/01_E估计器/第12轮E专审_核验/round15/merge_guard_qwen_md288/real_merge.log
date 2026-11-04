@@ -1,0 +1,17 @@
+# E23 all-layer knob sweep, qwen3-8b (tune 192 pairs -> test 337 pairs; chunks hi lo)
+
+Rule (pre-declared, applied on the tuning set): E = max dJ s.t. |d ans| <= 0.03; C = max |d ans| s.t. |dJ| <= 0.02, |dB| <= 0.05. Reported on the test set with pair-bootstrap 95% CIs (200 resamples). Oracle = the same rule applied on the test set itself; layer error = |chosen centre - oracle centre|.
+
+## Selection and the 2x2 on the test set
+
+| knob | chosen on tune | test: d ans | d J | d AUROC | d B | oracle on test | layer error |
+|---|---|---|---|---|---|---|---|
+| E | E_L34_a3 | +0.033 [+0.015, +0.050] | +0.036 [+0.012, +0.056] | +0.001 [-0.003, +0.004] | +0.027 [+0.016, +0.040] | E_L34_a2 (+0.018 ans, +0.036 J) | 0.0 |
+| C_abst | none feasible | | | | | none feasible | |
+| C_ans | none feasible | | | | | none feasible | |
+
+## Per layer (all 721 pairs; d = change vs baseline)
+
+written /workspace/Truth_Decoupling/review_e25/checks/gpt15/merge_guard_qwen_md288/real/results_tqa/E23/qwen3-8b/knob_sweep_merged.md
+
+STDERR:

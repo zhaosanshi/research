@@ -1,0 +1,17 @@
+[21:20:05] e14 start qwen3-32b bbq_mc E=32,33,34 probe=36 write=36
+W1029 13:20:09.487000 28440 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1029 13:20:09.508000 28440 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/17 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 17/17 [00:00<00:00, 693.70it/s]
+E14 qwen3-32b: 904 questions (96 excluded as estimation questions), 2712 candidate statements | probe L36 AUROC 0.712 | statement AUROC 0.911
+  [1/10] baseline               MC1 0.790  argmax 0.790  MC2 0.617 | MC1 fixed   0 damaged   0 | stmt AUROC 0.911 acc 0.483 | cand abstain 0.308 (177s)
+  [2/10] E_a1                   MC1 0.781  argmax 0.781  MC2 0.606 | MC1 fixed   2 damaged  10 | stmt AUROC 0.909 acc 0.480 | cand abstain 0.305 (353s)
+  [3/10] E_a2                   MC1 0.826  argmax 0.826  MC2 0.608 | MC1 fixed  47 damaged  14 | stmt AUROC 0.917 acc 0.442 | cand abstain 0.425 (529s)
+  [4/10] E_a3                   MC1 0.732  argmax 0.732  MC2 0.542 | MC1 fixed  71 damaged 123 | stmt AUROC 0.809 acc 0.440 | cand abstain 0.428 (705s)
+  [5/10] gate_disagree_a5       MC1 0.750  argmax 0.750  MC2 0.602 | MC1 fixed   9 damaged  45 | stmt AUROC 0.898 acc 0.467 | cand abstain 0.273 (881s)
+  [6/10] gate_disagree_soft_a5  MC1 0.787  argmax 0.787  MC2 0.614 | MC1 fixed   3 damaged   6 | stmt AUROC 0.912 acc 0.478 | cand abstain 0.295 (1057s)
+  [7/10] C_abst_a1              MC1 0.792  argmax 0.792  MC2 0.612 | MC1 fixed   8 damaged   6 | stmt AUROC 0.909 acc 0.390 | cand abstain 0.417 (1233s)
+  [8/10] transfer_global_g2     MC1 0.790  argmax 0.790  MC2 0.620 | MC1 fixed   3 damaged   3 | stmt AUROC 0.911 acc 0.478 | cand abstain 0.313 (1409s)
+  [9/10] transfer_disagree_g2   MC1 0.792  argmax 0.792  MC2 0.618 | MC1 fixed   3 damaged   1 | stmt AUROC 0.912 acc 0.481 | cand abstain 0.310 (1585s)
+  [10/10] prompt_only_cautious   MC1 0.798  argmax 0.798  MC2 0.541 | MC1 fixed  35 damaged  28 | stmt AUROC 0.898 acc 0.407 | cand abstain 0.369 (1767s)
+wrote /workspace/Truth_Decoupling/results_bbq/E14/qwen3-32b/mc_eval.md
+[21:52:51] e14 rc=0 qwen3-32b bbq_mc

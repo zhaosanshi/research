@@ -1,0 +1,11 @@
+{
+  "name": "truthfulqa_tf",
+  "task": "tf",
+  "adapter": "truthfulqa_tf",
+  "role": ["statement_eval", "evidence_direction"],
+  "source": {"url": "https://raw.githubusercontent.com/sylinrl/TruthfulQA/main/TruthfulQA.csv", "citation": "Lin et al., ACL 2022 (2109.07958); statement form as in ITI (Li et al., NeurIPS 2023) / TruthX"},
+  "template": "The answer to the question \"{q}\" is: {a}",
+  "sampling": {"n_total": null, "balanced": true, "by_pair": true},
+  "split": {"calib_units": 32, "dev_units": 64, "unit": "pair", "seed": 42},
+  "notes": "817 questions -> up to 1634 statements (one true from best_answer, one false from the first incorrect answer). This is the benchmark where KAPPA (ICML 2026) reports a ~20-point knowledge-prediction gap, i.e. where an evidence-direction write could have room."
+}

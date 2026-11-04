@@ -1,0 +1,24 @@
+W1029 07:11:08.554000 6978 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1029 07:11:08.575000 6978 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/16 [00:00<?, ?it/s]Loading checkpoint shards:  19%|█▉        | 3/16 [00:00<00:00, 22.52it/s]Loading checkpoint shards:  38%|███▊      | 6/16 [00:00<00:00, 21.79it/s]Loading checkpoint shards:  56%|█████▋    | 9/16 [00:00<00:00, 21.68it/s]Loading checkpoint shards:  75%|███████▌  | 12/16 [00:00<00:00, 21.60it/s]Loading checkpoint shards:  94%|█████████▍| 15/16 [00:00<00:00, 21.58it/s]Loading checkpoint shards: 100%|██████████| 16/16 [00:00<00:00, 22.92it/s]
+E10 qwen3-30b-a3b: n=1442 | probe L28 AUROC on eval 0.887 | output AUROC 0.800 | disagreeing items 398 (27.6%) | half-gap L31 0.50
+  disagreement among baseline-known 12.8%, baseline-wrong 58.3%
+  baseline: correct 969 wrong 348 abstain 125 | AUROC 0.800 J 0.466
+  [ 1] global_a3                  fixed  85  damaged  34 (known dmg 3.5%)  wrong->abst   3  known->abst   1 | correct 1090 wrong 309 abst  43 | AUROC +0.028  J 0.558  B 0.479  ans 0.970  (233s)
+  [ 2] soft_unc_a3                fixed  10  damaged   0 (known dmg 0.0%)  wrong->abst   0  known->abst   2 | correct  981 wrong 341 abst 120 | AUROC +0.001  J 0.479  B 0.395  ans 0.917  (349s)
+  [ 3] soft_unc_a5                fixed  13  damaged   3 (known dmg 0.3%)  wrong->abst   1  known->abst   4 | correct  983 wrong 340 abst 119 | AUROC +0.002  J 0.481  B 0.403  ans 0.917  (466s)
+  [ 4] soft_unc_a8                fixed  13  damaged   5 (known dmg 0.5%)  wrong->abst   4  known->abst   4 | correct  980 wrong 341 abst 121 | AUROC +0.002  J 0.479  B 0.407  ans 0.916  (582s)
+  [ 5] hard_unc_t0.5_a3           fixed   7  damaged   2 (known dmg 0.2%)  wrong->abst   0  known->abst   0 | correct  982 wrong 344 abst 116 | AUROC +0.002  J 0.476  B 0.397  ans 0.920  (698s)
+  [ 6] hard_unc_t0.8_a3           fixed   3  damaged   0 (known dmg 0.0%)  wrong->abst   0  known->abst   0 | correct  975 wrong 346 abst 121 | AUROC +0.000  J 0.471  B 0.391  ans 0.916  (814s)
+  [ 7] disagree_a3                fixed  75  damaged  10 (known dmg 1.0%)  wrong->abst   4  known->abst   1 | correct 1076 wrong 284 abst  82 | AUROC +0.050  J 0.582  B 0.465  ans 0.943  (931s)
+  [ 8] disagree_a5                fixed  78  damaged  37 (known dmg 3.8%)  wrong->abst  54  known->abst  18 | correct 1012 wrong 258 abst 172 | AUROC +0.056  J 0.590  B 0.447  ans 0.881  (1047s)
+  [ 9] agree_only_a3              fixed  10  damaged  23 (known dmg 2.4%)  wrong->abst   1  known->abst   1 | correct  983 wrong 370 abst  89 | AUROC -0.056  J 0.447  B 0.407  ans 0.938  (1164s)
+  [10] probeconf_t1_a3            fixed  38  damaged   5 (known dmg 0.5%)  wrong->abst   1  known->abst   1 | correct 1035 wrong 319 abst  88 | AUROC -0.023  J 0.526  B 0.424  ans 0.939  (1280s)
+  [11] probeconf_t2_a3            fixed   2  damaged   0 (known dmg 0.0%)  wrong->abst   0  known->abst   0 | correct  972 wrong 346 abst 124 | AUROC -0.005  J 0.469  B 0.388  ans 0.914  (1396s)
+  [12] transfer_global_g2         fixed   4  damaged   0 (known dmg 0.0%)  wrong->abst   2  known->abst   1 | correct  972 wrong 342 abst 128 | AUROC +0.005  J 0.473  B 0.389  ans 0.911  (1512s)
+  [13] transfer_disagree_g2       fixed   3  damaged   0 (known dmg 0.0%)  wrong->abst   2  known->abst   0 | correct  972 wrong 343 abst 127 | AUROC +0.003  J 0.472  B 0.389  ans 0.912  (1629s)
+  [14] transfer_probeconf_t1_g2   fixed   1  damaged   0 (known dmg 0.0%)  wrong->abst   2  known->abst   0 | correct  970 wrong 345 abst 127 | AUROC +0.003  J 0.469  B 0.389  ans 0.912  (1746s)
+  [15] combo_disagreeE_uncC_a1    fixed   2  damaged   0 (known dmg 0.0%)  wrong->abst 190  known->abst 290 | correct  681 wrong 156 abst 605 | AUROC +0.006  J 0.626  B 0.471  ans 0.580  (1863s)
+  [16] C_global_a1                fixed   1  damaged   0 (known dmg 0.0%)  wrong->abst 236  known->abst 456 | correct  514 wrong 111 abst 817 | AUROC +0.005  J 0.641  B 0.557  ans 0.433  (1981s)
+  [17] prompt_only_cautious       fixed  15  damaged  21 (known dmg 2.2%)  wrong->abst 190  known->abst 444 | correct  519 wrong 164 abst 759 | AUROC +0.016  J 0.523  B 0.430  ans 0.474  (2100s)
+wrote /workspace/Truth_Decoupling/results_tqa/E10/qwen3-30b-a3b/gating.md

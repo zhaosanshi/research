@@ -1,0 +1,65 @@
+{
+ "real_chunks_reversed_merge_accepted": {
+  "ok": true,
+  "detail": {
+   "returncode": 0,
+   "stderr_tail": ""
+  }
+ },
+ "real_merge_selection_equals_exact_rule_on_unsplit": {
+  "ok": true,
+  "detail": {
+   "merged_chosen": "E_L11_a3",
+   "exact_rule_on_unsplit": "E_L11_a3",
+   "stored_in_sweep_json (pre-round-14 float tie-break if different)": "E_L11_a3",
+   "merged_test": {
+    "ans": -0.0029673590504450953,
+    "J": 0.06231454005934728,
+    "AUROC": 0.02100044906620646,
+    "B": 0.02225519287833827
+   },
+   "expected_test": {
+    "ans": -0.0029673590504450953,
+    "J": 0.06231454005934728,
+    "AUROC": 0.02100044906620646,
+    "B": 0.02225519287833827
+   },
+   "n_conds_merged": 65,
+   "n_conds_sweep": 65
+  }
+ },
+ "conflict_per_item_baseline_refused": {
+  "ok": true,
+  "detail": {
+   "returncode": 1,
+   "stderr_tail": "chunk lo records a different per-item baseline than hi (0 answers, 2 predictions, 2 probabilities differ); refusing to merge"
+  }
+ },
+ "conflict_labels_refused": {
+  "ok": true,
+  "detail": {
+   "returncode": 1,
+   "stderr_tail": "chunk lo has different labels than hi; refusing to merge"
+  }
+ },
+ "conflict_model_refused": {
+  "ok": true,
+  "detail": {
+   "returncode": 1,
+   "stderr_tail": "chunk lo is not the same run as hi (model: 'llama3.1-8b' vs 'OTHER_MODEL'); refusing to merge"
+  }
+ },
+ "conflict_estimator_refused": {
+  "ok": true,
+  "detail": {
+   "returncode": 1,
+   "stderr_tail": "chunk lo is not the same run as hi (e_estimator: 'das' vs 'meandiff'); refusing to merge"
+  }
+ },
+ "failures": [],
+ "source": "/workspace/Truth_Decoupling/results_das_tf_r288/E23/llama3.1-8b/knob_sweep_das_tf_full.json",
+ "chunks": {
+  "lo": 36,
+  "hi": 28
+ }
+}

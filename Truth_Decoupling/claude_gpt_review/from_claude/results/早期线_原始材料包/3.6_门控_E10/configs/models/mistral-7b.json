@@ -1,0 +1,14 @@
+{
+  "name": "mistral-7b",
+  "family": "mistral",
+  "path": "${TD_MODEL_ROOT:-/workspace/Truth_Decoupling/models}/Mistral-7B-Instruct-v0.3",
+  "modelscope_repo": "LLM-Research/Mistral-7B-Instruct-v0.3",
+  "hidden_size": 4096,
+  "num_layers": 32,
+  "dtype": "bfloat16",
+  "device": "cuda",
+  "layers_attr": "model.layers",
+  "attn_attr": "self_attn",
+  "chat": {"supports_system": true, "thinking_stub": ""},
+  "notes": "v12 peak layer L17 (broad band L15-L24, L30). Chat template folds the system prompt into the first user turn."
+}

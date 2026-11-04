@@ -159,6 +159,9 @@ for model in ("llama3.1-8b", "qwen3-8b"):
         failures.append("%s: encoded %d answers, expected %d" % (model, m["n_encoded"], expected))
     if m["n_geometry_checked"] != m["n_encoded"] or not m["mask_geometry_ok"]:
         failures.append("%s: mask geometry failed (%d of %d checked)" % (model, m["n_geometry_checked"], m["n_encoded"]))
+    if m["prefix_equals_generation_prompt"] != m["n_encoded"]:   # review round 15 (2.3): recorded before, never a failure condition
+        failures.append("%s: %d of %d encoded answers have a prefix that differs from the generation prompt"
+                        % (model, m["n_encoded"] - m["prefix_equals_generation_prompt"], m["n_encoded"]))
     if m["roundtrip_mismatch"] or m["special_in_answer"]:
         failures.append("%s: %d round-trip mismatches, %d answers containing special tokens" % (model, m["roundtrip_mismatch"], m["special_in_answer"]))
 rep["failures"] = failures

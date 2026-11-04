@@ -1,0 +1,23 @@
+W1027 01:26:38.637000 80554 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1027 01:26:38.657000 80554 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+E10 qwen3-0.6b: n=1442 | probe L15 AUROC on eval 0.771 | output AUROC 0.435 | disagreeing items 847 (58.7%) | half-gap L18 0.85
+  disagreement among baseline-known 39.8%, baseline-wrong 81.1%
+  baseline: correct 575 wrong 598 abstain 269 | AUROC 0.435 J 0.000
+  [ 1] global_a3                  fixed  51  damaged  23 (known dmg 4.0%)  wrong->abst  48  known->abst  22 | correct  662 wrong 585 abst 195 | AUROC +0.186  J 0.026  B 0.921  ans 0.865  (7s)
+  [ 2] soft_unc_a3                fixed   0  damaged   0 (known dmg 0.0%)  wrong->abst   9  known->abst   8 | correct  579 wrong 594 abst 269 | AUROC +0.014  J 0.000  B 1.000  ans 0.813  (11s)
+  [ 3] soft_unc_a5                fixed   0  damaged   0 (known dmg 0.0%)  wrong->abst   9  known->abst   4 | correct  587 wrong 599 abst 256 | AUROC +0.027  J 0.000  B 1.000  ans 0.822  (15s)
+  [ 4] soft_unc_a8                fixed   0  damaged   0 (known dmg 0.0%)  wrong->abst   8  known->abst   6 | correct  603 wrong 599 abst 240 | AUROC +0.060  J 0.000  B 1.000  ans 0.834  (19s)
+  [ 5] hard_unc_t0.5_a3           fixed   0  damaged   0 (known dmg 0.0%)  wrong->abst   0  known->abst   0 | correct  575 wrong 598 abst 269 | AUROC +0.000  J 0.000  B 1.000  ans 0.813  (23s)
+  [ 6] hard_unc_t0.8_a3           fixed   0  damaged   0 (known dmg 0.0%)  wrong->abst   0  known->abst   0 | correct  575 wrong 598 abst 269 | AUROC +0.000  J 0.000  B 1.000  ans 0.813  (26s)
+  [ 7] disagree_a3                fixed  48  damaged  10 (known dmg 1.7%)  wrong->abst  43  known->abst  13 | correct  621 wrong 550 abst 271 | AUROC +0.126  J 0.061  B 0.947  ans 0.812  (30s)
+  [ 8] disagree_a5                fixed 146  damaged  53 (known dmg 9.2%)  wrong->abst 173  known->abst  68 | correct  634 wrong 363 abst 445 | AUROC +0.217  J 0.230  B 0.766  ans 0.691  (34s)
+  [ 9] agree_only_a3              fixed   3  damaged  13 (known dmg 2.3%)  wrong->abst   5  known->abst   9 | correct  616 wrong 633 abst 193 | AUROC +0.135  J -0.037  B 0.971  ans 0.866  (38s)
+  [10] probeconf_t1_a3            fixed  30  damaged  10 (known dmg 1.7%)  wrong->abst  23  known->abst   1 | correct  635 wrong 583 abst 224 | AUROC +0.126  J 0.019  B 0.957  ans 0.845  (42s)
+  [11] probeconf_t2_a3            fixed   7  damaged   5 (known dmg 0.9%)  wrong->abst   3  known->abst   0 | correct  585 wrong 603 abst 254 | AUROC +0.035  J -0.002  B 0.987  ans 0.824  (46s)
+  [12] transfer_global_g2         fixed   0  damaged   0 (known dmg 0.0%)  wrong->abst   7  known->abst   9 | correct  600 wrong 620 abst 222 | AUROC -0.007  J 0.000  B 1.000  ans 0.846  (49s)
+  [13] transfer_disagree_g2       fixed   0  damaged   0 (known dmg 0.0%)  wrong->abst   5  known->abst   1 | correct  591 wrong 621 abst 230 | AUROC -0.007  J 0.000  B 1.000  ans 0.840  (53s)
+  [14] transfer_probeconf_t1_g2   fixed   0  damaged   0 (known dmg 0.0%)  wrong->abst   0  known->abst   3 | correct  584 wrong 619 abst 239 | AUROC -0.008  J 0.000  B 1.000  ans 0.834  (57s)
+  [15] combo_disagreeE_uncC_a1    fixed   0  damaged   0 (known dmg 0.0%)  wrong->abst 373  known->abst 381 | correct  199 wrong 246 abst 997 | AUROC +0.005  J 0.000  B 1.000  ans 0.309  (61s)
+  [16] C_global_a1                fixed   0  damaged   0 (known dmg 0.0%)  wrong->abst 595  known->abst 574 | correct    1 wrong   3 abst 1438 | AUROC -0.002  J 0.000  B 1.000  ans 0.003  (64s)
+  [17] prompt_only_cautious       fixed   0  damaged   0 (known dmg 0.0%)  wrong->abst 598  known->abst 575 | correct    0 wrong   0 abst 1442 | AUROC -0.026  J nan  B nan  ans 0.000  (68s)
+wrote /workspace/Truth_Decoupling/results_tqa/E10/qwen3-0.6b/gating.md

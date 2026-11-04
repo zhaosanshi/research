@@ -1,0 +1,14 @@
+{
+  "name": "E1_directions_tqa",
+  "description": "E1 with the evidence direction estimated on TruthfulQA true/false statements (calib+dev, 96 pairs) instead of CounterFact; C from the same statements. Run under its own results root (e.g. results_tqa).",
+  "model": "llama3.1-8b",
+  "prompts": "default_v1",
+  "e_datasets": ["truthfulqa_tf"],
+  "c_datasets": null,
+  "direction_splits": ["calib", "dev"],
+  "direction_prompt_allow_idk": true,
+  "batch_size": 8,
+  "seed": 42,
+  "layer_score": {"eps_sigma": 0.5, "lam": 1.0, "k_folds": 5, "l2": 1.0},
+  "das": {"rank": 1, "T": 8, "epochs": 10, "lr": 0.001, "n_train_pairs": 64}
+}

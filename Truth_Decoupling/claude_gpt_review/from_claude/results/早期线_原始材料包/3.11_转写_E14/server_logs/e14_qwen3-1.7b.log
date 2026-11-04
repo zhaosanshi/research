@@ -1,0 +1,17 @@
+[14:42:24] e14 start qwen3-1.7b truthfulqa_mc E=15,16,17 probe=16 write=19
+W1027 06:42:28.780000 121224 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1027 06:42:28.800000 121224 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 184.34it/s]
+E14 qwen3-1.7b: 721 questions (96 excluded as estimation questions), 5179 candidate statements | probe L16 AUROC 0.810 | statement AUROC 0.652
+  [1/10] baseline               MC1 0.470  argmax 0.617  MC2 0.550 | MC1 fixed   0 damaged   0 | stmt AUROC 0.652 acc 0.462 | cand abstain 0.212 (20s)
+  [2/10] E_a1                   MC1 0.520  argmax 0.641  MC2 0.627 | MC1 fixed  55 damaged  19 | stmt AUROC 0.706 acc 0.554 | cand abstain 0.164 (39s)
+  [3/10] E_a2                   MC1 0.542  argmax 0.655  MC2 0.668 | MC1 fixed  93 damaged  41 | stmt AUROC 0.714 acc 0.610 | cand abstain 0.111 (59s)
+  [4/10] E_a3                   MC1 0.488  argmax 0.612  MC2 0.675 | MC1 fixed 106 damaged  93 | stmt AUROC 0.687 acc 0.527 | cand abstain 0.212 (78s)
+  [5/10] gate_disagree_a5       MC1 0.491  argmax 0.634  MC2 0.659 | MC1 fixed  97 damaged  82 | stmt AUROC 0.682 acc 0.561 | cand abstain 0.207 (97s)
+  [6/10] gate_disagree_soft_a5  MC1 0.501  argmax 0.635  MC2 0.636 | MC1 fixed  61 damaged  39 | stmt AUROC 0.696 acc 0.542 | cand abstain 0.188 (117s)
+  [7/10] C_abst_a1              MC1 0.466  argmax 0.616  MC2 0.549 | MC1 fixed   2 damaged   5 | stmt AUROC 0.653 acc 0.187 | cand abstain 0.653 (135s)
+  [8/10] transfer_global_g2     MC1 0.607  argmax 0.752  MC2 0.648 | MC1 fixed 134 damaged  35 | stmt AUROC 0.737 acc 0.500 | cand abstain 0.240 (154s)
+  [9/10] transfer_disagree_g2   MC1 0.592  argmax 0.732  MC2 0.630 | MC1 fixed 121 damaged  33 | stmt AUROC 0.743 acc 0.499 | cand abstain 0.242 (173s)
+  [10/10] prompt_only_cautious   MC1 0.433  argmax 0.610  MC2 0.502 | MC1 fixed  22 damaged  49 | stmt AUROC 0.623 acc 0.283 | cand abstain 0.465 (193s)
+wrote /workspace/Truth_Decoupling/results_tqa/E14/qwen3-1.7b/mc_eval.md
+[14:46:04] e14 rc=0 qwen3-1.7b truthfulqa_mc

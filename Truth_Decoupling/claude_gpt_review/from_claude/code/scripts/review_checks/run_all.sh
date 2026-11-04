@@ -27,8 +27,12 @@ step "intervene.py old-vs-new regression" "$LOGD/intervene_regress.log" "$CODE" 
   "$ROOT/code/experiments/core/intervene.py" "$CODE/core/intervene.py" "$REV/checks/intervene_regress.json"
 step "E25 data + tokenizer checks" "$LOGD/e25_data_tokens.log" "$CODE" "$REV/checks/chk_e25_data_tokens.py" "$CODE" "$REV/checks/e25_data_tokens.json"
 # directions_old.py = the pre-fix loader (git show cb3f67b:Truth_Decoupling/claude_gpt_review/from_claude/code/core/directions.py), staged on the server by hand
-step "DAS loader + teacher cache (round 14, D1-D5)" "$LOGD/das_loader.log" "$CODE" "$REV/checks/chk_das_loader.py" "$CODE" \
+step "DAS loader + teacher cache (round 14 D1-D5, round 15 3.1-3.5 / 4)" "$LOGD/das_loader.log" "$CODE" "$REV/checks/chk_das_loader.py" "$CODE" \
   "$REV/checks/das_loader.json" "$REV/checks/gpt14/directions_old.py"
+# round 15 (2.2): merge guard on the real Qwen MD-288 cache split into two layer chunks (merged in reversed order) + synthetic conflicts
+rm -rf "$LOGD/merge_guard"
+step "e23_merge guard (round 15, real cache + conflicts)" "$LOGD/merge_guard.log" "$CODE" "$REV/checks/chk_merge_guard.py" "$CODE" \
+  "$ROOT/results_das_tf_r288/E23/qwen3-8b" meandiff_full qwen3-8b "$REV/checks/merge_guard"
 echo "== $(date '+%F %T') done"
 if [ "$fail" -eq 0 ]; then
   touch "$LOGD/ALL.DONE"; echo "ALL CHECKS PASSED"

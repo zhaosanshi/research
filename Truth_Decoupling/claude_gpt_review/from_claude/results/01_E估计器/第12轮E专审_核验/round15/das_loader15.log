@@ -1,0 +1,417 @@
+{
+ "D1_identical_subspaces_do_not_cancel": {
+  "ok": true,
+  "detail": {
+   "new": {
+    "W": [
+     1.0,
+     0.0
+    ],
+    "norm": 1.0,
+    "mean_gap": 1.0,
+    "n_seeds": 2
+   },
+   "old": {
+    "W": [
+     0.0,
+     0.0
+    ],
+    "norm": 0.0,
+    "mean_gap": 0.0,
+    "n_seeds": 2
+   }
+  }
+ },
+ "D1_nearly_identical_seeds_stay": {
+  "ok": true,
+  "detail": {
+   "seed_cos": 0.9999980000019999,
+   "new": {
+    "W": [
+     1.0,
+     0.0
+    ],
+    "norm": 1.0,
+    "mean_gap": 1.0,
+    "n_seeds": 2
+   },
+   "new_cos_with_seed42": 0.999999500000375,
+   "old": {
+    "W": [
+     0.0,
+     1.0
+    ],
+    "norm": 1.0,
+    "mean_gap": 0.0,
+    "n_seeds": 2
+   },
+   "old_cos_with_seed42": 0.000999999500000375
+  }
+ },
+ "D1_orthogonal_seeds_refused": {
+  "ok": true,
+  "detail": {
+   "new": {
+    "error": "DAS seeds at E L0 disagree (cos with the first seed ['1.000', '0.000'] < 0.50); refusing to average them"
+   },
+   "old": {
+    "W": [
+     0.707107,
+     0.707107
+    ],
+    "norm": 1.0,
+    "mean_gap": 1.0,
+    "n_seeds": 2
+   }
+  }
+ },
+ "D3_mean_gap_rescaled": {
+  "ok": true,
+  "detail": {
+   "expected_gap": 1.0440306526791943,
+   "new": {
+    "W": [
+     1.0,
+     0.0
+    ],
+    "norm": 1.0,
+    "mean_gap": 1.044031,
+    "n_seeds": 2
+   },
+   "old": {
+    "W": [
+     1.0,
+     0.0
+    ],
+    "norm": 1.0,
+    "mean_gap": 1.0,
+    "n_seeds": 2
+   }
+  }
+ },
+ "D2_rank2_interface_refused": {
+  "ok": true,
+  "detail": {
+   "new": {
+    "error": "load_das_direction returns one direction; rank=2 checkpoints need a subspace loader (review round 14, D2)"
+   },
+   "old": {
+    "W": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "norm": 1.0,
+    "mean_gap": 1.0,
+    "n_seeds": 1
+   }
+  }
+ },
+ "D2_two_column_file_refused": {
+  "ok": true,
+  "detail": {
+   "new": {
+    "error": "das_E_L0_r1_s42.pt holds a basis of shape [3, 2], not a rank-1 direction"
+   },
+   "old": {
+    "W": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "norm": 1.0,
+    "mean_gap": 1.0,
+    "n_seeds": 1
+   }
+  }
+ },
+ "D5_incompatible_protocol_refused": {
+  "ok": true,
+  "detail": {
+   "new": {
+    "error": "DAS seeds das_E_L0_r1_s42.pt and das_E_L0_r1_s43.pt differ in anchor ('prompt' vs 'current'); refusing to merge them"
+   },
+   "old": {
+    "W": [
+     0.99847,
+     0.0553
+    ],
+    "norm": 1.0,
+    "mean_gap": 1.0,
+    "n_seeds": 2
+   }
+  }
+ },
+ "D5_missing_first_key_conflict_refused": {
+  "ok": true,
+  "detail": {
+   "new": {
+    "error": "das_E_L0_r1_s42.pt lacks the protocol fields ['anchor']; a multi-seed merge with an unverified protocol is refused (load"
+   },
+   "old": {
+    "W": [
+     1.0,
+     0.0
+    ],
+    "norm": 1.0,
+    "mean_gap": 1.0,
+    "n_seeds": 3
+   }
+  }
+ },
+ "D5_missing_protocol_field_multiseed_refused": {
+  "ok": true,
+  "detail": {
+   "new": {
+    "error": "das_E_L0_r1_s42.pt lacks the protocol fields ['anchor']; a multi-seed merge with an unverified protocol is refused (load"
+   },
+   "old": {
+    "W": [
+     1.0,
+     0.0
+    ],
+    "norm": 1.0,
+    "mean_gap": 1.0,
+    "n_seeds": 2
+   }
+  }
+ },
+ "D5_identity_fields_compared": {
+  "ok": true,
+  "detail": {
+   "new": {
+    "error": "DAS seeds das_E_L0_r1_s42.pt and das_E_L0_r1_s43.pt differ in model_name ('llama' vs 'qwen'); refusing to merge them"
+   },
+   "old": {
+    "W": [
+     1.0,
+     0.0
+    ],
+    "norm": 1.0,
+    "mean_gap": 1.0,
+    "n_seeds": 2
+   }
+  }
+ },
+ "D5_identity_key_on_one_side_refused": {
+  "ok": true,
+  "detail": {
+   "new": {
+    "error": "DAS seeds das_E_L0_r1_s42.pt and das_E_L0_r1_s43.pt differ in model_name ('llama' vs '<missing>'); refusing to merge the"
+   },
+   "old": {
+    "W": [
+     1.0,
+     0.0
+    ],
+    "norm": 1.0,
+    "mean_gap": 1.0,
+    "n_seeds": 2
+   }
+  }
+ },
+ "D5_same_identity_merges_per_seed_bookkeeping_ignored": {
+  "ok": true,
+  "detail": {
+   "new": {
+    "W": [
+     1.0,
+     0.0
+    ],
+    "norm": 1.0,
+    "mean_gap": 1.0,
+    "n_seeds": 2
+   }
+  }
+ },
+ "nonfinite_direction_refused": {
+  "ok": true,
+  "detail": {
+   "new": {
+    "error": "das_E_L0_r1_s42.pt holds a non-finite direction"
+   },
+   "old": {
+    "W": [
+     "nan",
+     "nan"
+    ],
+    "norm": "nan",
+    "mean_gap": -1.0,
+    "n_seeds": 1
+   }
+  }
+ },
+ "nonfinite_gap_refused": {
+  "ok": true,
+  "detail": {
+   "new": {
+    "error": "das_E_L0_r1_s42.pt records a non-finite mean_gap (inf)"
+   },
+   "old": {
+    "W": [
+     1.0,
+     0.0
+    ],
+    "norm": 1.0,
+    "mean_gap": "inf",
+    "n_seeds": 1
+   }
+  }
+ },
+ "D3_multiseed_trimmed_gap_unavailable": {
+  "ok": true,
+  "detail": {
+   "new": {
+    "W": [
+     0.948683,
+     0.316228
+    ],
+    "norm": 1.0,
+    "mean_gap": null,
+    "n_seeds": 2
+   },
+   "note": "unavailable: 2 seeds trained with trim=0.1; per-seed trimmed gaps cannot be projected onto the merged direction, recompute the trimmed gap from activations along it",
+   "old": {
+    "W": [
+     0.948683,
+     0.316228
+    ],
+    "norm": 1.0,
+    "mean_gap": 1.55,
+    "n_seeds": 2
+   }
+  }
+ },
+ "single_seed_identical_to_old": {
+  "ok": true,
+  "detail": {
+   "new": {
+    "W": [
+     -0.067501,
+     0.070923,
+     -0.343823,
+     -0.056318,
+     0.287584,
+     -0.194129,
+     -0.700077,
+     -0.508458
+    ],
+    "norm": 1.0,
+    "mean_gap": -0.7,
+    "n_seeds": 1
+   },
+   "old": {
+    "W": [
+     -0.067501,
+     0.070923,
+     -0.343823,
+     -0.056318,
+     0.287584,
+     -0.194129,
+     -0.700077,
+     -0.508458
+    ],
+    "norm": 1.0,
+    "mean_gap": -0.7,
+    "n_seeds": 1
+   }
+  }
+ },
+ "single_seed_200_bit_identical": {
+  "ok": true,
+  "detail": {
+   "direction_equal": 200,
+   "gap_equal": 200,
+   "vs": "old loader"
+  }
+ },
+ "single_seed_legacy_fields_accepted": {
+  "ok": true,
+  "detail": {
+   "new": {
+    "W": [
+     1.0,
+     0.0
+    ],
+    "norm": 1.0,
+    "mean_gap": 0.7,
+    "n_seeds": 1
+   }
+  }
+ },
+ "D4_teacher_regenerated_on_T_change": {
+  "ok": true,
+  "detail": {
+   "teacher_requests": [
+    1,
+    1,
+    3,
+    3
+   ],
+   "r1_T": 1,
+   "r3_T": 3,
+   "r3_trace_steps": 3,
+   "y_src_len": 3
+  }
+ },
+ "D4_cache_keyed_by_T_model_and_prompt": {
+  "ok": true,
+  "detail": {
+   "requests_after_each_call": [
+    4,
+    6,
+    8,
+    10,
+    14,
+    18,
+    22,
+    22
+   ],
+   "expected_requests": [
+    4,
+    6,
+    8,
+    10,
+    14,
+    18,
+    22,
+    22
+   ],
+   "base_cleared_after_T_change": true,
+   "source_teacher_after_input_change": [
+    10,
+    11
+   ],
+   "expected_source_teacher": [
+    10,
+    11
+   ],
+   "T_sequence": [
+    1,
+    1,
+    1,
+    1,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+   ]
+  }
+ },
+ "failures": []
+}
+PASSED: 20 loader / teacher-cache expectations

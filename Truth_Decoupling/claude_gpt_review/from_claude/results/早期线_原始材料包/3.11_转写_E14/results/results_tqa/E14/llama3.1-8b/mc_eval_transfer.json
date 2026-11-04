@@ -1,0 +1,53 @@
+{
+  "model": "llama3.1-8b",
+  "n_questions": 721,
+  "n_statements": 5179,
+  "e_layers": [
+    12,
+    13,
+    14
+  ],
+  "probe_layer": 14,
+  "write_layer": 16,
+  "half_gap": 0.7596662109489591,
+  "mc_dataset": "truthfulqa_mc",
+  "conditions": {
+    "baseline": {
+      "mc1": 0.6490984743411928,
+      "argmax_acc": 0.7586685159500693,
+      "mc2": 0.7070987696795099,
+      "cand_abstain_rate": 0.015502597264039707,
+      "statement_auroc": 0.7748699754805294,
+      "statement_acc_all": 0.679088627148098,
+      "mc1_fixed": 0,
+      "mc1_damaged": 0,
+      "argmax_fixed": 0,
+      "argmax_damaged": 0
+    },
+    "transfer_global_g2": {
+      "mc1": 0.7794729542302358,
+      "argmax_acc": 0.8945908460471568,
+      "mc2": 0.7994293210228309,
+      "cand_abstain_rate": 0.0141667702000573,
+      "statement_auroc": 0.8780451759082374,
+      "statement_acc_all": 0.7696466499324194,
+      "mc1_fixed": 113,
+      "mc1_damaged": 19,
+      "argmax_fixed": 110,
+      "argmax_damaged": 12
+    },
+    "transfer_disagree_g2": {
+      "mc1": 0.7378640776699029,
+      "argmax_acc": 0.8529819694868238,
+      "mc2": 0.7698433689644384,
+      "cand_abstain_rate": 0.015817331073919146,
+      "statement_auroc": 0.8580367075787921,
+      "statement_acc_all": 0.7690673875265496,
+      "mc1_fixed": 82,
+      "mc1_damaged": 18,
+      "argmax_fixed": 76,
+      "argmax_damaged": 8
+    }
+  },
+  "elapsed_s": 195.34536337852478
+}

@@ -1,0 +1,21 @@
+W1027 07:17:06.156000 135934 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1027 07:17:06.176000 135934 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 3/3 [00:00<00:00, 298.02it/s]
+E4b generate mistral-7b/truthfulqa: 717 questions (96 estimation questions excluded) | E layers [12, 13, 14] | probe L18 | C layer 19 | conditions ['baseline', 'cautious_prompt', 'E_a1', 'E_a2', 'E_a3', 'E_p5', 'C_abst_a1', 'E_a2+C_abst_a1', 'gate_disagree_a3', 'gate_disagree_abst_a3', 'gate_probeneg_a3', 'gate_disagree_p5', 'iti_k48_a5', 'iti_k48_a15']
+  ITI heads loaded: 48 heads from /workspace/Truth_Decoupling/results_tqa/E16/mistral-7b/iti_heads.npz
+  baseline done (59s); rule-abstain 0.010
+  cautious_prompt done (119s); rule-abstain 0.046
+  E_a1 done (178s); rule-abstain 0.010
+  E_a2 done (237s); rule-abstain 0.011
+  E_a3 done (296s); rule-abstain 0.007
+  E_p5 done (355s); rule-abstain 0.014
+  C_abst_a1 done (414s); rule-abstain 0.015
+  E_a2+C_abst_a1 done (474s); rule-abstain 0.014
+  iti_k48_a5 done (537s); rule-abstain 0.003
+  iti_k48_a15 done (601s); rule-abstain 0.000
+  gate pass: probe mean 0.75 | own verdict True 0.937 False 0.029 Unknown 0.033 | disagree 73 | abstained 7
+  gate_disagree_a3 done: fired 72 / 717 (626s)
+  gate_disagree_abst_a3 done: fired 79 / 717 (626s)
+  gate_probeneg_a3 done: fired 84 / 717 (626s)
+  gate_disagree_p5 done: fired 72 / 717 (626s)
+generation finished (626s)
