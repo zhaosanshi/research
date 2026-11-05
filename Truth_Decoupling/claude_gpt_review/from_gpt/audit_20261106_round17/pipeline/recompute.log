@@ -1,0 +1,33 @@
+{
+  "n": 11877,
+  "n_failed": 0,
+  "failures": []
+}
+v1/llama3.1-8b selected {'qa_das': 'E_qa_das_continuous_L9_a1', 'qa_md': 'E_qa_md_continuous_L10_a3'}
+test [('baseline', {np.str_('wrong'): 302, np.str_('correct'): 154, np.str_('abstain'): 67}, 0.0), ('E_qa_das_continuous_L9_a1', {np.str_('wrong'): 306, np.str_('correct'): 150, np.str_('abstain'): 67}, -0.0076481835564053535), ('E_qa_md_continuous_L10_a3', {np.str_('wrong'): 299, np.str_('correct'): 156, np.str_('abstain'): 68}, 0.0038240917782026767)]
+v1/qwen3-8b selected {'qa_das': 'E_qa_das_continuous_L4_a2', 'qa_md': 'E_qa_md_continuous_L0_a3'}
+test [('baseline', {np.str_('abstain'): 184, np.str_('wrong'): 199, np.str_('correct'): 140}, 0.0), ('E_qa_das_continuous_L4_a2', {np.str_('abstain'): 183, np.str_('wrong'): 200, np.str_('correct'): 140}, 0.0), ('E_qa_md_continuous_L0_a3', {np.str_('abstain'): 185, np.str_('wrong'): 199, np.str_('correct'): 139}, -0.0019120458891013384)]
+v1/gemma3-4b selected {'qa_das': None, 'qa_md': None}
+test [('baseline', {np.str_('correct'): 158, np.str_('wrong'): 313, np.str_('abstain'): 52}, 0.0)]
+v1u/llama3.1-8b selected {'qa_das': 'E_qa_das_continuous_L29_a3', 'qa_md': 'E_qa_md_continuous_L10_a3'}
+test [('baseline', {np.str_('wrong'): 303, np.str_('correct'): 153, np.str_('abstain'): 67}, 0.0), ('E_qa_das_continuous_L29_a3', {np.str_('wrong'): 301, np.str_('correct'): 156, np.str_('abstain'): 66}, 0.0057361376673040155), ('E_qa_md_continuous_L10_a3', {np.str_('wrong'): 300, np.str_('correct'): 155, np.str_('abstain'): 68}, 0.0038240917782026767)]
+v1u/qwen3-8b selected {'qa_das': 'E_qa_das_continuous_L34_a3', 'qa_md': None}
+test [('baseline', {np.str_('abstain'): 184, np.str_('wrong'): 199, np.str_('correct'): 140}, 0.0), ('E_qa_das_continuous_L34_a3', {np.str_('abstain'): 185, np.str_('wrong'): 199, np.str_('correct'): 139}, -0.0019120458891013384)]
+v1u/gemma3-4b selected {'qa_das': None, 'qa_md': None}
+test [('baseline', {np.str_('correct'): 158, np.str_('wrong'): 313, np.str_('abstain'): 52}, 0.0)]
+heldout_mc_gemma3-4b.json DAS-MD {'delta': 0.032504780114722756, 'ci95': [-0.0019120458891013384, 0.06692160611854685], 'discordant': [51, 34], 'exact_two_sided_p': np.float64(0.08205429958748713)}
+heldout_mc_llama3.1-8b.json DAS-MD {'delta': -0.0038240917782026767, 'ci95': [-0.017208413001912046, 0.009560229445506692], 'discordant': [6, 8], 'exact_two_sided_p': np.float64(0.79052734375)}
+heldout_mc_qwen3-8b.json DAS-MD {'delta': -0.0057361376673040155, 'ci95': [-0.021032504780114723, 0.009560229445506692], 'discordant': [7, 10], 'exact_two_sided_p': np.float64(0.629058837890625)}
+heldout_pairs_gemma3-4b.json DAS-MD {'delta': 0.009560229445506692, 'ci95': [-0.028680688336520075, 0.0497131931166348], 'discordant': [55, 50], 'exact_two_sided_p': np.float64(0.6964676629916763)}
+heldout_pairs_llama3.1-8b.json DAS-MD {'delta': -0.0038240917782026767, 'ci95': [-0.019120458891013385, 0.011472275334608031], 'discordant': [7, 9], 'exact_two_sided_p': np.float64(0.803619384765625)}
+heldout_pairs_qwen3-8b.json DAS-MD {'delta': -0.0038240917782026767, 'ci95': [-0.019120458891013385, 0.011472275334608031], 'discordant': [6, 8], 'exact_two_sided_p': np.float64(0.79052734375)}
+v1u_heldout_mc_llama3.1-8b.json DAS-MD {'delta': -0.0019120458891013384, 'ci95': [-0.011472275334608031, 0.0057361376673040155], 'discordant': [2, 3], 'exact_two_sided_p': 1.0}
+v1u_heldout_mc_qwen3-8b.json DAS-MD {'delta': 0.0076481835564053535, 'ci95': [-0.009560229445506692, 0.0248565965583174], 'discordant': [13, 9], 'exact_two_sided_p': np.float64(0.5234670639038086)}
+v1u_heldout_pairs_llama3.1-8b.json DAS-MD {'delta': -0.0038240917782026767, 'ci95': [-0.015296367112810707, 0.0076481835564053535], 'discordant': [4, 6], 'exact_two_sided_p': np.float64(0.75390625)}
+v1u_heldout_pairs_qwen3-8b.json DAS-MD {'delta': 0.0019120458891013384, 'ci95': [-0.011472275334608031, 0.015296367112810707], 'discordant': [7, 6], 'exact_two_sided_p': 1.0}
+verify_own_gemma3-4b.json ties {'baseline': 0, 'das_tf_full': 0, 'meandiff_full': 0}
+verify_own_llama3.1-8b.json ties {'baseline': 0, 'das_tf_full': 0, 'meandiff_full': 0, 'das_tf_spans': 0, 'meandiff_spans': 0}
+verify_own_qwen3-8b.json ties {'baseline': 0, 'das_tf_full': 0, 'meandiff_full': 0, 'das_tf_spans': 0, 'meandiff_spans': 0}
+verify_own_tfce_gemma3-4b.json ties {'baseline': 0, 'das_tfce_full': 0}
+verify_own_tfce_llama3.1-8b.json ties {'baseline': 0, 'das_tfce_full': 0}
+verify_own_tfce_qwen3-8b.json ties {'baseline': 0, 'das_tfce_full': 0}

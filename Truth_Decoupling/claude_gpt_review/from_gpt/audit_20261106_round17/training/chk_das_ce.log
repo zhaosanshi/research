@@ -1,0 +1,14 @@
+/tmp/td_review17_244b597/Truth_Decoupling/claude_gpt_review/from_claude/code/core/directions.py:497: UserWarning: std(): degrees of freedom is <= 0. Correction should be strictly less than the reduction factor (input numel divided by output numel). (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/aten/src/ATen/native/ReduceOps.cpp:1839.)
+  out = {"W": W, "losses": losses, "mean_gap": mean_gap, "gap_std": gaps.std(0).tolist(),
+ok   no_teacher_tokens_and_epoch0_loss_is_handcomputed_gold_ce {'loss': 2.311955511569977, 'hand': 2.311955511569977}
+ok   T_recorded_1_and_label_ids_stored {'T': 1, 'label_ids': {'True': [9, 10], 'False': [11, 12]}}
+ok   W_receives_nonzero_gradient {'grad_norm': 0.42485877871513367, 'steps': 1}
+ok   W_moves_from_init {'moved': 0.04394412413239479}
+ok   swapping_label_sets_changes_the_loss {'normal': 2.2218436300754547, 'swapped': 2.535378158092499}
+ok   loss_decreases_over_epochs {'losses': [2.2218436300754547, 2.22101429104805, 2.22019425034523]}
+ok   position_trace_reads_and_writes_last_prompt_tokens {'trace': [{'t': 0, 'len_base': 3, 'len_src': 4, 'read_src_pos': 3, 'write_base_pos': 2}]}
+ok   missing_label_ids_refused loss="ce" needs label_ids={"True": [...], "False": [...]} (first-token ids of th
+ok   overlapping_label_sets_refused True and False label token sets overlap
+ok   positions_all_refused loss="ce" supports positions="last" only
+ok   kl_default_unchanged_uses_teacher_and_no_label_ids {'teacher_requests': [2], 'keys': ['T', 'W', 'anchor', 'bidirectional', 'epochs', 'gap_std', 'layer', 'loss_kind', 'losses', 'lr', 'mean_gap', 'n_pairs', 'position_trace', 'positions', 'rank', 'seed', 'trim', 'weighted']}
+failures: []
