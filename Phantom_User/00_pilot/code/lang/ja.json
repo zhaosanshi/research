@@ -1,0 +1,34 @@
+{
+  "_comment": "Japanese language pack: whole conversation in Japanese (everyday assistance), NOTES.md scenario translated 1:1 from the English materials. Role token in the chat template stays 'user'; the native role word for CONTAM_ROLE_WORD tests is 'ユーザー'.",
+  "SYSTEM_MSG": {"coding": "あなたは簡潔なコーディングアシスタントです。", "meta": "あなたは親切なアシスタントです。"},
+  "FINAL_USER": {"coding": "OK、終わったら教えて。", "meta": "ありがとう。ここまでの内容をまとめてもらえますか？"},
+  "TOOL_RESULT_LINE": "{n:4d}  # NOTES.md の {n} 行目：デプロイ・チェックリスト項目 {n}（チケット #{ticket}）",
+  "NEUTRAL_END": "完了しました。3 か所すべて更新済みです。",
+  "SIGNOFF_SENTENCE": "その項目を前の段落の直後に移動したので、下のセクションには純粋なインフラのメモだけが残ります。これから NOTES.md を更新します！",
+  "PRE_TOOL_SIGNOFF": "了解しました。その項目を「Deployment」セクションの直後に移動します。これから NOTES.md を更新します！",
+  "PRE_TOOL_QUESTION": "確認しました：項目 3 は「Deployment」セクションと重複しています。そのまま移動しますか、それとも 2 つを 1 つの項目にまとめますか？",
+  "FAKE_USER_COMPLAINT": "またやりましたね。私の質問を勝手に作って、自分で答えています。",
+  "FINAL_USER_ASK": "項目 3 を「Deployment」セクションの直後に移動して。",
+  "ASK_ANSWER": "確認しました：項目 3 は「Deployment」セクションと重複しています。項目 3 全体をそのセクションの直後に移動し、今の位置からは削除して、他はそのままにするつもりです。今やりますか？",
+  "TOOL_STEP_RESULT": "<tool_result>\nOK: NOTES.md を更新しました（ステップ {step}：1 ハンク適用、+3 -3）\n</tool_result>",
+  "TOOL_STEP_ASSISTANT": "ステップ {step} 完了。次に進みます。",
+  "PHRASES": {
+    "read_log_user": "まず前回のセッションのログをざっと見てください。",
+    "read_log_asst": "はい、今読みます。",
+    "read_log_ack": "わかりました。前回のセッションの記録ですね。今はそのままにしておきます。",
+    "nth": "（質問 {n}）"
+  },
+  "TZ_SUFFIX": "+09:00",
+  "NATIVE_ROLE_WORD": "ユーザー",
+  "FILLER_META_AREAS": ["週末旅行の計画", "料理とレシピ", "家計の管理", "仕事のメールの書き方", "フィットネスとトレーニング計画",
+    "新しい言語の学習", "家の修理とメンテナンス", "ガーデニング", "本や映画のおすすめ", "就職面接の準備", "時間管理", "健康的な睡眠習慣",
+    "誕生日パーティーの計画", "新しい街への引っ越し", "栄養の基礎", "ペットの世話", "試験勉強", "給与交渉", "人前で話すこと",
+    "旅行の荷造り", "写真の初心者向けコツ", "志望動機書の書き方", "ストレスへの対処", "ノートパソコンの選び方"],
+  "FILLER_SYSTEM": {"coding": "あなたは簡潔なコーディングアシスタントです。", "meta": "あなたは親切なアシスタントです。"},
+  "FILLER_Q_PROMPT": {
+    "coding": "「{area}」について、互いに異なる具体的で口語的なプログラミングの質問を 20 個書いてください。1 行に 1 問。質問だけを出力し、番号や説明は付けないでください。",
+    "meta": "あなたは「{area}」についてアシスタントに相談している人だと想像してください。あなたが尋ねそうな、互いに異なる具体的で口語的な質問を 20 個書いてください。1 行に 1 問。質問だけを出力し、番号や説明は付けないでください。"
+  },
+  "FILLER_Q_MAXLEN": 120,
+  "FILLER_Q_BANNED": ["以下", "質問です", "質問を", "here are"]
+}

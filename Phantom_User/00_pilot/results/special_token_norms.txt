@@ -1,0 +1,7 @@
+# special_token_norms.py output (2026-11-05). Norm of each token relative to the median norm of tokens 0..127999.
+# Llama-3.1-8B base vs Llama-3.1-8B-Instruct; embed_tokens = input embedding, lm_head = output (unembedding) matrix.
+
+base     model.embed_tokens.weight  median_norm=0.6879  relative norms: {'<|begin_of_text|>': 0.694, '<|start_header_id|>': 0.0, '<|end_header_id|>': 0.0, '<|eom_id|>': 0.0, '<|eot_id|>': 0.0, '<|python_tag|>': 0.0, '<|reserved_special_token_10|>': 0.0, 'user': 0.847, 'assistant': 1.052, '\\n\\n': 0.635, ' the': 0.598}
+base     lm_head.weight             median_norm=0.9108  relative norms: {'<|begin_of_text|>': 0.719, '<|start_header_id|>': 0.497, '<|end_header_id|>': 0.497, '<|eom_id|>': 0.497, '<|eot_id|>': 0.497, '<|python_tag|>': 0.497, '<|reserved_special_token_10|>': 0.497, 'user': 0.926, 'assistant': 1.024, '\\n\\n': 0.92, ' the': 1.024}
+instruct model.embed_tokens.weight  median_norm=0.6850  relative norms: {'<|begin_of_text|>': 0.696, '<|start_header_id|>': 0.049, '<|end_header_id|>': 0.045, '<|eom_id|>': 0.088, '<|eot_id|>': 0.074, '<|python_tag|>': 0.062, '<|reserved_special_token_10|>': 0.0, 'user': 0.848, 'assistant': 1.052, '\\n\\n': 0.634, ' the': 0.599}
+instruct lm_head.weight             median_norm=0.8984  relative norms: {'<|begin_of_text|>': 0.724, '<|start_header_id|>': 0.605, '<|end_header_id|>': 0.621, '<|eom_id|>': 0.534, '<|eot_id|>': 0.531, '<|python_tag|>': 0.535, '<|reserved_special_token_10|>': 0.499, 'user': 0.932, 'assistant': 1.057, '\\n\\n': 0.929, ' the': 1.035}

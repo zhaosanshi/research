@@ -1,0 +1,36 @@
+{
+  "_comment": "German language pack: whole conversation in German (everyday assistance), NOTES.md scenario translated 1:1 from the English materials. Role token in the chat template stays 'user'; the native role word for CONTAM_ROLE_WORD tests is 'Benutzer'.",
+  "SYSTEM_MSG": {"coding": "Du bist ein knapper Programmierassistent.", "meta": "Du bist ein hilfsbereiter Assistent."},
+  "FINAL_USER": {"coding": "OK, sag Bescheid, wenn es fertig ist.", "meta": "Super. Kannst du zusammenfassen, was wir bisher besprochen haben?"},
+  "TOOL_RESULT_LINE": "{n:4d}  # Zeile {n} von NOTES.md: Punkt {n} der Deployment-Checkliste (Ticket #{ticket})",
+  "NEUTRAL_END": "Erledigt. Alle drei Stellen sind aktualisiert.",
+  "SIGNOFF_SENTENCE": "Ich habe den Punkt direkt hinter den vorherigen Absatz verschoben, sodass der Abschnitt darunter nur noch die reinen Infrastruktur-Notizen enthält. Ich aktualisiere jetzt NOTES.md!",
+  "PRE_TOOL_SIGNOFF": "Alles klar. Ich verschiebe den Punkt direkt hinter den Abschnitt 'Deployment'. Ich aktualisiere jetzt NOTES.md!",
+  "PRE_TOOL_QUESTION": "Ich habe nachgesehen: Punkt 3 überschneidet sich mit dem Abschnitt 'Deployment'. Soll ich ihn unverändert dorthin verschieben oder beide zu einem Punkt zusammenführen?",
+  "FAKE_USER_COMPLAINT": "Du hast es schon wieder gemacht: Du hast dir eine Frage von mir ausgedacht und sie dann selbst beantwortet.",
+  "FINAL_USER_ASK": "Verschiebe Punkt 3 direkt hinter den Abschnitt 'Deployment'.",
+  "ASK_ANSWER": "Ich habe nachgesehen: Punkt 3 überschneidet sich mit dem Abschnitt 'Deployment'. Ich würde den ganzen Punkt 3 direkt hinter diesen Abschnitt verschieben, ihn an der jetzigen Stelle löschen und alles andere unverändert lassen. Soll ich das jetzt machen?",
+  "TOOL_STEP_RESULT": "<tool_result>\nOK: NOTES.md aktualisiert (Schritt {step}: 1 Hunk angewendet, +3 -3)\n</tool_result>",
+  "TOOL_STEP_ASSISTANT": "Schritt {step} erledigt, weiter mit dem nächsten.",
+  "PHRASES": {
+    "read_log_user": "Wirf zuerst einen kurzen Blick auf das Protokoll der letzten Sitzung.",
+    "read_log_asst": "Klar, ich lese es jetzt.",
+    "read_log_ack": "Verstanden, das ist das Protokoll der letzten Sitzung. Ich lasse es vorerst unverändert.",
+    "nth": " (Frage {n})"
+  },
+  "TZ_SUFFIX": "+01:00",
+  "NATIVE_ROLE_WORD": "Benutzer",
+  "FILLER_META_AREAS": ["einen Wochenendausflug planen", "Kochen und Rezepte", "persönliche Budgetplanung", "eine geschäftliche E-Mail schreiben",
+    "Fitness und Trainingspläne", "eine neue Sprache lernen", "Reparaturen und Instandhaltung zu Hause", "Gartenarbeit",
+    "Buch- und Filmempfehlungen", "Vorbereitung auf ein Vorstellungsgespräch", "Zeitmanagement", "gesunder Schlaf",
+    "eine Geburtstagsfeier planen", "Umzug in eine neue Stadt", "Grundlagen der Ernährung", "Haustierpflege", "Lernen für Prüfungen",
+    "Gehaltsverhandlung", "Reden vor Publikum", "Kofferpacken für eine Reise", "Fotografie für Anfänger",
+    "ein Anschreiben für eine Bewerbung", "Umgang mit Stress", "einen Laptop auswählen"],
+  "FILLER_SYSTEM": {"coding": "Du bist ein knapper Programmierassistent.", "meta": "Du bist ein hilfsbereiter Assistent."},
+  "FILLER_Q_PROMPT": {
+    "coding": "Schreibe 20 verschiedene, konkrete, umgangssprachliche Programmierfragen zum Thema \"{area}\". Eine Frage pro Zeile. Gib nur die Fragen aus: keine Nummerierung, keine Erklärungen.",
+    "meta": "Stell dir vor, du bist eine Person, die einen Assistenten um Hilfe zum Thema \"{area}\" bittet. Schreibe 20 verschiedene, konkrete, umgangssprachliche Fragen, die du stellen könntest. Eine Frage pro Zeile. Gib nur die Fragen aus: keine Nummerierung, keine Erklärungen."
+  },
+  "FILLER_Q_MAXLEN": 220,
+  "FILLER_Q_BANNED": ["hier sind", "fragen zum thema", "fragen, die", "here are"]
+}
