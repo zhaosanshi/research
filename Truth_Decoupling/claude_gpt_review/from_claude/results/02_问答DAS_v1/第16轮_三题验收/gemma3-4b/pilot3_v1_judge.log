@@ -1,0 +1,18 @@
+judge calls 0, cache hits 0
+/usr/local/lib/python3.12/dist-packages/numpy/lib/_nanfunctions_impl.py:1437: RuntimeWarning: All-NaN slice encountered
+  return _nanquantile_unchecked(
+# 真实问答验证：gemma3-4b（E25_DAS_pilot）
+
+**小样本线路检查，不作为效果或最优层证据。**
+
+3 道问题，分区 `pilot`，共 5 个条件；生成与干预设置以输入文件记录为准。裁判 deepseek（A 对 / B 错 / C 未作答），按语义裁判判定，关键词仅标记复核，不能覆盖正确或错误为弃答。参考答案分区口径：exact_personal_refusals_v1；其中单列的问题 0 道。主表统计所有条件都有判定且金标实质的问题 3 道；未判定：{'baseline': 0, 'E_qa_das_prefill_L11_a1': 0, 'E_qa_das_continuous_L11_a1': 0, 'E_qa_md_prefill_L11_a1': 0, 'E_qa_md_continuous_L11_a1': 0}；被 max_new_tokens 截断的比例：{'baseline': 0.0, 'E_qa_das_prefill_L11_a1': 0.0, 'E_qa_das_continuous_L11_a1': 0.0, 'E_qa_md_prefill_L11_a1': 0.0, 'E_qa_md_continuous_L11_a1': 0.667}。
+
+E：{'methods': ['qa_das', 'qa_md'], 'primary_operator': 'centered amplification', 'main_mode': 'continuous', 'reference_diagnostic_operator': None}；C：{'enabled': False}。
+
+| 条件 | 答对 | 答错 | 弃答 | 作答率 | 已作答中答对比例 | 只看裁判（不叠规则）：答对 / 弃答 |
+|---|---|---|---|---|---|---|
+| baseline | 0.333 | 0.667 | 0.000 | 1.000 | 0.333 | 0.333 / 0.000 |
+| E_qa_das_prefill_L11_a1 | 0.333 | 0.667 | 0.000 | 1.000 | 0.333 | 0.333 / 0.000 |
+| E_qa_das_continuous_L11_a1 | 0.333 | 0.667 | 0.000 | 1.000 | 0.333 | 0.333 / 0.000 |
+| E_qa_md_prefill_L11_a1 | 0.333 | 0.667 | 0.000 | 1.000 | 0.333 | 0.333 / 0.000 |
+saved /workspace/Truth_Decoupling/results_qa_das_v1/gemma3-4b/pilot3_v1/check_scored.md

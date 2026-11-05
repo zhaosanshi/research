@@ -1,0 +1,86 @@
+{
+  "protocol": "qa_das_ptrue_ce_bidir_v1",
+  "bank_fingerprint": "2c4af9b94d19ba7f39dee39ef4b7191be455b56ae547cc5d58e503474e5ebd6b",
+  "model": "qwen3-8b",
+  "seed": 42,
+  "layers": {
+    "18": {
+      "file": "das/das_E_L18_r1_s42_qa_das_ptrue_ce_bidir_v1.pt",
+      "sha256": "a5fcfe5b7ed206040b8f5d402ba6caec3f4fd5d67654fd658f18f246fb000329",
+      "losses": [
+        7.010275602340698,
+        6.969281713167827,
+        6.865806678930919,
+        6.518808464209239,
+        5.987542291482289,
+        5.12223004301389,
+        4.4862269051373005,
+        3.931985611716906,
+        3.298724069725722,
+        2.8888538575265557
+      ],
+      "position_trace": [
+        {
+          "label": "true",
+          "label_token_index": 0,
+          "label_token_id": 3007,
+          "input_length": 95,
+          "base_answer_end": 72,
+          "first_label_predictor": 94,
+          "current_label_predictor": 94,
+          "operation": "interchange",
+          "residual_dtype": "torch.bfloat16",
+          "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+          "h_norm": 100.0462417602539,
+          "intended_delta_norm": 0.48009082674980164,
+          "kept_delta_norm": 0.4882097542285919,
+          "coordinate_before": -1.1287014484405518,
+          "coordinate_after": -0.6538580656051636,
+          "intended_coordinate_delta": 0.48009082674980164,
+          "kept_coordinate_delta": 0.4748433828353882,
+          "source_coordinate": -0.6486105918884277,
+          "center_coordinate": null,
+          "pair_id": "tqa:765",
+          "direction": "negative_to_positive",
+          "source_answer_end": 71,
+          "source_input_length": 94
+        },
+        {
+          "label": "false",
+          "label_token_index": 0,
+          "label_token_id": 3557,
+          "input_length": 94,
+          "base_answer_end": 71,
+          "first_label_predictor": 93,
+          "current_label_predictor": 93,
+          "operation": "interchange",
+          "residual_dtype": "torch.bfloat16",
+          "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+          "h_norm": 107.02091979980469,
+          "intended_delta_norm": 0.48009082674980164,
+          "kept_delta_norm": 0.48925432562828064,
+          "coordinate_before": -0.6486105918884277,
+          "coordinate_after": -1.1236494779586792,
+          "intended_coordinate_delta": -0.48009082674980164,
+          "kept_coordinate_delta": -0.47503888607025146,
+          "source_coordinate": -1.1287014484405518,
+          "center_coordinate": null,
+          "pair_id": "tqa:765",
+          "direction": "positive_to_negative",
+          "source_answer_end": 72,
+          "source_input_length": 95
+        }
+      ],
+      "per_seed": {
+        "source_cache_supplied": true,
+        "optimizer_updates": 30,
+        "gradient_norm_min": 0.052776649594306946,
+        "gradient_norm_max": 33.62211608886719,
+        "gradient_norm_mean": 6.854977337022622,
+        "zero_gradient_updates": 0
+      }
+    }
+  },
+  "structural_null_layers": [],
+  "completed": true
+}

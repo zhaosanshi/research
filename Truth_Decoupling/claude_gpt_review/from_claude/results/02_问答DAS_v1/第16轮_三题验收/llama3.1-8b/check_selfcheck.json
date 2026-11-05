@@ -1,0 +1,3743 @@
+{
+  "protocol_fingerprint": "ac90a9c68cdd5bc6d296872ee606ca78f4d0dcce072162472110ab938f777154",
+  "eligible_for_selection": false,
+  "note": "wiring diagnostics, not efficacy or layer selection",
+  "reports": [
+    {
+      "context": "qa_das",
+      "result": {
+        "protocol": "qa_das_ptrue_ce_bidir_v1",
+        "eligible_for_selection": false,
+        "layer": 11,
+        "alpha": 1.0,
+        "structural_null": false,
+        "readout": "sum conditional log probabilities of every label token; ties have no prediction",
+        "pairs": [
+          {
+            "pair_id": "tqa:685",
+            "eligible_for_selection": false,
+            "negative_to_positive": {
+              "base_answer_end": 92,
+              "source_answer_end": 96,
+              "label_predictor": 114,
+              "baseline": {
+                "logp_sum": {
+                  "true": -0.6250013113021851,
+                  "false": -2.1958022117614746
+                },
+                "logp_mean": {
+                  "true": -0.6250013113021851,
+                  "false": -2.1958022117614746
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 115,
+                      "base_answer_end": 92,
+                      "first_label_predictor": 114,
+                      "current_label_predictor": 114,
+                      "operation": "baseline",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.736938953399658,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": -0.10247451066970825,
+                      "coordinate_after": -0.10247451066970825,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": null,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 115,
+                      "base_answer_end": 92,
+                      "first_label_predictor": 114,
+                      "current_label_predictor": 114,
+                      "operation": "baseline",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.736938953399658,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": -0.10247451066970825,
+                      "coordinate_after": -0.10247451066970825,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": null,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "false",
+                "correct": false,
+                "correct_for_base": false,
+                "matches_source_label": true
+              },
+              "self_swap": {
+                "logp_sum": {
+                  "true": -0.6250013113021851,
+                  "false": -2.1958022117614746
+                },
+                "logp_mean": {
+                  "true": -0.6250013113021851,
+                  "false": -2.1958022117614746
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 115,
+                      "base_answer_end": 92,
+                      "first_label_predictor": 114,
+                      "current_label_predictor": 114,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.736938953399658,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": -0.10247451066970825,
+                      "coordinate_after": -0.10247451066970825,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": -0.10247451066970825,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 115,
+                      "base_answer_end": 92,
+                      "first_label_predictor": 114,
+                      "current_label_predictor": 114,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.736938953399658,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": -0.10247451066970825,
+                      "coordinate_after": -0.10247451066970825,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": -0.10247451066970825,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "false",
+                "correct": false,
+                "correct_for_base": false,
+                "matches_source_label": true
+              },
+              "cross_swap": {
+                "logp_sum": {
+                  "true": -0.6001588106155396,
+                  "false": -2.2321910858154297
+                },
+                "logp_mean": {
+                  "true": -0.6001588106155396,
+                  "false": -2.2321910858154297
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 115,
+                      "base_answer_end": 92,
+                      "first_label_predictor": 114,
+                      "current_label_predictor": 114,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.736938953399658,
+                      "intended_delta_norm": 0.030696295201778412,
+                      "kept_delta_norm": 0.03200986236333847,
+                      "coordinate_before": -0.10247451066970825,
+                      "coordinate_after": -0.132420614361763,
+                      "intended_coordinate_delta": -0.03069629706442356,
+                      "kept_coordinate_delta": -0.02994610369205475,
+                      "source_coordinate": -0.13317081332206726,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 115,
+                      "base_answer_end": 92,
+                      "first_label_predictor": 114,
+                      "current_label_predictor": 114,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.736938953399658,
+                      "intended_delta_norm": 0.030696295201778412,
+                      "kept_delta_norm": 0.03200986236333847,
+                      "coordinate_before": -0.10247451066970825,
+                      "coordinate_after": -0.132420614361763,
+                      "intended_coordinate_delta": -0.03069629706442356,
+                      "kept_coordinate_delta": -0.02994610369205475,
+                      "source_coordinate": -0.13317081332206726,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "true",
+                "correct": true,
+                "correct_for_base": false,
+                "matches_source_label": true
+              },
+              "amplify": {
+                "logp_sum": {
+                  "true": -0.5863606929779053,
+                  "false": -2.2030904293060303
+                },
+                "logp_mean": {
+                  "true": -0.5863606929779053,
+                  "false": -2.2030904293060303
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 115,
+                      "base_answer_end": 92,
+                      "first_label_predictor": 114,
+                      "current_label_predictor": 114,
+                      "operation": "amplify",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.736938953399658,
+                      "intended_delta_norm": 0.14061525464057922,
+                      "kept_delta_norm": 0.14127172529697418,
+                      "coordinate_before": -0.10247451066970825,
+                      "coordinate_after": 0.03820709139108658,
+                      "intended_coordinate_delta": 0.14061525464057922,
+                      "kept_coordinate_delta": 0.14068160206079483,
+                      "source_coordinate": null,
+                      "center_coordinate": -0.24308978021144867
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 115,
+                      "base_answer_end": 92,
+                      "first_label_predictor": 114,
+                      "current_label_predictor": 114,
+                      "operation": "amplify",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.736938953399658,
+                      "intended_delta_norm": 0.14061525464057922,
+                      "kept_delta_norm": 0.14127172529697418,
+                      "coordinate_before": -0.10247451066970825,
+                      "coordinate_after": 0.03820709139108658,
+                      "intended_coordinate_delta": 0.14061525464057922,
+                      "kept_coordinate_delta": 0.14068160206079483,
+                      "source_coordinate": null,
+                      "center_coordinate": -0.24308978021144867
+                    }
+                  ]
+                },
+                "expected_label": "false",
+                "correct": false,
+                "correct_for_base": false,
+                "matches_source_label": true
+              }
+            },
+            "positive_to_negative": {
+              "base_answer_end": 96,
+              "source_answer_end": 92,
+              "label_predictor": 118,
+              "baseline": {
+                "logp_sum": {
+                  "true": -0.7481933236122131,
+                  "false": -2.078761577606201
+                },
+                "logp_mean": {
+                  "true": -0.7481933236122131,
+                  "false": -2.078761577606201
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 119,
+                      "base_answer_end": 96,
+                      "first_label_predictor": 118,
+                      "current_label_predictor": 118,
+                      "operation": "baseline",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.312319278717041,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": -0.13317081332206726,
+                      "coordinate_after": -0.13317081332206726,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": null,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 119,
+                      "base_answer_end": 96,
+                      "first_label_predictor": 118,
+                      "current_label_predictor": 118,
+                      "operation": "baseline",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.312319278717041,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": -0.13317081332206726,
+                      "coordinate_after": -0.13317081332206726,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": null,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "true",
+                "correct": true,
+                "correct_for_base": true,
+                "matches_source_label": false
+              },
+              "self_swap": {
+                "logp_sum": {
+                  "true": -0.7481933236122131,
+                  "false": -2.078761577606201
+                },
+                "logp_mean": {
+                  "true": -0.7481933236122131,
+                  "false": -2.078761577606201
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 119,
+                      "base_answer_end": 96,
+                      "first_label_predictor": 118,
+                      "current_label_predictor": 118,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.312319278717041,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": -0.13317081332206726,
+                      "coordinate_after": -0.13317081332206726,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": -0.13317081332206726,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 119,
+                      "base_answer_end": 96,
+                      "first_label_predictor": 118,
+                      "current_label_predictor": 118,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.312319278717041,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": -0.13317081332206726,
+                      "coordinate_after": -0.13317081332206726,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": -0.13317081332206726,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "true",
+                "correct": true,
+                "correct_for_base": true,
+                "matches_source_label": false
+              },
+              "cross_swap": {
+                "logp_sum": {
+                  "true": -0.7400703430175781,
+                  "false": -2.083637237548828
+                },
+                "logp_mean": {
+                  "true": -0.7400703430175781,
+                  "false": -2.083637237548828
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 119,
+                      "base_answer_end": 96,
+                      "first_label_predictor": 118,
+                      "current_label_predictor": 118,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.312319278717041,
+                      "intended_delta_norm": 0.030696295201778412,
+                      "kept_delta_norm": 0.031953465193510056,
+                      "coordinate_before": -0.13317081332206726,
+                      "coordinate_after": -0.10296036303043365,
+                      "intended_coordinate_delta": 0.03069629706442356,
+                      "kept_coordinate_delta": 0.030210450291633606,
+                      "source_coordinate": -0.10247451066970825,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 119,
+                      "base_answer_end": 96,
+                      "first_label_predictor": 118,
+                      "current_label_predictor": 118,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.312319278717041,
+                      "intended_delta_norm": 0.030696295201778412,
+                      "kept_delta_norm": 0.031953465193510056,
+                      "coordinate_before": -0.13317081332206726,
+                      "coordinate_after": -0.10296036303043365,
+                      "intended_coordinate_delta": 0.03069629706442356,
+                      "kept_coordinate_delta": 0.030210450291633606,
+                      "source_coordinate": -0.10247451066970825,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "false",
+                "correct": false,
+                "correct_for_base": true,
+                "matches_source_label": false
+              },
+              "amplify": {
+                "logp_sum": {
+                  "true": -0.7349425554275513,
+                  "false": -2.0646543502807617
+                },
+                "logp_mean": {
+                  "true": -0.7349425554275513,
+                  "false": -2.0646543502807617
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 119,
+                      "base_answer_end": 96,
+                      "first_label_predictor": 118,
+                      "current_label_predictor": 118,
+                      "operation": "amplify",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.312319278717041,
+                      "intended_delta_norm": 0.10991896688938141,
+                      "kept_delta_norm": 0.11014442145824432,
+                      "coordinate_before": -0.13317081332206726,
+                      "coordinate_after": -0.023690402507781982,
+                      "intended_coordinate_delta": 0.109918974339962,
+                      "kept_coordinate_delta": 0.10948041081428528,
+                      "source_coordinate": null,
+                      "center_coordinate": -0.24308978021144867
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 119,
+                      "base_answer_end": 96,
+                      "first_label_predictor": 118,
+                      "current_label_predictor": 118,
+                      "operation": "amplify",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.312319278717041,
+                      "intended_delta_norm": 0.10991896688938141,
+                      "kept_delta_norm": 0.11014442145824432,
+                      "coordinate_before": -0.13317081332206726,
+                      "coordinate_after": -0.023690402507781982,
+                      "intended_coordinate_delta": 0.109918974339962,
+                      "kept_coordinate_delta": 0.10948041081428528,
+                      "source_coordinate": null,
+                      "center_coordinate": -0.24308978021144867
+                    }
+                  ]
+                },
+                "expected_label": "true",
+                "correct": true,
+                "correct_for_base": true,
+                "matches_source_label": false
+              }
+            }
+          },
+          {
+            "pair_id": "tqa:270",
+            "eligible_for_selection": false,
+            "negative_to_positive": {
+              "base_answer_end": 103,
+              "source_answer_end": 100,
+              "label_predictor": 125,
+              "baseline": {
+                "logp_sum": {
+                  "true": -2.8683812618255615,
+                  "false": -0.3695886731147766
+                },
+                "logp_mean": {
+                  "true": -2.8683812618255615,
+                  "false": -0.3695886731147766
+                },
+                "predicted_label": "false",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 126,
+                      "base_answer_end": 103,
+                      "first_label_predictor": 125,
+                      "current_label_predictor": 125,
+                      "operation": "baseline",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 8.041966438293457,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": -0.12497685104608536,
+                      "coordinate_after": -0.12497685104608536,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": null,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 126,
+                      "base_answer_end": 103,
+                      "first_label_predictor": 125,
+                      "current_label_predictor": 125,
+                      "operation": "baseline",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 8.041966438293457,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": -0.12497685104608536,
+                      "coordinate_after": -0.12497685104608536,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": null,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "false",
+                "correct": true,
+                "correct_for_base": true,
+                "matches_source_label": false
+              },
+              "self_swap": {
+                "logp_sum": {
+                  "true": -2.8683812618255615,
+                  "false": -0.3695886731147766
+                },
+                "logp_mean": {
+                  "true": -2.8683812618255615,
+                  "false": -0.3695886731147766
+                },
+                "predicted_label": "false",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 126,
+                      "base_answer_end": 103,
+                      "first_label_predictor": 125,
+                      "current_label_predictor": 125,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 8.041966438293457,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": -0.12497685104608536,
+                      "coordinate_after": -0.12497685104608536,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": -0.12497685104608536,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 126,
+                      "base_answer_end": 103,
+                      "first_label_predictor": 125,
+                      "current_label_predictor": 125,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 8.041966438293457,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": -0.12497685104608536,
+                      "coordinate_after": -0.12497685104608536,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": -0.12497685104608536,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "false",
+                "correct": true,
+                "correct_for_base": true,
+                "matches_source_label": false
+              },
+              "cross_swap": {
+                "logp_sum": {
+                  "true": -2.794969081878662,
+                  "false": -0.3758023977279663
+                },
+                "logp_mean": {
+                  "true": -2.794969081878662,
+                  "false": -0.3758023977279663
+                },
+                "predicted_label": "false",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 126,
+                      "base_answer_end": 103,
+                      "first_label_predictor": 125,
+                      "current_label_predictor": 125,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 8.041966438293457,
+                      "intended_delta_norm": 0.163424551486969,
+                      "kept_delta_norm": 0.16360031068325043,
+                      "coordinate_before": -0.12497685104608536,
+                      "coordinate_after": -0.28798115253448486,
+                      "intended_coordinate_delta": -0.163424551486969,
+                      "kept_coordinate_delta": -0.1630043014883995,
+                      "source_coordinate": -0.28840136528015137,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 126,
+                      "base_answer_end": 103,
+                      "first_label_predictor": 125,
+                      "current_label_predictor": 125,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 8.041966438293457,
+                      "intended_delta_norm": 0.163424551486969,
+                      "kept_delta_norm": 0.16360031068325043,
+                      "coordinate_before": -0.12497685104608536,
+                      "coordinate_after": -0.28798115253448486,
+                      "intended_coordinate_delta": -0.163424551486969,
+                      "kept_coordinate_delta": -0.1630043014883995,
+                      "source_coordinate": -0.28840136528015137,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "true",
+                "correct": false,
+                "correct_for_base": true,
+                "matches_source_label": false
+              },
+              "amplify": {
+                "logp_sum": {
+                  "true": -2.842092752456665,
+                  "false": -0.37368613481521606
+                },
+                "logp_mean": {
+                  "true": -2.842092752456665,
+                  "false": -0.37368613481521606
+                },
+                "predicted_label": "false",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 126,
+                      "base_answer_end": 103,
+                      "first_label_predictor": 125,
+                      "current_label_predictor": 125,
+                      "operation": "amplify",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 8.041966438293457,
+                      "intended_delta_norm": 0.11811291426420212,
+                      "kept_delta_norm": 0.11871093511581421,
+                      "coordinate_before": -0.12497685104608536,
+                      "coordinate_after": -0.00696893036365509,
+                      "intended_coordinate_delta": 0.11811292171478271,
+                      "kept_coordinate_delta": 0.11800792068243027,
+                      "source_coordinate": null,
+                      "center_coordinate": -0.24308978021144867
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 126,
+                      "base_answer_end": 103,
+                      "first_label_predictor": 125,
+                      "current_label_predictor": 125,
+                      "operation": "amplify",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 8.041966438293457,
+                      "intended_delta_norm": 0.11811291426420212,
+                      "kept_delta_norm": 0.11871093511581421,
+                      "coordinate_before": -0.12497685104608536,
+                      "coordinate_after": -0.00696893036365509,
+                      "intended_coordinate_delta": 0.11811292171478271,
+                      "kept_coordinate_delta": 0.11800792068243027,
+                      "source_coordinate": null,
+                      "center_coordinate": -0.24308978021144867
+                    }
+                  ]
+                },
+                "expected_label": "false",
+                "correct": true,
+                "correct_for_base": true,
+                "matches_source_label": false
+              }
+            },
+            "positive_to_negative": {
+              "base_answer_end": 100,
+              "source_answer_end": 103,
+              "label_predictor": 122,
+              "baseline": {
+                "logp_sum": {
+                  "true": -2.1026177406311035,
+                  "false": -0.4924358129501343
+                },
+                "logp_mean": {
+                  "true": -2.1026177406311035,
+                  "false": -0.4924358129501343
+                },
+                "predicted_label": "false",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 123,
+                      "base_answer_end": 100,
+                      "first_label_predictor": 122,
+                      "current_label_predictor": 122,
+                      "operation": "baseline",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.2780585289001465,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": -0.28840136528015137,
+                      "coordinate_after": -0.28840136528015137,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": null,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 123,
+                      "base_answer_end": 100,
+                      "first_label_predictor": 122,
+                      "current_label_predictor": 122,
+                      "operation": "baseline",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.2780585289001465,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": -0.28840136528015137,
+                      "coordinate_after": -0.28840136528015137,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": null,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "true",
+                "correct": false,
+                "correct_for_base": false,
+                "matches_source_label": true
+              },
+              "self_swap": {
+                "logp_sum": {
+                  "true": -2.1026177406311035,
+                  "false": -0.4924358129501343
+                },
+                "logp_mean": {
+                  "true": -2.1026177406311035,
+                  "false": -0.4924358129501343
+                },
+                "predicted_label": "false",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 123,
+                      "base_answer_end": 100,
+                      "first_label_predictor": 122,
+                      "current_label_predictor": 122,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.2780585289001465,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": -0.28840136528015137,
+                      "coordinate_after": -0.28840136528015137,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": -0.28840136528015137,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 123,
+                      "base_answer_end": 100,
+                      "first_label_predictor": 122,
+                      "current_label_predictor": 122,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.2780585289001465,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": -0.28840136528015137,
+                      "coordinate_after": -0.28840136528015137,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": -0.28840136528015137,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "true",
+                "correct": false,
+                "correct_for_base": false,
+                "matches_source_label": true
+              },
+              "cross_swap": {
+                "logp_sum": {
+                  "true": -2.1096713542938232,
+                  "false": -0.49115824699401855
+                },
+                "logp_mean": {
+                  "true": -2.1096713542938232,
+                  "false": -0.49115824699401855
+                },
+                "predicted_label": "false",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 123,
+                      "base_answer_end": 100,
+                      "first_label_predictor": 122,
+                      "current_label_predictor": 122,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.2780585289001465,
+                      "intended_delta_norm": 0.163424551486969,
+                      "kept_delta_norm": 0.16366291046142578,
+                      "coordinate_before": -0.28840136528015137,
+                      "coordinate_after": -0.12526631355285645,
+                      "intended_coordinate_delta": 0.163424551486969,
+                      "kept_coordinate_delta": 0.16313505172729492,
+                      "source_coordinate": -0.12497685104608536,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 123,
+                      "base_answer_end": 100,
+                      "first_label_predictor": 122,
+                      "current_label_predictor": 122,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.2780585289001465,
+                      "intended_delta_norm": 0.163424551486969,
+                      "kept_delta_norm": 0.16366291046142578,
+                      "coordinate_before": -0.28840136528015137,
+                      "coordinate_after": -0.12526631355285645,
+                      "intended_coordinate_delta": 0.163424551486969,
+                      "kept_coordinate_delta": 0.16313505172729492,
+                      "source_coordinate": -0.12497685104608536,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "false",
+                "correct": true,
+                "correct_for_base": false,
+                "matches_source_label": true
+              },
+              "amplify": {
+                "logp_sum": {
+                  "true": -2.0919735431671143,
+                  "false": -0.501237154006958
+                },
+                "logp_mean": {
+                  "true": -2.0919735431671143,
+                  "false": -0.501237154006958
+                },
+                "predicted_label": "false",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 123,
+                      "base_answer_end": 100,
+                      "first_label_predictor": 122,
+                      "current_label_predictor": 122,
+                      "operation": "amplify",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.2780585289001465,
+                      "intended_delta_norm": 0.04531162604689598,
+                      "kept_delta_norm": 0.04635782912373543,
+                      "coordinate_before": -0.28840136528015137,
+                      "coordinate_after": -0.3334804177284241,
+                      "intended_coordinate_delta": -0.04531162232160568,
+                      "kept_coordinate_delta": -0.045079052448272705,
+                      "source_coordinate": null,
+                      "center_coordinate": -0.24308978021144867
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 123,
+                      "base_answer_end": 100,
+                      "first_label_predictor": 122,
+                      "current_label_predictor": 122,
+                      "operation": "amplify",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.2780585289001465,
+                      "intended_delta_norm": 0.04531162604689598,
+                      "kept_delta_norm": 0.04635782912373543,
+                      "coordinate_before": -0.28840136528015137,
+                      "coordinate_after": -0.3334804177284241,
+                      "intended_coordinate_delta": -0.04531162232160568,
+                      "kept_coordinate_delta": -0.045079052448272705,
+                      "source_coordinate": null,
+                      "center_coordinate": -0.24308978021144867
+                    }
+                  ]
+                },
+                "expected_label": "true",
+                "correct": false,
+                "correct_for_base": false,
+                "matches_source_label": true
+              }
+            }
+          },
+          {
+            "pair_id": "tqa:480",
+            "eligible_for_selection": false,
+            "negative_to_positive": {
+              "base_answer_end": 102,
+              "source_answer_end": 104,
+              "label_predictor": 124,
+              "baseline": {
+                "logp_sum": {
+                  "true": -0.35866019129753113,
+                  "false": -3.962402820587158
+                },
+                "logp_mean": {
+                  "true": -0.35866019129753113,
+                  "false": -3.962402820587158
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 125,
+                      "base_answer_end": 102,
+                      "first_label_predictor": 124,
+                      "current_label_predictor": 124,
+                      "operation": "baseline",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.813719272613525,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": 0.11044313758611679,
+                      "coordinate_after": 0.11044313758611679,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": null,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 125,
+                      "base_answer_end": 102,
+                      "first_label_predictor": 124,
+                      "current_label_predictor": 124,
+                      "operation": "baseline",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.813719272613525,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": 0.11044313758611679,
+                      "coordinate_after": 0.11044313758611679,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": null,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "false",
+                "correct": false,
+                "correct_for_base": false,
+                "matches_source_label": true
+              },
+              "self_swap": {
+                "logp_sum": {
+                  "true": -0.35866019129753113,
+                  "false": -3.962402820587158
+                },
+                "logp_mean": {
+                  "true": -0.35866019129753113,
+                  "false": -3.962402820587158
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 125,
+                      "base_answer_end": 102,
+                      "first_label_predictor": 124,
+                      "current_label_predictor": 124,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.813719272613525,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": 0.11044313758611679,
+                      "coordinate_after": 0.11044313758611679,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": 0.11044313758611679,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 125,
+                      "base_answer_end": 102,
+                      "first_label_predictor": 124,
+                      "current_label_predictor": 124,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.813719272613525,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": 0.11044313758611679,
+                      "coordinate_after": 0.11044313758611679,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": 0.11044313758611679,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "false",
+                "correct": false,
+                "correct_for_base": false,
+                "matches_source_label": true
+              },
+              "cross_swap": {
+                "logp_sum": {
+                  "true": -0.37606391310691833,
+                  "false": -3.9407076835632324
+                },
+                "logp_mean": {
+                  "true": -0.37606391310691833,
+                  "false": -3.9407076835632324
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 125,
+                      "base_answer_end": 102,
+                      "first_label_predictor": 124,
+                      "current_label_predictor": 124,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.813719272613525,
+                      "intended_delta_norm": 0.04526267573237419,
+                      "kept_delta_norm": 0.04649820551276207,
+                      "coordinate_before": 0.11044313758611679,
+                      "coordinate_after": 0.1553954780101776,
+                      "intended_coordinate_delta": 0.04526267945766449,
+                      "kept_coordinate_delta": 0.04495234042406082,
+                      "source_coordinate": 0.15570583939552307,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 125,
+                      "base_answer_end": 102,
+                      "first_label_predictor": 124,
+                      "current_label_predictor": 124,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.813719272613525,
+                      "intended_delta_norm": 0.04526267573237419,
+                      "kept_delta_norm": 0.04649820551276207,
+                      "coordinate_before": 0.11044313758611679,
+                      "coordinate_after": 0.1553954780101776,
+                      "intended_coordinate_delta": 0.04526267945766449,
+                      "kept_coordinate_delta": 0.04495234042406082,
+                      "source_coordinate": 0.15570583939552307,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "true",
+                "correct": true,
+                "correct_for_base": false,
+                "matches_source_label": true
+              },
+              "amplify": {
+                "logp_sum": {
+                  "true": -0.35817670822143555,
+                  "false": -3.9309325218200684
+                },
+                "logp_mean": {
+                  "true": -0.35817670822143555,
+                  "false": -3.9309325218200684
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 125,
+                      "base_answer_end": 102,
+                      "first_label_predictor": 124,
+                      "current_label_predictor": 124,
+                      "operation": "amplify",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.813719272613525,
+                      "intended_delta_norm": 0.35353294014930725,
+                      "kept_delta_norm": 0.3537658751010895,
+                      "coordinate_before": 0.11044313758611679,
+                      "coordinate_after": 0.4639488458633423,
+                      "intended_coordinate_delta": 0.35353291034698486,
+                      "kept_coordinate_delta": 0.3535057082772255,
+                      "source_coordinate": null,
+                      "center_coordinate": -0.24308978021144867
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 125,
+                      "base_answer_end": 102,
+                      "first_label_predictor": 124,
+                      "current_label_predictor": 124,
+                      "operation": "amplify",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.813719272613525,
+                      "intended_delta_norm": 0.35353294014930725,
+                      "kept_delta_norm": 0.3537658751010895,
+                      "coordinate_before": 0.11044313758611679,
+                      "coordinate_after": 0.4639488458633423,
+                      "intended_coordinate_delta": 0.35353291034698486,
+                      "kept_coordinate_delta": 0.3535057082772255,
+                      "source_coordinate": null,
+                      "center_coordinate": -0.24308978021144867
+                    }
+                  ]
+                },
+                "expected_label": "false",
+                "correct": false,
+                "correct_for_base": false,
+                "matches_source_label": true
+              }
+            },
+            "positive_to_negative": {
+              "base_answer_end": 104,
+              "source_answer_end": 102,
+              "label_predictor": 126,
+              "baseline": {
+                "logp_sum": {
+                  "true": -0.346148818731308,
+                  "false": -4.171061992645264
+                },
+                "logp_mean": {
+                  "true": -0.346148818731308,
+                  "false": -4.171061992645264
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 127,
+                      "base_answer_end": 104,
+                      "first_label_predictor": 126,
+                      "current_label_predictor": 126,
+                      "operation": "baseline",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.800882339477539,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": 0.15570583939552307,
+                      "coordinate_after": 0.15570583939552307,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": null,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 127,
+                      "base_answer_end": 104,
+                      "first_label_predictor": 126,
+                      "current_label_predictor": 126,
+                      "operation": "baseline",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.800882339477539,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": 0.15570583939552307,
+                      "coordinate_after": 0.15570583939552307,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": null,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "true",
+                "correct": true,
+                "correct_for_base": true,
+                "matches_source_label": false
+              },
+              "self_swap": {
+                "logp_sum": {
+                  "true": -0.346148818731308,
+                  "false": -4.171061992645264
+                },
+                "logp_mean": {
+                  "true": -0.346148818731308,
+                  "false": -4.171061992645264
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 127,
+                      "base_answer_end": 104,
+                      "first_label_predictor": 126,
+                      "current_label_predictor": 126,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.800882339477539,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": 0.15570583939552307,
+                      "coordinate_after": 0.15570583939552307,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": 0.15570583939552307,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 127,
+                      "base_answer_end": 104,
+                      "first_label_predictor": 126,
+                      "current_label_predictor": 126,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.800882339477539,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": 0.15570583939552307,
+                      "coordinate_after": 0.15570583939552307,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": 0.15570583939552307,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "true",
+                "correct": true,
+                "correct_for_base": true,
+                "matches_source_label": false
+              },
+              "cross_swap": {
+                "logp_sum": {
+                  "true": -0.3434125483036041,
+                  "false": -4.105373382568359
+                },
+                "logp_mean": {
+                  "true": -0.3434125483036041,
+                  "false": -4.105373382568359
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 127,
+                      "base_answer_end": 104,
+                      "first_label_predictor": 126,
+                      "current_label_predictor": 126,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.800882339477539,
+                      "intended_delta_norm": 0.04526267573237419,
+                      "kept_delta_norm": 0.04660098999738693,
+                      "coordinate_before": 0.15570583939552307,
+                      "coordinate_after": 0.11068244278430939,
+                      "intended_coordinate_delta": -0.04526267945766449,
+                      "kept_coordinate_delta": -0.045023396611213684,
+                      "source_coordinate": 0.11044313758611679,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 127,
+                      "base_answer_end": 104,
+                      "first_label_predictor": 126,
+                      "current_label_predictor": 126,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.800882339477539,
+                      "intended_delta_norm": 0.04526267573237419,
+                      "kept_delta_norm": 0.04660098999738693,
+                      "coordinate_before": 0.15570583939552307,
+                      "coordinate_after": 0.11068244278430939,
+                      "intended_coordinate_delta": -0.04526267945766449,
+                      "kept_coordinate_delta": -0.045023396611213684,
+                      "source_coordinate": 0.11044313758611679,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "false",
+                "correct": false,
+                "correct_for_base": true,
+                "matches_source_label": false
+              },
+              "amplify": {
+                "logp_sum": {
+                  "true": -0.35101062059402466,
+                  "false": -4.124120235443115
+                },
+                "logp_mean": {
+                  "true": -0.35101062059402466,
+                  "false": -4.124120235443115
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 127,
+                      "base_answer_end": 104,
+                      "first_label_predictor": 126,
+                      "current_label_predictor": 126,
+                      "operation": "amplify",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.800882339477539,
+                      "intended_delta_norm": 0.39879563450813293,
+                      "kept_delta_norm": 0.398979127407074,
+                      "coordinate_before": 0.15570583939552307,
+                      "coordinate_after": 0.5544869899749756,
+                      "intended_coordinate_delta": 0.39879563450813293,
+                      "kept_coordinate_delta": 0.3987811505794525,
+                      "source_coordinate": null,
+                      "center_coordinate": -0.24308978021144867
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 127,
+                      "base_answer_end": 104,
+                      "first_label_predictor": 126,
+                      "current_label_predictor": 126,
+                      "operation": "amplify",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.800882339477539,
+                      "intended_delta_norm": 0.39879563450813293,
+                      "kept_delta_norm": 0.398979127407074,
+                      "coordinate_before": 0.15570583939552307,
+                      "coordinate_after": 0.5544869899749756,
+                      "intended_coordinate_delta": 0.39879563450813293,
+                      "kept_coordinate_delta": 0.3987811505794525,
+                      "source_coordinate": null,
+                      "center_coordinate": -0.24308978021144867
+                    }
+                  ]
+                },
+                "expected_label": "true",
+                "correct": true,
+                "correct_for_base": true,
+                "matches_source_label": false
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "context": "qa_md",
+      "result": {
+        "protocol": "qa_das_ptrue_ce_bidir_v1",
+        "eligible_for_selection": false,
+        "layer": 11,
+        "alpha": 1.0,
+        "structural_null": false,
+        "readout": "sum conditional log probabilities of every label token; ties have no prediction",
+        "pairs": [
+          {
+            "pair_id": "tqa:685",
+            "eligible_for_selection": false,
+            "negative_to_positive": {
+              "base_answer_end": 92,
+              "source_answer_end": 96,
+              "label_predictor": 114,
+              "baseline": {
+                "logp_sum": {
+                  "true": -0.6250013113021851,
+                  "false": -2.1958022117614746
+                },
+                "logp_mean": {
+                  "true": -0.6250013113021851,
+                  "false": -2.1958022117614746
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 115,
+                      "base_answer_end": 92,
+                      "first_label_predictor": 114,
+                      "current_label_predictor": 114,
+                      "operation": "baseline",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.736938953399658,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": -0.1529666781425476,
+                      "coordinate_after": -0.1529666781425476,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": null,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 115,
+                      "base_answer_end": 92,
+                      "first_label_predictor": 114,
+                      "current_label_predictor": 114,
+                      "operation": "baseline",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.736938953399658,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": -0.1529666781425476,
+                      "coordinate_after": -0.1529666781425476,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": null,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "false",
+                "correct": false,
+                "correct_for_base": false,
+                "matches_source_label": true
+              },
+              "self_swap": {
+                "logp_sum": {
+                  "true": -0.6250013113021851,
+                  "false": -2.1958022117614746
+                },
+                "logp_mean": {
+                  "true": -0.6250013113021851,
+                  "false": -2.1958022117614746
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 115,
+                      "base_answer_end": 92,
+                      "first_label_predictor": 114,
+                      "current_label_predictor": 114,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.736938953399658,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": -0.1529666781425476,
+                      "coordinate_after": -0.1529666781425476,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": -0.1529666781425476,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 115,
+                      "base_answer_end": 92,
+                      "first_label_predictor": 114,
+                      "current_label_predictor": 114,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.736938953399658,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": -0.1529666781425476,
+                      "coordinate_after": -0.1529666781425476,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": -0.1529666781425476,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "false",
+                "correct": false,
+                "correct_for_base": false,
+                "matches_source_label": true
+              },
+              "cross_swap": {
+                "logp_sum": {
+                  "true": -0.5966460108757019,
+                  "false": -2.1878535747528076
+                },
+                "logp_mean": {
+                  "true": -0.5966460108757019,
+                  "false": -2.1878535747528076
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 115,
+                      "base_answer_end": 92,
+                      "first_label_predictor": 114,
+                      "current_label_predictor": 114,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.736938953399658,
+                      "intended_delta_norm": 0.40569618344306946,
+                      "kept_delta_norm": 0.40525704622268677,
+                      "coordinate_before": -0.1529666781425476,
+                      "coordinate_after": 0.25206926465034485,
+                      "intended_coordinate_delta": 0.40569618344306946,
+                      "kept_coordinate_delta": 0.40503594279289246,
+                      "source_coordinate": 0.2527294158935547,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 115,
+                      "base_answer_end": 92,
+                      "first_label_predictor": 114,
+                      "current_label_predictor": 114,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.736938953399658,
+                      "intended_delta_norm": 0.40569618344306946,
+                      "kept_delta_norm": 0.40525704622268677,
+                      "coordinate_before": -0.1529666781425476,
+                      "coordinate_after": 0.25206926465034485,
+                      "intended_coordinate_delta": 0.40569618344306946,
+                      "kept_coordinate_delta": 0.40503594279289246,
+                      "source_coordinate": 0.2527294158935547,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "true",
+                "correct": true,
+                "correct_for_base": false,
+                "matches_source_label": true
+              },
+              "amplify": {
+                "logp_sum": {
+                  "true": -0.5945122241973877,
+                  "false": -2.2185089588165283
+                },
+                "logp_mean": {
+                  "true": -0.5945122241973877,
+                  "false": -2.2185089588165283
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 115,
+                      "base_answer_end": 92,
+                      "first_label_predictor": 114,
+                      "current_label_predictor": 114,
+                      "operation": "amplify",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.736938953399658,
+                      "intended_delta_norm": 0.04115239903330803,
+                      "kept_delta_norm": 0.04229794442653656,
+                      "coordinate_before": -0.1529666781425476,
+                      "coordinate_after": -0.19337162375450134,
+                      "intended_coordinate_delta": -0.04115239530801773,
+                      "kept_coordinate_delta": -0.040404945611953735,
+                      "source_coordinate": null,
+                      "center_coordinate": -0.11181432008743286
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 115,
+                      "base_answer_end": 92,
+                      "first_label_predictor": 114,
+                      "current_label_predictor": 114,
+                      "operation": "amplify",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.736938953399658,
+                      "intended_delta_norm": 0.04115239903330803,
+                      "kept_delta_norm": 0.04229794442653656,
+                      "coordinate_before": -0.1529666781425476,
+                      "coordinate_after": -0.19337162375450134,
+                      "intended_coordinate_delta": -0.04115239530801773,
+                      "kept_coordinate_delta": -0.040404945611953735,
+                      "source_coordinate": null,
+                      "center_coordinate": -0.11181432008743286
+                    }
+                  ]
+                },
+                "expected_label": "false",
+                "correct": false,
+                "correct_for_base": false,
+                "matches_source_label": true
+              }
+            },
+            "positive_to_negative": {
+              "base_answer_end": 96,
+              "source_answer_end": 92,
+              "label_predictor": 118,
+              "baseline": {
+                "logp_sum": {
+                  "true": -0.7481933236122131,
+                  "false": -2.078761577606201
+                },
+                "logp_mean": {
+                  "true": -0.7481933236122131,
+                  "false": -2.078761577606201
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 119,
+                      "base_answer_end": 96,
+                      "first_label_predictor": 118,
+                      "current_label_predictor": 118,
+                      "operation": "baseline",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.312319278717041,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": 0.2527294158935547,
+                      "coordinate_after": 0.2527294158935547,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": null,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 119,
+                      "base_answer_end": 96,
+                      "first_label_predictor": 118,
+                      "current_label_predictor": 118,
+                      "operation": "baseline",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.312319278717041,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": 0.2527294158935547,
+                      "coordinate_after": 0.2527294158935547,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": null,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "true",
+                "correct": true,
+                "correct_for_base": true,
+                "matches_source_label": false
+              },
+              "self_swap": {
+                "logp_sum": {
+                  "true": -0.7481933236122131,
+                  "false": -2.078761577606201
+                },
+                "logp_mean": {
+                  "true": -0.7481933236122131,
+                  "false": -2.078761577606201
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 119,
+                      "base_answer_end": 96,
+                      "first_label_predictor": 118,
+                      "current_label_predictor": 118,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.312319278717041,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": 0.2527294158935547,
+                      "coordinate_after": 0.2527294158935547,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": 0.2527294158935547,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 119,
+                      "base_answer_end": 96,
+                      "first_label_predictor": 118,
+                      "current_label_predictor": 118,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.312319278717041,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": 0.2527294158935547,
+                      "coordinate_after": 0.2527294158935547,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": 0.2527294158935547,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "true",
+                "correct": true,
+                "correct_for_base": true,
+                "matches_source_label": false
+              },
+              "cross_swap": {
+                "logp_sum": {
+                  "true": -0.7328068614006042,
+                  "false": -2.0642354488372803
+                },
+                "logp_mean": {
+                  "true": -0.7328068614006042,
+                  "false": -2.0642354488372803
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 119,
+                      "base_answer_end": 96,
+                      "first_label_predictor": 118,
+                      "current_label_predictor": 118,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.312319278717041,
+                      "intended_delta_norm": 0.40569618344306946,
+                      "kept_delta_norm": 0.4056587815284729,
+                      "coordinate_before": 0.2527294158935547,
+                      "coordinate_after": -0.15277214348316193,
+                      "intended_coordinate_delta": -0.40569618344306946,
+                      "kept_coordinate_delta": -0.4055015593767166,
+                      "source_coordinate": -0.1529666781425476,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 119,
+                      "base_answer_end": 96,
+                      "first_label_predictor": 118,
+                      "current_label_predictor": 118,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.312319278717041,
+                      "intended_delta_norm": 0.40569618344306946,
+                      "kept_delta_norm": 0.4056587815284729,
+                      "coordinate_before": 0.2527294158935547,
+                      "coordinate_after": -0.15277214348316193,
+                      "intended_coordinate_delta": -0.40569618344306946,
+                      "kept_coordinate_delta": -0.4055015593767166,
+                      "source_coordinate": -0.1529666781425476,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "false",
+                "correct": false,
+                "correct_for_base": true,
+                "matches_source_label": false
+              },
+              "amplify": {
+                "logp_sum": {
+                  "true": -0.7417908310890198,
+                  "false": -2.057798385620117
+                },
+                "logp_mean": {
+                  "true": -0.7417908310890198,
+                  "false": -2.057798385620117
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 119,
+                      "base_answer_end": 96,
+                      "first_label_predictor": 118,
+                      "current_label_predictor": 118,
+                      "operation": "amplify",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.312319278717041,
+                      "intended_delta_norm": 0.36454373598098755,
+                      "kept_delta_norm": 0.364783376455307,
+                      "coordinate_before": 0.2527294158935547,
+                      "coordinate_after": 0.6173423528671265,
+                      "intended_coordinate_delta": 0.36454373598098755,
+                      "kept_coordinate_delta": 0.3646129369735718,
+                      "source_coordinate": null,
+                      "center_coordinate": -0.11181432008743286
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 119,
+                      "base_answer_end": 96,
+                      "first_label_predictor": 118,
+                      "current_label_predictor": 118,
+                      "operation": "amplify",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.312319278717041,
+                      "intended_delta_norm": 0.36454373598098755,
+                      "kept_delta_norm": 0.364783376455307,
+                      "coordinate_before": 0.2527294158935547,
+                      "coordinate_after": 0.6173423528671265,
+                      "intended_coordinate_delta": 0.36454373598098755,
+                      "kept_coordinate_delta": 0.3646129369735718,
+                      "source_coordinate": null,
+                      "center_coordinate": -0.11181432008743286
+                    }
+                  ]
+                },
+                "expected_label": "true",
+                "correct": true,
+                "correct_for_base": true,
+                "matches_source_label": false
+              }
+            }
+          },
+          {
+            "pair_id": "tqa:270",
+            "eligible_for_selection": false,
+            "negative_to_positive": {
+              "base_answer_end": 103,
+              "source_answer_end": 100,
+              "label_predictor": 125,
+              "baseline": {
+                "logp_sum": {
+                  "true": -2.8683812618255615,
+                  "false": -0.3695886731147766
+                },
+                "logp_mean": {
+                  "true": -2.8683812618255615,
+                  "false": -0.3695886731147766
+                },
+                "predicted_label": "false",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 126,
+                      "base_answer_end": 103,
+                      "first_label_predictor": 125,
+                      "current_label_predictor": 125,
+                      "operation": "baseline",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 8.041966438293457,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": -0.6007742285728455,
+                      "coordinate_after": -0.6007742285728455,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": null,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 126,
+                      "base_answer_end": 103,
+                      "first_label_predictor": 125,
+                      "current_label_predictor": 125,
+                      "operation": "baseline",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 8.041966438293457,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": -0.6007742285728455,
+                      "coordinate_after": -0.6007742285728455,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": null,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "false",
+                "correct": true,
+                "correct_for_base": true,
+                "matches_source_label": false
+              },
+              "self_swap": {
+                "logp_sum": {
+                  "true": -2.8683812618255615,
+                  "false": -0.3695886731147766
+                },
+                "logp_mean": {
+                  "true": -2.8683812618255615,
+                  "false": -0.3695886731147766
+                },
+                "predicted_label": "false",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 126,
+                      "base_answer_end": 103,
+                      "first_label_predictor": 125,
+                      "current_label_predictor": 125,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 8.041966438293457,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": -0.6007742285728455,
+                      "coordinate_after": -0.6007742285728455,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": -0.6007742285728455,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 126,
+                      "base_answer_end": 103,
+                      "first_label_predictor": 125,
+                      "current_label_predictor": 125,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 8.041966438293457,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": -0.6007742285728455,
+                      "coordinate_after": -0.6007742285728455,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": -0.6007742285728455,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "false",
+                "correct": true,
+                "correct_for_base": true,
+                "matches_source_label": false
+              },
+              "cross_swap": {
+                "logp_sum": {
+                  "true": -2.7870399951934814,
+                  "false": -0.4039165675640106
+                },
+                "logp_mean": {
+                  "true": -2.7870399951934814,
+                  "false": -0.4039165675640106
+                },
+                "predicted_label": "false",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 126,
+                      "base_answer_end": 103,
+                      "first_label_predictor": 125,
+                      "current_label_predictor": 125,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 8.041966438293457,
+                      "intended_delta_norm": 1.1470367908477783,
+                      "kept_delta_norm": 1.1472015380859375,
+                      "coordinate_before": -0.6007742285728455,
+                      "coordinate_after": 0.5463603734970093,
+                      "intended_coordinate_delta": 1.1470367908477783,
+                      "kept_coordinate_delta": 1.1471346020698547,
+                      "source_coordinate": 0.5462625622749329,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 126,
+                      "base_answer_end": 103,
+                      "first_label_predictor": 125,
+                      "current_label_predictor": 125,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 8.041966438293457,
+                      "intended_delta_norm": 1.1470367908477783,
+                      "kept_delta_norm": 1.1472015380859375,
+                      "coordinate_before": -0.6007742285728455,
+                      "coordinate_after": 0.5463603734970093,
+                      "intended_coordinate_delta": 1.1470367908477783,
+                      "kept_coordinate_delta": 1.1471346020698547,
+                      "source_coordinate": 0.5462625622749329,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "true",
+                "correct": false,
+                "correct_for_base": true,
+                "matches_source_label": false
+              },
+              "amplify": {
+                "logp_sum": {
+                  "true": -2.8835601806640625,
+                  "false": -0.3611832559108734
+                },
+                "logp_mean": {
+                  "true": -2.8835601806640625,
+                  "false": -0.3611832559108734
+                },
+                "predicted_label": "false",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 126,
+                      "base_answer_end": 103,
+                      "first_label_predictor": 125,
+                      "current_label_predictor": 125,
+                      "operation": "amplify",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 8.041966438293457,
+                      "intended_delta_norm": 0.4889598786830902,
+                      "kept_delta_norm": 0.4888717532157898,
+                      "coordinate_before": -0.6007742285728455,
+                      "coordinate_after": -1.0894725322723389,
+                      "intended_coordinate_delta": -0.4889598786830902,
+                      "kept_coordinate_delta": -0.4886983036994934,
+                      "source_coordinate": null,
+                      "center_coordinate": -0.11181432008743286
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 126,
+                      "base_answer_end": 103,
+                      "first_label_predictor": 125,
+                      "current_label_predictor": 125,
+                      "operation": "amplify",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 8.041966438293457,
+                      "intended_delta_norm": 0.4889598786830902,
+                      "kept_delta_norm": 0.4888717532157898,
+                      "coordinate_before": -0.6007742285728455,
+                      "coordinate_after": -1.0894725322723389,
+                      "intended_coordinate_delta": -0.4889598786830902,
+                      "kept_coordinate_delta": -0.4886983036994934,
+                      "source_coordinate": null,
+                      "center_coordinate": -0.11181432008743286
+                    }
+                  ]
+                },
+                "expected_label": "false",
+                "correct": true,
+                "correct_for_base": true,
+                "matches_source_label": false
+              }
+            },
+            "positive_to_negative": {
+              "base_answer_end": 100,
+              "source_answer_end": 103,
+              "label_predictor": 122,
+              "baseline": {
+                "logp_sum": {
+                  "true": -2.1026177406311035,
+                  "false": -0.4924358129501343
+                },
+                "logp_mean": {
+                  "true": -2.1026177406311035,
+                  "false": -0.4924358129501343
+                },
+                "predicted_label": "false",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 123,
+                      "base_answer_end": 100,
+                      "first_label_predictor": 122,
+                      "current_label_predictor": 122,
+                      "operation": "baseline",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.2780585289001465,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": 0.5462625622749329,
+                      "coordinate_after": 0.5462625622749329,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": null,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 123,
+                      "base_answer_end": 100,
+                      "first_label_predictor": 122,
+                      "current_label_predictor": 122,
+                      "operation": "baseline",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.2780585289001465,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": 0.5462625622749329,
+                      "coordinate_after": 0.5462625622749329,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": null,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "true",
+                "correct": false,
+                "correct_for_base": false,
+                "matches_source_label": true
+              },
+              "self_swap": {
+                "logp_sum": {
+                  "true": -2.1026177406311035,
+                  "false": -0.4924358129501343
+                },
+                "logp_mean": {
+                  "true": -2.1026177406311035,
+                  "false": -0.4924358129501343
+                },
+                "predicted_label": "false",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 123,
+                      "base_answer_end": 100,
+                      "first_label_predictor": 122,
+                      "current_label_predictor": 122,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.2780585289001465,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": 0.5462625622749329,
+                      "coordinate_after": 0.5462625622749329,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": 0.5462625622749329,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 123,
+                      "base_answer_end": 100,
+                      "first_label_predictor": 122,
+                      "current_label_predictor": 122,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.2780585289001465,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": 0.5462625622749329,
+                      "coordinate_after": 0.5462625622749329,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": 0.5462625622749329,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "true",
+                "correct": false,
+                "correct_for_base": false,
+                "matches_source_label": true
+              },
+              "cross_swap": {
+                "logp_sum": {
+                  "true": -2.098634958267212,
+                  "false": -0.5025026202201843
+                },
+                "logp_mean": {
+                  "true": -2.098634958267212,
+                  "false": -0.5025026202201843
+                },
+                "predicted_label": "false",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 123,
+                      "base_answer_end": 100,
+                      "first_label_predictor": 122,
+                      "current_label_predictor": 122,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.2780585289001465,
+                      "intended_delta_norm": 1.1470367908477783,
+                      "kept_delta_norm": 1.1468907594680786,
+                      "coordinate_before": 0.5462625622749329,
+                      "coordinate_after": -0.6005731821060181,
+                      "intended_coordinate_delta": -1.1470367908477783,
+                      "kept_coordinate_delta": -1.146835744380951,
+                      "source_coordinate": -0.6007742285728455,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 123,
+                      "base_answer_end": 100,
+                      "first_label_predictor": 122,
+                      "current_label_predictor": 122,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.2780585289001465,
+                      "intended_delta_norm": 1.1470367908477783,
+                      "kept_delta_norm": 1.1468907594680786,
+                      "coordinate_before": 0.5462625622749329,
+                      "coordinate_after": -0.6005731821060181,
+                      "intended_coordinate_delta": -1.1470367908477783,
+                      "kept_coordinate_delta": -1.146835744380951,
+                      "source_coordinate": -0.6007742285728455,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "false",
+                "correct": true,
+                "correct_for_base": false,
+                "matches_source_label": true
+              },
+              "amplify": {
+                "logp_sum": {
+                  "true": -2.0940818786621094,
+                  "false": -0.495697021484375
+                },
+                "logp_mean": {
+                  "true": -2.0940818786621094,
+                  "false": -0.495697021484375
+                },
+                "predicted_label": "false",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 123,
+                      "base_answer_end": 100,
+                      "first_label_predictor": 122,
+                      "current_label_predictor": 122,
+                      "operation": "amplify",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.2780585289001465,
+                      "intended_delta_norm": 0.6580769419670105,
+                      "kept_delta_norm": 0.6582314968109131,
+                      "coordinate_before": 0.5462625622749329,
+                      "coordinate_after": 1.204390525817871,
+                      "intended_coordinate_delta": 0.6580769419670105,
+                      "kept_coordinate_delta": 0.6581279635429382,
+                      "source_coordinate": null,
+                      "center_coordinate": -0.11181432008743286
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 123,
+                      "base_answer_end": 100,
+                      "first_label_predictor": 122,
+                      "current_label_predictor": 122,
+                      "operation": "amplify",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.2780585289001465,
+                      "intended_delta_norm": 0.6580769419670105,
+                      "kept_delta_norm": 0.6582314968109131,
+                      "coordinate_before": 0.5462625622749329,
+                      "coordinate_after": 1.204390525817871,
+                      "intended_coordinate_delta": 0.6580769419670105,
+                      "kept_coordinate_delta": 0.6581279635429382,
+                      "source_coordinate": null,
+                      "center_coordinate": -0.11181432008743286
+                    }
+                  ]
+                },
+                "expected_label": "true",
+                "correct": false,
+                "correct_for_base": false,
+                "matches_source_label": true
+              }
+            }
+          },
+          {
+            "pair_id": "tqa:480",
+            "eligible_for_selection": false,
+            "negative_to_positive": {
+              "base_answer_end": 102,
+              "source_answer_end": 104,
+              "label_predictor": 124,
+              "baseline": {
+                "logp_sum": {
+                  "true": -0.35866019129753113,
+                  "false": -3.962402820587158
+                },
+                "logp_mean": {
+                  "true": -0.35866019129753113,
+                  "false": -3.962402820587158
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 125,
+                      "base_answer_end": 102,
+                      "first_label_predictor": 124,
+                      "current_label_predictor": 124,
+                      "operation": "baseline",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.813719272613525,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": 0.060227494686841965,
+                      "coordinate_after": 0.060227494686841965,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": null,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 125,
+                      "base_answer_end": 102,
+                      "first_label_predictor": 124,
+                      "current_label_predictor": 124,
+                      "operation": "baseline",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.813719272613525,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": 0.060227494686841965,
+                      "coordinate_after": 0.060227494686841965,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": null,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "false",
+                "correct": false,
+                "correct_for_base": false,
+                "matches_source_label": true
+              },
+              "self_swap": {
+                "logp_sum": {
+                  "true": -0.35866019129753113,
+                  "false": -3.962402820587158
+                },
+                "logp_mean": {
+                  "true": -0.35866019129753113,
+                  "false": -3.962402820587158
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 125,
+                      "base_answer_end": 102,
+                      "first_label_predictor": 124,
+                      "current_label_predictor": 124,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.813719272613525,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": 0.060227494686841965,
+                      "coordinate_after": 0.060227494686841965,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": 0.060227494686841965,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 125,
+                      "base_answer_end": 102,
+                      "first_label_predictor": 124,
+                      "current_label_predictor": 124,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.813719272613525,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": 0.060227494686841965,
+                      "coordinate_after": 0.060227494686841965,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": 0.060227494686841965,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "false",
+                "correct": false,
+                "correct_for_base": false,
+                "matches_source_label": true
+              },
+              "cross_swap": {
+                "logp_sum": {
+                  "true": -0.36377397179603577,
+                  "false": -3.91951060295105
+                },
+                "logp_mean": {
+                  "true": -0.36377397179603577,
+                  "false": -3.91951060295105
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 125,
+                      "base_answer_end": 102,
+                      "first_label_predictor": 124,
+                      "current_label_predictor": 124,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.813719272613525,
+                      "intended_delta_norm": 0.02492954581975937,
+                      "kept_delta_norm": 0.026493452489376068,
+                      "coordinate_before": 0.060227494686841965,
+                      "coordinate_after": 0.03629286587238312,
+                      "intended_coordinate_delta": -0.02492954581975937,
+                      "kept_coordinate_delta": -0.023934628814458847,
+                      "source_coordinate": 0.03529796376824379,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 125,
+                      "base_answer_end": 102,
+                      "first_label_predictor": 124,
+                      "current_label_predictor": 124,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.813719272613525,
+                      "intended_delta_norm": 0.02492954581975937,
+                      "kept_delta_norm": 0.026493452489376068,
+                      "coordinate_before": 0.060227494686841965,
+                      "coordinate_after": 0.03629286587238312,
+                      "intended_coordinate_delta": -0.02492954581975937,
+                      "kept_coordinate_delta": -0.023934628814458847,
+                      "source_coordinate": 0.03529796376824379,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "true",
+                "correct": true,
+                "correct_for_base": false,
+                "matches_source_label": true
+              },
+              "amplify": {
+                "logp_sum": {
+                  "true": -0.3663422763347626,
+                  "false": -3.950660467147827
+                },
+                "logp_mean": {
+                  "true": -0.3663422763347626,
+                  "false": -3.950660467147827
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 125,
+                      "base_answer_end": 102,
+                      "first_label_predictor": 124,
+                      "current_label_predictor": 124,
+                      "operation": "amplify",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.813719272613525,
+                      "intended_delta_norm": 0.17204181849956512,
+                      "kept_delta_norm": 0.17235712707042694,
+                      "coordinate_before": 0.060227494686841965,
+                      "coordinate_after": 0.23211660981178284,
+                      "intended_coordinate_delta": 0.17204181849956512,
+                      "kept_coordinate_delta": 0.17188911512494087,
+                      "source_coordinate": null,
+                      "center_coordinate": -0.11181432008743286
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 125,
+                      "base_answer_end": 102,
+                      "first_label_predictor": 124,
+                      "current_label_predictor": 124,
+                      "operation": "amplify",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.813719272613525,
+                      "intended_delta_norm": 0.17204181849956512,
+                      "kept_delta_norm": 0.17235712707042694,
+                      "coordinate_before": 0.060227494686841965,
+                      "coordinate_after": 0.23211660981178284,
+                      "intended_coordinate_delta": 0.17204181849956512,
+                      "kept_coordinate_delta": 0.17188911512494087,
+                      "source_coordinate": null,
+                      "center_coordinate": -0.11181432008743286
+                    }
+                  ]
+                },
+                "expected_label": "false",
+                "correct": false,
+                "correct_for_base": false,
+                "matches_source_label": true
+              }
+            },
+            "positive_to_negative": {
+              "base_answer_end": 104,
+              "source_answer_end": 102,
+              "label_predictor": 126,
+              "baseline": {
+                "logp_sum": {
+                  "true": -0.346148818731308,
+                  "false": -4.171061992645264
+                },
+                "logp_mean": {
+                  "true": -0.346148818731308,
+                  "false": -4.171061992645264
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 127,
+                      "base_answer_end": 104,
+                      "first_label_predictor": 126,
+                      "current_label_predictor": 126,
+                      "operation": "baseline",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.800882339477539,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": 0.03529796376824379,
+                      "coordinate_after": 0.03529796376824379,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": null,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 127,
+                      "base_answer_end": 104,
+                      "first_label_predictor": 126,
+                      "current_label_predictor": 126,
+                      "operation": "baseline",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.800882339477539,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": 0.03529796376824379,
+                      "coordinate_after": 0.03529796376824379,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": null,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "true",
+                "correct": true,
+                "correct_for_base": true,
+                "matches_source_label": false
+              },
+              "self_swap": {
+                "logp_sum": {
+                  "true": -0.346148818731308,
+                  "false": -4.171061992645264
+                },
+                "logp_mean": {
+                  "true": -0.346148818731308,
+                  "false": -4.171061992645264
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 127,
+                      "base_answer_end": 104,
+                      "first_label_predictor": 126,
+                      "current_label_predictor": 126,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.800882339477539,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": 0.03529796376824379,
+                      "coordinate_after": 0.03529796376824379,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": 0.03529796376824379,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 127,
+                      "base_answer_end": 104,
+                      "first_label_predictor": 126,
+                      "current_label_predictor": 126,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.800882339477539,
+                      "intended_delta_norm": 0.0,
+                      "kept_delta_norm": 0.0,
+                      "coordinate_before": 0.03529796376824379,
+                      "coordinate_after": 0.03529796376824379,
+                      "intended_coordinate_delta": 0.0,
+                      "kept_coordinate_delta": 0.0,
+                      "source_coordinate": 0.03529796376824379,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "true",
+                "correct": true,
+                "correct_for_base": true,
+                "matches_source_label": false
+              },
+              "cross_swap": {
+                "logp_sum": {
+                  "true": -0.3347781002521515,
+                  "false": -4.175064563751221
+                },
+                "logp_mean": {
+                  "true": -0.3347781002521515,
+                  "false": -4.175064563751221
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 127,
+                      "base_answer_end": 104,
+                      "first_label_predictor": 126,
+                      "current_label_predictor": 126,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.800882339477539,
+                      "intended_delta_norm": 0.02492954581975937,
+                      "kept_delta_norm": 0.026363562792539597,
+                      "coordinate_before": 0.03529796376824379,
+                      "coordinate_after": 0.05913569778203964,
+                      "intended_coordinate_delta": 0.02492954581975937,
+                      "kept_coordinate_delta": 0.023837734013795853,
+                      "source_coordinate": 0.060227494686841965,
+                      "center_coordinate": null
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 127,
+                      "base_answer_end": 104,
+                      "first_label_predictor": 126,
+                      "current_label_predictor": 126,
+                      "operation": "interchange",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.800882339477539,
+                      "intended_delta_norm": 0.02492954581975937,
+                      "kept_delta_norm": 0.026363562792539597,
+                      "coordinate_before": 0.03529796376824379,
+                      "coordinate_after": 0.05913569778203964,
+                      "intended_coordinate_delta": 0.02492954581975937,
+                      "kept_coordinate_delta": 0.023837734013795853,
+                      "source_coordinate": 0.060227494686841965,
+                      "center_coordinate": null
+                    }
+                  ]
+                },
+                "expected_label": "false",
+                "correct": false,
+                "correct_for_base": true,
+                "matches_source_label": false
+              },
+              "amplify": {
+                "logp_sum": {
+                  "true": -0.34376364946365356,
+                  "false": -4.157124042510986
+                },
+                "logp_mean": {
+                  "true": -0.34376364946365356,
+                  "false": -4.157124042510986
+                },
+                "predicted_label": "true",
+                "write_audit": {
+                  "true": [
+                    {
+                      "label": "true",
+                      "label_token_index": 0,
+                      "label_token_id": 3082,
+                      "input_length": 127,
+                      "base_answer_end": 104,
+                      "first_label_predictor": 126,
+                      "current_label_predictor": 126,
+                      "operation": "amplify",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.800882339477539,
+                      "intended_delta_norm": 0.14711226522922516,
+                      "kept_delta_norm": 0.14747050404548645,
+                      "coordinate_before": 0.03529796376824379,
+                      "coordinate_after": 0.18220487236976624,
+                      "intended_coordinate_delta": 0.14711226522922516,
+                      "kept_coordinate_delta": 0.14690690860152245,
+                      "source_coordinate": null,
+                      "center_coordinate": -0.11181432008743286
+                    }
+                  ],
+                  "false": [
+                    {
+                      "label": "false",
+                      "label_token_index": 0,
+                      "label_token_id": 3641,
+                      "input_length": 127,
+                      "base_answer_end": 104,
+                      "first_label_predictor": 126,
+                      "current_label_predictor": 126,
+                      "operation": "amplify",
+                      "residual_dtype": "torch.bfloat16",
+                      "measurement": "kept = float32(actual dtype-cast output) - float32(original output)",
+                      "h_norm": 7.800882339477539,
+                      "intended_delta_norm": 0.14711226522922516,
+                      "kept_delta_norm": 0.14747050404548645,
+                      "coordinate_before": 0.03529796376824379,
+                      "coordinate_after": 0.18220487236976624,
+                      "intended_coordinate_delta": 0.14711226522922516,
+                      "kept_coordinate_delta": 0.14690690860152245,
+                      "source_coordinate": null,
+                      "center_coordinate": -0.11181432008743286
+                    }
+                  ]
+                },
+                "expected_label": "true",
+                "correct": true,
+                "correct_for_base": true,
+                "matches_source_label": false
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "precision_diagnostics": {
+    "same_hidden_projection": [
+      {
+        "pair_id": "tqa:685",
+        "side": "positive",
+        "projection": {
+          "version": "qa_same_hidden_projection_diagnostic_v1",
+          "scope": "pre_model_postprocessing",
+          "comparison": "parameter_dtype_vs_fp32_on_one_captured_hidden",
+          "model_forward_calls": 1,
+          "head_module": "lm_head",
+          "native_parameter_dtype": "torch.bfloat16",
+          "native_input_dtype": "torch.bfloat16",
+          "native_input_cast": false,
+          "fp32_projection_dtype": "torch.float32",
+          "projection_autocast": false,
+          "allow_tf32": false,
+          "score_shape": [
+            1,
+            128256
+          ],
+          "max_abs_diff": 0.05963134765625,
+          "mean_abs_diff": 0.002026321453857003,
+          "per_example_max_abs_diff": [
+            0.05963134765625
+          ],
+          "per_example_mean_abs_diff": [
+            0.002026321453857003
+          ],
+          "selected_tokens": [
+            {
+              "token_id": 3082,
+              "native_raw_scores": [
+                20.375
+              ],
+              "fp32_raw_scores": [
+                20.327016830444336
+              ],
+              "abs_diff": [
+                0.04798316955566406
+              ]
+            },
+            {
+              "token_id": 3641,
+              "native_raw_scores": [
+                19.0
+              ],
+              "fp32_raw_scores": [
+                18.996448516845703
+              ],
+              "abs_diff": [
+                0.003551483154296875
+              ]
+            }
+          ],
+          "hidden": {
+            "position": "last_output_head_input_position",
+            "shape": [
+              1,
+              4096
+            ],
+            "dtype": "torch.bfloat16",
+            "row_sha256": [
+              "bdcc8ee715f4bc0ed9029d724d8a7180abf14215c8bd287bad77993e214f6d19"
+            ],
+            "row_mean": [
+              -0.005098126828670502
+            ],
+            "row_std": [
+              2.2379343050230553
+            ],
+            "row_l2_norm": [
+              143.22816716224747
+            ]
+          },
+          "interpretation": "Raw projection arithmetic at the same H; model postprocessing is excluded from these scores. This is not a full-model precision comparison or a proof of the cause of batching drift."
+        }
+      },
+      {
+        "pair_id": "tqa:685",
+        "side": "negative",
+        "projection": {
+          "version": "qa_same_hidden_projection_diagnostic_v1",
+          "scope": "pre_model_postprocessing",
+          "comparison": "parameter_dtype_vs_fp32_on_one_captured_hidden",
+          "model_forward_calls": 1,
+          "head_module": "lm_head",
+          "native_parameter_dtype": "torch.bfloat16",
+          "native_input_dtype": "torch.bfloat16",
+          "native_input_cast": false,
+          "fp32_projection_dtype": "torch.float32",
+          "projection_autocast": false,
+          "allow_tf32": false,
+          "score_shape": [
+            1,
+            128256
+          ],
+          "max_abs_diff": 0.04217529296875,
+          "mean_abs_diff": 0.0019793484341738905,
+          "per_example_max_abs_diff": [
+            0.04217529296875
+          ],
+          "per_example_mean_abs_diff": [
+            0.0019793484341738905
+          ],
+          "selected_tokens": [
+            {
+              "token_id": 3082,
+              "native_raw_scores": [
+                20.625
+              ],
+              "fp32_raw_scores": [
+                20.61297607421875
+              ],
+              "abs_diff": [
+                0.01202392578125
+              ]
+            },
+            {
+              "token_id": 3641,
+              "native_raw_scores": [
+                19.0
+              ],
+              "fp32_raw_scores": [
+                19.04217529296875
+              ],
+              "abs_diff": [
+                0.04217529296875
+              ]
+            }
+          ],
+          "hidden": {
+            "position": "last_output_head_input_position",
+            "shape": [
+              1,
+              4096
+            ],
+            "dtype": "torch.bfloat16",
+            "row_sha256": [
+              "b86fa42cb922b312c236979abd84acfd5e4bd119a03f35b85d899cc384ee34ba"
+            ],
+            "row_mean": [
+              -0.007607422769069672
+            ],
+            "row_std": [
+              2.231098083365376
+            ],
+            "row_l2_norm": [
+              142.7911073871124
+            ]
+          },
+          "interpretation": "Raw projection arithmetic at the same H; model postprocessing is excluded from these scores. This is not a full-model precision comparison or a proof of the cause of batching drift."
+        }
+      },
+      {
+        "pair_id": "tqa:270",
+        "side": "positive",
+        "projection": {
+          "version": "qa_same_hidden_projection_diagnostic_v1",
+          "scope": "pre_model_postprocessing",
+          "comparison": "parameter_dtype_vs_fp32_on_one_captured_hidden",
+          "model_forward_calls": 1,
+          "head_module": "lm_head",
+          "native_parameter_dtype": "torch.bfloat16",
+          "native_input_dtype": "torch.bfloat16",
+          "native_input_cast": false,
+          "fp32_projection_dtype": "torch.float32",
+          "projection_autocast": false,
+          "allow_tf32": false,
+          "score_shape": [
+            1,
+            128256
+          ],
+          "max_abs_diff": 0.05576324462890625,
+          "mean_abs_diff": 0.001922475701249567,
+          "per_example_max_abs_diff": [
+            0.05576324462890625
+          ],
+          "per_example_mean_abs_diff": [
+            0.001922475701249567
+          ],
+          "selected_tokens": [
+            {
+              "token_id": 3082,
+              "native_raw_scores": [
+                17.75
+              ],
+              "fp32_raw_scores": [
+                17.76338768005371
+              ],
+              "abs_diff": [
+                0.013387680053710938
+              ]
+            },
+            {
+              "token_id": 3641,
+              "native_raw_scores": [
+                19.375
+              ],
+              "fp32_raw_scores": [
+                19.37356948852539
+              ],
+              "abs_diff": [
+                0.001430511474609375
+              ]
+            }
+          ],
+          "hidden": {
+            "position": "last_output_head_input_position",
+            "shape": [
+              1,
+              4096
+            ],
+            "dtype": "torch.bfloat16",
+            "row_sha256": [
+              "34c02d2795e9d213088719487c309fb9e06ea26880454641edc7c8265b3b5343"
+            ],
+            "row_mean": [
+              0.008129911497235298
+            ],
+            "row_std": [
+              2.2204290896921037
+            ],
+            "row_l2_norm": [
+              142.10841428035485
+            ]
+          },
+          "interpretation": "Raw projection arithmetic at the same H; model postprocessing is excluded from these scores. This is not a full-model precision comparison or a proof of the cause of batching drift."
+        }
+      },
+      {
+        "pair_id": "tqa:270",
+        "side": "negative",
+        "projection": {
+          "version": "qa_same_hidden_projection_diagnostic_v1",
+          "scope": "pre_model_postprocessing",
+          "comparison": "parameter_dtype_vs_fp32_on_one_captured_hidden",
+          "model_forward_calls": 1,
+          "head_module": "lm_head",
+          "native_parameter_dtype": "torch.bfloat16",
+          "native_input_dtype": "torch.bfloat16",
+          "native_input_cast": false,
+          "fp32_projection_dtype": "torch.float32",
+          "projection_autocast": false,
+          "allow_tf32": false,
+          "score_shape": [
+            1,
+            128256
+          ],
+          "max_abs_diff": 0.0569000244140625,
+          "mean_abs_diff": 0.001930803592126731,
+          "per_example_max_abs_diff": [
+            0.0569000244140625
+          ],
+          "per_example_mean_abs_diff": [
+            0.001930803592126731
+          ],
+          "selected_tokens": [
+            {
+              "token_id": 3082,
+              "native_raw_scores": [
+                17.5
+              ],
+              "fp32_raw_scores": [
+                17.515262603759766
+              ],
+              "abs_diff": [
+                0.015262603759765625
+              ]
+            },
+            {
+              "token_id": 3641,
+              "native_raw_scores": [
+                20.0
+              ],
+              "fp32_raw_scores": [
+                20.014055252075195
+              ],
+              "abs_diff": [
+                0.014055252075195312
+              ]
+            }
+          ],
+          "hidden": {
+            "position": "last_output_head_input_position",
+            "shape": [
+              1,
+              4096
+            ],
+            "dtype": "torch.bfloat16",
+            "row_sha256": [
+              "eaed4fc8041d8f0b7df32f32014e91ffa080645e3b3e141a1ef75863feb3487b"
+            ],
+            "row_mean": [
+              0.0058572739362716675
+            ],
+            "row_std": [
+              2.2172666367109395
+            ],
+            "row_l2_norm": [
+              141.9055598830733
+            ]
+          },
+          "interpretation": "Raw projection arithmetic at the same H; model postprocessing is excluded from these scores. This is not a full-model precision comparison or a proof of the cause of batching drift."
+        }
+      },
+      {
+        "pair_id": "tqa:480",
+        "side": "positive",
+        "projection": {
+          "version": "qa_same_hidden_projection_diagnostic_v1",
+          "scope": "pre_model_postprocessing",
+          "comparison": "parameter_dtype_vs_fp32_on_one_captured_hidden",
+          "model_forward_calls": 1,
+          "head_module": "lm_head",
+          "native_parameter_dtype": "torch.bfloat16",
+          "native_input_dtype": "torch.bfloat16",
+          "native_input_cast": false,
+          "fp32_projection_dtype": "torch.float32",
+          "projection_autocast": false,
+          "allow_tf32": false,
+          "score_shape": [
+            1,
+            128256
+          ],
+          "max_abs_diff": 0.05959129333496094,
+          "mean_abs_diff": 0.0020263767607199648,
+          "per_example_max_abs_diff": [
+            0.05959129333496094
+          ],
+          "per_example_mean_abs_diff": [
+            0.0020263767607199648
+          ],
+          "selected_tokens": [
+            {
+              "token_id": 3082,
+              "native_raw_scores": [
+                21.125
+              ],
+              "fp32_raw_scores": [
+                21.184402465820312
+              ],
+              "abs_diff": [
+                0.0594024658203125
+              ]
+            },
+            {
+              "token_id": 3641,
+              "native_raw_scores": [
+                17.375
+              ],
+              "fp32_raw_scores": [
+                17.35948944091797
+              ],
+              "abs_diff": [
+                0.01551055908203125
+              ]
+            }
+          ],
+          "hidden": {
+            "position": "last_output_head_input_position",
+            "shape": [
+              1,
+              4096
+            ],
+            "dtype": "torch.bfloat16",
+            "row_sha256": [
+              "5b26c4818bca23b6a332494b0e3f0f2531df9b1f4ce01ecc100aef9e8868b792"
+            ],
+            "row_mean": [
+              -0.006030179560184479
+            ],
+            "row_std": [
+              2.2391023520701716
+            ],
+            "row_l2_norm": [
+              143.30307021216862
+            ]
+          },
+          "interpretation": "Raw projection arithmetic at the same H; model postprocessing is excluded from these scores. This is not a full-model precision comparison or a proof of the cause of batching drift."
+        }
+      },
+      {
+        "pair_id": "tqa:480",
+        "side": "negative",
+        "projection": {
+          "version": "qa_same_hidden_projection_diagnostic_v1",
+          "scope": "pre_model_postprocessing",
+          "comparison": "parameter_dtype_vs_fp32_on_one_captured_hidden",
+          "model_forward_calls": 1,
+          "head_module": "lm_head",
+          "native_parameter_dtype": "torch.bfloat16",
+          "native_input_dtype": "torch.bfloat16",
+          "native_input_cast": false,
+          "fp32_projection_dtype": "torch.float32",
+          "projection_autocast": false,
+          "allow_tf32": false,
+          "score_shape": [
+            1,
+            128256
+          ],
+          "max_abs_diff": 0.03158378601074219,
+          "mean_abs_diff": 0.0020655759199761305,
+          "per_example_max_abs_diff": [
+            0.03158378601074219
+          ],
+          "per_example_mean_abs_diff": [
+            0.0020655759199761305
+          ],
+          "selected_tokens": [
+            {
+              "token_id": 3082,
+              "native_raw_scores": [
+                21.125
+              ],
+              "fp32_raw_scores": [
+                21.135326385498047
+              ],
+              "abs_diff": [
+                0.010326385498046875
+              ]
+            },
+            {
+              "token_id": 3641,
+              "native_raw_scores": [
+                17.5
+              ],
+              "fp32_raw_scores": [
+                17.531583786010742
+              ],
+              "abs_diff": [
+                0.03158378601074219
+              ]
+            }
+          ],
+          "hidden": {
+            "position": "last_output_head_input_position",
+            "shape": [
+              1,
+              4096
+            ],
+            "dtype": "torch.bfloat16",
+            "row_sha256": [
+              "9c0411ea02dab90edd807d30fd41c581b2aed049d7f67c0c31ba0bdf49981694"
+            ],
+            "row_mean": [
+              -0.009401763789355755
+            ],
+            "row_std": [
+              2.2418204410538447
+            ],
+            "row_l2_norm": [
+              143.47776995595535
+            ]
+          },
+          "interpretation": "Raw projection arithmetic at the same H; model postprocessing is excluded from these scores. This is not a full-model precision comparison or a proof of the cause of batching drift."
+        }
+      }
+    ],
+    "batch_projection": {
+      "version": "qa_same_hidden_projection_diagnostic_v1",
+      "scope": "pre_model_postprocessing",
+      "comparison": "parameter_dtype_vs_fp32_on_one_captured_hidden",
+      "model_forward_calls": 1,
+      "head_module": "lm_head",
+      "native_parameter_dtype": "torch.bfloat16",
+      "native_input_dtype": "torch.bfloat16",
+      "native_input_cast": false,
+      "fp32_projection_dtype": "torch.float32",
+      "projection_autocast": false,
+      "allow_tf32": false,
+      "score_shape": [
+        6,
+        128256
+      ],
+      "max_abs_diff": 0.062023162841796875,
+      "mean_abs_diff": 0.0019907500227963103,
+      "per_example_max_abs_diff": [
+        0.054363250732421875,
+        0.0531158447265625,
+        0.054126739501953125,
+        0.0432586669921875,
+        0.0599822998046875,
+        0.062023162841796875
+      ],
+      "per_example_mean_abs_diff": [
+        0.0020308686378524643,
+        0.0019790367357223246,
+        0.0019164766461965803,
+        0.0019187618156007635,
+        0.002050877528741701,
+        0.0020484787726640272
+      ],
+      "selected_tokens": [
+        {
+          "token_id": 3082,
+          "native_raw_scores": [
+            20.375,
+            20.75,
+            17.875,
+            17.5,
+            21.125,
+            21.125
+          ],
+          "fp32_raw_scores": [
+            20.374755859375,
+            20.700777053833008,
+            17.824752807617188,
+            17.5264892578125,
+            21.09413719177246,
+            21.0909366607666
+          ],
+          "abs_diff": [
+            0.000244140625,
+            0.04922294616699219,
+            0.0502471923828125,
+            0.0264892578125,
+            0.030862808227539062,
+            0.03406333923339844
+          ]
+        },
+        {
+          "token_id": 3641,
+          "native_raw_scores": [
+            19.0,
+            19.0,
+            19.375,
+            20.0,
+            17.375,
+            17.625
+          ],
+          "fp32_raw_scores": [
+            18.996877670288086,
+            19.050823211669922,
+            19.3891658782959,
+            19.989452362060547,
+            17.38777732849121,
+            17.562976837158203
+          ],
+          "abs_diff": [
+            0.0031223297119140625,
+            0.050823211669921875,
+            0.014165878295898438,
+            0.010547637939453125,
+            0.012777328491210938,
+            0.062023162841796875
+          ]
+        }
+      ],
+      "hidden": {
+        "position": "last_output_head_input_position",
+        "shape": [
+          6,
+          4096
+        ],
+        "dtype": "torch.bfloat16",
+        "row_sha256": [
+          "f357d1cb4046afe3acba18bf205eeba24916ed753bc16ed1706409c0a2feace4",
+          "6381106a62eb4337b8099206a5013811ee80634bb16391098bf4a0592259a6b2",
+          "762a5eb080244ed4b9696d9624c3ac1887a19e36368e01c005b5c541cea4403b",
+          "8a27da851ccc0247dc3a3f0021a41760b6e1d769368067706b391118f8a0f5fe",
+          "c42af1ced96819c1e29f494da234b08526402fdcd77ca030e82e7afd8d7ed8f1",
+          "64df6e041b799074983d08fee946e068bb67f2f729576254a3994cb5e870915c"
+        ],
+        "row_mean": [
+          -0.004028044641017914,
+          -0.008044272661209106,
+          0.007680179551243782,
+          0.005793754011392593,
+          -0.005958614870905876,
+          -0.0097869373857975
+        ],
+        "row_std": [
+          2.236637139293254,
+          2.2319444847105325,
+          2.2186911824352147,
+          2.2171062341661294,
+          2.238167786435972,
+          2.241372092959522
+        ],
+        "row_l2_norm": [
+          143.1450090508467,
+          142.8453747880984,
+          141.99708641137505,
+          141.89528347442396,
+          143.243245961809,
+          143.44918145014194
+        ]
+      },
+      "interpretation": "Raw projection arithmetic at the same H; model postprocessing is excluded from these scores. This is not a full-model precision comparison or a proof of the cause of batching drift."
+    },
+    "single_vs_batch_hidden_max_abs_diff": 0.5,
+    "single_vs_batch_hidden_per_row_max_abs_diff": [
+      0.25,
+      0.28125,
+      0.4375,
+      0.375,
+      0.5,
+      0.15625
+    ],
+    "interpretation": "raw output projection and upstream batch differences are separate observations, not a proved cause of answer changes"
+  }
+}

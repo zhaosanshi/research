@@ -41,6 +41,9 @@ step "offline unit tests (including QA precision)" "$LOGD/offline_tests.log" "$R
 # The fixed checker also works without a manually staged old loader.
 step "DAS loader positive acceptance" "$LOGD/das_loader15.log" "$CODE" \
   "$CHECKS/chk_das_loader.py" "$CODE" "$G15/das_loader15.json"
+# verify_answer_end_causal_path.py refuses an existing --out (argparse exit 2); without this the driver cannot be re-run
+# (round 16: the second run failed only here). Keep the previous result under a dated name instead of losing it.
+[ -f "$LOGD/last_layer_causal_claude.json" ] && mv -f "$LOGD/last_layer_causal_claude.json" "$LOGD/last_layer_causal_claude.prev_$(date '+%Y%m%d%H%M%S').json"
 step "answer-end causal path (random small model)" "$LOGD/gpt_causal_path.log" "$CODE" "$AUDIT/verify_answer_end_causal_path.py" \
   --code-root "$CODE" --out "$G15/last_layer_causal_claude.json"
 step "three local tokenizers (fixed suffix and labels)" "$LOGD/gpt_selfcheck_tokens.log" "$CODE" "$AUDIT/verify_selfcheck_tokens.py" \

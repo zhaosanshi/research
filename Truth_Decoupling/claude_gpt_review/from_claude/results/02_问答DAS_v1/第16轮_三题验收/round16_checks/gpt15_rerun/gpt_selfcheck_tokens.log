@@ -1,0 +1,200 @@
+{
+  "suffix": "\n\nIs the answer above factually correct?\nReply with exactly one word: True or False.\nVerdict:",
+  "labels": [
+    " True",
+    " False"
+  ],
+  "system": "You are a knowledgeable assistant. Answer the question with a short answer of a few words. If you do not know the answer, you may say 'I don't know'.",
+  "models": {
+    "llama3.1-8b": {
+      "n_answers": 568,
+      "natural_concat_retokenizes_answer": 15,
+      "segmented_decode_mismatch": 0,
+      "label_prefix_mismatch": 0,
+      "label_ids": {
+        " True": [
+          [
+            3082
+          ]
+        ],
+        " False": [
+          [
+            3641
+          ]
+        ]
+      },
+      "examples": [
+        {
+          "pair_id": "tqa:462",
+          "answer": "Prostitution is legal in Germany (although there are some restrictions)",
+          "answer_tail_ids": [
+            1070,
+            527,
+            1063,
+            17294,
+            8
+          ],
+          "natural_prefix_tail_ids": [
+            1070,
+            527,
+            1063,
+            17294,
+            696,
+            3957,
+            279
+          ]
+        },
+        {
+          "pair_id": "tqa:462",
+          "answer": "Prostitution, drugs, and euthanasia are legal in Germany (although there are some restrictions)",
+          "answer_tail_ids": [
+            1070,
+            527,
+            1063,
+            17294,
+            8
+          ],
+          "natural_prefix_tail_ids": [
+            1070,
+            527,
+            1063,
+            17294,
+            696,
+            3957,
+            279
+          ]
+        }
+      ],
+      "model_config": {
+        "name": "llama3.1-8b",
+        "family": "llama3",
+        "path": "/workspace/Truth_Decoupling/models/Llama-3.1-8B-Instruct",
+        "modelscope_repo": "LLM-Research/Meta-Llama-3.1-8B-Instruct",
+        "hidden_size": 4096,
+        "num_layers": 32,
+        "dtype": "bfloat16",
+        "device": "cuda",
+        "layers_attr": "model.layers",
+        "attn_attr": "self_attn",
+        "chat": {
+          "supports_system": true,
+          "thinking_stub": ""
+        },
+        "notes": "v12 peak layer L16 (also L30-31)."
+      }
+    },
+    "qwen3-8b": {
+      "n_answers": 568,
+      "natural_concat_retokenizes_answer": 15,
+      "segmented_decode_mismatch": 0,
+      "label_prefix_mismatch": 0,
+      "label_ids": {
+        " True": [
+          [
+            3007
+          ]
+        ],
+        " False": [
+          [
+            3557
+          ]
+        ]
+      },
+      "examples": [
+        {
+          "pair_id": "tqa:462",
+          "answer": "Prostitution is legal in Germany (although there are some restrictions)",
+          "answer_tail_ids": [
+            1052,
+            525,
+            1045,
+            16869,
+            8
+          ],
+          "natural_prefix_tail_ids": [
+            1052,
+            525,
+            1045,
+            16869,
+            692,
+            3872,
+            279
+          ]
+        },
+        {
+          "pair_id": "tqa:462",
+          "answer": "Prostitution, drugs, and euthanasia are legal in Germany (although there are some restrictions)",
+          "answer_tail_ids": [
+            1052,
+            525,
+            1045,
+            16869,
+            8
+          ],
+          "natural_prefix_tail_ids": [
+            1052,
+            525,
+            1045,
+            16869,
+            692,
+            3872,
+            279
+          ]
+        }
+      ],
+      "model_config": {
+        "name": "qwen3-8b",
+        "family": "qwen3",
+        "path": "/workspace/Truth_Decoupling/models/Qwen3-8B",
+        "modelscope_repo": "Qwen/Qwen3-8B",
+        "hidden_size": 4096,
+        "num_layers": 36,
+        "dtype": "bfloat16",
+        "device": "cuda",
+        "layers_attr": "model.layers",
+        "attn_attr": "self_attn",
+        "chat": {
+          "supports_system": true,
+          "thinking_stub": "<think>\n\n</think>\n\n"
+        },
+        "notes": "v12 peak layer for JSON->prose DAS was L23 (66.7% depth). Thinking stub matches v12 build_input_v3."
+      }
+    },
+    "gemma3-4b": {
+      "n_answers": 568,
+      "natural_concat_retokenizes_answer": 0,
+      "segmented_decode_mismatch": 0,
+      "label_prefix_mismatch": 0,
+      "label_ids": {
+        " True": [
+          [
+            6288
+          ]
+        ],
+        " False": [
+          [
+            8450
+          ]
+        ]
+      },
+      "examples": [],
+      "model_config": {
+        "name": "gemma3-4b",
+        "family": "gemma3",
+        "path": "/workspace/Truth_Decoupling/models/gemma-3-4b-it",
+        "modelscope_repo": "google/gemma-3-4b-it",
+        "hidden_size": 2560,
+        "num_layers": 34,
+        "dtype": "bfloat16",
+        "device": "cuda",
+        "layers_attr": "model.language_model.layers",
+        "attn_attr": "self_attn",
+        "chat": {
+          "supports_system": true,
+          "thinking_stub": ""
+        },
+        "notes": "Gemma3ForConditionalGeneration (vision tower loaded but unused); LM sizes live in config.text_config. Chat template folds the system prompt into the first user turn."
+      }
+    }
+  }
+}
