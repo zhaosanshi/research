@@ -60,7 +60,10 @@ def main():
     ap.add_argument("--limit", type=int, default=None, help="limit statements per contrast (debug)")
     # DAS variants (2026-10-31). Defaults reproduce the previous behaviour and file names exactly.
     ap.add_argument("--das-seeds", nargs="*", type=int, default=None, help="DAS seeds (default: the experiment seed only); the plan's setting is 42 43 44")
-    ap.add_argument("--das-loss", choices=["kl", "jsd"], default="kl", help="divergence: forward KL (v12 default) or Jensen-Shannon over the vocabulary (CDAS)")
+    ap.add_argument("--das-loss", choices=["kl", "jsd", "ce"], default="kl",
+                    help="divergence: forward KL (v12 default) or Jensen-Shannon over the vocabulary (CDAS); 'ce' = the QA-DAS v1 "
+                         "objective in the statement protocol: one step at the prompt end, cross-entropy of the source's GOLD "
+                         "True/False label (E pairs only; combine with --das-bidir for the v1 bidirectional form)")
     ap.add_argument("--das-bidir", action="store_true", help="bidirectional objective: also clamp the source with the base's projection and match the base's distribution (CDAS D+ and D-)")
     ap.add_argument("--das-positions", choices=["last", "all"], default="last", help="clamp the last position only (one-to-one) or every base position with the source's last-token projection (CDAS one-to-many)")
     ap.add_argument("--das-balance", action="store_true", help="inverse-frequency pair weights so every (category, length tertile) cell carries equal weight")
@@ -287,13 +290,25 @@ def main():
                     tag, len(set((k[0], b) for k, b in zip(keys, length_bins([k[1] for k in keys], 3)))), min(weights), max(weights)), flush=True)
             train_layers = layers if args.das_all_layers else (args.das_layers if args.das_layers else top_k_layers(sc, args.das_topk))
             summary["das"]["%s_trained_layers" % tag] = list(train_layers)
+            ce_label_ids = None
+            if args.das_loss == "ce":
+                # Gold-label objective (Claude, 2026-11-05): defined for the E pairs only (true/false statements); the label
+                # token sets are the first tokens of the TF label variants after the E prompt, exactly the readout's map.
+                if tag != "E":
+                    raise SystemExit("--das-loss ce is defined for the E pairs only; use --das-tags E")
+                from core.readout import build_label_token_map
+                ce_label_ids = build_label_token_map(bundle.tokenizer, tf_prompt(bundle, prompts, pair_recs_E[0][True]["text"], allow_idk=e_idk),
+                                                     {"True": prompts["statement"]["label_variants"]["True"],
+                                                      "False": prompts["statement"]["label_variants"]["False"]})
+                summary["das"]["ce_label_ids"] = ce_label_ids
+                print("  [DAS E ce] gold-label token ids: True %s False %s" % (ce_label_ids["True"], ce_label_ids["False"]), flush=True)
             for l in train_layers:
                 ws = []
                 for s in seeds:
                     res = train_das(bundle, pairs, l, rank=das_rank, T=das_cfg.get("T", 8),
                                     epochs=das_cfg.get("epochs", 10), lr=das_cfg.get("lr", 1e-3), seed=s,
                                     loss=args.das_loss, bidirectional=args.das_bidir, positions=args.das_positions,
-                                    pair_weights=weights, trim=args.das_trim, anchor=args.das_anchor)
+                                    pair_weights=weights, trim=args.das_trim, anchor=args.das_anchor, label_ids=ce_label_ids)
                     w = res["W"][:, 0].numpy()
                     ws.append(w)
                     torch.save(res, os.path.join(out_dir, das_file_name(tag, l, res["rank"], s, variant)))

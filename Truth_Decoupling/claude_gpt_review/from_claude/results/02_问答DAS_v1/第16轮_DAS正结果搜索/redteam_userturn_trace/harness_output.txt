@@ -1,0 +1,13 @@
+[Llama v1] ids/labels identical=True text_audit(minus format) identical=True token_signature equal=True selfcheck_inputs_sha256 equal=True selfcheck_template_sha256 equal=True new_format='same_turn (no key)'
+[Llama user_turn] OK: suffix==server rendering, answer ids == v1/encode_answer, label ids == in-context increment; label_predictor token='\n\n' answer_end token=' happens' next='<|eot_id|>' labels={'true': [1083], 'false': [1084]} same-across-pairs template=user_turn
+[Qwen v1] ids/labels identical=True text_audit(minus format) identical=True token_signature equal=True selfcheck_inputs_sha256 equal=True selfcheck_template_sha256 equal=True new_format='same_turn (no key)'
+[Qwen user_turn] OK: suffix==server rendering, answer ids == v1/encode_answer, label ids == in-context increment; label_predictor token='\n\n' answer_end token=' happens' next='<|im_end|>' labels={'true': [1073], 'false': [1074]} same-across-pairs template=user_turn
+[Gemma v1] ids/labels identical=True text_audit(minus format) identical=True token_signature equal=True selfcheck_inputs_sha256 equal=True selfcheck_template_sha256 equal=True new_format='same_turn (no key)'
+[Gemma user_turn] OK: suffix==server rendering, answer ids == v1/encode_answer, label ids == in-context increment; label_predictor token='\n' answer_end token='▁happens' next='<end_of_turn>' labels={'true': [1066], 'false': [1067]} same-across-pairs template=user_turn
+[merge] caught: self-check pair 'tqa:1', positive: suffix/label boundary retokenizes the suffix (true)
+[lstrip] caught: answer/turn boundary retokenizes; refusing ambiguous positions
+[stray suffix in user_turn cfg] silently ignored: True
+[stray selfcheck_user in v1 cfg] silently ignored: same_turn
+[Llama] multi-turn pre-dummy == build_chat prefix: True ; == prefix minus stub: True
+[Qwen] multi-turn pre-dummy == build_chat prefix: False ; == prefix minus stub: True
+[Gemma] multi-turn pre-dummy == build_chat prefix: True ; == prefix minus stub: True

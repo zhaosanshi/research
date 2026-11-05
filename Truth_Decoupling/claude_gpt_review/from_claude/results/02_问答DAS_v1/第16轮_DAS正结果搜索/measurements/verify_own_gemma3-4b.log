@@ -1,0 +1,10 @@
+frozen E23 selections: {"das_tf_full": {"name": "E_L11_a3", "stored_selection": "E_L11_a3", "tf_test_dJ": 0.017013232514177745}, "meandiff_full": {"name": "E_L16_a2", "stored_selection": "E_L16_a2", "tf_test_dJ": 0.05482041587901704}}
+W1105 07:15:27.382000 45377 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1105 07:15:27.402000 45377 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 62.85it/s]
+tune answered 169 of 192
+test answered 471 of 523
+baseline        -                TEST AUROC 0.627 (tune 0.595) J@0 +0.087 says True c/w 0.89/0.81 | own_verdict: (c-w)/n -0.296 -> -0.212, abstain 78 (lost 17 c, removed 61 w) | tuned_threshold: (c-w)/n -0.296 -> -0.008, abstain 453 (lost 151 c, removed 302 w)
+das_tf_full     E_L11_a3         TEST AUROC 0.623 (tune 0.591) J@0 +0.094 says True c/w 0.88/0.79 | own_verdict: (c-w)/n -0.296 -> -0.205, abstain 86 (lost 19 c, removed 67 w), vs unsteered +0.008 [-0.004, +0.019] | tuned_threshold: (c-w)/n -0.296 -> -0.006, abstain 468 (lost 158 c, removed 310 w), vs unsteered +0.002 [-0.011, +0.015]
+meandiff_full   E_L16_a2         TEST AUROC 0.664 (tune 0.629) J@0 +0.158 says True c/w 0.87/0.71 | own_verdict: (c-w)/n -0.296 -> -0.163, abstain 112 (lost 21 c, removed 91 w), vs unsteered +0.050 [+0.029, +0.073] | tuned_threshold: (c-w)/n -0.296 -> +0.000, abstain 459 (lost 152 c, removed 307 w), vs unsteered +0.008 [-0.006, +0.023]
+saved /workspace/Truth_Decoupling/review_e25/checks/dasplus/verify_own_gemma3-4b.json

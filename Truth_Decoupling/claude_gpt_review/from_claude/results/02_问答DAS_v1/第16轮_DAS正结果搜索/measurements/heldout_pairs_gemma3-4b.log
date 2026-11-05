@@ -1,0 +1,17 @@
+W1105 07:12:42.131000 42636 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1105 07:12:42.149000 42636 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 63.79it/s]
+TEST-PAIRS baseline                             acc 0.4073
+TEST-PAIRS E_qa_das_continuous_L30_a3           acc 0.4608
+TEST-PAIRS E_qa_das_continuous_L17_a2           acc 0.4455
+TEST-PAIRS E_qa_das_continuous_L26_a3           acc 0.4589
+TEST-PAIRS E_qa_md_continuous_L6_a3             acc 0.4512
+TEST-PAIRS E_qa_md_continuous_L17_a3            acc 0.4359
+TEST-PAIRS E_qa_md_continuous_L33_a3            acc 0.4149
+  E_qa_das_continuous_L30_a3           tune 0.417->0.500 | TEST 0.407->0.461 d +0.0535 [+0.0287, +0.0803] corrected 39 harmed 11   <== pre-specified pick
+  E_qa_das_continuous_L17_a2           tune 0.417->0.500 | TEST 0.407->0.446 d +0.0382 [+0.0076, +0.0688] corrected 42 harmed 22
+  E_qa_das_continuous_L26_a3           tune 0.417->0.474 | TEST 0.407->0.459 d +0.0516 [+0.0191, +0.0841] corrected 50 harmed 23
+  E_qa_md_continuous_L6_a3             tune 0.417->0.474 | TEST 0.407->0.451 d +0.0440 [+0.0076, +0.0803] corrected 59 harmed 36   <== pre-specified pick
+  E_qa_md_continuous_L17_a3            tune 0.417->0.458 | TEST 0.407->0.436 d +0.0287 [-0.0172, +0.0746] corrected 83 harmed 68
+  E_qa_md_continuous_L33_a3            tune 0.417->0.448 | TEST 0.407->0.415 d +0.0076 [-0.0249, +0.0382] corrected 38 harmed 34
+saved /workspace/Truth_Decoupling/review_e25/checks/dasplus/heldout_pairs_gemma3-4b.json

@@ -1,0 +1,16 @@
+W1105 07:06:43.028000 35305 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1105 07:06:43.047000 35305 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00, 390.06it/s]
+est   F0_same_turn        n= 92 AUROC 0.503 paired 0.554 J@0 -0.098 says True c/w 0.47/0.57 mass 0.74  | v1 single-token AUROC 0.504
+est   F1_user_turn        n= 92 AUROC 0.692 paired 0.696 J@0 +0.304 says True c/w 0.63/0.33 mass 1.00
+est   F2_tf_statement     n= 92 AUROC 0.808 paired 0.815 J@0 +0.467 says True c/w 0.67/0.21 mass 1.00
+est   F3_proposed_answer  n= 92 AUROC 0.727 paired 0.728 J@0 +0.337 says True c/w 0.73/0.39 mass 1.00
+tune  F0_same_turn        n=192 AUROC 0.479 paired 0.516 J@0 -0.094 says True c/w 0.54/0.63 mass 0.73  | v1 single-token AUROC 0.479
+tune  F1_user_turn        n=192 AUROC 0.649 paired 0.688 J@0 +0.214 says True c/w 0.60/0.39 mass 1.00
+tune  F2_tf_statement     n=192 AUROC 0.743 paired 0.755 J@0 +0.380 says True c/w 0.64/0.26 mass 1.00
+tune  F3_proposed_answer  n=192 AUROC 0.698 paired 0.714 J@0 +0.297 says True c/w 0.74/0.45 mass 1.00
+test  F0_same_turn        n=523 AUROC 0.506 paired 0.528 J@0 +0.013 says True c/w 0.62/0.60 mass 0.73  | v1 single-token AUROC 0.506
+test  F1_user_turn        n=523 AUROC 0.651 paired 0.662 J@0 +0.176 says True c/w 0.57/0.39 mass 1.00
+test  F2_tf_statement     n=523 AUROC 0.781 paired 0.772 J@0 +0.379 says True c/w 0.61/0.23 mass 1.00
+test  F3_proposed_answer  n=523 AUROC 0.708 paired 0.742 J@0 +0.302 says True c/w 0.74/0.44 mass 1.00
+saved /workspace/Truth_Decoupling/review_e25/checks/dasplus/readout_llama3.1-8b.json 166 s

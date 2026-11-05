@@ -1,0 +1,11 @@
+W1105 09:20:52.401000 68621 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1105 09:20:52.419000 68621 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00, 392.30it/s]
+Traceback (most recent call last):
+  File "/workspace/Truth_Decoupling/review_e25/claude_gpt_review/from_claude/code/scripts/review_checks/own_answer_detect.py", line 105, in <module>
+    rows, skipped = collect(fname)
+                    ^^^^^^^^^^^^^^
+  File "/workspace/Truth_Decoupling/review_e25/claude_gpt_review/from_claude/code/scripts/review_checks/own_answer_detect.py", line 93, in collect
+    sc0 = encode_selfcheck(bundle, cfg["qa_system"], e["question"], ans, cfg["qa_user"], cfg["selfcheck_suffix"],
+                                                                                         ~~~^^^^^^^^^^^^^^^^^^^^
+KeyError: 'selfcheck_suffix'

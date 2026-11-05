@@ -1,0 +1,17 @@
+W1105 09:07:11.238000 66051 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1105 09:07:11.256000 66051 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00, 384.15it/s]
+TEST-PAIRS baseline                             acc 0.4589
+TEST-PAIRS E_qa_das_continuous_L10_a2           acc 0.4627
+TEST-PAIRS E_qa_das_continuous_L27_a2           acc 0.4551
+TEST-PAIRS E_qa_das_continuous_L29_a3           acc 0.4589
+TEST-PAIRS E_qa_md_continuous_L7_a3             acc 0.4665
+TEST-PAIRS E_qa_md_continuous_L10_a3            acc 0.4685
+TEST-PAIRS E_qa_md_continuous_L11_a3            acc 0.4761
+  E_qa_das_continuous_L10_a2           tune 0.464->0.479 | TEST 0.459->0.463 d +0.0038 [-0.0038, +0.0115] corrected 3 harmed 1   <== pre-specified pick
+  E_qa_das_continuous_L27_a2           tune 0.464->0.474 | TEST 0.459->0.455 d -0.0038 [-0.0172, +0.0096] corrected 5 harmed 7
+  E_qa_das_continuous_L29_a3           tune 0.464->0.474 | TEST 0.459->0.459 d +0.0000 [-0.0172, +0.0153] corrected 10 harmed 10
+  E_qa_md_continuous_L7_a3             tune 0.464->0.479 | TEST 0.459->0.467 d +0.0076 [-0.0019, +0.0191] corrected 6 harmed 2   <== pre-specified pick
+  E_qa_md_continuous_L10_a3            tune 0.464->0.479 | TEST 0.459->0.468 d +0.0096 [-0.0057, +0.0249] corrected 11 harmed 6
+  E_qa_md_continuous_L11_a3            tune 0.464->0.474 | TEST 0.459->0.476 d +0.0172 [+0.0019, +0.0325] corrected 14 harmed 5
+saved /workspace/Truth_Decoupling/review_e25/checks/dasplus/v1u_heldout_pairs_llama3.1-8b.json

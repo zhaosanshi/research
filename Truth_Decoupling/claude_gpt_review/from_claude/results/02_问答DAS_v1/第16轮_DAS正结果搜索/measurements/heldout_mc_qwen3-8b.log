@@ -1,0 +1,17 @@
+W1105 07:31:36.585000 55265 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1105 07:31:36.604000 55265 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:00<00:00, 362.65it/s]
+MC1-STYLE baseline                             acc 0.2945
+MC1-STYLE E_qa_das_continuous_L14_a1           acc 0.2925
+MC1-STYLE E_qa_das_continuous_L29_a1           acc 0.2925
+MC1-STYLE E_qa_das_continuous_L4_a2            acc 0.2983
+MC1-STYLE E_qa_md_continuous_L12_a3            acc 0.2983
+MC1-STYLE E_qa_md_continuous_L11_a3            acc 0.3002
+MC1-STYLE E_qa_md_continuous_L0_a3             acc 0.2925
+  E_qa_das_continuous_L14_a1           TEST MC1-style 0.294->0.293 d -0.0019 [-0.0096, +0.0038] corrected 1 harmed 2   <== pre-specified pick
+  E_qa_das_continuous_L29_a1           TEST MC1-style 0.294->0.293 d -0.0019 [-0.0096, +0.0057] corrected 2 harmed 3
+  E_qa_das_continuous_L4_a2            TEST MC1-style 0.294->0.298 d +0.0038 [+0.0000, +0.0096] corrected 2 harmed 0
+  E_qa_md_continuous_L12_a3            TEST MC1-style 0.294->0.298 d +0.0038 [-0.0115, +0.0191] corrected 10 harmed 8   <== pre-specified pick
+  E_qa_md_continuous_L11_a3            TEST MC1-style 0.294->0.300 d +0.0057 [-0.0076, +0.0210] corrected 9 harmed 6
+  E_qa_md_continuous_L0_a3             TEST MC1-style 0.294->0.293 d -0.0019 [-0.0076, +0.0038] corrected 1 harmed 2
+saved /workspace/Truth_Decoupling/review_e25/checks/dasplus/heldout_mc_qwen3-8b.json

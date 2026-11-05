@@ -30,6 +30,11 @@ Variants of the DAS objective (2026-10-31; all default to the v12 behaviour abov
                         only observes the downstream effect. anchor="current" is v12: follow the growing sequence's
                         last position, i.e. from step 2 on the swap happens on already-emitted answer tokens
                         (GPT review round 2, 2026-11-01).
+    loss="ce"           (Claude, 2026-11-05) the QA-DAS v1 objective in the statement protocol: ONE step at the prompt's
+                        last token, cross-entropy of the SOURCE's GOLD label (label_ids["True"] for base <- true source,
+                        label_ids["False"] for the bidirectional source <- false base term), the label probability being
+                        the sum over its first-token variants exactly as the evaluation readout (core/readout.py). No
+                        teacher tokens are generated; T is recorded as 1. Requires label_ids.
 """
 import math
 import re
@@ -304,6 +309,30 @@ def _divergence(int_logits, src_logits, kind="kl"):
     raise ValueError("unknown divergence %s" % kind)
 
 
+def gold_label_ce_loss(bundle, basis, pair, layer, target_ids, positions="last",
+                       base_key="base", source_key="source", trace=None):
+    """loss="ce": interchange at both prompts' last token, -log sum_v p(v) over the target label's first-token variants."""
+    import torch
+    import torch.nn.functional as F
+    from .model_io import capture_hooks, forward_logits
+
+    holder = {}
+    pos_s = int(pair[source_key]["input_ids"].shape[1]) - 1
+    pos_b = int(pair[base_key]["input_ids"].shape[1]) - 1
+    if trace is not None:
+        trace.append({"t": 0, "len_base": pos_b + 1, "len_src": pos_s + 1, "read_src_pos": pos_s, "write_base_pos": pos_b})
+    with capture_hooks(bundle, [layer], ("resid",), position="all") as store:
+        forward_logits(bundle, pair[source_key], grad=False)
+    holder["h"] = store[("resid", layer)][:, pos_s, :].detach().float().to(bundle.device)
+    handle = bundle.layer(layer).register_forward_hook(_interchange_hook_factory(basis, holder, positions, write_pos=pos_b))
+    try:
+        int_logits = forward_logits(bundle, pair[base_key], grad=True)[:, -1, :].float()
+    finally:
+        handle.remove()
+    ids = torch.as_tensor(sorted(set(int(i) for i in target_ids)), dtype=torch.long, device=int_logits.device)
+    return -torch.logsumexp(F.log_softmax(int_logits, dim=-1)[:, ids], dim=-1).mean(), 1
+
+
 def multistep_kl_loss(bundle, basis, pair, layer, y_src, T, loss="kl", positions="last",
                       base_key="base", source_key="source", anchor="current", trace=None):
     """One pair's teacher-forced multi-step divergence between p_int(base <- source) and p_src.
@@ -349,7 +378,7 @@ def multistep_kl_loss(bundle, basis, pair, layer, y_src, T, loss="kl", positions
 
 def train_das(bundle, pairs, layer, rank=1, T=8, epochs=10, lr=1e-3, seed=42, clip=1.0,
               log_every=1, log_fn=print, loss="kl", bidirectional=False, positions="last",
-              pair_weights=None, trim=0.0, anchor="current"):
+              pair_weights=None, trim=0.0, anchor="current", label_ids=None):
     """Rank-r DAS at `layer` on `pairs` (each: {"base": inputs, "source": inputs}, batch size 1 each).
 
     Defaults reproduce v12 (forward KL, base <- source only, current last position, unweighted, plain mean gap).
@@ -369,6 +398,14 @@ def train_das(bundle, pairs, layer, rank=1, T=8, epochs=10, lr=1e-3, seed=42, cl
         if p["base"]["input_ids"].shape[0] != 1 or p["source"]["input_ids"].shape[0] != 1:
             raise ValueError("DAS pairs must be encoded one sequence at a time (no padding): position indices assume batch size 1")
     wts = [1.0] * len(pairs) if pair_weights is None else [float(x) for x in pair_weights]
+    if loss == "ce":
+        if not label_ids or not label_ids.get("True") or not label_ids.get("False"):
+            raise ValueError('loss="ce" needs label_ids={"True": [...], "False": [...]} (first-token ids of the label variants)')
+        if set(label_ids["True"]) & set(label_ids["False"]):
+            raise ValueError("True and False label token sets overlap")
+        if positions != "last":
+            raise ValueError('loss="ce" supports positions="last" only')
+        T = 1
     set_seed(seed)
     basis = OrthoBasis(bundle.hidden_size, rank, seed=seed, device=bundle.device)
     opt = torch.optim.Adam(basis.parameters(), lr=lr)
@@ -378,7 +415,7 @@ def train_das(bundle, pairs, layer, rank=1, T=8, epochs=10, lr=1e-3, seed=42, cl
     # differs (review round 14 D4: another T; round 15 §3.5: same T, other prompt or model). A stale SOURCE cache drops both
     # teachers, so a later bidirectional call cannot pick up a y_base made for the old T. A caller that pre-fills y_src / y_base
     # without a stamp manages its own cache: the pre-filled teacher is adopted and stamped from here on.
-    for p in pairs:
+    for p in ([] if loss == "ce" else pairs):         # loss="ce" uses gold labels, no teacher tokens
         k_src = _teacher_cache_key(bundle, p["source"], T)
         if p.get("_teacher_key_src", k_src) != k_src:
             p.pop("y_src", None)
@@ -403,14 +440,21 @@ def train_das(bundle, pairs, layer, rank=1, T=8, epochs=10, lr=1e-3, seed=42, cl
             opt.zero_grad()
             tr = position_trace if (ep == 0 and i == 0) else None      # acceptance trace: first pair, first epoch
             # D+: base <- source, match the source's distribution. Backward per term keeps peak memory at one term.
-            l_fwd, n_steps = multistep_kl_loss(bundle, basis, p, layer, p["y_src"], T, loss=loss, positions=positions,
-                                               anchor=anchor, trace=tr)
+            if loss == "ce":   # base = false statement <- true source: the gold label of the source is True
+                l_fwd, n_steps = gold_label_ce_loss(bundle, basis, p, layer, label_ids["True"], positions=positions, trace=tr)
+            else:
+                l_fwd, n_steps = multistep_kl_loss(bundle, basis, p, layer, p["y_src"], T, loss=loss, positions=positions,
+                                                   anchor=anchor, trace=tr)
             (wt * (0.5 if bidirectional else 1.0) * l_fwd).backward()
             loss_val = float(l_fwd.item())
             if bidirectional:
                 # D-: source <- base, match the base's own distribution (teacher-forced on the base's tokens)
-                l_rev, n_rev = multistep_kl_loss(bundle, basis, p, layer, p["y_base"], T, loss=loss, positions=positions,
-                                                 base_key="source", source_key="base", anchor=anchor)
+                if loss == "ce":   # source = true statement <- false base: target False
+                    l_rev, n_rev = gold_label_ce_loss(bundle, basis, p, layer, label_ids["False"], positions=positions,
+                                                      base_key="source", source_key="base")
+                else:
+                    l_rev, n_rev = multistep_kl_loss(bundle, basis, p, layer, p["y_base"], T, loss=loss, positions=positions,
+                                                     base_key="source", source_key="base", anchor=anchor)
                 (wt * 0.5 * l_rev).backward()
                 loss_val = 0.5 * (loss_val + float(l_rev.item()))
                 n_steps += n_rev
@@ -424,11 +468,12 @@ def train_das(bundle, pairs, layer, rank=1, T=8, epochs=10, lr=1e-3, seed=42, cl
                     raise RuntimeError("anchor=prompt but read/write indices moved across steps: %s" % tr)
                 if log_fn:
                     tok = getattr(bundle, "tokenizer", None)      # show the teacher tokens (one-word answer + EOS => ~2 steps)
-                    teacher = repr(tok.decode(p["y_src"], skip_special_tokens=False)) if tok is not None else "n/a"
+                    teacher = ("gold label (loss=ce)" if loss == "ce" else
+                               repr(tok.decode(p["y_src"], skip_special_tokens=False)) if tok is not None else "n/a")
                     log_fn("  [DAS L%d anchor=%s] position trace, first pair: %s | teacher tokens (%d): %s" % (
                         layer, anchor, "; ".join("t=%d len(base,src)=(%d,%d) write_base=%d read_src=%d" % (
                             d["t"], d["len_base"], d["len_src"], d["write_base_pos"], d["read_src_pos"]) for d in tr[:3]),
-                        int(p["y_src"].numel()), teacher))
+                        1 if loss == "ce" else int(p["y_src"].numel()), teacher))
         avg = ep_loss / max(len(pairs), 1)
         losses.append(avg)
         if log_fn and (ep % log_every == 0 or ep == epochs - 1):
@@ -449,10 +494,13 @@ def train_das(bundle, pairs, layer, rank=1, T=8, epochs=10, lr=1e-3, seed=42, cl
             gaps.append(((hs - hb) @ W).squeeze(0))
     gaps = torch.stack(gaps)  # [n, r]
     mean_gap = trimmed_mean(gaps.numpy(), trim).tolist()
-    return {"W": W, "losses": losses, "mean_gap": mean_gap, "gap_std": gaps.std(0).tolist(),
-            "n_pairs": len(pairs), "layer": layer, "rank": rank, "T": T, "epochs": epochs, "lr": lr, "seed": seed,
-            "loss_kind": loss, "bidirectional": bool(bidirectional), "positions": positions, "trim": float(trim),
-            "weighted": pair_weights is not None, "anchor": anchor, "position_trace": position_trace}
+    out = {"W": W, "losses": losses, "mean_gap": mean_gap, "gap_std": gaps.std(0).tolist(),
+           "n_pairs": len(pairs), "layer": layer, "rank": rank, "T": T, "epochs": epochs, "lr": lr, "seed": seed,
+           "loss_kind": loss, "bidirectional": bool(bidirectional), "positions": positions, "trim": float(trim),
+           "weighted": pair_weights is not None, "anchor": anchor, "position_trace": position_trace}
+    if loss == "ce":
+        out["label_ids"] = {k: sorted(set(int(i) for i in v)) for k, v in label_ids.items() if k in ("True", "False")}
+    return out
 
 
 def principal_cosines(W1, W2):

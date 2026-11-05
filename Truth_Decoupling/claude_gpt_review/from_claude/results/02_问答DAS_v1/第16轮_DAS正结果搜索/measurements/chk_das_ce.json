@@ -1,0 +1,112 @@
+{
+ "checks": {
+  "no_teacher_tokens_and_epoch0_loss_is_handcomputed_gold_ce": {
+   "ok": true,
+   "detail": {
+    "loss": 2.3119553327560425,
+    "hand": 2.3119553327560425
+   }
+  },
+  "T_recorded_1_and_label_ids_stored": {
+   "ok": true,
+   "detail": {
+    "T": 1,
+    "label_ids": {
+     "True": [
+      9,
+      10
+     ],
+     "False": [
+      11,
+      12
+     ]
+    }
+   }
+  },
+  "W_receives_nonzero_gradient": {
+   "ok": true,
+   "detail": {
+    "grad_norm": 0.42485934495925903,
+    "steps": 1
+   }
+  },
+  "W_moves_from_init": {
+   "ok": true,
+   "detail": {
+    "moved": 0.04394412413239479
+   }
+  },
+  "swapping_label_sets_changes_the_loss": {
+   "ok": true,
+   "detail": {
+    "normal": 2.2218436300754547,
+    "swapped": 2.535378098487854
+   }
+  },
+  "loss_decreases_over_epochs": {
+   "ok": true,
+   "detail": {
+    "losses": [
+     2.2218436300754547,
+     2.22101429104805,
+     2.2201941907405853
+    ]
+   }
+  },
+  "position_trace_reads_and_writes_last_prompt_tokens": {
+   "ok": true,
+   "detail": {
+    "trace": [
+     {
+      "t": 0,
+      "len_base": 3,
+      "len_src": 4,
+      "read_src_pos": 3,
+      "write_base_pos": 2
+     }
+    ]
+   }
+  },
+  "missing_label_ids_refused": {
+   "ok": true,
+   "detail": "loss=\"ce\" needs label_ids={\"True\": [...], \"False\": [...]} (first-token ids of th"
+  },
+  "overlapping_label_sets_refused": {
+   "ok": true,
+   "detail": "True and False label token sets overlap"
+  },
+  "positions_all_refused": {
+   "ok": true,
+   "detail": "loss=\"ce\" supports positions=\"last\" only"
+  },
+  "kl_default_unchanged_uses_teacher_and_no_label_ids": {
+   "ok": true,
+   "detail": {
+    "teacher_requests": [
+     2
+    ],
+    "keys": [
+     "T",
+     "W",
+     "anchor",
+     "bidirectional",
+     "epochs",
+     "gap_std",
+     "layer",
+     "loss_kind",
+     "losses",
+     "lr",
+     "mean_gap",
+     "n_pairs",
+     "position_trace",
+     "positions",
+     "rank",
+     "seed",
+     "trim",
+     "weighted"
+    ]
+   }
+  }
+ },
+ "failures": []
+}

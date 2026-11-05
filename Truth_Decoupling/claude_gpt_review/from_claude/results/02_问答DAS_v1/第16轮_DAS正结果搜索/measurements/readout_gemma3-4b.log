@@ -1,0 +1,16 @@
+W1105 07:06:43.442000 35307 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1105 07:06:43.462000 35307 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 63.50it/s]
+est   F0_same_turn        n= 92 AUROC 0.515 paired 0.565 J@0 +0.054 says True c/w 0.68/0.63 mass 1.00  | v1 single-token AUROC 0.515
+est   F1_user_turn        n= 92 AUROC 0.556 paired 0.652 J@0 +0.054 says True c/w 0.61/0.55 mass 1.00
+est   F2_tf_statement     n= 92 AUROC 0.801 paired 0.815 J@0 +0.402 says True c/w 0.83/0.42 mass 1.00
+est   F3_proposed_answer  n= 92 AUROC 0.693 paired 0.739 J@0 +0.348 says True c/w 0.75/0.40 mass 1.00
+tune  F0_same_turn        n=192 AUROC 0.519 paired 0.526 J@0 +0.057 says True c/w 0.72/0.67 mass 1.00  | v1 single-token AUROC 0.519
+tune  F1_user_turn        n=192 AUROC 0.585 paired 0.625 J@0 +0.130 says True c/w 0.69/0.56 mass 1.00
+tune  F2_tf_statement     n=192 AUROC 0.776 paired 0.812 J@0 +0.432 says True c/w 0.83/0.40 mass 1.00
+tune  F3_proposed_answer  n=192 AUROC 0.692 paired 0.745 J@0 +0.302 says True c/w 0.74/0.44 mass 1.00
+test  F0_same_turn        n=523 AUROC 0.536 paired 0.556 J@0 +0.088 says True c/w 0.76/0.67 mass 1.00  | v1 single-token AUROC 0.536
+test  F1_user_turn        n=523 AUROC 0.621 paired 0.654 J@0 +0.149 says True c/w 0.71/0.56 mass 1.00
+test  F2_tf_statement     n=523 AUROC 0.796 paired 0.801 J@0 +0.449 says True c/w 0.83/0.38 mass 1.00
+test  F3_proposed_answer  n=523 AUROC 0.715 paired 0.746 J@0 +0.327 says True c/w 0.74/0.41 mass 1.00
+saved /workspace/Truth_Decoupling/review_e25/checks/dasplus/readout_gemma3-4b.json 147 s

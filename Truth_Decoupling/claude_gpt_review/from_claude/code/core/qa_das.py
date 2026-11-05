@@ -32,15 +32,49 @@ def _inputs(ids, device):
     return {"input_ids": values, "attention_mask": torch.ones_like(values)}
 
 
+SELFCHECK_FORMATS = ("same_turn", "user_turn")
+_TURN_DUMMY = "QQZZDUMMYANSWERZZQQ"
+
+
+def user_turn_suffix(bundle, system, user_text, selfcheck_user):
+    """Template text that closes the assistant answer turn, adds a user turn and opens the next assistant turn.
+
+    Rendered by the model's own chat template around a placeholder answer, so the answer's encode_answer IDs stay
+    exactly as in deployment; the model config's thinking stub is appended to the new generation prompt, as
+    ModelBundle.build_chat does for the first one. (Claude, 2026-11-05: readout-format variant of v1.)
+    """
+    if not isinstance(selfcheck_user, str) or not selfcheck_user.strip():
+        raise ValueError("user-turn self-check needs a nonempty selfcheck_user text")
+    chat = (getattr(bundle, "cfg", {}) or {}).get("chat", {})
+    if system and chat.get("supports_system", True):
+        msgs = [{"role": "system", "content": system}, {"role": "user", "content": user_text}]
+    else:
+        msgs = [{"role": "user", "content": (system.strip() + "\n\n" + user_text) if system else user_text}]
+    msgs += [{"role": "assistant", "content": _TURN_DUMMY}, {"role": "user", "content": selfcheck_user}]
+    text = bundle.tokenizer.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)
+    if text.count(_TURN_DUMMY) != 1 or selfcheck_user not in text:
+        raise ValueError("chat template did not render the user-turn self-check as expected")
+    return text[text.index(_TURN_DUMMY) + len(_TURN_DUMMY):] + (chat.get("thinking_stub", "") or "")
+
+
 def encode_selfcheck(bundle, system, question, answer, user_template, suffix,
-                     label_true=" True", label_false=" False"):
+                     label_true=" True", label_false=" False", fmt="same_turn", selfcheck_user=None):
     """Keep encode_answer IDs intact; append separately encoded suffix IDs.
 
     Label IDs are the increment of tokenizing suffix+label relative to suffix,
     with exact prefix preservation checked. No label or EOS is in `inputs`.
     `label_predictor` is the position predicting the FIRST label token, not the
     position at which that label token would be appended.
+
+    fmt="same_turn" (v1 default, unchanged): `suffix` text continues the assistant answer turn.
+    fmt="user_turn": the suffix is the template text closing the answer turn, a user turn with `selfcheck_user`
+    and a new assistant turn (user_turn_suffix); it contains the template's special tokens, the labels may not.
+    The full-sequence tokenization must equal answer IDs + suffix IDs.
     """
+    if fmt not in SELFCHECK_FORMATS:
+        raise ValueError("unknown self-check format %r" % (fmt,))
+    if fmt == "user_turn":
+        suffix = user_turn_suffix(bundle, system, user_template.format(question=question), selfcheck_user)
     if not isinstance(suffix, str) or not suffix.strip():
         raise ValueError("self-check suffix must be nonempty")
     encoded = encode_answer(bundle, system, question, answer, user_template)
@@ -48,8 +82,10 @@ def encode_selfcheck(bundle, system, question, answer, user_template, suffix,
     if not suffix_ids:
         raise ValueError("self-check suffix has no tokens")
     special = set(getattr(bundle.tokenizer, "all_special_ids", []) or [])
-    if special.intersection(suffix_ids):
+    if fmt == "same_turn" and special.intersection(suffix_ids):
         raise ValueError("self-check suffix contains special token IDs")
+    if fmt == "user_turn" and _token_ids(bundle.tokenizer, encoded["full_text"] + suffix) != encoded["full_ids"] + suffix_ids:
+        raise ValueError("answer/turn boundary retokenizes; refusing ambiguous positions")
     label_ids = {}
     labels = {"true": label_true, "false": label_false}
     for name, label in labels.items():
@@ -72,7 +108,7 @@ def encode_selfcheck(bundle, system, question, answer, user_template, suffix,
         "label_ids": label_ids, "suffix_ids": suffix_ids, "encoded": encoded,
         "text_audit": {
             "system": system, "question": question, "answer": answer,
-            "user_template": user_template, "suffix": suffix, "labels": labels,
+            "user_template": user_template, "suffix": suffix, "labels": labels, "format": fmt,
             "display_text": encoded["full_text"] + suffix,
             "token_construction": "encode_answer.full_ids + tokenize(suffix); label increment from suffix+label",
             "answer_prefix_ids_preserved": True, "labels_in_inputs": False,
@@ -94,9 +130,11 @@ def prepare_selfcheck_pairs(bundle, cfg, records):
             try:
                 pair[side] = encode_selfcheck(
                     bundle, cfg["qa_system"], record["question"], record[key],
-                    cfg["qa_user"], cfg["selfcheck_suffix"],
+                    cfg["qa_user"], cfg.get("selfcheck_suffix"),
                     cfg.get("selfcheck_label_true", " True"),
-                    cfg.get("selfcheck_label_false", " False"))
+                    cfg.get("selfcheck_label_false", " False"),
+                    fmt=cfg.get("selfcheck_format", "same_turn"),
+                    selfcheck_user=cfg.get("selfcheck_user"))
             except (KeyError, ValueError) as exc:
                 raise ValueError("self-check pair %r, %s: %s" % (pid, side, exc)) from exc
         pairs.append(pair)
@@ -261,7 +299,9 @@ def _identity_metadata(bundle, pairs):
         row = {"pair_id": pair["pair_id"]}
         for side in ("positive", "negative"):
             item, audit = pair[side], pair[side]["text_audit"]
-            templates.append({k: audit[k] for k in ("system", "user_template", "suffix", "labels")})
+            # "format" only for non-v1 formats, so every v1 identity hash (including the template hash) stays byte-identical.
+            templates.append({**{k: audit[k] for k in ("system", "user_template", "suffix", "labels")},
+                              **({"format": audit["format"]} if audit.get("format", "same_turn") != "same_turn" else {})})
             row[side] = {"ids": item["inputs"]["input_ids"].detach().cpu().tolist()[0],
                          "answer_end": item["answer_end"], "label_predictor": item["label_predictor"],
                          "label_ids": item["label_ids"]}

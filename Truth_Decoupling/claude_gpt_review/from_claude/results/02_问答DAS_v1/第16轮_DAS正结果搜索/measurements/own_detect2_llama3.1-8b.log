@@ -1,0 +1,19 @@
+W1105 07:25:11.233000 52340 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1105 07:25:11.251000 52340 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00, 389.05it/s]
+tune answered 168 skipped {'abstain': 24, 'refusal_only_gold': 0, 'encode_failed': 0}
+test answered 456 skipped {'abstain': 67, 'refusal_only_gold': 6, 'encode_failed': 0}
+paired TEST AUROC das_minus_selfcheck_F0   +0.145 [+0.065, +0.219]
+paired TEST AUROC das_minus_selfcheck_F1   +0.077 [+0.011, +0.144]
+paired TEST AUROC das_minus_md             -0.006 [-0.040, +0.029]
+paired TEST AUROC das_minus_probe          -0.091 [-0.142, -0.039]
+paired TEST AUROC md_minus_selfcheck_F0    +0.151 [+0.069, +0.228]
+paired TEST AUROC md_minus_selfcheck_F1    +0.083 [+0.015, +0.151]
+selective accuracy on TEST (keep top 80% / 50% by score; all answered 0.338): das 0.378 / 0.443; md 0.378 / 0.461; probe 0.395 / 0.504; selfcheck_F0 0.337 / 0.373; selfcheck_F1 0.370 / 0.404
+answered: tune 168 (correct 59), test 456 (correct 154); main-table n=523
+das           das_L16    tune AUROC 0.742 | TEST AUROC 0.679 [0.626, 0.729] | gate: (c-w)/n -0.283 -> +0.000  d +0.283 [+0.220, +0.342]  abstain 312 (lost 82 correct, removed 230 wrong)
+md            md_L15     tune AUROC 0.734 | TEST AUROC 0.685 [0.631, 0.736] | gate: (c-w)/n -0.283 -> +0.029  d +0.312 [+0.243, +0.377]  abstain 377 (lost 107 correct, removed 270 wrong)
+probe         probe      tune AUROC 1.000 | TEST AUROC 0.770 [0.722, 0.816] | gate: (c-w)/n -0.283 -> +0.084  d +0.367 [+0.304, +0.428]  abstain 358 (lost 83 correct, removed 275 wrong)
+selfcheck_F0  selfcheck_F0 tune AUROC 0.443 | TEST AUROC 0.534 [0.478, 0.590] | gate: (c-w)/n -0.283 -> -0.021  d +0.262 [+0.185, +0.337]  abstain 423 (lost 143 correct, removed 280 wrong)
+selfcheck_F1  selfcheck_F1 tune AUROC 0.552 | TEST AUROC 0.602 [0.547, 0.655] | gate: (c-w)/n -0.283 -> -0.023  d +0.260 [+0.191, +0.325]  abstain 372 (lost 118 correct, removed 254 wrong)
+saved /workspace/Truth_Decoupling/review_e25/checks/dasplus/own_detect2_llama3.1-8b.json

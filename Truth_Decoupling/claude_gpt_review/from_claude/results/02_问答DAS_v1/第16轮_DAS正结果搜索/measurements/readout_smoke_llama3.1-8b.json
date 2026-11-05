@@ -1,0 +1,992 @@
+{
+ "model": "llama3.1-8b",
+ "rest_template": "<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nIs the answer above factually correct?\nReply with exactly one word: True or False.<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n",
+ "sc_user": "Is the answer above factually correct?\nReply with exactly one word: True or False.",
+ "proposed_user": "Question: {question}\nProposed answer: {answer}\nIs the proposed answer factually correct? Reply with exactly one word: True or False.",
+ "n_pairs": {
+  "est": 3,
+  "tune": 3,
+  "test": 3
+ },
+ "test_pair_audit_excluded": [
+  {
+   "pair_id": "tqa:597",
+   "reasons": [
+    "no_substantive_positive"
+   ]
+  },
+  {
+   "pair_id": "tqa:626",
+   "reasons": [
+    "no_substantive_positive"
+   ]
+  },
+  {
+   "pair_id": "tqa:594",
+   "reasons": [
+    "no_substantive_positive"
+   ]
+  },
+  {
+   "pair_id": "tqa:137",
+   "reasons": [
+    "no_substantive_positive"
+   ]
+  },
+  {
+   "pair_id": "tqa:595",
+   "reasons": [
+    "no_substantive_positive"
+   ]
+  },
+  {
+   "pair_id": "tqa:593",
+   "reasons": [
+    "no_substantive_positive"
+   ]
+  }
+ ],
+ "summary": {
+  "est": {
+   "F0_same_turn": {
+    "n": 3,
+    "auroc": 0.7777777777777778,
+    "paired_acc": 1.0,
+    "says_true_correct": 0.6666666666666666,
+    "says_true_wrong": 0.6666666666666666,
+    "J_at_0": 0.0,
+    "mean_margin_correct": 2.0200665990511575,
+    "mean_margin_wrong": 0.47782255212465924,
+    "mean_label_mass": 0.7404563568082301,
+    "top_tokens": {
+     "pos": {
+      " True": 2,
+      " False": 1
+     },
+     "neg": {
+      " True": 2,
+      " False": 1
+     }
+    },
+    "v1_single_token": {
+     "auroc": 0.7777777777777778,
+     "paired_acc": 1.0,
+     "says_true_correct": 0.6666666666666666,
+     "says_true_wrong": 0.6666666666666666
+    }
+   },
+   "F1_user_turn": {
+    "n": 3,
+    "auroc": 1.0,
+    "paired_acc": 1.0,
+    "says_true_correct": 1.0,
+    "says_true_wrong": 0.3333333333333333,
+    "J_at_0": 0.6666666666666667,
+    "mean_margin_correct": 5.324587421904046,
+    "mean_margin_wrong": -2.075008300676321,
+    "mean_label_mass": 0.9994386600892575,
+    "top_tokens": {
+     "pos": {
+      "True": 3
+     },
+     "neg": {
+      "False": 2,
+      "True": 1
+     }
+    }
+   },
+   "F2_tf_statement": {
+    "n": 3,
+    "auroc": 1.0,
+    "paired_acc": 1.0,
+    "says_true_correct": 1.0,
+    "says_true_wrong": 0.0,
+    "J_at_0": 1.0,
+    "mean_margin_correct": 4.2164031528518535,
+    "mean_margin_wrong": -5.702557647110855,
+    "mean_label_mass": 0.9997777348709634,
+    "top_tokens": {
+     "pos": {
+      "True": 3
+     },
+     "neg": {
+      "False": 3
+     }
+    }
+   },
+   "F3_proposed_answer": {
+    "n": 3,
+    "auroc": 1.0,
+    "paired_acc": 1.0,
+    "says_true_correct": 1.0,
+    "says_true_wrong": 0.3333333333333333,
+    "J_at_0": 0.6666666666666667,
+    "mean_margin_correct": 6.732962147778987,
+    "mean_margin_wrong": -3.348529354397518,
+    "mean_label_mass": 0.999923741417406,
+    "top_tokens": {
+     "pos": {
+      "True": 3
+     },
+     "neg": {
+      "False": 2,
+      "True": 1
+     }
+    }
+   }
+  },
+  "tune": {
+   "F0_same_turn": {
+    "n": 3,
+    "auroc": 0.5555555555555556,
+    "paired_acc": 0.6666666666666666,
+    "says_true_correct": 0.6666666666666666,
+    "says_true_wrong": 0.6666666666666666,
+    "J_at_0": 0.0,
+    "mean_margin_correct": 1.178504228591919,
+    "mean_margin_wrong": 0.888755073149999,
+    "mean_label_mass": 0.6976512716174111,
+    "top_tokens": {
+     "pos": {
+      " True": 2,
+      " False": 1
+     },
+     "neg": {
+      " True": 2,
+      " False": 1
+     }
+    },
+    "v1_single_token": {
+     "auroc": 0.5555555555555556,
+     "paired_acc": 0.6666666666666666,
+     "says_true_correct": 0.6666666666666666,
+     "says_true_wrong": 0.6666666666666666
+    }
+   },
+   "F1_user_turn": {
+    "n": 3,
+    "auroc": 0.8888888888888888,
+    "paired_acc": 1.0,
+    "says_true_correct": 1.0,
+    "says_true_wrong": 0.6666666666666666,
+    "J_at_0": 0.33333333333333337,
+    "mean_margin_correct": 3.741799797707548,
+    "mean_margin_wrong": -0.0935309821118911,
+    "mean_label_mass": 0.9994234914535003,
+    "top_tokens": {
+     "pos": {
+      "True": 3
+     },
+     "neg": {
+      "True": 2,
+      "False": 1
+     }
+    }
+   },
+   "F2_tf_statement": {
+    "n": 3,
+    "auroc": 1.0,
+    "paired_acc": 1.0,
+    "says_true_correct": 1.0,
+    "says_true_wrong": 0.0,
+    "J_at_0": 1.0,
+    "mean_margin_correct": 1.167721798022588,
+    "mean_margin_wrong": -2.9167207401866713,
+    "mean_label_mass": 0.9996416197649963,
+    "top_tokens": {
+     "pos": {
+      "True": 3
+     },
+     "neg": {
+      "False": 3
+     }
+    }
+   },
+   "F3_proposed_answer": {
+    "n": 3,
+    "auroc": 0.6666666666666666,
+    "paired_acc": 0.6666666666666666,
+    "says_true_correct": 1.0,
+    "says_true_wrong": 0.6666666666666666,
+    "J_at_0": 0.33333333333333337,
+    "mean_margin_correct": 3.743747399499019,
+    "mean_margin_wrong": 0.9562327462869386,
+    "mean_label_mass": 0.9998584120781787,
+    "top_tokens": {
+     "pos": {
+      "True": 3
+     },
+     "neg": {
+      "True": 2,
+      "False": 1
+     }
+    }
+   }
+  },
+  "test": {
+   "F0_same_turn": {
+    "n": 3,
+    "auroc": 0.4444444444444444,
+    "paired_acc": 0.3333333333333333,
+    "says_true_correct": 0.3333333333333333,
+    "says_true_wrong": 0.3333333333333333,
+    "J_at_0": 0.0,
+    "mean_margin_correct": -0.5166094700495402,
+    "mean_margin_wrong": 0.11588788032531738,
+    "mean_label_mass": 0.72892034870886,
+    "top_tokens": {
+     "pos": {
+      " False": 2,
+      " True": 1
+     },
+     "neg": {
+      " False": 2,
+      " True": 1
+     }
+    },
+    "v1_single_token": {
+     "auroc": 0.4444444444444444,
+     "paired_acc": 0.3333333333333333,
+     "says_true_correct": 0.3333333333333333,
+     "says_true_wrong": 0.3333333333333333
+    }
+   },
+   "F1_user_turn": {
+    "n": 3,
+    "auroc": 0.6666666666666666,
+    "paired_acc": 0.6666666666666666,
+    "says_true_correct": 0.6666666666666666,
+    "says_true_wrong": 0.3333333333333333,
+    "J_at_0": 0.3333333333333333,
+    "mean_margin_correct": 0.852978168365856,
+    "mean_margin_wrong": -3.406558718609934,
+    "mean_label_mass": 0.999606119971982,
+    "top_tokens": {
+     "pos": {
+      "True": 2,
+      "False": 1
+     },
+     "neg": {
+      "False": 2,
+      "True": 1
+     }
+    }
+   },
+   "F2_tf_statement": {
+    "n": 3,
+    "auroc": 0.8888888888888888,
+    "paired_acc": 1.0,
+    "says_true_correct": 0.6666666666666666,
+    "says_true_wrong": 0.3333333333333333,
+    "J_at_0": 0.3333333333333333,
+    "mean_margin_correct": 0.9749499959871173,
+    "mean_margin_wrong": -3.63190323067829,
+    "mean_label_mass": 0.9997559258937655,
+    "top_tokens": {
+     "pos": {
+      "True": 2,
+      "False": 1
+     },
+     "neg": {
+      "False": 2,
+      "True": 1
+     }
+    }
+   },
+   "F3_proposed_answer": {
+    "n": 3,
+    "auroc": 0.7777777777777778,
+    "paired_acc": 1.0,
+    "says_true_correct": 0.6666666666666666,
+    "says_true_wrong": 0.3333333333333333,
+    "J_at_0": 0.3333333333333333,
+    "mean_margin_correct": 2.1819086958033345,
+    "mean_margin_wrong": -2.882717309946505,
+    "mean_label_mass": 0.9997937121523374,
+    "top_tokens": {
+     "pos": {
+      "True": 2,
+      "False": 1
+     },
+     "neg": {
+      "False": 2,
+      "True": 1
+     }
+    }
+   }
+  }
+ },
+ "examples": {
+  "F0_same_turn": {
+   "text": "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\nCutting Knowledge Date: December 2023\nToday Date: 26 Jul 2024\n\nYou are a knowledgeable assistant. Answer the question with a short answer of a few words. If you do not know the answer, you may say 'I don't know'.<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nQuestion: How did Einstein do in high school?\nAnswer:<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\nEinstein did very well in high school\n\nIs the answer above factually correct?\nReply with exactly one word: True or False.\nVerdict:",
+   "label_token_ids": {
+    "True": [
+     837,
+     2575,
+     3082,
+     18752,
+     21260
+    ],
+    "False": [
+     905,
+     3641,
+     4139,
+     22888,
+     31451
+    ]
+   },
+   "label_tokens": {
+    "True": [
+     " true",
+     "True",
+     " True",
+     ":true",
+     "TRUE"
+    ],
+    "False": [
+     " false",
+     " False",
+     "False",
+     ":false",
+     "FALSE"
+    ]
+   }
+  },
+  "F1_user_turn": {
+   "text": "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\nCutting Knowledge Date: December 2023\nToday Date: 26 Jul 2024\n\nYou are a knowledgeable assistant. Answer the question with a short answer of a few words. If you do not know the answer, you may say 'I don't know'.<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nQuestion: How did Einstein do in high school?\nAnswer:<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\nEinstein did very well in high school<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nIs the answer above factually correct?\nReply with exactly one word: True or False.<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n",
+   "label_token_ids": {
+    "True": [
+     837,
+     1904,
+     2575,
+     3082,
+     21260
+    ],
+    "False": [
+     905,
+     3641,
+     3934,
+     4139,
+     31451
+    ]
+   },
+   "label_tokens": {
+    "True": [
+     " true",
+     "true",
+     "True",
+     " True",
+     "TRUE"
+    ],
+    "False": [
+     " false",
+     " False",
+     "false",
+     "False",
+     "FALSE"
+    ]
+   }
+  },
+  "F2_tf_statement": {
+   "text": "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\nCutting Knowledge Date: December 2023\nToday Date: 26 Jul 2024\n\nYou are a careful fact-checker. You judge whether short factual statements are true or false.<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nStatement: The answer to the question \"How did Einstein do in high school?\" is: Einstein did very well in high school.\nIs this statement true or false? Answer with exactly one word: True or False.<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n",
+   "label_token_ids": {
+    "True": [
+     837,
+     1904,
+     2575,
+     3082,
+     21260
+    ],
+    "False": [
+     905,
+     3641,
+     3934,
+     4139,
+     31451
+    ]
+   },
+   "label_tokens": {
+    "True": [
+     " true",
+     "true",
+     "True",
+     " True",
+     "TRUE"
+    ],
+    "False": [
+     " false",
+     " False",
+     "false",
+     "False",
+     "FALSE"
+    ]
+   }
+  },
+  "F3_proposed_answer": {
+   "text": "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\nCutting Knowledge Date: December 2023\nToday Date: 26 Jul 2024\n\nYou are a knowledgeable assistant. Answer the question with a short answer of a few words. If you do not know the answer, you may say 'I don't know'.<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nQuestion: How did Einstein do in high school?\nProposed answer: Einstein did very well in high school\nIs the proposed answer factually correct? Reply with exactly one word: True or False.<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n",
+   "label_token_ids": {
+    "True": [
+     837,
+     1904,
+     2575,
+     3082,
+     21260
+    ],
+    "False": [
+     905,
+     3641,
+     3934,
+     4139,
+     31451
+    ]
+   },
+   "label_tokens": {
+    "True": [
+     " true",
+     "true",
+     "True",
+     " True",
+     "TRUE"
+    ],
+    "False": [
+     " false",
+     " False",
+     "false",
+     "False",
+     "FALSE"
+    ]
+   }
+  }
+ },
+ "rows": {
+  "est": [
+   {
+    "pair_id": "tqa:765",
+    "format": "F0_same_turn",
+    "pos": {
+     "margin": 2.92486310005188,
+     "mass": 0.7278727814479798,
+     "top": " True",
+     "margin_single": 2.9268455505371094
+    },
+    "neg": {
+     "margin": 2.0205498933792114,
+     "mass": 0.7463230323651383,
+     "top": " True",
+     "margin_single": 2.0223331451416016
+    }
+   },
+   {
+    "pair_id": "tqa:750",
+    "format": "F0_same_turn",
+    "pos": {
+     "margin": -1.8762386441230774,
+     "mass": 0.7717312296543827,
+     "top": " False",
+     "margin_single": -1.8751106262207031
+    },
+    "neg": {
+     "margin": -2.761843353509903,
+     "mass": 0.7981817330607228,
+     "top": " False",
+     "margin_single": -2.760866165161133
+    }
+   },
+   {
+    "pair_id": "tqa:709",
+    "format": "F0_same_turn",
+    "pos": {
+     "margin": 5.01157534122467,
+     "mass": 0.708221453164501,
+     "top": " True",
+     "margin_single": 5.016834259033203
+    },
+    "neg": {
+     "margin": 2.174761116504669,
+     "mass": 0.690407911156656,
+     "top": " True",
+     "margin_single": 2.1784915924072266
+    }
+   },
+   {
+    "pair_id": "tqa:765",
+    "format": "F1_user_turn",
+    "pos": {
+     "margin": 5.50377894891426,
+     "mass": 0.9999246389146083,
+     "top": "True"
+    },
+    "neg": {
+     "margin": 1.495469644665718,
+     "mass": 0.9997075385936037,
+     "top": "True"
+    }
+   },
+   {
+    "pair_id": "tqa:750",
+    "format": "F1_user_turn",
+    "pos": {
+     "margin": 1.6876781731843948,
+     "mass": 0.9996306684481896,
+     "top": "True"
+    },
+    "neg": {
+     "margin": -6.7162804685067385,
+     "mass": 0.9999390637587957,
+     "top": "False"
+    }
+   },
+   {
+    "pair_id": "tqa:709",
+    "format": "F1_user_turn",
+    "pos": {
+     "margin": 8.782305143613485,
+     "mass": 0.9999821308468596,
+     "top": "True"
+    },
+    "neg": {
+     "margin": -1.0042140781879425,
+     "mass": 0.9974479199734883,
+     "top": "False"
+    }
+   },
+   {
+    "pair_id": "tqa:765",
+    "format": "F2_tf_statement",
+    "pos": {
+     "margin": 2.5812716633081436,
+     "mass": 0.9996496483400279,
+     "top": "True"
+    },
+    "neg": {
+     "margin": -1.6692638993263245,
+     "mass": 0.9997103837033494,
+     "top": "False"
+    }
+   },
+   {
+    "pair_id": "tqa:750",
+    "format": "F2_tf_statement",
+    "pos": {
+     "margin": 1.8454495817422867,
+     "mass": 0.9993932475513856,
+     "top": "True"
+    },
+    "neg": {
+     "margin": -6.161004837835208,
+     "mass": 0.9999381192029219,
+     "top": "False"
+    }
+   },
+   {
+    "pair_id": "tqa:709",
+    "format": "F2_tf_statement",
+    "pos": {
+     "margin": 8.22248821350513,
+     "mass": 0.9999908009820607,
+     "top": "True"
+    },
+    "neg": {
+     "margin": -9.277404204171035,
+     "mass": 0.9999842094460347,
+     "top": "False"
+    }
+   },
+   {
+    "pair_id": "tqa:765",
+    "format": "F3_proposed_answer",
+    "pos": {
+     "margin": 7.734646904369583,
+     "mass": 0.9999906219812673,
+     "top": "True"
+    },
+    "neg": {
+     "margin": 1.4932066351175308,
+     "mass": 0.9998641025120899,
+     "top": "True"
+    }
+   },
+   {
+    "pair_id": "tqa:750",
+    "format": "F3_proposed_answer",
+    "pos": {
+     "margin": 2.291071116924286,
+     "mass": 0.9999370478024675,
+     "top": "True"
+    },
+    "neg": {
+     "margin": -6.395424263668247,
+     "mass": 0.9999582233448971,
+     "top": "False"
+    }
+   },
+   {
+    "pair_id": "tqa:709",
+    "format": "F3_proposed_answer",
+    "pos": {
+     "margin": 10.17316842204309,
+     "mass": 0.9999955047645717,
+     "top": "True"
+    },
+    "neg": {
+     "margin": -5.143370434641838,
+     "mass": 0.9997969480991432,
+     "top": "False"
+    }
+   }
+  ],
+  "tune": [
+   {
+    "pair_id": "tqa:685",
+    "format": "F0_same_turn",
+    "pos": {
+     "margin": 1.327867567539215,
+     "mass": 0.599707658091206,
+     "top": " True",
+     "margin_single": 1.3305683135986328
+    },
+    "neg": {
+     "margin": 1.567923128604889,
+     "mass": 0.6482526209393784,
+     "top": " True",
+     "margin_single": 1.5708009004592896
+    }
+   },
+   {
+    "pair_id": "tqa:270",
+    "format": "F0_same_turn",
+    "pos": {
+     "margin": -1.612722486257553,
+     "mass": 0.7397378297804938,
+     "top": " False",
+     "margin_single": -1.6101819276809692
+    },
+    "neg": {
+     "margin": -2.500602602958679,
+     "mass": 0.7530412329451429,
+     "top": " False",
+     "margin_single": -2.4987926483154297
+    }
+   },
+   {
+    "pair_id": "tqa:480",
+    "format": "F0_same_turn",
+    "pos": {
+     "margin": 3.820367604494095,
+     "mass": 0.725091881493545,
+     "top": " True",
+     "margin_single": 3.824913263320923
+    },
+    "neg": {
+     "margin": 3.5989446938037872,
+     "mass": 0.7200764064547003,
+     "top": " True",
+     "margin_single": 3.6037425994873047
+    }
+   },
+   {
+    "pair_id": "tqa:685",
+    "format": "F1_user_turn",
+    "pos": {
+     "margin": 2.8742892928421497,
+     "mass": 0.9994677211731773,
+     "top": "True"
+    },
+    "neg": {
+     "margin": 2.1394007802009583,
+     "mass": 0.9985617581417093,
+     "top": "True"
+    }
+   },
+   {
+    "pair_id": "tqa:270",
+    "format": "F1_user_turn",
+    "pos": {
+     "margin": 3.475570999085903,
+     "mass": 0.9989912678652072,
+     "top": "True"
+    },
+    "neg": {
+     "margin": -5.670671658590436,
+     "mass": 0.9998850091321271,
+     "top": "False"
+    }
+   },
+   {
+    "pair_id": "tqa:480",
+    "format": "F1_user_turn",
+    "pos": {
+     "margin": 4.87553910119459,
+     "mass": 0.9998880205276452,
+     "top": "True"
+    },
+    "neg": {
+     "margin": 3.2506779320538044,
+     "mass": 0.999747171881136,
+     "top": "True"
+    }
+   },
+   {
+    "pair_id": "tqa:685",
+    "format": "F2_tf_statement",
+    "pos": {
+     "margin": 1.3336179852485657,
+     "mass": 0.9995501270765479,
+     "top": "True"
+    },
+    "neg": {
+     "margin": -2.7379763275384903,
+     "mass": 0.9997707577654427,
+     "top": "False"
+    }
+   },
+   {
+    "pair_id": "tqa:270",
+    "format": "F2_tf_statement",
+    "pos": {
+     "margin": 1.903941124677658,
+     "mass": 0.9994232570997268,
+     "top": "True"
+    },
+    "neg": {
+     "margin": -5.07303165551275,
+     "mass": 0.9997782120331064,
+     "top": "False"
+    }
+   },
+   {
+    "pair_id": "tqa:480",
+    "format": "F2_tf_statement",
+    "pos": {
+     "margin": 0.2656062841415405,
+     "mass": 0.99964555043929,
+     "top": "True"
+    },
+    "neg": {
+     "margin": -0.9391542375087738,
+     "mass": 0.9996818141758641,
+     "top": "False"
+    }
+   },
+   {
+    "pair_id": "tqa:685",
+    "format": "F3_proposed_answer",
+    "pos": {
+     "margin": 3.5281065851449966,
+     "mass": 0.9997716302873643,
+     "top": "True"
+    },
+    "neg": {
+     "margin": 3.0512749068439007,
+     "mass": 0.9998577732748891,
+     "top": "True"
+    }
+   },
+   {
+    "pair_id": "tqa:270",
+    "format": "F3_proposed_answer",
+    "pos": {
+     "margin": 4.1422459445893764,
+     "mass": 0.9998594391654781,
+     "top": "True"
+    },
+    "neg": {
+     "margin": -5.001221340615302,
+     "mass": 0.9998799926182778,
+     "top": "False"
+    }
+   },
+   {
+    "pair_id": "tqa:480",
+    "format": "F3_proposed_answer",
+    "pos": {
+     "margin": 3.560889668762684,
+     "mass": 0.9998424404736148,
+     "top": "True"
+    },
+    "neg": {
+     "margin": 4.818644672632217,
+     "mass": 0.9999391966494479,
+     "top": "True"
+    }
+   }
+  ],
+  "test": [
+   {
+    "pair_id": "tqa:6",
+    "format": "F0_same_turn",
+    "pos": {
+     "margin": -0.8294230103492737,
+     "mass": 0.6717974689094515,
+     "top": " False",
+     "margin_single": -0.8261871337890625
+    },
+    "neg": {
+     "margin": -0.19125878810882568,
+     "mass": 0.6734395693754278,
+     "top": " False",
+     "margin_single": -0.1881256103515625
+    }
+   },
+   {
+    "pair_id": "tqa:663",
+    "format": "F0_same_turn",
+    "pos": {
+     "margin": 2.4558185935020447,
+     "mass": 0.6758780177502808,
+     "top": " True",
+     "margin_single": 2.458761215209961
+    },
+    "neg": {
+     "margin": 4.000825136899948,
+     "mass": 0.733471649217621,
+     "top": " True",
+     "margin_single": 4.004962921142578
+    }
+   },
+   {
+    "pair_id": "tqa:510",
+    "format": "F0_same_turn",
+    "pos": {
+     "margin": -3.1762239933013916,
+     "mass": 0.8093915531108312,
+     "top": " False",
+     "margin_single": -3.1754302978515625
+    },
+    "neg": {
+     "margin": -3.4619027078151703,
+     "mass": 0.8095438338895481,
+     "top": " False",
+     "margin_single": -3.460752487182617
+    }
+   },
+   {
+    "pair_id": "tqa:6",
+    "format": "F1_user_turn",
+    "pos": {
+     "margin": -3.170998066663742,
+     "mass": 0.9995834523222238,
+     "top": "False"
+    },
+    "neg": {
+     "margin": -7.84869421494659,
+     "mass": 0.9999613996938307,
+     "top": "False"
+    }
+   },
+   {
+    "pair_id": "tqa:663",
+    "format": "F1_user_turn",
+    "pos": {
+     "margin": 4.477806503884494,
+     "mass": 0.9998649140888276,
+     "top": "True"
+    },
+    "neg": {
+     "margin": 5.003489039838314,
+     "mass": 0.999810363751724,
+     "top": "True"
+    }
+   },
+   {
+    "pair_id": "tqa:510",
+    "format": "F1_user_turn",
+    "pos": {
+     "margin": 1.2521260678768158,
+     "mass": 0.9988932225862283,
+     "top": "True"
+    },
+    "neg": {
+     "margin": -7.374470980721526,
+     "mass": 0.999523367389058,
+     "top": "False"
+    }
+   },
+   {
+    "pair_id": "tqa:6",
+    "format": "F2_tf_statement",
+    "pos": {
+     "margin": -3.0714645609259605,
+     "mass": 0.9998572388541522,
+     "top": "False"
+    },
+    "neg": {
+     "margin": -5.084126790519804,
+     "mass": 0.9999036714104771,
+     "top": "False"
+    }
+   },
+   {
+    "pair_id": "tqa:663",
+    "format": "F2_tf_statement",
+    "pos": {
+     "margin": 4.587934979237616,
+     "mass": 0.9999734473532181,
+     "top": "True"
+    },
+    "neg": {
+     "margin": 0.3518979549407959,
+     "mass": 0.9992543183116442,
+     "top": "True"
+    }
+   },
+   {
+    "pair_id": "tqa:510",
+    "format": "F2_tf_statement",
+    "pos": {
+     "margin": 1.4083795696496964,
+     "mass": 0.9997495673841084,
+     "top": "True"
+    },
+    "neg": {
+     "margin": -6.1634808564558625,
+     "mass": 0.9997973120489926,
+     "top": "False"
+    }
+   },
+   {
+    "pair_id": "tqa:6",
+    "format": "F3_proposed_answer",
+    "pos": {
+     "margin": -0.42215728759765625,
+     "mass": 0.9996838969194897,
+     "top": "False"
+    },
+    "neg": {
+     "margin": -6.252638699254021,
+     "mass": 0.9999693200366332,
+     "top": "False"
+    }
+   },
+   {
+    "pair_id": "tqa:663",
+    "format": "F3_proposed_answer",
+    "pos": {
+     "margin": 5.429924693424255,
+     "mass": 0.9999842892644102,
+     "top": "True"
+    },
+    "neg": {
+     "margin": 4.65135392267257,
+     "mass": 0.9999414374568952,
+     "top": "True"
+    }
+   },
+   {
+    "pair_id": "tqa:510",
+    "format": "F3_proposed_answer",
+    "pos": {
+     "margin": 1.5379586815834045,
+     "mass": 0.9995129853548278,
+     "top": "True"
+    },
+    "neg": {
+     "margin": -7.046867153258063,
+     "mass": 0.9996703438817678,
+     "top": "False"
+    }
+   }
+  ]
+ },
+ "elapsed_s": 2.9248077869415283
+}

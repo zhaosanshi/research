@@ -76,7 +76,11 @@ def validate_config(cfg):
         raise ValueError("qa_user must contain only the {question} placeholder")
     if not isinstance(cfg.get("qa_system"), str):
         raise ValueError("qa_system must be text")
-    for key in ("selfcheck_suffix", "selfcheck_label_true", "selfcheck_label_false"):
+    fmt = cfg.get("selfcheck_format", "same_turn")
+    if fmt not in ("same_turn", "user_turn"):
+        raise ValueError("selfcheck_format must be same_turn (v1) or user_turn")
+    for key in ("selfcheck_label_true", "selfcheck_label_false") + (
+            ("selfcheck_suffix",) if fmt == "same_turn" else ("selfcheck_user",)):
         if not isinstance(cfg.get(key), str) or not cfg[key].strip():
             raise ValueError("empty self-check setting %s" % key)
     if cfg["selfcheck_label_true"] == cfg["selfcheck_label_false"]:
