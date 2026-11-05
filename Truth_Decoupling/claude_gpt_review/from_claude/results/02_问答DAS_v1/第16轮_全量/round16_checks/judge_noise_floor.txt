@@ -1,0 +1,25 @@
+Judge-noise floor on the TUNE grades (192 questions, deepseek-chat, qa_semantic_v3): outcome flips vs baseline where the
+answer text is identical after dropping case / punctuation / whitespace (a flip there can only be judge noise).
+Computed on the server 2026-11-05 14:12 Beijing from tune_scored_items.json of the three full_v1 runs.
+
+===== llama3.1-8b
+  E_qa_das_continuous_L9_a1          flips  3 | text-identical-after-normalization 0 | byte-identical 0
+  E_qa_das_continuous_L10_a1         flips  2 | text-identical-after-normalization 0 | byte-identical 0
+  E_qa_das_continuous_L7_a1          flips  1 | text-identical-after-normalization 0 | byte-identical 0
+  E_qa_md_continuous_L10_a3          flips  4 | text-identical-after-normalization 0 | byte-identical 0
+  E_qa_md_continuous_L7_a3           flips  3 | text-identical-after-normalization 0 | byte-identical 0
+  E_qa_md_continuous_L11_a3          flips  4 | text-identical-after-normalization 0 | byte-identical 0
+===== qwen3-8b
+  E_qa_das_continuous_L14_a1         flips  3 | text-identical-after-normalization 0 | byte-identical 0
+  E_qa_das_continuous_L29_a1         flips  0 | text-identical-after-normalization 0 | byte-identical 0
+  E_qa_das_continuous_L4_a2          flips  1 | text-identical-after-normalization 0 | byte-identical 0
+  E_qa_md_continuous_L12_a3          flips  6 | text-identical-after-normalization 0 | byte-identical 0
+  E_qa_md_continuous_L11_a3          flips  4 | text-identical-after-normalization 0 | byte-identical 0
+  E_qa_md_continuous_L0_a3           flips  1 | text-identical-after-normalization 0 | byte-identical 0
+===== gemma3-4b
+  E_qa_das_continuous_L30_a3         flips 13 | text-identical-after-normalization 1 | byte-identical 0  tqa:114:c->w '62 years old'/'62 years old.'
+  E_qa_das_continuous_L17_a2         flips 20 | text-identical-after-normalization 0 | byte-identical 0
+  E_qa_das_continuous_L26_a3         flips 21 | text-identical-after-normalization 1 | byte-identical 0  tqa:114:c->w '62 years old'/'62 years old.\n'
+  E_qa_md_continuous_L6_a3           flips 12 | text-identical-after-normalization 0 | byte-identical 0
+  E_qa_md_continuous_L17_a3          flips 92 | text-identical-after-normalization 0 | byte-identical 0
+  E_qa_md_continuous_L33_a3          flips 23 | text-identical-after-normalization 0 | byte-identical 0

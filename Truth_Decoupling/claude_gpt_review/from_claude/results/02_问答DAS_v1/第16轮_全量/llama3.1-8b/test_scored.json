@@ -1,0 +1,2562 @@
+{
+  "model": "llama3.1-8b",
+  "tag": "E25_DAS_test",
+  "judge": "deepseek",
+  "outcome_policy": "judge_primary_v2",
+  "gold_policy": "exact_personal_refusals_v1",
+  "judge_rubric_id": "qa_semantic_v3",
+  "source_generation_sha256": "0dc653f6e0b6b7927072b139631ccc50a58583404c2a84dbf3480d892ae98d71",
+  "n_rule_judge_disagreements": {
+    "baseline": 0,
+    "E_qa_das_continuous_L9_a1": 0,
+    "E_qa_md_continuous_L10_a3": 0
+  },
+  "n_questions": 529,
+  "n_substantive_gold": 523,
+  "n_resolved_all_conditions": 523,
+  "rates": {
+    "baseline": {
+      "rates": {
+        "n": 523,
+        "correct": 0.2944550669216061,
+        "wrong": 0.5774378585086042,
+        "abstain": 0.12810707456978968,
+        "answer_rate": 0.8718929254302104,
+        "precision_answered": 0.33771929824561403
+      },
+      "rates_judge_only": {
+        "n": 523,
+        "correct": 0.2944550669216061,
+        "wrong": 0.5774378585086042,
+        "abstain": 0.12810707456978968,
+        "answer_rate": 0.8718929254302104,
+        "precision_answered": 0.33771929824561403
+      },
+      "n_unresolved": 0,
+      "abstention_only_gold_questions": {
+        "correct": 1,
+        "wrong": 1,
+        "abstain": 4,
+        "unresolved": 0
+      },
+      "truncated_rate": 0.003780718336483932
+    },
+    "E_qa_das_continuous_L9_a1": {
+      "rates": {
+        "n": 523,
+        "correct": 0.28680688336520077,
+        "wrong": 0.5850860420650096,
+        "abstain": 0.12810707456978968,
+        "answer_rate": 0.8718929254302104,
+        "precision_answered": 0.32894736842105265
+      },
+      "rates_judge_only": {
+        "n": 523,
+        "correct": 0.28680688336520077,
+        "wrong": 0.5850860420650096,
+        "abstain": 0.12810707456978968,
+        "answer_rate": 0.8718929254302104,
+        "precision_answered": 0.32894736842105265
+      },
+      "n_unresolved": 0,
+      "abstention_only_gold_questions": {
+        "correct": 1,
+        "wrong": 1,
+        "abstain": 4,
+        "unresolved": 0
+      },
+      "truncated_rate": 0.005671077504725898,
+      "delta_vs_baseline": {
+        "correct": {
+          "value": -0.007648183556405341,
+          "ci95": [
+            -0.015296367112810738,
+            -0.0019120458891013214
+          ]
+        },
+        "wrong": {
+          "value": 0.007648183556405397,
+          "ci95": [
+            0.0019120458891013214,
+            0.015296367112810794
+          ]
+        },
+        "abstain": {
+          "value": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "answer_rate": {
+          "value": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "precision_answered": {
+          "value": -0.008771929824561375,
+          "ci95": [
+            -0.017938227439915348,
+            -0.0021504222622179027
+          ]
+        }
+      }
+    },
+    "E_qa_md_continuous_L10_a3": {
+      "rates": {
+        "n": 523,
+        "correct": 0.2982791586998088,
+        "wrong": 0.5717017208413002,
+        "abstain": 0.13001912045889102,
+        "answer_rate": 0.869980879541109,
+        "precision_answered": 0.34285714285714286
+      },
+      "rates_judge_only": {
+        "n": 523,
+        "correct": 0.2982791586998088,
+        "wrong": 0.5717017208413002,
+        "abstain": 0.13001912045889102,
+        "answer_rate": 0.869980879541109,
+        "precision_answered": 0.34285714285714286
+      },
+      "n_unresolved": 0,
+      "abstention_only_gold_questions": {
+        "correct": 1,
+        "wrong": 1,
+        "abstain": 4,
+        "unresolved": 0
+      },
+      "truncated_rate": 0.005671077504725898,
+      "delta_vs_baseline": {
+        "correct": {
+          "value": 0.0038240917782026984,
+          "ci95": [
+            -0.007648183556405341,
+            0.015296367112810738
+          ]
+        },
+        "wrong": {
+          "value": -0.005736137667303964,
+          "ci95": [
+            -0.019120458891013437,
+            0.007648183556405397
+          ]
+        },
+        "abstain": {
+          "value": 0.0019120458891013492,
+          "ci95": [
+            -0.0038240917782026845,
+            0.007648183556405369
+          ]
+        },
+        "answer_rate": {
+          "value": -0.0019120458891013214,
+          "ci95": [
+            -0.007648183556405397,
+            0.0038240917782026455
+          ]
+        },
+        "precision_answered": {
+          "value": 0.00513784461152883,
+          "ci95": [
+            -0.008850048074092983,
+            0.019065901275966902
+          ]
+        }
+      }
+    }
+  },
+  "transitions_vs_baseline": {
+    "E_qa_das_continuous_L9_a1": {
+      "correct->correct": 150,
+      "correct->wrong": 4,
+      "correct->abstain": 0,
+      "wrong->correct": 0,
+      "wrong->wrong": 302,
+      "wrong->abstain": 0,
+      "abstain->correct": 0,
+      "abstain->wrong": 0,
+      "abstain->abstain": 67
+    },
+    "E_qa_md_continuous_L10_a3": {
+      "correct->correct": 150,
+      "correct->wrong": 4,
+      "correct->abstain": 0,
+      "wrong->correct": 6,
+      "wrong->wrong": 294,
+      "wrong->abstain": 2,
+      "abstain->correct": 0,
+      "abstain->wrong": 1,
+      "abstain->abstain": 66
+    }
+  },
+  "header": {
+    "model": "llama3.1-8b",
+    "protocol": "qa_das_ptrue_ce_bidir_v1",
+    "protocol_fingerprint": "d29d7597073278a2684eaae215279b93f2eec6e40bfeda57e28d1cbcf1ee0957",
+    "bank_protocol_fingerprint": "2172405c65f12d15027f272355f04563cb2b6a3744adbf0df9c9e72fe11d884a",
+    "bank_sha256": "47e97f6fc3885761a89062a8e73ada4adea421e4e0ca253e80ff47a904458d87",
+    "training_sha256": "eea62b3316dc1068a9e5728da2a436dfc4bb59ba03dd063a2fa41c1fa39f384b",
+    "questions_sha256": "b61184c3fb015bce3250516fdd0419c33d745821e9836229c7d4065227e6e79e",
+    "split": "test",
+    "pilot": null,
+    "diagnostic_only": false,
+    "precision": {
+      "version": "qa_fp32_output_projection_v1",
+      "enabled": true,
+      "head_module": "lm_head",
+      "head_type": "Linear",
+      "parameter_dtype": "torch.bfloat16",
+      "parameter_device": "cuda:0",
+      "projection_dtype": "torch.float32",
+      "projection_autocast": false,
+      "matmul_precision": "highest",
+      "allow_tf32": false,
+      "weight_policy": "detached_fp32_copy_per_outer_context",
+      "model_postprocessing": "preserved"
+    },
+    "E": {
+      "methods": [
+        "qa_das",
+        "qa_md"
+      ],
+      "primary_operator": "centered amplification",
+      "main_mode": "continuous",
+      "reference_diagnostic_operator": null
+    },
+    "C": {
+      "enabled": false
+    },
+    "prompt": {
+      "qa_system": "You are a knowledgeable assistant. Answer the question with a short answer of a few words. If you do not know the answer, you may say 'I don't know'.",
+      "qa_user": "Question: {question}\nAnswer:",
+      "max_new_tokens": 48
+    },
+    "intervention_position": "prompt-end predictor once; continuous also writes each later predictor; fixed reference coordinates only in labeled diagnostics",
+    "conditions": [
+      "baseline",
+      "E_qa_das_continuous_L9_a1",
+      "E_qa_md_continuous_L10_a3"
+    ],
+    "condition_specs": [
+      {
+        "name": "baseline",
+        "kind": "baseline",
+        "eligible_for_selection": false,
+        "uses_reference_answer": false
+      },
+      {
+        "name": "E_qa_das_continuous_L9_a1",
+        "kind": "E",
+        "context": "qa_das",
+        "mode": "continuous",
+        "layer": 9,
+        "alpha": 1.0,
+        "uses_reference_answer": false,
+        "eligible_for_selection": true
+      },
+      {
+        "name": "E_qa_md_continuous_L10_a3",
+        "kind": "E",
+        "context": "qa_md",
+        "mode": "continuous",
+        "layer": 10,
+        "alpha": 3.0,
+        "uses_reference_answer": false,
+        "eligible_for_selection": true
+      }
+    ],
+    "audit": [
+      {
+        "condition": "baseline",
+        "batch_start": 0,
+        "prompt_len": 111,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 8,
+        "prompt_len": 90,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 16,
+        "prompt_len": 98,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 24,
+        "prompt_len": 102,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 32,
+        "prompt_len": 90,
+        "new_tokens": 21,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 40,
+        "prompt_len": 96,
+        "new_tokens": 6,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 48,
+        "prompt_len": 121,
+        "new_tokens": 29,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 56,
+        "prompt_len": 90,
+        "new_tokens": 26,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 64,
+        "prompt_len": 95,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 72,
+        "prompt_len": 103,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 80,
+        "prompt_len": 92,
+        "new_tokens": 6,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 88,
+        "prompt_len": 93,
+        "new_tokens": 11,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 96,
+        "prompt_len": 101,
+        "new_tokens": 10,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 104,
+        "prompt_len": 98,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 112,
+        "prompt_len": 107,
+        "new_tokens": 11,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 120,
+        "prompt_len": 93,
+        "new_tokens": 18,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 128,
+        "prompt_len": 90,
+        "new_tokens": 16,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 136,
+        "prompt_len": 108,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 144,
+        "prompt_len": 109,
+        "new_tokens": 10,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 152,
+        "prompt_len": 114,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 160,
+        "prompt_len": 88,
+        "new_tokens": 10,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 168,
+        "prompt_len": 115,
+        "new_tokens": 19,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 176,
+        "prompt_len": 127,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 184,
+        "prompt_len": 111,
+        "new_tokens": 10,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 192,
+        "prompt_len": 117,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 200,
+        "prompt_len": 99,
+        "new_tokens": 14,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 208,
+        "prompt_len": 90,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 216,
+        "prompt_len": 103,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 224,
+        "prompt_len": 104,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 232,
+        "prompt_len": 94,
+        "new_tokens": 14,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 240,
+        "prompt_len": 88,
+        "new_tokens": 17,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 248,
+        "prompt_len": 102,
+        "new_tokens": 19,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 256,
+        "prompt_len": 108,
+        "new_tokens": 40,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 264,
+        "prompt_len": 89,
+        "new_tokens": 11,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 272,
+        "prompt_len": 98,
+        "new_tokens": 14,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 280,
+        "prompt_len": 115,
+        "new_tokens": 10,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 288,
+        "prompt_len": 100,
+        "new_tokens": 14,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 296,
+        "prompt_len": 92,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 304,
+        "prompt_len": 105,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 312,
+        "prompt_len": 101,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 320,
+        "prompt_len": 91,
+        "new_tokens": 12,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 328,
+        "prompt_len": 90,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 336,
+        "prompt_len": 87,
+        "new_tokens": 12,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 344,
+        "prompt_len": 99,
+        "new_tokens": 48,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 352,
+        "prompt_len": 91,
+        "new_tokens": 48,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 360,
+        "prompt_len": 91,
+        "new_tokens": 16,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 368,
+        "prompt_len": 131,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 376,
+        "prompt_len": 92,
+        "new_tokens": 30,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 384,
+        "prompt_len": 87,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 392,
+        "prompt_len": 119,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 400,
+        "prompt_len": 112,
+        "new_tokens": 17,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 408,
+        "prompt_len": 103,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 416,
+        "prompt_len": 87,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 424,
+        "prompt_len": 88,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 432,
+        "prompt_len": 107,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 440,
+        "prompt_len": 95,
+        "new_tokens": 11,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 448,
+        "prompt_len": 96,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 456,
+        "prompt_len": 90,
+        "new_tokens": 12,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 464,
+        "prompt_len": 91,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 472,
+        "prompt_len": 106,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 480,
+        "prompt_len": 107,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 488,
+        "prompt_len": 97,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 496,
+        "prompt_len": 90,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 504,
+        "prompt_len": 98,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 512,
+        "prompt_len": 89,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 520,
+        "prompt_len": 92,
+        "new_tokens": 15,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 528,
+        "prompt_len": 93,
+        "new_tokens": 5,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 0,
+        "prompt_len": 111,
+        "new_tokens": 8,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 8
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 8,
+        "prompt_len": 90,
+        "new_tokens": 8,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 8
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 16,
+        "prompt_len": 98,
+        "new_tokens": 7,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 7
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 24,
+        "prompt_len": 102,
+        "new_tokens": 9,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 9
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 32,
+        "prompt_len": 90,
+        "new_tokens": 14,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 14
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 40,
+        "prompt_len": 96,
+        "new_tokens": 48,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 48
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 48,
+        "prompt_len": 121,
+        "new_tokens": 29,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 29
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 56,
+        "prompt_len": 90,
+        "new_tokens": 26,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 26
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 64,
+        "prompt_len": 95,
+        "new_tokens": 8,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 8
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 72,
+        "prompt_len": 103,
+        "new_tokens": 8,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 8
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 80,
+        "prompt_len": 92,
+        "new_tokens": 6,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 6
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 88,
+        "prompt_len": 93,
+        "new_tokens": 11,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 11
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 96,
+        "prompt_len": 101,
+        "new_tokens": 10,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 10
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 104,
+        "prompt_len": 98,
+        "new_tokens": 8,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 8
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 112,
+        "prompt_len": 107,
+        "new_tokens": 11,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 11
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 120,
+        "prompt_len": 93,
+        "new_tokens": 21,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 21
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 128,
+        "prompt_len": 90,
+        "new_tokens": 16,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 16
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 136,
+        "prompt_len": 108,
+        "new_tokens": 8,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 8
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 144,
+        "prompt_len": 109,
+        "new_tokens": 10,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 10
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 152,
+        "prompt_len": 114,
+        "new_tokens": 7,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 7
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 160,
+        "prompt_len": 88,
+        "new_tokens": 10,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 10
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 168,
+        "prompt_len": 115,
+        "new_tokens": 19,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 19
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 176,
+        "prompt_len": 127,
+        "new_tokens": 7,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 7
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 184,
+        "prompt_len": 111,
+        "new_tokens": 10,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 10
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 192,
+        "prompt_len": 117,
+        "new_tokens": 8,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 8
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 200,
+        "prompt_len": 99,
+        "new_tokens": 14,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 14
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 208,
+        "prompt_len": 90,
+        "new_tokens": 7,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 7
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 216,
+        "prompt_len": 103,
+        "new_tokens": 9,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 9
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 224,
+        "prompt_len": 104,
+        "new_tokens": 8,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 8
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 232,
+        "prompt_len": 94,
+        "new_tokens": 14,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 14
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 240,
+        "prompt_len": 88,
+        "new_tokens": 17,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 17
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 248,
+        "prompt_len": 102,
+        "new_tokens": 19,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 19
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 256,
+        "prompt_len": 108,
+        "new_tokens": 40,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 40
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 264,
+        "prompt_len": 89,
+        "new_tokens": 11,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 11
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 272,
+        "prompt_len": 98,
+        "new_tokens": 14,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 14
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 280,
+        "prompt_len": 115,
+        "new_tokens": 10,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 10
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 288,
+        "prompt_len": 100,
+        "new_tokens": 14,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 14
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 296,
+        "prompt_len": 92,
+        "new_tokens": 9,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 9
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 304,
+        "prompt_len": 105,
+        "new_tokens": 9,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 9
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 312,
+        "prompt_len": 101,
+        "new_tokens": 9,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 9
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 320,
+        "prompt_len": 91,
+        "new_tokens": 12,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 12
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 328,
+        "prompt_len": 90,
+        "new_tokens": 7,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 7
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 336,
+        "prompt_len": 87,
+        "new_tokens": 12,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 12
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 344,
+        "prompt_len": 99,
+        "new_tokens": 48,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 48
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 352,
+        "prompt_len": 91,
+        "new_tokens": 48,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 48
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 360,
+        "prompt_len": 91,
+        "new_tokens": 16,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 16
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 368,
+        "prompt_len": 131,
+        "new_tokens": 7,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 7
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 376,
+        "prompt_len": 92,
+        "new_tokens": 35,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 35
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 384,
+        "prompt_len": 87,
+        "new_tokens": 9,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 9
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 392,
+        "prompt_len": 119,
+        "new_tokens": 9,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 9
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 400,
+        "prompt_len": 112,
+        "new_tokens": 17,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 17
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 408,
+        "prompt_len": 103,
+        "new_tokens": 8,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 8
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 416,
+        "prompt_len": 87,
+        "new_tokens": 9,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 9
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 424,
+        "prompt_len": 88,
+        "new_tokens": 9,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 9
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 432,
+        "prompt_len": 107,
+        "new_tokens": 7,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 7
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 440,
+        "prompt_len": 95,
+        "new_tokens": 11,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 11
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 448,
+        "prompt_len": 96,
+        "new_tokens": 8,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 8
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 456,
+        "prompt_len": 90,
+        "new_tokens": 12,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 12
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 464,
+        "prompt_len": 91,
+        "new_tokens": 8,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 8
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 472,
+        "prompt_len": 106,
+        "new_tokens": 7,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 7
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 480,
+        "prompt_len": 107,
+        "new_tokens": 8,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 8
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 488,
+        "prompt_len": 97,
+        "new_tokens": 9,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 9
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 496,
+        "prompt_len": 90,
+        "new_tokens": 8,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 8
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 504,
+        "prompt_len": 98,
+        "new_tokens": 7,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 7
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 512,
+        "prompt_len": 89,
+        "new_tokens": 9,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 9
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 520,
+        "prompt_len": 92,
+        "new_tokens": 15,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 15
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_das_continuous_L9_a1",
+        "batch_start": 528,
+        "prompt_len": 93,
+        "new_tokens": 5,
+        "edits": {
+          "E_qa_das_continuous_L9_a1": 5
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 0,
+        "prompt_len": 111,
+        "new_tokens": 11,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 11
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 8,
+        "prompt_len": 90,
+        "new_tokens": 8,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 8
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 16,
+        "prompt_len": 98,
+        "new_tokens": 7,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 7
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 24,
+        "prompt_len": 102,
+        "new_tokens": 8,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 8
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 32,
+        "prompt_len": 90,
+        "new_tokens": 14,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 14
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 40,
+        "prompt_len": 96,
+        "new_tokens": 48,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 48
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 48,
+        "prompt_len": 121,
+        "new_tokens": 10,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 10
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 56,
+        "prompt_len": 90,
+        "new_tokens": 26,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 26
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 64,
+        "prompt_len": 95,
+        "new_tokens": 11,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 11
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 72,
+        "prompt_len": 103,
+        "new_tokens": 17,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 17
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 80,
+        "prompt_len": 92,
+        "new_tokens": 6,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 6
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 88,
+        "prompt_len": 93,
+        "new_tokens": 7,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 7
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 96,
+        "prompt_len": 101,
+        "new_tokens": 10,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 10
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 104,
+        "prompt_len": 98,
+        "new_tokens": 8,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 8
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 112,
+        "prompt_len": 107,
+        "new_tokens": 11,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 11
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 120,
+        "prompt_len": 93,
+        "new_tokens": 29,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 29
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 128,
+        "prompt_len": 90,
+        "new_tokens": 18,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 18
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 136,
+        "prompt_len": 108,
+        "new_tokens": 8,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 8
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 144,
+        "prompt_len": 109,
+        "new_tokens": 13,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 13
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 152,
+        "prompt_len": 114,
+        "new_tokens": 7,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 7
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 160,
+        "prompt_len": 88,
+        "new_tokens": 13,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 13
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 168,
+        "prompt_len": 115,
+        "new_tokens": 23,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 23
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 176,
+        "prompt_len": 127,
+        "new_tokens": 7,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 7
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 184,
+        "prompt_len": 111,
+        "new_tokens": 10,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 10
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 192,
+        "prompt_len": 117,
+        "new_tokens": 8,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 8
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 200,
+        "prompt_len": 99,
+        "new_tokens": 17,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 17
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 208,
+        "prompt_len": 90,
+        "new_tokens": 7,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 7
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 216,
+        "prompt_len": 103,
+        "new_tokens": 9,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 9
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 224,
+        "prompt_len": 104,
+        "new_tokens": 8,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 8
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 232,
+        "prompt_len": 94,
+        "new_tokens": 14,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 14
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 240,
+        "prompt_len": 88,
+        "new_tokens": 17,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 17
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 248,
+        "prompt_len": 102,
+        "new_tokens": 42,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 42
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 256,
+        "prompt_len": 108,
+        "new_tokens": 43,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 43
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 264,
+        "prompt_len": 89,
+        "new_tokens": 11,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 11
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 272,
+        "prompt_len": 98,
+        "new_tokens": 14,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 14
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 280,
+        "prompt_len": 115,
+        "new_tokens": 11,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 11
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 288,
+        "prompt_len": 100,
+        "new_tokens": 14,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 14
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 296,
+        "prompt_len": 92,
+        "new_tokens": 9,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 9
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 304,
+        "prompt_len": 105,
+        "new_tokens": 9,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 9
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 312,
+        "prompt_len": 101,
+        "new_tokens": 9,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 9
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 320,
+        "prompt_len": 91,
+        "new_tokens": 12,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 12
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 328,
+        "prompt_len": 90,
+        "new_tokens": 7,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 7
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 336,
+        "prompt_len": 87,
+        "new_tokens": 11,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 11
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 344,
+        "prompt_len": 99,
+        "new_tokens": 48,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 48
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 352,
+        "prompt_len": 91,
+        "new_tokens": 35,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 35
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 360,
+        "prompt_len": 91,
+        "new_tokens": 16,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 16
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 368,
+        "prompt_len": 131,
+        "new_tokens": 7,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 7
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 376,
+        "prompt_len": 92,
+        "new_tokens": 24,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 24
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 384,
+        "prompt_len": 87,
+        "new_tokens": 9,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 9
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 392,
+        "prompt_len": 119,
+        "new_tokens": 7,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 7
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 400,
+        "prompt_len": 112,
+        "new_tokens": 48,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 48
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 408,
+        "prompt_len": 103,
+        "new_tokens": 8,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 8
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 416,
+        "prompt_len": 87,
+        "new_tokens": 9,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 9
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 424,
+        "prompt_len": 88,
+        "new_tokens": 9,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 9
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 432,
+        "prompt_len": 107,
+        "new_tokens": 7,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 7
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 440,
+        "prompt_len": 95,
+        "new_tokens": 10,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 10
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 448,
+        "prompt_len": 96,
+        "new_tokens": 8,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 8
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 456,
+        "prompt_len": 90,
+        "new_tokens": 12,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 12
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 464,
+        "prompt_len": 91,
+        "new_tokens": 8,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 8
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 472,
+        "prompt_len": 106,
+        "new_tokens": 6,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 6
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 480,
+        "prompt_len": 107,
+        "new_tokens": 8,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 8
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 488,
+        "prompt_len": 97,
+        "new_tokens": 10,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 10
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 496,
+        "prompt_len": 90,
+        "new_tokens": 8,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 8
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 504,
+        "prompt_len": 98,
+        "new_tokens": 14,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 14
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 512,
+        "prompt_len": 89,
+        "new_tokens": 9,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 9
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 520,
+        "prompt_len": 92,
+        "new_tokens": 15,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 15
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "E_qa_md_continuous_L10_a3",
+        "batch_start": 528,
+        "prompt_len": 93,
+        "new_tokens": 5,
+        "edits": {
+          "E_qa_md_continuous_L10_a3": 5
+        },
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      }
+    ],
+    "completed": true,
+    "grading_source_generation_sha256": "0dc653f6e0b6b7927072b139631ccc50a58583404c2a84dbf3480d892ae98d71",
+    "grading_judge_config_sha256": "c6f542480c3c7d3265ea8f3b69577559e4c45b108f024a64beffa24e36018b30",
+    "grading_judge_name": "deepseek",
+    "grading_completed": true,
+    "judge_rubric_id": "qa_semantic_v3",
+    "outcome_policy": "judge_primary_v2",
+    "gold_policy": "exact_personal_refusals_v1"
+  },
+  "completed": true,
+  "status": "complete"
+}

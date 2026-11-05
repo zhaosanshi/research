@@ -1,0 +1,42 @@
+==============================================================================================================
+RUN /Users/airsanshi/github/research/Truth_Decoupling/claude_gpt_review/from_claude/results/02_问答DAS_v1/第16轮_全量/llama3.1-8b
+  model=llama3.1-8b pairs=92 layers=32 das_candidates=31 md_layers=32 structural_null=[31]
+  PROXY (paired answer log-prob accuracy on 192 tuning pairs): baseline 0.464 (89)
+    qa_das E_qa_das_continuous_L9_a1            acc 0.474 corrected  2 harmed  0 net +2
+    qa_das E_qa_das_continuous_L10_a1           acc 0.474 corrected  2 harmed  0 net +2
+    qa_das E_qa_das_continuous_L7_a1            acc 0.469 corrected  1 harmed  0 net +1
+    qa_md  E_qa_md_continuous_L10_a3            acc 0.484 corrected  5 harmed  1 net +4
+    qa_md  E_qa_md_continuous_L7_a3             acc 0.479 corrected  3 harmed  0 net +3
+    qa_md  E_qa_md_continuous_L11_a3            acc 0.474 corrected  3 harmed  1 net +2
+  TUNE (real generation, 192 questions): completed=True judge=deepseek rubric=qa_semantic_v3 n_questions=192 substantive=192 resolved_all=192
+  condition                                correct   wrong abstain     ans | d correct [CI]         d abstain [CI]         d answer_rate [CI]     | w->c a->c c->w c->a  unres trunc
+  baseline                                  0.307  0.568  0.125  0.875 |             n/a                    n/a                    n/a        |                     0 0.021
+  E_qa_das_continuous_L9_a1                 0.323  0.552  0.125  0.875 | +0.016 [+0.000, +0.036] +0.000 [+0.000, +0.000] +0.000 [+0.000, +0.000] |    3    0    0    0 0 0.026
+  E_qa_das_continuous_L10_a1                0.318  0.557  0.125  0.875 | +0.010 [+0.000, +0.026] +0.000 [+0.000, +0.000] +0.000 [+0.000, +0.000] |    2    0    0    0 0 0.026
+  E_qa_das_continuous_L7_a1                 0.312  0.562  0.125  0.875 | +0.005 [+0.000, +0.016] +0.000 [+0.000, +0.000] +0.000 [+0.000, +0.000] |    1    0    0    0 0 0.026
+  E_qa_md_continuous_L10_a3                 0.328  0.547  0.125  0.875 | +0.021 [+0.005, +0.042] +0.000 [+0.000, +0.000] +0.000 [+0.000, +0.000] |    4    0    0    0 0 0.026
+  E_qa_md_continuous_L7_a3                  0.323  0.552  0.125  0.875 | +0.016 [+0.000, +0.036] +0.000 [+0.000, +0.000] +0.000 [+0.000, +0.000] |    3    0    0    0 0 0.021
+  E_qa_md_continuous_L11_a3                 0.328  0.547  0.125  0.875 | +0.021 [+0.005, +0.042] +0.000 [+0.000, +0.000] +0.000 [+0.000, +0.000] |    4    0    0    0 0 0.021
+  FROZEN SELECTION: qa_das -> E_qa_das_continuous_L9_a1; qa_md -> E_qa_md_continuous_L10_a3
+    E_qa_das_continuous_L9_a1            net_correct  +3 (w->c  3, a->c  0, c->w  0, c->a  0) net_answered  +0 | eligible=True 
+    E_qa_das_continuous_L10_a1           net_correct  +2 (w->c  2, a->c  0, c->w  0, c->a  0) net_answered  +0 | eligible=True 
+    E_qa_das_continuous_L7_a1            net_correct  +1 (w->c  1, a->c  0, c->w  0, c->a  0) net_answered  +0 | eligible=True 
+    E_qa_md_continuous_L10_a3            net_correct  +4 (w->c  4, a->c  0, c->w  0, c->a  0) net_answered  +0 | eligible=True 
+    E_qa_md_continuous_L7_a3             net_correct  +3 (w->c  3, a->c  0, c->w  0, c->a  0) net_answered  +0 | eligible=True 
+    E_qa_md_continuous_L11_a3            net_correct  +4 (w->c  4, a->c  0, c->w  0, c->a  0) net_answered  +0 | eligible=True 
+    rule: max |answer-count change| = 5 of 192
+  TEST (529 questions): completed=True judge=deepseek rubric=qa_semantic_v3 n_questions=529 substantive=523 resolved_all=523
+  condition                                correct   wrong abstain     ans | d correct [CI]         d abstain [CI]         d answer_rate [CI]     | w->c a->c c->w c->a  unres trunc
+  baseline                                  0.294  0.577  0.128  0.872 |             n/a                    n/a                    n/a        |                     0 0.004
+  E_qa_das_continuous_L9_a1                 0.287  0.585  0.128  0.872 | -0.008 [-0.015, -0.002] +0.000 [+0.000, +0.000] +0.000 [+0.000, +0.000] |    0    0    4    0 0 0.006
+  E_qa_md_continuous_L10_a3                 0.298  0.572  0.130  0.870 | +0.004 [-0.008, +0.015] +0.002 [-0.004, +0.008] -0.002 [-0.008, +0.004] |    6    0    4    0 0 0.006
+  refusal-only-gold questions (reported separately): baseline: c1 w1 a4 u0; E_qa_das_continuous_L9_a1: c1 w1 a4 u0; E_qa_md_continuous_L10_a3: c1 w1 a4 u0
+  DIAGNOSTICS on tuning questions (reference arms are not deployable): completed=True judge=deepseek rubric=qa_semantic_v3 n_questions=192 substantive=192 resolved_all=192
+  condition                                correct   wrong abstain     ans | d correct [CI]         d abstain [CI]         d answer_rate [CI]     | w->c a->c c->w c->a  unres trunc
+  baseline                                  0.307  0.568  0.125  0.875 |             n/a                    n/a                    n/a        |                     0 0.021
+  E_qa_das_continuous_L9_a1                 0.323  0.552  0.125  0.875 | +0.016 [+0.000, +0.036] +0.000 [+0.000, +0.000] +0.000 [+0.000, +0.000] |    3    0    0    0 0 0.026
+  E_qa_md_continuous_L10_a3                 0.328  0.547  0.125  0.875 | +0.021 [+0.005, +0.042] +0.000 [+0.000, +0.000] +0.000 [+0.000, +0.000] |    4    0    0    0 0 0.026
+  E_qa_das_continuous_L9_a1__prefill_diagnostic  0.307  0.568  0.125  0.875 | +0.000 [+0.000, +0.000] +0.000 [+0.000, +0.000] +0.000 [+0.000, +0.000] |    0    0    0    0 0 0.021
+  E_qa_das_continuous_L9_a1__reference_diagnostic  0.307  0.568  0.125  0.875 | +0.000 [-0.016, +0.016] +0.000 [+0.000, +0.000] +0.000 [+0.000, +0.000] |    1    0    1    0 0 0.021
+  E_qa_md_continuous_L10_a3__prefill_diagnostic  0.312  0.562  0.125  0.875 | +0.005 [+0.000, +0.016] +0.000 [+0.000, +0.000] +0.000 [+0.000, +0.000] |    1    0    0    0 0 0.021
+  E_qa_md_continuous_L10_a3__reference_diagnostic  0.307  0.562  0.130  0.870 | +0.000 [-0.016, +0.016] +0.005 [+0.000, +0.016] -0.005 [-0.016, +0.000] |    1    0    1    0 0 0.026

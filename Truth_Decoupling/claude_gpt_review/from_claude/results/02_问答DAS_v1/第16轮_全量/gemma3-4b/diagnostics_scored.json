@@ -1,0 +1,110 @@
+{
+  "model": "gemma3-4b",
+  "tag": "E25_DAS_tune_diagnostic",
+  "judge": "deepseek",
+  "outcome_policy": "judge_primary_v2",
+  "gold_policy": "exact_personal_refusals_v1",
+  "judge_rubric_id": "qa_semantic_v3",
+  "source_generation_sha256": "52c87347918715bb273b45f290508f3f1aa0216ed332b0c8ec7c79124d019995",
+  "n_rule_judge_disagreements": {
+    "baseline": 0
+  },
+  "n_questions": 192,
+  "n_substantive_gold": 192,
+  "n_resolved_all_conditions": 192,
+  "rates": {
+    "baseline": {
+      "rates": {
+        "n": 192,
+        "correct": 0.2864583333333333,
+        "wrong": 0.59375,
+        "abstain": 0.11979166666666667,
+        "answer_rate": 0.8802083333333334,
+        "precision_answered": 0.3254437869822485
+      },
+      "rates_judge_only": {
+        "n": 192,
+        "correct": 0.2864583333333333,
+        "wrong": 0.59375,
+        "abstain": 0.11979166666666667,
+        "answer_rate": 0.8802083333333334,
+        "precision_answered": 0.3254437869822485
+      },
+      "n_unresolved": 0,
+      "abstention_only_gold_questions": {
+        "correct": 0,
+        "wrong": 0,
+        "abstain": 0,
+        "unresolved": 0
+      },
+      "truncated_rate": 0.0
+    }
+  },
+  "transitions_vs_baseline": {},
+  "header": {
+    "model": "gemma3-4b",
+    "protocol": "qa_das_ptrue_ce_bidir_v1",
+    "protocol_fingerprint": "c5f0d8e991772091f69273e4bbcb4aa60bf6db238175132fb561a63798c40f96",
+    "bank_protocol_fingerprint": "2f8c18cb63c82d6bac54958d7342ab0398d38ff465eb3a596af62059e66e8004",
+    "bank_sha256": "61b1e1a5d31871b1f99242cedd8c5d68241f4d2f10ea6a924ca05161386192b4",
+    "training_sha256": "6cf5c22f8802855b134c61ad7dd97c0d38ae9b8d497808b3577037aa8de8662d",
+    "questions_sha256": "b61184c3fb015bce3250516fdd0419c33d745821e9836229c7d4065227e6e79e",
+    "split": "tune_diagnostic",
+    "pilot": null,
+    "diagnostic_only": true,
+    "precision": {
+      "version": "qa_fp32_output_projection_v1",
+      "enabled": true,
+      "head_module": "lm_head",
+      "head_type": "Linear",
+      "parameter_dtype": "torch.bfloat16",
+      "parameter_device": "cuda:0",
+      "projection_dtype": "torch.float32",
+      "projection_autocast": false,
+      "matmul_precision": "highest",
+      "allow_tf32": false,
+      "weight_policy": "detached_fp32_copy_per_outer_context",
+      "model_postprocessing": "preserved"
+    },
+    "E": {
+      "methods": [
+        "qa_das",
+        "qa_md"
+      ],
+      "primary_operator": "centered amplification",
+      "main_mode": "continuous",
+      "reference_diagnostic_operator": "fixed-coordinate interchange"
+    },
+    "C": {
+      "enabled": false
+    },
+    "prompt": {
+      "qa_system": "You are a knowledgeable assistant. Answer the question with a short answer of a few words. If you do not know the answer, you may say 'I don't know'.",
+      "qa_user": "Question: {question}\nAnswer:",
+      "max_new_tokens": 48
+    },
+    "intervention_position": "prompt-end predictor once; continuous also writes each later predictor; fixed reference coordinates only in labeled diagnostics",
+    "conditions": [
+      "baseline"
+    ],
+    "condition_specs": [
+      {
+        "name": "baseline",
+        "kind": "baseline",
+        "eligible_for_selection": false,
+        "uses_reference_answer": false
+      }
+    ],
+    "audit": [],
+    "completed": true,
+    "grading_source_generation_sha256": "52c87347918715bb273b45f290508f3f1aa0216ed332b0c8ec7c79124d019995",
+    "grading_judge_config_sha256": "c6f542480c3c7d3265ea8f3b69577559e4c45b108f024a64beffa24e36018b30",
+    "grading_judge_name": "deepseek",
+    "grading_completed": true,
+    "judge_rubric_id": "qa_semantic_v3",
+    "outcome_policy": "judge_primary_v2",
+    "gold_policy": "exact_personal_refusals_v1"
+  },
+  "completed": true,
+  "status": "complete"
+}

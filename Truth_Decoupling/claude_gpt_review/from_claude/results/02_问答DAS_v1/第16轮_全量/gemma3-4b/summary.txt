@@ -1,0 +1,34 @@
+==============================================================================================================
+RUN /Users/airsanshi/github/research/Truth_Decoupling/claude_gpt_review/from_claude/results/02_问答DAS_v1/第16轮_全量/gemma3-4b
+  model=gemma3-4b pairs=92 layers=34 das_candidates=33 md_layers=34 structural_null=[33]
+  PROXY (paired answer log-prob accuracy on 192 tuning pairs): baseline 0.417 (80)
+    qa_das E_qa_das_continuous_L30_a3           acc 0.500 corrected 18 harmed  2 net +16
+    qa_das E_qa_das_continuous_L17_a2           acc 0.500 corrected 24 harmed  8 net +16
+    qa_das E_qa_das_continuous_L26_a3           acc 0.474 corrected 20 harmed  9 net +11
+    qa_md  E_qa_md_continuous_L6_a3             acc 0.474 corrected 20 harmed  9 net +11
+    qa_md  E_qa_md_continuous_L17_a3            acc 0.458 corrected 32 harmed 24 net +8
+    qa_md  E_qa_md_continuous_L33_a3            acc 0.448 corrected 16 harmed 10 net +6
+  TUNE (real generation, 192 questions): completed=True judge=deepseek rubric=qa_semantic_v3 n_questions=192 substantive=192 resolved_all=192
+  condition                                correct   wrong abstain     ans | d correct [CI]         d abstain [CI]         d answer_rate [CI]     | w->c a->c c->w c->a  unres trunc
+  baseline                                  0.286  0.594  0.120  0.880 |             n/a                    n/a                    n/a        |                     0 0.000
+  E_qa_das_continuous_L30_a3                0.271  0.609  0.120  0.880 | -0.016 [-0.047, +0.016] +0.000 [-0.016, +0.016] +0.000 [-0.016, +0.016] |    4    0    7    0 0 0.000
+  E_qa_das_continuous_L17_a2                0.271  0.578  0.151  0.849 | -0.016 [-0.052, +0.021] +0.031 [+0.005, +0.062] -0.031 [-0.062, -0.005] |    5    0    7    1 0 0.000
+  E_qa_das_continuous_L26_a3                0.286  0.562  0.151  0.849 | +0.000 [-0.042, +0.042] +0.031 [+0.005, +0.062] -0.031 [-0.062, -0.005] |    8    0    5    3 0 0.005
+  E_qa_md_continuous_L6_a3                  0.276  0.594  0.130  0.870 | -0.010 [-0.042, +0.016] +0.010 [-0.010, +0.031] -0.010 [-0.031, +0.010] |    3    0    5    0 0 0.005
+  E_qa_md_continuous_L17_a3                 0.151  0.359  0.490  0.510 | -0.135 [-0.198, -0.073] +0.370 [+0.297, +0.443] -0.370 [-0.443, -0.297] |    6    1   13   20 0 0.349
+  E_qa_md_continuous_L33_a3                 0.266  0.562  0.172  0.828 | -0.021 [-0.062, +0.021] +0.052 [+0.021, +0.089] -0.052 [-0.089, -0.021] |    6    0    5    5 0 0.000
+  FROZEN SELECTION: qa_das -> None; qa_md -> None
+    E_qa_das_continuous_L30_a3           net_correct  -3 (w->c  4, a->c  0, c->w  7, c->a  0) net_answered  +0 | eligible=False no_positive_accuracy_gain
+    E_qa_das_continuous_L17_a2           net_correct  -3 (w->c  5, a->c  0, c->w  7, c->a  1) net_answered  -6 | eligible=False no_positive_accuracy_gain,answer_rate_change_exceeds_tolerance
+    E_qa_das_continuous_L26_a3           net_correct  +0 (w->c  8, a->c  0, c->w  5, c->a  3) net_answered  -6 | eligible=False no_positive_accuracy_gain,answer_rate_change_exceeds_tolerance
+    E_qa_md_continuous_L6_a3             net_correct  -2 (w->c  3, a->c  0, c->w  5, c->a  0) net_answered  -2 | eligible=False no_positive_accuracy_gain
+    E_qa_md_continuous_L17_a3            net_correct -26 (w->c  6, a->c  1, c->w 13, c->a 20) net_answered -71 | eligible=False no_positive_accuracy_gain,answer_rate_change_exceeds_tolerance
+    E_qa_md_continuous_L33_a3            net_correct  -4 (w->c  6, a->c  0, c->w  5, c->a  5) net_answered -10 | eligible=False no_positive_accuracy_gain,answer_rate_change_exceeds_tolerance
+    rule: max |answer-count change| = 5 of 192
+  TEST (529 questions): completed=True judge=deepseek rubric=qa_semantic_v3 n_questions=529 substantive=523 resolved_all=523
+  condition                                correct   wrong abstain     ans | d correct [CI]         d abstain [CI]         d answer_rate [CI]     | w->c a->c c->w c->a  unres trunc
+  baseline                                  0.302  0.598  0.099  0.901 |             n/a                    n/a                    n/a        |                     0 0.000
+  refusal-only-gold questions (reported separately): baseline: c1 w1 a4 u0
+  DIAGNOSTICS on tuning questions (reference arms are not deployable): completed=True judge=deepseek rubric=qa_semantic_v3 n_questions=192 substantive=192 resolved_all=192
+  condition                                correct   wrong abstain     ans | d correct [CI]         d abstain [CI]         d answer_rate [CI]     | w->c a->c c->w c->a  unres trunc
+  baseline                                  0.286  0.594  0.120  0.880 |             n/a                    n/a                    n/a        |                     0 0.000
