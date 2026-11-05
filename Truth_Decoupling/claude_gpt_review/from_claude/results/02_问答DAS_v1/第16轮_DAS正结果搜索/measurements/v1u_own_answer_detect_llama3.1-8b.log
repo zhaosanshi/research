@@ -1,11 +1,19 @@
-W1105 09:20:52.401000 68621 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
-W1105 09:20:52.419000 68621 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00, 392.30it/s]
-Traceback (most recent call last):
-  File "/workspace/Truth_Decoupling/review_e25/claude_gpt_review/from_claude/code/scripts/review_checks/own_answer_detect.py", line 105, in <module>
-    rows, skipped = collect(fname)
-                    ^^^^^^^^^^^^^^
-  File "/workspace/Truth_Decoupling/review_e25/claude_gpt_review/from_claude/code/scripts/review_checks/own_answer_detect.py", line 93, in collect
-    sc0 = encode_selfcheck(bundle, cfg["qa_system"], e["question"], ans, cfg["qa_user"], cfg["selfcheck_suffix"],
-                                                                                         ~~~^^^^^^^^^^^^^^^^^^^^
-KeyError: 'selfcheck_suffix'
+W1105 10:22:07.051000 79676 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1105 10:22:07.069000 79676 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00, 380.80it/s]
+tune answered 168 skipped {'abstain': 24, 'refusal_only_gold': 0, 'encode_failed': 0}
+test answered 456 skipped {'abstain': 67, 'refusal_only_gold': 6, 'encode_failed': 0}
+paired TEST AUROC das_minus_selfcheck_F0   +0.156 [+0.080, +0.227]
+paired TEST AUROC das_minus_selfcheck_F1   +0.089 [+0.025, +0.155]
+paired TEST AUROC das_minus_md             +0.003 [-0.032, +0.041]
+paired TEST AUROC das_minus_probe          -0.087 [-0.141, -0.032]
+paired TEST AUROC md_minus_selfcheck_F0    +0.153 [+0.070, +0.230]
+paired TEST AUROC md_minus_selfcheck_F1    +0.086 [+0.017, +0.155]
+selective accuracy on TEST (keep top 80% / 50% by score; all answered 0.336): das 0.381 / 0.469; md 0.378 / 0.456; probe 0.395 / 0.504; selfcheck_F0 0.334 / 0.368; selfcheck_F1 0.367 / 0.399
+answered: tune 168 (correct 59), test 456 (correct 153); main-table n=523
+das           das_L16    tune AUROC 0.740 | TEST AUROC 0.687 [0.635, 0.736] | gate: (c-w)/n -0.287 -> +0.011  d +0.298 [+0.231, +0.361]  abstain 354 (lost 99 correct, removed 255 wrong)
+md            md_L15     tune AUROC 0.734 | TEST AUROC 0.684 [0.631, 0.734] | gate: (c-w)/n -0.287 -> +0.029  d +0.315 [+0.247, +0.380]  abstain 377 (lost 106 correct, removed 271 wrong)
+probe         probe      tune AUROC 1.000 | TEST AUROC 0.774 [0.724, 0.819] | gate: (c-w)/n -0.287 -> +0.084  d +0.371 [+0.308, +0.432]  abstain 358 (lost 82 correct, removed 276 wrong)
+selfcheck_F0  selfcheck_F0 tune AUROC 0.443 | TEST AUROC 0.531 [0.475, 0.589] | gate: (c-w)/n -0.287 -> -0.021  d +0.266 [+0.189, +0.340]  abstain 423 (lost 142 correct, removed 281 wrong)
+selfcheck_F1  selfcheck_F1 tune AUROC 0.552 | TEST AUROC 0.598 [0.544, 0.652] | gate: (c-w)/n -0.287 -> -0.027  d +0.260 [+0.191, +0.325]  abstain 372 (lost 118 correct, removed 254 wrong)
+saved /workspace/Truth_Decoupling/review_e25/checks/dasplus/v1u_own_answer_detect_llama3.1-8b.json

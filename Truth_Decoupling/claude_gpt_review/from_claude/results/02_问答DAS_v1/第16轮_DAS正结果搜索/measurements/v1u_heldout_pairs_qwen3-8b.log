@@ -1,0 +1,17 @@
+W1105 10:11:54.258000 75655 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1105 10:11:54.277000 75655 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:00<00:00, 351.63it/s]
+TEST-PAIRS baseline                             acc 0.4340
+TEST-PAIRS E_qa_das_continuous_L23_a3           acc 0.4398
+TEST-PAIRS E_qa_das_continuous_L34_a3           acc 0.4226
+TEST-PAIRS E_qa_das_continuous_L29_a2           acc 0.4264
+TEST-PAIRS E_qa_md_continuous_L11_a3            acc 0.4379
+TEST-PAIRS E_qa_md_continuous_L12_a2            acc 0.4321
+TEST-PAIRS E_qa_md_continuous_L13_a2            acc 0.4283
+  E_qa_das_continuous_L23_a3           tune 0.417->0.448 | TEST 0.434->0.440 d +0.0057 [-0.0076, +0.0191] corrected 8 harmed 5   <== pre-specified pick
+  E_qa_das_continuous_L34_a3           tune 0.417->0.443 | TEST 0.434->0.423 d -0.0115 [-0.0287, +0.0057] corrected 9 harmed 15
+  E_qa_das_continuous_L29_a2           tune 0.417->0.438 | TEST 0.434->0.426 d -0.0076 [-0.0172, +0.0000] corrected 1 harmed 5
+  E_qa_md_continuous_L11_a3            tune 0.417->0.453 | TEST 0.434->0.438 d +0.0038 [-0.0057, +0.0153] corrected 5 harmed 3   <== pre-specified pick
+  E_qa_md_continuous_L12_a2            tune 0.417->0.448 | TEST 0.434->0.432 d -0.0019 [-0.0115, +0.0076] corrected 3 harmed 4
+  E_qa_md_continuous_L13_a2            tune 0.417->0.438 | TEST 0.434->0.428 d -0.0057 [-0.0172, +0.0057] corrected 3 harmed 6
+saved /workspace/Truth_Decoupling/review_e25/checks/dasplus/v1u_heldout_pairs_qwen3-8b.json

@@ -48,6 +48,10 @@ ns = SimpleNamespace(run_dir=run, model=args.model)
 meta, bank, prepared = pipeline.load_bank(ns)
 meta, bank = pipeline.runtime_bank(ns, meta, bank)
 cfg = meta["config"]
+# The F0 comparison readout is the fixed v1 same-turn self-check, whatever readout the run itself trained on
+# (a user_turn run has no selfcheck_suffix; 2026-11-05 fix).
+from core.config import load_json_config, resolve_config_path  # noqa: E402
+F0 = load_json_config(resolve_config_path("experiments", "E25_qa_das_v1"))
 layers = list(meta["layers"])
 das_layers = list(meta["das_candidate_layers"])
 bundle = pipeline.open_bundle(meta, prepared)
@@ -90,8 +94,8 @@ def collect(split_file):
         ans = e["outputs"]["baseline"]
         try:
             enc = encode_answer(bundle, cfg["qa_system"], e["question"], ans, cfg["qa_user"])
-            sc0 = encode_selfcheck(bundle, cfg["qa_system"], e["question"], ans, cfg["qa_user"], cfg["selfcheck_suffix"],
-                                   cfg["selfcheck_label_true"], cfg["selfcheck_label_false"])
+            sc0 = encode_selfcheck(bundle, cfg["qa_system"], e["question"], ans, cfg["qa_user"], F0["selfcheck_suffix"],
+                                   F0["selfcheck_label_true"], F0["selfcheck_label_false"])
         except ValueError:
             skipped["encode_failed"] += 1
             continue
