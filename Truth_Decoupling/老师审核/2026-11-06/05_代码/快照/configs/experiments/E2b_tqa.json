@@ -1,0 +1,18 @@
+{
+  "name": "E2b_tqa",
+  "description": "E2b rescue sweep evaluated on TruthfulQA true/false statements (all 1442 test statements).",
+  "model": "llama3.1-8b",
+  "prompts": "default_v1",
+  "eval_datasets": ["truthfulqa_tf"],
+  "eval_split": "test",
+  "eval_limit_per_dataset": 1442,
+  "extra_layers": [12, 13, 14, 16, 20],
+  "alphas_amp": [0.5, 1, 2, 3, 5],
+  "alphas_add": [0.1, 0.25, 0.5],
+  "alphas_das": [1, 3],
+  "alphas_gated": [1, 3],
+  "alphas_c": [0.5, 1, 1.5, 2],
+  "batch_size": 8,
+  "n_boot": 300,
+  "seed": 42
+}

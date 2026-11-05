@@ -98,20 +98,27 @@ for l in need:
     wmd, _ = mean_diff_direction(HB[y_est], HB[~y_est])
     cB = (HB[y_est].mean(0) + HB[~y_est].mean(0)) / 2
     dirs[l] = {"md": wmd, "cB": cB}
+def dir_key(v):
+    """Cache key of a config's direction. A DAS direction is identified by its checkpoint source AND variant, so two
+    DAS sources that pick the same layer in one call keep separate directions (GPT round 17 F, 2026-11-06: the old key
+    was the bare estimator name, so a second DAS source at an already-loaded layer silently reused the first one)."""
+    return ("das", v["das_dir"], v["das_variant"]) if v["estimator"] == "das" else v["estimator"]
+
+
 for v in configs.values():
     if v and v["estimator"] == "das":
         for l in v["layers"]:
-            if "das" not in dirs[l]:
+            if dir_key(v) not in dirs[l]:
                 wd, meta = load_das_direction(v["das_dir"], "E", l, variant=v["das_variant"], align_to=dirs[l]["md"])
                 if wd is None:
                     raise SystemExit("missing DAS direction L%d in %s" % (l, v["das_dir"]))
-                dirs[l]["das"] = wd
+                dirs[l][dir_key(v)] = wd
 
 
 def specs_for(v):
     if v is None:
         return None
-    return [SteerSpec(dirs[l][v["estimator"]], l, mode="amplify", alpha=v["alpha"], center=dirs[l]["cB"]) for l in v["layers"]]
+    return [SteerSpec(dirs[l][dir_key(v)], l, mode="amplify", alpha=v["alpha"], center=dirs[l]["cB"]) for l in v["layers"]]
 
 
 # ---- own answers -------------------------------------------------------------- #

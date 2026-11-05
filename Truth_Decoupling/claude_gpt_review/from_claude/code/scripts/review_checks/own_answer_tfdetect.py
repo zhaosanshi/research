@@ -115,8 +115,28 @@ for a_f, b_f in (("dasce", "verdict"), ("daskl", "verdict"), ("md", "verdict"), 
         paired["%s_minus_%s" % (a_f, b_f)] = {"delta": auroc(sa, ys) - auroc(sb, ys),
                                               "ci95": [float(np.percentile(d, 2.5)), float(np.percentile(d, 97.5))]}
 per_layer_test = {est_name: {str(l): auroc(scores["%s_L%d" % (est_name, l)][1], ys) for l in dirs[est_name]} for est_name in dirs}
-json.dump({"model": args.model, "n": {"tune": int(len(yt)), "test": int(len(ys)), "test_correct": int(ys.sum())},
-           "picked": table, "paired_test_auroc_differences": paired, "per_layer_test_auroc": per_layer_test}, open(args.out, "w"), indent=1)
+per_layer_tune = {est_name: {str(l): auroc(scores["%s_L%d" % (est_name, l)][0], yt) for l in dirs[est_name]} for est_name in dirs}
+# Per-item payload (GPT round 17 item G1, 2026-11-06): question ids, labels, the verdict margin and every layer's
+# sign-oriented projection score of every estimator on both splits, so every number above can be recomputed offline.
+payload = Path(args.out).with_suffix(".items.npz")
+arrs = {"ids_tune": np.array(data["tune"]["ids"]), "ids_test": np.array(data["test"]["ids"]),
+        "y_tune": yt, "y_test": ys, "verdict_tune": data["tune"]["verdict"], "verdict_test": data["test"]["verdict"]}
+signs = {}
+for est_name, by_layer in dirs.items():
+    ls = sorted(by_layer)
+    arrs["layers_" + est_name] = np.array(ls)
+    arrs["scores_tune_" + est_name] = np.stack([scores["%s_L%d" % (est_name, l)][0] for l in ls]) if ls else np.zeros((0, len(yt)))
+    arrs["scores_test_" + est_name] = np.stack([scores["%s_L%d" % (est_name, l)][1] for l in ls]) if ls else np.zeros((0, len(ys)))
+    signs[est_name] = {str(l): (1.0 if auroc(data["tune"]["H"][l] @ by_layer[l], yt) >= 0.5 else -1.0) for l in ls}
+np.savez_compressed(payload, **arrs)
+sources = {"dasce": {"dir": "%s/results_das_tfce/E1/%s" % (ROOT, args.model), "variant": "tf-ce-bidir"},
+           "daskl": {"dir": "%s/results_das_tf/E1/%s" % (ROOT, args.model), "variant": "tf"},
+           "md": {"dir": None, "variant": "mean difference of the %d estimation statements (calib + dev)" % len(est)}}
+json.dump({"model": args.model, "v1_run": str(run), "n": {"tune": int(len(yt)), "test": int(len(ys)), "test_correct": int(ys.sum())},
+           "picked": table, "paired_test_auroc_differences": paired, "per_layer_test_auroc": per_layer_test,
+           "per_layer_tune_auroc": per_layer_tune, "signs_from_tuning": signs, "direction_sources": sources,
+           "selection_rule": "per estimator: max tuning AUROC, ties -> lower layer; sign fixed on tuning data",
+           "n_boot": args.n_boot, "bootstrap_seed": 0, "items_payload": payload.name}, open(args.out, "w"), indent=1)
 for fam, t in table.items():
     print("%-8s %-10s tune AUROC %.3f | TEST AUROC %.3f [%.3f, %.3f]" % (fam, t["pick"], t["tune_auroc"], t["test_auroc"], *t["test_auroc_ci95"]))
 for k, v in paired.items():

@@ -1,0 +1,15 @@
+W1105 17:13:30.659000 86506 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1105 17:13:30.678000 86506 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00, 381.64it/s]
+tune answered 168 correct 59
+test answered 456 correct 154
+verdict  verdict    tune AUROC 0.589 | TEST AUROC 0.638 [0.588, 0.692]
+md       md_L14     tune AUROC 0.633 | TEST AUROC 0.641 [0.591, 0.694]
+dasce    dasce_L31  tune AUROC 0.682 | TEST AUROC 0.696 [0.647, 0.746]
+daskl    daskl_L12  tune AUROC 0.642 | TEST AUROC 0.631 [0.580, 0.683]
+paired TEST AUROC dasce_minus_verdict  +0.057 [+0.029, +0.088]
+paired TEST AUROC daskl_minus_verdict  -0.007 [-0.057, +0.042]
+paired TEST AUROC md_minus_verdict     +0.003 [-0.028, +0.035]
+paired TEST AUROC dasce_minus_md       +0.054 [+0.016, +0.090]
+paired TEST AUROC dasce_minus_daskl    +0.064 [+0.013, +0.117]
+saved /workspace/Truth_Decoupling/review_e25/checks/dasplus/own_tfdetect_r17_llama3.1-8b.json
