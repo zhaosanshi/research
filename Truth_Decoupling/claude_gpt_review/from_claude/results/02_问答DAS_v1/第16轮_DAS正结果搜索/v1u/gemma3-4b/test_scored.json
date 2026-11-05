@@ -1,0 +1,781 @@
+{
+  "model": "gemma3-4b",
+  "tag": "E25_DAS_test",
+  "judge": "deepseek",
+  "outcome_policy": "judge_primary_v2",
+  "gold_policy": "exact_personal_refusals_v1",
+  "judge_rubric_id": "qa_semantic_v3",
+  "source_generation_sha256": "28fa4fea0329a594ae60430b9b08b8a01e6bebd64de3581b6754909dfb32df4d",
+  "n_rule_judge_disagreements": {
+    "baseline": 0
+  },
+  "n_questions": 529,
+  "n_substantive_gold": 523,
+  "n_resolved_all_conditions": 523,
+  "rates": {
+    "baseline": {
+      "rates": {
+        "n": 523,
+        "correct": 0.30210325047801145,
+        "wrong": 0.5984703632887189,
+        "abstain": 0.0994263862332696,
+        "answer_rate": 0.9005736137667304,
+        "precision_answered": 0.3354564755838641
+      },
+      "rates_judge_only": {
+        "n": 523,
+        "correct": 0.30210325047801145,
+        "wrong": 0.5984703632887189,
+        "abstain": 0.0994263862332696,
+        "answer_rate": 0.9005736137667304,
+        "precision_answered": 0.3354564755838641
+      },
+      "n_unresolved": 0,
+      "abstention_only_gold_questions": {
+        "correct": 1,
+        "wrong": 1,
+        "abstain": 4,
+        "unresolved": 0
+      },
+      "truncated_rate": 0.0
+    }
+  },
+  "transitions_vs_baseline": {},
+  "header": {
+    "model": "gemma3-4b",
+    "protocol": "qa_das_ptrue_ce_bidir_v1",
+    "protocol_fingerprint": "6f7b2bc2ccde35e1ad572b6c09a1ef27c670c088b0c4c894c87cbac6c8c9c173",
+    "bank_protocol_fingerprint": "ea38dda0880e5cf65f4d83bf8f19613aa6522915bc25f3737ebe70eef96899fd",
+    "bank_sha256": "0c7d2963b03bf4fa9d9b0b0b366b3ace302b68b5cfe1be14c88389c30174d2c1",
+    "training_sha256": "b89ad09bd9f80de3a8055f8f7a677be968f0cede0592c682413af77c11810501",
+    "questions_sha256": "b61184c3fb015bce3250516fdd0419c33d745821e9836229c7d4065227e6e79e",
+    "split": "test",
+    "pilot": null,
+    "diagnostic_only": false,
+    "precision": {
+      "version": "qa_fp32_output_projection_v1",
+      "enabled": true,
+      "head_module": "lm_head",
+      "head_type": "Linear",
+      "parameter_dtype": "torch.bfloat16",
+      "parameter_device": "cuda:0",
+      "projection_dtype": "torch.float32",
+      "projection_autocast": false,
+      "matmul_precision": "highest",
+      "allow_tf32": false,
+      "weight_policy": "detached_fp32_copy_per_outer_context",
+      "model_postprocessing": "preserved"
+    },
+    "E": {
+      "methods": [
+        "qa_das",
+        "qa_md"
+      ],
+      "primary_operator": "centered amplification",
+      "main_mode": "continuous",
+      "reference_diagnostic_operator": null
+    },
+    "C": {
+      "enabled": false
+    },
+    "prompt": {
+      "qa_system": "You are a knowledgeable assistant. Answer the question with a short answer of a few words. If you do not know the answer, you may say 'I don't know'.",
+      "qa_user": "Question: {question}\nAnswer:",
+      "max_new_tokens": 48
+    },
+    "intervention_position": "prompt-end predictor once; continuous also writes each later predictor; fixed reference coordinates only in labeled diagnostics",
+    "conditions": [
+      "baseline"
+    ],
+    "condition_specs": [
+      {
+        "name": "baseline",
+        "kind": "baseline",
+        "eligible_for_selection": false,
+        "uses_reference_answer": false
+      }
+    ],
+    "audit": [
+      {
+        "condition": "baseline",
+        "batch_start": 0,
+        "prompt_len": 87,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 8,
+        "prompt_len": 67,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 16,
+        "prompt_len": 77,
+        "new_tokens": 10,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 24,
+        "prompt_len": 81,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 32,
+        "prompt_len": 67,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 40,
+        "prompt_len": 74,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 48,
+        "prompt_len": 99,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 56,
+        "prompt_len": 69,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 64,
+        "prompt_len": 72,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 72,
+        "prompt_len": 80,
+        "new_tokens": 10,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 80,
+        "prompt_len": 70,
+        "new_tokens": 6,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 88,
+        "prompt_len": 71,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 96,
+        "prompt_len": 77,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 104,
+        "prompt_len": 79,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 112,
+        "prompt_len": 84,
+        "new_tokens": 10,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 120,
+        "prompt_len": 69,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 128,
+        "prompt_len": 68,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 136,
+        "prompt_len": 85,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 144,
+        "prompt_len": 87,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 152,
+        "prompt_len": 91,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 160,
+        "prompt_len": 64,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 168,
+        "prompt_len": 92,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 176,
+        "prompt_len": 104,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 184,
+        "prompt_len": 90,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 192,
+        "prompt_len": 96,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 200,
+        "prompt_len": 79,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 208,
+        "prompt_len": 69,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 216,
+        "prompt_len": 81,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 224,
+        "prompt_len": 80,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 232,
+        "prompt_len": 71,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 240,
+        "prompt_len": 65,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 248,
+        "prompt_len": 79,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 256,
+        "prompt_len": 85,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 264,
+        "prompt_len": 67,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 272,
+        "prompt_len": 75,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 280,
+        "prompt_len": 93,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 288,
+        "prompt_len": 77,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 296,
+        "prompt_len": 70,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 304,
+        "prompt_len": 81,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 312,
+        "prompt_len": 79,
+        "new_tokens": 10,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 320,
+        "prompt_len": 68,
+        "new_tokens": 6,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 328,
+        "prompt_len": 67,
+        "new_tokens": 6,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 336,
+        "prompt_len": 64,
+        "new_tokens": 10,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 344,
+        "prompt_len": 76,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 352,
+        "prompt_len": 69,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 360,
+        "prompt_len": 69,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 368,
+        "prompt_len": 108,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 376,
+        "prompt_len": 70,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 384,
+        "prompt_len": 63,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 392,
+        "prompt_len": 100,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 400,
+        "prompt_len": 88,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 408,
+        "prompt_len": 80,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 416,
+        "prompt_len": 65,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 424,
+        "prompt_len": 65,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 432,
+        "prompt_len": 84,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 440,
+        "prompt_len": 73,
+        "new_tokens": 10,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 448,
+        "prompt_len": 73,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 456,
+        "prompt_len": 66,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 464,
+        "prompt_len": 67,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 472,
+        "prompt_len": 83,
+        "new_tokens": 6,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 480,
+        "prompt_len": 87,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 488,
+        "prompt_len": 75,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 496,
+        "prompt_len": 66,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 504,
+        "prompt_len": 75,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 512,
+        "prompt_len": 67,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 520,
+        "prompt_len": 69,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 528,
+        "prompt_len": 70,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": [],
+        "reference_coordinates": null,
+        "displacement_scope": "per batch step; includes padding steps of already-finished sequences"
+      }
+    ],
+    "completed": true,
+    "grading_source_generation_sha256": "28fa4fea0329a594ae60430b9b08b8a01e6bebd64de3581b6754909dfb32df4d",
+    "grading_judge_config_sha256": "c6f542480c3c7d3265ea8f3b69577559e4c45b108f024a64beffa24e36018b30",
+    "grading_judge_name": "deepseek",
+    "grading_completed": true,
+    "judge_rubric_id": "qa_semantic_v3",
+    "outcome_policy": "judge_primary_v2",
+    "gold_policy": "exact_personal_refusals_v1"
+  },
+  "completed": true,
+  "status": "complete"
+}
