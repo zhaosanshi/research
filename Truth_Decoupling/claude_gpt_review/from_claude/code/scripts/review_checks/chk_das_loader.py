@@ -194,8 +194,12 @@ with tempfile.TemporaryDirectory() as td:
             wo, mo = old.load_das_direction(td, "E", 0, align_to=ref)
             n_w += np.array_equal(wn, wo); n_gap += (mn["mean_gap"] == mo["mean_gap"])
         else:   # no old module: the gap must be the stored one up to the display sign, exactly
-            sign = 1.0 if ref is None or float(np.dot(wn, np.asarray(ref) / np.linalg.norm(ref))) >= 0 else -1.0
-            n_w += bool(np.isfinite(wn).all()); n_gap += (mn["mean_gap"] == sign * gap)
+            # wn has already been sign-aligned. Use the original stored W to
+            # predict whether the loader should negate the stored gap.
+            stored = f32(w)
+            sign = 1.0 if ref is None or float(np.dot(stored, np.asarray(ref) / np.linalg.norm(ref))) >= 0 else -1.0
+            expected_w = sign * (stored / np.linalg.norm(stored))
+            n_w += np.array_equal(wn, expected_w); n_gap += (mn["mean_gap"] == sign * gap)
 expect("single_seed_200_bit_identical", n_w == 200 and n_gap == 200, {"direction_equal": n_w, "gap_equal": n_gap, "vs": "old loader" if old else "stored gap"})
 
 # Legacy single-seed file without the newer protocol fields still loads; meta says the protocol is incomplete

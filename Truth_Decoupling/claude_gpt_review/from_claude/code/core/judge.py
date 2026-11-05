@@ -150,6 +150,15 @@ class LLMJudge:
             )
         user = QA_GRADER_TEMPLATE.format(question=question, gold=gold_s, incorrect_block=inc_block,
                                          prediction=(prediction or "").strip()[:4000])
+        # A nonempty completion can still fail the QA letter parser. Keep
+        # its original disk row for audit, but do not let that malformed cache
+        # entry permanently prevent a later same-judge retry. A later valid
+        # appended row supersedes it on reload; valid QA caches stay untouched.
+        cache = getattr(self, "_cache", None)
+        if cache is not None:
+            key = stable_hash(self.model, QA_GRADER_SYSTEM, user, length=24)
+            if key in cache and not re.match(r"\s*\**\s*([ABC])\b", cache[key]):
+                del cache[key]
         raw = self.complete(QA_GRADER_SYSTEM, user)
         m = re.match(r"\s*\**\s*([ABC])\b", raw)
         label = {"A": "correct", "B": "wrong", "C": "abstain"}.get(m.group(1), "unresolved") if m else "unresolved"

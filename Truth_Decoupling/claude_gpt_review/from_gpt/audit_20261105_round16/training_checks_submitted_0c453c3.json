@@ -1,0 +1,121 @@
+{
+  "missing_first_key_hides_anchor_conflict": {
+    "accepted": false,
+    "type": "ValueError",
+    "message": "das_E_L0_r1_s42.pt lacks the protocol fields ['anchor']; a multi-seed merge with an unverified protocol is refused (load that seed alone, or retrain with the fields recorded)"
+  },
+  "full_protocol_conflict_rejected": {
+    "accepted": false,
+    "type": "ValueError",
+    "message": "DAS seeds das_E_L0_r1_s42.pt and das_E_L0_r1_s43.pt differ in anchor ('prompt' vs 'current'); refusing to merge them"
+  },
+  "different_models_and_data_accepted": {
+    "accepted": false,
+    "type": "ValueError",
+    "message": "DAS seeds das_E_L0_r1_s42.pt and das_E_L0_r1_s43.pt differ in model_name ('llama' vs 'qwen'); refusing to merge them"
+  },
+  "nan_direction_accepted": {
+    "accepted": false,
+    "type": "ValueError",
+    "message": "das_E_L0_r1_s42.pt holds a non-finite direction"
+  },
+  "infinite_gap_accepted": {
+    "accepted": false,
+    "type": "ValueError",
+    "message": "das_E_L0_r1_s42.pt records a non-finite mean_gap (inf)"
+  },
+  "nonfinite_final_loss": {
+    "accepted": false,
+    "type": "ValueError",
+    "message": "das_E_L0_r1_s42.pt records a non-finite final training loss (nan): the training diverged"
+  },
+  "same_protocol_without_identity_fields": {
+    "accepted": true,
+    "W": [
+      1.0,
+      0.0
+    ],
+    "gap": 1.0,
+    "protocol": {
+      "anchor": "prompt",
+      "loss_kind": "kl",
+      "positions": "last",
+      "rank": 1,
+      "n_pairs": 96,
+      "T": 2,
+      "bidirectional": false,
+      "epochs": 10,
+      "lr": 0.001,
+      "trim": 0.0,
+      "weighted": false
+    },
+    "protocol_complete": true,
+    "mean_gap_available": true
+  },
+  "multi_seed_trimmed_gap_not_exact": {
+    "accepted": true,
+    "W": [
+      0.9486832961656495,
+      0.3162277716714309
+    ],
+    "gap": null,
+    "protocol": {
+      "anchor": "prompt",
+      "loss_kind": "kl",
+      "positions": "last",
+      "rank": 1,
+      "n_pairs": 96,
+      "T": 2,
+      "bidirectional": false,
+      "epochs": 10,
+      "lr": 0.001,
+      "trim": 0.1,
+      "weighted": false
+    },
+    "protocol_complete": true,
+    "mean_gap_available": false,
+    "per_seed_gaps": [
+      0.875,
+      2.224999993145466
+    ],
+    "actual_trimmed_gap_on_merged_W": 1.8973666135360228,
+    "difference": null
+  },
+  "single_seed_compatibility_200": {
+    "cases": 200,
+    "direction_not_bit_equal": 0,
+    "gap_not_bit_equal": 0,
+    "max_gap_absolute_difference": 0.0
+  },
+  "teacher_cache_identity": {
+    "requests_after_T_change": 6,
+    "base_cache_cleared": true,
+    "requests_after_bidir_restored": 8,
+    "requests_after_source_input_change": 10,
+    "requests_after_model_change": 14,
+    "teacher_T_sequence": [
+      1,
+      1,
+      1,
+      1,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "cached_source_after_input_change": [
+      10,
+      11
+    ],
+    "expected_source_after_input_change": [
+      10,
+      11
+    ]
+  }
+}

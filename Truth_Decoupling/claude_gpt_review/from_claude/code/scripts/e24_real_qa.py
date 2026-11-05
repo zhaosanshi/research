@@ -367,6 +367,10 @@ def phase_judge(args):
              len(items) - int(substantive.sum()), n, unresolved, {c: round(v, 3) for c, v in trunc.items()}), "",
          "E：%s；C：%s。" % (data["E"], data["C"]), "",
          "| 条件 | 答对 | 答错 | 弃答 | 作答率 | 已作答中答对比例 | 只看裁判（不叠规则）：答对 / 弃答 |", "|---|---|---|---|---|---|---|"]
+    if data.get("diagnostic_only"):
+        L[2:2] = ["**仅诊断：含金标来源的条件不是可部署性能，不参与选层或主表胜负。**", ""]
+    if data.get("pilot") or data.get("split") == "pilot":
+        L[2:2] = ["**小样本线路检查，不作为效果或最优层证据。**", ""]
     for c in conditions:
         r = rows[c]["rates"]; rj = rows[c]["rates_judge_only"]
         L.append("| %s | %.3f | %.3f | %.3f | %.3f | %.3f | %.3f / %.3f |" % (c, r["correct"], r["wrong"], r["abstain"], r["answer_rate"], r["precision_answered"], rj["correct"], rj["abstain"]))

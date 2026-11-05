@@ -1,0 +1,38 @@
+{
+  "judge_phase_returned_success": true,
+  "n_questions": 3,
+  "n_substantive_gold": 3,
+  "n_resolved_all_conditions": 2,
+  "n_unresolved": {
+    "baseline": 1,
+    "E_qa_md_continuous_L1_a1": 1
+  },
+  "rates": {
+    "baseline": {
+      "n": 2,
+      "correct": 0.0,
+      "wrong": 1.0,
+      "abstain": 0.0,
+      "answer_rate": 1.0,
+      "precision_answered": 0.0
+    },
+    "E_qa_md_continuous_L1_a1": {
+      "n": 2,
+      "correct": 0.0,
+      "wrong": 1.0,
+      "abstain": 0.0,
+      "answer_rate": 1.0,
+      "precision_answered": 0.0
+    }
+  },
+  "markdown_excerpt": [
+    "# 真实问答验证：tiny-qa-das（E25_DAS_test）",
+    "",
+    "3 道问题，分区 `test`，共 2 个条件；生成与干预设置以输入文件记录为准。裁判 offline-unresolved-example（A 对 / B 错 / C 未作答），按语义裁判判定，关键词仅标记复核，不能覆盖正确或错误为弃答。参考答案分区口径：exact_personal_refusals_v1；其中单列的问题 0 道。主表统计所有条件都有判定且金标实质的问题 2 道；未判定：{'baseline': 1, 'E_qa_md_continuous_L1_a1': 1}；被 max_new_tokens 截断的比例：{'baseline': 1.0, 'E_qa_md_continuous_L1_a1': 1.0}。",
+    "",
+    "E：{'methods': ['qa_das', 'qa_md'], 'primary_operator': 'centered amplification', 'main_mode': 'continuous', 'reference_diagnostic_operator': None}；C：{'enabled': False}。",
+    "",
+    "| 条件 | 答对 | 答错 | 弃答 | 作答率 | 已作答中答对比例 | 只看裁判（不叠规则）：答对 / 弃答 |",
+    "|---|---|---|---|---|---|---|"
+  ]
+}

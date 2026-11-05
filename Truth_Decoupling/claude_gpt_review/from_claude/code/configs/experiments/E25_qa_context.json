@@ -5,7 +5,7 @@
   "tune_pairs": 192,
   "batch_size": 8,
   "max_new_tokens": 48,
-  "qa_system": "Answer the question briefly and accurately. If you lack enough information, acknowledge that instead of inventing an answer.",
+  "qa_system": "You are a knowledgeable assistant. Answer the question with a short answer of a few words. If you do not know the answer, you may say 'I don't know'.",
   "qa_user": "Question: {question}\nAnswer:",
   "self_report_user": "Question: {question}\nDo you know the answer to this question? Answer with exactly one word: Yes or No.",
   "e_contexts": ["tf", "qa"],
@@ -29,5 +29,5 @@
       "cautious": "Be conservative about claims you cannot support. Leave the question unanswered when you cannot establish an answer."
     }
   ],
-  "notes": "Review-only implementation. Matched mean-difference estimators isolate direction context; paired answer selection is not official MC1. Semantic grading is required for C selection. No automatic claim of 2x2 success."
+  "notes": "Legacy mean-difference control. The tf context is re-estimated on the same cleaned answers using the truthfulqa_tf statement format, not a historical TF/DAS direction. Paired answer selection is not official MC1. freeze --target E requires only E tuning; both additionally requires semantic C grading. No automatic claim of 2x2 success."
 }

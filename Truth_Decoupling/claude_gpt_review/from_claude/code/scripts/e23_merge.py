@@ -20,6 +20,7 @@ E_LEAK, C_J, C_B = 0.03, 0.02, 0.05          # the pre-declared rule
 # Fields that identify ONE sweep; chunks whose values differ are not pieces of the same run (review round 15 §2.2).
 IDENTITY_KEYS = ("model", "n", "n_est", "num_layers", "tune_pairs", "teacher_split", "est_extra_pairs", "est_extra_ids", "wording",
                  "direction_prompt_allow_idk", "e_alphas", "e_estimator")
+CORE_IDENTITY_KEYS = ("model", "e_estimator", "wording")
 
 
 def spearman(x, y):
@@ -30,7 +31,17 @@ def spearman(x, y):
     return spearman_rho(x[m], y[m]) if m.sum() >= 3 else float("nan")
 
 
-def run_identity(j):
+def run_identity(j, *, expected_model, chunk):
+    # Missing optional historical fields remain comparable as None. Model,
+    # estimator and prompt identity must be explicit even in the first chunk:
+    # two missing values do not establish that two files came from one run.
+    invalid = [k for k in CORE_IDENTITY_KEYS if not isinstance(j.get(k), str) or not j[k].strip()]
+    if invalid:
+        raise SystemExit("chunk %s has missing or invalid core run identity (%s); refusing to merge"
+                         % (chunk, ", ".join(invalid)))
+    if j["model"] != expected_model:
+        raise SystemExit("chunk %s records model %r, which does not match --model %r; refusing to merge"
+                         % (chunk, j["model"], expected_model))
     das = j.get("das")
     if isinstance(das, dict):   # the DAS source directory is compared as a normalised path, so "a/b/" and "a//b" are the same source
         das = {"dir": os.path.normpath(str(das["dir"])) if das.get("dir") is not None else None, "variant": das.get("variant")}
@@ -79,7 +90,7 @@ def main():
     for t in args.tags:
         j = json.load(open(os.path.join(d, "knob_sweep_%s.json" % t)))
         z = np.load(os.path.join(d, "knob_sweep_%s.npz" % t), allow_pickle=True)
-        ident = run_identity(j)
+        ident = run_identity(j, expected_model=args.model, chunk=t)
         b = j["conds"]["baseline"]
         bA_, bP_ = z["baseline__answer"].astype(bool), z["baseline__ptrue"].astype(float)
         if ids is None:
@@ -99,9 +110,13 @@ def main():
                     if abs(b[h][k] - base_check[h][k]) > 1e-6:
                         raise SystemExit("baseline differs between chunks (%s %s): %.4f vs %.4f" % (h, k, b[h][k], base_check[h][k]))
             bA0, bP0 = per["baseline"]
-            if not (np.array_equal(bA0, bA_) and np.array_equal(bP0 > 0.5, bP_ > 0.5) and np.allclose(bP0, bP_, rtol=0, atol=1e-6)):
+            # A shared paired-bootstrap baseline must be exactly the same
+            # probability array. Even a 1e-7 perturbation can reverse a near
+            # tie and change AUROC while every 0.5-threshold prediction stays
+            # identical. Numerical closeness does not preserve rank statistics.
+            if not (np.array_equal(bA0, bA_) and np.array_equal(bP0 > 0.5, bP_ > 0.5) and np.array_equal(bP0, bP_)):
                 raise SystemExit("chunk %s records a different per-item baseline than %s (%d answers, %d predictions, %d probabilities differ); refusing to merge"
-                                 % (t, first_tag, int((bA0 != bA_).sum()), int(((bP0 > 0.5) != (bP_ > 0.5)).sum()), int((np.abs(bP0 - bP_) > 1e-6).sum())))
+                                 % (t, first_tag, int((bA0 != bA_).sum()), int(((bP0 > 0.5) != (bP_ > 0.5)).sum()), int((bP0 != bP_).sum())))
         for name, m in j["conds"].items():
             if name == "baseline":
                 continue                                   # the first chunk's baseline stays, aggregate and per item

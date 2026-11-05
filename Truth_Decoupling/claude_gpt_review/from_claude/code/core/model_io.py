@@ -14,6 +14,7 @@ single-sample forwards (HF only derives position_ids from the attention mask
 inside generate(), not in a plain forward()).
 """
 import contextlib
+import inspect
 
 import torch
 
@@ -115,8 +116,22 @@ def position_ids_from_mask(attention_mask):
     return pos.clamp(min=0)
 
 
-def forward_logits(bundle, inputs, grad=False):
-    """Plain forward with explicit position ids. Returns logits [B, T, V]."""
+def forward_logits(bundle, inputs, grad=False, logits_to_keep=None):
+    """Forward with explicit position ids, optionally limiting output positions.
+
+    The default call is unchanged. A requested logits_to_keep is passed only
+    when the model explicitly declares that keyword; older models still return
+    all positions. A generic **kwargs alone is not evidence of support.
+    """
+    extra = {}
+    if logits_to_keep is not None:
+        try:
+            parameter = inspect.signature(bundle.model.forward).parameters.get("logits_to_keep")
+        except (TypeError, ValueError):
+            parameter = None
+        if parameter is not None and parameter.kind in (
+                inspect.Parameter.POSITIONAL_OR_KEYWORD, inspect.Parameter.KEYWORD_ONLY):
+            extra["logits_to_keep"] = logits_to_keep
     ctx = torch.enable_grad() if grad else torch.no_grad()
     with ctx:
         out = bundle.model(
@@ -124,6 +139,7 @@ def forward_logits(bundle, inputs, grad=False):
             attention_mask=inputs["attention_mask"],
             position_ids=position_ids_from_mask(inputs["attention_mask"]),
             use_cache=False,
+            **extra,
         )
     return out.logits
 

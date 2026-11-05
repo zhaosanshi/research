@@ -7,7 +7,11 @@ claim that a real judge has followed the revised semantic grading rules.
 Run: python3 claude_gpt_review/from_gpt/test_qa_judge_20261103.py
 """
 import sys
+import json
+import tempfile
 import unittest
+from types import SimpleNamespace
+from unittest.mock import Mock, patch
 from pathlib import Path
 
 
@@ -65,6 +69,58 @@ class QAJudgeRubricTests(unittest.TestCase):
                     "rubric_id": QA_GRADER_VERSION,
                 })
                 self.assertIn("Rubric: " + result["rubric_id"], judge.prompts[0][0])
+
+    def test_invalid_disk_cache_retries_same_judge_and_preserves_raw_history(self):
+        # Start with a real disk row written by complete(), then construct a
+        # new production LLMJudge as a resumed CLI phase would do.
+        with tempfile.TemporaryDirectory(prefix="qa-invalid-cache-") as directory:
+            path = Path(directory) / "judge.jsonl"
+            captured = CapturingJudge()
+            captured.qa_grade("Question", ["Gold"], "Prediction")
+            system, user = captured.prompts[0]
+            key = stable_hash("offline-same-judge", system, user, length=24)
+            bad = {"key": key, "model": "offline-same-judge", "answer": "Answer: A"}
+            path.write_text(json.dumps(bad) + "\n")
+            first = LLMJudge("offline-same-judge", api_key="offline-test-only",
+                             cache_path=str(path), sleep=0, max_retries=1)
+            completion = SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(content="B"))])
+            create = Mock(return_value=completion)
+            client = SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=create)))
+            with patch.object(first, "_get_client", return_value=client):
+                result = first.qa_grade("Question", ["Gold"], "Prediction")
+            self.assertEqual(result["label"], "wrong")
+            self.assertEqual(first.n_calls, 1)
+            self.assertEqual(first.n_cache_hits, 0)
+            self.assertEqual(create.call_args.kwargs["model"], "offline-same-judge")
+            history = [json.loads(line) for line in path.read_text().splitlines()]
+            self.assertEqual(history[0], bad, "retain malformed raw for audit")
+            self.assertEqual([row["answer"] for row in history], ["Answer: A", "B"])
+            self.assertTrue(all(row["key"] == key for row in history))
+            reopened = LLMJudge("offline-same-judge", api_key="offline-test-only",
+                                cache_path=str(path), sleep=0, max_retries=1)
+            with patch.object(reopened, "_get_client", side_effect=AssertionError("valid cache must avoid a client")):
+                again = reopened.qa_grade("Question", ["Gold"], "Prediction")
+            self.assertEqual(again, result)
+            self.assertEqual(reopened.n_calls, 0)
+            self.assertEqual(reopened.n_cache_hits, 1)
+            self.assertEqual(len(path.read_text().splitlines()), 2)
+
+    def test_invalid_fresh_completion_can_retry_in_same_process(self):
+        judge = LLMJudge("offline-same-process", api_key="offline-test-only", sleep=0, max_retries=1)
+        responses = [SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(content=raw))])
+                     for raw in ("Answer: C", "**C**")]
+        create = Mock(side_effect=responses)
+        client = SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=create)))
+        with patch.object(judge, "_get_client", return_value=client):
+            first = judge.qa_grade("Question", "Gold", "Prediction")
+            second = judge.qa_grade("Question", "Gold", "Prediction")
+            third = judge.qa_grade("Question", "Gold", "Prediction")
+        self.assertEqual(first["label"], "unresolved")
+        self.assertEqual(second["label"], "abstain")
+        self.assertEqual(second, third)
+        self.assertEqual(create.call_count, 2)
+        self.assertEqual(judge.n_calls, 2)
+        self.assertEqual(judge.n_cache_hits, 1)
 
     def test_references_are_alternatives_with_question_scope_preserved(self):
         (_, prompt), _ = self.capture()
