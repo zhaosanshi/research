@@ -1,0 +1,2171 @@
+{
+  "model": "llama3.1-8b",
+  "tag": "E25_DAS_test",
+  "judge": "deepseek",
+  "outcome_policy": "judge_primary_v2",
+  "gold_policy": "exact_personal_refusals_v1",
+  "judge_rubric_id": "qa_semantic_v3",
+  "source_generation_sha256": "64ab896a7ff43dc12543c2a59d29f8ca8c6ce950b21a42deda2109d68c899cfe",
+  "n_rule_judge_disagreements": {
+    "baseline": 0,
+    "original_das": 0,
+    "das_generation_adapter": 0
+  },
+  "n_questions": 529,
+  "n_substantive_gold": 523,
+  "n_resolved_all_conditions": 523,
+  "rates": {
+    "baseline": {
+      "rates": {
+        "n": 523,
+        "correct": 0.30019120458891013,
+        "wrong": 0.5678776290630975,
+        "abstain": 0.13193116634799235,
+        "answer_rate": 0.8680688336520076,
+        "precision_answered": 0.3458149779735683
+      },
+      "rates_judge_only": {
+        "n": 523,
+        "correct": 0.30019120458891013,
+        "wrong": 0.5678776290630975,
+        "abstain": 0.13193116634799235,
+        "answer_rate": 0.8680688336520076,
+        "precision_answered": 0.3458149779735683
+      },
+      "n_unresolved": 0,
+      "abstention_only_gold_questions": {
+        "correct": 1,
+        "wrong": 1,
+        "abstain": 4,
+        "unresolved": 0
+      },
+      "truncated_rate": 0.003780718336483932
+    },
+    "original_das": {
+      "rates": {
+        "n": 523,
+        "correct": 0.30210325047801145,
+        "wrong": 0.5736137667304015,
+        "abstain": 0.124282982791587,
+        "answer_rate": 0.875717017208413,
+        "precision_answered": 0.34497816593886466
+      },
+      "rates_judge_only": {
+        "n": 523,
+        "correct": 0.30210325047801145,
+        "wrong": 0.5736137667304015,
+        "abstain": 0.124282982791587,
+        "answer_rate": 0.875717017208413,
+        "precision_answered": 0.34497816593886466
+      },
+      "n_unresolved": 0,
+      "abstention_only_gold_questions": {
+        "correct": 1,
+        "wrong": 1,
+        "abstain": 4,
+        "unresolved": 0
+      },
+      "truncated_rate": 0.017013232514177693,
+      "delta_vs_baseline": {
+        "correct": {
+          "value": 0.0019120458891013214,
+          "ci95": [
+            -0.017208413001912004,
+            0.01912045889101338
+          ]
+        },
+        "wrong": {
+          "value": 0.005736137667304075,
+          "ci95": [
+            -0.013384321223709361,
+            0.0248565965583174
+          ]
+        },
+        "abstain": {
+          "value": -0.007648183556405341,
+          "ci95": [
+            -0.019120458891013395,
+            0.0038240917782026707
+          ]
+        },
+        "answer_rate": {
+          "value": 0.007648183556405397,
+          "ci95": [
+            -0.003824091778202643,
+            0.019120458891013437
+          ]
+        },
+        "precision_answered": {
+          "value": -0.000836812034703649,
+          "ci95": [
+            -0.021266822340495366,
+            0.01830032271405661
+          ]
+        }
+      }
+    },
+    "das_generation_adapter": {
+      "rates": {
+        "n": 523,
+        "correct": 0.3135755258126195,
+        "wrong": 0.5736137667304015,
+        "abstain": 0.11281070745697896,
+        "answer_rate": 0.887189292543021,
+        "precision_answered": 0.35344827586206895
+      },
+      "rates_judge_only": {
+        "n": 523,
+        "correct": 0.3135755258126195,
+        "wrong": 0.5736137667304015,
+        "abstain": 0.11281070745697896,
+        "answer_rate": 0.887189292543021,
+        "precision_answered": 0.35344827586206895
+      },
+      "n_unresolved": 0,
+      "abstention_only_gold_questions": {
+        "correct": 1,
+        "wrong": 1,
+        "abstain": 4,
+        "unresolved": 0
+      },
+      "truncated_rate": 0.00945179584120983,
+      "delta_vs_baseline": {
+        "correct": {
+          "value": 0.013384321223709361,
+          "ci95": [
+            -0.0038240917782026984,
+            0.03250478011472274
+          ]
+        },
+        "wrong": {
+          "value": 0.005736137667304075,
+          "ci95": [
+            -0.01147227533460804,
+            0.02294455066921608
+          ]
+        },
+        "abstain": {
+          "value": -0.01912045889101338,
+          "ci95": [
+            -0.03441682600382409,
+            -0.00573613766730402
+          ]
+        },
+        "answer_rate": {
+          "value": 0.019120458891013437,
+          "ci95": [
+            0.005736137667304075,
+            0.03441682600382412
+          ]
+        },
+        "precision_answered": {
+          "value": 0.007633297888500645,
+          "ci95": [
+            -0.01222258056575901,
+            0.027607567803165808
+          ]
+        }
+      }
+    }
+  },
+  "transitions_vs_baseline": {
+    "original_das": {
+      "correct->correct": 147,
+      "correct->wrong": 10,
+      "correct->abstain": 0,
+      "wrong->correct": 8,
+      "wrong->wrong": 286,
+      "wrong->abstain": 3,
+      "abstain->correct": 3,
+      "abstain->wrong": 4,
+      "abstain->abstain": 62
+    },
+    "das_generation_adapter": {
+      "correct->correct": 148,
+      "correct->wrong": 8,
+      "correct->abstain": 1,
+      "wrong->correct": 8,
+      "wrong->wrong": 288,
+      "wrong->abstain": 1,
+      "abstain->correct": 8,
+      "abstain->wrong": 4,
+      "abstain->abstain": 57
+    }
+  },
+  "header": {
+    "model": "llama3.1-8b",
+    "protocol": "qa_generation_adapter_v1",
+    "protocol_fingerprint": "2c3f426f014fd0d1aaeba180188a3a2bcfb29315c4720c5117660edaa4704a06",
+    "bank_protocol_fingerprint": "7f6a9d2d5e74121d34bc8fdadd5ca0a560d17150f0aeed713f6493764f187334",
+    "training_sha256": "9a5a5d464a6785d9d584161f375343009ff431e03ddfc9d7cfd081773e8df7dc",
+    "questions_sha256": "b61184c3fb015bce3250516fdd0419c33d745821e9836229c7d4065227e6e79e",
+    "split": "test",
+    "pilot": false,
+    "wiring_pilot": false,
+    "diagnostic_only": false,
+    "precision": {
+      "version": "qa_fp32_output_projection_v1",
+      "enabled": true,
+      "head_module": "lm_head",
+      "head_type": "Linear",
+      "parameter_dtype": "torch.bfloat16",
+      "parameter_device": "cuda:0",
+      "projection_dtype": "torch.float32",
+      "projection_autocast": false,
+      "matmul_precision": "highest",
+      "allow_tf32": false,
+      "weight_policy": "detached_fp32_copy_per_outer_context",
+      "model_postprocessing": "preserved"
+    },
+    "prompt": {
+      "qa_system": "You are a knowledgeable assistant. Answer the question with a short answer of a few words. If you do not know the answer, you may say 'I don't know'.",
+      "qa_user": "Question: {question}\nAnswer:",
+      "max_new_tokens": 48,
+      "batch_size": 8
+    },
+    "intervention_position": "prompt-end predictor once; every later answer predictor with the decode center; no reference answer at inference",
+    "E": {
+      "method": "das_generation_adapter",
+      "init": "das",
+      "operator": "centered_amplification"
+    },
+    "C": {
+      "enabled": false
+    },
+    "source": {
+      "bank_fingerprint": "a9169f7cfcd6ba871a8b6560e580885753fc6734749a4b3023905fe6b9fe015a",
+      "bank_json_sha256": "16c8a000e6abb502bee006ec7c3eab8dd4c793f4933663eab83b4e23b30bcf79",
+      "bank_npz_sha256": "3352f9a0f0acea44758cc48c5a01efd66500d446d0230464fddc765f318d4ef8",
+      "questions_sha256": "b61184c3fb015bce3250516fdd0419c33d745821e9836229c7d4065227e6e79e",
+      "training_json_sha256": "30bb8d3289266a3d113d749a857b98cba0b249ca351358aff48b7a3515e78909",
+      "checkpoints": {
+        "29": "d8ea998e17fcfe29775cb113385c407ca8e4e76f5059919090b817e6bff74b7f"
+      }
+    },
+    "conditions": [
+      "baseline",
+      "original_das",
+      "das_generation_adapter"
+    ],
+    "condition_specs": [
+      {
+        "name": "baseline",
+        "kind": "baseline",
+        "eligible_for_selection": false,
+        "uses_reference_answer": false
+      },
+      {
+        "name": "original_das",
+        "kind": "E",
+        "context": "qa_das",
+        "layers": [
+          29
+        ],
+        "alpha": 3.0,
+        "mode": "continuous",
+        "uses_reference_answer": false,
+        "eligible_for_selection": false
+      },
+      {
+        "name": "das_generation_adapter",
+        "kind": "E",
+        "context": "das_generation_adapter",
+        "layers": [
+          29
+        ],
+        "alpha": 3.0,
+        "mode": "continuous",
+        "uses_reference_answer": false,
+        "eligible_for_selection": false
+      }
+    ],
+    "audit": [
+      {
+        "condition": "baseline",
+        "batch_start": 0,
+        "prompt_len": 111,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 8,
+        "prompt_len": 90,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 16,
+        "prompt_len": 98,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 24,
+        "prompt_len": 102,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 32,
+        "prompt_len": 90,
+        "new_tokens": 21,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 40,
+        "prompt_len": 96,
+        "new_tokens": 6,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 48,
+        "prompt_len": 121,
+        "new_tokens": 29,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 56,
+        "prompt_len": 90,
+        "new_tokens": 26,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 64,
+        "prompt_len": 95,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 72,
+        "prompt_len": 103,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 80,
+        "prompt_len": 92,
+        "new_tokens": 6,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 88,
+        "prompt_len": 93,
+        "new_tokens": 11,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 96,
+        "prompt_len": 101,
+        "new_tokens": 10,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 104,
+        "prompt_len": 98,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 112,
+        "prompt_len": 107,
+        "new_tokens": 11,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 120,
+        "prompt_len": 93,
+        "new_tokens": 18,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 128,
+        "prompt_len": 90,
+        "new_tokens": 16,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 136,
+        "prompt_len": 108,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 144,
+        "prompt_len": 109,
+        "new_tokens": 10,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 152,
+        "prompt_len": 114,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 160,
+        "prompt_len": 88,
+        "new_tokens": 10,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 168,
+        "prompt_len": 115,
+        "new_tokens": 19,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 176,
+        "prompt_len": 127,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 184,
+        "prompt_len": 111,
+        "new_tokens": 10,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 192,
+        "prompt_len": 117,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 200,
+        "prompt_len": 99,
+        "new_tokens": 14,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 208,
+        "prompt_len": 90,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 216,
+        "prompt_len": 103,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 224,
+        "prompt_len": 104,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 232,
+        "prompt_len": 94,
+        "new_tokens": 14,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 240,
+        "prompt_len": 88,
+        "new_tokens": 17,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 248,
+        "prompt_len": 102,
+        "new_tokens": 19,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 256,
+        "prompt_len": 108,
+        "new_tokens": 40,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 264,
+        "prompt_len": 89,
+        "new_tokens": 11,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 272,
+        "prompt_len": 98,
+        "new_tokens": 14,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 280,
+        "prompt_len": 115,
+        "new_tokens": 10,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 288,
+        "prompt_len": 100,
+        "new_tokens": 14,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 296,
+        "prompt_len": 92,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 304,
+        "prompt_len": 105,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 312,
+        "prompt_len": 101,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 320,
+        "prompt_len": 91,
+        "new_tokens": 12,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 328,
+        "prompt_len": 90,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 336,
+        "prompt_len": 87,
+        "new_tokens": 12,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 344,
+        "prompt_len": 99,
+        "new_tokens": 48,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 352,
+        "prompt_len": 91,
+        "new_tokens": 48,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 360,
+        "prompt_len": 91,
+        "new_tokens": 16,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 368,
+        "prompt_len": 131,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 376,
+        "prompt_len": 92,
+        "new_tokens": 30,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 384,
+        "prompt_len": 87,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 392,
+        "prompt_len": 119,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 400,
+        "prompt_len": 112,
+        "new_tokens": 17,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 408,
+        "prompt_len": 103,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 416,
+        "prompt_len": 87,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 424,
+        "prompt_len": 88,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 432,
+        "prompt_len": 107,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 440,
+        "prompt_len": 95,
+        "new_tokens": 11,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 448,
+        "prompt_len": 96,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 456,
+        "prompt_len": 90,
+        "new_tokens": 12,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 464,
+        "prompt_len": 91,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 472,
+        "prompt_len": 106,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 480,
+        "prompt_len": 107,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 488,
+        "prompt_len": 97,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 496,
+        "prompt_len": 90,
+        "new_tokens": 8,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 504,
+        "prompt_len": 98,
+        "new_tokens": 7,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 512,
+        "prompt_len": 89,
+        "new_tokens": 9,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 520,
+        "prompt_len": 92,
+        "new_tokens": 15,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "baseline",
+        "batch_start": 528,
+        "prompt_len": 93,
+        "new_tokens": 5,
+        "edits": {},
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 0,
+        "prompt_len": 111,
+        "new_tokens": 8,
+        "edits": {
+          "original_das_L29": 8
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 8,
+        "prompt_len": 90,
+        "new_tokens": 8,
+        "edits": {
+          "original_das_L29": 8
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 16,
+        "prompt_len": 98,
+        "new_tokens": 7,
+        "edits": {
+          "original_das_L29": 7
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 24,
+        "prompt_len": 102,
+        "new_tokens": 9,
+        "edits": {
+          "original_das_L29": 9
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 32,
+        "prompt_len": 90,
+        "new_tokens": 48,
+        "edits": {
+          "original_das_L29": 48
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 40,
+        "prompt_len": 96,
+        "new_tokens": 48,
+        "edits": {
+          "original_das_L29": 48
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 48,
+        "prompt_len": 121,
+        "new_tokens": 10,
+        "edits": {
+          "original_das_L29": 10
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 56,
+        "prompt_len": 90,
+        "new_tokens": 48,
+        "edits": {
+          "original_das_L29": 48
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 64,
+        "prompt_len": 95,
+        "new_tokens": 8,
+        "edits": {
+          "original_das_L29": 8
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 72,
+        "prompt_len": 103,
+        "new_tokens": 8,
+        "edits": {
+          "original_das_L29": 8
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 80,
+        "prompt_len": 92,
+        "new_tokens": 48,
+        "edits": {
+          "original_das_L29": 48
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 88,
+        "prompt_len": 93,
+        "new_tokens": 11,
+        "edits": {
+          "original_das_L29": 11
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 96,
+        "prompt_len": 101,
+        "new_tokens": 6,
+        "edits": {
+          "original_das_L29": 6
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 104,
+        "prompt_len": 98,
+        "new_tokens": 8,
+        "edits": {
+          "original_das_L29": 8
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 112,
+        "prompt_len": 107,
+        "new_tokens": 12,
+        "edits": {
+          "original_das_L29": 12
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 120,
+        "prompt_len": 93,
+        "new_tokens": 18,
+        "edits": {
+          "original_das_L29": 18
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 128,
+        "prompt_len": 90,
+        "new_tokens": 16,
+        "edits": {
+          "original_das_L29": 16
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 136,
+        "prompt_len": 108,
+        "new_tokens": 8,
+        "edits": {
+          "original_das_L29": 8
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 144,
+        "prompt_len": 109,
+        "new_tokens": 10,
+        "edits": {
+          "original_das_L29": 10
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 152,
+        "prompt_len": 114,
+        "new_tokens": 7,
+        "edits": {
+          "original_das_L29": 7
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 160,
+        "prompt_len": 88,
+        "new_tokens": 10,
+        "edits": {
+          "original_das_L29": 10
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 168,
+        "prompt_len": 115,
+        "new_tokens": 24,
+        "edits": {
+          "original_das_L29": 24
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 176,
+        "prompt_len": 127,
+        "new_tokens": 15,
+        "edits": {
+          "original_das_L29": 15
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 184,
+        "prompt_len": 111,
+        "new_tokens": 10,
+        "edits": {
+          "original_das_L29": 10
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 192,
+        "prompt_len": 117,
+        "new_tokens": 11,
+        "edits": {
+          "original_das_L29": 11
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 200,
+        "prompt_len": 99,
+        "new_tokens": 14,
+        "edits": {
+          "original_das_L29": 14
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 208,
+        "prompt_len": 90,
+        "new_tokens": 24,
+        "edits": {
+          "original_das_L29": 24
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 216,
+        "prompt_len": 103,
+        "new_tokens": 48,
+        "edits": {
+          "original_das_L29": 48
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 224,
+        "prompt_len": 104,
+        "new_tokens": 9,
+        "edits": {
+          "original_das_L29": 9
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 232,
+        "prompt_len": 94,
+        "new_tokens": 14,
+        "edits": {
+          "original_das_L29": 14
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 240,
+        "prompt_len": 88,
+        "new_tokens": 17,
+        "edits": {
+          "original_das_L29": 17
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 248,
+        "prompt_len": 102,
+        "new_tokens": 19,
+        "edits": {
+          "original_das_L29": 19
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 256,
+        "prompt_len": 108,
+        "new_tokens": 40,
+        "edits": {
+          "original_das_L29": 40
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 264,
+        "prompt_len": 89,
+        "new_tokens": 11,
+        "edits": {
+          "original_das_L29": 11
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 272,
+        "prompt_len": 98,
+        "new_tokens": 48,
+        "edits": {
+          "original_das_L29": 48
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 280,
+        "prompt_len": 115,
+        "new_tokens": 20,
+        "edits": {
+          "original_das_L29": 20
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 288,
+        "prompt_len": 100,
+        "new_tokens": 48,
+        "edits": {
+          "original_das_L29": 48
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 296,
+        "prompt_len": 92,
+        "new_tokens": 9,
+        "edits": {
+          "original_das_L29": 9
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 304,
+        "prompt_len": 105,
+        "new_tokens": 9,
+        "edits": {
+          "original_das_L29": 9
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 312,
+        "prompt_len": 101,
+        "new_tokens": 9,
+        "edits": {
+          "original_das_L29": 9
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 320,
+        "prompt_len": 91,
+        "new_tokens": 12,
+        "edits": {
+          "original_das_L29": 12
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 328,
+        "prompt_len": 90,
+        "new_tokens": 7,
+        "edits": {
+          "original_das_L29": 7
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 336,
+        "prompt_len": 87,
+        "new_tokens": 12,
+        "edits": {
+          "original_das_L29": 12
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 344,
+        "prompt_len": 99,
+        "new_tokens": 48,
+        "edits": {
+          "original_das_L29": 48
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 352,
+        "prompt_len": 91,
+        "new_tokens": 48,
+        "edits": {
+          "original_das_L29": 48
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 360,
+        "prompt_len": 91,
+        "new_tokens": 16,
+        "edits": {
+          "original_das_L29": 16
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 368,
+        "prompt_len": 131,
+        "new_tokens": 7,
+        "edits": {
+          "original_das_L29": 7
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 376,
+        "prompt_len": 92,
+        "new_tokens": 24,
+        "edits": {
+          "original_das_L29": 24
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 384,
+        "prompt_len": 87,
+        "new_tokens": 9,
+        "edits": {
+          "original_das_L29": 9
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 392,
+        "prompt_len": 119,
+        "new_tokens": 9,
+        "edits": {
+          "original_das_L29": 9
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 400,
+        "prompt_len": 112,
+        "new_tokens": 14,
+        "edits": {
+          "original_das_L29": 14
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 408,
+        "prompt_len": 103,
+        "new_tokens": 8,
+        "edits": {
+          "original_das_L29": 8
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 416,
+        "prompt_len": 87,
+        "new_tokens": 9,
+        "edits": {
+          "original_das_L29": 9
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 424,
+        "prompt_len": 88,
+        "new_tokens": 9,
+        "edits": {
+          "original_das_L29": 9
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 432,
+        "prompt_len": 107,
+        "new_tokens": 7,
+        "edits": {
+          "original_das_L29": 7
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 440,
+        "prompt_len": 95,
+        "new_tokens": 11,
+        "edits": {
+          "original_das_L29": 11
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 448,
+        "prompt_len": 96,
+        "new_tokens": 8,
+        "edits": {
+          "original_das_L29": 8
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 456,
+        "prompt_len": 90,
+        "new_tokens": 10,
+        "edits": {
+          "original_das_L29": 10
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 464,
+        "prompt_len": 91,
+        "new_tokens": 8,
+        "edits": {
+          "original_das_L29": 8
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 472,
+        "prompt_len": 106,
+        "new_tokens": 7,
+        "edits": {
+          "original_das_L29": 7
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 480,
+        "prompt_len": 107,
+        "new_tokens": 8,
+        "edits": {
+          "original_das_L29": 8
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 488,
+        "prompt_len": 97,
+        "new_tokens": 8,
+        "edits": {
+          "original_das_L29": 8
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 496,
+        "prompt_len": 90,
+        "new_tokens": 8,
+        "edits": {
+          "original_das_L29": 8
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 504,
+        "prompt_len": 98,
+        "new_tokens": 7,
+        "edits": {
+          "original_das_L29": 7
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 512,
+        "prompt_len": 89,
+        "new_tokens": 9,
+        "edits": {
+          "original_das_L29": 9
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 520,
+        "prompt_len": 92,
+        "new_tokens": 15,
+        "edits": {
+          "original_das_L29": 15
+        },
+        "displacement": []
+      },
+      {
+        "condition": "original_das",
+        "batch_start": 528,
+        "prompt_len": 93,
+        "new_tokens": 5,
+        "edits": {
+          "original_das_L29": 5
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 0,
+        "prompt_len": 111,
+        "new_tokens": 9,
+        "edits": {
+          "das_generation_adapter_L29": 9
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 8,
+        "prompt_len": 90,
+        "new_tokens": 8,
+        "edits": {
+          "das_generation_adapter_L29": 8
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 16,
+        "prompt_len": 98,
+        "new_tokens": 8,
+        "edits": {
+          "das_generation_adapter_L29": 8
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 24,
+        "prompt_len": 102,
+        "new_tokens": 21,
+        "edits": {
+          "das_generation_adapter_L29": 21
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 32,
+        "prompt_len": 90,
+        "new_tokens": 19,
+        "edits": {
+          "das_generation_adapter_L29": 19
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 40,
+        "prompt_len": 96,
+        "new_tokens": 48,
+        "edits": {
+          "das_generation_adapter_L29": 48
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 48,
+        "prompt_len": 121,
+        "new_tokens": 29,
+        "edits": {
+          "das_generation_adapter_L29": 29
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 56,
+        "prompt_len": 90,
+        "new_tokens": 31,
+        "edits": {
+          "das_generation_adapter_L29": 31
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 64,
+        "prompt_len": 95,
+        "new_tokens": 13,
+        "edits": {
+          "das_generation_adapter_L29": 13
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 72,
+        "prompt_len": 103,
+        "new_tokens": 39,
+        "edits": {
+          "das_generation_adapter_L29": 39
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 80,
+        "prompt_len": 92,
+        "new_tokens": 7,
+        "edits": {
+          "das_generation_adapter_L29": 7
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 88,
+        "prompt_len": 93,
+        "new_tokens": 11,
+        "edits": {
+          "das_generation_adapter_L29": 11
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 96,
+        "prompt_len": 101,
+        "new_tokens": 10,
+        "edits": {
+          "das_generation_adapter_L29": 10
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 104,
+        "prompt_len": 98,
+        "new_tokens": 10,
+        "edits": {
+          "das_generation_adapter_L29": 10
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 112,
+        "prompt_len": 107,
+        "new_tokens": 12,
+        "edits": {
+          "das_generation_adapter_L29": 12
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 120,
+        "prompt_len": 93,
+        "new_tokens": 25,
+        "edits": {
+          "das_generation_adapter_L29": 25
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 128,
+        "prompt_len": 90,
+        "new_tokens": 16,
+        "edits": {
+          "das_generation_adapter_L29": 16
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 136,
+        "prompt_len": 108,
+        "new_tokens": 8,
+        "edits": {
+          "das_generation_adapter_L29": 8
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 144,
+        "prompt_len": 109,
+        "new_tokens": 10,
+        "edits": {
+          "das_generation_adapter_L29": 10
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 152,
+        "prompt_len": 114,
+        "new_tokens": 7,
+        "edits": {
+          "das_generation_adapter_L29": 7
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 160,
+        "prompt_len": 88,
+        "new_tokens": 11,
+        "edits": {
+          "das_generation_adapter_L29": 11
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 168,
+        "prompt_len": 115,
+        "new_tokens": 48,
+        "edits": {
+          "das_generation_adapter_L29": 48
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 176,
+        "prompt_len": 127,
+        "new_tokens": 36,
+        "edits": {
+          "das_generation_adapter_L29": 36
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 184,
+        "prompt_len": 111,
+        "new_tokens": 10,
+        "edits": {
+          "das_generation_adapter_L29": 10
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 192,
+        "prompt_len": 117,
+        "new_tokens": 8,
+        "edits": {
+          "das_generation_adapter_L29": 8
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 200,
+        "prompt_len": 99,
+        "new_tokens": 8,
+        "edits": {
+          "das_generation_adapter_L29": 8
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 208,
+        "prompt_len": 90,
+        "new_tokens": 7,
+        "edits": {
+          "das_generation_adapter_L29": 7
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 216,
+        "prompt_len": 103,
+        "new_tokens": 26,
+        "edits": {
+          "das_generation_adapter_L29": 26
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 224,
+        "prompt_len": 104,
+        "new_tokens": 7,
+        "edits": {
+          "das_generation_adapter_L29": 7
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 232,
+        "prompt_len": 94,
+        "new_tokens": 13,
+        "edits": {
+          "das_generation_adapter_L29": 13
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 240,
+        "prompt_len": 88,
+        "new_tokens": 17,
+        "edits": {
+          "das_generation_adapter_L29": 17
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 248,
+        "prompt_len": 102,
+        "new_tokens": 16,
+        "edits": {
+          "das_generation_adapter_L29": 16
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 256,
+        "prompt_len": 108,
+        "new_tokens": 36,
+        "edits": {
+          "das_generation_adapter_L29": 36
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 264,
+        "prompt_len": 89,
+        "new_tokens": 10,
+        "edits": {
+          "das_generation_adapter_L29": 10
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 272,
+        "prompt_len": 98,
+        "new_tokens": 12,
+        "edits": {
+          "das_generation_adapter_L29": 12
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 280,
+        "prompt_len": 115,
+        "new_tokens": 20,
+        "edits": {
+          "das_generation_adapter_L29": 20
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 288,
+        "prompt_len": 100,
+        "new_tokens": 48,
+        "edits": {
+          "das_generation_adapter_L29": 48
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 296,
+        "prompt_len": 92,
+        "new_tokens": 11,
+        "edits": {
+          "das_generation_adapter_L29": 11
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 304,
+        "prompt_len": 105,
+        "new_tokens": 9,
+        "edits": {
+          "das_generation_adapter_L29": 9
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 312,
+        "prompt_len": 101,
+        "new_tokens": 15,
+        "edits": {
+          "das_generation_adapter_L29": 15
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 320,
+        "prompt_len": 91,
+        "new_tokens": 12,
+        "edits": {
+          "das_generation_adapter_L29": 12
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 328,
+        "prompt_len": 90,
+        "new_tokens": 7,
+        "edits": {
+          "das_generation_adapter_L29": 7
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 336,
+        "prompt_len": 87,
+        "new_tokens": 15,
+        "edits": {
+          "das_generation_adapter_L29": 15
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 344,
+        "prompt_len": 99,
+        "new_tokens": 48,
+        "edits": {
+          "das_generation_adapter_L29": 48
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 352,
+        "prompt_len": 91,
+        "new_tokens": 16,
+        "edits": {
+          "das_generation_adapter_L29": 16
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 360,
+        "prompt_len": 91,
+        "new_tokens": 16,
+        "edits": {
+          "das_generation_adapter_L29": 16
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 368,
+        "prompt_len": 131,
+        "new_tokens": 10,
+        "edits": {
+          "das_generation_adapter_L29": 10
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 376,
+        "prompt_len": 92,
+        "new_tokens": 31,
+        "edits": {
+          "das_generation_adapter_L29": 31
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 384,
+        "prompt_len": 87,
+        "new_tokens": 7,
+        "edits": {
+          "das_generation_adapter_L29": 7
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 392,
+        "prompt_len": 119,
+        "new_tokens": 8,
+        "edits": {
+          "das_generation_adapter_L29": 8
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 400,
+        "prompt_len": 112,
+        "new_tokens": 17,
+        "edits": {
+          "das_generation_adapter_L29": 17
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 408,
+        "prompt_len": 103,
+        "new_tokens": 8,
+        "edits": {
+          "das_generation_adapter_L29": 8
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 416,
+        "prompt_len": 87,
+        "new_tokens": 9,
+        "edits": {
+          "das_generation_adapter_L29": 9
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 424,
+        "prompt_len": 88,
+        "new_tokens": 9,
+        "edits": {
+          "das_generation_adapter_L29": 9
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 432,
+        "prompt_len": 107,
+        "new_tokens": 7,
+        "edits": {
+          "das_generation_adapter_L29": 7
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 440,
+        "prompt_len": 95,
+        "new_tokens": 22,
+        "edits": {
+          "das_generation_adapter_L29": 22
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 448,
+        "prompt_len": 96,
+        "new_tokens": 14,
+        "edits": {
+          "das_generation_adapter_L29": 14
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 456,
+        "prompt_len": 90,
+        "new_tokens": 12,
+        "edits": {
+          "das_generation_adapter_L29": 12
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 464,
+        "prompt_len": 91,
+        "new_tokens": 9,
+        "edits": {
+          "das_generation_adapter_L29": 9
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 472,
+        "prompt_len": 106,
+        "new_tokens": 7,
+        "edits": {
+          "das_generation_adapter_L29": 7
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 480,
+        "prompt_len": 107,
+        "new_tokens": 8,
+        "edits": {
+          "das_generation_adapter_L29": 8
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 488,
+        "prompt_len": 97,
+        "new_tokens": 10,
+        "edits": {
+          "das_generation_adapter_L29": 10
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 496,
+        "prompt_len": 90,
+        "new_tokens": 8,
+        "edits": {
+          "das_generation_adapter_L29": 8
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 504,
+        "prompt_len": 98,
+        "new_tokens": 7,
+        "edits": {
+          "das_generation_adapter_L29": 7
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 512,
+        "prompt_len": 89,
+        "new_tokens": 11,
+        "edits": {
+          "das_generation_adapter_L29": 11
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 520,
+        "prompt_len": 92,
+        "new_tokens": 13,
+        "edits": {
+          "das_generation_adapter_L29": 13
+        },
+        "displacement": []
+      },
+      {
+        "condition": "das_generation_adapter",
+        "batch_start": 528,
+        "prompt_len": 93,
+        "new_tokens": 5,
+        "edits": {
+          "das_generation_adapter_L29": 5
+        },
+        "displacement": []
+      }
+    ],
+    "completed": true,
+    "grading_source_generation_sha256": "64ab896a7ff43dc12543c2a59d29f8ca8c6ce950b21a42deda2109d68c899cfe",
+    "grading_judge_config_sha256": "c6f542480c3c7d3265ea8f3b69577559e4c45b108f024a64beffa24e36018b30",
+    "grading_judge_name": "deepseek",
+    "grading_completed": true,
+    "judge_rubric_id": "qa_semantic_v3",
+    "outcome_policy": "judge_primary_v2",
+    "gold_policy": "exact_personal_refusals_v1"
+  },
+  "completed": true,
+  "status": "complete"
+}

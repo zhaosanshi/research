@@ -1,0 +1,245 @@
+{
+  "protocol": "qa_generation_adapter_v1",
+  "method": "random_generation_adapter",
+  "init": "random",
+  "model": "qwen3-8b",
+  "model_config": {
+    "name": "qwen3-8b",
+    "family": "qwen3",
+    "path": "/workspace/Truth_Decoupling/models/Qwen3-8B",
+    "modelscope_repo": "Qwen/Qwen3-8B",
+    "hidden_size": 4096,
+    "num_layers": 36,
+    "dtype": "bfloat16",
+    "device": "cuda",
+    "layers_attr": "model.layers",
+    "attn_attr": "self_attn",
+    "chat": {
+      "supports_system": true,
+      "thinking_stub": "<think>\n\n</think>\n\n"
+    },
+    "notes": "v12 peak layer for JSON->prose DAS was L23 (66.7% depth). Thinking stub matches v12 build_input_v3."
+  },
+  "layers": [
+    34
+  ],
+  "hidden_size": 4096,
+  "alpha": 3.0,
+  "operator": "centered_amplification",
+  "mode": "continuous",
+  "precision": "float32_output_projection",
+  "config": {
+    "qa_system": "You are a knowledgeable assistant. Answer the question with a short answer of a few words. If you do not know the answer, you may say 'I don't know'.",
+    "qa_user": "Question: {question}\nAnswer:",
+    "max_new_tokens": 48,
+    "batch_size": 8
+  },
+  "training_pair_ids": [
+    "tqa:765",
+    "tqa:750",
+    "tqa:709",
+    "tqa:668",
+    "tqa:311",
+    "tqa:697",
+    "tqa:772",
+    "tqa:652",
+    "tqa:462",
+    "tqa:277",
+    "tqa:454",
+    "tqa:318",
+    "tqa:456",
+    "tqa:265",
+    "tqa:502",
+    "tqa:518",
+    "tqa:99",
+    "tqa:796",
+    "tqa:577",
+    "tqa:198",
+    "tqa:421",
+    "tqa:254",
+    "tqa:583",
+    "tqa:130",
+    "tqa:12",
+    "tqa:542",
+    "tqa:169",
+    "tqa:499",
+    "tqa:334",
+    "tqa:807",
+    "tqa:156",
+    "tqa:433",
+    "tqa:761",
+    "tqa:337",
+    "tqa:65",
+    "tqa:89",
+    "tqa:28",
+    "tqa:659",
+    "tqa:113",
+    "tqa:661",
+    "tqa:695",
+    "tqa:474",
+    "tqa:490",
+    "tqa:638",
+    "tqa:124",
+    "tqa:699",
+    "tqa:643",
+    "tqa:178",
+    "tqa:193",
+    "tqa:512",
+    "tqa:472",
+    "tqa:574",
+    "tqa:505",
+    "tqa:279",
+    "tqa:461",
+    "tqa:455",
+    "tqa:579",
+    "tqa:233",
+    "tqa:370",
+    "tqa:38",
+    "tqa:48",
+    "tqa:673",
+    "tqa:258",
+    "tqa:165",
+    "tqa:290",
+    "tqa:106",
+    "tqa:792",
+    "tqa:143",
+    "tqa:694",
+    "tqa:692",
+    "tqa:436",
+    "tqa:11",
+    "tqa:255",
+    "tqa:794",
+    "tqa:469",
+    "tqa:181",
+    "tqa:592",
+    "tqa:302",
+    "tqa:376",
+    "tqa:363",
+    "tqa:315",
+    "tqa:64",
+    "tqa:777",
+    "tqa:735",
+    "tqa:654",
+    "tqa:253",
+    "tqa:83",
+    "tqa:62",
+    "tqa:430",
+    "tqa:307",
+    "tqa:97",
+    "tqa:298"
+  ],
+  "training_tokens_sha256": "041f397bdd14fa788bd556d03ad89078dc21f17c850052fbb36ce4943efd2c28",
+  "train_config": {
+    "epochs": 3,
+    "lr": 0.001,
+    "clip": 1.0,
+    "seed": 42,
+    "ranking_weight": 0.0,
+    "optimizer": "Adam",
+    "alpha": 3.0,
+    "include_eos": false,
+    "stop_token_id": null
+  },
+  "objective": "correct-answer mean token CE + ranking_weight * softplus(negative_mean_logp - positive_mean_logp)",
+  "positions": "prompt_end and later answer predictors; final answer token excluded",
+  "losses_measurement": "online pre-update epoch means",
+  "losses": [
+    {
+      "loss": 4.383752108835008,
+      "positive_token_ce": 4.383752108835008,
+      "pair_ranking": 0.0
+    },
+    {
+      "loss": 3.1420761792738316,
+      "positive_token_ce": 3.1420761792738316,
+      "pair_ranking": 0.0
+    },
+    {
+      "loss": 2.627190020026477,
+      "positive_token_ce": 2.627190020026477,
+      "pair_ranking": 0.0
+    }
+  ],
+  "position_trace": [
+    {
+      "layer": 34,
+      "residual_dtype": "torch.bfloat16",
+      "writes": [
+        {
+          "center": "prompt",
+          "positions": [
+            [
+              0,
+              63
+            ]
+          ],
+          "intended_delta_norm": 42.75225830078125,
+          "kept_delta_norm": 42.75313949584961
+        },
+        {
+          "center": "decode",
+          "positions": [
+            [
+              0,
+              64
+            ],
+            [
+              0,
+              65
+            ],
+            [
+              0,
+              66
+            ],
+            [
+              0,
+              67
+            ],
+            [
+              0,
+              68
+            ],
+            [
+              0,
+              69
+            ],
+            [
+              0,
+              70
+            ]
+          ],
+          "intended_delta_norm": 65.67251586914062,
+          "kept_delta_norm": 65.7137451171875
+        }
+      ],
+      "pair_id": "tqa:765",
+      "prompt_length": 64,
+      "answer_length": 8,
+      "final_answer_position": 71
+    }
+  ],
+  "gradient_audit": {
+    "34": {
+      "minimum": 0.17739878594875336,
+      "maximum": 74.65357971191406,
+      "zero_updates": 0,
+      "updates": 276
+    }
+  },
+  "base_parameter_versions_unchanged": true,
+  "source": {
+    "bank_fingerprint": "b560729d5bfa4d47cd9e7c60bba4b85c9718b11a06775e2f3b063552cf7f06a2",
+    "bank_json_sha256": "2ca234ac99b16d2b273a185c6a781c0da4d9922a5c515c3e6cec42b2baea6a99",
+    "bank_npz_sha256": "9f25917c8eaa3fd7f802fde8be24b54431d107269248495e5febef9c376e1e94",
+    "questions_sha256": "b61184c3fb015bce3250516fdd0419c33d745821e9836229c7d4065227e6e79e",
+    "training_json_sha256": "883b74691aabddb867be99ac7108835f02edb67fb2d8912953e7433ccfbc68e4",
+    "checkpoints": {
+      "34": "e9096c83e47743bebe410560301bded3697a991a9eb9ed039cdb551b3c9122d3"
+    }
+  },
+  "pilot": false,
+  "source_run": "/workspace/Truth_Decoupling/results_qa_das_v1u/qwen3-8b/full",
+  "source_protocol": "qa_das_ptrue_ce_bidir_v1",
+  "checkpoint_file": "adapter.pt",
+  "checkpoint_sha256": "b66e05228a87b565e66a2c9ae59abf3521c63e25b646ba611d2bc889262914e2"
+}

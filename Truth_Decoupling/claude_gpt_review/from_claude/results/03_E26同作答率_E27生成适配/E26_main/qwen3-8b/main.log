@@ -1,0 +1,94 @@
+== 2026-11-06 18:23:04 E26 CHAIN START qwen3-8b main GPU 1 code=/workspace/Truth_Decoupling/review_e26_claude/claude_gpt_review/from_claude/code adapters=none
+== 2026-11-06 18:23:04 prepare qwen3-8b main (GPU 1)
+W1106 10:23:08.957000 134378 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1106 10:23:08.975000 134378 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:00<00:00, 351.36it/s]
+PREPARED {'tf': 23, 'qa': 23} pilot= None
+== 2026-11-06 18:23:19 collect-tune qwen3-8b main (GPU 1)
+W1106 10:23:24.195000 136931 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1106 10:23:24.214000 136931 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:00<00:00, 354.09it/s]
+COLLECTED tf tune baseline 384
+COLLECTED tf tune das_E_0 384
+COLLECTED tf tune das_E_1 384
+COLLECTED tf tune das_E_2 384
+COLLECTED tf tune das_C_L30_a-1 384
+COLLECTED tf tune das_EC_0_L30_a-1 384
+COLLECTED tf tune das_EC_1_L30_a-1 384
+COLLECTED tf tune das_EC_2_L30_a-1 384
+COLLECTED tf tune das_C_L30_a1 384
+COLLECTED tf tune das_EC_0_L30_a1 384
+COLLECTED tf tune das_EC_1_L30_a1 384
+COLLECTED tf tune das_EC_2_L30_a1 384
+COLLECTED tf tune md_E_0 384
+COLLECTED tf tune md_E_1 384
+COLLECTED tf tune md_E_2 384
+COLLECTED tf tune md_C_L30_a-1 384
+COLLECTED tf tune md_EC_0_L30_a-1 384
+COLLECTED tf tune md_EC_1_L30_a-1 384
+COLLECTED tf tune md_EC_2_L30_a-1 384
+COLLECTED tf tune md_C_L30_a1 384
+COLLECTED tf tune md_EC_0_L30_a1 384
+COLLECTED tf tune md_EC_1_L30_a1 384
+COLLECTED tf tune md_EC_2_L30_a1 384
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+COLLECTED qa tune baseline 192
+COLLECTED qa tune das_E_0 192
+COLLECTED qa tune das_E_1 192
+COLLECTED qa tune das_E_2 192
+COLLECTED qa tune das_C_L31_a-1 192
+COLLECTED qa tune das_EC_0_L31_a-1 192
+COLLECTED qa tune das_EC_1_L31_a-1 192
+COLLECTED qa tune das_EC_2_L31_a-1 192
+COLLECTED qa tune das_C_L31_a1 192
+COLLECTED qa tune das_EC_0_L31_a1 192
+COLLECTED qa tune das_EC_1_L31_a1 192
+COLLECTED qa tune das_EC_2_L31_a1 192
+COLLECTED qa tune md_E_0 192
+COLLECTED qa tune md_E_1 192
+COLLECTED qa tune md_E_2 192
+COLLECTED qa tune md_C_L31_a-1 192
+COLLECTED qa tune md_EC_0_L31_a-1 192
+COLLECTED qa tune md_EC_1_L31_a-1 192
+COLLECTED qa tune md_EC_2_L31_a-1 192
+COLLECTED qa tune md_C_L31_a1 192
+COLLECTED qa tune md_EC_0_L31_a1 192
+COLLECTED qa tune md_EC_1_L31_a1 192
+COLLECTED qa tune md_EC_2_L31_a1 192
+== 2026-11-06 18:35:17 judge-tune qwen3-8b main (GPU 1) attempt 1
+== 2026-11-06 18:42:53 freeze qwen3-8b main (GPU 1)
+== 2026-11-06 18:42:55 collect-test qwen3-8b main (GPU 1)
+W1106 10:43:00.448000 144072 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1106 10:43:00.467000 144072 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:00<00:00, 366.76it/s]
+COLLECTED tf test baseline 1058
+COLLECTED tf test das_E_0 1058
+COLLECTED tf test das_E_1 1058
+COLLECTED tf test das_C_L30_a-1 1058
+COLLECTED tf test das_EC_0_L30_a-1 1058
+COLLECTED tf test das_EC_1_L30_a-1 1058
+COLLECTED tf test das_C_L30_a1 1058
+COLLECTED tf test md_E_0 1058
+COLLECTED tf test md_E_1 1058
+COLLECTED tf test md_C_L30_a-1 1058
+COLLECTED tf test md_EC_1_L30_a-1 1058
+COLLECTED tf test md_C_L30_a1 1058
+COLLECTED tf test md_EC_1_L30_a1 1058
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+COLLECTED qa test baseline 529
+COLLECTED qa test das_E_1 529
+COLLECTED qa test das_E_2 529
+COLLECTED qa test das_C_L31_a-1 529
+COLLECTED qa test das_EC_1_L31_a-1 529
+COLLECTED qa test das_C_L31_a1 529
+COLLECTED qa test das_EC_2_L31_a1 529
+COLLECTED qa test md_E_0 529
+COLLECTED qa test md_E_1 529
+COLLECTED qa test md_E_2 529
+COLLECTED qa test md_C_L31_a-1 529
+COLLECTED qa test md_C_L31_a1 529
+COLLECTED qa test md_EC_1_L31_a1 529
+COLLECTED qa test md_EC_2_L31_a1 529
+== 2026-11-06 19:02:56 judge-test qwen3-8b main (GPU 1) attempt 1
+== 2026-11-06 19:23:48 report qwen3-8b main (GPU 1)
+== 2026-11-06 19:24:44 E26 CHAIN DONE qwen3-8b main
