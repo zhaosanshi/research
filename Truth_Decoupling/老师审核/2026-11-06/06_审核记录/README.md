@@ -5,7 +5,34 @@
 - GPT 的审核原文：[`claude_gpt_review/from_gpt/`](../../../claude_gpt_review/from_gpt/)（[`README`](../../../claude_gpt_review/from_gpt/README.md) 有每轮一句话结论）
 - Claude 的报告与回复：[`claude_gpt_review/from_claude/`](../../../claude_gpt_review/from_claude/)（[`README`](../../../claude_gpt_review/from_claude/README.md) 有逐日更新记录）
 
-## 1. 最新一轮：GPT 第 17 轮（2026-11-06）
+## 1. 最近三轮：GPT 第 17–19 轮（2026-11-06）
+
+### 第 19 轮：GPT 对 E27 生成适配的自查（Claude 尚未复核）
+
+[审核原文](../../../claude_gpt_review/from_gpt/review_20261106_19.md)｜[证据目录](../../../claude_gpt_review/from_gpt/audit_20261106_round19/README.md)｜提交 `edcd02a`
+
+**以下是 GPT 的说法，Claude 尚未复核**：
+
+- E27 的"随机起步"不是空对照：随机向量之后又用 92 道题的正确答案训练了 3 轮（276 次更新），大幅收益来自这段追加训练。GPT 补了真正不训练的随机方向：192 道调参题上 Llama −1、Qwen +1 题，精确检验 p 均为 1。
+- 乱码（U+FFFD）定位到具体的生成步骤：这些步骤的写入量达到原内部状态长度的 59%–83%，把表情字符的续接字节推成了别的字节；只关掉当前这一步的写入，就恢复合法字符。
+- 部署力度从 3 降到 2，这批 192 题的乱码消失，但净多答对只剩 5 题（p = 0.23），大幅收益没有保住。
+- Llama 与 Qwen 的差别：Qwen 的净收益主要来自"原来拒答 → 答对"（15 题）；两模型都已作答的 115 题上，净变化分别是 +1 和 0。同一力度下，Qwen 的实际写入量比 Llama 大得多。
+- 原 DAS（不追加训练）在 Llama 上换层、换写入时机都没有突破：最好的一档 64 / 192，原模型 59。
+- GPT 主张停止扩展 E27，下一步回到"来源状态交换"式的 DAS（目前只有设计，未训练）。GPT 明确说本轮不替代对 E26 主分析的复审。
+
+**与 Claude 已有结论的关系**：方向一致。`13`、`14` 已判断 E27 的提升来自有监督的生成适配本身、与 DAS 无关，对齐作答率后消失。第 19 轮新补的是两样东西：一是"不训练的随机方向"这个真正的空对照，二是乱码的因果定位。
+
+### 第 18 轮与 E26 主实验结果的核查
+
+[审核原文](../../../claude_gpt_review/from_gpt/review_20261106_18.md)｜[Claude 审核](../../../claude_gpt_review/from_claude/13_审核GPT第18轮_E26同作答率_E27生成适配.md)｜[结果与核查](../../../claude_gpt_review/from_claude/14_E26同作答率主实验_E27发布版重跑_结果.md)｜提交 `7987310`
+
+- GPT 交付了老师主实验的代码（E26，相同作答率）和自由问答的生成适配（E27），附 193 项测试与真实模型三题验收。
+- Claude 审核（`13`）：E26 无阻断项，放行正式运行；分析计划和分析脚本在任何测试结果出来之前就已提交（`ca67e33`）。E27 的数字能复现，但"Qwen 140 → 189"按输出质量计分后不成立，且出自未存档的早期代码。共 8 条修改意见。
+- 结果（`14`，即本材料的 `08`）：老师的主句不成立。
+- **结果核查**（应赵磊要求，`14` 第 7 节）：Claude 用不导入 E26 代码的独立脚本，从逐题原始记录重算测试集 244 个格子、重推调参集 225 个冻结选择，零差异；C、E 都确实写进了模型。没有发现会造成"E+C ≈ E"的代码错误。
+- **仍待 GPT**：审 Claude 的启动与分析脚本、这次运行的产物和读法（`14` 第 7 节列了五项），以及 `13` 的 8 条意见。
+
+### 第 17 轮
 
 [审核原文](../../../claude_gpt_review/from_gpt/review_20261106_17.md)｜[复算证据](../../../claude_gpt_review/from_gpt/audit_20261106_round17/README.md)｜[Claude 回复](../../../claude_gpt_review/from_claude/12_回复GPT第17轮_全部同意_修正与补件.md)
 
@@ -39,7 +66,9 @@
 | 13–14 | [13](../../../claude_gpt_review/from_gpt/review_20261104_13.md)、[14](../../../claude_gpt_review/from_gpt/review_20261104_14.md) | 浮点并列选层错误（撤回一条"显著"）；加载器问题；问答 DAS 路线 | [`07`](../../../claude_gpt_review/from_claude/07_回复GPT第13_14轮_核验_照做与催答.md) |
 | 15 | [15](../../../claude_gpt_review/from_gpt/review_20261104_15.md) | 修复复核；后缀重分词与末层无梯度；冻结 v1 协议 | [`08`](../../../claude_gpt_review/from_claude/08_回复GPT第15轮_核验_照做.md) |
 | 16 | [16](../../../claude_gpt_review/from_gpt/review_20261105_16.md) | 交付问答 DAS v1 完整代码 | [`09`](../../../claude_gpt_review/from_claude/09_回复GPT第16轮_复审_三题验收.md)（复审、三题验收）、[`10`](../../../claude_gpt_review/from_claude/10_问答DAS_v1_全量结果_三模型.md)（全量结果）、[`11`](../../../claude_gpt_review/from_claude/11_DAS正结果搜索_读出_选择题_认错_核验.md)（正结果搜索） |
-| 17 | [17](../../../claude_gpt_review/from_gpt/review_20261106_17.md) | 见上 | [`12`](../../../claude_gpt_review/from_claude/12_回复GPT第17轮_全部同意_修正与补件.md) |
+| 17 | [17](../../../claude_gpt_review/from_gpt/review_20261106_17.md) | 见第 1 节 | [`12`](../../../claude_gpt_review/from_claude/12_回复GPT第17轮_全部同意_修正与补件.md) |
+| 18 | [18](../../../claude_gpt_review/from_gpt/review_20261106_18.md) | 交付老师主实验（E26）代码与生成适配（E27） | [`13`](../../../claude_gpt_review/from_claude/13_审核GPT第18轮_E26同作答率_E27生成适配.md)（审核、开跑前分析计划）、[`14`](../../../claude_gpt_review/from_claude/14_E26同作答率主实验_E27发布版重跑_结果.md)（结果与核查） |
+| 19 | [19](../../../claude_gpt_review/from_gpt/review_20261106_19.md) | E27 自查：随机起步混入追加训练、乱码因果定位、两模型差异 | 尚未复核 |
 
 ## 3. 哪些数字已被独立复算
 
@@ -54,4 +83,6 @@
 | 自检读出格式表（`02` 第 4 节） | 结果文件已上传（`measurements/readout_*.json`），未在两次审计范围内，待 GPT |
 | 三层窗口（`02` 第 2 节） | 扫描文件已上传（`tfce/<模型>/E23/knob_sweep_das_tfce_spans.*`），未在审计范围内，待 GPT |
 | 旧协议结果（`01`、`02` 第 6 节） | 只在汇总报告里；原始文件多数在本地、未上传；未经 GPT 复算，进论文前按统一协议重验 |
+| E26 主表（相同作答率，两模型两任务）与冻结选择（`08`） | Claude 用独立脚本重算 244 格、重推 225 个选择，零差异（`14` 第 7 节）；待 GPT |
+| E27 发布版重跑（`08`） | Claude 用发布版代码复跑，复现 GPT 的数字（Qwen DAS 起步 190 对 189）；GPT 第 19 轮另补不训练的随机对照，Claude 未复核 |
 | 裁判（DeepSeek）对单条回答事实判断的正确性 | 未逐条人工核实；GPT 人工读过 Llama 那 4 条变差的回答，判错有依据 |

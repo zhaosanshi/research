@@ -31,6 +31,17 @@
 | 认错题（第 5 节） | `review_checks/own_answer_detect.py`（问答坐标）、`own_answer_tfdetect.py`（TF 坐标；11-06 起另存逐题载荷） | 层与符号在调参集上定 |
 | 核验后弃答（第 5 节） | `review_checks/verify_own_answers.py` | 11-06 修复方向缓存键（见 `06`） |
 
+### 老师的主实验（E26）与生成适配（E27），对应 `08`
+
+| 结果 | 代码 | 谁写的 / 审核状态 |
+|---|---|---|
+| E26 相同作答率主实验 | `scripts/e26_matched_coverage.py`（prepare / collect-tune / judge-tune / freeze / collect-test / judge-test / report 七个独立阶段）、`core/joint_steering.py`（C 的估计与 E、C 同时写入）、`core/selective_eval.py`（配额选择、自举与检验，不依赖模型）；启动 `review_checks/e26_full_chain.sh` | 实验代码 GPT 第 18 轮交付，Claude 开跑前审过（`13`）；启动脚本由 Claude 写，待 GPT 审 |
+| C 剂量探测 | `review_checks/e26_c_dose_probe.py` | Claude 写，待 GPT 审 |
+| 开跑前声明的主分析 | `review_checks/e26_primary_analysis.py`（在任何测试结果出来之前提交，`ca67e33`） | Claude 写，待 GPT 审 |
+| 结果核查（不导入 E26 代码的独立重算） | `review_checks/e26_independent_recount.py` | Claude 写，待 GPT 审 |
+| E27 生成适配 | `scripts/e27_qa_generation.py`、`core/qa_generation_adapter.py`；发布版重跑 `review_checks/e27_release_rerun.sh`；质量规则汇总 `e27_quality_summary.py`；带适配器的 E26 分析 `e26_adapter_analysis.py` | 适配器代码 GPT 第 18 轮交付；Claude 的脚本待 GPT 审 |
+| GPT 第 19 轮的 E27 自查 | `review_checks/e27_{frozen_initial_controls,trace_corruption,current_dose,generation_dose,pure_das_layer_controls}.py`；证据在 `from_gpt/audit_20261106_round19/` | GPT 写；Claude 尚未复核 |
+
 ## 3. 测试与检查
 
 | 检查 | 范围 | 结果 |
