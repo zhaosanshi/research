@@ -98,11 +98,16 @@ for l in need:
     wmd, _ = mean_diff_direction(HB[y_est], HB[~y_est])
     cB = (HB[y_est].mean(0) + HB[~y_est].mean(0)) / 2
     dirs[l] = {"md": wmd, "cB": cB}
+
+
 def dir_key(v):
-    """Cache key of a config's direction. A DAS direction is identified by its checkpoint source AND variant, so two
-    DAS sources that pick the same layer in one call keep separate directions (GPT round 17 F, 2026-11-06: the old key
-    was the bare estimator name, so a second DAS source at an already-loaded layer silently reused the first one)."""
-    return ("das", v["das_dir"], v["das_variant"]) if v["estimator"] == "das" else v["estimator"]
+    """Preserve Claude's source/variant key (17b2a768); normalize directory aliases.
+
+    The outer dirs[layer] supplies layer identity. Different DAS sources at the
+    same layer stay separate; the estimator name alone is not a cache key.
+    """
+    from pathlib import Path  # Keep the helper self-contained for the existing standalone cache check.
+    return ("das", str(Path(v["das_dir"]).resolve()), v["das_variant"]) if v["estimator"] == "das" else v["estimator"]
 
 
 for v in configs.values():
@@ -179,6 +184,12 @@ def cmw(o, keep):
     return float((o * keep).sum()) / len(o)
 
 
+def keep_by_margin(m, o, threshold, own_verdict=False):
+    """A tie is not True in the TF protocol; a tuned threshold retains its inclusive rule."""
+    decision = m > threshold if own_verdict else m >= threshold
+    return np.where(~np.isnan(m), decision, False) | (o == 0)
+
+
 def tuned_threshold(m, o):
     ans = ~np.isnan(m)
     cand = np.unique(np.concatenate([[-np.inf], m[ans]]))
@@ -209,14 +220,15 @@ for name in readers:
     gates = {}
     for gname, thr in (("own_verdict", 0.0), ("tuned_threshold", t)):
         m = margins["test"][name]
-        keep = np.where(~np.isnan(m), m >= thr, False) | (o_test == 0)
-        gates[gname] = {"threshold": thr, "keep": keep}
+        keep = keep_by_margin(m, o_test, thr, own_verdict=(gname == "own_verdict"))
+        gates[gname] = {"threshold": thr, "keep": keep, "comparison": ">" if gname == "own_verdict" else ">="}
     r["gates"] = {}
     for gname, g in gates.items():
         keep = g["keep"]
         before, after = cmw(o_test, np.ones_like(keep)), cmw(o_test, keep)
         d = [cmw(o_test[i], keep[i]) - cmw(o_test[i], np.ones(len(i), bool)) for i in boot]
-        r["gates"][gname] = {"threshold": g["threshold"], "test_cmw_before": before, "test_cmw_after": after,
+        r["gates"][gname] = {"threshold": g["threshold"], "comparison": g["comparison"],
+                             "test_cmw_before": before, "test_cmw_after": after,
                              "test_delta": after - before, "test_delta_ci95": [float(np.percentile(d, 2.5)), float(np.percentile(d, 97.5))],
                              "abstained": int((~keep).sum()), "correct_lost": int(((o_test == 1) & ~keep).sum()),
                              "wrong_removed": int(((o_test == -1) & ~keep).sum())}

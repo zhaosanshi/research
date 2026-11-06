@@ -1,0 +1,104 @@
+{
+  "base_commit": "17b2a768346b32bb39ff7591b11fae71fc08b765",
+  "local_tests_passed": 193,
+  "server_tests_passed": 193,
+  "local_environment": {
+    "python": "3.9.6",
+    "torch": "2.8.0",
+    "transformers": "4.57.1",
+    "numpy": "2.0.2"
+  },
+  "server_environment": {
+    "torch": "2.13.0a0+8145d630e8.nv26.06",
+    "transformers": "4.57.1"
+  },
+  "server_packaging_note": "A pre-existing test helper was initially omitted from the copied package; restored the unchanged repository helper and reran the complete suite successfully.",
+  "real_pilots": {
+    "llama3.1-8b": {
+      "e26_two_tasks": "passed",
+      "e27_three_arm": "passed"
+    },
+    "qwen3-8b": {
+      "e26_two_tasks": "passed",
+      "e27_three_arm": "passed",
+      "e27_optional_eos": "passed"
+    }
+  },
+  "formal_e26_matched_coverage_table_executed": false,
+  "generation_runs": {
+    "tuning": "Llama/Qwen x alpha1/alpha3 x DAS/MD/random; plus Qwen EOS alpha3 x three initializations",
+    "heldout": "Qwen fixed alpha3 L34 three initializations, 529 raw / 523 substantive-reference questions"
+  },
+  "qwen_test_audit": {
+    "n": 38173,
+    "failures": []
+  },
+  "qwen_frozen_source_audit": {
+    "n": 13236,
+    "failures": []
+  },
+  "archive_checks": [
+    {
+      "archive": "artifacts/real_pilots.tar.gz",
+      "sha256": "4dc3b685be61d56be6fb188c2c837e2988462b8fd3166183bc569a998b045317",
+      "files": 44,
+      "all_file_hashes_verified": true
+    },
+    {
+      "archive": "artifacts/generation_results.tar.gz",
+      "sha256": "198ec049e88ca70592f475a7eb3a78264a53b2f8b5dffe7d2a3a1a1ef7a5c624",
+      "files": 150,
+      "all_file_hashes_verified": true
+    }
+  ],
+  "verified_sha256": {
+    "Truth_Decoupling/claude_gpt_review/from_claude/code/configs/experiments/E26_matched_coverage.json": "66a987ce216d7596313efce08128664359ab87571ba71e27149db4d4baaff04c",
+    "Truth_Decoupling/claude_gpt_review/from_claude/code/core/joint_steering.py": "93c408106d78efd8de42af5882fc73b0dae5747d7a9f91c05636d4339688d45e",
+    "Truth_Decoupling/claude_gpt_review/from_claude/code/core/qa_generation_adapter.py": "e8f9780e2af5ad9ab40d2f640b09681ec1537c0a93143c84128e33ef86dcb407",
+    "Truth_Decoupling/claude_gpt_review/from_claude/code/core/selective_eval.py": "10b0a29bbf72e1aaf5f121587bb023865853136a11b95d3dfb99b501e5d8daac",
+    "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e26_matched_coverage.py": "12879885cc4ef15819d893aa8100609d2f3201c2f1ed2830e1666a6fcd07bf71",
+    "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/e27_qa_generation.py": "d3351151087d754d0ff1ff2ef289ff0242215793adf3fa104fe577b1f672bfd1",
+    "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/review_checks/generation_adapter_controls.sh": "44401d97d1d26b4ddbb816a3d8cb6f6b2ae45327e86a8586fd0bc422ca91e175",
+    "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/review_checks/main_experiment_pilot.sh": "705e57cb1ebd64c873861fa5e336b59287cce750dce74e41f7a27dc63afc2a40",
+    "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/review_checks/own_answer_tfdetect.py": "7a5b2cfdfe717e236fdc1947a2962935c90d4e6fc24b0a98d307686252a4b8a2",
+    "Truth_Decoupling/claude_gpt_review/from_claude/code/scripts/review_checks/verify_own_answers.py": "762f1c690652c2c1053eed8f2df90ab6c83301605b4743c7301bc62788eb07d1",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/README.md": "d6278232ea3cdcf0d00cc0b3392a78b548cccc74480fa8c75b455cb77319a76c",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/e26_method_redteam_20261106.md": "4beccd51b1c325d4176e5c580eacbca74ac0e98e31ba90116c16fdebc76c98d1",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/e26_method_redteam_example_20261106.json": "2fafbecba225385116d22bb7de031dda2c06a0f5483829427eb8352b6b01fc66",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/main_experiment_20261106/README.md": "7100820e7d594c55b7acd9b2df041b78fe6bdae5abf267c669ed8acea50c5c79",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/main_experiment_20261106/all_generation_runs_summary.json": "74c34c15c39b9c8f659c833b3277df1a53b37e5f0460aa5e3e5798f26e4dd8d4",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/main_experiment_20261106/archive_integrity.json": "fc2fd79783d3bb9c488f3bc5faa33fe24ac57707af1eb339024e5f50059272d8",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/main_experiment_20261106/artifacts/generation_manifest.json": "1ea57bcb8801286e11f238b26c3ff662147c622c7f0b5a6d34b4c6c2e95549fa",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/main_experiment_20261106/artifacts/generation_results.tar.gz": "198ec049e88ca70592f475a7eb3a78264a53b2f8b5dffe7d2a3a1a1ef7a5c624",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/main_experiment_20261106/artifacts/real_pilots.tar.gz": "4dc3b685be61d56be6fb188c2c837e2988462b8fd3166183bc569a998b045317",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/main_experiment_20261106/artifacts/real_pilots_manifest.json": "9f8a1a6f0c69bf305e54d179b3e8c4adf41ea4f7c5b009e317607482f6a5bff6",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/main_experiment_20261106/audit_e27_outputs.py": "e85551f7934cf75d749115f00a6b25217664409d7598b23b14d2d58336b22f5b",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/main_experiment_20261106/offline_tests.log": "6de5df7b9d2e6cb17c986bdbfc61f1c6027ca5976c3b0058eaebb5da0c451b81",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/main_experiment_20261106/pilot_reports/llama3.1-8b.md": "24d5c29e791be8fce41c60555bee3c1bcca77aa80277d18fbe2ce30bb750d3f4",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/main_experiment_20261106/pilot_reports/qwen3-8b.md": "42c16393f59e2b746ed4667e0801e993e6a6a3245aeb4b88359d3dd4457aa920",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/main_experiment_20261106/qwen_alpha3_test_changed_cases.json": "5621a01abba36e4bfd8e8ae2cb2a74fc35e6d01ee21d3d0039a64040b34247b4",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/main_experiment_20261106/qwen_alpha3_test_recomputed.json": "5986a1668aa9037b221266c6f3d43494c69ae280a0444a7be913a25afecb4517",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/main_experiment_20261106/qwen_alpha3_test_review.md": "e219bd57cb8caeefc9d0e34b55080a95cbe66964c6767a82bbda2d2e1476969e",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/main_experiment_20261106/qwen_alpha3_test_review_notes.json": "7c006f561ef239b006052630f57630934bfadfe372da5059ceb8f0a5f5a2f968",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/main_experiment_20261106/qwen_alpha3_tune_changed_cases.json": "db2afdafc395cafb6caaa655498be3f7819ef3d6244876140dc370f1591e17df",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/main_experiment_20261106/qwen_alpha3_tune_recomputed.json": "286a8b36eb80e28374edfc9ad327636c308929e8fa54ee089486b893d7126f8c",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/main_experiment_20261106/qwen_alpha3_tune_review.md": "f265ffbd2876db29bf9198d31b8ae08987eecba40e1541f043dc3ffb10651112",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/main_experiment_20261106/qwen_alpha3_tune_review_notes.json": "2bc444826a87b24add9887e50dbfd65a8d3133fe1758f08c24a90c7b26fecf49",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/main_experiment_20261106/qwen_heldout_selection_verified.json": "7b1250605da92d21517fa732d9872ded1fe0dfd571cca16003cef21c7845943b",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/main_experiment_20261106/raw/qwen_alpha3_test_audit.json": "462b82a6680c1a10e94af95f8e72752e7d05c86996bb91b4476835dc42e03d34",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/main_experiment_20261106/raw/qwen_alpha3_tune_audit.json": "7b8c7ad8b727b006f83949bce41cd1e17416b25664be1a1608bcd8dbca15ab99",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/main_experiment_20261106/server_release_code_manifest.json": "aa90a6a7a5b2904cc151d9e53077b8639e18ca1f1b0cea49329332942f08411e",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/main_experiment_20261106/server_release_tests.log": "174b30ed5e74fd594d85b0bdac8b5ef3116f05b8fbd93838cc03b0bf3ff464f3",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/main_experiment_20261106/verify_e27_heldout_selection.py": "e2f84f9f5bb6c35186ec889bb03e59e8a5acce116b653fa493c65a415e77fe7c",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/main_experiment_runbook_20261106.md": "d94018ad8cb0dc68fd888be52358e7469df3b0864f4fdc73b2846e35e06f2996",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/qa_generation_literature_20261106.md": "29116d9ea57bcc4876e3e532578115a1c763133d8e56349d8a85a39d3af52210",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/qa_generation_literature_sources_20261106.json": "9d337d58eb9209e962f057e85c9a5c0407e77cc25d263707d1f93a927294610e",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/review17_fixes_20261106.md": "44f185a0fbcc5b56ea81e53ef2883cabfc718898bf0169ff298ea7b0a532823c",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/review_20261106_18.md": "77480d7537e949287d13955983f0985e806b924b5496801450c234b30f713a00",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/test_e26_pipeline_20261106.py": "a8e5b26226257e0cd12718bb14193317c998d28fbca5028457c9fafa48aaf677",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/test_joint_steering_20261106.py": "6e9cd5bd26f18304b313359c29a7a86a8bd4d86383131f4153126649d1e3bfce",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/test_qa_generation_adapter_20261106.py": "7eaba71322c16b27b4f3e0df526692f6213b27d94752355c8e62f1f98da56c9e",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/test_review_fixes_20261106.py": "bf23831ca5caa2c7fc8049544ece203931e863f48f58fdc816c4ced7f86741ce",
+    "Truth_Decoupling/claude_gpt_review/from_gpt/test_selective_eval_20261106.py": "d20ba63f5d524eda4916ac3a5477886c52b7943c5f55fe6eabe2eaf7f3e159d9"
+  }
+}

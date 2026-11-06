@@ -1,0 +1,98 @@
+{
+  "archive_sha256": "198ec049e88ca70592f475a7eb3a78264a53b2f8b5dffe7d2a3a1a1ef7a5c624",
+  "selection_sha256": "75d2359edf5a118fd052640105a220a22c1bd8ec6167bd5e9c19d4fb40985285",
+  "selection": {
+    "model": "qwen3-8b",
+    "selection_split": "tune",
+    "tune_questions": 192,
+    "training_pairs": 92,
+    "selected_alpha": 3,
+    "epochs": 3,
+    "ranking_weight": 0,
+    "layers": [
+      34
+    ],
+    "rule": "DAS-initialized adapter with highest tuning correct count among alpha 1 and 3; evaluate all three initializations at the same chosen alpha as controls.",
+    "test_plan": "Generate and grade all 529 source test questions, substantive-reference main cohort expected 523. Do not select or alter parameters from these test outcomes.",
+    "source_sha256": {
+      "ce_alpha1_ep3/das/adapter.pt": "97c6d1c796dd83f4fd5a5844b43685fd79af49173ec4468f4c893e3ce029ac8d",
+      "ce_alpha1_ep3/das/adapter.json": "301dceb2d18f09da6d31d3efcca89de045ccb3b77149d6ad43dca441d1da5a6b",
+      "ce_alpha1_ep3/das/tune_scored.json": "3faae207efa39a2f09da36639d76691b34b863970285606660ff7af85f320c2d",
+      "ce_alpha1_ep3/das/tune_scored_items.json": "47bd30bee75dbb1ac7607df61632e523997b039163746399422cd0fd4a8d8b95",
+      "ce_alpha1_ep3/md/adapter.pt": "1b9685338f0a66b83379c53558dda2bece1be2bacfc2432cc23de77ab7dbb5d3",
+      "ce_alpha1_ep3/md/adapter.json": "8ab86a075e006febbb253e0b3c29dca9eac0832571d2e9bc951aa4f451d2b805",
+      "ce_alpha1_ep3/md/tune_scored.json": "0e59566c5d718ade56d53f2c17f97856c7194d7976a3556883cf3296ec04f971",
+      "ce_alpha1_ep3/md/tune_scored_items.json": "387fa8810f5faaa7b4abb4959e4fef86aa377fdad551ec328581e67aec6f4599",
+      "ce_alpha1_ep3/random/adapter.pt": "7e12520ac6b82297bc33b8b507efcb274de03c12f53e2a285a5c755515e2580f",
+      "ce_alpha1_ep3/random/adapter.json": "1591c5be5e4fda2592e9710dcea80b3dd79bdcd0215d2c33f9f717fcd15c34b4",
+      "ce_alpha1_ep3/random/tune_scored.json": "b6448b072ca64b7cdb87971ee1ce490ab3e1c185b064b7b6fb68bd6cb7e4e805",
+      "ce_alpha1_ep3/random/tune_scored_items.json": "52061eb57fb4dd17e1b6de11e8fa91808faa72ca10d12fdf05c3275c7691e140",
+      "ce_alpha3_ep3/das/adapter.pt": "877ee304a2bb5609b88e3e138590d56a63252674f21be8706e5aba1b496c78a2",
+      "ce_alpha3_ep3/das/adapter.json": "8efcb7258e468cb6470f2fb605649e40abb8a7b12047a787fc41a0e1ed19a72d",
+      "ce_alpha3_ep3/das/tune_scored.json": "18d764ce2bea5da00fb73fddc4d4d7eafaaa0f8873fb07891b242aeddf760274",
+      "ce_alpha3_ep3/das/tune_scored_items.json": "50c4c69721efa29b54a7062fa79deb3001a64895871ebfa87988a81602fac13f",
+      "ce_alpha3_ep3/md/adapter.pt": "fe314149a783bdf36ebb40924ac7b84518cd83f3c318c070cb86201bad796232",
+      "ce_alpha3_ep3/md/adapter.json": "d5229ce4a1d9499be5d811c47c662327c13f536c95906420277bf0c278ca3840",
+      "ce_alpha3_ep3/md/tune_scored.json": "6226374ab844a39a4c95d62a17956d8222fe1d577cf8d44dd96d16bd1ee01026",
+      "ce_alpha3_ep3/md/tune_scored_items.json": "e058d91afa87b5ab7f95cb188ea9b48665668fe21b28a133ac0691d26b4fadf7",
+      "ce_alpha3_ep3/random/adapter.pt": "a5002bdf9c39975f1974bf14f9877fd97d1bdb4de6a98c7cd6fb3049ebf290d4",
+      "ce_alpha3_ep3/random/adapter.json": "9f54a9faabf0d84e3e228dc98781e59e579ffc03bde8ba7b73d0b456824a5c6e",
+      "ce_alpha3_ep3/random/tune_scored.json": "5636e003dd5c8ba6ecc6cca7cd78f77d152e548235821e838467df71f4d0febb",
+      "ce_alpha3_ep3/random/tune_scored_items.json": "10d08b33b57b976dea883c094e137d6e0cd9e43e149b1f5a8f021af798887c69"
+    },
+    "status": "frozen_before_test_generation"
+  },
+  "frozen_source_hashes": {
+    "ce_alpha1_ep3/das/adapter.pt": "97c6d1c796dd83f4fd5a5844b43685fd79af49173ec4468f4c893e3ce029ac8d",
+    "ce_alpha1_ep3/das/adapter.json": "301dceb2d18f09da6d31d3efcca89de045ccb3b77149d6ad43dca441d1da5a6b",
+    "ce_alpha1_ep3/das/tune_scored.json": "3faae207efa39a2f09da36639d76691b34b863970285606660ff7af85f320c2d",
+    "ce_alpha1_ep3/das/tune_scored_items.json": "47bd30bee75dbb1ac7607df61632e523997b039163746399422cd0fd4a8d8b95",
+    "ce_alpha1_ep3/md/adapter.pt": "1b9685338f0a66b83379c53558dda2bece1be2bacfc2432cc23de77ab7dbb5d3",
+    "ce_alpha1_ep3/md/adapter.json": "8ab86a075e006febbb253e0b3c29dca9eac0832571d2e9bc951aa4f451d2b805",
+    "ce_alpha1_ep3/md/tune_scored.json": "0e59566c5d718ade56d53f2c17f97856c7194d7976a3556883cf3296ec04f971",
+    "ce_alpha1_ep3/md/tune_scored_items.json": "387fa8810f5faaa7b4abb4959e4fef86aa377fdad551ec328581e67aec6f4599",
+    "ce_alpha1_ep3/random/adapter.pt": "7e12520ac6b82297bc33b8b507efcb274de03c12f53e2a285a5c755515e2580f",
+    "ce_alpha1_ep3/random/adapter.json": "1591c5be5e4fda2592e9710dcea80b3dd79bdcd0215d2c33f9f717fcd15c34b4",
+    "ce_alpha1_ep3/random/tune_scored.json": "b6448b072ca64b7cdb87971ee1ce490ab3e1c185b064b7b6fb68bd6cb7e4e805",
+    "ce_alpha1_ep3/random/tune_scored_items.json": "52061eb57fb4dd17e1b6de11e8fa91808faa72ca10d12fdf05c3275c7691e140",
+    "ce_alpha3_ep3/das/adapter.pt": "877ee304a2bb5609b88e3e138590d56a63252674f21be8706e5aba1b496c78a2",
+    "ce_alpha3_ep3/das/adapter.json": "8efcb7258e468cb6470f2fb605649e40abb8a7b12047a787fc41a0e1ed19a72d",
+    "ce_alpha3_ep3/das/tune_scored.json": "18d764ce2bea5da00fb73fddc4d4d7eafaaa0f8873fb07891b242aeddf760274",
+    "ce_alpha3_ep3/das/tune_scored_items.json": "50c4c69721efa29b54a7062fa79deb3001a64895871ebfa87988a81602fac13f",
+    "ce_alpha3_ep3/md/adapter.pt": "fe314149a783bdf36ebb40924ac7b84518cd83f3c318c070cb86201bad796232",
+    "ce_alpha3_ep3/md/adapter.json": "d5229ce4a1d9499be5d811c47c662327c13f536c95906420277bf0c278ca3840",
+    "ce_alpha3_ep3/md/tune_scored.json": "6226374ab844a39a4c95d62a17956d8222fe1d577cf8d44dd96d16bd1ee01026",
+    "ce_alpha3_ep3/md/tune_scored_items.json": "e058d91afa87b5ab7f95cb188ea9b48665668fe21b28a133ac0691d26b4fadf7",
+    "ce_alpha3_ep3/random/adapter.pt": "a5002bdf9c39975f1974bf14f9877fd97d1bdb4de6a98c7cd6fb3049ebf290d4",
+    "ce_alpha3_ep3/random/adapter.json": "9f54a9faabf0d84e3e228dc98781e59e579ffc03bde8ba7b73d0b456824a5c6e",
+    "ce_alpha3_ep3/random/tune_scored.json": "5636e003dd5c8ba6ecc6cca7cd78f77d152e548235821e838467df71f4d0febb",
+    "ce_alpha3_ep3/random/tune_scored_items.json": "10d08b33b57b976dea883c094e137d6e0cd9e43e149b1f5a8f021af798887c69"
+  },
+  "tune_correct_counts": {
+    "1": {
+      "das": 50,
+      "md": 51,
+      "random": 50
+    },
+    "3": {
+      "das": 66,
+      "md": 54,
+      "random": 61
+    }
+  },
+  "training_budget": "Each initializer receives 92 pairs x 3 extra optimization epochs = 276 updates at L34, alpha3. This does not assert equal total computation including original DAS estimation/training.",
+  "source_questions_sha256": "b61184c3fb015bce3250516fdd0419c33d745821e9836229c7d4065227e6e79e",
+  "file_mtime_utc": {
+    "heldout_selection": "2026-11-06T00:45:32.004684+00:00",
+    "test_generation_files": {
+      "das": "2026-11-06T00:48:15.084911+00:00",
+      "md": "2026-11-06T00:47:40.415800+00:00",
+      "random": "2026-11-06T00:47:57.727355+00:00"
+    }
+  },
+  "timestamp_limit": "Archive modification timestamps agree with the stated order; they are not an independent immutable audit of generation start time.",
+  "checks": {
+    "n": 13236,
+    "failures": []
+  }
+}
