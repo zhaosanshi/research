@@ -42,6 +42,14 @@
 | Knowledge Knows, Verbalization Tells（2607.05013） | 仅预印本（偏占坑） | 数学题上"知道不可解"与"说不可解"两方向，门控后联合推能提高弃答；Llama、Gemma 上 steering 无效 | 叙事几乎同构；只在数学题、只在 Qwen 上有效 |
 | Kumaran，Reported Confidence Tracks Commitment（2606.29490） | 仅预印本（Google DeepMind） | 口头置信跟踪"承诺"，词元概率跟踪"答对"（作者称"答案证据信号"）；Gemma 上决策探针与正确性探针方向近乎正交（cos −0.01）；沿口头置信独有分量 steering 能因果改变弃答率，沿词元概率独有分量 steering 也会改变弃答率（只有图、无数值表） | 同一对术语（证据 / 承诺），对我们 C1 威胁高；它只做了 C → 弃答一格，没有 E → J、E → 作答率、C → J 三格，也没有随机方向对照；"证据侧方向也动弃答率"会被拿来质疑"E 不改作答率" |
 
+## 2b. 第四波（11-06 晚补）：GPT 第 18 轮"生成适配"所引文献的全文核查
+
+10 篇（DAS、ReFT、BiPO、YaPO、ACT、FASB、LoFiT、RePS、Subramani 2022 隐式 steering 向量、RED），笔记在 `notes/`，并入 `index.md`（现 75 篇）。要点：
+
+- **我们放大 E 的算子 h + α·wwᵀ(h − c) 正是参数绑定的秩 1 LoReFT**（ReFT，NeurIPS 2024；取 R = wᵀ、W = (1+α)wᵀ、b = −α·wᵀc，已代数验算）；"冻结底座、用答案交叉熵训练秩 1 方向"已有 AxBench（ICML 2025）的 SSV / ReFT-r1 与 RePS（NeurIPS 2025）的 Lang. 基线。GPT 的生成适配唯一新的是"从 DAS 起步"，而我们的数据显示它不比随机起步好。
+- **在 TruthfulQA 上训练、在留出题上测，自由生成提升本来就常见且很大**（ITI、TruthX、ACT、FASB、LoFiT 的 True×Info 提升 13–34 个点），而且常常部分来自信息量下降——所以任何自由生成的正结果都必须同报弃答率与信息量，并赢过 LoRA、SSV 一类基线。
+- GPT 文献笔记的几处说过头：BiPO 的 TruthfulQA 只有选择题、运行时排序项权重为 0；ACT 没有"是否干预"的阈值；FASB 原文附录不支持"固定短回溯窗口"；YaPO 已正式发表。
+
 ## 3. 对我们设计的直接启示
 
 1. 必须报"相同作答率"下的比较，并报真实弃答（不只是自报）。
