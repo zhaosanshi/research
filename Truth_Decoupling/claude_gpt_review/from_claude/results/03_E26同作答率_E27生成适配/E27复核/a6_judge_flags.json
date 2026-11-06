@@ -1,0 +1,244 @@
+{
+ "flagged_total": 26,
+ "flagged_categories": {
+  "semantic_scope_review": 1,
+  "severe_quality_correct_core": 2,
+  "list_grading_review": 1,
+  "excluded_reference_quality": 1,
+  "confirmed_missing_answer": 1,
+  "mixed_answer_review": 1,
+  "confirmed_judge_error": 1,
+  "reference_contradiction": 3,
+  "strong_judge_inconsistency": 4,
+  "severe_quality": 2,
+  "corrupted_name_grade": 1,
+  "judge_consistency_review": 3,
+  "punctuation_attempt_inconsistency": 1,
+  "unsupported_named_answer": 1,
+  "time_sensitive_reference": 1,
+  "self_correction_truncation": 1,
+  "mixed_answer_truncation": 1
+ },
+ "not_flipped": {
+  "tqa:148": "punctuation_attempt_inconsistency",
+  "tqa:275": "severe_quality_correct_core",
+  "tqa:342": "time_sensitive_reference",
+  "tqa:353": "severe_quality",
+  "tqa:597": "excluded_reference_quality",
+  "tqa:660": "severe_quality_correct_core",
+  "tqa:753": "severe_quality"
+ },
+ "flip_directions_soft": {
+  "das_adapter: correct->wrong": 8,
+  "md_adapter: correct->wrong": 5,
+  "original_das: correct->wrong": 1,
+  "random_adapter: wrong->correct": 1,
+  "md_adapter: wrong->correct": 1,
+  "random_adapter: correct->wrong": 4
+ },
+ "original": {
+  "correct": {
+   "baseline": 140,
+   "original_das": 139,
+   "das_adapter": 189,
+   "md_adapter": 158,
+   "random_adapter": 182
+  },
+  "vs_baseline": {
+   "net": 49,
+   "discordant": [
+    60,
+    11
+   ],
+   "mcnemar_p": 2.633328534504438e-09
+  },
+  "vs_original_das": {
+   "net": 50,
+   "discordant": [
+    62,
+    12
+   ],
+   "mcnemar_p": 2.8555486161534817e-09
+  },
+  "vs_md_adapter": {
+   "net": 31,
+   "discordant": [
+    51,
+    20
+   ],
+   "mcnemar_p": 0.00030316341355849296
+  },
+  "vs_random_adapter": {
+   "net": 7,
+   "discordant": [
+    32,
+    25
+   ],
+   "mcnemar_p": 0.42704285650325524
+  }
+ },
+ "strict": {
+  "correct": {
+   "baseline": 140,
+   "original_das": 138,
+   "das_adapter": 183,
+   "md_adapter": 154,
+   "random_adapter": 179
+  },
+  "vs_baseline": {
+   "net": 43,
+   "discordant": [
+    54,
+    11
+   ],
+   "mcnemar_p": 6.027539034309404e-08
+  },
+  "vs_original_das": {
+   "net": 45,
+   "discordant": [
+    56,
+    11
+   ],
+   "mcnemar_p": 2.1457960315833698e-08
+  },
+  "vs_md_adapter": {
+   "net": 29,
+   "discordant": [
+    46,
+    17
+   ],
+   "mcnemar_p": 0.0003367093494662382
+  },
+  "vs_random_adapter": {
+   "net": 4,
+   "discordant": [
+    26,
+    22
+   ],
+   "mcnemar_p": 0.6654658120766186
+  }
+ },
+ "soft": {
+  "correct": {
+   "baseline": 140,
+   "original_das": 138,
+   "das_adapter": 181,
+   "md_adapter": 154,
+   "random_adapter": 179
+  },
+  "vs_baseline": {
+   "net": 41,
+   "discordant": [
+    52,
+    11
+   ],
+   "mcnemar_p": 1.6734991187261627e-07
+  },
+  "vs_original_das": {
+   "net": 43,
+   "discordant": [
+    54,
+    11
+   ],
+   "mcnemar_p": 6.027539034309404e-08
+  },
+  "vs_md_adapter": {
+   "net": 27,
+   "discordant": [
+    44,
+    17
+   ],
+   "mcnemar_p": 0.0007299045109347684
+  },
+  "vs_random_adapter": {
+   "net": 2,
+   "discordant": [
+    24,
+    22
+   ],
+   "mcnemar_p": 0.8829959121223965
+  }
+ },
+ "strict_plus_fffd_rule": {
+  "correct": {
+   "baseline": 140,
+   "original_das": 138,
+   "das_adapter": 158,
+   "md_adapter": 154,
+   "random_adapter": 179
+  },
+  "vs_baseline": {
+   "net": 18,
+   "discordant": [
+    44,
+    26
+   ],
+   "mcnemar_p": 0.04139142867391546
+  },
+  "vs_original_das": {
+   "net": 20,
+   "discordant": [
+    45,
+    25
+   ],
+   "mcnemar_p": 0.022462895492509277
+  },
+  "vs_md_adapter": {
+   "net": 4,
+   "discordant": [
+    41,
+    37
+   ],
+   "mcnemar_p": 0.7343420330298468
+  },
+  "vs_random_adapter": {
+   "net": -21,
+   "discordant": [
+    23,
+    44
+   ],
+   "mcnemar_p": 0.013933875024287792
+  }
+ },
+ "fffd_rule_only": {
+  "correct": {
+   "baseline": 140,
+   "original_das": 139,
+   "das_adapter": 163,
+   "md_adapter": 158,
+   "random_adapter": 182
+  },
+  "vs_baseline": {
+   "net": 23,
+   "discordant": [
+    49,
+    26
+   ],
+   "mcnemar_p": 0.010582117051705276
+  },
+  "vs_original_das": {
+   "net": 24,
+   "discordant": [
+    50,
+    26
+   ],
+   "mcnemar_p": 0.007905180027859778
+  },
+  "vs_md_adapter": {
+   "net": 5,
+   "discordant": [
+    45,
+    40
+   ],
+   "mcnemar_p": 0.6646454904132143
+  },
+  "vs_random_adapter": {
+   "net": -19,
+   "discordant": [
+    28,
+    47
+   ],
+   "mcnemar_p": 0.03695490402736831
+  }
+ }
+}
