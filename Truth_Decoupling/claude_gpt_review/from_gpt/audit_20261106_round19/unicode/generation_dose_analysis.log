@@ -1,0 +1,224 @@
+{
+  "archive_sha256": "d033bfb30b65bd178bab9dcf041952dfc67908f86bfada560a31b699cdbb705c",
+  "archive_files": 33,
+  "hashes_verified": true,
+  "n": 192,
+  "split": "tune",
+  "training_alpha": 3.0,
+  "reference_reproduced": true,
+  "n_boot": 2000,
+  "seed": 0,
+  "arms": {
+    "baseline": {
+      "counts": {
+        "correct": 51,
+        "wrong": 66,
+        "abstain": 75
+      },
+      "answered": 117,
+      "replacement_character": 0,
+      "unfinished": 1,
+      "symbol_outputs_descriptive_only": 0,
+      "mean_characters": 26.911458333333332,
+      "correct_without_replacement": 51,
+      "correct_without_replacement_or_truncation": 50,
+      "transitions_vs_baseline": {
+        "correct->correct": 51,
+        "correct->wrong": 0,
+        "correct->abstain": 0,
+        "wrong->correct": 0,
+        "wrong->wrong": 66,
+        "wrong->abstain": 0,
+        "abstain->correct": 0,
+        "abstain->wrong": 0,
+        "abstain->abstain": 75
+      }
+    },
+    "original_das_alpha3": {
+      "counts": {
+        "correct": 51,
+        "wrong": 65,
+        "abstain": 76
+      },
+      "answered": 116,
+      "replacement_character": 0,
+      "unfinished": 1,
+      "symbol_outputs_descriptive_only": 0,
+      "mean_characters": 24.322916666666668,
+      "correct_without_replacement": 51,
+      "correct_without_replacement_or_truncation": 51,
+      "transitions_vs_baseline": {
+        "correct->correct": 48,
+        "correct->wrong": 3,
+        "correct->abstain": 0,
+        "wrong->correct": 3,
+        "wrong->wrong": 62,
+        "wrong->abstain": 1,
+        "abstain->correct": 0,
+        "abstain->wrong": 0,
+        "abstain->abstain": 75
+      }
+    },
+    "adapted_deploy_alpha1": {
+      "counts": {
+        "correct": 52,
+        "wrong": 66,
+        "abstain": 74
+      },
+      "answered": 118,
+      "replacement_character": 0,
+      "unfinished": 1,
+      "symbol_outputs_descriptive_only": 0,
+      "mean_characters": 27.854166666666668,
+      "correct_without_replacement": 52,
+      "correct_without_replacement_or_truncation": 51,
+      "transitions_vs_baseline": {
+        "correct->correct": 50,
+        "correct->wrong": 1,
+        "correct->abstain": 0,
+        "wrong->correct": 1,
+        "wrong->wrong": 64,
+        "wrong->abstain": 1,
+        "abstain->correct": 1,
+        "abstain->wrong": 1,
+        "abstain->abstain": 73
+      }
+    },
+    "adapted_deploy_alpha2": {
+      "counts": {
+        "correct": 56,
+        "wrong": 66,
+        "abstain": 70
+      },
+      "answered": 122,
+      "replacement_character": 0,
+      "unfinished": 1,
+      "symbol_outputs_descriptive_only": 0,
+      "mean_characters": 30.6875,
+      "correct_without_replacement": 56,
+      "correct_without_replacement_or_truncation": 55,
+      "transitions_vs_baseline": {
+        "correct->correct": 48,
+        "correct->wrong": 3,
+        "correct->abstain": 0,
+        "wrong->correct": 3,
+        "wrong->wrong": 62,
+        "wrong->abstain": 1,
+        "abstain->correct": 5,
+        "abstain->wrong": 1,
+        "abstain->abstain": 69
+      }
+    },
+    "adapted_deploy_alpha3": {
+      "counts": {
+        "correct": 68,
+        "wrong": 65,
+        "abstain": 59
+      },
+      "answered": 133,
+      "replacement_character": 32,
+      "unfinished": 11,
+      "symbol_outputs_descriptive_only": 93,
+      "mean_characters": 53.932291666666664,
+      "correct_without_replacement": 57,
+      "correct_without_replacement_or_truncation": 49,
+      "transitions_vs_baseline": {
+        "correct->correct": 48,
+        "correct->wrong": 2,
+        "correct->abstain": 1,
+        "wrong->correct": 5,
+        "wrong->wrong": 60,
+        "wrong->abstain": 1,
+        "abstain->correct": 15,
+        "abstain->wrong": 3,
+        "abstain->abstain": 57
+      }
+    }
+  },
+  "comparisons": {
+    "original_das_alpha3_minus_baseline": {
+      "correct_count_delta": 0,
+      "correct_rate_delta": 0.0,
+      "ci95": [
+        -0.026041666666666668,
+        0.026041666666666668
+      ],
+      "corrected": 3,
+      "harmed": 3,
+      "exact_two_sided_p": 1.0
+    },
+    "original_das_alpha3_minus_adapted_deploy_alpha3": {
+      "correct_count_delta": -17,
+      "correct_rate_delta": -0.08854166666666667,
+      "ci95": [
+        -0.14583333333333334,
+        -0.036458333333333336
+      ],
+      "corrected": 6,
+      "harmed": 23,
+      "exact_two_sided_p": 0.002315700054168701
+    },
+    "adapted_deploy_alpha1_minus_baseline": {
+      "correct_count_delta": 1,
+      "correct_rate_delta": 0.005208333333333333,
+      "ci95": [
+        -0.010416666666666666,
+        0.020833333333333332
+      ],
+      "corrected": 2,
+      "harmed": 1,
+      "exact_two_sided_p": 1.0
+    },
+    "adapted_deploy_alpha1_minus_adapted_deploy_alpha3": {
+      "correct_count_delta": -16,
+      "correct_rate_delta": -0.08333333333333333,
+      "ci95": [
+        -0.13020833333333334,
+        -0.041666666666666664
+      ],
+      "corrected": 3,
+      "harmed": 19,
+      "exact_two_sided_p": 0.0008554458618164062
+    },
+    "adapted_deploy_alpha2_minus_baseline": {
+      "correct_count_delta": 5,
+      "correct_rate_delta": 0.026041666666666668,
+      "ci95": [
+        -0.005208333333333333,
+        0.0625
+      ],
+      "corrected": 8,
+      "harmed": 3,
+      "exact_two_sided_p": 0.2265625
+    },
+    "adapted_deploy_alpha2_minus_adapted_deploy_alpha3": {
+      "correct_count_delta": -12,
+      "correct_rate_delta": -0.0625,
+      "ci95": [
+        -0.10416666666666667,
+        -0.026041666666666668
+      ],
+      "corrected": 2,
+      "harmed": 14,
+      "exact_two_sided_p": 0.004180908203125
+    },
+    "adapted_deploy_alpha3_minus_baseline": {
+      "correct_count_delta": 17,
+      "correct_rate_delta": 0.08854166666666667,
+      "ci95": [
+        0.046875,
+        0.140625
+      ],
+      "corrected": 20,
+      "harmed": 3,
+      "exact_two_sided_p": 0.00048828125
+    }
+  },
+  "limits": [
+    "tuning-only diagnostic; no test result",
+    "same saved alpha3-trained weights, diagnostic deployment override only",
+    "natural answer counts differ; not a matched-coverage result",
+    "stored judge labels retained; no human relabeling",
+    "quality rules are descriptive re-counts, not replacements of stored grades"
+  ]
+}

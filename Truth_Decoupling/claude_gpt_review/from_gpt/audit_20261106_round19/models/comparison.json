@@ -1,0 +1,3704 @@
+{
+  "archive_sha256": "198ec049e88ca70592f475a7eb3a78264a53b2f8b5dffe7d2a3a1a1ef7a5c624",
+  "models": {
+    "llama3.1-8b": {
+      "num_layers": 32,
+      "hidden_size": 4096,
+      "selected_layer": 29,
+      "selected_layer_1_based_fraction": 0.9375,
+      "downstream_blocks": 2,
+      "selected_original_alpha": 3.0,
+      "selection_rule": {
+        "metric": "actual_semantic_QA_outcomes",
+        "baseline": "baseline",
+        "accuracy_definition": "correct / all requested questions",
+        "answer_rate_definition": "(correct + wrong) / all requested questions",
+        "requires_positive_accuracy_gain": true,
+        "max_abs_answer_rate_change": 0.03,
+        "max_abs_answer_count_change": 5,
+        "primary_rank": "maximum integer net_correct",
+        "tie_break": [
+          "fewer correct->wrong plus correct->abstain",
+          "smaller alpha",
+          "shallower layer",
+          "lexical name"
+        ],
+        "diagnostics": "rejected",
+        "unresolved": "rejected",
+        "missing_or_extra_questions": "rejected"
+      },
+      "selection_scope": "best free-generation configuration among proxy-shortlisted distinct layers",
+      "source_selfcheck_format": "user_turn",
+      "source_supervision_labels": [
+        "True",
+        "False"
+      ],
+      "source_selfcheck_lowest_loss_layers": [
+        [
+          14,
+          1.9387852534251262
+        ],
+        [
+          12,
+          2.0339978375049332
+        ],
+        [
+          11,
+          2.0405091461373597
+        ],
+        [
+          10,
+          2.154134398067902
+        ],
+        [
+          13,
+          2.3323017297087696
+        ],
+        [
+          9,
+          2.33806059056105
+        ]
+      ],
+      "source_candidates": [
+        {
+          "layer": 10,
+          "alpha": 2.0,
+          "proxy_correct": 92,
+          "proxy_net": 3,
+          "old_generation_counts": {
+            "correct": 60,
+            "wrong": 108,
+            "abstain": 24
+          },
+          "old_generation_net": 1,
+          "source_selfcheck_loss_first": 2.8264296136065084,
+          "source_selfcheck_loss_last": 2.154134398067902
+        },
+        {
+          "layer": 27,
+          "alpha": 2.0,
+          "proxy_correct": 91,
+          "proxy_net": 2,
+          "old_generation_counts": {
+            "correct": 60,
+            "wrong": 107,
+            "abstain": 25
+          },
+          "old_generation_net": 1,
+          "source_selfcheck_loss_first": 2.8653389548034403,
+          "source_selfcheck_loss_last": 2.674592076500314
+        },
+        {
+          "layer": 29,
+          "alpha": 3.0,
+          "proxy_correct": 91,
+          "proxy_net": 2,
+          "old_generation_counts": {
+            "correct": 64,
+            "wrong": 102,
+            "abstain": 26
+          },
+          "old_generation_net": 5,
+          "source_selfcheck_loss_first": 2.8650008092784485,
+          "source_selfcheck_loss_last": 2.7096361927419226
+        }
+      ],
+      "new_content_training_layers_observed": [
+        29
+      ],
+      "source_checkpoint_sha256": "d8ea998e17fcfe29775cb113385c407ca8e4e76f5059919090b817e6bff74b7f"
+    },
+    "qwen3-8b": {
+      "num_layers": 36,
+      "hidden_size": 4096,
+      "selected_layer": 34,
+      "selected_layer_1_based_fraction": 0.9722222222222222,
+      "downstream_blocks": 1,
+      "selected_original_alpha": 3.0,
+      "selection_rule": {
+        "metric": "actual_semantic_QA_outcomes",
+        "baseline": "baseline",
+        "accuracy_definition": "correct / all requested questions",
+        "answer_rate_definition": "(correct + wrong) / all requested questions",
+        "requires_positive_accuracy_gain": true,
+        "max_abs_answer_rate_change": 0.03,
+        "max_abs_answer_count_change": 5,
+        "primary_rank": "maximum integer net_correct",
+        "tie_break": [
+          "fewer correct->wrong plus correct->abstain",
+          "smaller alpha",
+          "shallower layer",
+          "lexical name"
+        ],
+        "diagnostics": "rejected",
+        "unresolved": "rejected",
+        "missing_or_extra_questions": "rejected"
+      },
+      "selection_scope": "best free-generation configuration among proxy-shortlisted distinct layers",
+      "source_selfcheck_format": "user_turn",
+      "source_supervision_labels": [
+        "True",
+        "False"
+      ],
+      "source_selfcheck_lowest_loss_layers": [
+        [
+          21,
+          6.671413781192235
+        ],
+        [
+          18,
+          6.993413637439157
+        ],
+        [
+          22,
+          7.00672808370638
+        ],
+        [
+          19,
+          7.176060159910724
+        ],
+        [
+          20,
+          7.432148125570699
+        ],
+        [
+          17,
+          7.553602003860158
+        ]
+      ],
+      "source_candidates": [
+        {
+          "layer": 23,
+          "alpha": 3.0,
+          "proxy_correct": 86,
+          "proxy_net": 6,
+          "old_generation_counts": {
+            "correct": 49,
+            "wrong": 67,
+            "abstain": 76
+          },
+          "old_generation_net": -1,
+          "source_selfcheck_loss_first": 9.717830155628207,
+          "source_selfcheck_loss_last": 9.45103547535154
+        },
+        {
+          "layer": 34,
+          "alpha": 3.0,
+          "proxy_correct": 85,
+          "proxy_net": 5,
+          "old_generation_counts": {
+            "correct": 51,
+            "wrong": 65,
+            "abstain": 76
+          },
+          "old_generation_net": 1,
+          "source_selfcheck_loss_first": 9.706072119265219,
+          "source_selfcheck_loss_last": 8.51690364424636
+        },
+        {
+          "layer": 29,
+          "alpha": 2.0,
+          "proxy_correct": 84,
+          "proxy_net": 4,
+          "old_generation_counts": {
+            "correct": 50,
+            "wrong": 67,
+            "abstain": 75
+          },
+          "old_generation_net": 0,
+          "source_selfcheck_loss_first": 9.684085800225562,
+          "source_selfcheck_loss_last": 9.244553838592633
+        }
+      ],
+      "new_content_training_layers_observed": [
+        34
+      ],
+      "source_checkpoint_sha256": "e9096c83e47743bebe410560301bded3697a991a9eb9ed039cdb551b3c9122d3"
+    }
+  },
+  "runs": {
+    "llama3.1-8b/alpha1/das": {
+      "model": "llama3.1-8b",
+      "alpha": 1,
+      "init": "das",
+      "layer": 29,
+      "n_train": 92,
+      "epochs": 3,
+      "losses": [
+        {
+          "loss": 2.263274223584196,
+          "positive_token_ce": 2.263274223584196,
+          "pair_ranking": 0.0
+        },
+        {
+          "loss": 2.171528604367505,
+          "positive_token_ce": 2.171528604367505,
+          "pair_ranking": 0.0
+        },
+        {
+          "loss": 2.1331743374466896,
+          "positive_token_ce": 2.1331743374466896,
+          "pair_ranking": 0.0
+        }
+      ],
+      "gradient_audit": {
+        "minimum": 0.16925883293151855,
+        "maximum": 14.670719146728516,
+        "zero_updates": 0,
+        "updates": 276
+      },
+      "geometry": {
+        "signed_cosine": 0.4583633391337352,
+        "axis_angle_degrees": 62.71845290460319,
+        "unit_projector_frobenius_change": 1.256903376825898,
+        "initial_norm": 0.9999999956284883,
+        "final_norm": 0.999999964353701,
+        "top_initial_coordinates": [
+          [
+            290,
+            0.1401735097169876
+          ],
+          [
+            2932,
+            -0.1013415977358818
+          ],
+          [
+            2040,
+            0.0912010669708252
+          ],
+          [
+            3608,
+            -0.09070287644863129
+          ],
+          [
+            1815,
+            0.08628172427415848
+          ],
+          [
+            4062,
+            0.08617521822452545
+          ],
+          [
+            788,
+            0.0759141817688942
+          ],
+          [
+            1507,
+            0.07544948160648346
+          ]
+        ],
+        "top_final_coordinates": [
+          [
+            290,
+            0.12943950295448303
+          ],
+          [
+            3881,
+            -0.10016325861215591
+          ],
+          [
+            2932,
+            -0.09503030776977539
+          ],
+          [
+            2265,
+            0.09113527089357376
+          ],
+          [
+            2261,
+            0.09021665900945663
+          ],
+          [
+            1162,
+            -0.07933090627193451
+          ],
+          [
+            1815,
+            0.07775818556547165
+          ],
+          [
+            1565,
+            -0.07262736558914185
+          ]
+        ],
+        "center": {
+          "prompt": {
+            "norm": 24.824635922085243,
+            "dominant_coordinate": 2352,
+            "dominant_value": -13.54345703125,
+            "dominant_energy_fraction": 0.2976413685286225,
+            "initial_weight_on_dominant_coordinate": -0.008692113682627678,
+            "final_weight_on_dominant_coordinate": -0.051755692809820175,
+            "projection_on_initial": 2.1559661964576318,
+            "projection_on_final": 2.4475123400185113
+          },
+          "decode": {
+            "norm": 24.381313602283893,
+            "dominant_coordinate": 2352,
+            "dominant_value": -18.143850326538086,
+            "dominant_energy_fraction": 0.5537894884332659,
+            "initial_weight_on_dominant_coordinate": -0.008692113682627678,
+            "final_weight_on_dominant_coordinate": -0.051755692809820175,
+            "projection_on_initial": 2.4949637165572325,
+            "projection_on_final": 5.051207013605069
+          }
+        },
+        "fixed_h_center_switch_delta_norm_initial": 0.33899752009960077,
+        "fixed_h_center_switch_delta_norm_final": 2.6036946735865576,
+        "fixed_h_center_switch_scope": "algebra at identical h, not an empirical per-step residual-relative change"
+      },
+      "first_training_trace": [
+        {
+          "layer": 29,
+          "residual_dtype": "torch.bfloat16",
+          "writes": [
+            {
+              "center": "prompt",
+              "positions": [
+                [
+                  0,
+                  81
+                ]
+              ],
+              "intended_delta_norm": 0.5276163816452026,
+              "kept_delta_norm": 0.5314912796020508
+            },
+            {
+              "center": "decode",
+              "positions": [
+                [
+                  0,
+                  82
+                ],
+                [
+                  0,
+                  83
+                ],
+                [
+                  0,
+                  84
+                ],
+                [
+                  0,
+                  85
+                ],
+                [
+                  0,
+                  86
+                ],
+                [
+                  0,
+                  87
+                ],
+                [
+                  0,
+                  88
+                ]
+              ],
+              "intended_delta_norm": 1.726564884185791,
+              "kept_delta_norm": 1.7311803102493286
+            }
+          ],
+          "pair_id": "tqa:765",
+          "prompt_length": 82,
+          "answer_length": 8,
+          "final_answer_position": 89
+        }
+      ],
+      "baseline": {
+        "n": 192,
+        "correct": 59,
+        "wrong": 109,
+        "abstain": 24,
+        "answered": 168,
+        "net_correct_vs_baseline": 0,
+        "net_answered_vs_baseline": 0,
+        "transitions": {
+          "correct->correct": 59,
+          "correct->wrong": 0,
+          "correct->abstain": 0,
+          "wrong->correct": 0,
+          "wrong->wrong": 109,
+          "wrong->abstain": 0,
+          "abstain->correct": 0,
+          "abstain->wrong": 0,
+          "abstain->abstain": 24
+        },
+        "bad_character": 0,
+        "unfinished": 4
+      },
+      "original_das": {
+        "n": 192,
+        "correct": 62,
+        "wrong": 106,
+        "abstain": 24,
+        "answered": 168,
+        "net_correct_vs_baseline": 3,
+        "net_answered_vs_baseline": 0,
+        "transitions": {
+          "correct->correct": 59,
+          "correct->wrong": 0,
+          "correct->abstain": 0,
+          "wrong->correct": 3,
+          "wrong->wrong": 106,
+          "wrong->abstain": 0,
+          "abstain->correct": 0,
+          "abstain->wrong": 0,
+          "abstain->abstain": 24
+        },
+        "bad_character": 0,
+        "unfinished": 3
+      },
+      "adapted": {
+        "n": 192,
+        "correct": 63,
+        "wrong": 105,
+        "abstain": 24,
+        "answered": 168,
+        "net_correct_vs_baseline": 4,
+        "net_answered_vs_baseline": 0,
+        "transitions": {
+          "correct->correct": 59,
+          "correct->wrong": 0,
+          "correct->abstain": 0,
+          "wrong->correct": 4,
+          "wrong->wrong": 105,
+          "wrong->abstain": 0,
+          "abstain->correct": 0,
+          "abstain->wrong": 0,
+          "abstain->abstain": 24
+        },
+        "bad_character": 0,
+        "unfinished": 3
+      },
+      "identical_to_source_DAS_initial": true,
+      "same_alpha_common_baseline_and_original_das_identical": true,
+      "alpha3_original_das_matches_source_frozen_outputs": null
+    },
+    "llama3.1-8b/alpha1/md": {
+      "model": "llama3.1-8b",
+      "alpha": 1,
+      "init": "md",
+      "layer": 29,
+      "n_train": 92,
+      "epochs": 3,
+      "losses": [
+        {
+          "loss": 2.279809720814228,
+          "positive_token_ce": 2.279809720814228,
+          "pair_ranking": 0.0
+        },
+        {
+          "loss": 2.188728520727676,
+          "positive_token_ce": 2.188728520727676,
+          "pair_ranking": 0.0
+        },
+        {
+          "loss": 2.131302045091339,
+          "positive_token_ce": 2.131302045091339,
+          "pair_ranking": 0.0
+        }
+      ],
+      "gradient_audit": {
+        "minimum": 0.14399416744709015,
+        "maximum": 14.78821086883545,
+        "zero_updates": 0,
+        "updates": 276
+      },
+      "geometry": {
+        "signed_cosine": 0.43932239402503614,
+        "axis_angle_degrees": 63.93934479588881,
+        "unit_projector_frobenius_change": 1.2704297179365027,
+        "initial_norm": 1.000000001331606,
+        "final_norm": 1.0000000323525617,
+        "top_initial_coordinates": [
+          [
+            1800,
+            0.0967186763882637
+          ],
+          [
+            2082,
+            -0.09550189226865768
+          ],
+          [
+            788,
+            -0.090227410197258
+          ],
+          [
+            3881,
+            0.08331906050443649
+          ],
+          [
+            2219,
+            0.07465843856334686
+          ],
+          [
+            568,
+            -0.0722164735198021
+          ],
+          [
+            4062,
+            -0.06325850635766983
+          ],
+          [
+            2742,
+            -0.06210976839065552
+          ]
+        ],
+        "top_final_coordinates": [
+          [
+            3881,
+            0.09323317557573318
+          ],
+          [
+            2720,
+            0.08283709734678268
+          ],
+          [
+            2082,
+            -0.07919161021709442
+          ],
+          [
+            2219,
+            0.07084857672452927
+          ],
+          [
+            3837,
+            -0.06541217118501663
+          ],
+          [
+            2742,
+            -0.06370054185390472
+          ],
+          [
+            4053,
+            0.061878979206085205
+          ],
+          [
+            1815,
+            -0.06123674660921097
+          ]
+        ],
+        "center": {
+          "prompt": {
+            "norm": 24.824635922085243,
+            "dominant_coordinate": 2352,
+            "dominant_value": -13.54345703125,
+            "dominant_energy_fraction": 0.2976413685286225,
+            "initial_weight_on_dominant_coordinate": -0.02725873701274395,
+            "final_weight_on_dominant_coordinate": -0.037196364253759384,
+            "projection_on_initial": 0.9524512422768081,
+            "projection_on_final": 1.9815753623691348
+          },
+          "decode": {
+            "norm": 24.381313602283893,
+            "dominant_coordinate": 2352,
+            "dominant_value": -18.143850326538086,
+            "dominant_energy_fraction": 0.5537894884332659,
+            "initial_weight_on_dominant_coordinate": -0.02725873701274395,
+            "final_weight_on_dominant_coordinate": -0.037196364253759384,
+            "projection_on_initial": 1.3347619444320857,
+            "projection_on_final": 2.7374477487545223
+          }
+        },
+        "fixed_h_center_switch_delta_norm_initial": 0.38231070215527774,
+        "fixed_h_center_switch_delta_norm_final": 0.7558723863853876,
+        "fixed_h_center_switch_scope": "algebra at identical h, not an empirical per-step residual-relative change"
+      },
+      "first_training_trace": [
+        {
+          "layer": 29,
+          "residual_dtype": "torch.bfloat16",
+          "writes": [
+            {
+              "center": "prompt",
+              "positions": [
+                [
+                  0,
+                  81
+                ]
+              ],
+              "intended_delta_norm": 0.7607071399688721,
+              "kept_delta_norm": 0.7633071541786194
+            },
+            {
+              "center": "decode",
+              "positions": [
+                [
+                  0,
+                  82
+                ],
+                [
+                  0,
+                  83
+                ],
+                [
+                  0,
+                  84
+                ],
+                [
+                  0,
+                  85
+                ],
+                [
+                  0,
+                  86
+                ],
+                [
+                  0,
+                  87
+                ],
+                [
+                  0,
+                  88
+                ]
+              ],
+              "intended_delta_norm": 3.6806631088256836,
+              "kept_delta_norm": 3.6811935901641846
+            }
+          ],
+          "pair_id": "tqa:765",
+          "prompt_length": 82,
+          "answer_length": 8,
+          "final_answer_position": 89
+        }
+      ],
+      "baseline": {
+        "n": 192,
+        "correct": 59,
+        "wrong": 109,
+        "abstain": 24,
+        "answered": 168,
+        "net_correct_vs_baseline": 0,
+        "net_answered_vs_baseline": 0,
+        "transitions": {
+          "correct->correct": 59,
+          "correct->wrong": 0,
+          "correct->abstain": 0,
+          "wrong->correct": 0,
+          "wrong->wrong": 109,
+          "wrong->abstain": 0,
+          "abstain->correct": 0,
+          "abstain->wrong": 0,
+          "abstain->abstain": 24
+        },
+        "bad_character": 0,
+        "unfinished": 4
+      },
+      "original_das": {
+        "n": 192,
+        "correct": 62,
+        "wrong": 106,
+        "abstain": 24,
+        "answered": 168,
+        "net_correct_vs_baseline": 3,
+        "net_answered_vs_baseline": 0,
+        "transitions": {
+          "correct->correct": 59,
+          "correct->wrong": 0,
+          "correct->abstain": 0,
+          "wrong->correct": 3,
+          "wrong->wrong": 106,
+          "wrong->abstain": 0,
+          "abstain->correct": 0,
+          "abstain->wrong": 0,
+          "abstain->abstain": 24
+        },
+        "bad_character": 0,
+        "unfinished": 3
+      },
+      "adapted": {
+        "n": 192,
+        "correct": 62,
+        "wrong": 104,
+        "abstain": 26,
+        "answered": 166,
+        "net_correct_vs_baseline": 3,
+        "net_answered_vs_baseline": -2,
+        "transitions": {
+          "correct->correct": 58,
+          "correct->wrong": 1,
+          "correct->abstain": 0,
+          "wrong->correct": 4,
+          "wrong->wrong": 103,
+          "wrong->abstain": 2,
+          "abstain->correct": 0,
+          "abstain->wrong": 0,
+          "abstain->abstain": 24
+        },
+        "bad_character": 0,
+        "unfinished": 4
+      },
+      "identical_to_source_DAS_initial": false,
+      "same_alpha_common_baseline_and_original_das_identical": true,
+      "alpha3_original_das_matches_source_frozen_outputs": null
+    },
+    "llama3.1-8b/alpha1/random": {
+      "model": "llama3.1-8b",
+      "alpha": 1,
+      "init": "random",
+      "layer": 29,
+      "n_train": 92,
+      "epochs": 3,
+      "losses": [
+        {
+          "loss": 2.2814001570577207,
+          "positive_token_ce": 2.2814001570577207,
+          "pair_ranking": 0.0
+        },
+        {
+          "loss": 2.198265174484771,
+          "positive_token_ce": 2.198265174484771,
+          "pair_ranking": 0.0
+        },
+        {
+          "loss": 2.116176254723383,
+          "positive_token_ce": 2.116176254723383,
+          "pair_ranking": 0.0
+        }
+      ],
+      "gradient_audit": {
+        "minimum": 0.10935411602258682,
+        "maximum": 17.415857315063477,
+        "zero_updates": 0,
+        "updates": 276
+      },
+      "geometry": {
+        "signed_cosine": 0.2802704721290164,
+        "axis_angle_degrees": 73.7236520120496,
+        "unit_projector_frobenius_change": 1.3575333973442998,
+        "initial_norm": 1.0000000027886666,
+        "final_norm": 1.0000000413802206,
+        "top_initial_coordinates": [
+          [
+            824,
+            0.054214414209127426
+          ],
+          [
+            3700,
+            0.05301473289728165
+          ],
+          [
+            775,
+            -0.051538608968257904
+          ],
+          [
+            101,
+            -0.05059555172920227
+          ],
+          [
+            1781,
+            -0.04984862729907036
+          ],
+          [
+            2243,
+            -0.04979488253593445
+          ],
+          [
+            3439,
+            -0.049771834164857864
+          ],
+          [
+            2380,
+            0.04584856331348419
+          ]
+        ],
+        "top_final_coordinates": [
+          [
+            2742,
+            -0.07672092318534851
+          ],
+          [
+            1059,
+            0.072723388671875
+          ],
+          [
+            3788,
+            0.07197272032499313
+          ],
+          [
+            2265,
+            -0.06831775605678558
+          ],
+          [
+            3837,
+            -0.06762008368968964
+          ],
+          [
+            2330,
+            0.0667496845126152
+          ],
+          [
+            873,
+            -0.061083290725946426
+          ],
+          [
+            3881,
+            0.06039092317223549
+          ]
+        ],
+        "center": {
+          "prompt": {
+            "norm": 24.824635922085243,
+            "dominant_coordinate": 2352,
+            "dominant_value": -13.54345703125,
+            "dominant_energy_fraction": 0.2976413685286225,
+            "initial_weight_on_dominant_coordinate": 0.027346262708306313,
+            "final_weight_on_dominant_coordinate": 0.005545179359614849,
+            "projection_on_initial": 0.18523769888095465,
+            "projection_on_final": 2.8485604310938872
+          },
+          "decode": {
+            "norm": 24.381313602283893,
+            "dominant_coordinate": 2352,
+            "dominant_value": -18.143850326538086,
+            "dominant_energy_fraction": 0.5537894884332659,
+            "initial_weight_on_dominant_coordinate": 0.027346262708306313,
+            "final_weight_on_dominant_coordinate": 0.005545179359614849,
+            "projection_on_initial": -0.800406173668834,
+            "projection_on_final": 2.566698819422169
+          }
+        },
+        "fixed_h_center_switch_delta_norm_initial": 0.9856438725497887,
+        "fixed_h_center_switch_delta_norm_final": 0.28186161167171825,
+        "fixed_h_center_switch_scope": "algebra at identical h, not an empirical per-step residual-relative change"
+      },
+      "first_training_trace": [
+        {
+          "layer": 29,
+          "residual_dtype": "torch.bfloat16",
+          "writes": [
+            {
+              "center": "prompt",
+              "positions": [
+                [
+                  0,
+                  81
+                ]
+              ],
+              "intended_delta_norm": 0.42622634768486023,
+              "kept_delta_norm": 0.4315282106399536
+            },
+            {
+              "center": "decode",
+              "positions": [
+                [
+                  0,
+                  82
+                ],
+                [
+                  0,
+                  83
+                ],
+                [
+                  0,
+                  84
+                ],
+                [
+                  0,
+                  85
+                ],
+                [
+                  0,
+                  86
+                ],
+                [
+                  0,
+                  87
+                ],
+                [
+                  0,
+                  88
+                ]
+              ],
+              "intended_delta_norm": 0.8836899399757385,
+              "kept_delta_norm": 0.8942393064498901
+            }
+          ],
+          "pair_id": "tqa:765",
+          "prompt_length": 82,
+          "answer_length": 8,
+          "final_answer_position": 89
+        }
+      ],
+      "baseline": {
+        "n": 192,
+        "correct": 59,
+        "wrong": 109,
+        "abstain": 24,
+        "answered": 168,
+        "net_correct_vs_baseline": 0,
+        "net_answered_vs_baseline": 0,
+        "transitions": {
+          "correct->correct": 59,
+          "correct->wrong": 0,
+          "correct->abstain": 0,
+          "wrong->correct": 0,
+          "wrong->wrong": 109,
+          "wrong->abstain": 0,
+          "abstain->correct": 0,
+          "abstain->wrong": 0,
+          "abstain->abstain": 24
+        },
+        "bad_character": 0,
+        "unfinished": 4
+      },
+      "original_das": {
+        "n": 192,
+        "correct": 62,
+        "wrong": 106,
+        "abstain": 24,
+        "answered": 168,
+        "net_correct_vs_baseline": 3,
+        "net_answered_vs_baseline": 0,
+        "transitions": {
+          "correct->correct": 59,
+          "correct->wrong": 0,
+          "correct->abstain": 0,
+          "wrong->correct": 3,
+          "wrong->wrong": 106,
+          "wrong->abstain": 0,
+          "abstain->correct": 0,
+          "abstain->wrong": 0,
+          "abstain->abstain": 24
+        },
+        "bad_character": 0,
+        "unfinished": 3
+      },
+      "adapted": {
+        "n": 192,
+        "correct": 59,
+        "wrong": 109,
+        "abstain": 24,
+        "answered": 168,
+        "net_correct_vs_baseline": 0,
+        "net_answered_vs_baseline": 0,
+        "transitions": {
+          "correct->correct": 57,
+          "correct->wrong": 2,
+          "correct->abstain": 0,
+          "wrong->correct": 2,
+          "wrong->wrong": 107,
+          "wrong->abstain": 0,
+          "abstain->correct": 0,
+          "abstain->wrong": 0,
+          "abstain->abstain": 24
+        },
+        "bad_character": 0,
+        "unfinished": 3
+      },
+      "identical_to_source_DAS_initial": false,
+      "same_alpha_common_baseline_and_original_das_identical": true,
+      "alpha3_original_das_matches_source_frozen_outputs": null
+    },
+    "llama3.1-8b/alpha3/das": {
+      "model": "llama3.1-8b",
+      "alpha": 3,
+      "init": "das",
+      "layer": 29,
+      "n_train": 92,
+      "epochs": 3,
+      "losses": [
+        {
+          "loss": 2.200596795781799,
+          "positive_token_ce": 2.200596795781799,
+          "pair_ranking": 0.0
+        },
+        {
+          "loss": 1.9933614909001018,
+          "positive_token_ce": 1.9933614909001018,
+          "pair_ranking": 0.0
+        },
+        {
+          "loss": 1.909432542712792,
+          "positive_token_ce": 1.909432542712792,
+          "pair_ranking": 0.0
+        }
+      ],
+      "gradient_audit": {
+        "minimum": 0.45082125067710876,
+        "maximum": 37.68472671508789,
+        "zero_updates": 0,
+        "updates": 276
+      },
+      "geometry": {
+        "signed_cosine": 0.47459737087453885,
+        "axis_angle_degrees": 61.66686187496321,
+        "unit_projector_frobenius_change": 1.244795031769468,
+        "initial_norm": 0.9999999956284883,
+        "final_norm": 1.000000132678876,
+        "top_initial_coordinates": [
+          [
+            290,
+            0.1401735097169876
+          ],
+          [
+            2932,
+            -0.1013415977358818
+          ],
+          [
+            2040,
+            0.0912010669708252
+          ],
+          [
+            3608,
+            -0.09070287644863129
+          ],
+          [
+            1815,
+            0.08628172427415848
+          ],
+          [
+            4062,
+            0.08617521822452545
+          ],
+          [
+            788,
+            0.0759141817688942
+          ],
+          [
+            1507,
+            0.07544948160648346
+          ]
+        ],
+        "top_final_coordinates": [
+          [
+            290,
+            0.11439865082502365
+          ],
+          [
+            2265,
+            0.09202734380960464
+          ],
+          [
+            2932,
+            -0.08767684549093246
+          ],
+          [
+            3881,
+            -0.08519677817821503
+          ],
+          [
+            2082,
+            0.08125028759241104
+          ],
+          [
+            1162,
+            -0.0808376669883728
+          ],
+          [
+            4062,
+            0.07980285584926605
+          ],
+          [
+            709,
+            -0.07638554275035858
+          ]
+        ],
+        "center": {
+          "prompt": {
+            "norm": 24.824635922085243,
+            "dominant_coordinate": 2352,
+            "dominant_value": -13.54345703125,
+            "dominant_energy_fraction": 0.2976413685286225,
+            "initial_weight_on_dominant_coordinate": -0.008692113682627678,
+            "final_weight_on_dominant_coordinate": -0.037787921726703644,
+            "projection_on_initial": 2.1559661964576318,
+            "projection_on_final": 2.731811682634376
+          },
+          "decode": {
+            "norm": 24.381313602283893,
+            "dominant_coordinate": 2352,
+            "dominant_value": -18.143850326538086,
+            "dominant_energy_fraction": 0.5537894884332659,
+            "initial_weight_on_dominant_coordinate": -0.008692113682627678,
+            "final_weight_on_dominant_coordinate": -0.037787921726703644,
+            "projection_on_initial": 2.4949637165572325,
+            "projection_on_final": 4.8439724315558825
+          }
+        },
+        "fixed_h_center_switch_delta_norm_initial": 1.0169925602988024,
+        "fixed_h_center_switch_delta_norm_final": 6.33648224676452,
+        "fixed_h_center_switch_scope": "algebra at identical h, not an empirical per-step residual-relative change"
+      },
+      "first_training_trace": [
+        {
+          "layer": 29,
+          "residual_dtype": "torch.bfloat16",
+          "writes": [
+            {
+              "center": "prompt",
+              "positions": [
+                [
+                  0,
+                  81
+                ]
+              ],
+              "intended_delta_norm": 1.5828490257263184,
+              "kept_delta_norm": 1.5826990604400635
+            },
+            {
+              "center": "decode",
+              "positions": [
+                [
+                  0,
+                  82
+                ],
+                [
+                  0,
+                  83
+                ],
+                [
+                  0,
+                  84
+                ],
+                [
+                  0,
+                  85
+                ],
+                [
+                  0,
+                  86
+                ],
+                [
+                  0,
+                  87
+                ],
+                [
+                  0,
+                  88
+                ]
+              ],
+              "intended_delta_norm": 5.179694175720215,
+              "kept_delta_norm": 5.182915687561035
+            }
+          ],
+          "pair_id": "tqa:765",
+          "prompt_length": 82,
+          "answer_length": 8,
+          "final_answer_position": 89
+        }
+      ],
+      "baseline": {
+        "n": 192,
+        "correct": 59,
+        "wrong": 109,
+        "abstain": 24,
+        "answered": 168,
+        "net_correct_vs_baseline": 0,
+        "net_answered_vs_baseline": 0,
+        "transitions": {
+          "correct->correct": 59,
+          "correct->wrong": 0,
+          "correct->abstain": 0,
+          "wrong->correct": 0,
+          "wrong->wrong": 109,
+          "wrong->abstain": 0,
+          "abstain->correct": 0,
+          "abstain->wrong": 0,
+          "abstain->abstain": 24
+        },
+        "bad_character": 0,
+        "unfinished": 4
+      },
+      "original_das": {
+        "n": 192,
+        "correct": 64,
+        "wrong": 102,
+        "abstain": 26,
+        "answered": 166,
+        "net_correct_vs_baseline": 5,
+        "net_answered_vs_baseline": -2,
+        "transitions": {
+          "correct->correct": 59,
+          "correct->wrong": 0,
+          "correct->abstain": 0,
+          "wrong->correct": 5,
+          "wrong->wrong": 102,
+          "wrong->abstain": 2,
+          "abstain->correct": 0,
+          "abstain->wrong": 0,
+          "abstain->abstain": 24
+        },
+        "bad_character": 0,
+        "unfinished": 4
+      },
+      "adapted": {
+        "n": 192,
+        "correct": 62,
+        "wrong": 107,
+        "abstain": 23,
+        "answered": 169,
+        "net_correct_vs_baseline": 3,
+        "net_answered_vs_baseline": 1,
+        "transitions": {
+          "correct->correct": 55,
+          "correct->wrong": 4,
+          "correct->abstain": 0,
+          "wrong->correct": 6,
+          "wrong->wrong": 103,
+          "wrong->abstain": 0,
+          "abstain->correct": 1,
+          "abstain->wrong": 0,
+          "abstain->abstain": 23
+        },
+        "bad_character": 0,
+        "unfinished": 8
+      },
+      "identical_to_source_DAS_initial": true,
+      "same_alpha_common_baseline_and_original_das_identical": true,
+      "alpha3_original_das_matches_source_frozen_outputs": true
+    },
+    "llama3.1-8b/alpha3/md": {
+      "model": "llama3.1-8b",
+      "alpha": 3,
+      "init": "md",
+      "layer": 29,
+      "n_train": 92,
+      "epochs": 3,
+      "losses": [
+        {
+          "loss": 2.276367942276208,
+          "positive_token_ce": 2.276367942276208,
+          "pair_ranking": 0.0
+        },
+        {
+          "loss": 2.0579913896710975,
+          "positive_token_ce": 2.0579913896710975,
+          "pair_ranking": 0.0
+        },
+        {
+          "loss": 1.9444158627935078,
+          "positive_token_ce": 1.9444158627935078,
+          "pair_ranking": 0.0
+        }
+      ],
+      "gradient_audit": {
+        "minimum": 0.3460036516189575,
+        "maximum": 33.20393753051758,
+        "zero_updates": 0,
+        "updates": 276
+      },
+      "geometry": {
+        "signed_cosine": 0.4506469998569113,
+        "axis_angle_degrees": 63.21479763067375,
+        "unit_projector_frobenius_change": 1.262471608805493,
+        "initial_norm": 1.000000001331606,
+        "final_norm": 1.0000000233865884,
+        "top_initial_coordinates": [
+          [
+            1800,
+            0.0967186763882637
+          ],
+          [
+            2082,
+            -0.09550189226865768
+          ],
+          [
+            788,
+            -0.090227410197258
+          ],
+          [
+            3881,
+            0.08331906050443649
+          ],
+          [
+            2219,
+            0.07465843856334686
+          ],
+          [
+            568,
+            -0.0722164735198021
+          ],
+          [
+            4062,
+            -0.06325850635766983
+          ],
+          [
+            2742,
+            -0.06210976839065552
+          ]
+        ],
+        "top_final_coordinates": [
+          [
+            2720,
+            0.08481819927692413
+          ],
+          [
+            2082,
+            -0.08431178331375122
+          ],
+          [
+            3881,
+            0.08393632620573044
+          ],
+          [
+            301,
+            -0.07175148278474808
+          ],
+          [
+            290,
+            0.07060785591602325
+          ],
+          [
+            3860,
+            -0.06597363203763962
+          ],
+          [
+            3837,
+            -0.0645044669508934
+          ],
+          [
+            1815,
+            -0.05739392712712288
+          ]
+        ],
+        "center": {
+          "prompt": {
+            "norm": 24.824635922085243,
+            "dominant_coordinate": 2352,
+            "dominant_value": -13.54345703125,
+            "dominant_energy_fraction": 0.2976413685286225,
+            "initial_weight_on_dominant_coordinate": -0.02725873701274395,
+            "final_weight_on_dominant_coordinate": -0.03986988589167595,
+            "projection_on_initial": 0.9524512422768081,
+            "projection_on_final": 1.7176527892913804
+          },
+          "decode": {
+            "norm": 24.381313602283893,
+            "dominant_coordinate": 2352,
+            "dominant_value": -18.143850326538086,
+            "dominant_energy_fraction": 0.5537894884332659,
+            "initial_weight_on_dominant_coordinate": -0.02725873701274395,
+            "final_weight_on_dominant_coordinate": -0.03986988589167595,
+            "projection_on_initial": 1.3347619444320857,
+            "projection_on_final": 2.055144710126032
+          }
+        },
+        "fixed_h_center_switch_delta_norm_initial": 1.146932106465833,
+        "fixed_h_center_switch_delta_norm_final": 1.0124757625039553,
+        "fixed_h_center_switch_scope": "algebra at identical h, not an empirical per-step residual-relative change"
+      },
+      "first_training_trace": [
+        {
+          "layer": 29,
+          "residual_dtype": "torch.bfloat16",
+          "writes": [
+            {
+              "center": "prompt",
+              "positions": [
+                [
+                  0,
+                  81
+                ]
+              ],
+              "intended_delta_norm": 2.282121419906616,
+              "kept_delta_norm": 2.2814321517944336
+            },
+            {
+              "center": "decode",
+              "positions": [
+                [
+                  0,
+                  82
+                ],
+                [
+                  0,
+                  83
+                ],
+                [
+                  0,
+                  84
+                ],
+                [
+                  0,
+                  85
+                ],
+                [
+                  0,
+                  86
+                ],
+                [
+                  0,
+                  87
+                ],
+                [
+                  0,
+                  88
+                ]
+              ],
+              "intended_delta_norm": 11.04198932647705,
+              "kept_delta_norm": 11.041956901550293
+            }
+          ],
+          "pair_id": "tqa:765",
+          "prompt_length": 82,
+          "answer_length": 8,
+          "final_answer_position": 89
+        }
+      ],
+      "baseline": {
+        "n": 192,
+        "correct": 59,
+        "wrong": 109,
+        "abstain": 24,
+        "answered": 168,
+        "net_correct_vs_baseline": 0,
+        "net_answered_vs_baseline": 0,
+        "transitions": {
+          "correct->correct": 59,
+          "correct->wrong": 0,
+          "correct->abstain": 0,
+          "wrong->correct": 0,
+          "wrong->wrong": 109,
+          "wrong->abstain": 0,
+          "abstain->correct": 0,
+          "abstain->wrong": 0,
+          "abstain->abstain": 24
+        },
+        "bad_character": 0,
+        "unfinished": 4
+      },
+      "original_das": {
+        "n": 192,
+        "correct": 64,
+        "wrong": 102,
+        "abstain": 26,
+        "answered": 166,
+        "net_correct_vs_baseline": 5,
+        "net_answered_vs_baseline": -2,
+        "transitions": {
+          "correct->correct": 59,
+          "correct->wrong": 0,
+          "correct->abstain": 0,
+          "wrong->correct": 5,
+          "wrong->wrong": 102,
+          "wrong->abstain": 2,
+          "abstain->correct": 0,
+          "abstain->wrong": 0,
+          "abstain->abstain": 24
+        },
+        "bad_character": 0,
+        "unfinished": 4
+      },
+      "adapted": {
+        "n": 192,
+        "correct": 61,
+        "wrong": 105,
+        "abstain": 26,
+        "answered": 166,
+        "net_correct_vs_baseline": 2,
+        "net_answered_vs_baseline": -2,
+        "transitions": {
+          "correct->correct": 56,
+          "correct->wrong": 3,
+          "correct->abstain": 0,
+          "wrong->correct": 5,
+          "wrong->wrong": 101,
+          "wrong->abstain": 3,
+          "abstain->correct": 0,
+          "abstain->wrong": 1,
+          "abstain->abstain": 23
+        },
+        "bad_character": 0,
+        "unfinished": 4
+      },
+      "identical_to_source_DAS_initial": false,
+      "same_alpha_common_baseline_and_original_das_identical": true,
+      "alpha3_original_das_matches_source_frozen_outputs": true
+    },
+    "llama3.1-8b/alpha3/random": {
+      "model": "llama3.1-8b",
+      "alpha": 3,
+      "init": "random",
+      "layer": 29,
+      "n_train": 92,
+      "epochs": 3,
+      "losses": [
+        {
+          "loss": 2.2722593937879023,
+          "positive_token_ce": 2.2722593937879023,
+          "pair_ranking": 0.0
+        },
+        {
+          "loss": 2.0775648394356603,
+          "positive_token_ce": 2.0775648394356603,
+          "pair_ranking": 0.0
+        },
+        {
+          "loss": 1.9226804216918738,
+          "positive_token_ce": 1.9226804216918738,
+          "pair_ranking": 0.0
+        }
+      ],
+      "gradient_audit": {
+        "minimum": 0.3144339621067047,
+        "maximum": 37.22850799560547,
+        "zero_updates": 0,
+        "updates": 276
+      },
+      "geometry": {
+        "signed_cosine": 0.2979932635518337,
+        "axis_angle_degrees": 72.66288632295121,
+        "unit_projector_frobenius_change": 1.3499629734757375,
+        "initial_norm": 1.0000000027886666,
+        "final_norm": 1.0000000076147175,
+        "top_initial_coordinates": [
+          [
+            824,
+            0.054214414209127426
+          ],
+          [
+            3700,
+            0.05301473289728165
+          ],
+          [
+            775,
+            -0.051538608968257904
+          ],
+          [
+            101,
+            -0.05059555172920227
+          ],
+          [
+            1781,
+            -0.04984862729907036
+          ],
+          [
+            2243,
+            -0.04979488253593445
+          ],
+          [
+            3439,
+            -0.049771834164857864
+          ],
+          [
+            2380,
+            0.04584856331348419
+          ]
+        ],
+        "top_final_coordinates": [
+          [
+            1815,
+            -0.07330451160669327
+          ],
+          [
+            2265,
+            -0.07268882542848587
+          ],
+          [
+            873,
+            -0.058389630168676376
+          ],
+          [
+            712,
+            0.05787548050284386
+          ],
+          [
+            1059,
+            0.056885894387960434
+          ],
+          [
+            2742,
+            -0.055962249636650085
+          ],
+          [
+            2330,
+            0.05364064499735832
+          ],
+          [
+            3788,
+            0.05207691714167595
+          ]
+        ],
+        "center": {
+          "prompt": {
+            "norm": 24.824635922085243,
+            "dominant_coordinate": 2352,
+            "dominant_value": -13.54345703125,
+            "dominant_energy_fraction": 0.2976413685286225,
+            "initial_weight_on_dominant_coordinate": 0.027346262708306313,
+            "final_weight_on_dominant_coordinate": 0.02470989152789116,
+            "projection_on_initial": 0.18523769888095465,
+            "projection_on_final": 1.4165868300924256
+          },
+          "decode": {
+            "norm": 24.381313602283893,
+            "dominant_coordinate": 2352,
+            "dominant_value": -18.143850326538086,
+            "dominant_energy_fraction": 0.5537894884332659,
+            "initial_weight_on_dominant_coordinate": 0.027346262708306313,
+            "final_weight_on_dominant_coordinate": 0.02470989152789116,
+            "projection_on_initial": -0.800406173668834,
+            "projection_on_final": 2.359596340004586
+          }
+        },
+        "fixed_h_center_switch_delta_norm_initial": 2.9569316176493663,
+        "fixed_h_center_switch_delta_norm_final": 2.829028529736482,
+        "fixed_h_center_switch_scope": "algebra at identical h, not an empirical per-step residual-relative change"
+      },
+      "first_training_trace": [
+        {
+          "layer": 29,
+          "residual_dtype": "torch.bfloat16",
+          "writes": [
+            {
+              "center": "prompt",
+              "positions": [
+                [
+                  0,
+                  81
+                ]
+              ],
+              "intended_delta_norm": 1.2786790132522583,
+              "kept_delta_norm": 1.2805074453353882
+            },
+            {
+              "center": "decode",
+              "positions": [
+                [
+                  0,
+                  82
+                ],
+                [
+                  0,
+                  83
+                ],
+                [
+                  0,
+                  84
+                ],
+                [
+                  0,
+                  85
+                ],
+                [
+                  0,
+                  86
+                ],
+                [
+                  0,
+                  87
+                ],
+                [
+                  0,
+                  88
+                ]
+              ],
+              "intended_delta_norm": 2.6510698795318604,
+              "kept_delta_norm": 2.6555840969085693
+            }
+          ],
+          "pair_id": "tqa:765",
+          "prompt_length": 82,
+          "answer_length": 8,
+          "final_answer_position": 89
+        }
+      ],
+      "baseline": {
+        "n": 192,
+        "correct": 59,
+        "wrong": 109,
+        "abstain": 24,
+        "answered": 168,
+        "net_correct_vs_baseline": 0,
+        "net_answered_vs_baseline": 0,
+        "transitions": {
+          "correct->correct": 59,
+          "correct->wrong": 0,
+          "correct->abstain": 0,
+          "wrong->correct": 0,
+          "wrong->wrong": 109,
+          "wrong->abstain": 0,
+          "abstain->correct": 0,
+          "abstain->wrong": 0,
+          "abstain->abstain": 24
+        },
+        "bad_character": 0,
+        "unfinished": 4
+      },
+      "original_das": {
+        "n": 192,
+        "correct": 64,
+        "wrong": 102,
+        "abstain": 26,
+        "answered": 166,
+        "net_correct_vs_baseline": 5,
+        "net_answered_vs_baseline": -2,
+        "transitions": {
+          "correct->correct": 59,
+          "correct->wrong": 0,
+          "correct->abstain": 0,
+          "wrong->correct": 5,
+          "wrong->wrong": 102,
+          "wrong->abstain": 2,
+          "abstain->correct": 0,
+          "abstain->wrong": 0,
+          "abstain->abstain": 24
+        },
+        "bad_character": 0,
+        "unfinished": 4
+      },
+      "adapted": {
+        "n": 192,
+        "correct": 60,
+        "wrong": 107,
+        "abstain": 25,
+        "answered": 167,
+        "net_correct_vs_baseline": 1,
+        "net_answered_vs_baseline": -1,
+        "transitions": {
+          "correct->correct": 56,
+          "correct->wrong": 2,
+          "correct->abstain": 1,
+          "wrong->correct": 4,
+          "wrong->wrong": 103,
+          "wrong->abstain": 2,
+          "abstain->correct": 0,
+          "abstain->wrong": 2,
+          "abstain->abstain": 22
+        },
+        "bad_character": 0,
+        "unfinished": 4
+      },
+      "identical_to_source_DAS_initial": false,
+      "same_alpha_common_baseline_and_original_das_identical": true,
+      "alpha3_original_das_matches_source_frozen_outputs": true
+    },
+    "qwen3-8b/alpha1/das": {
+      "model": "qwen3-8b",
+      "alpha": 1,
+      "init": "das",
+      "layer": 34,
+      "n_train": 92,
+      "epochs": 3,
+      "losses": [
+        {
+          "loss": 4.158952198193773,
+          "positive_token_ce": 4.158952198193773,
+          "pair_ranking": 0.0
+        },
+        {
+          "loss": 3.611017153436399,
+          "positive_token_ce": 3.611017153436399,
+          "pair_ranking": 0.0
+        },
+        {
+          "loss": 3.484959580206677,
+          "positive_token_ce": 3.484959580206677,
+          "pair_ranking": 0.0
+        }
+      ],
+      "gradient_audit": {
+        "minimum": 0.2911779582500458,
+        "maximum": 36.81190490722656,
+        "zero_updates": 0,
+        "updates": 276
+      },
+      "geometry": {
+        "signed_cosine": 0.2827947432460374,
+        "axis_angle_degrees": 73.57292523031214,
+        "unit_projector_frobenius_change": 1.3564859993323983,
+        "initial_norm": 1.000000035773254,
+        "final_norm": 1.0000000663892374,
+        "top_initial_coordinates": [
+          [
+            2276,
+            0.14917626976966858
+          ],
+          [
+            270,
+            -0.13933737576007843
+          ],
+          [
+            1838,
+            0.13125982880592346
+          ],
+          [
+            233,
+            -0.09927330911159515
+          ],
+          [
+            3470,
+            -0.09461943060159683
+          ],
+          [
+            822,
+            0.08986787497997284
+          ],
+          [
+            2613,
+            -0.0744175910949707
+          ],
+          [
+            3071,
+            -0.07061679661273956
+          ]
+        ],
+        "top_final_coordinates": [
+          [
+            2276,
+            0.24305130541324615
+          ],
+          [
+            1838,
+            0.23229943215847015
+          ],
+          [
+            2421,
+            0.16399359703063965
+          ],
+          [
+            3666,
+            -0.1259596049785614
+          ],
+          [
+            2284,
+            -0.09915741533041
+          ],
+          [
+            1214,
+            0.09834755212068558
+          ],
+          [
+            2613,
+            -0.09208876639604568
+          ],
+          [
+            2192,
+            -0.08843713253736496
+          ]
+        ],
+        "center": {
+          "prompt": {
+            "norm": 1189.2795219909099,
+            "dominant_coordinate": 2276,
+            "dominant_value": 869.5416870117188,
+            "dominant_energy_fraction": 0.5345802788602546,
+            "initial_weight_on_dominant_coordinate": 0.14917626976966858,
+            "final_weight_on_dominant_coordinate": 0.24305130541324615,
+            "projection_on_initial": 249.17809732013382,
+            "projection_on_final": 356.4505808410513
+          },
+          "decode": {
+            "norm": 1222.1328436283495,
+            "dominant_coordinate": 2276,
+            "dominant_value": 891.6705322265625,
+            "dominant_energy_fraction": 0.5323190369127038,
+            "initial_weight_on_dominant_coordinate": 0.14917626976966858,
+            "final_weight_on_dominant_coordinate": 0.24305130541324615,
+            "projection_on_initial": 226.61937140206533,
+            "projection_on_final": 373.21419253503615
+          }
+        },
+        "fixed_h_center_switch_delta_norm_initial": 22.55872591806848,
+        "fixed_h_center_switch_delta_norm_final": 16.76361169398484,
+        "fixed_h_center_switch_scope": "algebra at identical h, not an empirical per-step residual-relative change"
+      },
+      "first_training_trace": [
+        {
+          "layer": 34,
+          "residual_dtype": "torch.bfloat16",
+          "writes": [
+            {
+              "center": "prompt",
+              "positions": [
+                [
+                  0,
+                  63
+                ]
+              ],
+              "intended_delta_norm": 28.648296356201172,
+              "kept_delta_norm": 28.703954696655273
+            },
+            {
+              "center": "decode",
+              "positions": [
+                [
+                  0,
+                  64
+                ],
+                [
+                  0,
+                  65
+                ],
+                [
+                  0,
+                  66
+                ],
+                [
+                  0,
+                  67
+                ],
+                [
+                  0,
+                  68
+                ],
+                [
+                  0,
+                  69
+                ],
+                [
+                  0,
+                  70
+                ]
+              ],
+              "intended_delta_norm": 151.29144287109375,
+              "kept_delta_norm": 151.39617919921875
+            }
+          ],
+          "pair_id": "tqa:765",
+          "prompt_length": 64,
+          "answer_length": 8,
+          "final_answer_position": 71
+        }
+      ],
+      "baseline": {
+        "n": 192,
+        "correct": 50,
+        "wrong": 67,
+        "abstain": 75,
+        "answered": 117,
+        "net_correct_vs_baseline": 0,
+        "net_answered_vs_baseline": 0,
+        "transitions": {
+          "correct->correct": 50,
+          "correct->wrong": 0,
+          "correct->abstain": 0,
+          "wrong->correct": 0,
+          "wrong->wrong": 67,
+          "wrong->abstain": 0,
+          "abstain->correct": 0,
+          "abstain->wrong": 0,
+          "abstain->abstain": 75
+        },
+        "bad_character": 0,
+        "unfinished": 1
+      },
+      "original_das": {
+        "n": 192,
+        "correct": 48,
+        "wrong": 69,
+        "abstain": 75,
+        "answered": 117,
+        "net_correct_vs_baseline": -2,
+        "net_answered_vs_baseline": 0,
+        "transitions": {
+          "correct->correct": 48,
+          "correct->wrong": 2,
+          "correct->abstain": 0,
+          "wrong->correct": 0,
+          "wrong->wrong": 67,
+          "wrong->abstain": 0,
+          "abstain->correct": 0,
+          "abstain->wrong": 0,
+          "abstain->abstain": 75
+        },
+        "bad_character": 0,
+        "unfinished": 0
+      },
+      "adapted": {
+        "n": 192,
+        "correct": 50,
+        "wrong": 67,
+        "abstain": 75,
+        "answered": 117,
+        "net_correct_vs_baseline": 0,
+        "net_answered_vs_baseline": 0,
+        "transitions": {
+          "correct->correct": 46,
+          "correct->wrong": 3,
+          "correct->abstain": 1,
+          "wrong->correct": 3,
+          "wrong->wrong": 63,
+          "wrong->abstain": 1,
+          "abstain->correct": 1,
+          "abstain->wrong": 1,
+          "abstain->abstain": 73
+        },
+        "bad_character": 0,
+        "unfinished": 0
+      },
+      "identical_to_source_DAS_initial": true,
+      "same_alpha_common_baseline_and_original_das_identical": true,
+      "alpha3_original_das_matches_source_frozen_outputs": null
+    },
+    "qwen3-8b/alpha1/md": {
+      "model": "qwen3-8b",
+      "alpha": 1,
+      "init": "md",
+      "layer": 34,
+      "n_train": 92,
+      "epochs": 3,
+      "losses": [
+        {
+          "loss": 4.530657899930425,
+          "positive_token_ce": 4.530657899930425,
+          "pair_ranking": 0.0
+        },
+        {
+          "loss": 4.146264160995918,
+          "positive_token_ce": 4.146264160995918,
+          "pair_ranking": 0.0
+        },
+        {
+          "loss": 3.7389716580003984,
+          "positive_token_ce": 3.7389716580003984,
+          "pair_ranking": 0.0
+        }
+      ],
+      "gradient_audit": {
+        "minimum": 0.018683170899748802,
+        "maximum": 30.05936622619629,
+        "zero_updates": 0,
+        "updates": 276
+      },
+      "geometry": {
+        "signed_cosine": 0.19394972018142465,
+        "axis_angle_degrees": 78.81662429614711,
+        "unit_projector_frobenius_change": 1.3873597269933613,
+        "initial_norm": 1.0000000010430483,
+        "final_norm": 0.9999999866630899,
+        "top_initial_coordinates": [
+          [
+            2421,
+            -0.08095285296440125
+          ],
+          [
+            3179,
+            0.08077212423086166
+          ],
+          [
+            2276,
+            -0.08026999980211258
+          ],
+          [
+            3470,
+            0.07968992739915848
+          ],
+          [
+            3184,
+            0.07721632719039917
+          ],
+          [
+            3072,
+            0.07496504485607147
+          ],
+          [
+            3516,
+            0.07252084463834763
+          ],
+          [
+            3780,
+            -0.06852912157773972
+          ]
+        ],
+        "top_final_coordinates": [
+          [
+            2276,
+            -0.151570126414299
+          ],
+          [
+            1838,
+            -0.14130844175815582
+          ],
+          [
+            1134,
+            -0.09033425152301788
+          ],
+          [
+            2421,
+            -0.08539988100528717
+          ],
+          [
+            3666,
+            0.08462479710578918
+          ],
+          [
+            2284,
+            0.08372598141431808
+          ],
+          [
+            1794,
+            0.07895300537347794
+          ],
+          [
+            1297,
+            0.07616822421550751
+          ]
+        ],
+        "center": {
+          "prompt": {
+            "norm": 1189.2795219909099,
+            "dominant_coordinate": 2276,
+            "dominant_value": 869.5416870117188,
+            "dominant_energy_fraction": 0.5345802788602546,
+            "initial_weight_on_dominant_coordinate": -0.08026999980211258,
+            "final_weight_on_dominant_coordinate": -0.151570126414299,
+            "projection_on_initial": -134.8557594689244,
+            "projection_on_final": -213.796231230153
+          },
+          "decode": {
+            "norm": 1222.1328436283495,
+            "dominant_coordinate": 2276,
+            "dominant_value": 891.6705322265625,
+            "dominant_energy_fraction": 0.5323190369127038,
+            "initial_weight_on_dominant_coordinate": -0.08026999980211258,
+            "final_weight_on_dominant_coordinate": -0.151570126414299,
+            "projection_on_initial": -118.26704850835765,
+            "projection_on_final": -232.5460942258475
+          }
+        },
+        "fixed_h_center_switch_delta_norm_initial": 16.58871096056674,
+        "fixed_h_center_switch_delta_norm_final": 18.749862995694482,
+        "fixed_h_center_switch_scope": "algebra at identical h, not an empirical per-step residual-relative change"
+      },
+      "first_training_trace": [
+        {
+          "layer": 34,
+          "residual_dtype": "torch.bfloat16",
+          "writes": [
+            {
+              "center": "prompt",
+              "positions": [
+                [
+                  0,
+                  63
+                ]
+              ],
+              "intended_delta_norm": 27.62651824951172,
+              "kept_delta_norm": 27.80474853515625
+            },
+            {
+              "center": "decode",
+              "positions": [
+                [
+                  0,
+                  64
+                ],
+                [
+                  0,
+                  65
+                ],
+                [
+                  0,
+                  66
+                ],
+                [
+                  0,
+                  67
+                ],
+                [
+                  0,
+                  68
+                ],
+                [
+                  0,
+                  69
+                ],
+                [
+                  0,
+                  70
+                ]
+              ],
+              "intended_delta_norm": 108.80411529541016,
+              "kept_delta_norm": 108.79005432128906
+            }
+          ],
+          "pair_id": "tqa:765",
+          "prompt_length": 64,
+          "answer_length": 8,
+          "final_answer_position": 71
+        }
+      ],
+      "baseline": {
+        "n": 192,
+        "correct": 50,
+        "wrong": 67,
+        "abstain": 75,
+        "answered": 117,
+        "net_correct_vs_baseline": 0,
+        "net_answered_vs_baseline": 0,
+        "transitions": {
+          "correct->correct": 50,
+          "correct->wrong": 0,
+          "correct->abstain": 0,
+          "wrong->correct": 0,
+          "wrong->wrong": 67,
+          "wrong->abstain": 0,
+          "abstain->correct": 0,
+          "abstain->wrong": 0,
+          "abstain->abstain": 75
+        },
+        "bad_character": 0,
+        "unfinished": 1
+      },
+      "original_das": {
+        "n": 192,
+        "correct": 48,
+        "wrong": 69,
+        "abstain": 75,
+        "answered": 117,
+        "net_correct_vs_baseline": -2,
+        "net_answered_vs_baseline": 0,
+        "transitions": {
+          "correct->correct": 48,
+          "correct->wrong": 2,
+          "correct->abstain": 0,
+          "wrong->correct": 0,
+          "wrong->wrong": 67,
+          "wrong->abstain": 0,
+          "abstain->correct": 0,
+          "abstain->wrong": 0,
+          "abstain->abstain": 75
+        },
+        "bad_character": 0,
+        "unfinished": 0
+      },
+      "adapted": {
+        "n": 192,
+        "correct": 51,
+        "wrong": 66,
+        "abstain": 75,
+        "answered": 117,
+        "net_correct_vs_baseline": 1,
+        "net_answered_vs_baseline": 0,
+        "transitions": {
+          "correct->correct": 46,
+          "correct->wrong": 3,
+          "correct->abstain": 1,
+          "wrong->correct": 4,
+          "wrong->wrong": 62,
+          "wrong->abstain": 1,
+          "abstain->correct": 1,
+          "abstain->wrong": 1,
+          "abstain->abstain": 73
+        },
+        "bad_character": 0,
+        "unfinished": 0
+      },
+      "identical_to_source_DAS_initial": false,
+      "same_alpha_common_baseline_and_original_das_identical": true,
+      "alpha3_original_das_matches_source_frozen_outputs": null
+    },
+    "qwen3-8b/alpha1/random": {
+      "model": "qwen3-8b",
+      "alpha": 1,
+      "init": "random",
+      "layer": 34,
+      "n_train": 92,
+      "epochs": 3,
+      "losses": [
+        {
+          "loss": 4.529602720847596,
+          "positive_token_ce": 4.529602720847596,
+          "pair_ranking": 0.0
+        },
+        {
+          "loss": 4.050474949747972,
+          "positive_token_ce": 4.050474949747972,
+          "pair_ranking": 0.0
+        },
+        {
+          "loss": 3.649179028387627,
+          "positive_token_ce": 3.649179028387627,
+          "pair_ranking": 0.0
+        }
+      ],
+      "gradient_audit": {
+        "minimum": 0.21662519872188568,
+        "maximum": 26.849105834960938,
+        "zero_updates": 0,
+        "updates": 276
+      },
+      "geometry": {
+        "signed_cosine": 0.10907816852514554,
+        "axis_angle_degrees": 83.73782123683614,
+        "unit_projector_frobenius_change": 1.4057751976409314,
+        "initial_norm": 1.000000140602974,
+        "final_norm": 1.000000051790316,
+        "top_initial_coordinates": [
+          [
+            3500,
+            0.05993690341711044
+          ],
+          [
+            3958,
+            0.05806003138422966
+          ],
+          [
+            2330,
+            -0.05732595548033714
+          ],
+          [
+            1140,
+            -0.04899005591869354
+          ],
+          [
+            295,
+            0.04822983965277672
+          ],
+          [
+            3088,
+            0.047852884978055954
+          ],
+          [
+            366,
+            0.0476842001080513
+          ],
+          [
+            2526,
+            -0.04751403257250786
+          ]
+        ],
+        "top_final_coordinates": [
+          [
+            2276,
+            0.14255626499652863
+          ],
+          [
+            1838,
+            0.12962539494037628
+          ],
+          [
+            3666,
+            -0.11703792959451675
+          ],
+          [
+            2613,
+            -0.10658354312181473
+          ],
+          [
+            2421,
+            0.10359464585781097
+          ],
+          [
+            1214,
+            0.0975380465388298
+          ],
+          [
+            2202,
+            0.08844608813524246
+          ],
+          [
+            2192,
+            -0.07685941457748413
+          ]
+        ],
+        "center": {
+          "prompt": {
+            "norm": 1189.2795219909099,
+            "dominant_coordinate": 2276,
+            "dominant_value": 869.5416870117188,
+            "dominant_energy_fraction": 0.5345802788602546,
+            "initial_weight_on_dominant_coordinate": 0.03967355191707611,
+            "final_weight_on_dominant_coordinate": 0.14255626499652863,
+            "projection_on_initial": 33.224720358721676,
+            "projection_on_final": 196.41466994112844
+          },
+          "decode": {
+            "norm": 1222.1328436283495,
+            "dominant_coordinate": 2276,
+            "dominant_value": 891.6705322265625,
+            "dominant_energy_fraction": 0.5323190369127038,
+            "initial_weight_on_dominant_coordinate": 0.03967355191707611,
+            "final_weight_on_dominant_coordinate": 0.14255626499652863,
+            "projection_on_initial": 40.87219801899578,
+            "projection_on_final": 205.4540008530599
+          }
+        },
+        "fixed_h_center_switch_delta_norm_initial": 7.64747766027411,
+        "fixed_h_center_switch_delta_norm_final": 9.039330911931465,
+        "fixed_h_center_switch_scope": "algebra at identical h, not an empirical per-step residual-relative change"
+      },
+      "first_training_trace": [
+        {
+          "layer": 34,
+          "residual_dtype": "torch.bfloat16",
+          "writes": [
+            {
+              "center": "prompt",
+              "positions": [
+                [
+                  0,
+                  63
+                ]
+              ],
+              "intended_delta_norm": 14.250753402709961,
+              "kept_delta_norm": 14.288955688476562
+            },
+            {
+              "center": "decode",
+              "positions": [
+                [
+                  0,
+                  64
+                ],
+                [
+                  0,
+                  65
+                ],
+                [
+                  0,
+                  66
+                ],
+                [
+                  0,
+                  67
+                ],
+                [
+                  0,
+                  68
+                ],
+                [
+                  0,
+                  69
+                ],
+                [
+                  0,
+                  70
+                ]
+              ],
+              "intended_delta_norm": 21.890838623046875,
+              "kept_delta_norm": 22.032424926757812
+            }
+          ],
+          "pair_id": "tqa:765",
+          "prompt_length": 64,
+          "answer_length": 8,
+          "final_answer_position": 71
+        }
+      ],
+      "baseline": {
+        "n": 192,
+        "correct": 50,
+        "wrong": 67,
+        "abstain": 75,
+        "answered": 117,
+        "net_correct_vs_baseline": 0,
+        "net_answered_vs_baseline": 0,
+        "transitions": {
+          "correct->correct": 50,
+          "correct->wrong": 0,
+          "correct->abstain": 0,
+          "wrong->correct": 0,
+          "wrong->wrong": 67,
+          "wrong->abstain": 0,
+          "abstain->correct": 0,
+          "abstain->wrong": 0,
+          "abstain->abstain": 75
+        },
+        "bad_character": 0,
+        "unfinished": 1
+      },
+      "original_das": {
+        "n": 192,
+        "correct": 48,
+        "wrong": 69,
+        "abstain": 75,
+        "answered": 117,
+        "net_correct_vs_baseline": -2,
+        "net_answered_vs_baseline": 0,
+        "transitions": {
+          "correct->correct": 48,
+          "correct->wrong": 2,
+          "correct->abstain": 0,
+          "wrong->correct": 0,
+          "wrong->wrong": 67,
+          "wrong->abstain": 0,
+          "abstain->correct": 0,
+          "abstain->wrong": 0,
+          "abstain->abstain": 75
+        },
+        "bad_character": 0,
+        "unfinished": 0
+      },
+      "adapted": {
+        "n": 192,
+        "correct": 50,
+        "wrong": 67,
+        "abstain": 75,
+        "answered": 117,
+        "net_correct_vs_baseline": 0,
+        "net_answered_vs_baseline": 0,
+        "transitions": {
+          "correct->correct": 46,
+          "correct->wrong": 3,
+          "correct->abstain": 1,
+          "wrong->correct": 3,
+          "wrong->wrong": 63,
+          "wrong->abstain": 1,
+          "abstain->correct": 1,
+          "abstain->wrong": 1,
+          "abstain->abstain": 73
+        },
+        "bad_character": 0,
+        "unfinished": 0
+      },
+      "identical_to_source_DAS_initial": false,
+      "same_alpha_common_baseline_and_original_das_identical": true,
+      "alpha3_original_das_matches_source_frozen_outputs": null
+    },
+    "qwen3-8b/alpha3/das": {
+      "model": "qwen3-8b",
+      "alpha": 3,
+      "init": "das",
+      "layer": 34,
+      "n_train": 92,
+      "epochs": 3,
+      "losses": [
+        {
+          "loss": 3.571449740546877,
+          "positive_token_ce": 3.571449740546877,
+          "pair_ranking": 0.0
+        },
+        {
+          "loss": 2.7632791399145904,
+          "positive_token_ce": 2.7632791399145904,
+          "pair_ranking": 0.0
+        },
+        {
+          "loss": 2.582988034852821,
+          "positive_token_ce": 2.582988034852821,
+          "pair_ranking": 0.0
+        }
+      ],
+      "gradient_audit": {
+        "minimum": 0.22188273072242737,
+        "maximum": 135.44801330566406,
+        "zero_updates": 0,
+        "updates": 276
+      },
+      "geometry": {
+        "signed_cosine": 0.4249689295934269,
+        "axis_angle_degrees": 64.85130322676179,
+        "unit_projector_frobenius_change": 1.2801573410172806,
+        "initial_norm": 1.000000035773254,
+        "final_norm": 0.9999999590589984,
+        "top_initial_coordinates": [
+          [
+            2276,
+            0.14917626976966858
+          ],
+          [
+            270,
+            -0.13933737576007843
+          ],
+          [
+            1838,
+            0.13125982880592346
+          ],
+          [
+            233,
+            -0.09927330911159515
+          ],
+          [
+            3470,
+            -0.09461943060159683
+          ],
+          [
+            822,
+            0.08986787497997284
+          ],
+          [
+            2613,
+            -0.0744175910949707
+          ],
+          [
+            3071,
+            -0.07061679661273956
+          ]
+        ],
+        "top_final_coordinates": [
+          [
+            2276,
+            0.1757453978061676
+          ],
+          [
+            1838,
+            0.16156017780303955
+          ],
+          [
+            2421,
+            0.0914730578660965
+          ],
+          [
+            3666,
+            -0.08515726774930954
+          ],
+          [
+            207,
+            -0.07270345091819763
+          ],
+          [
+            822,
+            0.06584642827510834
+          ],
+          [
+            435,
+            0.05910922586917877
+          ],
+          [
+            676,
+            0.05630045756697655
+          ]
+        ],
+        "center": {
+          "prompt": {
+            "norm": 1189.2795219909099,
+            "dominant_coordinate": 2276,
+            "dominant_value": 869.5416870117188,
+            "dominant_energy_fraction": 0.5345802788602546,
+            "initial_weight_on_dominant_coordinate": 0.14917626976966858,
+            "final_weight_on_dominant_coordinate": 0.1757453978061676,
+            "projection_on_initial": 249.17809732013382,
+            "projection_on_final": 264.0815598837254
+          },
+          "decode": {
+            "norm": 1222.1328436283495,
+            "dominant_coordinate": 2276,
+            "dominant_value": 891.6705322265625,
+            "dominant_energy_fraction": 0.5323190369127038,
+            "initial_weight_on_dominant_coordinate": 0.14917626976966858,
+            "final_weight_on_dominant_coordinate": 0.1757453978061676,
+            "projection_on_initial": 226.61937140206533,
+            "projection_on_final": 273.21954000536215
+          }
+        },
+        "fixed_h_center_switch_delta_norm_initial": 67.67617775420544,
+        "fixed_h_center_switch_delta_norm_final": 27.41394036491029,
+        "fixed_h_center_switch_scope": "algebra at identical h, not an empirical per-step residual-relative change"
+      },
+      "first_training_trace": [
+        {
+          "layer": 34,
+          "residual_dtype": "torch.bfloat16",
+          "writes": [
+            {
+              "center": "prompt",
+              "positions": [
+                [
+                  0,
+                  63
+                ]
+              ],
+              "intended_delta_norm": 85.94488525390625,
+              "kept_delta_norm": 85.94224548339844
+            },
+            {
+              "center": "decode",
+              "positions": [
+                [
+                  0,
+                  64
+                ],
+                [
+                  0,
+                  65
+                ],
+                [
+                  0,
+                  66
+                ],
+                [
+                  0,
+                  67
+                ],
+                [
+                  0,
+                  68
+                ],
+                [
+                  0,
+                  69
+                ],
+                [
+                  0,
+                  70
+                ]
+              ],
+              "intended_delta_norm": 453.87432861328125,
+              "kept_delta_norm": 454.1385803222656
+            }
+          ],
+          "pair_id": "tqa:765",
+          "prompt_length": 64,
+          "answer_length": 8,
+          "final_answer_position": 71
+        }
+      ],
+      "baseline": {
+        "n": 192,
+        "correct": 50,
+        "wrong": 67,
+        "abstain": 75,
+        "answered": 117,
+        "net_correct_vs_baseline": 0,
+        "net_answered_vs_baseline": 0,
+        "transitions": {
+          "correct->correct": 50,
+          "correct->wrong": 0,
+          "correct->abstain": 0,
+          "wrong->correct": 0,
+          "wrong->wrong": 67,
+          "wrong->abstain": 0,
+          "abstain->correct": 0,
+          "abstain->wrong": 0,
+          "abstain->abstain": 75
+        },
+        "bad_character": 0,
+        "unfinished": 1
+      },
+      "original_das": {
+        "n": 192,
+        "correct": 51,
+        "wrong": 65,
+        "abstain": 76,
+        "answered": 116,
+        "net_correct_vs_baseline": 1,
+        "net_answered_vs_baseline": -1,
+        "transitions": {
+          "correct->correct": 47,
+          "correct->wrong": 3,
+          "correct->abstain": 0,
+          "wrong->correct": 4,
+          "wrong->wrong": 62,
+          "wrong->abstain": 1,
+          "abstain->correct": 0,
+          "abstain->wrong": 0,
+          "abstain->abstain": 75
+        },
+        "bad_character": 0,
+        "unfinished": 1
+      },
+      "adapted": {
+        "n": 192,
+        "correct": 66,
+        "wrong": 67,
+        "abstain": 59,
+        "answered": 133,
+        "net_correct_vs_baseline": 16,
+        "net_answered_vs_baseline": 16,
+        "transitions": {
+          "correct->correct": 46,
+          "correct->wrong": 3,
+          "correct->abstain": 1,
+          "wrong->correct": 5,
+          "wrong->wrong": 61,
+          "wrong->abstain": 1,
+          "abstain->correct": 15,
+          "abstain->wrong": 3,
+          "abstain->abstain": 57
+        },
+        "bad_character": 32,
+        "unfinished": 11
+      },
+      "identical_to_source_DAS_initial": true,
+      "same_alpha_common_baseline_and_original_das_identical": true,
+      "alpha3_original_das_matches_source_frozen_outputs": true
+    },
+    "qwen3-8b/alpha3/md": {
+      "model": "qwen3-8b",
+      "alpha": 3,
+      "init": "md",
+      "layer": 34,
+      "n_train": 92,
+      "epochs": 3,
+      "losses": [
+        {
+          "loss": 4.227218455288296,
+          "positive_token_ce": 4.227218455288296,
+          "pair_ranking": 0.0
+        },
+        {
+          "loss": 3.230744162826222,
+          "positive_token_ce": 3.230744162826222,
+          "pair_ranking": 0.0
+        },
+        {
+          "loss": 2.769540495056983,
+          "positive_token_ce": 2.769540495056983,
+          "pair_ranking": 0.0
+        }
+      ],
+      "gradient_audit": {
+        "minimum": 0.08206559717655182,
+        "maximum": 76.64163970947266,
+        "zero_updates": 0,
+        "updates": 276
+      },
+      "geometry": {
+        "signed_cosine": 0.3121481022216898,
+        "axis_angle_degrees": 71.81126710941734,
+        "unit_projector_frobenius_change": 1.3435501942833379,
+        "initial_norm": 1.0000000010430483,
+        "final_norm": 1.0000000973015735,
+        "top_initial_coordinates": [
+          [
+            2421,
+            -0.08095285296440125
+          ],
+          [
+            3179,
+            0.08077212423086166
+          ],
+          [
+            2276,
+            -0.08026999980211258
+          ],
+          [
+            3470,
+            0.07968992739915848
+          ],
+          [
+            3184,
+            0.07721632719039917
+          ],
+          [
+            3072,
+            0.07496504485607147
+          ],
+          [
+            3516,
+            0.07252084463834763
+          ],
+          [
+            3780,
+            -0.06852912157773972
+          ]
+        ],
+        "top_final_coordinates": [
+          [
+            676,
+            0.08235283941030502
+          ],
+          [
+            1989,
+            -0.057971205562353134
+          ],
+          [
+            682,
+            0.05717785283923149
+          ],
+          [
+            1214,
+            0.05644771084189415
+          ],
+          [
+            2113,
+            0.05610211193561554
+          ],
+          [
+            305,
+            -0.05408623814582825
+          ],
+          [
+            1598,
+            -0.05274079367518425
+          ],
+          [
+            3280,
+            -0.052036162465810776
+          ]
+        ],
+        "center": {
+          "prompt": {
+            "norm": 1189.2795219909099,
+            "dominant_coordinate": 2276,
+            "dominant_value": 869.5416870117188,
+            "dominant_energy_fraction": 0.5345802788602546,
+            "initial_weight_on_dominant_coordinate": -0.08026999980211258,
+            "final_weight_on_dominant_coordinate": -0.022837156429886818,
+            "projection_on_initial": -134.8557594689244,
+            "projection_on_final": -75.77672886065487
+          },
+          "decode": {
+            "norm": 1222.1328436283495,
+            "dominant_coordinate": 2276,
+            "dominant_value": 891.6705322265625,
+            "dominant_energy_fraction": 0.5323190369127038,
+            "initial_weight_on_dominant_coordinate": -0.08026999980211258,
+            "final_weight_on_dominant_coordinate": -0.022837156429886818,
+            "projection_on_initial": -118.26704850835765,
+            "projection_on_final": -96.61548607889753
+          }
+        },
+        "fixed_h_center_switch_delta_norm_initial": 49.766132881700216,
+        "fixed_h_center_switch_delta_norm_final": 62.516271654728,
+        "fixed_h_center_switch_scope": "algebra at identical h, not an empirical per-step residual-relative change"
+      },
+      "first_training_trace": [
+        {
+          "layer": 34,
+          "residual_dtype": "torch.bfloat16",
+          "writes": [
+            {
+              "center": "prompt",
+              "positions": [
+                [
+                  0,
+                  63
+                ]
+              ],
+              "intended_delta_norm": 82.87955474853516,
+              "kept_delta_norm": 82.96012878417969
+            },
+            {
+              "center": "decode",
+              "positions": [
+                [
+                  0,
+                  64
+                ],
+                [
+                  0,
+                  65
+                ],
+                [
+                  0,
+                  66
+                ],
+                [
+                  0,
+                  67
+                ],
+                [
+                  0,
+                  68
+                ],
+                [
+                  0,
+                  69
+                ],
+                [
+                  0,
+                  70
+                ]
+              ],
+              "intended_delta_norm": 326.412353515625,
+              "kept_delta_norm": 326.2687072753906
+            }
+          ],
+          "pair_id": "tqa:765",
+          "prompt_length": 64,
+          "answer_length": 8,
+          "final_answer_position": 71
+        }
+      ],
+      "baseline": {
+        "n": 192,
+        "correct": 50,
+        "wrong": 67,
+        "abstain": 75,
+        "answered": 117,
+        "net_correct_vs_baseline": 0,
+        "net_answered_vs_baseline": 0,
+        "transitions": {
+          "correct->correct": 50,
+          "correct->wrong": 0,
+          "correct->abstain": 0,
+          "wrong->correct": 0,
+          "wrong->wrong": 67,
+          "wrong->abstain": 0,
+          "abstain->correct": 0,
+          "abstain->wrong": 0,
+          "abstain->abstain": 75
+        },
+        "bad_character": 0,
+        "unfinished": 1
+      },
+      "original_das": {
+        "n": 192,
+        "correct": 51,
+        "wrong": 65,
+        "abstain": 76,
+        "answered": 116,
+        "net_correct_vs_baseline": 1,
+        "net_answered_vs_baseline": -1,
+        "transitions": {
+          "correct->correct": 47,
+          "correct->wrong": 3,
+          "correct->abstain": 0,
+          "wrong->correct": 4,
+          "wrong->wrong": 62,
+          "wrong->abstain": 1,
+          "abstain->correct": 0,
+          "abstain->wrong": 0,
+          "abstain->abstain": 75
+        },
+        "bad_character": 0,
+        "unfinished": 1
+      },
+      "adapted": {
+        "n": 192,
+        "correct": 54,
+        "wrong": 69,
+        "abstain": 69,
+        "answered": 123,
+        "net_correct_vs_baseline": 4,
+        "net_answered_vs_baseline": 6,
+        "transitions": {
+          "correct->correct": 42,
+          "correct->wrong": 7,
+          "correct->abstain": 1,
+          "wrong->correct": 5,
+          "wrong->wrong": 61,
+          "wrong->abstain": 1,
+          "abstain->correct": 7,
+          "abstain->wrong": 1,
+          "abstain->abstain": 67
+        },
+        "bad_character": 0,
+        "unfinished": 3
+      },
+      "identical_to_source_DAS_initial": false,
+      "same_alpha_common_baseline_and_original_das_identical": true,
+      "alpha3_original_das_matches_source_frozen_outputs": true
+    },
+    "qwen3-8b/alpha3/random": {
+      "model": "qwen3-8b",
+      "alpha": 3,
+      "init": "random",
+      "layer": 34,
+      "n_train": 92,
+      "epochs": 3,
+      "losses": [
+        {
+          "loss": 4.383752108835008,
+          "positive_token_ce": 4.383752108835008,
+          "pair_ranking": 0.0
+        },
+        {
+          "loss": 3.1420761792738316,
+          "positive_token_ce": 3.1420761792738316,
+          "pair_ranking": 0.0
+        },
+        {
+          "loss": 2.627190020026477,
+          "positive_token_ce": 2.627190020026477,
+          "pair_ranking": 0.0
+        }
+      ],
+      "gradient_audit": {
+        "minimum": 0.17739878594875336,
+        "maximum": 74.65357971191406,
+        "zero_updates": 0,
+        "updates": 276
+      },
+      "geometry": {
+        "signed_cosine": 0.22633548819024712,
+        "axis_angle_degrees": 76.9185778994487,
+        "unit_projector_frobenius_change": 1.3775138814441634,
+        "initial_norm": 1.000000140602974,
+        "final_norm": 0.9999999630215436,
+        "top_initial_coordinates": [
+          [
+            3500,
+            0.05993690341711044
+          ],
+          [
+            3958,
+            0.05806003138422966
+          ],
+          [
+            2330,
+            -0.05732595548033714
+          ],
+          [
+            1140,
+            -0.04899005591869354
+          ],
+          [
+            295,
+            0.04822983965277672
+          ],
+          [
+            3088,
+            0.047852884978055954
+          ],
+          [
+            366,
+            0.0476842001080513
+          ],
+          [
+            2526,
+            -0.04751403257250786
+          ]
+        ],
+        "top_final_coordinates": [
+          [
+            2276,
+            0.09394829720258713
+          ],
+          [
+            3666,
+            -0.08619479835033417
+          ],
+          [
+            2613,
+            -0.08492109179496765
+          ],
+          [
+            1838,
+            0.07882685214281082
+          ],
+          [
+            2421,
+            0.07348327338695526
+          ],
+          [
+            1214,
+            0.07017787545919418
+          ],
+          [
+            676,
+            0.06453997641801834
+          ],
+          [
+            3975,
+            -0.06378567963838577
+          ]
+        ],
+        "center": {
+          "prompt": {
+            "norm": 1189.2795219909099,
+            "dominant_coordinate": 2276,
+            "dominant_value": 869.5416870117188,
+            "dominant_energy_fraction": 0.5345802788602546,
+            "initial_weight_on_dominant_coordinate": 0.03967355191707611,
+            "final_weight_on_dominant_coordinate": 0.09394829720258713,
+            "projection_on_initial": 33.224720358721676,
+            "projection_on_final": 118.39141339760805
+          },
+          "decode": {
+            "norm": 1222.1328436283495,
+            "dominant_coordinate": 2276,
+            "dominant_value": 891.6705322265625,
+            "dominant_energy_fraction": 0.5323190369127038,
+            "initial_weight_on_dominant_coordinate": 0.03967355191707611,
+            "final_weight_on_dominant_coordinate": 0.09394829720258713,
+            "projection_on_initial": 40.87219801899578,
+            "projection_on_final": 118.44035980181427
+          }
+        },
+        "fixed_h_center_switch_delta_norm_initial": 22.942432980822332,
+        "fixed_h_center_switch_delta_norm_final": 0.1468392126186534,
+        "fixed_h_center_switch_scope": "algebra at identical h, not an empirical per-step residual-relative change"
+      },
+      "first_training_trace": [
+        {
+          "layer": 34,
+          "residual_dtype": "torch.bfloat16",
+          "writes": [
+            {
+              "center": "prompt",
+              "positions": [
+                [
+                  0,
+                  63
+                ]
+              ],
+              "intended_delta_norm": 42.75225830078125,
+              "kept_delta_norm": 42.75313949584961
+            },
+            {
+              "center": "decode",
+              "positions": [
+                [
+                  0,
+                  64
+                ],
+                [
+                  0,
+                  65
+                ],
+                [
+                  0,
+                  66
+                ],
+                [
+                  0,
+                  67
+                ],
+                [
+                  0,
+                  68
+                ],
+                [
+                  0,
+                  69
+                ],
+                [
+                  0,
+                  70
+                ]
+              ],
+              "intended_delta_norm": 65.67251586914062,
+              "kept_delta_norm": 65.7137451171875
+            }
+          ],
+          "pair_id": "tqa:765",
+          "prompt_length": 64,
+          "answer_length": 8,
+          "final_answer_position": 71
+        }
+      ],
+      "baseline": {
+        "n": 192,
+        "correct": 50,
+        "wrong": 67,
+        "abstain": 75,
+        "answered": 117,
+        "net_correct_vs_baseline": 0,
+        "net_answered_vs_baseline": 0,
+        "transitions": {
+          "correct->correct": 50,
+          "correct->wrong": 0,
+          "correct->abstain": 0,
+          "wrong->correct": 0,
+          "wrong->wrong": 67,
+          "wrong->abstain": 0,
+          "abstain->correct": 0,
+          "abstain->wrong": 0,
+          "abstain->abstain": 75
+        },
+        "bad_character": 0,
+        "unfinished": 1
+      },
+      "original_das": {
+        "n": 192,
+        "correct": 51,
+        "wrong": 65,
+        "abstain": 76,
+        "answered": 116,
+        "net_correct_vs_baseline": 1,
+        "net_answered_vs_baseline": -1,
+        "transitions": {
+          "correct->correct": 47,
+          "correct->wrong": 3,
+          "correct->abstain": 0,
+          "wrong->correct": 4,
+          "wrong->wrong": 62,
+          "wrong->abstain": 1,
+          "abstain->correct": 0,
+          "abstain->wrong": 0,
+          "abstain->abstain": 75
+        },
+        "bad_character": 0,
+        "unfinished": 1
+      },
+      "adapted": {
+        "n": 192,
+        "correct": 61,
+        "wrong": 74,
+        "abstain": 57,
+        "answered": 135,
+        "net_correct_vs_baseline": 11,
+        "net_answered_vs_baseline": 18,
+        "transitions": {
+          "correct->correct": 45,
+          "correct->wrong": 4,
+          "correct->abstain": 1,
+          "wrong->correct": 2,
+          "wrong->wrong": 64,
+          "wrong->abstain": 1,
+          "abstain->correct": 14,
+          "abstain->wrong": 6,
+          "abstain->abstain": 55
+        },
+        "bad_character": 0,
+        "unfinished": 5
+      },
+      "identical_to_source_DAS_initial": false,
+      "same_alpha_common_baseline_and_original_das_identical": true,
+      "alpha3_original_das_matches_source_frozen_outputs": true
+    }
+  },
+  "cross_model": {
+    "same_training_and_tuning_question_ids": true,
+    "baseline_outcome_cross_table": {
+      "correct|correct": 34,
+      "correct|wrong": 10,
+      "correct|abstain": 15,
+      "wrong|correct": 16,
+      "wrong|wrong": 55,
+      "wrong|abstain": 38,
+      "abstain|correct": 0,
+      "abstain|wrong": 2,
+      "abstain|abstain": 22
+    },
+    "qwen_gained_correct_20_llama_baseline_outcomes": {
+      "wrong": 10,
+      "abstain": 5,
+      "correct": 5
+    },
+    "common_subgroups": {
+      "both_answered": {
+        "n": 115,
+        "ids": [
+          "tqa:685",
+          "tqa:270",
+          "tqa:480",
+          "tqa:123",
+          "tqa:313",
+          "tqa:374",
+          "tqa:720",
+          "tqa:533",
+          "tqa:174",
+          "tqa:479",
+          "tqa:320",
+          "tqa:682",
+          "tqa:224",
+          "tqa:42",
+          "tqa:235",
+          "tqa:610",
+          "tqa:304",
+          "tqa:603",
+          "tqa:729",
+          "tqa:646",
+          "tqa:382",
+          "tqa:375",
+          "tqa:803",
+          "tqa:119",
+          "tqa:555",
+          "tqa:46",
+          "tqa:246",
+          "tqa:292",
+          "tqa:747",
+          "tqa:645",
+          "tqa:276",
+          "tqa:378",
+          "tqa:257",
+          "tqa:419",
+          "tqa:476",
+          "tqa:9",
+          "tqa:58",
+          "tqa:187",
+          "tqa:401",
+          "tqa:666",
+          "tqa:190",
+          "tqa:667",
+          "tqa:806",
+          "tqa:286",
+          "tqa:145",
+          "tqa:540",
+          "tqa:35",
+          "tqa:497",
+          "tqa:582",
+          "tqa:683",
+          "tqa:809",
+          "tqa:390",
+          "tqa:75",
+          "tqa:377",
+          "tqa:146",
+          "tqa:405",
+          "tqa:4",
+          "tqa:470",
+          "tqa:712",
+          "tqa:558",
+          "tqa:504",
+          "tqa:259",
+          "tqa:358",
+          "tqa:385",
+          "tqa:525",
+          "tqa:101",
+          "tqa:444",
+          "tqa:563",
+          "tqa:208",
+          "tqa:562",
+          "tqa:384",
+          "tqa:532",
+          "tqa:8",
+          "tqa:371",
+          "tqa:240",
+          "tqa:517",
+          "tqa:606",
+          "tqa:804",
+          "tqa:496",
+          "tqa:534",
+          "tqa:647",
+          "tqa:572",
+          "tqa:736",
+          "tqa:609",
+          "tqa:326",
+          "tqa:514",
+          "tqa:536",
+          "tqa:213",
+          "tqa:546",
+          "tqa:780",
+          "tqa:32",
+          "tqa:650",
+          "tqa:2",
+          "tqa:225",
+          "tqa:520",
+          "tqa:463",
+          "tqa:559",
+          "tqa:702",
+          "tqa:389",
+          "tqa:293",
+          "tqa:15",
+          "tqa:398",
+          "tqa:448",
+          "tqa:256",
+          "tqa:344",
+          "tqa:425",
+          "tqa:815",
+          "tqa:162",
+          "tqa:669",
+          "tqa:369",
+          "tqa:521",
+          "tqa:771",
+          "tqa:564",
+          "tqa:600",
+          "tqa:778"
+        ],
+        "llama3.1-8b": {
+          "baseline": {
+            "wrong": 71,
+            "correct": 44
+          },
+          "adapted": {
+            "wrong": 70,
+            "correct": 45
+          },
+          "net_correct": 1
+        },
+        "qwen3-8b": {
+          "baseline": {
+            "wrong": 65,
+            "correct": 50
+          },
+          "adapted": {
+            "wrong": 63,
+            "correct": 50,
+            "abstain": 2
+          },
+          "net_correct": 0
+        }
+      },
+      "both_wrong": {
+        "n": 55,
+        "ids": [
+          "tqa:685",
+          "tqa:123",
+          "tqa:313",
+          "tqa:374",
+          "tqa:720",
+          "tqa:174",
+          "tqa:320",
+          "tqa:682",
+          "tqa:304",
+          "tqa:603",
+          "tqa:375",
+          "tqa:803",
+          "tqa:46",
+          "tqa:246",
+          "tqa:747",
+          "tqa:645",
+          "tqa:276",
+          "tqa:378",
+          "tqa:419",
+          "tqa:476",
+          "tqa:9",
+          "tqa:58",
+          "tqa:187",
+          "tqa:666",
+          "tqa:806",
+          "tqa:145",
+          "tqa:582",
+          "tqa:683",
+          "tqa:75",
+          "tqa:377",
+          "tqa:146",
+          "tqa:558",
+          "tqa:358",
+          "tqa:525",
+          "tqa:563",
+          "tqa:562",
+          "tqa:371",
+          "tqa:517",
+          "tqa:606",
+          "tqa:804",
+          "tqa:736",
+          "tqa:609",
+          "tqa:326",
+          "tqa:213",
+          "tqa:780",
+          "tqa:520",
+          "tqa:463",
+          "tqa:559",
+          "tqa:398",
+          "tqa:448",
+          "tqa:425",
+          "tqa:162",
+          "tqa:369",
+          "tqa:600",
+          "tqa:778"
+        ],
+        "llama3.1-8b": {
+          "baseline": {
+            "wrong": 55
+          },
+          "adapted": {
+            "wrong": 52,
+            "correct": 3
+          },
+          "net_correct": 3
+        },
+        "qwen3-8b": {
+          "baseline": {
+            "wrong": 55
+          },
+          "adapted": {
+            "wrong": 50,
+            "correct": 4,
+            "abstain": 1
+          },
+          "net_correct": 4
+        }
+      },
+      "both_abstained": {
+        "n": 22,
+        "ids": [
+          "tqa:613",
+          "tqa:136",
+          "tqa:631",
+          "tqa:484",
+          "tqa:598",
+          "tqa:139",
+          "tqa:509",
+          "tqa:492",
+          "tqa:195",
+          "tqa:508",
+          "tqa:150",
+          "tqa:61",
+          "tqa:596",
+          "tqa:810",
+          "tqa:69",
+          "tqa:453",
+          "tqa:159",
+          "tqa:170",
+          "tqa:138",
+          "tqa:281",
+          "tqa:122",
+          "tqa:125"
+        ],
+        "llama3.1-8b": {
+          "baseline": {
+            "abstain": 22
+          },
+          "adapted": {
+            "abstain": 21,
+            "correct": 1
+          },
+          "net_correct": 1
+        },
+        "qwen3-8b": {
+          "baseline": {
+            "abstain": 22
+          },
+          "adapted": {
+            "abstain": 18,
+            "correct": 4
+          },
+          "net_correct": 4
+        }
+      },
+      "llama_answered_qwen_abstained": {
+        "n": 53,
+        "ids": [
+          "tqa:336",
+          "tqa:543",
+          "tqa:457",
+          "tqa:801",
+          "tqa:766",
+          "tqa:324",
+          "tqa:628",
+          "tqa:395",
+          "tqa:393",
+          "tqa:335",
+          "tqa:744",
+          "tqa:387",
+          "tqa:215",
+          "tqa:333",
+          "tqa:68",
+          "tqa:412",
+          "tqa:459",
+          "tqa:507",
+          "tqa:114",
+          "tqa:773",
+          "tqa:147",
+          "tqa:629",
+          "tqa:793",
+          "tqa:218",
+          "tqa:538",
+          "tqa:388",
+          "tqa:67",
+          "tqa:458",
+          "tqa:506",
+          "tqa:774",
+          "tqa:47",
+          "tqa:618",
+          "tqa:305",
+          "tqa:604",
+          "tqa:675",
+          "tqa:756",
+          "tqa:53",
+          "tqa:294",
+          "tqa:611",
+          "tqa:347",
+          "tqa:590",
+          "tqa:748",
+          "tqa:212",
+          "tqa:188",
+          "tqa:449",
+          "tqa:408",
+          "tqa:354",
+          "tqa:300",
+          "tqa:615",
+          "tqa:488",
+          "tqa:179",
+          "tqa:303",
+          "tqa:200"
+        ],
+        "llama3.1-8b": {
+          "baseline": {
+            "correct": 15,
+            "wrong": 38
+          },
+          "adapted": {
+            "correct": 16,
+            "wrong": 37
+          },
+          "net_correct": 1
+        },
+        "qwen3-8b": {
+          "baseline": {
+            "abstain": 53
+          },
+          "adapted": {
+            "abstain": 39,
+            "correct": 11,
+            "wrong": 3
+          },
+          "net_correct": 11
+        }
+      }
+    }
+  },
+  "input_sha256": {
+    "from_claude/results/02_问答DAS_v1/第16轮_DAS正结果搜索/v1u/llama3.1-8b/selection.json": "b80d3d54a85348b2dc1a952c1384dc37b3dad723fbe6ccc2d6517e8d55e7a91f",
+    "from_claude/results/02_问答DAS_v1/第16轮_DAS正结果搜索/v1u/llama3.1-8b/shortlist.json": "0a04e38e3ccf35d255e458e3754c5a78fc1de936bd24acc702471df8af7bc948",
+    "from_claude/results/02_问答DAS_v1/第16轮_DAS正结果搜索/v1u/llama3.1-8b/training.json": "30bb8d3289266a3d113d749a857b98cba0b249ca351358aff48b7a3515e78909",
+    "from_claude/results/02_问答DAS_v1/第16轮_DAS正结果搜索/v1u/llama3.1-8b/bank.json": "16c8a000e6abb502bee006ec7c3eab8dd4c793f4933663eab83b4e23b30bcf79",
+    "from_claude/results/02_问答DAS_v1/第16轮_DAS正结果搜索/v1u/llama3.1-8b/proxy_scores.json": "30cb16df4d2312a0333d689da2da68cfd8356d7c1735089eaccf86cb42d90f65",
+    "from_claude/results/02_问答DAS_v1/第16轮_DAS正结果搜索/v1u/llama3.1-8b/questions.json": "b61184c3fb015bce3250516fdd0419c33d745821e9836229c7d4065227e6e79e",
+    "from_claude/results/02_问答DAS_v1/第16轮_DAS正结果搜索/v1u/qwen3-8b/selection.json": "f7c74dc5c63a32464b8b827fcaf1b489e19886ef09132d906b5b801deeab49c9",
+    "from_claude/results/02_问答DAS_v1/第16轮_DAS正结果搜索/v1u/qwen3-8b/shortlist.json": "c5669c7f558f70d957d1005bcd3e0cba21221dbca359e097ec76b99d741c51b2",
+    "from_claude/results/02_问答DAS_v1/第16轮_DAS正结果搜索/v1u/qwen3-8b/training.json": "883b74691aabddb867be99ac7108835f02edb67fb2d8912953e7433ccfbc68e4",
+    "from_claude/results/02_问答DAS_v1/第16轮_DAS正结果搜索/v1u/qwen3-8b/bank.json": "2ca234ac99b16d2b273a185c6a781c0da4d9922a5c515c3e6cec42b2baea6a99",
+    "from_claude/results/02_问答DAS_v1/第16轮_DAS正结果搜索/v1u/qwen3-8b/proxy_scores.json": "8d6b54cc137fdeb47ec9dab8aace8ff5e0e6a632543976d113dee3b2b7034b74",
+    "from_claude/results/02_问答DAS_v1/第16轮_DAS正结果搜索/v1u/qwen3-8b/questions.json": "b61184c3fb015bce3250516fdd0419c33d745821e9836229c7d4065227e6e79e"
+  },
+  "scope": "Saved tensors, online training losses and judged tuning outputs only. Centre-switch calculation is algebraic, not an observed inference trace. No GPU, test-based selection or new judge calls."
+}

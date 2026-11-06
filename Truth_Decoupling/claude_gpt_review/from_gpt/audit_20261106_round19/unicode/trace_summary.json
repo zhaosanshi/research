@@ -1,0 +1,906 @@
+{
+  "trace_sha256": "62a00ba3b41d926d54ca5c258f999792f4ed434004f45b10adc2126c3da9690d",
+  "reference_reproduced": true,
+  "cases": {
+    "tqa:412": {
+      "text": "I don't know. �a",
+      "events": [
+        {
+          "byte_start": 14,
+          "byte_end": 17,
+          "bytes_hex": "f09f8f",
+          "origin_token_index": 5,
+          "last_byte_token_index": 6,
+          "deciding_token_index": 7,
+          "reason": "invalid continuation byte",
+          "token_indices": [
+            5,
+            6
+          ]
+        }
+      ],
+      "steps": {
+        "5": {
+          "edits": [
+            {
+              "step": 5,
+              "layer": 34,
+              "batch_row": 5,
+              "forward_shape": [
+                8,
+                1,
+                4096
+              ],
+              "residual_dtype": "torch.bfloat16",
+              "center_kind": "decode",
+              "h_norm": 1458.3033447265625,
+              "kept_delta_norm": 450.7290344238281,
+              "kept_relative_norm": 0.30907769364565335,
+              "intended_delta_norm": 451.4654541015625,
+              "kept_vs_recomputed_formula_error_norm": 3.7793424129486084,
+              "coordinate_before": 423.7080383300781,
+              "coordinate_after": 874.4217529296875,
+              "center_coordinate": 273.21954345703125,
+              "weight_norm": 0.9999999403953552,
+              "largest_changed_dimensions": [
+                {
+                  "dimension": 2276,
+                  "before": 956.0,
+                  "after": 1032.0,
+                  "weight": 0.1757453978061676,
+                  "center": 891.6705322265625
+                },
+                {
+                  "dimension": 1838,
+                  "before": 844.0,
+                  "after": 916.0,
+                  "weight": 0.16156017780303955,
+                  "center": 784.1688232421875
+                },
+                {
+                  "dimension": 2421,
+                  "before": -63.75,
+                  "after": -22.5,
+                  "weight": 0.0914730578660965,
+                  "center": -58.00270080566406
+                },
+                {
+                  "dimension": 3666,
+                  "before": -38.0,
+                  "after": -76.5,
+                  "weight": -0.08515726774930954,
+                  "center": 26.730655670166016
+                },
+                {
+                  "dimension": 207,
+                  "before": -17.625,
+                  "after": -50.5,
+                  "weight": -0.07270345091819763,
+                  "center": -1.2463692426681519
+                }
+              ]
+            }
+          ],
+          "variants": {
+            "baseline": {
+              "argmax_id": 151645,
+              "token": "<|im_end|>",
+              "top_probability": 1.0,
+              "actual_generated_token_id": 11162,
+              "actual_minus_best_eos_logit_margin": -19.8149356842041,
+              "stop_tokens": {
+                "151643": {
+                  "logit": 7.9099531173706055,
+                  "probability": 6.192613026880791e-14
+                },
+                "151645": {
+                  "logit": 38.32278823852539,
+                  "probability": 1.0
+                }
+              },
+              "cached_top1_match": null,
+              "cached_max_diff": null
+            },
+            "original_das": {
+              "argmax_id": 151645,
+              "token": "<|im_end|>",
+              "top_probability": 0.0005936547893868915,
+              "actual_generated_token_id": 11162,
+              "actual_minus_best_eos_logit_margin": -1.1032800674438477,
+              "stop_tokens": {
+                "151643": {
+                  "logit": 2.5644686222076416,
+                  "probability": 8.803293245254926e-06
+                },
+                "151645": {
+                  "logit": 6.775640964508057,
+                  "probability": 0.0005936547893868915
+                }
+              },
+              "cached_top1_match": null,
+              "cached_max_diff": null
+            },
+            "adapted": {
+              "argmax_id": 11162,
+              "token": "ĠðŁ",
+              "top_probability": 0.0005568773760390712,
+              "actual_generated_token_id": 11162,
+              "actual_minus_best_eos_logit_margin": 0.3527960777282715,
+              "stop_tokens": {
+                "151643": {
+                  "logit": 5.92715311050415,
+                  "probability": 0.000391329136503303
+                },
+                "151645": {
+                  "logit": 5.187117576599121,
+                  "probability": 0.00018670203123404607
+                }
+              },
+              "cached_top1_match": true,
+              "cached_max_diff": 0.4047117233276367
+            },
+            "adapted_history_only": {
+              "argmax_id": 151645,
+              "token": "<|im_end|>",
+              "top_probability": 1.0,
+              "actual_generated_token_id": 11162,
+              "actual_minus_best_eos_logit_margin": -18.81125259399414,
+              "stop_tokens": {
+                "151643": {
+                  "logit": 5.296131134033203,
+                  "probability": 4.435920535042993e-14
+                },
+                "151645": {
+                  "logit": 36.04258728027344,
+                  "probability": 1.0
+                }
+              },
+              "cached_top1_match": null,
+              "cached_max_diff": null
+            }
+          }
+        },
+        "7": {
+          "edits": [
+            {
+              "step": 7,
+              "layer": 34,
+              "batch_row": 5,
+              "forward_shape": [
+                8,
+                1,
+                4096
+              ],
+              "residual_dtype": "torch.bfloat16",
+              "center_kind": "decode",
+              "h_norm": 977.7133178710938,
+              "kept_delta_norm": 816.0640258789062,
+              "kept_relative_norm": 0.8346659608317823,
+              "intended_delta_norm": 816.044677734375,
+              "kept_vs_recomputed_formula_error_norm": 2.0749094486236572,
+              "coordinate_before": 1.2046394348144531,
+              "coordinate_after": -814.856689453125,
+              "center_coordinate": 273.21954345703125,
+              "weight_norm": 0.9999999403953552,
+              "largest_changed_dimensions": [
+                {
+                  "dimension": 2276,
+                  "before": 148.0,
+                  "after": 4.59375,
+                  "weight": 0.1757453978061676,
+                  "center": 891.6705322265625
+                },
+                {
+                  "dimension": 1838,
+                  "before": 138.0,
+                  "after": 6.15625,
+                  "weight": 0.16156017780303955,
+                  "center": 784.1688232421875
+                },
+                {
+                  "dimension": 2421,
+                  "before": -31.0,
+                  "after": -105.5,
+                  "weight": 0.0914730578660965,
+                  "center": -58.00270080566406
+                },
+                {
+                  "dimension": 3666,
+                  "before": 12.375,
+                  "after": 82.0,
+                  "weight": -0.08515726774930954,
+                  "center": 26.730655670166016
+                },
+                {
+                  "dimension": 207,
+                  "before": -18.625,
+                  "after": 40.75,
+                  "weight": -0.07270345091819763,
+                  "center": -1.2463692426681519
+                }
+              ]
+            }
+          ],
+          "variants": {
+            "baseline": {
+              "argmax_id": 225,
+              "token": "ĥ",
+              "top_probability": 0.992849351586508,
+              "actual_generated_token_id": 64,
+              "actual_minus_best_eos_logit_margin": 3.318385362625122,
+              "stop_tokens": {
+                "151643": {
+                  "logit": 3.527970552444458,
+                  "probability": 9.328998984283451e-11
+                },
+                "151645": {
+                  "logit": -0.10370920598506927,
+                  "probability": 2.4695434047700262e-12
+                }
+              },
+              "cached_top1_match": null,
+              "cached_max_diff": null
+            },
+            "original_das": {
+              "argmax_id": 16108,
+              "token": "ogg",
+              "top_probability": 0.14561063750883985,
+              "actual_generated_token_id": 64,
+              "actual_minus_best_eos_logit_margin": 4.864287376403809,
+              "stop_tokens": {
+                "151643": {
+                  "logit": 3.1131415367126465,
+                  "probability": 1.999945261417124e-06
+                },
+                "151645": {
+                  "logit": -5.927522659301758,
+                  "probability": 2.3697761756152826e-10
+                }
+              },
+              "cached_top1_match": null,
+              "cached_max_diff": null
+            },
+            "adapted": {
+              "argmax_id": 64,
+              "token": "a",
+              "top_probability": 0.000527499665057846,
+              "actual_generated_token_id": 64,
+              "actual_minus_best_eos_logit_margin": 5.412702441215515,
+              "stop_tokens": {
+                "151643": {
+                  "logit": 0.27363646030426025,
+                  "probability": 2.352422551061642e-06
+                },
+                "151645": {
+                  "logit": -0.25709736347198486,
+                  "probability": 1.3836315598443682e-06
+                }
+              },
+              "cached_top1_match": true,
+              "cached_max_diff": 0.10114014148712158
+            },
+            "adapted_history_only": {
+              "argmax_id": 225,
+              "token": "ĥ",
+              "top_probability": 0.9922369120108702,
+              "actual_generated_token_id": 64,
+              "actual_minus_best_eos_logit_margin": 2.3983941078186035,
+              "stop_tokens": {
+                "151643": {
+                  "logit": 3.6249241828918457,
+                  "probability": 7.070214229310942e-11
+                },
+                "151645": {
+                  "logit": -0.8149374723434448,
+                  "probability": 8.341138092621555e-13
+                }
+              },
+              "cached_top1_match": null,
+              "cached_max_diff": null
+            }
+          }
+        }
+      }
+    },
+    "tqa:150": {
+      "text": "I don't know. �\"",
+      "events": [
+        {
+          "byte_start": 14,
+          "byte_end": 17,
+          "bytes_hex": "f09f9a",
+          "origin_token_index": 5,
+          "last_byte_token_index": 6,
+          "deciding_token_index": 7,
+          "reason": "invalid continuation byte",
+          "token_indices": [
+            5,
+            6
+          ]
+        }
+      ],
+      "steps": {
+        "5": {
+          "edits": [
+            {
+              "step": 5,
+              "layer": 34,
+              "batch_row": 6,
+              "forward_shape": [
+                8,
+                1,
+                4096
+              ],
+              "residual_dtype": "torch.bfloat16",
+              "center_kind": "decode",
+              "h_norm": 1465.3741455078125,
+              "kept_delta_norm": 444.9142761230469,
+              "kept_relative_norm": 0.30361821073952805,
+              "intended_delta_norm": 444.6141357421875,
+              "kept_vs_recomputed_formula_error_norm": 2.3627216815948486,
+              "coordinate_before": 421.4242858886719,
+              "coordinate_after": 866.3323974609375,
+              "center_coordinate": 273.21954345703125,
+              "weight_norm": 0.9999999403953552,
+              "largest_changed_dimensions": [
+                {
+                  "dimension": 2276,
+                  "before": 968.0,
+                  "after": 1048.0,
+                  "weight": 0.1757453978061676,
+                  "center": 891.6705322265625
+                },
+                {
+                  "dimension": 1838,
+                  "before": 860.0,
+                  "after": 932.0,
+                  "weight": 0.16156017780303955,
+                  "center": 784.1688232421875
+                },
+                {
+                  "dimension": 2421,
+                  "before": -63.0,
+                  "after": -22.375,
+                  "weight": 0.0914730578660965,
+                  "center": -58.00270080566406
+                },
+                {
+                  "dimension": 3666,
+                  "before": -37.25,
+                  "after": -75.0,
+                  "weight": -0.08515726774930954,
+                  "center": 26.730655670166016
+                },
+                {
+                  "dimension": 207,
+                  "before": -11.875,
+                  "after": -44.25,
+                  "weight": -0.07270345091819763,
+                  "center": -1.2463692426681519
+                }
+              ]
+            }
+          ],
+          "variants": {
+            "baseline": {
+              "argmax_id": 151645,
+              "token": "<|im_end|>",
+              "top_probability": 1.0,
+              "actual_generated_token_id": 11162,
+              "actual_minus_best_eos_logit_margin": -20.09360694885254,
+              "stop_tokens": {
+                "151643": {
+                  "logit": 7.377298831939697,
+                  "probability": 3.923828530248706e-14
+                },
+                "151645": {
+                  "logit": 38.246421813964844,
+                  "probability": 1.0
+                }
+              },
+              "cached_top1_match": null,
+              "cached_max_diff": null
+            },
+            "original_das": {
+              "argmax_id": 151645,
+              "token": "<|im_end|>",
+              "top_probability": 0.0006618022477777586,
+              "actual_generated_token_id": 11162,
+              "actual_minus_best_eos_logit_margin": -1.2200689315795898,
+              "stop_tokens": {
+                "151643": {
+                  "logit": 2.696519613265991,
+                  "probability": 9.173884938668683e-06
+                },
+                "151645": {
+                  "logit": 6.975124835968018,
+                  "probability": 0.0006618022477777586
+                }
+              },
+              "cached_top1_match": null,
+              "cached_max_diff": null
+            },
+            "adapted": {
+              "argmax_id": 11162,
+              "token": "ĠðŁ",
+              "top_probability": 0.0003434119997605789,
+              "actual_generated_token_id": 11162,
+              "actual_minus_best_eos_logit_margin": 0.6191310882568359,
+              "stop_tokens": {
+                "151643": {
+                  "logit": 5.20366096496582,
+                  "probability": 0.00018489716461290526
+                },
+                "151645": {
+                  "logit": 4.911118030548096,
+                  "probability": 0.00013800037358826213
+                }
+              },
+              "cached_top1_match": true,
+              "cached_max_diff": 0.06313133239746094
+            },
+            "adapted_history_only": {
+              "argmax_id": 151645,
+              "token": "<|im_end|>",
+              "top_probability": 1.0,
+              "actual_generated_token_id": 11162,
+              "actual_minus_best_eos_logit_margin": -19.761693954467773,
+              "stop_tokens": {
+                "151643": {
+                  "logit": 5.824228286743164,
+                  "probability": 2.439932040844528e-14
+                },
+                "151645": {
+                  "logit": 37.16844940185547,
+                  "probability": 1.0
+                }
+              },
+              "cached_top1_match": null,
+              "cached_max_diff": null
+            }
+          }
+        },
+        "7": {
+          "edits": [
+            {
+              "step": 7,
+              "layer": 34,
+              "batch_row": 6,
+              "forward_shape": [
+                8,
+                1,
+                4096
+              ],
+              "residual_dtype": "torch.bfloat16",
+              "center_kind": "decode",
+              "h_norm": 1016.43408203125,
+              "kept_delta_norm": 601.8475341796875,
+              "kept_relative_norm": 0.5921166407338,
+              "intended_delta_norm": 601.793701171875,
+              "kept_vs_recomputed_formula_error_norm": 1.8825663328170776,
+              "coordinate_before": 72.62165069580078,
+              "coordinate_after": -529.222900390625,
+              "center_coordinate": 273.21954345703125,
+              "weight_norm": 0.9999999403953552,
+              "largest_changed_dimensions": [
+                {
+                  "dimension": 2276,
+                  "before": 324.0,
+                  "after": 218.0,
+                  "weight": 0.1757453978061676,
+                  "center": 891.6705322265625
+                },
+                {
+                  "dimension": 1838,
+                  "before": 212.0,
+                  "after": 115.0,
+                  "weight": 0.16156017780303955,
+                  "center": 784.1688232421875
+                },
+                {
+                  "dimension": 2421,
+                  "before": -31.125,
+                  "after": -86.0,
+                  "weight": 0.0914730578660965,
+                  "center": -58.00270080566406
+                },
+                {
+                  "dimension": 3666,
+                  "before": 10.5625,
+                  "after": 61.75,
+                  "weight": -0.08515726774930954,
+                  "center": 26.730655670166016
+                },
+                {
+                  "dimension": 207,
+                  "before": -12.9375,
+                  "after": 30.875,
+                  "weight": -0.07270345091819763,
+                  "center": -1.2463692426681519
+                }
+              ]
+            }
+          ],
+          "variants": {
+            "baseline": {
+              "argmax_id": 222,
+              "token": "Ģ",
+              "top_probability": 0.99580576310143,
+              "actual_generated_token_id": 1,
+              "actual_minus_best_eos_logit_margin": 0.8619413375854492,
+              "stop_tokens": {
+                "151643": {
+                  "logit": 5.850315570831299,
+                  "probability": 5.954052685791159e-09
+                },
+                "151645": {
+                  "logit": 0.6539795398712158,
+                  "probability": 3.2966521663592326e-11
+                }
+              },
+              "cached_top1_match": null,
+              "cached_max_diff": null
+            },
+            "original_das": {
+              "argmax_id": 104410,
+              "token": "é£ŀæľº",
+              "top_probability": 0.07178791272204255,
+              "actual_generated_token_id": 1,
+              "actual_minus_best_eos_logit_margin": 3.2649688720703125,
+              "stop_tokens": {
+                "151643": {
+                  "logit": 3.0586204528808594,
+                  "probability": 1.4630516761564326e-06
+                },
+                "151645": {
+                  "logit": -1.4322844743728638,
+                  "probability": 1.640151913504164e-08
+                }
+              },
+              "cached_top1_match": null,
+              "cached_max_diff": null
+            },
+            "adapted": {
+              "argmax_id": 1,
+              "token": "\"",
+              "top_probability": 0.002951153585160706,
+              "actual_generated_token_id": 1,
+              "actual_minus_best_eos_logit_margin": 6.719836473464966,
+              "stop_tokens": {
+                "151643": {
+                  "logit": 0.7296860218048096,
+                  "probability": 3.5612644361734976e-06
+                },
+                "151645": {
+                  "logit": 0.0751139372587204,
+                  "probability": 1.8506597922211372e-06
+                }
+              },
+              "cached_top1_match": true,
+              "cached_max_diff": 0.11933553218841553
+            },
+            "adapted_history_only": {
+              "argmax_id": 222,
+              "token": "Ģ",
+              "top_probability": 0.9960086551751752,
+              "actual_generated_token_id": 1,
+              "actual_minus_best_eos_logit_margin": 0.7852416038513184,
+              "stop_tokens": {
+                "151643": {
+                  "logit": 5.4295244216918945,
+                  "probability": 1.6919084646245143e-09
+                },
+                "151645": {
+                  "logit": 0.6865704655647278,
+                  "probability": 1.4741403406460818e-11
+                }
+              },
+              "cached_top1_match": null,
+              "cached_max_diff": null
+            }
+          }
+        }
+      }
+    },
+    "tqa:138": {
+      "text": "I don't know. �\"",
+      "events": [
+        {
+          "byte_start": 14,
+          "byte_end": 17,
+          "bytes_hex": "f09f8d",
+          "origin_token_index": 5,
+          "last_byte_token_index": 6,
+          "deciding_token_index": 7,
+          "reason": "invalid continuation byte",
+          "token_indices": [
+            5,
+            6
+          ]
+        }
+      ],
+      "steps": {
+        "5": {
+          "edits": [
+            {
+              "step": 5,
+              "layer": 34,
+              "batch_row": 7,
+              "forward_shape": [
+                8,
+                1,
+                4096
+              ],
+              "residual_dtype": "torch.bfloat16",
+              "center_kind": "decode",
+              "h_norm": 1470.453369140625,
+              "kept_delta_norm": 458.88702392578125,
+              "kept_relative_norm": 0.3120717960569997,
+              "intended_delta_norm": 458.6787109375,
+              "kept_vs_recomputed_formula_error_norm": 2.4999277591705322,
+              "coordinate_before": 426.11248779296875,
+              "coordinate_after": 884.99267578125,
+              "center_coordinate": 273.21954345703125,
+              "weight_norm": 0.9999999403953552,
+              "largest_changed_dimensions": [
+                {
+                  "dimension": 2276,
+                  "before": 968.0,
+                  "after": 1048.0,
+                  "weight": 0.1757453978061676,
+                  "center": 891.6705322265625
+                },
+                {
+                  "dimension": 1838,
+                  "before": 852.0,
+                  "after": 928.0,
+                  "weight": 0.16156017780303955,
+                  "center": 784.1688232421875
+                },
+                {
+                  "dimension": 2421,
+                  "before": -63.25,
+                  "after": -21.25,
+                  "weight": 0.0914730578660965,
+                  "center": -58.00270080566406
+                },
+                {
+                  "dimension": 3666,
+                  "before": -33.0,
+                  "after": -72.0,
+                  "weight": -0.08515726774930954,
+                  "center": 26.730655670166016
+                },
+                {
+                  "dimension": 207,
+                  "before": -10.75,
+                  "after": -44.0,
+                  "weight": -0.07270345091819763,
+                  "center": -1.2463692426681519
+                }
+              ]
+            }
+          ],
+          "variants": {
+            "baseline": {
+              "argmax_id": 151645,
+              "token": "<|im_end|>",
+              "top_probability": 1.0,
+              "actual_generated_token_id": 11162,
+              "actual_minus_best_eos_logit_margin": -18.85367774963379,
+              "stop_tokens": {
+                "151643": {
+                  "logit": 8.068099975585938,
+                  "probability": 5.74324563883298e-14
+                },
+                "151645": {
+                  "logit": 38.55626678466797,
+                  "probability": 1.0
+                }
+              },
+              "cached_top1_match": null,
+              "cached_max_diff": null
+            },
+            "original_das": {
+              "argmax_id": 151645,
+              "token": "<|im_end|>",
+              "top_probability": 0.0010136636727114971,
+              "actual_generated_token_id": 11162,
+              "actual_minus_best_eos_logit_margin": -1.3994669914245605,
+              "stop_tokens": {
+                "151643": {
+                  "logit": 2.9552242755889893,
+                  "probability": 1.176275250821787e-05
+                },
+                "151645": {
+                  "logit": 7.4116129875183105,
+                  "probability": 0.0010136636727114971
+                }
+              },
+              "cached_top1_match": null,
+              "cached_max_diff": null
+            },
+            "adapted": {
+              "argmax_id": 11162,
+              "token": "ĠðŁ",
+              "top_probability": 0.0005368645916910719,
+              "actual_generated_token_id": 11162,
+              "actual_minus_best_eos_logit_margin": 0.15081119537353516,
+              "stop_tokens": {
+                "151643": {
+                  "logit": 6.2285475730896,
+                  "probability": 0.0004617089482138904
+                },
+                "151645": {
+                  "logit": 5.062593936920166,
+                  "probability": 0.00014388027800216053
+                }
+              },
+              "cached_top1_match": true,
+              "cached_max_diff": 0.10015439987182617
+            },
+            "adapted_history_only": {
+              "argmax_id": 151645,
+              "token": "<|im_end|>",
+              "top_probability": 1.0,
+              "actual_generated_token_id": 11162,
+              "actual_minus_best_eos_logit_margin": -18.841480255126953,
+              "stop_tokens": {
+                "151643": {
+                  "logit": 6.940220832824707,
+                  "probability": 3.035855346497347e-14
+                },
+                "151645": {
+                  "logit": 38.06591796875,
+                  "probability": 1.0
+                }
+              },
+              "cached_top1_match": null,
+              "cached_max_diff": null
+            }
+          }
+        },
+        "7": {
+          "edits": [
+            {
+              "step": 7,
+              "layer": 34,
+              "batch_row": 7,
+              "forward_shape": [
+                8,
+                1,
+                4096
+              ],
+              "residual_dtype": "torch.bfloat16",
+              "center_kind": "decode",
+              "h_norm": 1002.7978515625,
+              "kept_delta_norm": 702.6710205078125,
+              "kept_relative_norm": 0.7007105364385776,
+              "intended_delta_norm": 702.7068481445312,
+              "kept_vs_recomputed_formula_error_norm": 2.0180487632751465,
+              "coordinate_before": 38.98393630981445,
+              "coordinate_after": -663.6842041015625,
+              "center_coordinate": 273.21954345703125,
+              "weight_norm": 0.9999999403953552,
+              "largest_changed_dimensions": [
+                {
+                  "dimension": 2276,
+                  "before": 255.0,
+                  "after": 132.0,
+                  "weight": 0.1757453978061676,
+                  "center": 891.6705322265625
+                },
+                {
+                  "dimension": 1838,
+                  "before": 158.0,
+                  "after": 44.5,
+                  "weight": 0.16156017780303955,
+                  "center": 784.1688232421875
+                },
+                {
+                  "dimension": 2421,
+                  "before": -19.5,
+                  "after": -84.0,
+                  "weight": 0.0914730578660965,
+                  "center": -58.00270080566406
+                },
+                {
+                  "dimension": 3666,
+                  "before": 12.75,
+                  "after": 72.5,
+                  "weight": -0.08515726774930954,
+                  "center": 26.730655670166016
+                },
+                {
+                  "dimension": 207,
+                  "before": -4.5625,
+                  "after": 46.5,
+                  "weight": -0.07270345091819763,
+                  "center": -1.2463692426681519
+                }
+              ]
+            }
+          ],
+          "variants": {
+            "baseline": {
+              "argmax_id": 105,
+              "token": "¬",
+              "top_probability": 0.35585201658578525,
+              "actual_generated_token_id": 1,
+              "actual_minus_best_eos_logit_margin": -1.8331929445266724,
+              "stop_tokens": {
+                "151643": {
+                  "logit": 3.6310720443725586,
+                  "probability": 1.653091455184586e-08
+                },
+                "151645": {
+                  "logit": -2.4201924800872803,
+                  "probability": 3.8928311950043386e-11
+                }
+              },
+              "cached_top1_match": null,
+              "cached_max_diff": null
+            },
+            "original_das": {
+              "argmax_id": 99353,
+              "token": "è§ī",
+              "top_probability": 0.1735166201730693,
+              "actual_generated_token_id": 1,
+              "actual_minus_best_eos_logit_margin": -0.5278275012969971,
+              "stop_tokens": {
+                "151643": {
+                  "logit": 3.3681013584136963,
+                  "probability": 4.160140594374735e-05
+                },
+                "151645": {
+                  "logit": -5.608291149139404,
+                  "probability": 5.2566684423624145e-09
+                }
+              },
+              "cached_top1_match": null,
+              "cached_max_diff": null
+            },
+            "adapted": {
+              "argmax_id": 1,
+              "token": "\"",
+              "top_probability": 0.006489684326294669,
+              "actual_generated_token_id": 1,
+              "actual_minus_best_eos_logit_margin": 8.052963435649872,
+              "stop_tokens": {
+                "151643": {
+                  "logit": 0.10987359285354614,
+                  "probability": 2.0647433059970236e-06
+                },
+                "151645": {
+                  "logit": -0.8062669634819031,
+                  "probability": 8.260213612876867e-07
+                }
+              },
+              "cached_top1_match": true,
+              "cached_max_diff": 0.1178852915763855
+            },
+            "adapted_history_only": {
+              "argmax_id": 105,
+              "token": "¬",
+              "top_probability": 0.3107403471365596,
+              "actual_generated_token_id": 1,
+              "actual_minus_best_eos_logit_margin": -1.8240489959716797,
+              "stop_tokens": {
+                "151643": {
+                  "logit": 2.711386203765869,
+                  "probability": 6.779332392459047e-09
+                },
+                "151645": {
+                  "logit": -2.1806132793426514,
+                  "probability": 5.0888431456000144e-11
+                }
+              },
+              "cached_top1_match": null,
+              "cached_max_diff": null
+            }
+          }
+        }
+      }
+    }
+  }
+}

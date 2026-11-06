@@ -1,0 +1,16 @@
+docker exec -i -e CUDA_VISIBLE_DEVICES= truth_dec python3 - <<'PY'
+from pathlib import Path
+import torch,json,hashlib
+import torch.nn.functional as F
+root=Path('/workspace/Truth_Decoupling/results_e27_search_codex_20261106')
+rows=[]
+for model in ['llama3.1-8b','qwen3-8b']:
+ for alpha in [1,3]:
+  path=root/model/('ce_alpha%d_ep3'%alpha)/'random/adapter.pt'
+  d=torch.load(path,map_location='cpu',weights_only=True)
+  for l in d['layers']:
+   saved=d['initial_W'][str(l)].float();g=torch.Generator(device='cpu').manual_seed(d['train_config']['seed']+l)
+   want=F.normalize(torch.randn(d['hidden_size'],generator=g),dim=0)
+   rows.append({'model':model,'alpha':alpha,'layer':l,'seed':d['train_config']['seed']+l,'exact_equal':torch.equal(saved,want),'max_absolute_error':float((saved-want).abs().max()),'source_sha256':hashlib.sha256(path.read_bytes()).hexdigest()})
+print(json.dumps({'torch':torch.__version__,'default_dtype':str(torch.get_default_dtype()),'num_threads':torch.get_num_threads(),'cuda_visible_devices':'','checks':rows},indent=2))
+PY
