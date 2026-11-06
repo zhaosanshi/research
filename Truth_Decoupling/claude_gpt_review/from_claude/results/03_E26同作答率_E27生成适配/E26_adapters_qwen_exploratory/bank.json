@@ -1,0 +1,3439 @@
+{
+  "protocol": "joint_actual_coverage_v1",
+  "model": "qwen3-8b",
+  "model_config": {
+    "name": "qwen3-8b",
+    "family": "qwen3",
+    "path": "/workspace/Truth_Decoupling/models/Qwen3-8B",
+    "modelscope_repo": "Qwen/Qwen3-8B",
+    "hidden_size": 4096,
+    "num_layers": 36,
+    "dtype": "bfloat16",
+    "device": "cuda",
+    "layers_attr": "model.layers",
+    "attn_attr": "self_attn",
+    "chat": {
+      "supports_system": true,
+      "thinking_stub": "<think>\n\n</think>\n\n"
+    },
+    "notes": "v12 peak layer for JSON->prose DAS was L23 (66.7% depth). Thinking stub matches v12 build_input_v3."
+  },
+  "hidden_size": 4096,
+  "num_layers": 36,
+  "pilot": null,
+  "config": {
+    "name": "E26_matched_coverage",
+    "protocol": "joint_actual_coverage_v1",
+    "source_experiment": "E2b_tqa",
+    "seed": 42,
+    "models": [
+      "llama3.1-8b",
+      "qwen3-8b"
+    ],
+    "coverages": [
+      0.25,
+      0.5,
+      0.75
+    ],
+    "n_boot": 2000,
+    "batch_size": 8,
+    "max_new_tokens": 48,
+    "e_top_k": 3,
+    "c_top_k": 1,
+    "c_alphas": [
+      -1.0,
+      1.0
+    ],
+    "qa_gate_user": "Question: {question}\nCan you answer this question accurately? Reply with exactly one word: Yes or No.",
+    "tf_gate_user": "Statement: {statement}\nDo you know whether this statement is true or false? Reply with exactly one word: Yes or No.",
+    "gate_labels": {
+      "yes": "Yes",
+      "no": "No"
+    },
+    "abstention_output": "I don't know.",
+    "qa_e_selection": "top distinct-layer continuous candidates from the existing tuning-only shortlist; select again on E26 tuning quota objective",
+    "tf_e_selection": "top distinct-layer candidates from saved TF tuning metrics; independently retune E/C/EC on E26 tuning quotas",
+    "commitment_estimator": "continuous first-token Yes-minus-No logit covariance, orthogonal to same-layer E; scale by estimation projection SD",
+    "main_score": "intervened first-token commitment margin; actual non-answer candidates cannot fill a quota",
+    "simple_scores": {
+      "tf": "absolute native True-minus-False log probability margin",
+      "qa": "unsteered length-normalized log probability of the generated answer"
+    },
+    "precision": "float32 output projection; native frozen backbone",
+    "notes": "Primary exact-quota evaluation is batch selection without correctness labels in ranking. Separately report tuning-calibrated frozen thresholds with their actual test coverage. No guarantee of a positive result. E+C is compared against independently selected E-only and C-only plus simple confidence filtering. Unsupported quotas remain explicit."
+  },
+  "qa_config": {
+    "name": "E25_qa_das_v1_userturn",
+    "protocol": "qa_das_ptrue_ce_bidir_v1",
+    "source_experiment": "E2b_tqa",
+    "seed": 42,
+    "tune_pairs": 192,
+    "batch_size": 8,
+    "max_new_tokens": 48,
+    "qa_system": "You are a knowledgeable assistant. Answer the question with a short answer of a few words. If you do not know the answer, you may say 'I don't know'.",
+    "qa_user": "Question: {question}\nAnswer:",
+    "selfcheck_format": "user_turn",
+    "selfcheck_user": "Is the answer above factually correct?\nReply with exactly one word: True or False.",
+    "selfcheck_label_true": "True",
+    "selfcheck_label_false": "False",
+    "epochs": 10,
+    "lr": 0.001,
+    "clip": 1.0,
+    "alphas": [
+      1.0,
+      2.0,
+      3.0
+    ],
+    "write_modes": [
+      "prefill",
+      "continuous"
+    ],
+    "main_mode": "continuous",
+    "top_k": 3,
+    "answer_rate_tolerance": 0.03,
+    "output_projection": "float32",
+    "check_alpha": 1.0,
+    "notes": "v1 with ONE variable changed (Claude, 2026-11-05): the self-check that supervises DAS is asked in a new user turn after the closed answer turn (readout format F1 in review_checks/readout_formats.py) instead of continuing the answer turn; labels are the first assistant word True / False. Everything else, including data, split, layers, objective, proxy, selection and grading, is identical to E25_qa_das_v1."
+  },
+  "prompts": {
+    "name": "default_v1",
+    "statement": {
+      "system": "You are a careful fact-checker. You judge whether short factual statements are true or false.",
+      "user_tf": "Statement: {statement}\nIs this statement true or false? Answer with exactly one word: True or False.",
+      "user_tf_idk": "Statement: {statement}\nIs this statement true or false? If you are not sure, answer Unknown. Answer with exactly one word: True, False, or Unknown.",
+      "label_variants": {
+        "True": [
+          "True",
+          " True",
+          "true",
+          " true",
+          "TRUE"
+        ],
+        "False": [
+          "False",
+          " False",
+          "false",
+          " false",
+          "FALSE"
+        ],
+        "Abstain": [
+          "Unknown",
+          " Unknown",
+          "unknown",
+          " unknown",
+          "Uncertain",
+          " Uncertain"
+        ]
+      }
+    },
+    "commitment_contrast": {
+      "description": "Same user content; only the system prompt differs. pos = confident (commit), neg = cautious (abstain). Direction C points from cautious to confident, so steering with negative alpha pushes toward abstention.",
+      "confident_system": "You are a decisive assistant. Always commit to a definite answer. Never say that you do not know and never hedge.",
+      "cautious_system": "You are a cautious assistant. If you are not certain of the answer, say exactly 'Unknown' instead of guessing. Never guess.",
+      "paraphrases": {
+        "confident": [
+          "Always give a definite answer. Do not express uncertainty.",
+          "Commit to one answer and state it plainly, even if you are unsure.",
+          "You must answer every question directly and confidently."
+        ],
+        "cautious": [
+          "If you are unsure, reply 'Unknown' and nothing else. Do not guess.",
+          "Only answer when you are confident; otherwise reply exactly 'Unknown'.",
+          "Prefer saying 'Unknown' over giving an answer you are not sure about."
+        ]
+      }
+    },
+    "qa": {
+      "system": "You are a knowledgeable assistant. Answer the question with a short answer of a few words.",
+      "user": "Question: {question}\nAnswer:",
+      "system_cautious": "You are a knowledgeable assistant. Answer with a short answer of a few words. If you do not know the answer, reply exactly 'I don't know'.",
+      "system_idk_ok": "You are a knowledgeable assistant. Answer the question with a short answer of a few words. If you do not know the answer, you may say 'I don't know'.",
+      "system_confident": "You are a knowledgeable assistant. Always answer with a short, definite answer of a few words. Never say that you do not know.",
+      "max_new_tokens": 48
+    },
+    "mc": {
+      "system": "You answer multiple-choice questions. Reply with exactly one letter.",
+      "user": "{question}\n{choices}\nAnswer:",
+      "label_variants": {
+        "A": [
+          "A",
+          " A"
+        ],
+        "B": [
+          "B",
+          " B"
+        ],
+        "C": [
+          "C",
+          " C"
+        ],
+        "D": [
+          "D",
+          " D"
+        ]
+      }
+    }
+  },
+  "sources": {
+    "paths": {
+      "qa_run": "/workspace/Truth_Decoupling/results_qa_das_v1u/qwen3-8b/full",
+      "tf_das_dir": "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b",
+      "tf_das_sweep": "/workspace/Truth_Decoupling/results_das_tfce/E23/qwen3-8b/knob_sweep_das_tfce_full.json",
+      "tf_md_sweep": "/workspace/Truth_Decoupling/results_das_tf/E23/qwen3-8b/knob_sweep_meandiff_full.json",
+      "qa_adapters": [
+        "/workspace/Truth_Decoupling/results_e27_release_20261106/qwen3-8b/ce_alpha3_ep3/das_s42",
+        "/workspace/Truth_Decoupling/results_e27_release_20261106/qwen3-8b/ce_alpha3_ep3/md_s42",
+        "/workspace/Truth_Decoupling/results_e27_release_20261106/qwen3-8b/ce_alpha3_ep3/random_s42"
+      ]
+    },
+    "qa_bank_fingerprint": "b560729d5bfa4d47cd9e7c60bba4b85c9718b11a06775e2f3b063552cf7f06a2",
+    "qa_training_sha256": "883b74691aabddb867be99ac7108835f02edb67fb2d8912953e7433ccfbc68e4",
+    "files": {
+      "/workspace/Truth_Decoupling/results_qa_das_v1u/qwen3-8b/full/bank.json": "2ca234ac99b16d2b273a185c6a781c0da4d9922a5c515c3e6cec42b2baea6a99",
+      "/workspace/Truth_Decoupling/results_qa_das_v1u/qwen3-8b/full/bank.npz": "9f25917c8eaa3fd7f802fde8be24b54431d107269248495e5febef9c376e1e94",
+      "/workspace/Truth_Decoupling/results_qa_das_v1u/qwen3-8b/full/training.json": "883b74691aabddb867be99ac7108835f02edb67fb2d8912953e7433ccfbc68e4",
+      "/workspace/Truth_Decoupling/results_qa_das_v1u/qwen3-8b/full/questions.json": "b61184c3fb015bce3250516fdd0419c33d745821e9836229c7d4065227e6e79e",
+      "/workspace/Truth_Decoupling/results_qa_das_v1u/qwen3-8b/full/shortlist.json": "c5669c7f558f70d957d1005bcd3e0cba21221dbca359e097ec76b99d741c51b2",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/summary.json": "8eb4851230ddcc47d0187f8e36339b9d671a142f9435c503ed2e682c1701f8d3",
+      "/workspace/Truth_Decoupling/results_das_tfce/E23/qwen3-8b/knob_sweep_das_tfce_full.json": "9dea8e2321866a4b0876aa540c471bc79a8cc874be042ac332ade2344b8d49b9",
+      "/workspace/Truth_Decoupling/results_das_tfce/E23/qwen3-8b/knob_sweep_das_tfce_full.npz": "fecc285eadc578dce007ebadc7690a1eebd1ffe2cfa30890a12191e392a5d7c5",
+      "/workspace/Truth_Decoupling/results_das_tf/E23/qwen3-8b/knob_sweep_meandiff_full.json": "43a6f0f303cf0b5ec07ec7ae08a368c41dacbd468aa187e654d7f328a381c520",
+      "/workspace/Truth_Decoupling/results_das_tf/E23/qwen3-8b/knob_sweep_meandiff_full.npz": "eb6198518f962422a3b08a1293906e7a9998e34aa0ba3c2ce5623897cf2db15a",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L0_r1_s42_tf-ce-bidir.pt": "8b6b7b1003073665224e1bd805e63c8c48e4a2394b073fc49704ad984ff44b85",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L10_r1_s42_tf-ce-bidir.pt": "12da220b06b6eb371ce243e9b52e5504eb3aff32edbe751b43d423fac4b5f428",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L11_r1_s42_tf-ce-bidir.pt": "c931dd777caf69030f8d1f06265cf04ebe35c1d824bc2b63d7f2ef618a16be18",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L12_r1_s42_tf-ce-bidir.pt": "f5e12b27c0e95df5a9836a53eb90a25b2231d672c053905ea10aad91ecbaa9f5",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L13_r1_s42_tf-ce-bidir.pt": "e23dad1f82fd8b4afd0d9fc75ad9c34e59b1bf7654ca2cad4b09b303397f84ee",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L14_r1_s42_tf-ce-bidir.pt": "1e75cb627583d35c3eb2d881d4687578c75a49f3733ab70c1c0a0d8d9dcf24d2",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L15_r1_s42_tf-ce-bidir.pt": "b2f6ce22bbde1ac28c98e78811b2c966023b12743b9d4cce545f8b2cd68277f6",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L16_r1_s42_tf-ce-bidir.pt": "c81c49e60a7d473da99cec3a9faec23d160662ade1b37bef6eb84c726611024d",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L17_r1_s42_tf-ce-bidir.pt": "4da7dc203f3de42e7746e2ff252eeddc15a3f21c74786d50c9dd17ec994c67f5",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L18_r1_s42_tf-ce-bidir.pt": "c154fbbc7d99f64f5f6ba0e2ea90eed270464b68e85fb44432d2576ea0d31abf",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L19_r1_s42_tf-ce-bidir.pt": "039187f27a14ab7b51f0eb5de693b535f27528dc11b2b9f9592d262419cd09f5",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L1_r1_s42_tf-ce-bidir.pt": "7d809b936a7389dd4c72d528622b0bb300e9ee697a274490641623fcbb443973",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L20_r1_s42_tf-ce-bidir.pt": "82dc9df4c592d76df56c862370e2eaac2a5b3dff48a99a3674cd2b7aad777a0c",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L21_r1_s42_tf-ce-bidir.pt": "a71fce25f194c7bfbaf073cda220efdaa58b3c31662477a572004ad5d88f2bb3",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L22_r1_s42_tf-ce-bidir.pt": "aa8720bf637c11f7a33c910bd16fa4697c00fb9172fe63011ae5fb3de6f02f6d",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L23_r1_s42_tf-ce-bidir.pt": "8d14d64b15dadcb32ed92db78342e60b182daf762191259c5c78c602187ab993",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L24_r1_s42_tf-ce-bidir.pt": "89d79d948a746dec902172d52008d46930ecf4092d4943578cea038a55e5139f",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L25_r1_s42_tf-ce-bidir.pt": "80ebb0e7a8715721d7e7c991b285341e6830edf6d336f861d7b1f9815b1dedfb",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L26_r1_s42_tf-ce-bidir.pt": "7430bdb4a477edc87cfeb8dd3667db0c0521c38ead64e54f18df2f0af3085383",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L27_r1_s42_tf-ce-bidir.pt": "4dd9e1dc29ac762ec4a8a37eb20368d0239b9da53dc682a98e802fc0e1f72a57",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L28_r1_s42_tf-ce-bidir.pt": "fcba3e7ce104d170b8d7ee5b35ab78c25d3557498d8ef1ca4d8a4120c18e8342",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L29_r1_s42_tf-ce-bidir.pt": "ba3a52a28a4daa44e0cd80dca90a6e9403f67e0ea3010fc35a80b3306afdd370",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L2_r1_s42_tf-ce-bidir.pt": "ff4d72c09b6c6fba50a0f83bbf9d53ba3f37658f4317ce1ab468cddc9ea846fe",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L30_r1_s42_tf-ce-bidir.pt": "8a8b73f33882272eebfe9946193252278bd04c42bd6850079e4a5fb73169fae1",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L31_r1_s42_tf-ce-bidir.pt": "f402a65bfec2014face42a289750f711c0b8972b888f05fa6af045bc64381621",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L32_r1_s42_tf-ce-bidir.pt": "1a2c7f839663e5c0f7bc486e2b15f13884b5496b6e289543128369d4fb50da76",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L33_r1_s42_tf-ce-bidir.pt": "e9c40e34534e86d177a618b7ab1ea21ce8fa82475799d13dbe1a9ee8dc565006",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L34_r1_s42_tf-ce-bidir.pt": "f0cdd3983e32f34e2d33970a8478544d95122f4f8016b30ae06cb07515129826",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L35_r1_s42_tf-ce-bidir.pt": "7d48fbb5298ce552ab5e36d7f37629fdba3dd7099bed778b41e80bb560d11d14",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L3_r1_s42_tf-ce-bidir.pt": "1d27389725a04290258226f6fc4196f6b3636b10d0ed5dfbabf59fc7a83e52e9",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L4_r1_s42_tf-ce-bidir.pt": "d7eafaaa3e09432cff85ae5e9077180bbd53855f31cbb2bdd9706a3f63008ece",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L5_r1_s42_tf-ce-bidir.pt": "958e44593878c3435196198886bcc3af944ea5893b32b40a467b5389eeac4776",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L6_r1_s42_tf-ce-bidir.pt": "8e1fe76eb9c4ab2da48f79d1d0f2d9a27535481e6a441504e767a75344366d05",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L7_r1_s42_tf-ce-bidir.pt": "9bdec37097df9f3aa9879a618af76fb08aeb11f18264aa59b7d8bbbbb05c32ca",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L8_r1_s42_tf-ce-bidir.pt": "c61c8f58e05adc067e974b9eaa25e25a5565602fe2941cba43d5d57b5e9b607d",
+      "/workspace/Truth_Decoupling/results_das_tfce/E1/qwen3-8b/das_E_L9_r1_s42_tf-ce-bidir.pt": "9231597a99a9722e2a18c50f59af104c1db66035e9cfd99f5d0af2f37821ad56",
+      "/workspace/Truth_Decoupling/results_e27_release_20261106/qwen3-8b/ce_alpha3_ep3/das_s42/adapter.pt": "46f08eea3e9a632b8878b2684ce86278c03d4ce90920c9abd2495090467049b2",
+      "/workspace/Truth_Decoupling/results_e27_release_20261106/qwen3-8b/ce_alpha3_ep3/das_s42/adapter.json": "d00115fed8975bec0408b02715c85c97c05d5d7e08e4b3bac0f443596fa6fc27",
+      "/workspace/Truth_Decoupling/results_e27_release_20261106/qwen3-8b/ce_alpha3_ep3/md_s42/adapter.pt": "370a587ef3ff263dc45eb3c41eacbc4150f2bc1a02c1f7e9c75e28de693da13d",
+      "/workspace/Truth_Decoupling/results_e27_release_20261106/qwen3-8b/ce_alpha3_ep3/md_s42/adapter.json": "484ad31a46e5d66c9e0be1c942d81cbd8455ced3b8fe0ce9bb2b962151345705",
+      "/workspace/Truth_Decoupling/results_e27_release_20261106/qwen3-8b/ce_alpha3_ep3/random_s42/adapter.pt": "b66e05228a87b565e66a2c9ae59abf3521c63e25b646ba611d2bc889262914e2",
+      "/workspace/Truth_Decoupling/results_e27_release_20261106/qwen3-8b/ce_alpha3_ep3/random_s42/adapter.json": "c17ecac785ef3fbe18ec57d388e1bbce7a819766c3cc29b6a4707a1b59e1d53c"
+    }
+  },
+  "e_choices": {
+    "tf": {
+      "das": [
+        {
+          "layer": 35,
+          "alpha": 3.0,
+          "mode": "prefill"
+        },
+        {
+          "layer": 25,
+          "alpha": 2.0,
+          "mode": "prefill"
+        },
+        {
+          "layer": 16,
+          "alpha": 3.0,
+          "mode": "prefill"
+        }
+      ],
+      "md": [
+        {
+          "layer": 20,
+          "alpha": 3.0,
+          "mode": "prefill"
+        },
+        {
+          "layer": 21,
+          "alpha": 2.0,
+          "mode": "prefill"
+        },
+        {
+          "layer": 19,
+          "alpha": 3.0,
+          "mode": "prefill"
+        }
+      ]
+    },
+    "qa": {
+      "das": [
+        {
+          "layer": 23,
+          "alpha": 3.0,
+          "mode": "continuous"
+        },
+        {
+          "layer": 34,
+          "alpha": 3.0,
+          "mode": "continuous"
+        },
+        {
+          "layer": 29,
+          "alpha": 2.0,
+          "mode": "continuous"
+        }
+      ],
+      "md": [
+        {
+          "layer": 11,
+          "alpha": 3.0,
+          "mode": "continuous"
+        },
+        {
+          "layer": 12,
+          "alpha": 2.0,
+          "mode": "continuous"
+        },
+        {
+          "layer": 13,
+          "alpha": 2.0,
+          "mode": "continuous"
+        }
+      ],
+      "das_generation_adapter": [
+        {
+          "layers": [
+            34
+          ],
+          "alpha": 3.0,
+          "mode": "continuous"
+        }
+      ],
+      "md_generation_adapter": [
+        {
+          "layers": [
+            34
+          ],
+          "alpha": 3.0,
+          "mode": "continuous"
+        }
+      ],
+      "random_generation_adapter": [
+        {
+          "layers": [
+            34
+          ],
+          "alpha": 3.0,
+          "mode": "continuous"
+        }
+      ]
+    }
+  },
+  "c_estimation": {
+    "tf": {
+      "labels": {
+        "yes": 9454,
+        "no": 2753
+      },
+      "methods": {
+        "das": {
+          "0": {
+            "available": true,
+            "scale": 0.06299267431186781,
+            "score_correlation": 0.20529731098042958,
+            "cos_after": 9.085614205428527e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "1": {
+            "available": true,
+            "scale": 0.1332437492535343,
+            "score_correlation": 0.29834658256000884,
+            "cos_after": 2.0816681711721685e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "2": {
+            "available": true,
+            "scale": 0.15055172974791584,
+            "score_correlation": 0.3132005195402334,
+            "cos_after": -7.28583859910259e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "3": {
+            "available": true,
+            "scale": 0.17631309131106573,
+            "score_correlation": 0.3217149647457708,
+            "cos_after": -6.765421556309548e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "4": {
+            "available": true,
+            "scale": 0.2078566294111748,
+            "score_correlation": 0.3385903630341682,
+            "cos_after": -1.5872719805187785e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "5": {
+            "available": true,
+            "scale": 0.2598878915221646,
+            "score_correlation": 0.3333072333032185,
+            "cos_after": -1.474514954580286e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "6": {
+            "available": true,
+            "scale": 0.31249986124237333,
+            "score_correlation": 0.3375826837791685,
+            "cos_after": -1.205632815803881e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "7": {
+            "available": true,
+            "scale": 0.3510765604463,
+            "score_correlation": 0.32745817097912017,
+            "cos_after": -1.1188966420050406e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "8": {
+            "available": true,
+            "scale": 0.4318892002392076,
+            "score_correlation": 0.3391613691458153,
+            "cos_after": -6.505213034913027e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "9": {
+            "available": true,
+            "scale": 0.5055912234752779,
+            "score_correlation": 0.34145649830257657,
+            "cos_after": -1.3010426069826053e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "10": {
+            "available": true,
+            "scale": 0.4884916116101327,
+            "score_correlation": 0.347597700613387,
+            "cos_after": -2.949029909160572e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "11": {
+            "available": true,
+            "scale": 0.5230165374620029,
+            "score_correlation": 0.34325810075675867,
+            "cos_after": -3.686287386450715e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "12": {
+            "available": true,
+            "scale": 0.5504720347815334,
+            "score_correlation": 0.3632071811508987,
+            "cos_after": 6.852157730108388e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "13": {
+            "available": true,
+            "scale": 0.6193247635828129,
+            "score_correlation": 0.372675489215892,
+            "cos_after": 3.122502256758253e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "14": {
+            "available": true,
+            "scale": 0.6358597205762573,
+            "score_correlation": 0.38288519223572154,
+            "cos_after": -7.45931094670027e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "15": {
+            "available": true,
+            "scale": 0.7011931016575004,
+            "score_correlation": 0.38818071622490974,
+            "cos_after": -1.3183898417423734e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "16": {
+            "available": true,
+            "scale": 0.7890494174574945,
+            "score_correlation": 0.4438486226842314,
+            "cos_after": -1.1882855810441129e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "17": {
+            "available": true,
+            "scale": 0.9469324400793734,
+            "score_correlation": 0.4899688913594848,
+            "cos_after": 7.112366251504909e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "18": {
+            "available": true,
+            "scale": 1.0816234356152254,
+            "score_correlation": 0.5554875488674732,
+            "cos_after": 4.163336342344337e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "19": {
+            "available": true,
+            "scale": 1.5972255192569003,
+            "score_correlation": 0.8240142890122527,
+            "cos_after": -1.7780915628762273e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "20": {
+            "available": true,
+            "scale": 2.8289140660111456,
+            "score_correlation": 0.9204541376125811,
+            "cos_after": -1.496198998029996e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "21": {
+            "available": true,
+            "scale": 4.274577727708926,
+            "score_correlation": 0.9274153996299259,
+            "cos_after": -2.461138931542095e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "22": {
+            "available": true,
+            "scale": 8.004739041273039,
+            "score_correlation": 0.9644657009009641,
+            "cos_after": -4.0766001685454967e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "23": {
+            "available": true,
+            "scale": 20.85090014306551,
+            "score_correlation": 0.9714817575231592,
+            "cos_after": -1.1102230246251565e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "24": {
+            "available": true,
+            "scale": 29.91860452137892,
+            "score_correlation": 0.9771742256399119,
+            "cos_after": 4.683753385137379e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "25": {
+            "available": true,
+            "scale": 30.211669707718237,
+            "score_correlation": 0.9707643189007326,
+            "cos_after": -1.1774435593192578e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "26": {
+            "available": true,
+            "scale": 37.09036556142088,
+            "score_correlation": 0.9786411020757579,
+            "cos_after": -6.418476861114186e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "27": {
+            "available": true,
+            "scale": 47.38289450233358,
+            "score_correlation": 0.983717078416082,
+            "cos_after": -2.211772431870429e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "28": {
+            "available": true,
+            "scale": 54.35370643684519,
+            "score_correlation": 0.9849155703678113,
+            "cos_after": -8.391724815037804e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "29": {
+            "available": true,
+            "scale": 66.61560819248191,
+            "score_correlation": 0.9864195083887929,
+            "cos_after": 1.0191500421363742e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "30": {
+            "available": true,
+            "scale": 79.18642781240897,
+            "score_correlation": 0.9867110368529258,
+            "cos_after": -3.165870343657673e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "31": {
+            "available": true,
+            "scale": 86.15862519338768,
+            "score_correlation": 0.9860944616146636,
+            "cos_after": -3.642919299551295e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "32": {
+            "available": true,
+            "scale": 94.1084486146304,
+            "score_correlation": 0.9851049784125294,
+            "cos_after": -1.0842021724855044e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "33": {
+            "available": true,
+            "scale": 107.13225792777075,
+            "score_correlation": 0.9852555944736968,
+            "cos_after": -6.505213034913027e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "34": {
+            "available": true,
+            "scale": 116.07444207704334,
+            "score_correlation": 0.9851808140967289,
+            "cos_after": -3.3393426912553537e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "35": {
+            "available": true,
+            "scale": 134.11287457199998,
+            "score_correlation": 0.9554192783499155,
+            "cos_after": -5.204170427930421e-18,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          }
+        },
+        "md": {
+          "0": {
+            "available": true,
+            "scale": 0.061627721820978094,
+            "score_correlation": 0.19464734044506707,
+            "cos_after": -8.500145032286355e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "1": {
+            "available": true,
+            "scale": 0.1252077686830945,
+            "score_correlation": 0.29053212572590476,
+            "cos_after": -2.0469737016526324e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "2": {
+            "available": true,
+            "scale": 0.1441129624916509,
+            "score_correlation": 0.30326464247263407,
+            "cos_after": -1.214306433183765e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "3": {
+            "available": true,
+            "scale": 0.16461776118680982,
+            "score_correlation": 0.3148388333982463,
+            "cos_after": 1.3877787807814457e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "4": {
+            "available": true,
+            "scale": 0.19438498587028824,
+            "score_correlation": 0.32909176937122153,
+            "cos_after": -1.9038590148845458e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "5": {
+            "available": true,
+            "scale": 0.24521910658886553,
+            "score_correlation": 0.32108624789258855,
+            "cos_after": -1.1102230246251565e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "6": {
+            "available": true,
+            "scale": 0.3009139183903354,
+            "score_correlation": 0.3174457340685464,
+            "cos_after": -6.418476861114186e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "7": {
+            "available": true,
+            "scale": 0.3385460298513875,
+            "score_correlation": 0.30607825368081226,
+            "cos_after": 7.28583859910259e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "8": {
+            "available": true,
+            "scale": 0.4041744903829484,
+            "score_correlation": 0.3237220461135193,
+            "cos_after": -9.80118763926896e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "9": {
+            "available": true,
+            "scale": 0.4642470658441031,
+            "score_correlation": 0.33193297657784265,
+            "cos_after": -7.632783294297951e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "10": {
+            "available": true,
+            "scale": 0.4240417674474259,
+            "score_correlation": 0.3521256184527127,
+            "cos_after": 3.469446951953614e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "11": {
+            "available": true,
+            "scale": 0.4366750953906012,
+            "score_correlation": 0.35912611614403595,
+            "cos_after": -9.367506770274758e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "12": {
+            "available": true,
+            "scale": 0.46096322707693804,
+            "score_correlation": 0.38362155588936614,
+            "cos_after": 1.691355389077387e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "13": {
+            "available": true,
+            "scale": 0.5024109245207915,
+            "score_correlation": 0.4009712617192759,
+            "cos_after": -1.48318857196017e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "14": {
+            "available": true,
+            "scale": 0.5152565050552655,
+            "score_correlation": 0.4147137768215824,
+            "cos_after": -1.7520707107365752e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "15": {
+            "available": true,
+            "scale": 0.5859000219646531,
+            "score_correlation": 0.415211565175899,
+            "cos_after": 2.688821387764051e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "16": {
+            "available": true,
+            "scale": 0.7016969568953414,
+            "score_correlation": 0.46952597517981615,
+            "cos_after": -1.734723475976807e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "17": {
+            "available": true,
+            "scale": 0.8192357676010746,
+            "score_correlation": 0.5202636437381927,
+            "cos_after": -4.5102810375396984e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "18": {
+            "available": true,
+            "scale": 0.9922208270433831,
+            "score_correlation": 0.5608976076296582,
+            "cos_after": -2.437286483747414e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "19": {
+            "available": true,
+            "scale": 1.699318299475928,
+            "score_correlation": 0.6816524880843143,
+            "cos_after": -4.336808689942018e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "20": {
+            "available": true,
+            "scale": 2.559677767679637,
+            "score_correlation": 0.7494687160074378,
+            "cos_after": 1.1796119636642288e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "21": {
+            "available": true,
+            "scale": 3.3611050184114264,
+            "score_correlation": 0.8403674544306139,
+            "cos_after": -5.249706919174812e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "22": {
+            "available": true,
+            "scale": 5.12751167255686,
+            "score_correlation": 0.8516002465617715,
+            "cos_after": -1.6653345369377348e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "23": {
+            "available": true,
+            "scale": 11.05999063655624,
+            "score_correlation": 0.895225684270776,
+            "cos_after": -5.386316392907986e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "24": {
+            "available": true,
+            "scale": 19.178915161401854,
+            "score_correlation": 0.9673525295583878,
+            "cos_after": -2.1510571102112408e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "25": {
+            "available": true,
+            "scale": 19.397329522353395,
+            "score_correlation": 0.9617267754265109,
+            "cos_after": -2.404760418572849e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "26": {
+            "available": true,
+            "scale": 23.78713711419208,
+            "score_correlation": 0.9742722867503489,
+            "cos_after": -1.4094628242311558e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "27": {
+            "available": true,
+            "scale": 30.066760950059994,
+            "score_correlation": 0.9790239077707631,
+            "cos_after": 3.3219954564955856e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "28": {
+            "available": true,
+            "scale": 36.236580572655235,
+            "score_correlation": 0.9838100414172173,
+            "cos_after": -8.413408858487514e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "29": {
+            "available": true,
+            "scale": 52.21067917920255,
+            "score_correlation": 0.9868558947234083,
+            "cos_after": -4.9873299934333204e-18,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "30": {
+            "available": true,
+            "scale": 69.90465474972633,
+            "score_correlation": 0.9872900187383412,
+            "cos_after": -1.5092094240998222e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "31": {
+            "available": true,
+            "scale": 78.79030730306862,
+            "score_correlation": 0.9869736447606139,
+            "cos_after": -2.0209528495129803e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "32": {
+            "available": true,
+            "scale": 87.21812163217483,
+            "score_correlation": 0.9856485224182909,
+            "cos_after": -1.0321604682062002e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "33": {
+            "available": true,
+            "scale": 101.10242944443635,
+            "score_correlation": 0.9859601759914689,
+            "cos_after": -1.3010426069826053e-17,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "34": {
+            "available": true,
+            "scale": 106.0831170104164,
+            "score_correlation": 0.9871553157637771,
+            "cos_after": -1.1796119636642288e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "35": {
+            "available": true,
+            "scale": 112.61824886286755,
+            "score_correlation": 0.984106648441218,
+            "cos_after": -1.8388068845354155e-16,
+            "n_estimation": 192,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          }
+        }
+      }
+    },
+    "qa": {
+      "labels": {
+        "yes": 9454,
+        "no": 2753
+      },
+      "methods": {
+        "das": {
+          "0": {
+            "available": true,
+            "scale": 0.0634355080799357,
+            "score_correlation": 0.32616719283213025,
+            "cos_after": -2.6020852139652106e-18,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "1": {
+            "available": true,
+            "scale": 0.18711979093967757,
+            "score_correlation": 0.3500564878657355,
+            "cos_after": 5.204170427930421e-18,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "2": {
+            "available": true,
+            "scale": 0.2227892205136387,
+            "score_correlation": 0.39446203785902495,
+            "cos_after": -8.673617379884035e-18,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "3": {
+            "available": true,
+            "scale": 0.24731794615916844,
+            "score_correlation": 0.44396117823611947,
+            "cos_after": -1.1709383462843448e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "4": {
+            "available": true,
+            "scale": 0.31251586869618525,
+            "score_correlation": 0.4574466306021731,
+            "cos_after": 1.0408340855860843e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "5": {
+            "available": true,
+            "scale": 0.39280516599016485,
+            "score_correlation": 0.45611962808986223,
+            "cos_after": -2.168404344971009e-18,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "6": {
+            "available": true,
+            "scale": 0.49184619231125554,
+            "score_correlation": 0.4575806354844076,
+            "cos_after": -2.168404344971009e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "7": {
+            "available": true,
+            "scale": 0.5467095969514565,
+            "score_correlation": 0.44017981638129355,
+            "cos_after": -3.426078865054194e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "8": {
+            "available": true,
+            "scale": 0.6652406926532988,
+            "score_correlation": 0.4627234346343463,
+            "cos_after": -8.239936510889834e-18,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "9": {
+            "available": true,
+            "scale": 0.8302185812466225,
+            "score_correlation": 0.45523468849381116,
+            "cos_after": 6.938893903907228e-18,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "10": {
+            "available": true,
+            "scale": 0.7791345057177635,
+            "score_correlation": 0.4740981525959552,
+            "cos_after": -1.9949319973733282e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "11": {
+            "available": true,
+            "scale": 0.8039461602219923,
+            "score_correlation": 0.4780513311547674,
+            "cos_after": 0.0,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "12": {
+            "available": true,
+            "scale": 0.8451472849808264,
+            "score_correlation": 0.5255592039864319,
+            "cos_after": -2.7755575615628914e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "13": {
+            "available": true,
+            "scale": 0.9563110251253243,
+            "score_correlation": 0.552017054065495,
+            "cos_after": 1.0408340855860843e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "14": {
+            "available": true,
+            "scale": 0.9783478750654885,
+            "score_correlation": 0.5718072065723633,
+            "cos_after": -2.0816681711721685e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "15": {
+            "available": true,
+            "scale": 1.0884972175880487,
+            "score_correlation": 0.612975463031921,
+            "cos_after": -2.6020852139652106e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "16": {
+            "available": true,
+            "scale": 1.2391856788060551,
+            "score_correlation": 0.7224031179958439,
+            "cos_after": 9.540979117872439e-18,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "17": {
+            "available": true,
+            "scale": 1.4258265665901424,
+            "score_correlation": 0.7325523340444078,
+            "cos_after": 2.6020852139652106e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "18": {
+            "available": true,
+            "scale": 1.9148125487129128,
+            "score_correlation": 0.7374369872236831,
+            "cos_after": 1.1275702593849246e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "19": {
+            "available": true,
+            "scale": 2.841922964078312,
+            "score_correlation": 0.8919694503950721,
+            "cos_after": -1.734723475976807e-18,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "20": {
+            "available": true,
+            "scale": 4.122140800832188,
+            "score_correlation": 0.897369556581661,
+            "cos_after": 1.0408340855860843e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "21": {
+            "available": true,
+            "scale": 5.199938641007137,
+            "score_correlation": 0.9188815510456744,
+            "cos_after": -3.469446951953614e-18,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "22": {
+            "available": true,
+            "scale": 8.626310827564376,
+            "score_correlation": 0.9463401808634218,
+            "cos_after": -1.0408340855860843e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "23": {
+            "available": true,
+            "scale": 18.79118507838287,
+            "score_correlation": 0.9680976745287103,
+            "cos_after": -1.9081958235744878e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "24": {
+            "available": true,
+            "scale": 27.128083040358696,
+            "score_correlation": 0.9666225383275622,
+            "cos_after": -7.45931094670027e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "25": {
+            "available": true,
+            "scale": 28.401092793471033,
+            "score_correlation": 0.9619658149006769,
+            "cos_after": 6.591949208711867e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "26": {
+            "available": true,
+            "scale": 39.538222701139084,
+            "score_correlation": 0.9847258159416302,
+            "cos_after": 3.469446951953614e-18,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "27": {
+            "available": true,
+            "scale": 48.39393472352593,
+            "score_correlation": 0.989792155549947,
+            "cos_after": -3.469446951953614e-18,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "28": {
+            "available": true,
+            "scale": 53.12548717107158,
+            "score_correlation": 0.9901576134163924,
+            "cos_after": -2.0816681711721685e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "29": {
+            "available": true,
+            "scale": 64.78439936983628,
+            "score_correlation": 0.9908059880180513,
+            "cos_after": 1.734723475976807e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "30": {
+            "available": true,
+            "scale": 76.84253551359288,
+            "score_correlation": 0.9906708108478705,
+            "cos_after": 6.938893903907228e-18,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "31": {
+            "available": true,
+            "scale": 86.03462809892704,
+            "score_correlation": 0.9913362689009001,
+            "cos_after": -6.938893903907228e-18,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "32": {
+            "available": true,
+            "scale": 92.51399373859132,
+            "score_correlation": 0.9903607866823598,
+            "cos_after": 5.204170427930421e-18,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "33": {
+            "available": true,
+            "scale": 105.54899621915735,
+            "score_correlation": 0.9900430669203865,
+            "cos_after": 1.214306433183765e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "34": {
+            "available": true,
+            "scale": 114.83809801570231,
+            "score_correlation": 0.9865187908590487,
+            "cos_after": -2.7755575615628914e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          }
+        },
+        "md": {
+          "0": {
+            "available": true,
+            "scale": 0.06352473654350123,
+            "score_correlation": 0.32586560273609144,
+            "cos_after": 2.3418766925686896e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "1": {
+            "available": true,
+            "scale": 0.18710768118301424,
+            "score_correlation": 0.3500747536321364,
+            "cos_after": 3.469446951953614e-18,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "2": {
+            "available": true,
+            "scale": 0.22267373642017876,
+            "score_correlation": 0.3944540721858657,
+            "cos_after": 1.8214596497756474e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "3": {
+            "available": true,
+            "scale": 0.2473385379556971,
+            "score_correlation": 0.4439695643969466,
+            "cos_after": -2.6020852139652106e-18,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "4": {
+            "available": true,
+            "scale": 0.31270029765836455,
+            "score_correlation": 0.4573982423503494,
+            "cos_after": -1.214306433183765e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "5": {
+            "available": true,
+            "scale": 0.39275298534714437,
+            "score_correlation": 0.4561405709804594,
+            "cos_after": 1.3010426069826053e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "6": {
+            "available": true,
+            "scale": 0.4917954582764075,
+            "score_correlation": 0.4576422933060026,
+            "cos_after": 5.204170427930421e-18,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "7": {
+            "available": true,
+            "scale": 0.5472351137034577,
+            "score_correlation": 0.4399856953063215,
+            "cos_after": 1.5612511283791264e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "8": {
+            "available": true,
+            "scale": 0.6653876524554033,
+            "score_correlation": 0.4626532813457359,
+            "cos_after": 1.0408340855860843e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "9": {
+            "available": true,
+            "scale": 0.8303890575453445,
+            "score_correlation": 0.45517160908377013,
+            "cos_after": 8.673617379884035e-18,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "10": {
+            "available": true,
+            "scale": 0.7790802407965745,
+            "score_correlation": 0.4741638808195427,
+            "cos_after": 1.0408340855860843e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "11": {
+            "available": true,
+            "scale": 0.8041726174812135,
+            "score_correlation": 0.4778830727666675,
+            "cos_after": 3.122502256758253e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "12": {
+            "available": true,
+            "scale": 0.8459895037536675,
+            "score_correlation": 0.5253277473271171,
+            "cos_after": 1.214306433183765e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "13": {
+            "available": true,
+            "scale": 0.956557585209266,
+            "score_correlation": 0.5519293841321053,
+            "cos_after": 1.0408340855860843e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "14": {
+            "available": true,
+            "scale": 0.977432471322473,
+            "score_correlation": 0.5717226712585144,
+            "cos_after": -1.0408340855860843e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "15": {
+            "available": true,
+            "scale": 1.0877989193938156,
+            "score_correlation": 0.6129154328893838,
+            "cos_after": 2.42861286636753e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "16": {
+            "available": true,
+            "scale": 1.2380767573834246,
+            "score_correlation": 0.7220493880275326,
+            "cos_after": 1.5612511283791264e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "17": {
+            "available": true,
+            "scale": 1.4259654263377577,
+            "score_correlation": 0.7321287643814415,
+            "cos_after": -3.122502256758253e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "18": {
+            "available": true,
+            "scale": 1.9148811478637577,
+            "score_correlation": 0.7373040421255753,
+            "cos_after": -8.673617379884035e-19,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "19": {
+            "available": true,
+            "scale": 2.840430787083093,
+            "score_correlation": 0.8921702973398427,
+            "cos_after": 1.734723475976807e-18,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "20": {
+            "available": true,
+            "scale": 4.116627901737597,
+            "score_correlation": 0.8976934860504274,
+            "cos_after": 1.734723475976807e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "21": {
+            "available": true,
+            "scale": 5.193164098791134,
+            "score_correlation": 0.918992952370427,
+            "cos_after": -1.3877787807814457e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "22": {
+            "available": true,
+            "scale": 8.600426590033551,
+            "score_correlation": 0.9467553533210532,
+            "cos_after": 3.469446951953614e-18,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "23": {
+            "available": true,
+            "scale": 18.79215966008537,
+            "score_correlation": 0.9682772185978924,
+            "cos_after": -1.734723475976807e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "24": {
+            "available": true,
+            "scale": 27.386238269011624,
+            "score_correlation": 0.9672540271331266,
+            "cos_after": 3.469446951953614e-18,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "25": {
+            "available": true,
+            "scale": 28.56392508927063,
+            "score_correlation": 0.9626282639219098,
+            "cos_after": 6.938893903907228e-18,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "26": {
+            "available": true,
+            "scale": 40.15562545977201,
+            "score_correlation": 0.9854588540075138,
+            "cos_after": -1.474514954580286e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "27": {
+            "available": true,
+            "scale": 48.39647457357129,
+            "score_correlation": 0.9897997345298051,
+            "cos_after": -1.0842021724855044e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "28": {
+            "available": true,
+            "scale": 53.12566942304503,
+            "score_correlation": 0.9901591161037033,
+            "cos_after": 8.673617379884035e-19,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "29": {
+            "available": true,
+            "scale": 64.78396534491685,
+            "score_correlation": 0.9908086353410122,
+            "cos_after": -1.734723475976807e-18,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "30": {
+            "available": true,
+            "scale": 76.84467191790998,
+            "score_correlation": 0.9906745856590259,
+            "cos_after": -2.6020852139652106e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "31": {
+            "available": true,
+            "scale": 86.03094601959815,
+            "score_correlation": 0.9913359145096216,
+            "cos_after": 1.5612511283791264e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "32": {
+            "available": true,
+            "scale": 92.52025575073469,
+            "score_correlation": 0.9903631330779666,
+            "cos_after": -5.204170427930421e-18,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "33": {
+            "available": true,
+            "scale": 105.56128882805996,
+            "score_correlation": 0.990053180905124,
+            "cos_after": -3.469446951953614e-18,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "34": {
+            "available": true,
+            "scale": 114.90737432446754,
+            "score_correlation": 0.986491811041677,
+            "cos_after": -1.734723475976807e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          },
+          "35": {
+            "available": true,
+            "scale": 122.61833988388297,
+            "score_correlation": 0.983853314973696,
+            "cos_after": 2.168404344971009e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          }
+        },
+        "das_generation_adapter": {
+          "34": {
+            "available": true,
+            "scale": 114.93229175606906,
+            "score_correlation": 0.9865111235319094,
+            "cos_after": 1.3877787807814457e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          }
+        },
+        "md_generation_adapter": {
+          "34": {
+            "available": true,
+            "scale": 114.88232581052817,
+            "score_correlation": 0.9865526145984218,
+            "cos_after": -2.4069288229178198e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          }
+        },
+        "random_generation_adapter": {
+          "34": {
+            "available": true,
+            "scale": 114.84516332732927,
+            "score_correlation": 0.9864984995447226,
+            "cos_after": 2.42861286636753e-17,
+            "n_estimation": 96,
+            "definition": "covariance(hidden, standardized first Yes-No logit margin), projected off same-layer E"
+          }
+        }
+      }
+    }
+  },
+  "c_layers": {
+    "tf": {
+      "das": [
+        30
+      ],
+      "md": [
+        30
+      ]
+    },
+    "qa": {
+      "das": [
+        31
+      ],
+      "md": [
+        31
+      ],
+      "das_generation_adapter": [
+        34
+      ],
+      "md_generation_adapter": [
+        34
+      ],
+      "random_generation_adapter": [
+        34
+      ]
+    }
+  },
+  "generation_adapters": {
+    "das_generation_adapter": {
+      "init": "das",
+      "layers": [
+        34
+      ],
+      "alpha": 3.0,
+      "objective": "correct-answer mean token CE + ranking_weight * softplus(negative_mean_logp - positive_mean_logp)",
+      "source": {
+        "bank_fingerprint": "b560729d5bfa4d47cd9e7c60bba4b85c9718b11a06775e2f3b063552cf7f06a2",
+        "bank_json_sha256": "2ca234ac99b16d2b273a185c6a781c0da4d9922a5c515c3e6cec42b2baea6a99",
+        "bank_npz_sha256": "9f25917c8eaa3fd7f802fde8be24b54431d107269248495e5febef9c376e1e94",
+        "questions_sha256": "b61184c3fb015bce3250516fdd0419c33d745821e9836229c7d4065227e6e79e",
+        "training_json_sha256": "883b74691aabddb867be99ac7108835f02edb67fb2d8912953e7433ccfbc68e4",
+        "checkpoints": {
+          "34": "e9096c83e47743bebe410560301bded3697a991a9eb9ed039cdb551b3c9122d3"
+        }
+      }
+    },
+    "md_generation_adapter": {
+      "init": "md",
+      "layers": [
+        34
+      ],
+      "alpha": 3.0,
+      "objective": "correct-answer mean token CE + ranking_weight * softplus(negative_mean_logp - positive_mean_logp)",
+      "source": {
+        "bank_fingerprint": "b560729d5bfa4d47cd9e7c60bba4b85c9718b11a06775e2f3b063552cf7f06a2",
+        "bank_json_sha256": "2ca234ac99b16d2b273a185c6a781c0da4d9922a5c515c3e6cec42b2baea6a99",
+        "bank_npz_sha256": "9f25917c8eaa3fd7f802fde8be24b54431d107269248495e5febef9c376e1e94",
+        "questions_sha256": "b61184c3fb015bce3250516fdd0419c33d745821e9836229c7d4065227e6e79e",
+        "training_json_sha256": "883b74691aabddb867be99ac7108835f02edb67fb2d8912953e7433ccfbc68e4",
+        "checkpoints": {
+          "34": "e9096c83e47743bebe410560301bded3697a991a9eb9ed039cdb551b3c9122d3"
+        }
+      }
+    },
+    "random_generation_adapter": {
+      "init": "random",
+      "layers": [
+        34
+      ],
+      "alpha": 3.0,
+      "objective": "correct-answer mean token CE + ranking_weight * softplus(negative_mean_logp - positive_mean_logp)",
+      "source": {
+        "bank_fingerprint": "b560729d5bfa4d47cd9e7c60bba4b85c9718b11a06775e2f3b063552cf7f06a2",
+        "bank_json_sha256": "2ca234ac99b16d2b273a185c6a781c0da4d9922a5c515c3e6cec42b2baea6a99",
+        "bank_npz_sha256": "9f25917c8eaa3fd7f802fde8be24b54431d107269248495e5febef9c376e1e94",
+        "questions_sha256": "b61184c3fb015bce3250516fdd0419c33d745821e9836229c7d4065227e6e79e",
+        "training_json_sha256": "883b74691aabddb867be99ac7108835f02edb67fb2d8912953e7433ccfbc68e4",
+        "checkpoints": {
+          "34": "e9096c83e47743bebe410560301bded3697a991a9eb9ed039cdb551b3c9122d3"
+        }
+      }
+    }
+  },
+  "score_provenance": {
+    "uses_gold_labels": false,
+    "uses_reference_answer": false,
+    "commitment": "first-token Yes-No logit difference on question/statement prompt",
+    "simple_tf": "absolute predicted True-False log probability margin",
+    "simple_qa": "unsteered mean log probability of generated answer; no reference answers"
+  },
+  "conditions": {
+    "tf": [
+      {
+        "name": "baseline",
+        "kind": "base",
+        "task": "tf",
+        "method": "base",
+        "e": null,
+        "c": null
+      },
+      {
+        "name": "das_E_0",
+        "kind": "E",
+        "task": "tf",
+        "method": "das",
+        "e": {
+          "layer": 35,
+          "alpha": 3.0,
+          "mode": "prefill"
+        },
+        "c": null
+      },
+      {
+        "name": "das_E_1",
+        "kind": "E",
+        "task": "tf",
+        "method": "das",
+        "e": {
+          "layer": 25,
+          "alpha": 2.0,
+          "mode": "prefill"
+        },
+        "c": null
+      },
+      {
+        "name": "das_E_2",
+        "kind": "E",
+        "task": "tf",
+        "method": "das",
+        "e": {
+          "layer": 16,
+          "alpha": 3.0,
+          "mode": "prefill"
+        },
+        "c": null
+      },
+      {
+        "name": "das_C_L30_a-1",
+        "kind": "C",
+        "task": "tf",
+        "method": "das",
+        "e": null,
+        "c": {
+          "layer": 30,
+          "alpha": -1.0
+        }
+      },
+      {
+        "name": "das_EC_0_L30_a-1",
+        "kind": "EC",
+        "task": "tf",
+        "method": "das",
+        "e": {
+          "layer": 35,
+          "alpha": 3.0,
+          "mode": "prefill"
+        },
+        "c": {
+          "layer": 30,
+          "alpha": -1.0
+        }
+      },
+      {
+        "name": "das_EC_1_L30_a-1",
+        "kind": "EC",
+        "task": "tf",
+        "method": "das",
+        "e": {
+          "layer": 25,
+          "alpha": 2.0,
+          "mode": "prefill"
+        },
+        "c": {
+          "layer": 30,
+          "alpha": -1.0
+        }
+      },
+      {
+        "name": "das_EC_2_L30_a-1",
+        "kind": "EC",
+        "task": "tf",
+        "method": "das",
+        "e": {
+          "layer": 16,
+          "alpha": 3.0,
+          "mode": "prefill"
+        },
+        "c": {
+          "layer": 30,
+          "alpha": -1.0
+        }
+      },
+      {
+        "name": "das_C_L30_a1",
+        "kind": "C",
+        "task": "tf",
+        "method": "das",
+        "e": null,
+        "c": {
+          "layer": 30,
+          "alpha": 1.0
+        }
+      },
+      {
+        "name": "das_EC_0_L30_a1",
+        "kind": "EC",
+        "task": "tf",
+        "method": "das",
+        "e": {
+          "layer": 35,
+          "alpha": 3.0,
+          "mode": "prefill"
+        },
+        "c": {
+          "layer": 30,
+          "alpha": 1.0
+        }
+      },
+      {
+        "name": "das_EC_1_L30_a1",
+        "kind": "EC",
+        "task": "tf",
+        "method": "das",
+        "e": {
+          "layer": 25,
+          "alpha": 2.0,
+          "mode": "prefill"
+        },
+        "c": {
+          "layer": 30,
+          "alpha": 1.0
+        }
+      },
+      {
+        "name": "das_EC_2_L30_a1",
+        "kind": "EC",
+        "task": "tf",
+        "method": "das",
+        "e": {
+          "layer": 16,
+          "alpha": 3.0,
+          "mode": "prefill"
+        },
+        "c": {
+          "layer": 30,
+          "alpha": 1.0
+        }
+      },
+      {
+        "name": "md_E_0",
+        "kind": "E",
+        "task": "tf",
+        "method": "md",
+        "e": {
+          "layer": 20,
+          "alpha": 3.0,
+          "mode": "prefill"
+        },
+        "c": null
+      },
+      {
+        "name": "md_E_1",
+        "kind": "E",
+        "task": "tf",
+        "method": "md",
+        "e": {
+          "layer": 21,
+          "alpha": 2.0,
+          "mode": "prefill"
+        },
+        "c": null
+      },
+      {
+        "name": "md_E_2",
+        "kind": "E",
+        "task": "tf",
+        "method": "md",
+        "e": {
+          "layer": 19,
+          "alpha": 3.0,
+          "mode": "prefill"
+        },
+        "c": null
+      },
+      {
+        "name": "md_C_L30_a-1",
+        "kind": "C",
+        "task": "tf",
+        "method": "md",
+        "e": null,
+        "c": {
+          "layer": 30,
+          "alpha": -1.0
+        }
+      },
+      {
+        "name": "md_EC_0_L30_a-1",
+        "kind": "EC",
+        "task": "tf",
+        "method": "md",
+        "e": {
+          "layer": 20,
+          "alpha": 3.0,
+          "mode": "prefill"
+        },
+        "c": {
+          "layer": 30,
+          "alpha": -1.0
+        }
+      },
+      {
+        "name": "md_EC_1_L30_a-1",
+        "kind": "EC",
+        "task": "tf",
+        "method": "md",
+        "e": {
+          "layer": 21,
+          "alpha": 2.0,
+          "mode": "prefill"
+        },
+        "c": {
+          "layer": 30,
+          "alpha": -1.0
+        }
+      },
+      {
+        "name": "md_EC_2_L30_a-1",
+        "kind": "EC",
+        "task": "tf",
+        "method": "md",
+        "e": {
+          "layer": 19,
+          "alpha": 3.0,
+          "mode": "prefill"
+        },
+        "c": {
+          "layer": 30,
+          "alpha": -1.0
+        }
+      },
+      {
+        "name": "md_C_L30_a1",
+        "kind": "C",
+        "task": "tf",
+        "method": "md",
+        "e": null,
+        "c": {
+          "layer": 30,
+          "alpha": 1.0
+        }
+      },
+      {
+        "name": "md_EC_0_L30_a1",
+        "kind": "EC",
+        "task": "tf",
+        "method": "md",
+        "e": {
+          "layer": 20,
+          "alpha": 3.0,
+          "mode": "prefill"
+        },
+        "c": {
+          "layer": 30,
+          "alpha": 1.0
+        }
+      },
+      {
+        "name": "md_EC_1_L30_a1",
+        "kind": "EC",
+        "task": "tf",
+        "method": "md",
+        "e": {
+          "layer": 21,
+          "alpha": 2.0,
+          "mode": "prefill"
+        },
+        "c": {
+          "layer": 30,
+          "alpha": 1.0
+        }
+      },
+      {
+        "name": "md_EC_2_L30_a1",
+        "kind": "EC",
+        "task": "tf",
+        "method": "md",
+        "e": {
+          "layer": 19,
+          "alpha": 3.0,
+          "mode": "prefill"
+        },
+        "c": {
+          "layer": 30,
+          "alpha": 1.0
+        }
+      }
+    ],
+    "qa": [
+      {
+        "name": "baseline",
+        "kind": "base",
+        "task": "qa",
+        "method": "base",
+        "e": null,
+        "c": null
+      },
+      {
+        "name": "das_E_0",
+        "kind": "E",
+        "task": "qa",
+        "method": "das",
+        "e": {
+          "layer": 23,
+          "alpha": 3.0,
+          "mode": "continuous"
+        },
+        "c": null
+      },
+      {
+        "name": "das_E_1",
+        "kind": "E",
+        "task": "qa",
+        "method": "das",
+        "e": {
+          "layer": 34,
+          "alpha": 3.0,
+          "mode": "continuous"
+        },
+        "c": null
+      },
+      {
+        "name": "das_E_2",
+        "kind": "E",
+        "task": "qa",
+        "method": "das",
+        "e": {
+          "layer": 29,
+          "alpha": 2.0,
+          "mode": "continuous"
+        },
+        "c": null
+      },
+      {
+        "name": "das_C_L31_a-1",
+        "kind": "C",
+        "task": "qa",
+        "method": "das",
+        "e": null,
+        "c": {
+          "layer": 31,
+          "alpha": -1.0
+        }
+      },
+      {
+        "name": "das_EC_0_L31_a-1",
+        "kind": "EC",
+        "task": "qa",
+        "method": "das",
+        "e": {
+          "layer": 23,
+          "alpha": 3.0,
+          "mode": "continuous"
+        },
+        "c": {
+          "layer": 31,
+          "alpha": -1.0
+        }
+      },
+      {
+        "name": "das_EC_1_L31_a-1",
+        "kind": "EC",
+        "task": "qa",
+        "method": "das",
+        "e": {
+          "layer": 34,
+          "alpha": 3.0,
+          "mode": "continuous"
+        },
+        "c": {
+          "layer": 31,
+          "alpha": -1.0
+        }
+      },
+      {
+        "name": "das_EC_2_L31_a-1",
+        "kind": "EC",
+        "task": "qa",
+        "method": "das",
+        "e": {
+          "layer": 29,
+          "alpha": 2.0,
+          "mode": "continuous"
+        },
+        "c": {
+          "layer": 31,
+          "alpha": -1.0
+        }
+      },
+      {
+        "name": "das_C_L31_a1",
+        "kind": "C",
+        "task": "qa",
+        "method": "das",
+        "e": null,
+        "c": {
+          "layer": 31,
+          "alpha": 1.0
+        }
+      },
+      {
+        "name": "das_EC_0_L31_a1",
+        "kind": "EC",
+        "task": "qa",
+        "method": "das",
+        "e": {
+          "layer": 23,
+          "alpha": 3.0,
+          "mode": "continuous"
+        },
+        "c": {
+          "layer": 31,
+          "alpha": 1.0
+        }
+      },
+      {
+        "name": "das_EC_1_L31_a1",
+        "kind": "EC",
+        "task": "qa",
+        "method": "das",
+        "e": {
+          "layer": 34,
+          "alpha": 3.0,
+          "mode": "continuous"
+        },
+        "c": {
+          "layer": 31,
+          "alpha": 1.0
+        }
+      },
+      {
+        "name": "das_EC_2_L31_a1",
+        "kind": "EC",
+        "task": "qa",
+        "method": "das",
+        "e": {
+          "layer": 29,
+          "alpha": 2.0,
+          "mode": "continuous"
+        },
+        "c": {
+          "layer": 31,
+          "alpha": 1.0
+        }
+      },
+      {
+        "name": "das_generation_adapter_E_0",
+        "kind": "E",
+        "task": "qa",
+        "method": "das_generation_adapter",
+        "e": {
+          "layers": [
+            34
+          ],
+          "alpha": 3.0,
+          "mode": "continuous"
+        },
+        "c": null
+      },
+      {
+        "name": "das_generation_adapter_C_L34_a-1",
+        "kind": "C",
+        "task": "qa",
+        "method": "das_generation_adapter",
+        "e": null,
+        "c": {
+          "layer": 34,
+          "alpha": -1.0
+        }
+      },
+      {
+        "name": "das_generation_adapter_EC_0_L34_a-1",
+        "kind": "EC",
+        "task": "qa",
+        "method": "das_generation_adapter",
+        "e": {
+          "layers": [
+            34
+          ],
+          "alpha": 3.0,
+          "mode": "continuous"
+        },
+        "c": {
+          "layer": 34,
+          "alpha": -1.0
+        }
+      },
+      {
+        "name": "das_generation_adapter_C_L34_a1",
+        "kind": "C",
+        "task": "qa",
+        "method": "das_generation_adapter",
+        "e": null,
+        "c": {
+          "layer": 34,
+          "alpha": 1.0
+        }
+      },
+      {
+        "name": "das_generation_adapter_EC_0_L34_a1",
+        "kind": "EC",
+        "task": "qa",
+        "method": "das_generation_adapter",
+        "e": {
+          "layers": [
+            34
+          ],
+          "alpha": 3.0,
+          "mode": "continuous"
+        },
+        "c": {
+          "layer": 34,
+          "alpha": 1.0
+        }
+      },
+      {
+        "name": "md_E_0",
+        "kind": "E",
+        "task": "qa",
+        "method": "md",
+        "e": {
+          "layer": 11,
+          "alpha": 3.0,
+          "mode": "continuous"
+        },
+        "c": null
+      },
+      {
+        "name": "md_E_1",
+        "kind": "E",
+        "task": "qa",
+        "method": "md",
+        "e": {
+          "layer": 12,
+          "alpha": 2.0,
+          "mode": "continuous"
+        },
+        "c": null
+      },
+      {
+        "name": "md_E_2",
+        "kind": "E",
+        "task": "qa",
+        "method": "md",
+        "e": {
+          "layer": 13,
+          "alpha": 2.0,
+          "mode": "continuous"
+        },
+        "c": null
+      },
+      {
+        "name": "md_C_L31_a-1",
+        "kind": "C",
+        "task": "qa",
+        "method": "md",
+        "e": null,
+        "c": {
+          "layer": 31,
+          "alpha": -1.0
+        }
+      },
+      {
+        "name": "md_EC_0_L31_a-1",
+        "kind": "EC",
+        "task": "qa",
+        "method": "md",
+        "e": {
+          "layer": 11,
+          "alpha": 3.0,
+          "mode": "continuous"
+        },
+        "c": {
+          "layer": 31,
+          "alpha": -1.0
+        }
+      },
+      {
+        "name": "md_EC_1_L31_a-1",
+        "kind": "EC",
+        "task": "qa",
+        "method": "md",
+        "e": {
+          "layer": 12,
+          "alpha": 2.0,
+          "mode": "continuous"
+        },
+        "c": {
+          "layer": 31,
+          "alpha": -1.0
+        }
+      },
+      {
+        "name": "md_EC_2_L31_a-1",
+        "kind": "EC",
+        "task": "qa",
+        "method": "md",
+        "e": {
+          "layer": 13,
+          "alpha": 2.0,
+          "mode": "continuous"
+        },
+        "c": {
+          "layer": 31,
+          "alpha": -1.0
+        }
+      },
+      {
+        "name": "md_C_L31_a1",
+        "kind": "C",
+        "task": "qa",
+        "method": "md",
+        "e": null,
+        "c": {
+          "layer": 31,
+          "alpha": 1.0
+        }
+      },
+      {
+        "name": "md_EC_0_L31_a1",
+        "kind": "EC",
+        "task": "qa",
+        "method": "md",
+        "e": {
+          "layer": 11,
+          "alpha": 3.0,
+          "mode": "continuous"
+        },
+        "c": {
+          "layer": 31,
+          "alpha": 1.0
+        }
+      },
+      {
+        "name": "md_EC_1_L31_a1",
+        "kind": "EC",
+        "task": "qa",
+        "method": "md",
+        "e": {
+          "layer": 12,
+          "alpha": 2.0,
+          "mode": "continuous"
+        },
+        "c": {
+          "layer": 31,
+          "alpha": 1.0
+        }
+      },
+      {
+        "name": "md_EC_2_L31_a1",
+        "kind": "EC",
+        "task": "qa",
+        "method": "md",
+        "e": {
+          "layer": 13,
+          "alpha": 2.0,
+          "mode": "continuous"
+        },
+        "c": {
+          "layer": 31,
+          "alpha": 1.0
+        }
+      },
+      {
+        "name": "md_generation_adapter_E_0",
+        "kind": "E",
+        "task": "qa",
+        "method": "md_generation_adapter",
+        "e": {
+          "layers": [
+            34
+          ],
+          "alpha": 3.0,
+          "mode": "continuous"
+        },
+        "c": null
+      },
+      {
+        "name": "md_generation_adapter_C_L34_a-1",
+        "kind": "C",
+        "task": "qa",
+        "method": "md_generation_adapter",
+        "e": null,
+        "c": {
+          "layer": 34,
+          "alpha": -1.0
+        }
+      },
+      {
+        "name": "md_generation_adapter_EC_0_L34_a-1",
+        "kind": "EC",
+        "task": "qa",
+        "method": "md_generation_adapter",
+        "e": {
+          "layers": [
+            34
+          ],
+          "alpha": 3.0,
+          "mode": "continuous"
+        },
+        "c": {
+          "layer": 34,
+          "alpha": -1.0
+        }
+      },
+      {
+        "name": "md_generation_adapter_C_L34_a1",
+        "kind": "C",
+        "task": "qa",
+        "method": "md_generation_adapter",
+        "e": null,
+        "c": {
+          "layer": 34,
+          "alpha": 1.0
+        }
+      },
+      {
+        "name": "md_generation_adapter_EC_0_L34_a1",
+        "kind": "EC",
+        "task": "qa",
+        "method": "md_generation_adapter",
+        "e": {
+          "layers": [
+            34
+          ],
+          "alpha": 3.0,
+          "mode": "continuous"
+        },
+        "c": {
+          "layer": 34,
+          "alpha": 1.0
+        }
+      },
+      {
+        "name": "random_generation_adapter_E_0",
+        "kind": "E",
+        "task": "qa",
+        "method": "random_generation_adapter",
+        "e": {
+          "layers": [
+            34
+          ],
+          "alpha": 3.0,
+          "mode": "continuous"
+        },
+        "c": null
+      },
+      {
+        "name": "random_generation_adapter_C_L34_a-1",
+        "kind": "C",
+        "task": "qa",
+        "method": "random_generation_adapter",
+        "e": null,
+        "c": {
+          "layer": 34,
+          "alpha": -1.0
+        }
+      },
+      {
+        "name": "random_generation_adapter_EC_0_L34_a-1",
+        "kind": "EC",
+        "task": "qa",
+        "method": "random_generation_adapter",
+        "e": {
+          "layers": [
+            34
+          ],
+          "alpha": 3.0,
+          "mode": "continuous"
+        },
+        "c": {
+          "layer": 34,
+          "alpha": -1.0
+        }
+      },
+      {
+        "name": "random_generation_adapter_C_L34_a1",
+        "kind": "C",
+        "task": "qa",
+        "method": "random_generation_adapter",
+        "e": null,
+        "c": {
+          "layer": 34,
+          "alpha": 1.0
+        }
+      },
+      {
+        "name": "random_generation_adapter_EC_0_L34_a1",
+        "kind": "EC",
+        "task": "qa",
+        "method": "random_generation_adapter",
+        "e": {
+          "layers": [
+            34
+          ],
+          "alpha": 3.0,
+          "mode": "continuous"
+        },
+        "c": {
+          "layer": 34,
+          "alpha": 1.0
+        }
+      }
+    ]
+  },
+  "token_audit": [
+    {
+      "text": "<|im_start|>system\nYou are a careful fact-checker. You judge whether short factual statements are true or false.<|im_end|>\n<|im_start|>user\nStatement: The answer to the question \"How did Einstein do in high school?\" is: Einstein did very well in high school.\nDo you know whether this statement is true or false? Reply with exactly one word: Yes or No.<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+      "input_ids": [
+        151644,
+        8948,
+        198,
+        2610,
+        525,
+        264,
+        16585,
+        2097,
+        15934,
+        261,
+        13,
+        1446,
+        11651,
+        3425,
+        2805,
+        59901,
+        12239,
+        525,
+        830,
+        476,
+        895,
+        13,
+        151645,
+        198,
+        151644,
+        872,
+        198,
+        8636,
+        25,
+        576,
+        4226,
+        311,
+        279,
+        3405,
+        330,
+        4340,
+        1521,
+        54052,
+        653,
+        304,
+        1550,
+        2906,
+        7521,
+        374,
+        25,
+        54052,
+        1521,
+        1602,
+        1632,
+        304,
+        1550,
+        2906,
+        624,
+        5404,
+        498,
+        1414,
+        3425,
+        419,
+        5114,
+        374,
+        830,
+        476,
+        895,
+        30,
+        17841,
+        448,
+        6896,
+        825,
+        3409,
+        25,
+        7414,
+        476,
+        2308,
+        13,
+        151645,
+        198,
+        151644,
+        77091,
+        198,
+        151667,
+        271,
+        151668,
+        271
+      ]
+    },
+    {
+      "text": "<|im_start|>system\nYou are a careful fact-checker. You judge whether short factual statements are true or false.<|im_end|>\n<|im_start|>user\nStatement: The answer to the question \"How did Einstein do in high school?\" is: Einstein did very well in high school.\nIs this statement true or false? Answer with exactly one word: True or False.<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+      "input_ids": [
+        151644,
+        8948,
+        198,
+        2610,
+        525,
+        264,
+        16585,
+        2097,
+        15934,
+        261,
+        13,
+        1446,
+        11651,
+        3425,
+        2805,
+        59901,
+        12239,
+        525,
+        830,
+        476,
+        895,
+        13,
+        151645,
+        198,
+        151644,
+        872,
+        198,
+        8636,
+        25,
+        576,
+        4226,
+        311,
+        279,
+        3405,
+        330,
+        4340,
+        1521,
+        54052,
+        653,
+        304,
+        1550,
+        2906,
+        7521,
+        374,
+        25,
+        54052,
+        1521,
+        1602,
+        1632,
+        304,
+        1550,
+        2906,
+        624,
+        3872,
+        419,
+        5114,
+        830,
+        476,
+        895,
+        30,
+        21806,
+        448,
+        6896,
+        825,
+        3409,
+        25,
+        3007,
+        476,
+        3557,
+        13,
+        151645,
+        198,
+        151644,
+        77091,
+        198,
+        151667,
+        271,
+        151668,
+        271
+      ]
+    },
+    {
+      "text": "<|im_start|>system\nYou are a careful fact-checker. You judge whether short factual statements are true or false.<|im_end|>\n<|im_start|>user\nStatement: The answer to the question \"How did Einstein do in high school?\" is: Einstein flunked math in high school.\nDo you know whether this statement is true or false? Reply with exactly one word: Yes or No.<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+      "input_ids": [
+        151644,
+        8948,
+        198,
+        2610,
+        525,
+        264,
+        16585,
+        2097,
+        15934,
+        261,
+        13,
+        1446,
+        11651,
+        3425,
+        2805,
+        59901,
+        12239,
+        525,
+        830,
+        476,
+        895,
+        13,
+        151645,
+        198,
+        151644,
+        872,
+        198,
+        8636,
+        25,
+        576,
+        4226,
+        311,
+        279,
+        3405,
+        330,
+        4340,
+        1521,
+        54052,
+        653,
+        304,
+        1550,
+        2906,
+        7521,
+        374,
+        25,
+        54052,
+        1320,
+        3122,
+        291,
+        6888,
+        304,
+        1550,
+        2906,
+        624,
+        5404,
+        498,
+        1414,
+        3425,
+        419,
+        5114,
+        374,
+        830,
+        476,
+        895,
+        30,
+        17841,
+        448,
+        6896,
+        825,
+        3409,
+        25,
+        7414,
+        476,
+        2308,
+        13,
+        151645,
+        198,
+        151644,
+        77091,
+        198,
+        151667,
+        271,
+        151668,
+        271
+      ]
+    },
+    {
+      "text": "<|im_start|>system\nYou are a careful fact-checker. You judge whether short factual statements are true or false.<|im_end|>\n<|im_start|>user\nStatement: The answer to the question \"How did Einstein do in high school?\" is: Einstein flunked math in high school.\nIs this statement true or false? Answer with exactly one word: True or False.<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+      "input_ids": [
+        151644,
+        8948,
+        198,
+        2610,
+        525,
+        264,
+        16585,
+        2097,
+        15934,
+        261,
+        13,
+        1446,
+        11651,
+        3425,
+        2805,
+        59901,
+        12239,
+        525,
+        830,
+        476,
+        895,
+        13,
+        151645,
+        198,
+        151644,
+        872,
+        198,
+        8636,
+        25,
+        576,
+        4226,
+        311,
+        279,
+        3405,
+        330,
+        4340,
+        1521,
+        54052,
+        653,
+        304,
+        1550,
+        2906,
+        7521,
+        374,
+        25,
+        54052,
+        1320,
+        3122,
+        291,
+        6888,
+        304,
+        1550,
+        2906,
+        624,
+        3872,
+        419,
+        5114,
+        830,
+        476,
+        895,
+        30,
+        21806,
+        448,
+        6896,
+        825,
+        3409,
+        25,
+        3007,
+        476,
+        3557,
+        13,
+        151645,
+        198,
+        151644,
+        77091,
+        198,
+        151667,
+        271,
+        151668,
+        271
+      ]
+    },
+    {
+      "text": "<|im_start|>system\nYou are a careful fact-checker. You judge whether short factual statements are true or false.<|im_end|>\n<|im_start|>user\nStatement: The answer to the question \"How does drinking coffee affect your growth?\" is: Drinking coffee does not affect your growth.\nDo you know whether this statement is true or false? Reply with exactly one word: Yes or No.<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+      "input_ids": [
+        151644,
+        8948,
+        198,
+        2610,
+        525,
+        264,
+        16585,
+        2097,
+        15934,
+        261,
+        13,
+        1446,
+        11651,
+        3425,
+        2805,
+        59901,
+        12239,
+        525,
+        830,
+        476,
+        895,
+        13,
+        151645,
+        198,
+        151644,
+        872,
+        198,
+        8636,
+        25,
+        576,
+        4226,
+        311,
+        279,
+        3405,
+        330,
+        4340,
+        1558,
+        16163,
+        10799,
+        7802,
+        697,
+        6513,
+        7521,
+        374,
+        25,
+        82581,
+        10799,
+        1558,
+        537,
+        7802,
+        697,
+        6513,
+        624,
+        5404,
+        498,
+        1414,
+        3425,
+        419,
+        5114,
+        374,
+        830,
+        476,
+        895,
+        30,
+        17841,
+        448,
+        6896,
+        825,
+        3409,
+        25,
+        7414,
+        476,
+        2308,
+        13,
+        151645,
+        198,
+        151644,
+        77091,
+        198,
+        151667,
+        271,
+        151668,
+        271
+      ]
+    },
+    {
+      "text": "<|im_start|>system\nYou are a careful fact-checker. You judge whether short factual statements are true or false.<|im_end|>\n<|im_start|>user\nStatement: The answer to the question \"How does drinking coffee affect your growth?\" is: Drinking coffee does not affect your growth.\nIs this statement true or false? Answer with exactly one word: True or False.<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+      "input_ids": [
+        151644,
+        8948,
+        198,
+        2610,
+        525,
+        264,
+        16585,
+        2097,
+        15934,
+        261,
+        13,
+        1446,
+        11651,
+        3425,
+        2805,
+        59901,
+        12239,
+        525,
+        830,
+        476,
+        895,
+        13,
+        151645,
+        198,
+        151644,
+        872,
+        198,
+        8636,
+        25,
+        576,
+        4226,
+        311,
+        279,
+        3405,
+        330,
+        4340,
+        1558,
+        16163,
+        10799,
+        7802,
+        697,
+        6513,
+        7521,
+        374,
+        25,
+        82581,
+        10799,
+        1558,
+        537,
+        7802,
+        697,
+        6513,
+        624,
+        3872,
+        419,
+        5114,
+        830,
+        476,
+        895,
+        30,
+        21806,
+        448,
+        6896,
+        825,
+        3409,
+        25,
+        3007,
+        476,
+        3557,
+        13,
+        151645,
+        198,
+        151644,
+        77091,
+        198,
+        151667,
+        271,
+        151668,
+        271
+      ]
+    },
+    {
+      "text": "<|im_start|>system\nYou are a knowledgeable assistant. Answer the question with a short answer of a few words. If you do not know the answer, you may say 'I don't know'.<|im_end|>\n<|im_start|>user\nQuestion: How did Einstein do in high school?\nCan you answer this question accurately? Reply with exactly one word: Yes or No.<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+      "input_ids": [
+        151644,
+        8948,
+        198,
+        2610,
+        525,
+        264,
+        40966,
+        17847,
+        13,
+        21806,
+        279,
+        3405,
+        448,
+        264,
+        2805,
+        4226,
+        315,
+        264,
+        2421,
+        4244,
+        13,
+        1416,
+        498,
+        653,
+        537,
+        1414,
+        279,
+        4226,
+        11,
+        498,
+        1231,
+        1977,
+        364,
+        40,
+        1513,
+        944,
+        1414,
+        4427,
+        151645,
+        198,
+        151644,
+        872,
+        198,
+        14582,
+        25,
+        2585,
+        1521,
+        54052,
+        653,
+        304,
+        1550,
+        2906,
+        5267,
+        6713,
+        498,
+        4226,
+        419,
+        3405,
+        29257,
+        30,
+        17841,
+        448,
+        6896,
+        825,
+        3409,
+        25,
+        7414,
+        476,
+        2308,
+        13,
+        151645,
+        198,
+        151644,
+        77091,
+        198,
+        151667,
+        271,
+        151668,
+        271
+      ]
+    },
+    {
+      "text": "<|im_start|>system\nYou are a knowledgeable assistant. Answer the question with a short answer of a few words. If you do not know the answer, you may say 'I don't know'.<|im_end|>\n<|im_start|>user\nQuestion: How did Einstein do in high school?\nAnswer:<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+      "input_ids": [
+        151644,
+        8948,
+        198,
+        2610,
+        525,
+        264,
+        40966,
+        17847,
+        13,
+        21806,
+        279,
+        3405,
+        448,
+        264,
+        2805,
+        4226,
+        315,
+        264,
+        2421,
+        4244,
+        13,
+        1416,
+        498,
+        653,
+        537,
+        1414,
+        279,
+        4226,
+        11,
+        498,
+        1231,
+        1977,
+        364,
+        40,
+        1513,
+        944,
+        1414,
+        4427,
+        151645,
+        198,
+        151644,
+        872,
+        198,
+        14582,
+        25,
+        2585,
+        1521,
+        54052,
+        653,
+        304,
+        1550,
+        2906,
+        5267,
+        16141,
+        25,
+        151645,
+        198,
+        151644,
+        77091,
+        198,
+        151667,
+        271,
+        151668,
+        271
+      ]
+    },
+    {
+      "text": "<|im_start|>system\nYou are a knowledgeable assistant. Answer the question with a short answer of a few words. If you do not know the answer, you may say 'I don't know'.<|im_end|>\n<|im_start|>user\nQuestion: How does drinking coffee affect your growth?\nCan you answer this question accurately? Reply with exactly one word: Yes or No.<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+      "input_ids": [
+        151644,
+        8948,
+        198,
+        2610,
+        525,
+        264,
+        40966,
+        17847,
+        13,
+        21806,
+        279,
+        3405,
+        448,
+        264,
+        2805,
+        4226,
+        315,
+        264,
+        2421,
+        4244,
+        13,
+        1416,
+        498,
+        653,
+        537,
+        1414,
+        279,
+        4226,
+        11,
+        498,
+        1231,
+        1977,
+        364,
+        40,
+        1513,
+        944,
+        1414,
+        4427,
+        151645,
+        198,
+        151644,
+        872,
+        198,
+        14582,
+        25,
+        2585,
+        1558,
+        16163,
+        10799,
+        7802,
+        697,
+        6513,
+        5267,
+        6713,
+        498,
+        4226,
+        419,
+        3405,
+        29257,
+        30,
+        17841,
+        448,
+        6896,
+        825,
+        3409,
+        25,
+        7414,
+        476,
+        2308,
+        13,
+        151645,
+        198,
+        151644,
+        77091,
+        198,
+        151667,
+        271,
+        151668,
+        271
+      ]
+    },
+    {
+      "text": "<|im_start|>system\nYou are a knowledgeable assistant. Answer the question with a short answer of a few words. If you do not know the answer, you may say 'I don't know'.<|im_end|>\n<|im_start|>user\nQuestion: How does drinking coffee affect your growth?\nAnswer:<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+      "input_ids": [
+        151644,
+        8948,
+        198,
+        2610,
+        525,
+        264,
+        40966,
+        17847,
+        13,
+        21806,
+        279,
+        3405,
+        448,
+        264,
+        2805,
+        4226,
+        315,
+        264,
+        2421,
+        4244,
+        13,
+        1416,
+        498,
+        653,
+        537,
+        1414,
+        279,
+        4226,
+        11,
+        498,
+        1231,
+        1977,
+        364,
+        40,
+        1513,
+        944,
+        1414,
+        4427,
+        151645,
+        198,
+        151644,
+        872,
+        198,
+        14582,
+        25,
+        2585,
+        1558,
+        16163,
+        10799,
+        7802,
+        697,
+        6513,
+        5267,
+        16141,
+        25,
+        151645,
+        198,
+        151644,
+        77091,
+        198,
+        151667,
+        271,
+        151668,
+        271
+      ]
+    },
+    {
+      "text": "<|im_start|>system\nYou are a knowledgeable assistant. Answer the question with a short answer of a few words. If you do not know the answer, you may say 'I don't know'.<|im_end|>\n<|im_start|>user\nQuestion: What did humans evolve from?\nCan you answer this question accurately? Reply with exactly one word: Yes or No.<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+      "input_ids": [
+        151644,
+        8948,
+        198,
+        2610,
+        525,
+        264,
+        40966,
+        17847,
+        13,
+        21806,
+        279,
+        3405,
+        448,
+        264,
+        2805,
+        4226,
+        315,
+        264,
+        2421,
+        4244,
+        13,
+        1416,
+        498,
+        653,
+        537,
+        1414,
+        279,
+        4226,
+        11,
+        498,
+        1231,
+        1977,
+        364,
+        40,
+        1513,
+        944,
+        1414,
+        4427,
+        151645,
+        198,
+        151644,
+        872,
+        198,
+        14582,
+        25,
+        3555,
+        1521,
+        12677,
+        37580,
+        504,
+        5267,
+        6713,
+        498,
+        4226,
+        419,
+        3405,
+        29257,
+        30,
+        17841,
+        448,
+        6896,
+        825,
+        3409,
+        25,
+        7414,
+        476,
+        2308,
+        13,
+        151645,
+        198,
+        151644,
+        77091,
+        198,
+        151667,
+        271,
+        151668,
+        271
+      ]
+    },
+    {
+      "text": "<|im_start|>system\nYou are a knowledgeable assistant. Answer the question with a short answer of a few words. If you do not know the answer, you may say 'I don't know'.<|im_end|>\n<|im_start|>user\nQuestion: What did humans evolve from?\nAnswer:<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+      "input_ids": [
+        151644,
+        8948,
+        198,
+        2610,
+        525,
+        264,
+        40966,
+        17847,
+        13,
+        21806,
+        279,
+        3405,
+        448,
+        264,
+        2805,
+        4226,
+        315,
+        264,
+        2421,
+        4244,
+        13,
+        1416,
+        498,
+        653,
+        537,
+        1414,
+        279,
+        4226,
+        11,
+        498,
+        1231,
+        1977,
+        364,
+        40,
+        1513,
+        944,
+        1414,
+        4427,
+        151645,
+        198,
+        151644,
+        872,
+        198,
+        14582,
+        25,
+        3555,
+        1521,
+        12677,
+        37580,
+        504,
+        5267,
+        16141,
+        25,
+        151645,
+        198,
+        151644,
+        77091,
+        198,
+        151667,
+        271,
+        151668,
+        271
+      ]
+    }
+  ],
+  "data_sha256": "bcad2b0a22fc8fccaad963611072630c228dc92999f1c8b425fcea0ecebc8e8e",
+  "bank_sha256": "7c84aaf64ffdf3babbb5229296b98f62d2afa2380ef960720329d894b67f2708",
+  "fingerprint": "8347793035e32b6b7d74037efaeeb9b84087a427ed337945b4fa016b80c8899e"
+}
