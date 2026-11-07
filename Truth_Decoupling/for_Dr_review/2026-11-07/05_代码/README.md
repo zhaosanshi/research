@@ -43,6 +43,13 @@
 | GPT 第 19 轮的 E27 自查 | `review_checks/e27_{frozen_initial_controls,trace_corruption,current_dose,generation_dose,pure_das_layer_controls}.py`；证据在 `from_gpt/audit_20261106_round19/` | GPT 写；Claude 已用 GitHub 版在服务器重跑复现（`15`） |
 | 第 19 轮的复现与比对 | `review_checks/r19_reproduce.sh`、`r19_reproduce_full.sh`、`r19_reproduce_llama.sh`（重跑 GPT 的 8 组 GPU 诊断，只生成、不判分）；`r19_compare_adapters.py`（早期与发布版适配器逐张量比较）；`r19_random_init_check.py`（随机初值逐位核对） | Claude 写；GPT 第 20 轮审后改成了"只能用于未来运行"的版本（原版在提交 `1ffaedf`） |
 
+### E 逐层表与 C 严格性表，对应 `10`
+
+| 结果 | 代码 | 谁写的 / 审核状态 |
+|---|---|---|
+| E 逐层 / C 逐层 / 最优层 C 全部影响的三张表 | `review_checks/tf_layer_tables.py`（读 2×2 的 `knob_sweep_das_tfce_{full,C}.npz`，测试半，按题对自举 2000 次） | Claude 写（11-07），待 GPT 审 |
+| 每个强 C 条件的等价边界 | `review_checks/tf_c_equivalence.py`；逐层 E 与严格 C 的汇总 `tf_e_layers_c_strict.py` | 同上 |
+
 ### 按赵磊口径重做的 C+E（E41），对应 `09`
 
 | 结果 | 代码 | 谁写的 / 审核状态 |
