@@ -1,0 +1,40 @@
+# E41 analysis: qwen3-8b (meandiff E), chosen E E_L20_a3, fixed C Cs_L33_abst_a2 / Cs_L24_ans_a2; 1058 test statements, 2000 pair-bootstrap resamples
+
+## Test-half summaries
+
+| condition | answer rate | J | AUROC | B | K answered | correct among answered |
+|---|---|---|---|---|---|---|
+| baseline | 0.482 | +0.440 | 0.812 | 0.445 | 510 | 337 |
+| E_L20_a3 | 0.510 | +0.473 | 0.821 | 0.457 | 540 | 358 |
+| Cs_L33_abst_a2 | 0.000 | +0.427 | 0.811 | 0.405 | 0 | 0 |
+| Cs_L24_ans_a2 | 0.926 | +0.423 | 0.795 | 0.490 | 980 | 677 |
+| E_L20_a3+Cs_L33_abst_a2 | 0.000 | +0.459 | 0.822 | 0.421 | 0 | 0 |
+| E_L20_a3+Cs_L24_ans_a2 | 0.907 | +0.439 | 0.806 | 0.497 | 960 | 668 |
+
+## Primary (pre-declared): E+C natural vs E thresholded to the same K (positive = C's selection beats a threshold)
+
+| contrast | K | diff (correct) | 95% CI | bootstrap p | Holm p |
+|---|---|---|---|---|---|
+| P1 E_L20_a3+Cs_L33_abst_a2 vs E@gate | 0 | +0 | [+0.0, +0.0] | 1.0000 | 1.0000 |
+| P2 E_L20_a3+Cs_L33_abst_a2 vs E@conf | 0 | +0 | [+0.0, +0.0] | 1.0000 | 1.0000 |
+| P1 E_L20_a3+Cs_L24_ans_a2 vs E@gate | 960 | -18 | [-32.0, -4.0] | 0.0120 | 0.0360 |
+| P2 E_L20_a3+Cs_L24_ans_a2 vs E@conf | 960 | -54 | [-71.0, -40.0] | 0.0005 | 0.0020 |
+
+## Secondary
+
+| contrast | K | diff | 95% CI | bootstrap p |
+|---|---|---|---|---|
+| P4 E vs baseline@gate | 540 | +4 | [-6.0, +12.0] | 0.5890 |
+| P4b E vs baseline@conf | 540 | -103 | [-123.0, -83.0] | 0.0005 |
+| P3 Cs_L33_abst_a2 vs baseline@gate | 0 | +0 | [+0.0, +0.0] | 1.0000 |
+| P3b Cs_L33_abst_a2 vs baseline@conf | 0 | +0 | [+0.0, +0.0] | 1.0000 |
+| E_L20_a3+Cs_L33_abst_a2 vs baseline@gate | 0 | +0 | [+0.0, +0.0] | 1.0000 |
+| E_L20_a3+Cs_L33_abst_a2 vs baseline@conf | 0 | +0 | [+0.0, +0.0] | 1.0000 |
+| P3 Cs_L24_ans_a2 vs baseline@gate | 980 | -12 | [-26.0, +3.0] | 0.1190 |
+| P3b Cs_L24_ans_a2 vs baseline@conf | 980 | -45 | [-60.0, -30.0] | 0.0005 |
+| E_L20_a3+Cs_L24_ans_a2 vs baseline@gate | 960 | -2 | [-16.0, +11.0] | 0.7960 |
+| E_L20_a3+Cs_L24_ans_a2 vs baseline@conf | 960 | -42 | [-58.0, -27.0] | 0.0005 |
+
+### Additivity at the chosen E (test; diff with 95% CI)
+
+| pair | d answer rate | d J | d AUROC | d B |
