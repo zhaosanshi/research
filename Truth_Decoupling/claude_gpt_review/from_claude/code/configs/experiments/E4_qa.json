@@ -16,7 +16,7 @@
   "seed": 42,
   "judge": {
     "name": "deepseek",
-    "model": "deepseek-chat",
+    "model": "deepseek-v4-pro",
     "base_url": "https://api.deepseek.com",
     "api_key_env": "DEEPSEEK_API_KEY",
     "max_tokens": 8,
@@ -28,7 +28,7 @@
         "type": "disabled"
       }
     },
-    "notes": "2026-10-27: deepseek-v4-pro endpoint timed out (122 s) from both Mac and server while deepseek-chat answered in 0.6 s; judge switched to deepseek-chat (thinking disabled)."
+    "notes": "2026-11-08 (赵磊's rule): the judge is always deepseek-v4-pro (served as DeepSeek-V4-Pro-0813; 0.82 s from the server today, thinking disabled). Until now the judge was the alias deepseek-chat, which the API resolves to deepseek-flash (V4.1-Flash-1017) - never pro - and the cache stored only the alias; cache rows now carry resolved_model and ts. Judge abstentions (D) go to judge_human_review_queue.jsonl for 赵磊's verdict. Grades under qa_semantic_v3 / deepseek-chat are not comparable with this judge; frozen parents must be re-graded before reuse. Historical: 2026-10-27 deepseek-v4-pro timed out (122 s), hence the earlier switch to deepseek-chat."
   },
   "judge_second": {
     "name": "gpt",

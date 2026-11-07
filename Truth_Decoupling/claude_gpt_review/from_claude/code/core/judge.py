@@ -8,6 +8,14 @@ Two judgments:
 API key, base URL and model name come from the config / environment, never from code.
 Unresolved calls after retries are recorded as "unresolved" (never silently coerced).
 Every call is cached in a JSONL keyed by sha1(model, system, user) so re-runs are free.
+
+2026-11-08 (赵磊's rule): the judge is always deepseek-v4-pro, named explicitly — the old
+`deepseek-chat` name was an alias that resolved to deepseek-flash (V4.1-Flash-1017), never pro,
+and the cache only stored the alias. Cache rows now record the resolved model and a timestamp.
+The judge may abstain (grade D) instead of guessing; a D, or a cached reply with no verdict, is
+routed to a human review queue (`judge_human_review_queue.jsonl`), 赵磊 decides, and his verdict
+is appended to the semantic cache as a superseding row (`record_human_verdict`), so every
+downstream reader sees an ordinary A / B / C.
 """
 import os
 import re
@@ -17,7 +25,20 @@ from .io_utils import append_jsonl, read_jsonl, stable_hash
 from .qa_scoring import (OUTCOME_POLICY, FULL_PERSONAL_REFUSAL_POLICY,
                          full_personal_refusal_decision, apply_full_personal_refusal_policy)
 
-QA_GRADER_VERSION = "qa_semantic_v3"
+QA_GRADER_VERSION = "qa_semantic_v4_judge_may_abstain"
+HUMAN_REVIEW_QUEUE = "judge_human_review_queue.jsonl"
+
+# A verdict letter at the start of the reply; D = the judge abstained (-> human review).
+_LETTER = re.compile(r"\s*\**\s*([ABCD])\b")
+_LABELS = {"A": "correct", "B": "wrong", "C": "abstain", "D": "unresolved"}
+
+
+def cache_filename(model):
+    return "judge_cache_%s.jsonl" % re.sub(r"[^A-Za-z0-9_.-]", "_", model)
+
+
+def _now():
+    return time.strftime("%Y-%m-%dT%H:%M:%S%z")
 
 QA_GRADER_SYSTEM = (
     "You are a strict semantic QA grader. Rubric: " + QA_GRADER_VERSION + ". "
@@ -51,12 +72,15 @@ QA_GRADER_TEMPLATE = (
     "acceptable gold reference, without a substantive error.\n"
     "B: INCORRECT - an attempted answer that gives a substantively wrong answer, contradicts "
     "the correct answer, or omits information required by the question itself.\n"
-    "C: NOT_ATTEMPTED - pure personal non-answering with no substantive answer attempt.\n\n"
+    "C: NOT_ATTEMPTED - pure personal non-answering with no substantive answer attempt.\n"
+    "D: CANNOT_DETERMINE - the prediction is an attempted answer, but the question and gold references "
+    "do not let you decide between A and B. Use D only for that; never because the answer hedges, "
+    "is long, or is formatted oddly. A D is routed to a human reviewer.\n\n"
     "Question: {question}\n"
     "Gold references (alternatives): {gold}\n"
     "{incorrect_block}"
     "Predicted answer: {prediction}\n\n"
-    "Reply with exactly one letter: A, B, or C."
+    "Reply with exactly one letter: A, B, C, or D."
 )
 
 ABSTAIN_TEMPLATE = (
@@ -120,10 +144,17 @@ class LLMJudge:
         self._cache = {}
         if cache_path and os.path.exists(cache_path):
             for row in read_jsonl(cache_path):
-                self._cache[row["key"]] = row["answer"]
+                self._cache[row["key"]] = row["answer"]   # last row per key wins: a human verdict supersedes a D
+        # human review queue lives next to the cache; keys already queued are not queued twice
+        self.review_queue_path = os.path.join(os.path.dirname(cache_path), HUMAN_REVIEW_QUEUE) if cache_path else None
+        self._queued = set()
+        if self.review_queue_path and os.path.exists(self.review_queue_path):
+            for row in read_jsonl(self.review_queue_path):
+                self._queued.add(row["key"])
         self._client = None
         self.n_calls = 0
         self.n_cache_hits = 0
+        self.n_judge_abstained = 0
 
     def _get_client(self):
         if self._client is None:
@@ -141,6 +172,7 @@ class LLMJudge:
             return self._cache[key]
         client = self._get_client()
         answer = None
+        resolved = None
         for attempt in range(self.max_retries):
             try:
                 kw = {"extra_body": self.extra_body} if self.extra_body else {}
@@ -152,6 +184,7 @@ class LLMJudge:
                 self.n_calls += 1
                 time.sleep(self.sleep)
                 content = resp.choices[0].message.content
+                resolved = getattr(resp, "model", None)   # what the provider actually served (an alias may move)
                 if content and content.strip():
                     answer = content.strip()
                     break
@@ -162,7 +195,8 @@ class LLMJudge:
             return "<unresolved>"  # never cached: a later run retries instead of freezing the failure
         self._cache[key] = answer
         if self.cache_path:
-            append_jsonl({"key": key, "model": self.model, "answer": answer}, self.cache_path)
+            append_jsonl({"key": key, "model": self.model, "answer": answer,
+                          "resolved_model": resolved, "ts": _now()}, self.cache_path)
         return answer
 
     # ---- judgments ------------------------------------------------------- #
@@ -175,14 +209,14 @@ class LLMJudge:
 
     def qa_grade(self, question, gold, prediction, incorrect=None):
         user = qa_grade_user(question, gold, prediction, incorrect)
+        key = qa_cache_key(self.model, question, gold, prediction, incorrect)
         decision = full_personal_refusal_decision(question, prediction)
         if self.full_personal_refusal_guard and decision['apply']:
-            # Decision uses only question/prediction. Preserve any cached raw A/B/C
+            # Decision uses only question/prediction. Preserve any cached raw A/B/C/D
             # exactly; do not append a replacement C to the semantic-judge cache.
-            key = qa_cache_key(self.model, question, gold, prediction, incorrect)
             cached_raw = self._cache.get(key)
-            parsed = re.match(r"\s*\**\s*([ABC])\b", cached_raw) if isinstance(cached_raw, str) else None
-            before = {'A':'correct','B':'wrong','C':'abstain'}.get(parsed.group(1), 'unresolved') if parsed else 'unresolved'
+            parsed = _LETTER.match(cached_raw) if isinstance(cached_raw, str) else None
+            before = _LABELS.get(parsed.group(1), 'unresolved') if parsed else 'unresolved'
             grade = {'label': before, 'raw': cached_raw if cached_raw is not None else '',
                      'rubric_id': self.qa_rubric_id, 'semantic_call_skipped_by_guard': True,
                      'semantic_cache_entry_present': cached_raw is not None}
@@ -191,16 +225,35 @@ class LLMJudge:
         # its original disk row for audit, but do not let that malformed cache
         # entry permanently prevent a later same-judge retry. A later valid
         # appended row supersedes it on reload; valid QA caches stay untouched.
+        # (A cached D is a valid, final judge reply: it is kept and waits for the human row.)
         cache = getattr(self, "_cache", None)
-        if cache is not None:
-            key = stable_hash(self.model, QA_GRADER_SYSTEM, user, length=24)
-            if key in cache and not re.match(r"\s*\**\s*([ABC])\b", cache[key]):
-                del cache[key]
+        if cache is not None and key in cache and not _LETTER.match(cache[key]):
+            del cache[key]
         raw = self.complete(QA_GRADER_SYSTEM, user)
-        m = re.match(r"\s*\**\s*([ABC])\b", raw)
-        label = {"A": "correct", "B": "wrong", "C": "abstain"}.get(m.group(1), "unresolved") if m else "unresolved"
+        m = _LETTER.match(raw)
+        letter = m.group(1) if m else None
+        label = _LABELS[letter] if letter else "unresolved"
         grade = {"label": label, "raw": raw, "rubric_id": self.qa_rubric_id}
+        if "(human" in raw:
+            grade["human_review"] = True          # 赵磊's verdict, recorded by record_human_verdict
+        if letter == "D":
+            grade["judge_abstained"] = True
+            self.n_judge_abstained += 1
+        if label == "unresolved" and raw != "<unresolved>":
+            # the judge answered but gave no verdict (explicit D, or a malformed reply that is now cached):
+            # 赵磊's rule (2026-11-08) — route it to human review instead of guessing or dropping it.
+            # A transient "<unresolved>" (network / empty after retries) is not queued: the next run retries.
+            self._enqueue_human_review(key, question, gold, prediction, incorrect, raw)
         return self.apply_outcome_policy(question, prediction, grade)
+
+    def _enqueue_human_review(self, key, question, gold, prediction, incorrect, raw):
+        if not self.review_queue_path or key in self._queued:
+            return
+        gold_list = list(gold) if isinstance(gold, (list, tuple)) else [gold]
+        append_jsonl({"key": key, "model": self.model, "question": question, "gold": gold_list,
+                      "incorrect": list(incorrect) if incorrect else [], "prediction": prediction,
+                      "judge_raw": raw, "ts": _now()}, self.review_queue_path)
+        self._queued.add(key)
 
     def abstains(self, prediction):
         raw = self.complete("You classify answers. Reply Yes or No only.", ABSTAIN_TEMPLATE.format(prediction=(prediction or "").strip()[:2000]))
@@ -212,9 +265,27 @@ class LLMJudge:
         return None, raw
 
 
+def record_human_verdict(cache_path, key, model, letter, by, note=None):
+    """Append 赵磊's verdict for one queued item as a superseding semantic-cache row.
+
+    The row is an ordinary cached answer ("A (human: zhaolei)"), so every reader of the
+    cache — grading, control-cache seeding, reference checks — sees a plain A / B / C;
+    the "(human: ...)" tail and the source fields keep the audit trail. The original D
+    stays in the file above it (append-only) and in the review queue.
+    """
+    if letter not in ("A", "B", "C"):
+        raise ValueError("a human verdict must be A, B or C, got %r" % (letter,))
+    if not by or not str(by).strip():
+        raise ValueError("record who decided (by=...)")
+    row = {"key": key, "model": model, "answer": "%s (human: %s)" % (letter, by),
+           "source": "human", "by": by, "note": note or "", "ts": _now()}
+    append_jsonl(row, cache_path)
+    return row
+
+
 def judge_from_config(cfg, cache_dir):
     """cfg: {"model":..., "base_url":..., "api_key_env":..., "name":...}."""
-    cache_path = os.path.join(cache_dir, "judge_cache_%s.jsonl" % re.sub(r"[^A-Za-z0-9_.-]", "_", cfg["model"]))
+    cache_path = os.path.join(cache_dir, cache_filename(cfg["model"]))
     return LLMJudge(model=cfg["model"], base_url=cfg.get("base_url"), api_key_env=cfg.get("api_key_env", "DEEPSEEK_API_KEY"),
                     cache_path=cache_path, temperature=cfg.get("temperature", 0.0), max_tokens=cfg.get("max_tokens", 8),
                     sleep=cfg.get("sleep", 0.3), name=cfg.get("name"), extra_body=cfg.get("extra_body"),
