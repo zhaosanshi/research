@@ -1,0 +1,73 @@
+{
+  "protocol": "native_commitment_fixed_E_tune_v1",
+  "model": "llama3.1-8b",
+  "source_bank": "f32439f78f3ab94d61dd96f4f23fd1020bafcadb6ba2f502801a80203af3eeaa",
+  "selection_sha256": "f727d90d0ac622d4e86d3e6ed75fc1fdddfe2254cf4d7243ef5023b03fb83701",
+  "source_data_sha256": "bcad2b0a22fc8fccaad963611072630c228dc92999f1c8b425fcea0ecebc8e8e",
+  "source_files": {
+    "tf_tune.json": "80607faf3194ea631f6656b4e72d44225a434caf978169a024fdcb49429af3b7",
+    "qa_tune.json": "6725c0addfc76576717e973178d0405d3bd0194a663ac5e43ae8096ea6198c6c",
+    "qa_tune_scored.json": "b9703750f3615c1a429644e97f3e080ba71c63cd11b952e67427b480dba5f2e2"
+  },
+  "conditions": {
+    "tf": {
+      "das": {
+        "e": {
+          "layer": 15,
+          "alpha": 2.0,
+          "mode": "prefill"
+        },
+        "source_E_name": "das_E_0",
+        "c_layer": 26
+      },
+      "md": {
+        "e": {
+          "layer": 15,
+          "alpha": 2.0,
+          "mode": "prefill"
+        },
+        "source_E_name": "md_E_1",
+        "c_layer": 27
+      }
+    },
+    "qa": {
+      "das": {
+        "e": {
+          "layer": 29,
+          "alpha": 3.0,
+          "mode": "continuous"
+        },
+        "source_E_name": "das_E_2",
+        "c_layer": 18
+      },
+      "md": {
+        "e": {
+          "layer": 11,
+          "alpha": 3.0,
+          "mode": "continuous"
+        },
+        "source_E_name": "md_E_2",
+        "c_layer": 18
+      }
+    }
+  },
+  "alphas": [
+    -2.0,
+    -1.0,
+    -0.5,
+    0.0,
+    0.5,
+    1.0,
+    2.0
+  ],
+  "limit": null,
+  "split": "tune",
+  "gate_rule": "Yes-No > 0 AND candidate is not an actual refusal",
+  "scopes": [
+    "gate_only",
+    "gate_and_answer"
+  ],
+  "uses_test_outcomes": false,
+  "source_code_sha256": "e0beaa9caadd96f32181fc83ff22f9cb1e45dbf23ec3ca9be5496de9d69cc98c",
+  "fingerprint": "7bf5536af68318093a352baac4946e8285adcca2d8bb4256a80445f1aeefbc3b"
+}

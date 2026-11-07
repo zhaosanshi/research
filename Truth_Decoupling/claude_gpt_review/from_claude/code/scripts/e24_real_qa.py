@@ -44,7 +44,7 @@ from core.config import load_experiment, load_model_config                      
 from core.directions import load_das_direction, mean_diff_direction                 # noqa: E402
 from core.intervene import SteerSpec, steer                                         # noqa: E402
 from core.io_utils import ResumableResults, atomic_json_dump, load_json, set_seed   # noqa: E402
-from core.qa_scoring import OUTCOME_POLICY, judged_outcome, rule_conflicts_with_judge, reference_answers  # noqa: E402
+from core.qa_scoring import OUTCOME_POLICY, FULL_PERSONAL_REFUSAL_POLICY, apply_configured_outcome_policy, judged_outcome, rule_conflicts_with_judge, reference_answers  # noqa: E402
 from core.metrics import qa_rates                                                   # noqa: E402
 from core.model_io import capture_last_token, greedy_generate, load_model           # noqa: E402
 from core.readout import build_label_token_map, label_logprobs_from_logits, rule_abstains  # noqa: E402
@@ -262,20 +262,26 @@ def phase_judge(args):
         raise ValueError("input file and requested model differ")
     # Preserve original generated/cached and legacy-judged files for comparison.
     gold_policy = "cached_original_cohort" if args.phase == "rescore" else "exact_personal_refusals_v1"
-    stem = args.output_prefix or (stem + "_" + OUTCOME_POLICY + "_" + gold_policy)
+    exp_j = None if args.phase == 'rescore' else load_experiment(args.judge_exp)
+    configured_policy = (data.get('outcome_policy', OUTCOME_POLICY) if exp_j is None else
+                         exp_j['judge'].get('outcome_policy', FULL_PERSONAL_REFUSAL_POLICY
+                                           if exp_j['judge'].get('full_personal_refusal_guard', False) else OUTCOME_POLICY))
+    stem = args.output_prefix or (stem + "_" + configured_policy + "_" + gold_policy)
     scored_path = stem + "_items.json"
     if any(os.path.abspath(p) == os.path.abspath(path) for p in (scored_path, stem + ".json", stem + ".md")):
         raise ValueError("scored outputs must not overwrite the input")
     if args.phase == "rescore" and any(os.path.exists(p) for p in (scored_path, stem + ".json", stem + ".md")):
         raise FileExistsError("rescored output exists; choose a new --output-prefix")
+    if os.path.exists(scored_path) and load_json(scored_path).get('outcome_policy', OUTCOME_POLICY) != configured_policy:
+        raise FileExistsError('another outcome policy already exists; choose a new --output-prefix')
     os.makedirs(os.path.dirname(os.path.abspath(stem)), exist_ok=True)
     if args.phase == "rescore":
         judge = None
         judge_name = (data.get("judge_summary") or {}).get("judge", "cached")
     else:
         from core.judge import judge_from_config
-        exp_j = load_experiment(args.judge_exp)
-        judge = judge_from_config(exp_j["judge"], cache_dir=os.path.join(RESULTS_DIR, "judge_cache"))
+        judge = judge_from_config(exp_j["judge"], cache_dir=(getattr(args, 'judge_cache_dir', None)
+                                                         or os.path.join(RESULTS_DIR, "judge_cache")))
         judge_name = judge.name
     items = sorted({e["idx"]: e for e in data["evaluations"]}.values(), key=lambda e: e["idx"])   # dedupe a resumed partial batch
     data["evaluations"] = items
@@ -304,6 +310,8 @@ def phase_judge(args):
                   or e["judge"][c].get("rubric_id") != getattr(judge, "qa_rubric_id", None)):
                 g = judge.qa_grade(e["question"], current_gold, e["outputs"][c], incorrect=e.get("incorrect") or None)
                 e["judge"][c] = g
+            if judge is not None:
+                e['judge'][c] = apply_configured_outcome_policy(e['judge'][c], e['question'], e['outputs'][c], exp_j['judge'])
             e["outcome"][c] = judged_outcome(e["judge"][c]["label"])
             e["rule_judge_disagreement"][c] = rule_conflicts_with_judge(e["judge"][c]["label"], e["rule_abstain"][c])
             e["outcome_judge_only"][c] = e["judge"][c]["label"]
@@ -311,7 +319,11 @@ def phase_judge(args):
             e["judge_reference_answers"] = current_gold
     rubric_ids = {e["judge"][c].get("rubric_id", "legacy_unversioned") for e in items for c in conditions}
     data["judge_rubric_id"] = next(iter(rubric_ids)) if len(rubric_ids) == 1 else "mixed_rubrics"
-    data["outcome_policy"] = OUTCOME_POLICY
+    policies = {e['judge'][c].get('outcome_policy', OUTCOME_POLICY) for e in items for c in conditions}
+    if len(policies) != 1:
+        raise ValueError('cannot pool mixed outcome policies into one QA report')
+    outcome_policy = next(iter(policies))
+    data["outcome_policy"] = outcome_policy
     data["gold_policy"] = gold_policy
     if judge is None:
         print("reusing cached semantic grades; zero API and generation calls", flush=True)
@@ -349,24 +361,32 @@ def phase_judge(args):
                 for b in ("correct", "wrong", "abstain"):
                     t["%s->%s" % (a, b)] = int(((labs["baseline"] == a) & (labs[c] == b) & ok).sum())
             trans[c] = t
-    summary = {"model": mcfg["name"], "tag": args.tag, "judge": judge_name, "outcome_policy": OUTCOME_POLICY, "gold_policy": gold_policy, "judge_rubric_id": data["judge_rubric_id"],
+    summary = {"model": mcfg["name"], "tag": args.tag, "judge": judge_name, "outcome_policy": outcome_policy, "gold_policy": gold_policy, "judge_rubric_id": data["judge_rubric_id"],
                "source_generation_sha256": source_generation_sha256,
                "n_rule_judge_disagreements": {c: sum(e["rule_judge_disagreement"][c] for e in items) for c in conditions},
                "n_questions": len(items), "n_substantive_gold": int(substantive.sum()),
                "n_resolved_all_conditions": n, "rates": rows, "transitions_vs_baseline": trans,
                "header": {k: data[k] for k in data if k not in ("evaluations", "judge_summary")}}
+    if outcome_policy != OUTCOME_POLICY:
+        summary['outcome_policy_details'] = {
+            'guarded_decisions': {c: sum(e['judge'][c].get('decision_source') == 'full_personal_refusal_guard' for e in items) for c in conditions},
+            'raw_semantic_responses_preserved': True,
+            'rates_judge_only_scope': 'legacy field name; contains final versioned policy labels, not an unguarded semantic-only estimate'}
     data["judge_summary"] = summary
     atomic_json_dump(data, scored_path)
     atomic_json_dump(summary, stem + ".json")
     # ---- markdown --------------------------------------------------------- #
+    policy_text = ('按语义裁判判定，关键词仅标记复核，不能覆盖正确或错误为弃答。' if outcome_policy == OUTCOME_POLICY else
+                   '采用已声明的完整个人拒答守卫；仅匹配整句，明确翻译/引用类问题保守绕过。原始裁判字母与派生决策来源分别保留，不使用子串关键词覆盖具体答案。')
+    final_column = '只看裁判（不叠规则）：答对 / 弃答' if outcome_policy == OUTCOME_POLICY else '最终口径复算（含守卫）：答对 / 弃答'
     L = ["# 真实问答验证：%s（%s）" % (mcfg["name"], args.tag), "",
          "%d 道问题，分区 `%s`，共 %d 个条件；生成与干预设置以输入文件记录为准。裁判 %s（A 对 / B 错 / C 未作答），"
-         "按语义裁判判定，关键词仅标记复核，不能覆盖正确或错误为弃答。参考答案分区口径：%s；其中单列的问题 %d 道。"
+         "%s参考答案分区口径：%s；其中单列的问题 %d 道。"
          "主表统计所有条件都有判定且金标实质的问题 %d 道；未判定：%s；被 max_new_tokens 截断的比例：%s。" % (
-             len(items), data.get("split", "E24 test"), len(conditions), judge_name, gold_policy,
+             len(items), data.get("split", "E24 test"), len(conditions), judge_name, policy_text, gold_policy,
              len(items) - int(substantive.sum()), n, unresolved, {c: round(v, 3) for c, v in trunc.items()}), "",
          "E：%s；C：%s。" % (data["E"], data["C"]), "",
-         "| 条件 | 答对 | 答错 | 弃答 | 作答率 | 已作答中答对比例 | 只看裁判（不叠规则）：答对 / 弃答 |", "|---|---|---|---|---|---|---|"]
+         "| 条件 | 答对 | 答错 | 弃答 | 作答率 | 已作答中答对比例 | " + final_column + " |", "|---|---|---|---|---|---|---|"]
     if data.get("diagnostic_only"):
         L[2:2] = ["**仅诊断：含金标来源的条件不是可部署性能，不参与选层或主表胜负。**", ""]
     if data.get("pilot") or data.get("split") == "pilot":
@@ -383,7 +403,9 @@ def phase_judge(args):
     for c in conditions[1:]:
         t = trans[c]
         L.append("| %s | %s |" % (c, " | ".join(str(t[k]) for k in ("correct->correct", "correct->wrong", "correct->abstain", "wrong->correct", "wrong->wrong", "wrong->abstain", "abstain->correct", "abstain->wrong", "abstain->abstain"))))
-    L += ["", "## 干预审计", "", "`%s`；各条件的实际写入次数及输入长度见 JSON `audit`。" % data["intervention_position"], ""]
+    position_description = data.get("intervention_position", "生成记录未单列位置说明；请查看原始逐题 trace 和生成配置")
+    audit_field = 'audit' if 'audit' in data else 'evaluations[].trace'
+    L += ["", "## 干预审计", "", "`%s`；实际写入记录见 JSON `%s`。" % (position_description, audit_field), ""]
     L += ["## 前 3 题原文", ""]
     for e in items[:3]:
         L.append("- **%s** %s  \n  金标：%s" % (e["pair_id"], e["question"], " | ".join(e["gold"][:3])))

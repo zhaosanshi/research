@@ -1,0 +1,63 @@
+{
+  "protocol": "source_layer_alignment_plan_v1",
+  "created_utc": "2026-11-07T00:40:11.437273+00:00",
+  "status": "fixed before any new-layer source-interchange training or evaluation",
+  "reason": "align the actual generation intervention layer with the new generation objective; do not inherit only the old answer-selfcheck-selected layer",
+  "models": {
+    "llama3.1-8b": {
+      "num_layers": 32,
+      "reference_layer": 29,
+      "additional_layers": [
+        15,
+        23
+      ]
+    },
+    "qwen3-8b": {
+      "num_layers": 36,
+      "reference_layer": 34,
+      "additional_layers": [
+        17,
+        26
+      ]
+    }
+  },
+  "layer_rule": "zero-based int(num_layers * fraction) - 1; fractions fixed to [0.5, 0.75]",
+  "source_system": "Answer factual questions truthfully. Correct false premises rather than accepting them. Give a short, direct answer of a few words. If you do not know the answer, say 'I don't know'.",
+  "training": {
+    "pairs": 92,
+    "epochs": 3,
+    "lr": 0.001,
+    "clip": 1.0,
+    "seed": 42,
+    "init": "das",
+    "objective": "mean gold-token CE within each answer, equal weight per question",
+    "include_eos": false,
+    "base_model_frozen": true
+  },
+  "pilot": {
+    "pairs": 3,
+    "epochs": 1
+  },
+  "generation": {
+    "alpha": 1.0,
+    "max_new_tokens": 48,
+    "batch_size": 1,
+    "fixed_center": false,
+    "live_same_prefix_source": true
+  },
+  "controls": [
+    "baseline",
+    "source_only",
+    "equal_logit_mix",
+    "same_layer_frozen_original_DAS_swap",
+    "same_layer_untrained_random_swap",
+    "same_layer_trained_source_swap"
+  ],
+  "reuse_policy": "reuse only original baseline/source_only/equal_logit_mix raw outputs with parent raw SHA256 and exact prompt-token validation; regenerate both frozen swaps at each new layer",
+  "evaluation": "all 192 previously exposed tuning questions; no test-set phase or test-based selection; report both additional layers, not only the maximum",
+  "scope": "only these two additional layers; no full-layer search",
+  "parent_control_raw_sha256": {
+    "llama3.1-8b": "2611a3b7fec2bed3e9148bc923d61b47f8b41f90288ce1356914f6b3406bc4d0",
+    "qwen3-8b": "c6cfa5e5b668122f67a30a166ad40bae4f3d823145c7257b2ec20a56870d08c6"
+  }
+}

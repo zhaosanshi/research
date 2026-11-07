@@ -1,5 +1,7 @@
 # 05 代码
 
+> **11-07，第 20 轮审核补充**：以下原代码归属保留。新增 [`e28_native_commitment.py`](../../../claude_gpt_review/from_claude/code/scripts/e28_native_commitment.py) 用固定同一 E、首词 Yes/No 实际门控，分离“只改门控提示”和“同时改答案提示”；只运行调参集，不替换 E26 主表。独立红队已修正门控/答案 ID 错位、删行改变分母、判分来源未绑定与剂量同名覆盖问题；13 项本机检查通过，包含小型真实网络的收集→判分→出表。完整两模型原生门控结果已独立复算 236 个条件和 1416 个同数量对照，见[结果与可分享图](../../../claude_gpt_review/from_gpt/audit_20261107_round20/native/review.md)。其他代码修复见[方法审核](../../../claude_gpt_review/from_gpt/audit_20261107_round20/methods/review.md)。
+
 **完整可运行代码**：[`claude_gpt_review/from_claude/code/`](../../../claude_gpt_review/from_claude/code/)（`core/` 核心模块、`scripts/` 入口与链、`configs/` 实验配置）。本目录 [`快照/`](快照/) 只是当前主结果用到的关键文件副本，方便直接阅读；以完整树为准。
 
 ## 1. 核心模块
@@ -37,7 +39,7 @@
 |---|---|---|
 | E26 相同作答率主实验 | `scripts/e26_matched_coverage.py`（prepare / collect-tune / judge-tune / freeze / collect-test / judge-test / report 七个独立阶段）、`core/joint_steering.py`（C 的估计与 E、C 同时写入）、`core/selective_eval.py`（配额选择、自举与检验，不依赖模型）；启动 `review_checks/e26_full_chain.sh` | 实验代码 GPT 第 18 轮交付，Claude 开跑前审过（`13`）；启动脚本由 Claude 写，待 GPT 审 |
 | C 剂量探测 | `review_checks/e26_c_dose_probe.py` | Claude 写，待 GPT 审 |
-| 开跑前声明的主分析 | `review_checks/e26_primary_analysis.py`（在任何测试结果出来之前提交，`ca67e33`） | Claude 写，待 GPT 审 |
+| 测试前声明的分析计划及分析脚本 | 计划在 `66868ab` 中，确在测试前；`review_checks/e26_primary_analysis.py` 于 `ca67e33`（19:17）提交时，真假判断测试文件已生成，仅问答测试判分尚未完成 | Claude 写；第 20 轮已核对提交内容与服务器时间线 |
 | 结果核查（不导入 E26 代码的独立重算） | `review_checks/e26_independent_recount.py` | Claude 写，待 GPT 审 |
 | E27 生成适配 | `scripts/e27_qa_generation.py`、`core/qa_generation_adapter.py`；发布版重跑 `review_checks/e27_release_rerun.sh`；质量规则汇总 `e27_quality_summary.py`；带适配器的 E26 分析 `e26_adapter_analysis.py` | 适配器代码 GPT 第 18 轮交付；Claude 的脚本待 GPT 审 |
 | GPT 第 19 轮的 E27 自查 | `review_checks/e27_{frozen_initial_controls,trace_corruption,current_dose,generation_dose,pure_das_layer_controls}.py`；证据在 `from_gpt/audit_20261106_round19/` | GPT 写；Claude 已用 GitHub 版在服务器重跑复现（`15`） |
@@ -59,3 +61,8 @@
 - 数据：TruthfulQA 的处理版本（陈述改写与 96 / 192 / 529 切分，种子 42），在服务器上，不在仓库。
 - 裁判：DeepSeek，判分缓存随结果目录发布；API 密钥只在服务器上，不在仓库。
 - 随机性：切分、自举、训练种子固定；同一输入的前向可复现（11-06 重跑认错题与原结果逐位一致）。
+
+
+## 第20轮交付补充
+
+最终可运行代码与真实执行快照分别存档，不能把今天的源码当作旧运行的源码。新增/修复入口包括E26修正版真假/问答配置、E28原生交付、E31实际层位、E33/E35门控语义诊断、E29/E30/E34真实来源交换及训练、E32同实际作答率、E36实际写入量随机对照、遮题来源与自然完成检查；详细协议与证据见[第20轮](../../../claude_gpt_review/from_gpt/review_20261107_20.md)。r19复现与比较脚本的失败传播、重复题号、非有限张量问题在未来版修复，历史输出不改。全部为GPT实施，待Claude复核。

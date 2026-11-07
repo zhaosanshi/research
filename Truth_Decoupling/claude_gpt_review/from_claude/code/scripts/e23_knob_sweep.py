@@ -19,6 +19,7 @@ output: results/E23/<model>/knob_sweep.{json,md,npz}
 import argparse
 import hashlib
 import os
+from pathlib import Path
 import sys
 import time
 
@@ -240,6 +241,10 @@ def main():
            "e_estimator": args.e_estimator,
            "das": ({"dir": args.das_dir, "variant": args.das_variant, "dropped_layers": sorted(missing),
                     "per_layer": {str(l): dirs[l]["das_meta"] for l in dirs}} if args.e_estimator == "das" else None)}
+    if res['das'] is not None:
+        filenames = {name for row in res['das']['per_layer'].values() for name in row['files']}
+        res['das']['checkpoint_sha256'] = {name: hashlib.sha256((Path(args.das_dir) / name).read_bytes()).hexdigest()
+                                           for name in sorted(filenames)}
     per = {}
     for name, sA, sB in conds:
         ans = run(tA, sA, mA, "A"); p, mg = run(tB, sB, mB, "B")

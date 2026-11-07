@@ -1,0 +1,17 @@
+W1106 23:43:34.113000 172692 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1106 23:43:34.133000 172692 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00, 383.09it/s]
+SOURCE_INTERCHANGE llama3.1-8b tqa:685 baseline 'Adolf Hitler.'
+SOURCE_INTERCHANGE llama3.1-8b tqa:685 source_only 'Adolf Hitler.'
+SOURCE_INTERCHANGE llama3.1-8b tqa:685 equal_logit_mix 'Adolf Hitler.'
+Traceback (most recent call last):
+  File "/workspace/Truth_Decoupling/review_r20_source_codex_20261107/from_claude/code/scripts/e29_qa_source_interchange.py", line 191, in <module>
+    main()
+  File "/workspace/Truth_Decoupling/review_r20_source_codex_20261107/from_claude/code/scripts/e29_qa_source_interchange.py", line 187, in main
+    generate(args, state)
+  File "/workspace/Truth_Decoupling/review_r20_source_codex_20261107/from_claude/code/scripts/e29_qa_source_interchange.py", line 157, in generate
+    row['cache_reference_checks'][name] = cache_reference_check(
+                                          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Truth_Decoupling/review_r20_source_codex_20261107/from_claude/code/scripts/e29_qa_source_interchange.py", line 66, in cache_reference_check
+    raise RuntimeError('cached/full source interchange disagrees: ' + json.dumps(rows[-1]))
+RuntimeError: cached/full source interchange disagrees: {"step": 1, "max_absolute_logit_difference": 0.21106958389282227, "tolerance": 0.1, "top1_equal": true, "accepted_prefix_ids_equal": true, "cached_writes": 1, "full_recomputed_writes": 2}

@@ -1,0 +1,2454 @@
+{
+  "protocol": "E26_qa_ability_repair_summary_v1",
+  "exploratory": true,
+  "evaluated_tasks": [
+    "qa"
+  ],
+  "scope": "Fixed explicit substantive-ability gate, newly estimated C and tuning-frozen selections, full test. Uniform full-personal-refusal guard for every arm. Six QA cells per correction family; not the historical twelve-cell preregistration.",
+  "audits": [
+    {
+      "run": "qa_ability_full",
+      "model": "llama3.1-8b",
+      "all_match": true,
+      "tasks": [
+        {
+          "task": "qa",
+          "test_arm_cells": 45,
+          "frozen_choices": 36,
+          "exact_comparisons": 315,
+          "n_test": 523,
+          "bootstrap_all_intervals_checked": true
+        }
+      ],
+      "scope": "raw payloads, TF labels, QA grade consistency (not semantic regrading), quota/delivery/native counts, frozen choices/thresholds, exact p values, all bootstrap CIs"
+    },
+    {
+      "run": "qa_ability_full",
+      "model": "qwen3-8b",
+      "all_match": true,
+      "tasks": [
+        {
+          "task": "qa",
+          "test_arm_cells": 33,
+          "frozen_choices": 36,
+          "exact_comparisons": 210,
+          "n_test": 523,
+          "bootstrap_all_intervals_checked": true
+        }
+      ],
+      "scope": "raw payloads, TF labels, QA grade consistency (not semantic regrading), quota/delivery/native counts, frozen choices/thresholds, exact p values, all bootstrap CIs"
+    }
+  ],
+  "checks": [
+    {
+      "model": "llama3.1-8b",
+      "data_byte_identical": true,
+      "new_C_layers": {
+        "das": [
+          24
+        ],
+        "md": [
+          24
+        ]
+      },
+      "baseline_and_policy_checks": [
+        {
+          "split": "tune",
+          "n": 192,
+          "baseline_changed_output_or_completion_ids": [],
+          "baseline_simple_score_max_abs_diff": 0.0,
+          "baseline_label_changes": [],
+          "all_method_guarded_grade_records_checked": 4416
+        },
+        {
+          "split": "test",
+          "n": 529,
+          "baseline_changed_output_or_completion_ids": [],
+          "baseline_simple_score_max_abs_diff": 0.0,
+          "baseline_label_changes": [],
+          "all_method_guarded_grade_records_checked": 8993
+        }
+      ],
+      "old_new_same_layer_C_cosines": {
+        "qa_das_C_L24": 0.848682955008384,
+        "qa_md_C_L24": 0.8498163618455472
+      }
+    },
+    {
+      "model": "qwen3-8b",
+      "data_byte_identical": true,
+      "new_C_layers": {
+        "das": [
+          24
+        ],
+        "md": [
+          24
+        ]
+      },
+      "baseline_and_policy_checks": [
+        {
+          "split": "tune",
+          "n": 192,
+          "baseline_changed_output_or_completion_ids": [],
+          "baseline_simple_score_max_abs_diff": 0.0,
+          "baseline_label_changes": [
+            "tqa:101"
+          ],
+          "all_method_guarded_grade_records_checked": 4416
+        },
+        {
+          "split": "test",
+          "n": 529,
+          "baseline_changed_output_or_completion_ids": [],
+          "baseline_simple_score_max_abs_diff": 0.0,
+          "baseline_label_changes": [],
+          "all_method_guarded_grade_records_checked": 5819
+        }
+      ],
+      "old_new_same_layer_C_cosines": {
+        "qa_das_C_L24": 0.7448109779360638,
+        "qa_md_C_L24": 0.7482877712483005
+      }
+    }
+  ],
+  "sources": [
+    {
+      "model": "llama3.1-8b",
+      "sha256": {
+        "bank.json": "53892b00fa5196bda669399574eadfbd0b0c41a462c3d09f10efaf5c67f8f7b8",
+        "bank.npz": "d5b9c4eeb4abb96a6d693321fb54964315cdff3e08ecae68df3f8a6ba5fb6cea",
+        "data.json": "bcad2b0a22fc8fccaad963611072630c228dc92999f1c8b425fcea0ecebc8e8e",
+        "selection.json": "80d3a2b6ee75239d1654ad386ccdb18d4b505c47057536a14b9d1f54f0c6e0a1",
+        "qa_tune.json": "a354d77cd625883d5b7bb6f5c1e901b7d73d21c1df19aee78315743f0b0ed67b",
+        "qa_tune_scored.json": "4d6b689de82f2d938878b74cac4aa5269c1ccd7c182e00e51e790293848f19d7",
+        "qa_test.json": "d9d306073c2acbcdd37fae52392ce4341d1ca9984f8d70234f7d5fbb7d4ef40a",
+        "qa_test_scored.json": "fae3b37ecff253f8cbc577c6dd4c70a2e69f90d0d601aaf9f4c3c4df65686a20",
+        "report.json": "b02c363170e753e97af624ebc32126c5627ea159d241aa254fbe6c6c12f4950c",
+        "delivered_answers.json": "e52530d3509216026ee3517680cc2937cac64db18beb66fe8786ef1e13cd5451"
+      }
+    },
+    {
+      "model": "qwen3-8b",
+      "sha256": {
+        "bank.json": "f0c4d0d872833002db2854f3d7c5a1c564a193b188320d1afbd47b0516ca8923",
+        "bank.npz": "e21afdc061f4491cbcc0e2b930fb15be0fe8b072e4936768c6d0f40f7109ac7a",
+        "data.json": "bcad2b0a22fc8fccaad963611072630c228dc92999f1c8b425fcea0ecebc8e8e",
+        "selection.json": "e29c2aaa145480a8d3ea7db11accbd68f7ad6500e21f8fac427c412fd2fe58f5",
+        "qa_tune.json": "59500e24be32a852a9a688e07cba0cd1787cb2cc91409a4e5fa44790d01c78cc",
+        "qa_tune_scored.json": "a2818622b053ca75af7ade00b79e6b1db469df94dfbbbc10736e71a9b191fee4",
+        "qa_test.json": "54fed19eb2c2b85792768874702959de7e26672964ac6a7f3bee11f64202256f",
+        "qa_test_scored.json": "96bd61ab3fdd40bf82b41943e212697dcda40e0f256d3de624be485b2a4c52bc",
+        "report.json": "2a543df9da8aebd1f0429d65d6537d8a9f31d0ff6684f46d5c3bb3872f9678b6",
+        "delivered_answers.json": "ff05ae7cdd443160abbc2eb187762703564274e6075fd63281ad3fc209917d74"
+      }
+    }
+  ],
+  "cells": [
+    {
+      "model": "llama3.1-8b",
+      "method": "das",
+      "selector": "commitment",
+      "coverage": 0.25,
+      "n": 523,
+      "k": 130,
+      "conditions": {
+        "base": "baseline",
+        "E": "das_E_2",
+        "C": "das_C_L24_a-1",
+        "EC": "das_EC_1_L24_a1"
+      },
+      "arms": {
+        "base": {
+          "feasible": true,
+          "correct": 61,
+          "answered": 130,
+          "accuracy_answered": 0.46923076923076923
+        },
+        "E": {
+          "feasible": true,
+          "correct": 61,
+          "answered": 130,
+          "accuracy_answered": 0.46923076923076923
+        },
+        "C": {
+          "feasible": true,
+          "correct": 58,
+          "answered": 130,
+          "accuracy_answered": 0.4461538461538462
+        },
+        "EC": {
+          "feasible": true,
+          "correct": 58,
+          "answered": 130,
+          "accuracy_answered": 0.4461538461538462
+        }
+      }
+    },
+    {
+      "model": "llama3.1-8b",
+      "method": "das",
+      "selector": "simple",
+      "coverage": 0.25,
+      "n": 523,
+      "k": 130,
+      "conditions": {
+        "base": "baseline",
+        "E": "das_E_0",
+        "C": "das_C_L24_a1",
+        "EC": "das_EC_0_L24_a-1"
+      },
+      "arms": {
+        "base": {
+          "feasible": true,
+          "correct": 48,
+          "answered": 130,
+          "accuracy_answered": 0.36923076923076925
+        },
+        "E": {
+          "feasible": true,
+          "correct": 49,
+          "answered": 130,
+          "accuracy_answered": 0.3769230769230769
+        },
+        "C": {
+          "feasible": true,
+          "correct": 47,
+          "answered": 130,
+          "accuracy_answered": 0.36153846153846153
+        },
+        "EC": {
+          "feasible": true,
+          "correct": 49,
+          "answered": 130,
+          "accuracy_answered": 0.3769230769230769
+        }
+      }
+    },
+    {
+      "model": "llama3.1-8b",
+      "method": "md",
+      "selector": "commitment",
+      "coverage": 0.25,
+      "n": 523,
+      "k": 130,
+      "conditions": {
+        "base": "baseline",
+        "E": "md_E_2",
+        "C": "md_C_L24_a-1",
+        "EC": "md_EC_2_L24_a-1"
+      },
+      "arms": {
+        "base": {
+          "feasible": true,
+          "correct": 61,
+          "answered": 130,
+          "accuracy_answered": 0.46923076923076923
+        },
+        "E": {
+          "feasible": true,
+          "correct": 60,
+          "answered": 130,
+          "accuracy_answered": 0.46153846153846156
+        },
+        "C": {
+          "feasible": true,
+          "correct": 59,
+          "answered": 130,
+          "accuracy_answered": 0.45384615384615384
+        },
+        "EC": {
+          "feasible": true,
+          "correct": 58,
+          "answered": 130,
+          "accuracy_answered": 0.4461538461538462
+        }
+      }
+    },
+    {
+      "model": "llama3.1-8b",
+      "method": "md",
+      "selector": "simple",
+      "coverage": 0.25,
+      "n": 523,
+      "k": 130,
+      "conditions": {
+        "base": "baseline",
+        "E": "md_E_0",
+        "C": "md_C_L24_a1",
+        "EC": "md_EC_0_L24_a-1"
+      },
+      "arms": {
+        "base": {
+          "feasible": true,
+          "correct": 48,
+          "answered": 130,
+          "accuracy_answered": 0.36923076923076925
+        },
+        "E": {
+          "feasible": true,
+          "correct": 48,
+          "answered": 130,
+          "accuracy_answered": 0.36923076923076925
+        },
+        "C": {
+          "feasible": true,
+          "correct": 46,
+          "answered": 130,
+          "accuracy_answered": 0.35384615384615387
+        },
+        "EC": {
+          "feasible": true,
+          "correct": 49,
+          "answered": 130,
+          "accuracy_answered": 0.3769230769230769
+        }
+      }
+    },
+    {
+      "model": "llama3.1-8b",
+      "method": "das",
+      "selector": "commitment",
+      "coverage": 0.5,
+      "n": 523,
+      "k": 261,
+      "conditions": {
+        "base": "baseline",
+        "E": "das_E_2",
+        "C": "das_C_L24_a-1",
+        "EC": "das_EC_2_L24_a-1"
+      },
+      "arms": {
+        "base": {
+          "feasible": true,
+          "correct": 105,
+          "answered": 261,
+          "accuracy_answered": 0.40229885057471265
+        },
+        "E": {
+          "feasible": true,
+          "correct": 104,
+          "answered": 261,
+          "accuracy_answered": 0.39846743295019155
+        },
+        "C": {
+          "feasible": true,
+          "correct": 102,
+          "answered": 261,
+          "accuracy_answered": 0.39080459770114945
+        },
+        "EC": {
+          "feasible": true,
+          "correct": 102,
+          "answered": 261,
+          "accuracy_answered": 0.39080459770114945
+        }
+      }
+    },
+    {
+      "model": "llama3.1-8b",
+      "method": "das",
+      "selector": "simple",
+      "coverage": 0.5,
+      "n": 523,
+      "k": 261,
+      "conditions": {
+        "base": "baseline",
+        "E": "das_E_1",
+        "C": "das_C_L24_a-1",
+        "EC": "das_EC_0_L24_a-1"
+      },
+      "arms": {
+        "base": {
+          "feasible": true,
+          "correct": 102,
+          "answered": 261,
+          "accuracy_answered": 0.39080459770114945
+        },
+        "E": {
+          "feasible": true,
+          "correct": 100,
+          "answered": 261,
+          "accuracy_answered": 0.3831417624521073
+        },
+        "C": {
+          "feasible": true,
+          "correct": 103,
+          "answered": 261,
+          "accuracy_answered": 0.3946360153256705
+        },
+        "EC": {
+          "feasible": true,
+          "correct": 104,
+          "answered": 261,
+          "accuracy_answered": 0.39846743295019155
+        }
+      }
+    },
+    {
+      "model": "llama3.1-8b",
+      "method": "md",
+      "selector": "commitment",
+      "coverage": 0.5,
+      "n": 523,
+      "k": 261,
+      "conditions": {
+        "base": "baseline",
+        "E": "md_E_2",
+        "C": "md_C_L24_a-1",
+        "EC": "md_EC_2_L24_a-1"
+      },
+      "arms": {
+        "base": {
+          "feasible": true,
+          "correct": 105,
+          "answered": 261,
+          "accuracy_answered": 0.40229885057471265
+        },
+        "E": {
+          "feasible": true,
+          "correct": 104,
+          "answered": 261,
+          "accuracy_answered": 0.39846743295019155
+        },
+        "C": {
+          "feasible": true,
+          "correct": 102,
+          "answered": 261,
+          "accuracy_answered": 0.39080459770114945
+        },
+        "EC": {
+          "feasible": true,
+          "correct": 106,
+          "answered": 261,
+          "accuracy_answered": 0.4061302681992337
+        }
+      }
+    },
+    {
+      "model": "llama3.1-8b",
+      "method": "md",
+      "selector": "simple",
+      "coverage": 0.5,
+      "n": 523,
+      "k": 261,
+      "conditions": {
+        "base": "baseline",
+        "E": "md_E_1",
+        "C": "md_C_L24_a-1",
+        "EC": "md_EC_2_L24_a1"
+      },
+      "arms": {
+        "base": {
+          "feasible": true,
+          "correct": 102,
+          "answered": 261,
+          "accuracy_answered": 0.39080459770114945
+        },
+        "E": {
+          "feasible": true,
+          "correct": 102,
+          "answered": 261,
+          "accuracy_answered": 0.39080459770114945
+        },
+        "C": {
+          "feasible": true,
+          "correct": 103,
+          "answered": 261,
+          "accuracy_answered": 0.3946360153256705
+        },
+        "EC": {
+          "feasible": true,
+          "correct": 99,
+          "answered": 261,
+          "accuracy_answered": 0.3793103448275862
+        }
+      }
+    },
+    {
+      "model": "llama3.1-8b",
+      "method": "das",
+      "selector": "commitment",
+      "coverage": 0.75,
+      "n": 523,
+      "k": 392,
+      "conditions": {
+        "base": "baseline",
+        "E": "das_E_2",
+        "C": "das_C_L24_a-1",
+        "EC": "das_EC_2_L24_a-1"
+      },
+      "arms": {
+        "base": {
+          "feasible": true,
+          "correct": 142,
+          "answered": 392,
+          "accuracy_answered": 0.3622448979591837
+        },
+        "E": {
+          "feasible": true,
+          "correct": 141,
+          "answered": 392,
+          "accuracy_answered": 0.3596938775510204
+        },
+        "C": {
+          "feasible": true,
+          "correct": 138,
+          "answered": 392,
+          "accuracy_answered": 0.3520408163265306
+        },
+        "EC": {
+          "feasible": true,
+          "correct": 140,
+          "answered": 392,
+          "accuracy_answered": 0.35714285714285715
+        }
+      }
+    },
+    {
+      "model": "llama3.1-8b",
+      "method": "das",
+      "selector": "simple",
+      "coverage": 0.75,
+      "n": 523,
+      "k": 392,
+      "conditions": {
+        "base": "baseline",
+        "E": "das_E_2",
+        "C": "das_C_L24_a-1",
+        "EC": "das_EC_2_L24_a-1"
+      },
+      "arms": {
+        "base": {
+          "feasible": true,
+          "correct": 140,
+          "answered": 392,
+          "accuracy_answered": 0.35714285714285715
+        },
+        "E": {
+          "feasible": true,
+          "correct": 141,
+          "answered": 392,
+          "accuracy_answered": 0.3596938775510204
+        },
+        "C": {
+          "feasible": true,
+          "correct": 138,
+          "answered": 392,
+          "accuracy_answered": 0.3520408163265306
+        },
+        "EC": {
+          "feasible": true,
+          "correct": 141,
+          "answered": 392,
+          "accuracy_answered": 0.3596938775510204
+        }
+      }
+    },
+    {
+      "model": "llama3.1-8b",
+      "method": "md",
+      "selector": "commitment",
+      "coverage": 0.75,
+      "n": 523,
+      "k": 392,
+      "conditions": {
+        "base": "baseline",
+        "E": "md_E_1",
+        "C": "md_C_L24_a-1",
+        "EC": "md_EC_2_L24_a-1"
+      },
+      "arms": {
+        "base": {
+          "feasible": true,
+          "correct": 142,
+          "answered": 392,
+          "accuracy_answered": 0.3622448979591837
+        },
+        "E": {
+          "feasible": true,
+          "correct": 142,
+          "answered": 392,
+          "accuracy_answered": 0.3622448979591837
+        },
+        "C": {
+          "feasible": true,
+          "correct": 139,
+          "answered": 392,
+          "accuracy_answered": 0.35459183673469385
+        },
+        "EC": {
+          "feasible": true,
+          "correct": 141,
+          "answered": 392,
+          "accuracy_answered": 0.3596938775510204
+        }
+      }
+    },
+    {
+      "model": "llama3.1-8b",
+      "method": "md",
+      "selector": "simple",
+      "coverage": 0.75,
+      "n": 523,
+      "k": 392,
+      "conditions": {
+        "base": "baseline",
+        "E": "md_E_2",
+        "C": "md_C_L24_a-1",
+        "EC": "md_EC_2_L24_a-1"
+      },
+      "arms": {
+        "base": {
+          "feasible": true,
+          "correct": 140,
+          "answered": 392,
+          "accuracy_answered": 0.35714285714285715
+        },
+        "E": {
+          "feasible": true,
+          "correct": 139,
+          "answered": 392,
+          "accuracy_answered": 0.35459183673469385
+        },
+        "C": {
+          "feasible": true,
+          "correct": 138,
+          "answered": 392,
+          "accuracy_answered": 0.3520408163265306
+        },
+        "EC": {
+          "feasible": true,
+          "correct": 143,
+          "answered": 392,
+          "accuracy_answered": 0.3647959183673469
+        }
+      }
+    },
+    {
+      "model": "qwen3-8b",
+      "method": "das",
+      "selector": "commitment",
+      "coverage": 0.25,
+      "n": 523,
+      "k": 130,
+      "conditions": {
+        "base": "baseline",
+        "E": "das_E_1",
+        "C": "das_C_L24_a-1",
+        "EC": "das_EC_0_L24_a-1"
+      },
+      "arms": {
+        "base": {
+          "feasible": true,
+          "correct": 74,
+          "answered": 130,
+          "accuracy_answered": 0.5692307692307692
+        },
+        "E": {
+          "feasible": true,
+          "correct": 71,
+          "answered": 130,
+          "accuracy_answered": 0.5461538461538461
+        },
+        "C": {
+          "feasible": true,
+          "correct": 77,
+          "answered": 130,
+          "accuracy_answered": 0.5923076923076923
+        },
+        "EC": {
+          "feasible": true,
+          "correct": 73,
+          "answered": 130,
+          "accuracy_answered": 0.5615384615384615
+        }
+      }
+    },
+    {
+      "model": "qwen3-8b",
+      "method": "das",
+      "selector": "simple",
+      "coverage": 0.25,
+      "n": 523,
+      "k": 130,
+      "conditions": {
+        "base": "baseline",
+        "E": "das_E_2",
+        "C": "das_C_L24_a-1",
+        "EC": "das_EC_2_L24_a-1"
+      },
+      "arms": {
+        "base": {
+          "feasible": true,
+          "correct": 72,
+          "answered": 130,
+          "accuracy_answered": 0.5538461538461539
+        },
+        "E": {
+          "feasible": true,
+          "correct": 71,
+          "answered": 130,
+          "accuracy_answered": 0.5461538461538461
+        },
+        "C": {
+          "feasible": true,
+          "correct": 71,
+          "answered": 130,
+          "accuracy_answered": 0.5461538461538461
+        },
+        "EC": {
+          "feasible": true,
+          "correct": 71,
+          "answered": 130,
+          "accuracy_answered": 0.5461538461538461
+        }
+      }
+    },
+    {
+      "model": "qwen3-8b",
+      "method": "md",
+      "selector": "commitment",
+      "coverage": 0.25,
+      "n": 523,
+      "k": 130,
+      "conditions": {
+        "base": "baseline",
+        "E": "md_E_1",
+        "C": "md_C_L24_a-1",
+        "EC": "md_EC_1_L24_a-1"
+      },
+      "arms": {
+        "base": {
+          "feasible": true,
+          "correct": 74,
+          "answered": 130,
+          "accuracy_answered": 0.5692307692307692
+        },
+        "E": {
+          "feasible": true,
+          "correct": 73,
+          "answered": 130,
+          "accuracy_answered": 0.5615384615384615
+        },
+        "C": {
+          "feasible": true,
+          "correct": 76,
+          "answered": 130,
+          "accuracy_answered": 0.5846153846153846
+        },
+        "EC": {
+          "feasible": true,
+          "correct": 76,
+          "answered": 130,
+          "accuracy_answered": 0.5846153846153846
+        }
+      }
+    },
+    {
+      "model": "qwen3-8b",
+      "method": "md",
+      "selector": "simple",
+      "coverage": 0.25,
+      "n": 523,
+      "k": 130,
+      "conditions": {
+        "base": "baseline",
+        "E": "md_E_1",
+        "C": "md_C_L24_a-1",
+        "EC": "md_EC_1_L24_a-1"
+      },
+      "arms": {
+        "base": {
+          "feasible": true,
+          "correct": 72,
+          "answered": 130,
+          "accuracy_answered": 0.5538461538461539
+        },
+        "E": {
+          "feasible": true,
+          "correct": 73,
+          "answered": 130,
+          "accuracy_answered": 0.5615384615384615
+        },
+        "C": {
+          "feasible": true,
+          "correct": 71,
+          "answered": 130,
+          "accuracy_answered": 0.5461538461538461
+        },
+        "EC": {
+          "feasible": true,
+          "correct": 71,
+          "answered": 130,
+          "accuracy_answered": 0.5461538461538461
+        }
+      }
+    },
+    {
+      "model": "qwen3-8b",
+      "method": "das",
+      "selector": "commitment",
+      "coverage": 0.5,
+      "n": 523,
+      "k": 261,
+      "conditions": {
+        "base": "baseline",
+        "E": "das_E_2",
+        "C": "das_C_L24_a-1",
+        "EC": "das_EC_0_L24_a-1"
+      },
+      "arms": {
+        "base": {
+          "feasible": true,
+          "correct": 114,
+          "answered": 261,
+          "accuracy_answered": 0.4367816091954023
+        },
+        "E": {
+          "feasible": true,
+          "correct": 116,
+          "answered": 261,
+          "accuracy_answered": 0.4444444444444444
+        },
+        "C": {
+          "feasible": true,
+          "correct": 117,
+          "answered": 261,
+          "accuracy_answered": 0.4482758620689655
+        },
+        "EC": {
+          "feasible": true,
+          "correct": 114,
+          "answered": 261,
+          "accuracy_answered": 0.4367816091954023
+        }
+      }
+    },
+    {
+      "model": "qwen3-8b",
+      "method": "das",
+      "selector": "simple",
+      "coverage": 0.5,
+      "n": 523,
+      "k": 261,
+      "conditions": {
+        "base": "baseline",
+        "E": "das_E_1",
+        "C": "das_C_L24_a-1",
+        "EC": "das_EC_0_L24_a-1"
+      },
+      "arms": {
+        "base": {
+          "feasible": true,
+          "correct": 123,
+          "answered": 261,
+          "accuracy_answered": 0.47126436781609193
+        },
+        "E": {
+          "feasible": true,
+          "correct": 118,
+          "answered": 261,
+          "accuracy_answered": 0.4521072796934866
+        },
+        "C": {
+          "feasible": true,
+          "correct": 123,
+          "answered": 261,
+          "accuracy_answered": 0.47126436781609193
+        },
+        "EC": {
+          "feasible": true,
+          "correct": 122,
+          "answered": 261,
+          "accuracy_answered": 0.4674329501915709
+        }
+      }
+    },
+    {
+      "model": "qwen3-8b",
+      "method": "md",
+      "selector": "commitment",
+      "coverage": 0.5,
+      "n": 523,
+      "k": 261,
+      "conditions": {
+        "base": "baseline",
+        "E": "md_E_1",
+        "C": "md_C_L24_a-1",
+        "EC": "md_EC_2_L24_a-1"
+      },
+      "arms": {
+        "base": {
+          "feasible": true,
+          "correct": 114,
+          "answered": 261,
+          "accuracy_answered": 0.4367816091954023
+        },
+        "E": {
+          "feasible": true,
+          "correct": 115,
+          "answered": 261,
+          "accuracy_answered": 0.44061302681992337
+        },
+        "C": {
+          "feasible": true,
+          "correct": 116,
+          "answered": 261,
+          "accuracy_answered": 0.4444444444444444
+        },
+        "EC": {
+          "feasible": true,
+          "correct": 115,
+          "answered": 261,
+          "accuracy_answered": 0.44061302681992337
+        }
+      }
+    },
+    {
+      "model": "qwen3-8b",
+      "method": "md",
+      "selector": "simple",
+      "coverage": 0.5,
+      "n": 523,
+      "k": 261,
+      "conditions": {
+        "base": "baseline",
+        "E": "md_E_0",
+        "C": "md_C_L24_a-1",
+        "EC": "md_EC_1_L24_a-1"
+      },
+      "arms": {
+        "base": {
+          "feasible": true,
+          "correct": 123,
+          "answered": 261,
+          "accuracy_answered": 0.47126436781609193
+        },
+        "E": {
+          "feasible": true,
+          "correct": 121,
+          "answered": 261,
+          "accuracy_answered": 0.46360153256704983
+        },
+        "C": {
+          "feasible": true,
+          "correct": 121,
+          "answered": 261,
+          "accuracy_answered": 0.46360153256704983
+        },
+        "EC": {
+          "feasible": true,
+          "correct": 122,
+          "answered": 261,
+          "accuracy_answered": 0.4674329501915709
+        }
+      }
+    },
+    {
+      "model": "qwen3-8b",
+      "method": "das",
+      "selector": "commitment",
+      "coverage": 0.75,
+      "n": 523,
+      "k": 392,
+      "conditions": {
+        "base": "baseline",
+        "E": null,
+        "C": null,
+        "EC": null
+      },
+      "arms": {
+        "base": {
+          "feasible": false
+        },
+        "E": {
+          "feasible": false
+        },
+        "C": {
+          "feasible": false
+        },
+        "EC": {
+          "feasible": false
+        }
+      }
+    },
+    {
+      "model": "qwen3-8b",
+      "method": "das",
+      "selector": "simple",
+      "coverage": 0.75,
+      "n": 523,
+      "k": 392,
+      "conditions": {
+        "base": "baseline",
+        "E": null,
+        "C": null,
+        "EC": null
+      },
+      "arms": {
+        "base": {
+          "feasible": false
+        },
+        "E": {
+          "feasible": false
+        },
+        "C": {
+          "feasible": false
+        },
+        "EC": {
+          "feasible": false
+        }
+      }
+    },
+    {
+      "model": "qwen3-8b",
+      "method": "md",
+      "selector": "commitment",
+      "coverage": 0.75,
+      "n": 523,
+      "k": 392,
+      "conditions": {
+        "base": "baseline",
+        "E": null,
+        "C": null,
+        "EC": null
+      },
+      "arms": {
+        "base": {
+          "feasible": false
+        },
+        "E": {
+          "feasible": false
+        },
+        "C": {
+          "feasible": false
+        },
+        "EC": {
+          "feasible": false
+        }
+      }
+    },
+    {
+      "model": "qwen3-8b",
+      "method": "md",
+      "selector": "simple",
+      "coverage": 0.75,
+      "n": 523,
+      "k": 392,
+      "conditions": {
+        "base": "baseline",
+        "E": null,
+        "C": null,
+        "EC": null
+      },
+      "arms": {
+        "base": {
+          "feasible": false
+        },
+        "E": {
+          "feasible": false
+        },
+        "C": {
+          "feasible": false
+        },
+        "EC": {
+          "feasible": false
+        }
+      }
+    }
+  ],
+  "families": {
+    "das/commitment: EC - base": [
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "n": 523,
+        "k": 130,
+        "a": "das_EC",
+        "b": "baseline_commitment",
+        "delta_correct": -3,
+        "p": 0.453125,
+        "delta_accuracy": -0.023076923076923078,
+        "ci95_accuracy": [
+          -0.06153846153846154,
+          0.02307692307692305
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "n": 523,
+        "k": 261,
+        "a": "das_EC",
+        "b": "baseline_commitment",
+        "delta_correct": -3,
+        "p": 0.60723876953125,
+        "delta_accuracy": -0.011494252873563218,
+        "ci95_accuracy": [
+          -0.04214559386973177,
+          0.015325670498084254
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "n": 523,
+        "k": 392,
+        "a": "das_EC",
+        "b": "baseline_commitment",
+        "delta_correct": -2,
+        "p": 0.8145294189453125,
+        "delta_accuracy": -0.00510204081632653,
+        "ci95_accuracy": [
+          -0.025573979591836413,
+          0.01785714285714285
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "n": 523,
+        "k": 130,
+        "a": "das_EC",
+        "b": "baseline_commitment",
+        "delta_correct": -1,
+        "p": 1.0,
+        "delta_accuracy": -0.007692307692307693,
+        "ci95_accuracy": [
+          -0.06153846153846154,
+          0.03846153846153855
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "n": 523,
+        "k": 261,
+        "a": "das_EC",
+        "b": "baseline_commitment",
+        "delta_correct": 0,
+        "p": 1.0,
+        "delta_accuracy": 0.0,
+        "ci95_accuracy": [
+          -0.026819923371647514,
+          0.03448275862068967
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "n": 523,
+        "k": 392,
+        "a": "das_EC",
+        "b": "baseline_commitment",
+        "delta_correct": null,
+        "p": 1.0,
+        "note": "infeasible; retain in predeclared six-QA-cell correction family",
+        "p_holm": 1.0
+      }
+    ],
+    "das/commitment: EC - E": [
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "n": 523,
+        "k": 130,
+        "a": "das_EC",
+        "b": "das_E",
+        "delta_correct": -3,
+        "p": 0.5078125,
+        "delta_accuracy": -0.023076923076923078,
+        "ci95_accuracy": [
+          -0.0692307692307692,
+          0.015384615384615385
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "n": 523,
+        "k": 261,
+        "a": "das_EC",
+        "b": "das_E",
+        "delta_correct": -2,
+        "p": 0.79052734375,
+        "delta_accuracy": -0.007662835249042145,
+        "ci95_accuracy": [
+          -0.03448275862068961,
+          0.022988505747126464
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "n": 523,
+        "k": 392,
+        "a": "das_EC",
+        "b": "das_E",
+        "delta_correct": -1,
+        "p": 1.0,
+        "delta_accuracy": -0.002551020408163265,
+        "ci95_accuracy": [
+          -0.022959183673469385,
+          0.015306122448979609
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "n": 523,
+        "k": 130,
+        "a": "das_EC",
+        "b": "das_E",
+        "delta_correct": 2,
+        "p": 0.8238029479980469,
+        "delta_accuracy": 0.015384615384615385,
+        "ci95_accuracy": [
+          -0.05384615384615388,
+          0.0692307692307692
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "n": 523,
+        "k": 261,
+        "a": "das_EC",
+        "b": "das_E",
+        "delta_correct": -2,
+        "p": 0.8318119049072266,
+        "delta_accuracy": -0.007662835249042145,
+        "ci95_accuracy": [
+          -0.034578544061302174,
+          0.026819923371647514
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "n": 523,
+        "k": 392,
+        "a": "das_EC",
+        "b": "das_E",
+        "delta_correct": null,
+        "p": 1.0,
+        "note": "infeasible; retain in predeclared six-QA-cell correction family",
+        "p_holm": 1.0
+      }
+    ],
+    "das/commitment: EC - C": [
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "n": 523,
+        "k": 130,
+        "a": "das_EC",
+        "b": "das_C",
+        "delta_correct": 0,
+        "p": 1.0,
+        "delta_accuracy": 0.0,
+        "ci95_accuracy": [
+          -0.06153846153846154,
+          0.046153846153846156
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "n": 523,
+        "k": 261,
+        "a": "das_EC",
+        "b": "das_C",
+        "delta_correct": 0,
+        "p": 1.0,
+        "delta_accuracy": 0.0,
+        "ci95_accuracy": [
+          -0.026819923371647514,
+          0.02298850574712641
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "n": 523,
+        "k": 392,
+        "a": "das_EC",
+        "b": "das_C",
+        "delta_correct": 2,
+        "p": 0.79052734375,
+        "delta_accuracy": 0.00510204081632653,
+        "ci95_accuracy": [
+          -0.015306122448979609,
+          0.023022959183673464
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "n": 523,
+        "k": 130,
+        "a": "das_EC",
+        "b": "das_C",
+        "delta_correct": -4,
+        "p": 0.21875,
+        "delta_accuracy": -0.03076923076923077,
+        "ci95_accuracy": [
+          -0.06923076923076915,
+          0.007692307692307665
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "n": 523,
+        "k": 261,
+        "a": "das_EC",
+        "b": "das_C",
+        "delta_correct": -3,
+        "p": 0.453125,
+        "delta_accuracy": -0.011494252873563218,
+        "ci95_accuracy": [
+          -0.03448275862068961,
+          0.011494252873563204
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "n": 523,
+        "k": 392,
+        "a": "das_EC",
+        "b": "das_C",
+        "delta_correct": null,
+        "p": 1.0,
+        "note": "infeasible; retain in predeclared six-QA-cell correction family",
+        "p_holm": 1.0
+      }
+    ],
+    "das/simple: EC - base": [
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "selector": "simple",
+        "coverage": 0.25,
+        "n": 523,
+        "k": 130,
+        "a": "das_EC_simple",
+        "b": "baseline_simple",
+        "delta_correct": 1,
+        "p": 1.0,
+        "delta_accuracy": 0.007692307692307693,
+        "ci95_accuracy": [
+          -0.015384615384615385,
+          0.023076923076923106
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "selector": "simple",
+        "coverage": 0.5,
+        "n": 523,
+        "k": 261,
+        "a": "das_EC_simple",
+        "b": "baseline_simple",
+        "delta_correct": 2,
+        "p": 0.75390625,
+        "delta_accuracy": 0.007662835249042145,
+        "ci95_accuracy": [
+          -0.01915708812260536,
+          0.026819923371647514
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "selector": "simple",
+        "coverage": 0.75,
+        "n": 523,
+        "k": 392,
+        "a": "das_EC_simple",
+        "b": "baseline_simple",
+        "delta_correct": 1,
+        "p": 1.0,
+        "delta_accuracy": 0.002551020408163265,
+        "ci95_accuracy": [
+          -0.022959183673469385,
+          0.025510204081632626
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "selector": "simple",
+        "coverage": 0.25,
+        "n": 523,
+        "k": 130,
+        "a": "das_EC_simple",
+        "b": "baseline_simple",
+        "delta_correct": -1,
+        "p": 1.0,
+        "delta_accuracy": -0.007692307692307693,
+        "ci95_accuracy": [
+          -0.0461538461538461,
+          0.023076923076923106
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "selector": "simple",
+        "coverage": 0.5,
+        "n": 523,
+        "k": 261,
+        "a": "das_EC_simple",
+        "b": "baseline_simple",
+        "delta_correct": -1,
+        "p": 1.0,
+        "delta_accuracy": -0.0038314176245210726,
+        "ci95_accuracy": [
+          -0.038314176245210774,
+          0.03065134099616862
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "selector": "simple",
+        "coverage": 0.75,
+        "n": 523,
+        "k": 392,
+        "a": "das_EC_simple",
+        "b": "baseline_simple",
+        "delta_correct": null,
+        "p": 1.0,
+        "note": "infeasible; retain in predeclared six-QA-cell correction family",
+        "p_holm": 1.0
+      }
+    ],
+    "das/simple: EC - E": [
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "selector": "simple",
+        "coverage": 0.25,
+        "n": 523,
+        "k": 130,
+        "a": "das_EC_simple",
+        "b": "das_E_simple",
+        "delta_correct": 0,
+        "p": 1.0,
+        "delta_accuracy": 0.0,
+        "ci95_accuracy": [
+          -0.015384615384615385,
+          0.015384615384615385
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "selector": "simple",
+        "coverage": 0.5,
+        "n": 523,
+        "k": 261,
+        "a": "das_EC_simple",
+        "b": "das_E_simple",
+        "delta_correct": 4,
+        "p": 0.4239501953125,
+        "delta_accuracy": 0.01532567049808429,
+        "ci95_accuracy": [
+          -0.01532567049808431,
+          0.03831417624521072
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "selector": "simple",
+        "coverage": 0.75,
+        "n": 523,
+        "k": 392,
+        "a": "das_EC_simple",
+        "b": "das_E_simple",
+        "delta_correct": 0,
+        "p": 1.0,
+        "delta_accuracy": 0.0,
+        "ci95_accuracy": [
+          -0.017857142857142905,
+          0.022959183673469385
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "selector": "simple",
+        "coverage": 0.25,
+        "n": 523,
+        "k": 130,
+        "a": "das_EC_simple",
+        "b": "das_E_simple",
+        "delta_correct": 0,
+        "p": 1.0,
+        "delta_accuracy": 0.0,
+        "ci95_accuracy": [
+          -0.038461538461538436,
+          0.023076923076923106
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "selector": "simple",
+        "coverage": 0.5,
+        "n": 523,
+        "k": 261,
+        "a": "das_EC_simple",
+        "b": "das_E_simple",
+        "delta_correct": 4,
+        "p": 0.6075913612730801,
+        "delta_accuracy": 0.01532567049808429,
+        "ci95_accuracy": [
+          -0.01532567049808431,
+          0.05747126436781608
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "selector": "simple",
+        "coverage": 0.75,
+        "n": 523,
+        "k": 392,
+        "a": "das_EC_simple",
+        "b": "das_E_simple",
+        "delta_correct": null,
+        "p": 1.0,
+        "note": "infeasible; retain in predeclared six-QA-cell correction family",
+        "p_holm": 1.0
+      }
+    ],
+    "das/simple: EC - C": [
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "selector": "simple",
+        "coverage": 0.25,
+        "n": 523,
+        "k": 130,
+        "a": "das_EC_simple",
+        "b": "das_C_simple",
+        "delta_correct": 2,
+        "p": 0.625,
+        "delta_accuracy": 0.015384615384615385,
+        "ci95_accuracy": [
+          -0.015384615384615385,
+          0.03846153846153849
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "selector": "simple",
+        "coverage": 0.5,
+        "n": 523,
+        "k": 261,
+        "a": "das_EC_simple",
+        "b": "das_C_simple",
+        "delta_correct": 1,
+        "p": 1.0,
+        "delta_accuracy": 0.0038314176245210726,
+        "ci95_accuracy": [
+          -0.01532567049808431,
+          0.011494252873563204
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "selector": "simple",
+        "coverage": 0.75,
+        "n": 523,
+        "k": 392,
+        "a": "das_EC_simple",
+        "b": "das_C_simple",
+        "delta_correct": 3,
+        "p": 0.6476058959960938,
+        "delta_accuracy": 0.007653061224489796,
+        "ci95_accuracy": [
+          -0.012755102040816368,
+          0.02551020408163268
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "selector": "simple",
+        "coverage": 0.25,
+        "n": 523,
+        "k": 130,
+        "a": "das_EC_simple",
+        "b": "das_C_simple",
+        "delta_correct": 0,
+        "p": 1.0,
+        "delta_accuracy": 0.0,
+        "ci95_accuracy": [
+          -0.03076923076923077,
+          0.01538461538461533
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "selector": "simple",
+        "coverage": 0.5,
+        "n": 523,
+        "k": 261,
+        "a": "das_EC_simple",
+        "b": "das_C_simple",
+        "delta_correct": -1,
+        "p": 1.0,
+        "delta_accuracy": -0.0038314176245210726,
+        "ci95_accuracy": [
+          -0.03448275862068967,
+          0.01915708812260536
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "selector": "simple",
+        "coverage": 0.75,
+        "n": 523,
+        "k": 392,
+        "a": "das_EC_simple",
+        "b": "das_C_simple",
+        "delta_correct": null,
+        "p": 1.0,
+        "note": "infeasible; retain in predeclared six-QA-cell correction family",
+        "p_holm": 1.0
+      }
+    ],
+    "md/commitment: EC - base": [
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "n": 523,
+        "k": 130,
+        "a": "md_EC",
+        "b": "baseline_commitment",
+        "delta_correct": -3,
+        "p": 0.548828125,
+        "delta_accuracy": -0.023076923076923078,
+        "ci95_accuracy": [
+          -0.06153846153846154,
+          0.03076923076923077
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "n": 523,
+        "k": 261,
+        "a": "md_EC",
+        "b": "baseline_commitment",
+        "delta_correct": 1,
+        "p": 1.0,
+        "delta_accuracy": 0.0038314176245210726,
+        "ci95_accuracy": [
+          -0.026819923371647514,
+          0.03448275862068961
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "n": 523,
+        "k": 392,
+        "a": "md_EC",
+        "b": "baseline_commitment",
+        "delta_correct": -1,
+        "p": 1.0,
+        "delta_accuracy": -0.002551020408163265,
+        "ci95_accuracy": [
+          -0.02551020408163268,
+          0.01785714285714285
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "n": 523,
+        "k": 130,
+        "a": "md_EC",
+        "b": "baseline_commitment",
+        "delta_correct": 2,
+        "p": 0.8238029479980469,
+        "delta_accuracy": 0.015384615384615385,
+        "ci95_accuracy": [
+          -0.0461538461538461,
+          0.07692307692307698
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "n": 523,
+        "k": 261,
+        "a": "md_EC",
+        "b": "baseline_commitment",
+        "delta_correct": 1,
+        "p": 1.0,
+        "delta_accuracy": 0.0038314176245210726,
+        "ci95_accuracy": [
+          -0.026819923371647514,
+          0.038314176245210774
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "n": 523,
+        "k": 392,
+        "a": "md_EC",
+        "b": "baseline_commitment",
+        "delta_correct": null,
+        "p": 1.0,
+        "note": "infeasible; retain in predeclared six-QA-cell correction family",
+        "p_holm": 1.0
+      }
+    ],
+    "md/commitment: EC - E": [
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "n": 523,
+        "k": 130,
+        "a": "md_EC",
+        "b": "md_E",
+        "delta_correct": -2,
+        "p": 0.75390625,
+        "delta_accuracy": -0.015384615384615385,
+        "ci95_accuracy": [
+          -0.046153846153846156,
+          0.03076923076923077
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "n": 523,
+        "k": 261,
+        "a": "md_EC",
+        "b": "md_E",
+        "delta_correct": 2,
+        "p": 0.79052734375,
+        "delta_accuracy": 0.007662835249042145,
+        "ci95_accuracy": [
+          -0.02681992337164746,
+          0.03448275862068967
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "n": 523,
+        "k": 392,
+        "a": "md_EC",
+        "b": "md_E",
+        "delta_correct": -1,
+        "p": 1.0,
+        "delta_accuracy": -0.002551020408163265,
+        "ci95_accuracy": [
+          -0.022959183673469385,
+          0.02040816326530609
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "n": 523,
+        "k": 130,
+        "a": "md_EC",
+        "b": "md_E",
+        "delta_correct": 3,
+        "p": 0.60723876953125,
+        "delta_accuracy": 0.023076923076923078,
+        "ci95_accuracy": [
+          -0.023269230769229748,
+          0.07692307692307687
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "n": 523,
+        "k": 261,
+        "a": "md_EC",
+        "b": "md_E",
+        "delta_correct": 0,
+        "p": 1.0,
+        "delta_accuracy": 0.0,
+        "ci95_accuracy": [
+          -0.030651340996168563,
+          0.030651340996168563
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "n": 523,
+        "k": 392,
+        "a": "md_EC",
+        "b": "md_E",
+        "delta_correct": null,
+        "p": 1.0,
+        "note": "infeasible; retain in predeclared six-QA-cell correction family",
+        "p_holm": 1.0
+      }
+    ],
+    "md/commitment: EC - C": [
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "n": 523,
+        "k": 130,
+        "a": "md_EC",
+        "b": "md_C",
+        "delta_correct": -1,
+        "p": 1.0,
+        "delta_accuracy": -0.007692307692307693,
+        "ci95_accuracy": [
+          -0.030769230769230715,
+          0.023076923076923106
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "n": 523,
+        "k": 261,
+        "a": "md_EC",
+        "b": "md_C",
+        "delta_correct": 4,
+        "p": 0.21875,
+        "delta_accuracy": 0.01532567049808429,
+        "ci95_accuracy": [
+          -0.007662835249042155,
+          0.030651340996168563
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "n": 523,
+        "k": 392,
+        "a": "md_EC",
+        "b": "md_C",
+        "delta_correct": 2,
+        "p": 0.75390625,
+        "delta_accuracy": 0.00510204081632653,
+        "ci95_accuracy": [
+          -0.010204081632653073,
+          0.022959183673469385
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "n": 523,
+        "k": 130,
+        "a": "md_EC",
+        "b": "md_C",
+        "delta_correct": 0,
+        "p": 1.0,
+        "delta_accuracy": 0.0,
+        "ci95_accuracy": [
+          -0.0461538461538461,
+          0.04615384615384621
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "n": 523,
+        "k": 261,
+        "a": "md_EC",
+        "b": "md_C",
+        "delta_correct": -1,
+        "p": 1.0,
+        "delta_accuracy": -0.0038314176245210726,
+        "ci95_accuracy": [
+          -0.030651340996168563,
+          0.01915708812260536
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "n": 523,
+        "k": 392,
+        "a": "md_EC",
+        "b": "md_C",
+        "delta_correct": null,
+        "p": 1.0,
+        "note": "infeasible; retain in predeclared six-QA-cell correction family",
+        "p_holm": 1.0
+      }
+    ],
+    "md/simple: EC - base": [
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "selector": "simple",
+        "coverage": 0.25,
+        "n": 523,
+        "k": 130,
+        "a": "md_EC_simple",
+        "b": "baseline_simple",
+        "delta_correct": 1,
+        "p": 1.0,
+        "delta_accuracy": 0.007692307692307693,
+        "ci95_accuracy": [
+          -0.03076923076923077,
+          0.03846153846153849
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "selector": "simple",
+        "coverage": 0.5,
+        "n": 523,
+        "k": 261,
+        "a": "md_EC_simple",
+        "b": "baseline_simple",
+        "delta_correct": -3,
+        "p": 0.60723876953125,
+        "delta_accuracy": -0.011494252873563218,
+        "ci95_accuracy": [
+          -0.04214559386973182,
+          0.011494252873563204
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "selector": "simple",
+        "coverage": 0.75,
+        "n": 523,
+        "k": 392,
+        "a": "md_EC_simple",
+        "b": "baseline_simple",
+        "delta_correct": 3,
+        "p": 0.6476058959960938,
+        "delta_accuracy": 0.007653061224489796,
+        "ci95_accuracy": [
+          -0.015306122448979609,
+          0.028061224489795922
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "selector": "simple",
+        "coverage": 0.25,
+        "n": 523,
+        "k": 130,
+        "a": "md_EC_simple",
+        "b": "baseline_simple",
+        "delta_correct": -1,
+        "p": 1.0,
+        "delta_accuracy": -0.007692307692307693,
+        "ci95_accuracy": [
+          -0.038461538461538436,
+          0.03076923076923077
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "selector": "simple",
+        "coverage": 0.5,
+        "n": 523,
+        "k": 261,
+        "a": "md_EC_simple",
+        "b": "baseline_simple",
+        "delta_correct": -1,
+        "p": 1.0,
+        "delta_accuracy": -0.0038314176245210726,
+        "ci95_accuracy": [
+          -0.04214559386973182,
+          0.03065134099616862
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "selector": "simple",
+        "coverage": 0.75,
+        "n": 523,
+        "k": 392,
+        "a": "md_EC_simple",
+        "b": "baseline_simple",
+        "delta_correct": null,
+        "p": 1.0,
+        "note": "infeasible; retain in predeclared six-QA-cell correction family",
+        "p_holm": 1.0
+      }
+    ],
+    "md/simple: EC - E": [
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "selector": "simple",
+        "coverage": 0.25,
+        "n": 523,
+        "k": 130,
+        "a": "md_EC_simple",
+        "b": "md_E_simple",
+        "delta_correct": 1,
+        "p": 1.0,
+        "delta_accuracy": 0.007692307692307693,
+        "ci95_accuracy": [
+          0.0,
+          0.023076923076923106
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "selector": "simple",
+        "coverage": 0.5,
+        "n": 523,
+        "k": 261,
+        "a": "md_EC_simple",
+        "b": "md_E_simple",
+        "delta_correct": -3,
+        "p": 0.548828125,
+        "delta_accuracy": -0.011494252873563218,
+        "ci95_accuracy": [
+          -0.038314176245210774,
+          0.007662835249042155
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "selector": "simple",
+        "coverage": 0.75,
+        "n": 523,
+        "k": 392,
+        "a": "md_EC_simple",
+        "b": "md_E_simple",
+        "delta_correct": 4,
+        "p": 0.4239501953125,
+        "delta_accuracy": 0.01020408163265306,
+        "ci95_accuracy": [
+          -0.010204081632653073,
+          0.025510204081632626
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "selector": "simple",
+        "coverage": 0.25,
+        "n": 523,
+        "k": 130,
+        "a": "md_EC_simple",
+        "b": "md_E_simple",
+        "delta_correct": -2,
+        "p": 0.6875,
+        "delta_accuracy": -0.015384615384615385,
+        "ci95_accuracy": [
+          -0.0461538461538461,
+          0.015384615384615441
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "selector": "simple",
+        "coverage": 0.5,
+        "n": 523,
+        "k": 261,
+        "a": "md_EC_simple",
+        "b": "md_E_simple",
+        "delta_correct": 1,
+        "p": 1.0,
+        "delta_accuracy": 0.0038314176245210726,
+        "ci95_accuracy": [
+          -0.026819923371647514,
+          0.04214559386973177
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "selector": "simple",
+        "coverage": 0.75,
+        "n": 523,
+        "k": 392,
+        "a": "md_EC_simple",
+        "b": "md_E_simple",
+        "delta_correct": null,
+        "p": 1.0,
+        "note": "infeasible; retain in predeclared six-QA-cell correction family",
+        "p_holm": 1.0
+      }
+    ],
+    "md/simple: EC - C": [
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "selector": "simple",
+        "coverage": 0.25,
+        "n": 523,
+        "k": 130,
+        "a": "md_EC_simple",
+        "b": "md_C_simple",
+        "delta_correct": 3,
+        "p": 0.375,
+        "delta_accuracy": 0.023076923076923078,
+        "ci95_accuracy": [
+          -0.023076923076923106,
+          0.05384615384615388
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "selector": "simple",
+        "coverage": 0.5,
+        "n": 523,
+        "k": 261,
+        "a": "md_EC_simple",
+        "b": "md_C_simple",
+        "delta_correct": -4,
+        "p": 0.5234670639038086,
+        "delta_accuracy": -0.01532567049808429,
+        "ci95_accuracy": [
+          -0.04980842911877392,
+          0.01149425287356326
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "selector": "simple",
+        "coverage": 0.75,
+        "n": 523,
+        "k": 392,
+        "a": "md_EC_simple",
+        "b": "md_C_simple",
+        "delta_correct": 5,
+        "p": 0.266845703125,
+        "delta_accuracy": 0.012755102040816327,
+        "ci95_accuracy": [
+          -0.007653061224489777,
+          0.028061224489795922
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "selector": "simple",
+        "coverage": 0.25,
+        "n": 523,
+        "k": 130,
+        "a": "md_EC_simple",
+        "b": "md_C_simple",
+        "delta_correct": 0,
+        "p": 1.0,
+        "delta_accuracy": 0.0,
+        "ci95_accuracy": [
+          -0.023076923076923106,
+          0.03076923076923077
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "selector": "simple",
+        "coverage": 0.5,
+        "n": 523,
+        "k": 261,
+        "a": "md_EC_simple",
+        "b": "md_C_simple",
+        "delta_correct": 1,
+        "p": 1.0,
+        "delta_accuracy": 0.0038314176245210726,
+        "ci95_accuracy": [
+          -0.03448275862068967,
+          0.026819923371647514
+        ],
+        "bootstrap_status": "ok",
+        "infeasible_resamples": 0,
+        "p_holm": 1.0
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "selector": "simple",
+        "coverage": 0.75,
+        "n": 523,
+        "k": 392,
+        "a": "md_EC_simple",
+        "b": "md_C_simple",
+        "delta_correct": null,
+        "p": 1.0,
+        "note": "infeasible; retain in predeclared six-QA-cell correction family",
+        "p_holm": 1.0
+      }
+    ]
+  }
+}

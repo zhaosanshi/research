@@ -14,6 +14,8 @@ import re
 import time
 
 from .io_utils import append_jsonl, read_jsonl, stable_hash
+from .qa_scoring import (OUTCOME_POLICY, FULL_PERSONAL_REFUSAL_POLICY,
+                         full_personal_refusal_decision, apply_full_personal_refusal_policy)
 
 QA_GRADER_VERSION = "qa_semantic_v3"
 
@@ -64,11 +66,39 @@ ABSTAIN_TEMPLATE = (
 )
 
 
+def qa_grade_user(question, gold, prediction, incorrect=None):
+    gold_s = " | ".join(str(g) for g in gold) if isinstance(gold, (list, tuple)) else str(gold)
+    inc_block = ""
+    if incorrect:
+        inc_block = (
+            "Known incorrect candidates (B only if actually asserted or endorsed as an answer; "
+            "mentioning or denying them is not an error): "
+            + " | ".join(str(x) for x in incorrect) + "\n"
+        )
+    return QA_GRADER_TEMPLATE.format(question=question, gold=gold_s, incorrect_block=inc_block,
+                                     prediction=(prediction or "").strip()[:4000])
+
+
+def qa_cache_key(model, question, gold, prediction, incorrect=None):
+    return stable_hash(model, QA_GRADER_SYSTEM, qa_grade_user(question, gold, prediction, incorrect), length=24)
+
+
 class LLMJudge:
     qa_rubric_id = QA_GRADER_VERSION
+    # Legacy test doubles/subclasses may intentionally bypass __init__.
+    full_personal_refusal_guard = False
+    outcome_policy = OUTCOME_POLICY
 
     def __init__(self, model, base_url=None, api_key=None, api_key_env="DEEPSEEK_API_KEY", cache_path=None,
-                 temperature=0.0, max_tokens=8, sleep=0.3, max_retries=5, name=None, extra_body=None):
+                 temperature=0.0, max_tokens=8, sleep=0.3, max_retries=5, name=None, extra_body=None,
+                 full_personal_refusal_guard=False, outcome_policy=None):
+        if type(full_personal_refusal_guard) is not bool:
+            raise ValueError('full_personal_refusal_guard must be boolean')
+        expected_policy = FULL_PERSONAL_REFUSAL_POLICY if full_personal_refusal_guard else OUTCOME_POLICY
+        if outcome_policy is not None and outcome_policy != expected_policy:
+            raise ValueError('configured outcome policy does not match the refusal guard')
+        self.full_personal_refusal_guard = full_personal_refusal_guard
+        self.outcome_policy = expected_policy
         self.model = model
         self.base_url = base_url
         # provider-specific request fields from the config (e.g. DeepSeek V4: {"thinking": {"type": "disabled"}};
@@ -136,20 +166,27 @@ class LLMJudge:
         return answer
 
     # ---- judgments ------------------------------------------------------- #
+    def apply_outcome_policy(self, question, prediction, grade):
+        if not self.full_personal_refusal_guard:
+            if grade.get('outcome_policy', OUTCOME_POLICY) != OUTCOME_POLICY:
+                raise ValueError('cannot silently reuse policy-corrected grades under the legacy policy')
+            return grade
+        return apply_full_personal_refusal_policy(grade, question, prediction)
+
     def qa_grade(self, question, gold, prediction, incorrect=None):
-        if isinstance(gold, (list, tuple)):
-            gold_s = " | ".join(str(g) for g in gold)
-        else:
-            gold_s = str(gold)
-        inc_block = ""
-        if incorrect:
-            inc_block = (
-                "Known incorrect candidates (B only if actually asserted or endorsed as an answer; "
-                "mentioning or denying them is not an error): "
-                + " | ".join(str(x) for x in incorrect) + "\n"
-            )
-        user = QA_GRADER_TEMPLATE.format(question=question, gold=gold_s, incorrect_block=inc_block,
-                                         prediction=(prediction or "").strip()[:4000])
+        user = qa_grade_user(question, gold, prediction, incorrect)
+        decision = full_personal_refusal_decision(question, prediction)
+        if self.full_personal_refusal_guard and decision['apply']:
+            # Decision uses only question/prediction. Preserve any cached raw A/B/C
+            # exactly; do not append a replacement C to the semantic-judge cache.
+            key = qa_cache_key(self.model, question, gold, prediction, incorrect)
+            cached_raw = self._cache.get(key)
+            parsed = re.match(r"\s*\**\s*([ABC])\b", cached_raw) if isinstance(cached_raw, str) else None
+            before = {'A':'correct','B':'wrong','C':'abstain'}.get(parsed.group(1), 'unresolved') if parsed else 'unresolved'
+            grade = {'label': before, 'raw': cached_raw if cached_raw is not None else '',
+                     'rubric_id': self.qa_rubric_id, 'semantic_call_skipped_by_guard': True,
+                     'semantic_cache_entry_present': cached_raw is not None}
+            return self.apply_outcome_policy(question, prediction, grade)
         # A nonempty completion can still fail the QA letter parser. Keep
         # its original disk row for audit, but do not let that malformed cache
         # entry permanently prevent a later same-judge retry. A later valid
@@ -162,7 +199,8 @@ class LLMJudge:
         raw = self.complete(QA_GRADER_SYSTEM, user)
         m = re.match(r"\s*\**\s*([ABC])\b", raw)
         label = {"A": "correct", "B": "wrong", "C": "abstain"}.get(m.group(1), "unresolved") if m else "unresolved"
-        return {"label": label, "raw": raw, "rubric_id": self.qa_rubric_id}
+        grade = {"label": label, "raw": raw, "rubric_id": self.qa_rubric_id}
+        return self.apply_outcome_policy(question, prediction, grade)
 
     def abstains(self, prediction):
         raw = self.complete("You classify answers. Reply Yes or No only.", ABSTAIN_TEMPLATE.format(prediction=(prediction or "").strip()[:2000]))
@@ -179,7 +217,9 @@ def judge_from_config(cfg, cache_dir):
     cache_path = os.path.join(cache_dir, "judge_cache_%s.jsonl" % re.sub(r"[^A-Za-z0-9_.-]", "_", cfg["model"]))
     return LLMJudge(model=cfg["model"], base_url=cfg.get("base_url"), api_key_env=cfg.get("api_key_env", "DEEPSEEK_API_KEY"),
                     cache_path=cache_path, temperature=cfg.get("temperature", 0.0), max_tokens=cfg.get("max_tokens", 8),
-                    sleep=cfg.get("sleep", 0.3), name=cfg.get("name"), extra_body=cfg.get("extra_body"))
+                    sleep=cfg.get("sleep", 0.3), name=cfg.get("name"), extra_body=cfg.get("extra_body"),
+                    full_personal_refusal_guard=cfg.get('full_personal_refusal_guard', False),
+                    outcome_policy=cfg.get('outcome_policy'))
 
 
 def combine_outcome(judge_label, rule_abstain):

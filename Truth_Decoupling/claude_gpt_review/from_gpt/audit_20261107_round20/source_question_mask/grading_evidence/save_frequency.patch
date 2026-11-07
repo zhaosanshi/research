@@ -1,0 +1,71 @@
+--- actual_model_snapshot/e25_qa_das.py
++++ grading_override/e25_qa_das.py
+@@ -13,6 +13,7 @@
+ import os
+ from pathlib import Path
+ import string
++import time
+ from types import SimpleNamespace
+ 
+ import numpy as np
+@@ -599,28 +600,38 @@
+             'policy': 'enumerate_unique_question_ids_in_original_order',
+             'source_generation_unchanged': True, 'changes': index_changes}
+     pending["grading_completed"] = False
+-    for row in pending["evaluations"]:
+-        references, only_refusal = reference_answers(row["gold"])
+-        previous_references = row.get("judge_reference_answers")
+-        row["judge_reference_answers"], row["gold_is_abstention"] = references, only_refusal
+-        row.setdefault("judge", {})
+-        row.setdefault("outcome", {})
+-        for name in data["conditions"]:
+-            cached = row["judge"].get(name, {})
+-            if (previous_references != references or cached.get("rubric_id") != QA_GRADER_VERSION
+-                    or cached.get("label") not in ("correct", "wrong", "abstain")):
+-                row["judge"][name] = grader.qa_grade(
+-                    row["question"], references, row["outputs"][name], incorrect=row.get("incorrect") or None)
+-            # The requested config owns the policy even for a custom semantic
+-            # grader or reused old grade. This is idempotent for LLMJudge results.
+-            from core.qa_scoring import apply_configured_outcome_policy
+-            row['judge'][name] = apply_configured_outcome_policy(
+-                row['judge'][name], row['question'], row['outputs'][name], judge_cfg)
+-            grade = row["judge"][name]
+-            if grade.get("rubric_id") != QA_GRADER_VERSION:
+-                raise ValueError("an item uses a different grading rubric")
+-            row["outcome"][name] = judged_outcome(grade["label"])
+-            save(pending_path, pending)
++    # Semantic API responses remain individually cached. Avoid rewriting the
++    # entire multi-megabyte generation trace for every reused control label.
++    progress_count, progress_saved_at = 0, time.monotonic()
++    try:
++        for row in pending["evaluations"]:
++            references, only_refusal = reference_answers(row["gold"])
++            previous_references = row.get("judge_reference_answers")
++            row["judge_reference_answers"], row["gold_is_abstention"] = references, only_refusal
++            row.setdefault("judge", {})
++            row.setdefault("outcome", {})
++            for name in data["conditions"]:
++                cached = row["judge"].get(name, {})
++                if (previous_references != references or cached.get("rubric_id") != QA_GRADER_VERSION
++                        or cached.get("label") not in ("correct", "wrong", "abstain")):
++                    row["judge"][name] = grader.qa_grade(
++                        row["question"], references, row["outputs"][name], incorrect=row.get("incorrect") or None)
++                # The requested config owns the policy even for a custom semantic
++                # grader or reused old grade. This is idempotent for LLMJudge results.
++                from core.qa_scoring import apply_configured_outcome_policy
++                row['judge'][name] = apply_configured_outcome_policy(
++                    row['judge'][name], row['question'], row['outputs'][name], judge_cfg)
++                grade = row["judge"][name]
++                if grade.get("rubric_id") != QA_GRADER_VERSION:
++                    raise ValueError("an item uses a different grading rubric")
++                row["outcome"][name] = judged_outcome(grade["label"])
++                progress_count += 1
++                if progress_count % 64 == 0 or time.monotonic() - progress_saved_at >= 5.:
++                    save(pending_path, pending)
++                    progress_saved_at = time.monotonic()
++    finally:
++        # Preserve every resolved/derived grade even on parser/API/cancel errors.
++        save(pending_path, pending)
+     unresolved = [{"pair_id": row["pair_id"], "condition": name}
+                   for row in pending["evaluations"] for name in data["conditions"]
+                   if row["outcome"][name] not in ("correct", "wrong", "abstain")]

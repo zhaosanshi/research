@@ -1,0 +1,281 @@
+{
+  "protocol": "E26_equal_simple_selector_extension_v1",
+  "exploratory": true,
+  "selection_rule": "tuning-only delivered correct, existing deterministic intervention-size tie rule",
+  "source_commit": "63e3674b6d98729e453a4b259ee7724b9234711a",
+  "scope": "DAS and mean-difference, equal simple-score selector for baseline/E/C/EC; old primary analysis unchanged",
+  "runs": [
+    {
+      "model": "llama3.1-8b",
+      "sources": {
+        "bank.json": "ac6c2da9288fdde4cf6d01cfd9abe91d5de58bb59f579f6be079e82b9f0b8d94",
+        "bank.npz": "9ea88c661a44e819b671107dc8350a946dc45adc7993858a374bf1a981e1410a",
+        "data.json": "bcad2b0a22fc8fccaad963611072630c228dc92999f1c8b425fcea0ecebc8e8e",
+        "selection.json": "f727d90d0ac622d4e86d3e6ed75fc1fdddfe2254cf4d7243ef5023b03fb83701",
+        "tf_tune.json": "80607faf3194ea631f6656b4e72d44225a434caf978169a024fdcb49429af3b7",
+        "qa_tune_scored.json": "b9703750f3615c1a429644e97f3e080ba71c63cd11b952e67427b480dba5f2e2",
+        "qa_tune.json": "6725c0addfc76576717e973178d0405d3bd0194a663ac5e43ae8096ea6198c6c"
+      },
+      "bank_fingerprint": "f32439f78f3ab94d61dd96f4f23fd1020bafcadb6ba2f502801a80203af3eeaa",
+      "tasks": {
+        "tf": {
+          "choices": {
+            "0.25": {
+              "das_EC_simple": "das_EC_1_L26_a-1",
+              "md_EC_simple": "md_EC_1_L27_a-1"
+            },
+            "0.5": {
+              "das_EC_simple": "das_EC_2_L26_a1",
+              "md_EC_simple": "md_EC_1_L27_a1"
+            },
+            "0.75": {
+              "das_EC_simple": "das_EC_1_L26_a-1",
+              "md_EC_simple": "md_EC_0_L27_a-1"
+            }
+          },
+          "missing_condition_specs": [
+            {
+              "name": "das_EC_2_L26_a1",
+              "kind": "EC",
+              "task": "tf",
+              "method": "das",
+              "e": {
+                "layer": 13,
+                "alpha": 3.0,
+                "mode": "prefill"
+              },
+              "c": {
+                "layer": 26,
+                "alpha": 1.0
+              }
+            },
+            {
+              "name": "md_EC_1_L27_a1",
+              "kind": "EC",
+              "task": "tf",
+              "method": "md",
+              "e": {
+                "layer": 15,
+                "alpha": 2.0,
+                "mode": "prefill"
+              },
+              "c": {
+                "layer": 27,
+                "alpha": 1.0
+              }
+            },
+            {
+              "name": "md_EC_0_L27_a-1",
+              "kind": "EC",
+              "task": "tf",
+              "method": "md",
+              "e": {
+                "layer": 16,
+                "alpha": 3.0,
+                "mode": "prefill"
+              },
+              "c": {
+                "layer": 27,
+                "alpha": -1.0
+              }
+            }
+          ],
+          "existing_test_source_sha256": "bf2c8d3ca662141ff9a734b02a35b5f2a434185b27f7f0706ae2b8a5dab54464"
+        },
+        "qa": {
+          "choices": {
+            "0.25": {
+              "das_EC_simple": "das_EC_0_L18_a-1",
+              "md_EC_simple": "md_EC_2_L18_a-1"
+            },
+            "0.5": {
+              "das_EC_simple": "das_EC_2_L18_a-1",
+              "md_EC_simple": "md_EC_2_L18_a-1"
+            },
+            "0.75": {
+              "das_EC_simple": "das_EC_2_L18_a-1",
+              "md_EC_simple": "md_EC_2_L18_a-1"
+            }
+          },
+          "missing_condition_specs": [
+            {
+              "name": "das_EC_0_L18_a-1",
+              "kind": "EC",
+              "task": "qa",
+              "method": "das",
+              "e": {
+                "layer": 10,
+                "alpha": 2.0,
+                "mode": "continuous"
+              },
+              "c": {
+                "layer": 18,
+                "alpha": -1.0
+              }
+            },
+            {
+              "name": "md_EC_2_L18_a-1",
+              "kind": "EC",
+              "task": "qa",
+              "method": "md",
+              "e": {
+                "layer": 11,
+                "alpha": 3.0,
+                "mode": "continuous"
+              },
+              "c": {
+                "layer": 18,
+                "alpha": -1.0
+              }
+            },
+            {
+              "name": "das_EC_2_L18_a-1",
+              "kind": "EC",
+              "task": "qa",
+              "method": "das",
+              "e": {
+                "layer": 29,
+                "alpha": 3.0,
+                "mode": "continuous"
+              },
+              "c": {
+                "layer": 18,
+                "alpha": -1.0
+              }
+            }
+          ],
+          "existing_test_source_sha256": "ac4ae9ab9338fa167a9e2dedf118c8f30396ab847f76ec4050a76fa74fc9176f"
+        }
+      }
+    },
+    {
+      "model": "qwen3-8b",
+      "sources": {
+        "bank.json": "9c82eb63ed81732f39a777eccffa51c0966e0bbd1b694a24978c6886286c403b",
+        "bank.npz": "a2ce5a0b7ea7d7c12b99d90002f875d9e6c5f1fa9c775d1c50369381fc211a0c",
+        "data.json": "bcad2b0a22fc8fccaad963611072630c228dc92999f1c8b425fcea0ecebc8e8e",
+        "selection.json": "ddc2036c7a71ab17ed3a902282e5f67a74a8c9716b1903c7d8cd0c18ee5ea93b",
+        "tf_tune.json": "a5a9c85db4f04d03e2ad4cbffab5b17c9320acc74a2d405ef1de8b7a841a1dbb",
+        "qa_tune_scored.json": "332070a531f52c23d9237b06a96e1287653e2aff9faeaf25219dd2e0c56fbafb",
+        "qa_tune.json": "e91e63c4277c012a9e041b32a1cf9dbd7f1049b02c5c3f7e849643685c3c422f"
+      },
+      "bank_fingerprint": "c12728e66834717207f0861ee89d41892e610242c07647346fd994c2303ab0df",
+      "tasks": {
+        "tf": {
+          "choices": {
+            "0.25": {
+              "das_EC_simple": "das_EC_0_L30_a1",
+              "md_EC_simple": "md_EC_1_L30_a1"
+            },
+            "0.5": {
+              "das_EC_simple": "das_EC_0_L30_a-1",
+              "md_EC_simple": "md_EC_2_L30_a1"
+            },
+            "0.75": {
+              "das_EC_simple": "das_EC_0_L30_a-1",
+              "md_EC_simple": "md_EC_0_L30_a1"
+            }
+          },
+          "missing_condition_specs": [
+            {
+              "name": "das_EC_0_L30_a1",
+              "kind": "EC",
+              "task": "tf",
+              "method": "das",
+              "e": {
+                "layer": 35,
+                "alpha": 3.0,
+                "mode": "prefill"
+              },
+              "c": {
+                "layer": 30,
+                "alpha": 1.0
+              }
+            },
+            {
+              "name": "md_EC_2_L30_a1",
+              "kind": "EC",
+              "task": "tf",
+              "method": "md",
+              "e": {
+                "layer": 19,
+                "alpha": 3.0,
+                "mode": "prefill"
+              },
+              "c": {
+                "layer": 30,
+                "alpha": 1.0
+              }
+            },
+            {
+              "name": "md_EC_0_L30_a1",
+              "kind": "EC",
+              "task": "tf",
+              "method": "md",
+              "e": {
+                "layer": 20,
+                "alpha": 3.0,
+                "mode": "prefill"
+              },
+              "c": {
+                "layer": 30,
+                "alpha": 1.0
+              }
+            }
+          ],
+          "existing_test_source_sha256": "3b5035038f478dd0ca260c25bc22425034cbce5e075cf7761f5fcfb3ab49dbf2"
+        },
+        "qa": {
+          "choices": {
+            "0.25": {
+              "das_EC_simple": "das_EC_2_L31_a1",
+              "md_EC_simple": "md_EC_1_L31_a1"
+            },
+            "0.5": {
+              "das_EC_simple": "das_EC_0_L31_a-1",
+              "md_EC_simple": "md_EC_2_L31_a-1"
+            },
+            "0.75": {
+              "das_EC_simple": null,
+              "md_EC_simple": null
+            }
+          },
+          "missing_condition_specs": [
+            {
+              "name": "das_EC_0_L31_a-1",
+              "kind": "EC",
+              "task": "qa",
+              "method": "das",
+              "e": {
+                "layer": 23,
+                "alpha": 3.0,
+                "mode": "continuous"
+              },
+              "c": {
+                "layer": 31,
+                "alpha": -1.0
+              }
+            },
+            {
+              "name": "md_EC_2_L31_a-1",
+              "kind": "EC",
+              "task": "qa",
+              "method": "md",
+              "e": {
+                "layer": 13,
+                "alpha": 2.0,
+                "mode": "continuous"
+              },
+              "c": {
+                "layer": 31,
+                "alpha": -1.0
+              }
+            }
+          ],
+          "existing_test_source_sha256": "42c299117b4723d1fd37380d656b71c461d7130ae24c5d9b2a88059cc5a2abe2"
+        }
+      }
+    }
+  ],
+  "fingerprint": "a54586c188680d69510365138a74e0279f59832b80f9f226b581a29d365c7996"
+}

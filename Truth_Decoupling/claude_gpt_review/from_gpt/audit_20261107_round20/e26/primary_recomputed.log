@@ -1,0 +1,183 @@
+llama3.1-8b tf 0.25 k=264/1058 | b_commitment=198 b_simple=237 b_random=170 das_E=210 das_C=198 das_EC=211 das_E_simple=243 das_C_simple=234 md_E=204 md_C=199 md_EC=202
+llama3.1-8b tf 0.50 k=529/1058 | b_commitment=348 b_simple=417 b_random=351 das_E=381 das_C=348 das_EC=381 das_E_simple=457 das_C_simple=426 md_E=377 md_C=359 md_EC=376
+llama3.1-8b tf 0.75 k=793/1058 | b_commitment=498 b_simple=585 b_random=540 das_E=534 das_C=508 das_EC=541 das_E_simple=629 das_C_simple=591 md_E=519 md_C=512 md_EC=525
+llama3.1-8b qa 0.25 k=130/523  | b_commitment=51 b_simple=48 b_random=48 das_E=51 das_C=51 das_EC=53 das_E_simple=49 das_C_simple=48 md_E=53 md_C=51 md_EC=54
+llama3.1-8b qa 0.50 k=261/523  | b_commitment=97 b_simple=102 b_random=84 das_E=94 das_C=96 das_EC=97 das_E_simple=100 das_C_simple=103 md_E=98 md_C=97 md_EC=101
+llama3.1-8b qa 0.75 k=392/523  | b_commitment=129 b_simple=140 b_random=132 das_E=125 das_C=132 das_EC=134 das_E_simple=141 das_C_simple=141 md_E=128 md_C=130 md_EC=133
+qwen3-8b    tf 0.25 k=264/1058 | b_commitment=210 b_simple=241 b_random=187 das_E=210 das_C=210 das_EC=209 das_E_simple=250 das_C_simple=239 md_E=215 md_C=210 md_EC=215
+qwen3-8b    tf 0.50 k=529/1058 | b_commitment=376 b_simple=453 b_random=380 das_E=402 das_C=368 das_EC=399 das_E_simple=470 das_C_simple=456 md_E=380 md_C=370 md_EC=384
+qwen3-8b    tf 0.75 k=793/1058 | b_commitment=522 b_simple=620 b_random=571 das_E=562 das_C=516 das_EC=562 das_E_simple=642 das_C_simple=630 md_E=532 md_C=519 md_EC=536
+qwen3-8b    qa 0.25 k=130/523  | b_commitment=61 b_simple=72 b_random=54 das_E=60 das_C=66 das_EC=63 das_E_simple=71 das_C_simple=71 md_E=57 md_C=66 md_EC=58
+qwen3-8b    qa 0.50 k=261/523  | b_commitment=107 b_simple=123 b_random=111 das_E=110 das_C=104 das_EC=107 das_E_simple=118 das_C_simple=124 md_E=108 md_C=104 md_EC=108
+qwen3-8b    qa 0.75 k=392/523  | b_commitment=inf b_simple=inf b_random=inf das_E=inf das_C=inf das_EC=inf das_E_simple=inf das_C_simple=inf md_E=inf md_C=inf md_EC=inf
+
+primary: das_EC - das_E
+  llama3.1-8b tf 0.25  delta +1  p 1  holm 1
+  llama3.1-8b tf 0.50  delta +0  p 1  holm 1
+  llama3.1-8b tf 0.75  delta +7  p 0.534  holm 1
+  llama3.1-8b qa 0.25  delta +2  p 0.754  holm 1
+  llama3.1-8b qa 0.50  delta +3  p 0.581  holm 1
+  llama3.1-8b qa 0.75  delta +9  p 0.0636  holm 0.763
+  qwen3-8b    tf 0.25  delta -1  p 1  holm 1
+  qwen3-8b    tf 0.50  delta -3  p 0.453  holm 1
+  qwen3-8b    tf 0.75  delta +0  p 1  holm 1
+  qwen3-8b    qa 0.25  delta +3  p 0.607  holm 1
+  qwen3-8b    qa 0.50  delta -3  p 0.607  holm 1
+  qwen3-8b    qa 0.75  delta n/a  p 1  holm 1
+
+das_EC - das_C
+  llama3.1-8b tf 0.25  delta +13  p 0.142  holm 1
+  llama3.1-8b tf 0.50  delta +33  p 0.000447  holm 0.00447
+  llama3.1-8b tf 0.75  delta +33  p 0.00315  holm 0.0283
+  llama3.1-8b qa 0.25  delta +2  p 0.625  holm 1
+  llama3.1-8b qa 0.50  delta +1  p 1  holm 1
+  llama3.1-8b qa 0.75  delta +2  p 0.727  holm 1
+  qwen3-8b    tf 0.25  delta -1  p 1  holm 1
+  qwen3-8b    tf 0.50  delta +31  p 0.000244  holm 0.00269
+  qwen3-8b    tf 0.75  delta +46  p 1.49e-06  holm 1.79e-05
+  qwen3-8b    qa 0.25  delta -3  p 0.453  holm 1
+  qwen3-8b    qa 0.50  delta +3  p 0.453  holm 1
+  qwen3-8b    qa 0.75  delta n/a  p 1  holm 1
+
+das_EC - das_E_simple
+  llama3.1-8b tf 0.25  delta -32  p 0.0305  holm 0.214
+  llama3.1-8b tf 0.50  delta -76  p 1.61e-05  holm 0.000177
+  llama3.1-8b tf 0.75  delta -88  p 2.49e-06  holm 2.99e-05
+  llama3.1-8b qa 0.25  delta +4  p 0.708  holm 1
+  llama3.1-8b qa 0.50  delta -3  p 0.807  holm 1
+  llama3.1-8b qa 0.75  delta -7  p 0.382  holm 1
+  qwen3-8b    tf 0.25  delta -41  p 0.00426  holm 0.034
+  qwen3-8b    tf 0.50  delta -71  p 0.000233  holm 0.0021
+  qwen3-8b    tf 0.75  delta -80  p 2.67e-05  holm 0.000267
+  qwen3-8b    qa 0.25  delta -8  p 0.382  holm 1
+  qwen3-8b    qa 0.50  delta -11  p 0.177  holm 1
+  qwen3-8b    qa 0.75  delta n/a  p 1  holm 1
+
+das_EC - das_C_simple
+  llama3.1-8b tf 0.25  delta -23  p 0.142  holm 0.854
+  llama3.1-8b tf 0.50  delta -45  p 0.0119  holm 0.107
+  llama3.1-8b tf 0.75  delta -50  p 0.00968  holm 0.0968
+  llama3.1-8b qa 0.25  delta +5  p 0.615  holm 1
+  llama3.1-8b qa 0.50  delta -6  p 0.567  holm 1
+  llama3.1-8b qa 0.75  delta -7  p 0.435  holm 1
+  qwen3-8b    tf 0.25  delta -30  p 0.0332  holm 0.265
+  qwen3-8b    tf 0.50  delta -57  p 0.00321  holm 0.0354
+  qwen3-8b    tf 0.75  delta -68  p 0.000625  holm 0.00749
+  qwen3-8b    qa 0.25  delta -8  p 0.358  holm 1
+  qwen3-8b    qa 0.50  delta -17  p 0.043  holm 0.301
+  qwen3-8b    qa 0.75  delta n/a  p 1  holm 1
+
+das_EC - baseline_commitment
+  llama3.1-8b tf 0.25  delta +13  p 0.13  holm 1
+  llama3.1-8b tf 0.50  delta +33  p 0.000257  holm 0.00257
+  llama3.1-8b tf 0.75  delta +43  p 4.47e-05  holm 0.000492
+  llama3.1-8b qa 0.25  delta +2  p 0.727  holm 1
+  llama3.1-8b qa 0.50  delta +0  p 1  holm 1
+  llama3.1-8b qa 0.75  delta +5  p 0.383  holm 1
+  qwen3-8b    tf 0.25  delta -1  p 1  holm 1
+  qwen3-8b    tf 0.50  delta +23  p 0.0032  holm 0.0288
+  qwen3-8b    tf 0.75  delta +40  p 3.45e-05  holm 0.000414
+  qwen3-8b    qa 0.25  delta +2  p 0.815  holm 1
+  qwen3-8b    qa 0.50  delta +0  p 1  holm 1
+  qwen3-8b    qa 0.75  delta n/a  p 1  holm 1
+
+das_EC - baseline_simple
+  llama3.1-8b tf 0.25  delta -26  p 0.0917  holm 0.55
+  llama3.1-8b tf 0.50  delta -36  p 0.0466  holm 0.373
+  llama3.1-8b tf 0.75  delta -44  p 0.0192  holm 0.192
+  llama3.1-8b qa 0.25  delta +5  p 0.615  holm 1
+  llama3.1-8b qa 0.50  delta -5  p 0.625  holm 1
+  llama3.1-8b qa 0.75  delta -6  p 0.48  holm 1
+  qwen3-8b    tf 0.25  delta -32  p 0.0289  holm 0.26
+  qwen3-8b    tf 0.50  delta -54  p 0.00659  holm 0.0724
+  qwen3-8b    tf 0.75  delta -58  p 0.00355  holm 0.0426
+  qwen3-8b    qa 0.25  delta -9  p 0.336  holm 1
+  qwen3-8b    qa 0.50  delta -16  p 0.0519  holm 0.373
+  qwen3-8b    qa 0.75  delta n/a  p 1  holm 1
+
+md_EC - md_E
+  llama3.1-8b tf 0.25  delta -2  p 0.804  holm 1
+  llama3.1-8b tf 0.50  delta -1  p 1  holm 1
+  llama3.1-8b tf 0.75  delta +6  p 0.43  holm 1
+  llama3.1-8b qa 0.25  delta +1  p 1  holm 1
+  llama3.1-8b qa 0.50  delta +3  p 0.629  holm 1
+  llama3.1-8b qa 0.75  delta +5  p 0.359  holm 1
+  qwen3-8b    tf 0.25  delta +0  p 1  holm 1
+  qwen3-8b    tf 0.50  delta +4  p 0.585  holm 1
+  qwen3-8b    tf 0.75  delta +4  p 0.597  holm 1
+  qwen3-8b    qa 0.25  delta +1  p 1  holm 1
+  qwen3-8b    qa 0.50  delta +0  p 1  holm 1
+  qwen3-8b    qa 0.75  delta n/a  p 1  holm 1
+
+supplemental: md_EC - md_C
+  llama3.1-8b tf 0.25  delta +3  p 0.711  holm 1
+  llama3.1-8b tf 0.50  delta +17  p 0.027  holm 0.324
+  llama3.1-8b tf 0.75  delta +13  p 0.124  holm 1
+  llama3.1-8b qa 0.25  delta +3  p 0.375  holm 1
+  llama3.1-8b qa 0.50  delta +4  p 0.219  holm 1
+  llama3.1-8b qa 0.75  delta +3  p 0.508  holm 1
+  qwen3-8b    tf 0.25  delta +5  p 0.424  holm 1
+  qwen3-8b    tf 0.50  delta +14  p 0.098  holm 0.98
+  qwen3-8b    tf 0.75  delta +17  p 0.0712  holm 0.783
+  qwen3-8b    qa 0.25  delta -8  p 0.115  holm 1
+  qwen3-8b    qa 0.50  delta +4  p 0.388  holm 1
+  qwen3-8b    qa 0.75  delta n/a  p 1  holm 1
+
+supplemental: md_EC - md_E_simple
+  llama3.1-8b tf 0.25  delta -37  p 0.0143  holm 0.115
+  llama3.1-8b tf 0.50  delta -69  p 9.13e-05  holm 0.000822
+  llama3.1-8b tf 0.75  delta -78  p 1.48e-05  holm 0.000163
+  llama3.1-8b qa 0.25  delta +6  p 0.532  holm 1
+  llama3.1-8b qa 0.50  delta -1  p 1  holm 1
+  llama3.1-8b qa 0.75  delta -6  p 0.471  holm 1
+  qwen3-8b    tf 0.25  delta -29  p 0.0425  holm 0.297
+  qwen3-8b    tf 0.50  delta -76  p 1.63e-05  holm 0.000163
+  qwen3-8b    tf 0.75  delta -101  p 1.68e-08  holm 2.01e-07
+  qwen3-8b    qa 0.25  delta -15  p 0.0817  holm 0.49
+  qwen3-8b    qa 0.50  delta -13  p 0.105  holm 0.524
+  qwen3-8b    qa 0.75  delta n/a  p 1  holm 1
+
+supplemental: md_EC - md_C_simple
+  llama3.1-8b tf 0.25  delta -33  p 0.0334  holm 0.268
+  llama3.1-8b tf 0.50  delta -50  p 0.00444  holm 0.0399
+  llama3.1-8b tf 0.75  delta -67  p 0.000205  holm 0.00205
+  llama3.1-8b qa 0.25  delta +5  p 0.615  holm 1
+  llama3.1-8b qa 0.50  delta -4  p 0.734  holm 1
+  llama3.1-8b qa 0.75  delta -9  p 0.314  holm 1
+  qwen3-8b    tf 0.25  delta -24  p 0.0879  holm 0.528
+  qwen3-8b    tf 0.50  delta -75  p 1.47e-05  holm 0.000162
+  qwen3-8b    tf 0.75  delta -90  p 8.45e-07  holm 1.01e-05
+  qwen3-8b    qa 0.25  delta -13  p 0.111  holm 0.556
+  qwen3-8b    qa 0.50  delta -16  p 0.0599  holm 0.42
+  qwen3-8b    qa 0.75  delta n/a  p 1  holm 1
+
+supplemental: md_EC - baseline_commitment
+  llama3.1-8b tf 0.25  delta +4  p 0.557  holm 1
+  llama3.1-8b tf 0.50  delta +28  p 0.00201  holm 0.0241
+  llama3.1-8b tf 0.75  delta +27  p 0.00608  holm 0.0668
+  llama3.1-8b qa 0.25  delta +3  p 0.549  holm 1
+  llama3.1-8b qa 0.50  delta +4  p 0.481  holm 1
+  llama3.1-8b qa 0.75  delta +4  p 0.557  holm 1
+  qwen3-8b    tf 0.25  delta +5  p 0.442  holm 1
+  qwen3-8b    tf 0.50  delta +8  p 0.312  holm 1
+  qwen3-8b    tf 0.75  delta +14  p 0.114  holm 1
+  qwen3-8b    qa 0.25  delta -3  p 0.453  holm 1
+  qwen3-8b    qa 0.50  delta +1  p 1  holm 1
+  qwen3-8b    qa 0.75  delta n/a  p 1  holm 1
+
+supplemental: md_EC - baseline_simple
+  llama3.1-8b tf 0.25  delta -35  p 0.0196  holm 0.176
+  llama3.1-8b tf 0.50  delta -41  p 0.0218  holm 0.176
+  llama3.1-8b tf 0.75  delta -60  p 0.000526  holm 0.00526
+  llama3.1-8b qa 0.25  delta +6  p 0.532  holm 1
+  llama3.1-8b qa 0.50  delta -1  p 1  holm 1
+  llama3.1-8b qa 0.75  delta -7  p 0.401  holm 1
+  qwen3-8b    tf 0.25  delta -26  p 0.0754  holm 0.452
+  qwen3-8b    tf 0.50  delta -69  p 9.72e-05  holm 0.00107
+  qwen3-8b    tf 0.75  delta -84  p 3.66e-06  holm 4.39e-05
+  qwen3-8b    qa 0.25  delta -14  p 0.109  holm 0.544
+  qwen3-8b    qa 0.50  delta -15  p 0.0627  holm 0.439
+  qwen3-8b    qa 0.75  delta n/a  p 1  holm 1
+
+DECISION: {'cells': 12, 'primary_holm_significant_positive': 0, 'ec_significantly_worse_than_a_simple_arm': 8, 'predeclared_ec_vs_e_rule_met': False, 'combination_beats_single_direction': False, 'interpretation': 'Pre-declared EC-vs-E decision rule only; superiority to every single direction additionally requires EC-vs-C evidence. Non-significance is not equivalence.'}
+saved /tmp/td_r20_20261107/Truth_Decoupling/claude_gpt_review/from_gpt/audit_20261107_round20/e26/primary_recomputed.json

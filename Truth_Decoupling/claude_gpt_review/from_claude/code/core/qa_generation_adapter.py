@@ -9,7 +9,9 @@ import hashlib
 import json
 import math
 import os
+import platform
 from pathlib import Path
+from importlib import metadata as package_metadata
 
 import numpy as np
 import torch
@@ -23,6 +25,7 @@ from .qa_precision import fp32_output_projection
 
 PROTOCOL = "qa_generation_adapter_v1"
 OPERATOR = "centered_amplification"
+TRAINING_KIND = "supervised_generation_adapter"
 
 
 def fingerprint(value):
@@ -32,6 +35,45 @@ def fingerprint(value):
 
 def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def implementation_identity(additional_scripts=()):
+    """Record actual source bytes, not a Git label that may hide uncommitted edits.
+
+    The whole core package is included because the token packing, precision and
+    model wrappers are part of the training operator. No credentials, data paths
+    or environment variables are captured. Old adapters remain unrecorded.
+    """
+    root = Path(__file__).resolve().parents[1]
+    # The project source/config package is small. Archive the complete local
+    # dependency closure instead of guessing which helper an entry point will
+    # import during a later phase (e.g. e29 prompts from the e30 trainer).
+    paths = list((root / "core").rglob("*.py"))
+    paths += list((root / "scripts").rglob("*.py"))
+    paths += list((root / "configs").rglob("*.json"))
+    for name in additional_scripts:
+        if not isinstance(name, str) or Path(name).name != name or not name.endswith('.py'):
+            raise ValueError('additional source entry must be a Python script filename')
+        paths.append(root / 'scripts' / name)
+    files = {str(p.relative_to(root)): digest(p) for p in sorted(paths)}
+    packages = {}
+    for name in ("torch", "transformers", "numpy"):
+        try:
+            packages[name] = package_metadata.version(name)
+        except package_metadata.PackageNotFoundError:
+            packages[name] = None
+    return {"protocol": "source_bytes_v1", "files": files,
+            "files_fingerprint": fingerprint(files), "python": platform.python_version(),
+            "packages": packages}
+
+
+def training_description(adapter):
+    """Explicitly separate a trained random start from an untrained null direction."""
+    return {"kind": TRAINING_KIND, "initialization": adapter["init"],
+            "uses_correct_answer_training": True, "is_untrained_random_control": False,
+            "is_original_das": False,
+            "training_code_provenance": ("recorded" if "training_implementation" in adapter
+                                         else "legacy_unrecorded")}
 
 
 def _vector(value, hidden, name, unit=False):
@@ -178,6 +220,7 @@ def differentiable_amplification(bundle, raw_vectors, centers, packed, alpha, tr
 def train_generation_adapter(bundle, records, cfg, initial_directions, centers, *, alpha=1.0,
                              init="das", epochs=3, lr=1e-3, clip=1.0, ranking_weight=0.0,
                              seed=42, identity=None, log_fn=print, include_eos=False, stop_token_id=None):
+    implementation_before = implementation_identity()
     if init not in ("das", "md", "random"):
         raise ValueError("init must be das, md or random")
     if type(epochs) is not int or epochs < 1 or type(seed) is not int:
@@ -261,8 +304,11 @@ def train_generation_adapter(bundle, records, cfg, initial_directions, centers, 
     for l, values in norms.items():
         if not any(v > 0 for v in values):
             raise RuntimeError("all adapter updates had zero gradient at layer " + l)
+    if implementation_identity() != implementation_before:
+        raise RuntimeError("training source files or package versions changed during training")
     result = {
         "protocol": PROTOCOL, "method": init + "_generation_adapter", "init": init,
+        "training_kind": TRAINING_KIND, "training_implementation": implementation_before,
         "model": getattr(bundle, "name", bundle.cfg.get("name")), "model_config": bundle.cfg,
         "layers": layers, "hidden_size": bundle.hidden_size, "alpha": float(alpha),
         "operator": OPERATOR, "mode": "continuous", "precision": "float32_output_projection",
@@ -298,6 +344,17 @@ def validate_adapter(adapter, expected_model=None, expected_alpha=None):
         raise ValueError("unsupported generation adapter")
     if adapter.get("method") != adapter["init"] + "_generation_adapter":
         raise ValueError("adapter method name does not match initialization")
+    if "training_kind" in adapter and adapter["training_kind"] != TRAINING_KIND:
+        raise ValueError("generation adapter is not an original DAS or an untrained random control")
+    provenance = adapter.get("training_implementation")
+    if provenance is not None:
+        files = provenance.get("files", {})
+        if (provenance.get("protocol") != "source_bytes_v1" or not files
+                or provenance.get("files_fingerprint") != fingerprint(files)
+                or any(not isinstance(k, str) or k.startswith("/") or ".." in Path(k).parts
+                       or not isinstance(v, str) or len(v) != 64
+                       or any(c not in "0123456789abcdef" for c in v) for k, v in files.items())):
+            raise ValueError("malformed training implementation provenance")
     if adapter.get("operator") != OPERATOR or adapter.get("mode") != "continuous":
         raise ValueError("adapter deployment operator differs from training")
     if expected_model is not None and adapter.get("model") != expected_model:

@@ -3,12 +3,17 @@
 
 Separate commands: prepare, collect-tune, judge-tune, freeze, collect-test,
 judge-test, report. Nothing silently starts a later/model/API phase.
-The primary table is label-free ranking at a fixed batch quota; the separate
-deployment table uses a threshold fixed on tuning data and reports its actual
-test coverage. Reference answers are only supplied to the offline QA grader.
+Ranking scores do not use correctness labels or reference answers. However,
+the primary QA exact-quota table uses offline, reference-informed semantic
+annotations to identify substantive candidate answers before filling K; it is
+not a demonstrated reference-free online exact-K policy. Correct/wrong (A/B)
+never affects eligibility or ranking; only not-attempted (C) is excluded.
+The separate threshold table emits candidates above a tuning-fixed threshold,
+then measures substantive test coverage with the same offline annotations.
 """
 import argparse
 from collections import defaultdict
+from copy import deepcopy
 import hashlib
 import json
 import math
@@ -75,6 +80,19 @@ def validate_config(cfg):
         raise ValueError('C alphas must be finite nonzero')
     if set(cfg['gate_labels']) != {'yes', 'no'} or cfg['gate_labels']['yes'] == cfg['gate_labels']['no']:
         raise ValueError('need distinct Yes/No labels')
+    if type(cfg.get('include_joint_simple', False)) is not bool:
+        raise ValueError('include_joint_simple must be boolean')
+    tasks = cfg.get('evaluation_tasks', list(TASKS))
+    if not isinstance(tasks, list) or not tasks or len(tasks) != len(set(tasks)) or any(t not in TASKS for t in tasks):
+        raise ValueError('evaluation_tasks must be a nonempty unique subset of tf/qa')
+    for key in ('tf_gate_system', 'qa_gate_system'):
+        if key in cfg and (not isinstance(cfg[key], str) or not cfg[key].strip()):
+            raise ValueError(key + ' must be nonempty text')
+
+
+def evaluation_tasks(meta):
+    # Old banks omit this key and retain exactly the original task order.
+    return tuple(meta['config'].get('evaluation_tasks', TASKS))
 
 
 def source_args(args):
@@ -119,9 +137,59 @@ def select_tf_candidates(path, model, method, expected, k):
     return choices
 
 
+def verify_tf_sweep_source(sweep_path, checkpoint_dir, expected_layers=None):
+    """Bind candidate selection to the checkpoints actually used by that sweep.
+
+    Legacy sweeps record paths/protocols rather than file hashes. They may be
+    relocated only while their recorded source is available for byte comparison;
+    a matching filename/model alone is not evidence of checkpoint identity.
+    """
+    source = read(sweep_path).get('das') or {}
+    if source.get('variant') != 'tf-ce-bidir' or not source.get('dir'):
+        raise ValueError('TF sweep must identify its tf-ce-bidir checkpoint source')
+    declared, actual = Path(source['dir']).resolve(), Path(checkpoint_dir).resolve()
+    per_layer = source.get('per_layer') or {}
+    if (not isinstance(per_layer, dict) or not per_layer
+            or any(not str(k).isdigit() or str(int(k)) != k for k in per_layer)):
+        raise ValueError('TF sweep lacks canonical per-layer checkpoint identities')
+    if expected_layers is not None and set(map(int, per_layer)) != set(expected_layers):
+        raise ValueError('TF sweep layer coverage differs from deployed layers')
+    declared_files = [name for row in per_layer.values() for name in row.get('files', [])]
+    names = set(declared_files)
+    if not names or any(Path(name).name != name for name in names):
+        raise ValueError('TF sweep lacks valid per-layer checkpoint identities')
+    if len(names) != len(declared_files):
+        raise ValueError('TF sweep repeats a checkpoint in its layer manifest')
+    stored_hashes = source.get('checkpoint_sha256')
+    if stored_hashes is not None and set(stored_hashes) != names:
+        raise ValueError('TF sweep checkpoint hash manifest differs from its layer files')
+    identity = {}
+    for name in sorted(names):
+        if not (actual / name).is_file() or (stored_hashes is None and not (declared / name).is_file()):
+            raise ValueError('TF sweep checkpoint source unavailable: ' + name)
+        value = digest(actual / name)
+        if (stored_hashes[name] if stored_hashes is not None else digest(declared / name)) != value:
+            raise ValueError('TF sweep and supplied checkpoints differ: ' + name)
+        identity[name] = value
+    # Ask the actual loader which files it consumed. Merely hashing the files
+    # mentioned by a sweep misses a new seed silently merged by its glob.
+    loaded_files = {}
+    for layer, row in per_layer.items():
+        _, loaded = load_das_direction(actual, 'E', int(layer), variant=source['variant'])
+        used = [] if loaded is None else loaded['files']
+        if set(used) != set(row.get('files', [])) or len(used) != len(row.get('files', [])):
+            raise ValueError('TF loader checkpoint set differs from sweep at layer ' + layer)
+        loaded_files[layer] = used
+    return {'recorded_dir': str(declared), 'used_dir': str(actual),
+            'variant': source['variant'], 'checkpoint_sha256': identity, 'loader_files': loaded_files,
+            'legacy_limit': None if stored_hashes is not None else
+                'current files verified; historical sweep did not store checkpoint hashes'}
+
+
 def gate_text(bundle, meta, task, row):
     cfg = meta['config']
-    system = meta['qa_config']['qa_system'] if task == 'qa' else meta['prompts']['statement']['system']
+    system = (cfg.get('qa_gate_system', meta['qa_config']['qa_system']) if task == 'qa' else
+              cfg.get('tf_gate_system', meta['prompts']['statement']['system']))
     template = cfg['qa_gate_user'] if task == 'qa' else cfg['tf_gate_user']
     return bundle.build_chat(system, template.format(question=row.get('question', ''), statement=row.get('text', '')))
 
@@ -180,6 +248,7 @@ def prepare(args, cfg, bundle=None):
             or (tf_summary.get('est_extra') or {}).get('pair_ids')
             or tf_protocol.get('n_pairs', {}).get('E') != len(prepared['splits']['train'])):
         raise ValueError('TF DAS source model/training protocol/estimation cohort differs')
+    tf_sweep_identity = verify_tf_sweep_source(paths['tf_das_sweep'], paths['tf_das_dir'], range(qmeta['num_layers']))
     e_choices = {'tf': {}, 'qa': {}}
     for method in ('das', 'md'):
         e_choices['tf'][method] = select_tf_candidates(paths['tf_' + method + '_sweep'], args.model, method,
@@ -189,7 +258,8 @@ def prepare(args, cfg, bundle=None):
         if not e_choices['qa'][method]:
             raise ValueError('need a complete QA E candidate pool for both estimators')
     sources = {'paths': paths, 'qa_bank_fingerprint': qmeta['fingerprint'],
-               'qa_training_sha256': qmeta['training_sha256'], 'files': {}}
+               'qa_training_sha256': qmeta['training_sha256'],
+               'tf_sweep_identity': tf_sweep_identity, 'files': {}}
     for p in [qargs.run_dir / 'bank.json', qargs.run_dir / 'bank.npz', qargs.run_dir / 'training.json',
               qargs.run_dir / 'questions.json', qargs.run_dir / 'shortlist.json',
               Path(paths['tf_das_dir']) / 'summary.json']:
@@ -202,10 +272,10 @@ def prepare(args, cfg, bundle=None):
     adapters = {}
     for path in paths['qa_adapters']:
         from core.qa_generation_adapter import load_adapter
+        from e27_qa_generation import source_identity
         adapter = load_adapter(path, expected_model=args.model)
-        if (adapter['source']['bank_fingerprint'] != qmeta['fingerprint']
+        if (adapter['source'] != source_identity(qargs, qmeta, adapter['layers'])
                 or adapter['model_config'] != qmeta['model_config']
-                or adapter['source']['questions_sha256'] != digest(qargs.run_dir / 'questions.json')
                 or adapter['config'] != {k: qmeta['config'][k] for k in adapter['config']}):
             raise ValueError('generation adapter was trained from another QA source')
         if adapter.get('pilot') and not args.pilot:
@@ -230,6 +300,12 @@ def prepare(args, cfg, bundle=None):
             'generation_adapters': {method: {'init': a['init'], 'layers': a['layers'], 'alpha': a['alpha'],
                 'objective': a['objective'], 'source': a['source']} for method, a in adapters.items()},
             'score_provenance': {'uses_gold_labels': False, 'uses_reference_answer': False,
+                'scope': 'ranking scores only; these flags do not describe the offline answer-eligibility annotator',
+                'qa_actual_answer_eligibility': {
+                    'source': 'offline semantic QA grader supplied with question, references and prediction',
+                    'uses_reference_answers': True,
+                    'rule': 'A and B are equally eligible; exclude only semantic not-attempted C',
+                    'online_reference_free_exact_quota_demonstrated': False},
                 'commitment': 'first-token Yes-No logit difference on question/statement prompt',
                 'simple_tf': 'absolute predicted True-False log probability margin',
                 'simple_qa': 'unsteered mean log probability of generated answer; no reference answers'}}
@@ -302,7 +378,7 @@ def prepare(args, cfg, bundle=None):
     meta['data_sha256'], meta['bank_sha256'] = digest(args.run_dir / 'data.json'), digest(args.run_dir / 'bank.npz')
     meta['fingerprint'] = fingerprint(meta)
     save(args.run_dir / 'bank.json', meta, immutable=True)
-    print('PREPARED', {t: len(meta['conditions'][t]) for t in TASKS}, 'pilot=', args.pilot)
+    print('PREPARED', {t: len(meta['conditions'][t]) for t in TASKS}, 'evaluation_tasks=', evaluation_tasks(meta), 'pilot=', args.pilot)
     return meta
 
 
@@ -403,7 +479,7 @@ def collect(args, meta, bank, data, split, bundle=None):
     bundle = open_bundle(meta) if bundle is None else bundle
     verify_tokens(bundle, meta)
     with fp32_output_projection(bundle):
-        for task in TASKS:
+        for task in evaluation_tasks(meta):
             specs = meta['conditions'][task]
             if selected:
                 names = {'baseline'} | {n for point in selected['tasks'][task]['choices'].values() for n in point.values() if n is not None}
@@ -438,6 +514,9 @@ def collect(args, meta, bank, data, split, bundle=None):
 
 
 def judge_qa(args, meta, data, split, judge=None):
+    if 'qa' not in evaluation_tasks(meta):
+        print('SKIP QA JUDGE', split, ': QA is disabled in this run; no QA artifact is created', flush=True)
+        return {'skipped': True, 'task': 'qa', 'split': split, 'reason': 'not_in_evaluation_tasks'}
     raw_path = args.run_dir / ('qa_%s.json' % split)
     raw = read(raw_path)
     if not raw.get('completed') or raw['bank_fingerprint'] != meta['fingerprint']:
@@ -450,7 +529,7 @@ def judge_qa(args, meta, data, split, judge=None):
         from core.judge import judge_from_config
         judge = judge_from_config(exp['judge'], cache_dir=str(args.cache_dir or args.run_dir / 'judge_cache'))
     signature = fingerprint([digest(raw_path), exp['judge'], getattr(judge, 'name', None), getattr(judge, 'qa_rubric_id', None)])
-    result = read(path) if path.exists() else {**raw, 'generation_sha256': digest(raw_path),
+    result = read(path) if path.exists() else {**deepcopy(raw), 'generation_sha256': digest(raw_path),
         'grading_fingerprint': signature, 'completed': False, 'judge': getattr(judge, 'name', None)}
     if result.get('grading_fingerprint') != signature:
         raise ValueError('judge/source changed; use a separate run')
@@ -468,6 +547,8 @@ def judge_qa(args, meta, data, split, judge=None):
             row['gold_is_abstention'] = bool(only_refusal)
             if row.get('outcome') not in ('correct', 'wrong', 'abstain'):
                 row['grade'] = judge.qa_grade(q['question'], gold, row['output'], incorrect=q.get('incorrect'))
+                from core.qa_scoring import apply_configured_outcome_policy
+                row['grade'] = apply_configured_outcome_policy(row['grade'], q['question'], row['output'], exp['judge'])
                 row['outcome'] = row['grade']['label']
                 save(path, result)
     unresolved = sum(r['outcome'] == 'unresolved' for rows in result['rows'].values() for r in rows)
@@ -479,6 +560,8 @@ def judge_qa(args, meta, data, split, judge=None):
 
 
 def scored_rows(args, meta, task, split):
+    if task not in evaluation_tasks(meta):
+        raise ValueError('task is not enabled in this run: ' + task)
     filename = '%s_%s%s.json' % (task, split, '_scored' if task == 'qa' else '')
     result = read(args.run_dir / filename)
     if not result.get('completed') or result.get('bank_fingerprint') != meta['fingerprint']:
@@ -550,14 +633,16 @@ def comparison_arms(rows, picked, cfg):
 def freeze(args, meta, persist=True):
     result = {'protocol': PROTOCOL, 'bank_fingerprint': meta['fingerprint'], 'tasks': {}, 'sources': {}}
     cfg = meta['config']
-    for task in TASKS:
+    for task in evaluation_tasks(meta):
         rows, filename = scored_rows(args, meta, task, 'tune')
         choices = choose_conditions(rows, meta['conditions'][task], cfg['coverages'], cfg['seed'])
         simple_rows = {name: score_variant(rs, 'simple', cfg['seed']) for name, rs in rows.items()}
         simple_choices = choose_conditions(simple_rows, meta['conditions'][task], cfg['coverages'], cfg['seed'])
         for coverage, picked in choices.items():
             for family, name in simple_choices[coverage].items():
-                if family.endswith(('_E', '_C')):
+                # Old banks retain their predeclared families. New runs give
+                # EC exactly the same simple-score selection budget as E/C.
+                if family.endswith(('_E', '_C')) or cfg.get('include_joint_simple', False):
                     picked[family + '_simple'] = name
         thresholds = {}
         for coverage, picked in choices.items():
@@ -588,10 +673,13 @@ def report(args, meta):
     def interval(value):
         return '—' if value is None else '[%.4f, %.4f]' % tuple(value)
     lines = ['# E26 同实际作答率方法比较', '',
-        '精确配额表是批量筛题评估；排序不看正确性。冻结门槛表另报真实测试作答率。',
+        '精确配额表是离线批量筛题评估：排序分不看正确性或参考答案，QA候选是否实质回答由看过参考的外部语义标注确定。A/B一律可选，只排除C；不宣称线上可无参考精确填满K。',
+        '冻结门槛策略按分数发出候选，再由离线语义标注统计实际实质作答率，不保证达到固定配额。',
         'QA分母为固定实质参考题；不够配额标不可行，未决判分不出表。', '',
-        'PILOT ONLY — 线路检查，不作效果结论。' if meta['pilot'] else '完整配置运行。', '']
-    for task in TASKS:
+        'PILOT ONLY — 线路检查，不作效果结论。' if meta['pilot'] else '完整配置运行。',
+        '本运行实际评估任务：' + ', '.join(evaluation_tasks(meta)) + '。',
+        'QA 未在此运行收集、判分或重报；旧 QA 结果须另引原始运行。' if 'qa' not in evaluation_tasks(meta) else '', '']
+    for task in evaluation_tasks(meta):
         rows, _ = scored_rows(args, meta, task, 'test')
         tables[task], delivered[task] = {}, {}
         for coverage in cfg['coverages']:
@@ -634,9 +722,9 @@ def report(args, meta):
                       '| 组合 | 对照 | 已回答准确率差 | 95%区间 | 固定交付精确p | 状态 |',
                       '|---|---|---:|---|---:|---|']
             comparisons = {(x['arm_a'], x['arm_b']): x for x in point['comparisons']}
-            for joint in sorted(n for n in arms if n.endswith('_EC')):
-                method = joint[:-3]
-                for control in ['baseline_simple'] + [method + '_' + kind for kind in ('E', 'C', 'E_simple', 'C_simple')]:
+            for joint in sorted(n for n in arms if n.endswith(('_EC', '_EC_simple'))):
+                method = joint[:-10] if joint.endswith('_EC_simple') else joint[:-3]
+                for control in ['baseline_commitment', 'baseline_simple', 'baseline_random'] + [method + '_' + kind for kind in ('E', 'C', 'E_simple', 'C_simple')]:
                     entry = comparisons.get((joint, control)) or comparisons.get((control, joint))
                     if entry is None:
                         continue
@@ -659,6 +747,9 @@ def report(args, meta):
             lines.append('')
     result = {'protocol': PROTOCOL, 'model': meta['model'], 'pilot': meta['pilot'],
               'bank_fingerprint': meta['fingerprint'], 'selection_sha256': digest(args.run_dir / 'selection.json'),
+              'evaluation_tasks': list(evaluation_tasks(meta)),
+              'qa_evaluation_scope': ('offline semantic-answer eligibility with references; ranking scores are reference-free and A/B correctness never selects candidates'
+                                      if 'qa' in evaluation_tasks(meta) else 'QA was not evaluated; prior QA results require a separate unchanged-source citation'),
               'tables': tables, 'completed': True}
     save(args.run_dir / 'report.json', result)
     save(args.run_dir / 'delivered_answers.json', delivered)

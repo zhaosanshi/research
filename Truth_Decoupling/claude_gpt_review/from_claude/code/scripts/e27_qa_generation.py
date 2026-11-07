@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Adapt a verified QA-DAS direction to the actual answer-generation operator.
+"""Train a supervised generation adapter from DAS, mean-difference or random initialization.
 
-Separate train/check/generate/judge phases; no automatic sweep or external judge call.
+This is not original DAS; random initialization is followed by correct-answer training.
+Separate train/check/generate/judge/freeze phases; test generation requires a pre-test freeze.
 Default: one layer from the source run's frozen DAS choice. --layers explicitly overrides it.
 Original model, original DAS, and the adapted direction share prompts, alpha, centers and budget.
 """
@@ -20,7 +21,8 @@ import e25_qa_context as legacy
 from core.config import load_experiment
 from core.qa_generation_adapter import (PROTOCOL, adapter_specs, digest, fingerprint,
                                         load_adapter, save_adapter, train_generation_adapter,
-                                        resolve_stop_token_id, stop_training_config)
+                                        resolve_stop_token_id, stop_training_config,
+                                        implementation_identity, training_description)
 from core.qa_precision import fp32_output_projection
 from core.readout import rule_abstains
 
@@ -143,7 +145,100 @@ def evaluation_meta(args, meta, adapter):
     return {**meta, "protocol_fingerprint": identity, "training_sha256": digest(args.run_dir / "adapter.pt")}
 
 
+def evaluation_choices(adapter):
+    return [dict(qa.BASELINE),
+            {"name": "original_das", "kind": "E", "context": "qa_das", "layers": adapter["layers"],
+             "alpha": adapter["alpha"], "mode": "continuous", "uses_reference_answer": False, "eligible_for_selection": False},
+            {"name": adapter["method"], "kind": "E", "context": adapter["method"], "layers": adapter["layers"],
+             "alpha": adapter["alpha"], "mode": "continuous", "uses_reference_answer": False, "eligible_for_selection": False}]
+
+
+def freeze_payload(args, meta, prepared, adapter, quality_rule):
+    """Validate complete tuning grades and bind every test configuration byte.
+
+    This freezes one declared adapter and its two controls, not a search over
+    adapters. A timestamp/hash cannot prove that the dataset was never seen.
+    """
+    if adapter.get('pilot') or meta.get('pilot'):
+        raise ValueError('pilot training/source banks cannot be frozen for formal test generation')
+    if quality_rule not in ("R0", "R1", "R2"):
+        raise ValueError("freeze requires --primary-quality-rule R0, R1 or R2 declared before test generation")
+    raw, summary, scored = [qa.read(args.run_dir / name) for name in
+                            ("tune.json", "tune_scored.json", "tune_scored_items.json")]
+    choices = evaluation_choices(adapter)
+    ids = [q["pair_id"] for q in prepared["splits"]["tune"]]
+    emeta = evaluation_meta(args, meta, adapter)
+    expected = fingerprint([emeta["protocol_fingerprint"], choices, "tune", ids, False])
+    if (raw.get("completed") is not True or raw.get("protocol_fingerprint") != expected
+            or raw.get("condition_specs") != choices or raw.get("model") != meta["model"]
+            or raw.get("split") != "tune" or raw.get("wiring_pilot") or raw.get("diagnostic_only")
+            or [q["pair_id"] for q in raw["evaluations"]] != ids):
+        raise ValueError("freeze needs complete matching tuning generation, not a check or partial cohort")
+    qa.verify_question_rows(raw["evaluations"], prepared["splits"]["tune"])
+    if (summary.get("completed") is not True or scored.get("completed") is not True
+            or scored.get("grading_completed") is not True
+            or summary.get("source_generation_sha256") != digest(args.run_dir / "tune.json")
+            or scored.get("grading_source_generation_sha256") != digest(args.run_dir / "tune.json")
+            or summary.get("judge_rubric_id") != qa.QA_GRADER_VERSION
+            or scored.get("judge_rubric_id") != qa.QA_GRADER_VERSION
+            or scored.get("judge_summary") != summary
+            or scored.get("protocol_fingerprint") != expected
+            or scored.get("condition_specs") != choices
+            or scored.get("conditions") != [c["name"] for c in choices]):
+        raise ValueError("freeze needs completed, matching semantic grades with the current rubric")
+    qa.verify_question_rows(scored["evaluations"], prepared["splits"]["tune"])
+    for before, after in zip(raw["evaluations"], scored["evaluations"]):
+        if after["outputs"] != before["outputs"] or after["finished"] != before["finished"]:
+            raise ValueError("tuning answers or completion flags changed during grading")
+        refs, refusal_only = qa.reference_answers(before["gold"])
+        if after.get("gold_is_abstention") != refusal_only or after.get("judge_reference_answers") != refs:
+            raise ValueError("tuning reference partition changed during grading")
+        for c in choices:
+            grade = after["judge"].get(c["name"], {})
+            label = after["outcome"].get(c["name"])
+            if (label not in ("correct", "wrong", "abstain")
+                    or grade.get("rubric_id") != qa.QA_GRADER_VERSION
+                    or qa.judged_outcome(grade.get("label")) != label):
+                raise ValueError("unresolved or inconsistent tuning grade")
+    return {"protocol": "generation_adapter_pretest_freeze_v1", "model": meta["model"],
+            "source": adapter["source"], "training": training_description(adapter),
+            "condition_specs": choices, "primary_quality_rule": quality_rule,
+            "tuning_pair_ids": ids, "test_pair_ids": [q["pair_id"] for q in prepared["splits"]["test"]],
+            "files": {name: digest(args.run_dir / name) for name in
+                      ("adapter.pt", "adapter.json", "tune.json", "tune_scored.json", "tune_scored_items.json")},
+            "execution_implementation": implementation_identity(),
+            "selection_scope": "one declared adapter plus original model and original DAS; all three reported",
+            "artifact_freeze_only_no_claim_of_unseen_dataset": True}
+
+
+def frozen_test_plan(args, meta, prepared, adapter):
+    path = args.run_dir / "selection.json"
+    if not path.exists():
+        raise ValueError("test generation requires freeze after complete tuning grades; historical tests cannot be retroactively frozen")
+    stored = qa.read(path)
+    payload = freeze_payload(args, meta, prepared, adapter, stored.get("primary_quality_rule"))
+    if stored != {**payload, "fingerprint": fingerprint(payload)}:
+        raise ValueError("frozen test configuration, source code, adapter or tuning artifacts changed")
+    return stored
+
+
+def freeze(args, meta, prepared, adapter):
+    if (args.run_dir / "selection.json").exists():
+        return frozen_test_plan(args, meta, prepared, adapter)
+    if any(args.run_dir.glob("test*")):
+        raise ValueError("test artifacts already exist; cannot claim a pre-test freeze retrospectively")
+    payload = freeze_payload(args, meta, prepared, adapter, getattr(args, "primary_quality_rule", None))
+    result = {**payload, "fingerprint": fingerprint(payload)}
+    qa.save(args.run_dir / "selection.json", result)
+    return result
+
+
 def generate(args, ns, meta, bank, prepared, adapter, split, *, check=False, bundle=None):
+    plan = None
+    if split == "test":
+        if check or args.limit is not None:
+            raise ValueError("test generation must use the frozen full cohort; use check on tuning questions for pilots")
+        plan = frozen_test_plan(args, meta, prepared, adapter)
     questions = prepared["splits"][split]
     limit = 3 if check else args.limit
     if limit is not None:
@@ -153,11 +248,7 @@ def generate(args, ns, meta, bank, prepared, adapter, split, *, check=False, bun
     emeta = evaluation_meta(args, meta, adapter)
     filename = "check.json" if check else split + ".json"
     path = args.run_dir / filename
-    choices = [dict(qa.BASELINE),
-               {"name": "original_das", "kind": "E", "context": "qa_das", "layers": adapter["layers"],
-                "alpha": adapter["alpha"], "mode": "continuous", "uses_reference_answer": False, "eligible_for_selection": False},
-               {"name": adapter["method"], "kind": "E", "context": adapter["method"], "layers": adapter["layers"],
-                "alpha": adapter["alpha"], "mode": "continuous", "uses_reference_answer": False, "eligible_for_selection": False}]
+    choices = evaluation_choices(adapter)
     signature = fingerprint([emeta["protocol_fingerprint"], choices, split, [q["pair_id"] for q in questions], bool(check)])
     if path.exists():
         data = qa.read(path)
@@ -166,6 +257,8 @@ def generate(args, ns, meta, bank, prepared, adapter, split, *, check=False, bun
             raise ValueError("generation resume does not match adapter/conditions/cohort")
         if data.get("diagnostic_only", False) or data.get("wiring_pilot", False) != bool(check):
             raise ValueError("generation resume has a legacy pilot/reference label; preserve it and use a new artifact")
+        if plan is not None and data.get("pretest_freeze_fingerprint") != plan["fingerprint"]:
+            raise ValueError("test resume has no matching pre-test freeze; historical files remain unchanged")
         qa.verify_question_rows(data["evaluations"], questions)
     else:
         data = {"model": meta["model"], "protocol": PROTOCOL, "protocol_fingerprint": signature,
@@ -176,9 +269,13 @@ def generate(args, ns, meta, bank, prepared, adapter, split, *, check=False, bun
                 "precision": meta["precision"], "prompt": adapter["config"],
                 "intervention_position": "prompt-end predictor once; every later answer predictor with the decode center; no reference answer at inference",
                 "E": {"method": adapter["method"], "init": adapter["init"], "operator": adapter["operator"]},
+                "training": training_description(adapter),
+                "generation_implementation": implementation_identity(),
                 "C": {"enabled": False}, "source": adapter["source"],
                 "conditions": [c["name"] for c in choices], "condition_specs": choices, "audit": [],
                 "evaluations": [{**q, "idx": i, "outputs": {}, "finished": {}, "rule_abstain": {}} for i, q in enumerate(questions)]}
+        if plan is not None:
+            data.update(pretest_freeze_fingerprint=plan["fingerprint"], primary_quality_rule=plan["primary_quality_rule"])
     if bundle is None:
         bundle = qa.open_bundle(meta, prepared)
     else:
@@ -228,7 +325,7 @@ def generate(args, ns, meta, bank, prepared, adapter, split, *, check=False, bun
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("phase", choices=("train", "check", "generate-tune", "generate-test", "judge-check", "judge-tune", "judge-test"))
+    p.add_argument("phase", choices=("train", "check", "generate-tune", "freeze", "generate-test", "judge-check", "judge-tune", "judge-test"))
     p.add_argument("--source-run", type=Path, required=True)
     p.add_argument("--run-dir", type=Path, required=True)
     p.add_argument("--layers", nargs="+", type=int)
@@ -248,6 +345,8 @@ def main():
     p.add_argument("--pilot", type=int, help="training pairs for an explicitly labeled wiring pilot")
     p.add_argument("--limit", type=int, help="generation questions for an explicitly labeled pilot")
     p.add_argument("--judge-exp", default=DEFAULT_JUDGE_EXPERIMENT)
+    p.add_argument("--primary-quality-rule", choices=("R0", "R1", "R2"),
+                   help="required at freeze: R0 original grades; R1 malformed Unicode correct->wrong; R2 also unfinished correct->wrong")
     args = p.parse_args()
     if args.phase.startswith("judge-"):
         validate_judge_experiment(args.judge_exp)
@@ -259,6 +358,8 @@ def main():
     adapter = verified_adapter(args, ns, meta)
     if args.phase == "check":
         generate(args, ns, meta, bank, prepared, adapter, "tune", check=True)
+    elif args.phase == "freeze":
+        freeze(args, meta, prepared, adapter)
     elif args.phase.startswith("generate-"):
         generate(args, ns, meta, bank, prepared, adapter, args.phase.split("-", 1)[1])
     else:

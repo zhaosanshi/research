@@ -1,0 +1,2401 @@
+{
+  "protocol": "independent_preference_result_audit_v1",
+  "models": {
+    "llama3.1-8b": {
+      "model": "llama3.1-8b",
+      "directory": "/tmp/td_r20_e34_inputs/llama3.1-8b",
+      "n": 192,
+      "raw_sha256": "5fbf2ebec05cac0527c9d6662c1c7c0c5d5e289b7e1f0805647d2afbe3645303",
+      "scored_sha256": "d228cc4ea1999f09d7620f112e7644171033e022a43dc77106e42b95bd1fe37e",
+      "conditions": {
+        "baseline": {
+          "correct": 57,
+          "wrong": 111,
+          "abstain": 24,
+          "answered": 168,
+          "fffd": 0,
+          "unfinished": 4,
+          "max_delta_over_base": 0,
+          "median_delta_over_base": 0
+        },
+        "source_only": {
+          "correct": 61,
+          "wrong": 68,
+          "abstain": 63,
+          "answered": 129,
+          "fffd": 0,
+          "unfinished": 7,
+          "max_delta_over_base": 0,
+          "median_delta_over_base": 0
+        },
+        "equal_logit_mix": {
+          "correct": 63,
+          "wrong": 87,
+          "abstain": 42,
+          "answered": 150,
+          "fffd": 0,
+          "unfinished": 4,
+          "max_delta_over_base": 0,
+          "median_delta_over_base": 0
+        },
+        "source_das_swap": {
+          "correct": 58,
+          "wrong": 110,
+          "abstain": 24,
+          "answered": 168,
+          "fffd": 0,
+          "unfinished": 4,
+          "max_delta_over_base": 0.059295594692230225,
+          "median_delta_over_base": 0.005474102450534701
+        },
+        "source_random_swap": {
+          "correct": 58,
+          "wrong": 109,
+          "abstain": 25,
+          "answered": 167,
+          "fffd": 0,
+          "unfinished": 4,
+          "max_delta_over_base": 0.016165945678949356,
+          "median_delta_over_base": 0.002390683745034039
+        },
+        "trained_source_swap_das_init": {
+          "correct": 67,
+          "wrong": 98,
+          "abstain": 27,
+          "answered": 165,
+          "fffd": 0,
+          "unfinished": 8,
+          "max_delta_over_base": 0.2665315270423889,
+          "median_delta_over_base": 0.04495861753821373
+        },
+        "pair_preference_source_swap": {
+          "correct": 68,
+          "wrong": 98,
+          "abstain": 26,
+          "answered": 166,
+          "fffd": 0,
+          "unfinished": 4,
+          "max_delta_over_base": 0.2778986990451813,
+          "median_delta_over_base": 0.0439969003200531
+        }
+      },
+      "comparisons": {
+        "source_only_vs_baseline": {
+          "transitions": {
+            "wrong->wrong": 65,
+            "correct->correct": 46,
+            "wrong->correct": 14,
+            "abstain->abstain": 23,
+            "wrong->abstain": 32,
+            "abstain->correct": 1,
+            "correct->abstain": 8,
+            "correct->wrong": 3
+          },
+          "net_correct": 4,
+          "corrected": 15,
+          "harmed": 11,
+          "exact_p_exploratory_only": 0.557197093963623,
+          "both_answered_n": 128,
+          "both_answered_net_correct": 11
+        },
+        "equal_logit_mix_vs_baseline": {
+          "transitions": {
+            "wrong->wrong": 86,
+            "correct->correct": 53,
+            "wrong->correct": 9,
+            "abstain->abstain": 23,
+            "wrong->abstain": 16,
+            "correct->abstain": 3,
+            "abstain->correct": 1,
+            "correct->wrong": 1
+          },
+          "net_correct": 6,
+          "corrected": 10,
+          "harmed": 4,
+          "exact_p_exploratory_only": 0.1795654296875,
+          "both_answered_n": 149,
+          "both_answered_net_correct": 8
+        },
+        "source_das_swap_vs_baseline": {
+          "transitions": {
+            "wrong->wrong": 110,
+            "correct->correct": 57,
+            "abstain->abstain": 24,
+            "wrong->correct": 1
+          },
+          "net_correct": 1,
+          "corrected": 1,
+          "harmed": 0,
+          "exact_p_exploratory_only": 1.0,
+          "both_answered_n": 168,
+          "both_answered_net_correct": 1
+        },
+        "source_random_swap_vs_baseline": {
+          "transitions": {
+            "wrong->wrong": 109,
+            "correct->correct": 57,
+            "abstain->abstain": 24,
+            "wrong->abstain": 1,
+            "wrong->correct": 1
+          },
+          "net_correct": 1,
+          "corrected": 1,
+          "harmed": 0,
+          "exact_p_exploratory_only": 1.0,
+          "both_answered_n": 167,
+          "both_answered_net_correct": 1
+        },
+        "trained_source_swap_das_init_vs_baseline": {
+          "transitions": {
+            "wrong->wrong": 95,
+            "correct->correct": 54,
+            "wrong->correct": 10,
+            "abstain->abstain": 21,
+            "correct->wrong": 3,
+            "wrong->abstain": 6,
+            "abstain->correct": 3
+          },
+          "net_correct": 10,
+          "corrected": 13,
+          "harmed": 3,
+          "exact_p_exploratory_only": 0.021270751953125,
+          "both_answered_n": 162,
+          "both_answered_net_correct": 7
+        },
+        "pair_preference_source_swap_vs_baseline": {
+          "transitions": {
+            "wrong->wrong": 96,
+            "correct->correct": 55,
+            "wrong->correct": 9,
+            "abstain->abstain": 20,
+            "wrong->abstain": 6,
+            "abstain->correct": 4,
+            "correct->wrong": 2
+          },
+          "net_correct": 11,
+          "corrected": 13,
+          "harmed": 2,
+          "exact_p_exploratory_only": 0.00738525390625,
+          "both_answered_n": 162,
+          "both_answered_net_correct": 7
+        },
+        "trained_source_swap_das_init_vs_source_only": {
+          "transitions": {
+            "wrong->wrong": 63,
+            "correct->correct": 50,
+            "abstain->abstain": 25,
+            "abstain->wrong": 25,
+            "abstain->correct": 13,
+            "correct->abstain": 1,
+            "correct->wrong": 10,
+            "wrong->correct": 4,
+            "wrong->abstain": 1
+          },
+          "net_correct": 6,
+          "corrected": 17,
+          "harmed": 11,
+          "exact_p_exploratory_only": 0.34492845088243484,
+          "both_answered_n": 127,
+          "both_answered_net_correct": -6
+        },
+        "trained_source_swap_das_init_vs_equal_logit_mix": {
+          "transitions": {
+            "wrong->wrong": 82,
+            "correct->correct": 59,
+            "abstain->abstain": 26,
+            "abstain->wrong": 12,
+            "wrong->correct": 4,
+            "correct->wrong": 4,
+            "abstain->correct": 4,
+            "wrong->abstain": 1
+          },
+          "net_correct": 4,
+          "corrected": 8,
+          "harmed": 4,
+          "exact_p_exploratory_only": 0.3876953125,
+          "both_answered_n": 149,
+          "both_answered_net_correct": 0
+        },
+        "trained_source_swap_das_init_vs_source_das_swap": {
+          "transitions": {
+            "wrong->wrong": 95,
+            "correct->correct": 55,
+            "wrong->correct": 9,
+            "abstain->abstain": 21,
+            "correct->wrong": 3,
+            "wrong->abstain": 6,
+            "abstain->correct": 3
+          },
+          "net_correct": 9,
+          "corrected": 12,
+          "harmed": 3,
+          "exact_p_exploratory_only": 0.03515625,
+          "both_answered_n": 162,
+          "both_answered_net_correct": 6
+        },
+        "trained_source_swap_das_init_vs_source_random_swap": {
+          "transitions": {
+            "wrong->wrong": 95,
+            "correct->correct": 55,
+            "wrong->correct": 9,
+            "abstain->abstain": 22,
+            "correct->wrong": 3,
+            "wrong->abstain": 5,
+            "abstain->correct": 3
+          },
+          "net_correct": 9,
+          "corrected": 12,
+          "harmed": 3,
+          "exact_p_exploratory_only": 0.03515625,
+          "both_answered_n": 162,
+          "both_answered_net_correct": 6
+        }
+      },
+      "raw_score_trace_identity_checks_passed": true,
+      "pair_comparisons": {
+        "baseline": {
+          "transitions": {
+            "wrong->wrong": 96,
+            "correct->correct": 55,
+            "wrong->correct": 9,
+            "abstain->abstain": 20,
+            "wrong->abstain": 6,
+            "abstain->correct": 4,
+            "correct->wrong": 2
+          },
+          "net_correct": 11,
+          "corrected": 13,
+          "harmed": 2,
+          "exact_p_exploratory_only": 0.00738525390625,
+          "both_answered_n": 162,
+          "both_answered_net_correct": 7
+        },
+        "source_only": {
+          "transitions": {
+            "wrong->wrong": 65,
+            "correct->correct": 50,
+            "abstain->abstain": 25,
+            "abstain->correct": 15,
+            "correct->abstain": 1,
+            "wrong->correct": 3,
+            "abstain->wrong": 23,
+            "correct->wrong": 10
+          },
+          "net_correct": 7,
+          "corrected": 18,
+          "harmed": 11,
+          "exact_p_exploratory_only": 0.26493089646101,
+          "both_answered_n": 128,
+          "both_answered_net_correct": -7
+        },
+        "equal_logit_mix": {
+          "transitions": {
+            "wrong->wrong": 85,
+            "correct->correct": 57,
+            "abstain->abstain": 25,
+            "wrong->correct": 2,
+            "abstain->correct": 9,
+            "correct->wrong": 5,
+            "abstain->wrong": 8,
+            "correct->abstain": 1
+          },
+          "net_correct": 5,
+          "corrected": 11,
+          "harmed": 6,
+          "exact_p_exploratory_only": 0.332305908203125,
+          "both_answered_n": 149,
+          "both_answered_net_correct": -3
+        },
+        "source_das_swap": {
+          "transitions": {
+            "wrong->wrong": 95,
+            "correct->correct": 55,
+            "wrong->correct": 9,
+            "abstain->abstain": 20,
+            "wrong->abstain": 6,
+            "abstain->correct": 4,
+            "correct->wrong": 3
+          },
+          "net_correct": 10,
+          "corrected": 13,
+          "harmed": 3,
+          "exact_p_exploratory_only": 0.021270751953125,
+          "both_answered_n": 162,
+          "both_answered_net_correct": 6
+        },
+        "source_random_swap": {
+          "transitions": {
+            "wrong->wrong": 94,
+            "correct->correct": 55,
+            "wrong->correct": 9,
+            "abstain->abstain": 20,
+            "wrong->abstain": 6,
+            "abstain->correct": 4,
+            "abstain->wrong": 1,
+            "correct->wrong": 3
+          },
+          "net_correct": 10,
+          "corrected": 13,
+          "harmed": 3,
+          "exact_p_exploratory_only": 0.021270751953125,
+          "both_answered_n": 161,
+          "both_answered_net_correct": 6
+        },
+        "trained_source_swap_das_init": {
+          "transitions": {
+            "wrong->wrong": 90,
+            "correct->correct": 60,
+            "abstain->abstain": 23,
+            "wrong->abstain": 2,
+            "wrong->correct": 6,
+            "abstain->correct": 2,
+            "correct->wrong": 6,
+            "abstain->wrong": 2,
+            "correct->abstain": 1
+          },
+          "net_correct": 1,
+          "corrected": 8,
+          "harmed": 7,
+          "exact_p_exploratory_only": 1.0,
+          "both_answered_n": 162,
+          "both_answered_net_correct": 0
+        }
+      },
+      "training": {
+        "losses": [
+          0.6756085766398389,
+          0.6049898244116617,
+          0.5827769316408945
+        ],
+        "gradient_audit": {
+          "updates": 276,
+          "nonzero_updates": 276,
+          "minimum": 0.027847321704030037,
+          "maximum": 2.5308237075805664
+        },
+        "compute": {
+          "model_forwards": {
+            "diagnostics": 42,
+            "unsteered_reference": 265,
+            "preference_optimization": 1590
+          },
+          "input_token_positions": {
+            "diagnostics": 3791,
+            "unsteered_reference": 24955,
+            "preference_optimization": 153705
+          },
+          "not_compute_matched_to_positive_CE": true,
+          "note": "negative-answer branches and fixed-reference forwards add computation; optimizer updates stay matched"
+        },
+        "loss_trace": [
+          {
+            "pair_id": "tqa:765",
+            "shared_answer_tokens": 2,
+            "first_divergence_uses_one_prefix_only_logits": true,
+            "strict_prefix_pair": false,
+            "suffix_start": 3,
+            "common_length": 8.5,
+            "positive_tokens": 8,
+            "negative_tokens": 9,
+            "first_logit_difference": 7.300558090209961,
+            "positive_suffix_sum_logp": -8.570034980773926,
+            "negative_suffix_sum_logp": -7.793701648712158,
+            "appended_eos": false,
+            "shared_prefix_contains_current_or_future_targets": false,
+            "reference_gap": 6.4595255851745605,
+            "relative_margin": 0.007611667271703482,
+            "loss": 0.689348578453064,
+            "shared_non_target_logit_gradient_max": 0.0,
+            "shared_good_token_gradient": -0.05859965831041336,
+            "shared_bad_token_gradient": 0.05859965831041336,
+            "gradient_scope": "direct shared-logit coordinates, not parameter-level refusal invariance",
+            "gradient_norm": 0.2054819017648697
+          },
+          {
+            "pair_id": "tqa:750",
+            "shared_answer_tokens": 3,
+            "first_divergence_uses_one_prefix_only_logits": true,
+            "strict_prefix_pair": false,
+            "suffix_start": 4,
+            "common_length": 7.5,
+            "positive_tokens": 8,
+            "negative_tokens": 7,
+            "first_logit_difference": 6.91361141204834,
+            "positive_suffix_sum_logp": -3.760744333267212,
+            "negative_suffix_sum_logp": -8.551309585571289,
+            "appended_eos": false,
+            "shared_prefix_contains_current_or_future_targets": false,
+            "reference_gap": 11.604076385498047,
+            "relative_margin": 0.013346736319363117,
+            "loss": 0.6864960789680481,
+            "shared_non_target_logit_gradient_max": 0.0,
+            "shared_good_token_gradient": -0.06622178852558136,
+            "shared_bad_token_gradient": 0.06622178852558136,
+            "gradient_scope": "direct shared-logit coordinates, not parameter-level refusal invariance",
+            "gradient_norm": 0.4517573118209839
+          },
+          {
+            "pair_id": "tqa:709",
+            "shared_answer_tokens": 1,
+            "first_divergence_uses_one_prefix_only_logits": true,
+            "strict_prefix_pair": false,
+            "suffix_start": 2,
+            "common_length": 6.5,
+            "positive_tokens": 9,
+            "negative_tokens": 4,
+            "first_logit_difference": -8.979671478271484,
+            "positive_suffix_sum_logp": -2.8636772632598877,
+            "negative_suffix_sum_logp": -8.417285919189453,
+            "appended_eos": false,
+            "shared_prefix_contains_current_or_future_targets": false,
+            "reference_gap": -3.2918014526367188,
+            "relative_margin": -0.02065555937588215,
+            "loss": 0.7035282850265503,
+            "shared_non_target_logit_gradient_max": 0.0,
+            "shared_good_token_gradient": -0.07771749794483185,
+            "shared_bad_token_gradient": 0.07771749794483185,
+            "gradient_scope": "direct shared-logit coordinates, not parameter-level refusal invariance",
+            "gradient_norm": 0.4225027561187744
+          }
+        ],
+        "pair_lengths": [
+          {
+            "pair_id": "tqa:765",
+            "positive": 8,
+            "negative": 9,
+            "common": 8.5,
+            "shared_prefix": 2,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:750",
+            "positive": 8,
+            "negative": 7,
+            "common": 7.5,
+            "shared_prefix": 3,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:709",
+            "positive": 9,
+            "negative": 4,
+            "common": 6.5,
+            "shared_prefix": 1,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:668",
+            "positive": 19,
+            "negative": 19,
+            "common": 19.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:311",
+            "positive": 8,
+            "negative": 8,
+            "common": 8.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:697",
+            "positive": 8,
+            "negative": 7,
+            "common": 7.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:772",
+            "positive": 14,
+            "negative": 15,
+            "common": 14.5,
+            "shared_prefix": 13,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:652",
+            "positive": 12,
+            "negative": 11,
+            "common": 11.5,
+            "shared_prefix": 4,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:462",
+            "positive": 13,
+            "negative": 20,
+            "common": 16.5,
+            "shared_prefix": 2,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:277",
+            "positive": 14,
+            "negative": 17,
+            "common": 15.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:454",
+            "positive": 8,
+            "negative": 14,
+            "common": 11.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:318",
+            "positive": 12,
+            "negative": 1,
+            "common": 6.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:456",
+            "positive": 8,
+            "negative": 11,
+            "common": 9.5,
+            "shared_prefix": 2,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:265",
+            "positive": 11,
+            "negative": 12,
+            "common": 11.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:502",
+            "positive": 15,
+            "negative": 17,
+            "common": 16.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:518",
+            "positive": 10,
+            "negative": 12,
+            "common": 11.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:99",
+            "positive": 16,
+            "negative": 10,
+            "common": 13.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:796",
+            "positive": 21,
+            "negative": 13,
+            "common": 17.0,
+            "shared_prefix": 6,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:577",
+            "positive": 11,
+            "negative": 8,
+            "common": 9.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:198",
+            "positive": 7,
+            "negative": 8,
+            "common": 7.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:421",
+            "positive": 1,
+            "negative": 1,
+            "common": 1.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:254",
+            "positive": 13,
+            "negative": 9,
+            "common": 11.0,
+            "shared_prefix": 7,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:583",
+            "positive": 5,
+            "negative": 10,
+            "common": 7.5,
+            "shared_prefix": 1,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:130",
+            "positive": 19,
+            "negative": 18,
+            "common": 18.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:12",
+            "positive": 19,
+            "negative": 17,
+            "common": 18.0,
+            "shared_prefix": 13,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:542",
+            "positive": 8,
+            "negative": 10,
+            "common": 9.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:169",
+            "positive": 5,
+            "negative": 5,
+            "common": 5.0,
+            "shared_prefix": 4,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:499",
+            "positive": 13,
+            "negative": 6,
+            "common": 9.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:334",
+            "positive": 15,
+            "negative": 6,
+            "common": 10.5,
+            "shared_prefix": 3,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:807",
+            "positive": 7,
+            "negative": 8,
+            "common": 7.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:156",
+            "positive": 12,
+            "negative": 13,
+            "common": 12.5,
+            "shared_prefix": 2,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:433",
+            "positive": 3,
+            "negative": 1,
+            "common": 2.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:761",
+            "positive": 10,
+            "negative": 9,
+            "common": 9.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:337",
+            "positive": 11,
+            "negative": 7,
+            "common": 9.0,
+            "shared_prefix": 2,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:65",
+            "positive": 11,
+            "negative": 9,
+            "common": 10.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:89",
+            "positive": 7,
+            "negative": 7,
+            "common": 7.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:28",
+            "positive": 13,
+            "negative": 12,
+            "common": 12.5,
+            "shared_prefix": 4,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:659",
+            "positive": 9,
+            "negative": 10,
+            "common": 9.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:113",
+            "positive": 12,
+            "negative": 11,
+            "common": 11.5,
+            "shared_prefix": 8,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:661",
+            "positive": 11,
+            "negative": 10,
+            "common": 10.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:695",
+            "positive": 14,
+            "negative": 12,
+            "common": 13.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:474",
+            "positive": 9,
+            "negative": 9,
+            "common": 9.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:490",
+            "positive": 12,
+            "negative": 8,
+            "common": 10.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:638",
+            "positive": 10,
+            "negative": 7,
+            "common": 8.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:124",
+            "positive": 6,
+            "negative": 8,
+            "common": 7.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:699",
+            "positive": 9,
+            "negative": 9,
+            "common": 9.0,
+            "shared_prefix": 1,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:643",
+            "positive": 7,
+            "negative": 7,
+            "common": 7.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:178",
+            "positive": 8,
+            "negative": 5,
+            "common": 6.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:193",
+            "positive": 18,
+            "negative": 12,
+            "common": 15.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:512",
+            "positive": 24,
+            "negative": 21,
+            "common": 22.5,
+            "shared_prefix": 16,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:472",
+            "positive": 15,
+            "negative": 15,
+            "common": 15.0,
+            "shared_prefix": 13,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:574",
+            "positive": 6,
+            "negative": 3,
+            "common": 4.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:505",
+            "positive": 14,
+            "negative": 13,
+            "common": 13.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:279",
+            "positive": 13,
+            "negative": 15,
+            "common": 14.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:461",
+            "positive": 18,
+            "negative": 21,
+            "common": 19.5,
+            "shared_prefix": 2,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:455",
+            "positive": 8,
+            "negative": 14,
+            "common": 11.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:579",
+            "positive": 11,
+            "negative": 6,
+            "common": 8.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:233",
+            "positive": 11,
+            "negative": 10,
+            "common": 10.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:370",
+            "positive": 17,
+            "negative": 9,
+            "common": 13.0,
+            "shared_prefix": 5,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:38",
+            "positive": 10,
+            "negative": 7,
+            "common": 8.5,
+            "shared_prefix": 6,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:48",
+            "positive": 14,
+            "negative": 15,
+            "common": 14.5,
+            "shared_prefix": 8,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:673",
+            "positive": 22,
+            "negative": 12,
+            "common": 17.0,
+            "shared_prefix": 4,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:258",
+            "positive": 11,
+            "negative": 9,
+            "common": 10.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:165",
+            "positive": 6,
+            "negative": 7,
+            "common": 6.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:290",
+            "positive": 10,
+            "negative": 9,
+            "common": 9.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:106",
+            "positive": 11,
+            "negative": 7,
+            "common": 9.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:792",
+            "positive": 6,
+            "negative": 9,
+            "common": 7.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:143",
+            "positive": 8,
+            "negative": 7,
+            "common": 7.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:694",
+            "positive": 8,
+            "negative": 14,
+            "common": 11.0,
+            "shared_prefix": 2,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:692",
+            "positive": 9,
+            "negative": 13,
+            "common": 11.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:436",
+            "positive": 2,
+            "negative": 3,
+            "common": 2.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:11",
+            "positive": 8,
+            "negative": 8,
+            "common": 8.0,
+            "shared_prefix": 3,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:255",
+            "positive": 19,
+            "negative": 19,
+            "common": 19.0,
+            "shared_prefix": 4,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:794",
+            "positive": 7,
+            "negative": 7,
+            "common": 7.0,
+            "shared_prefix": 2,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:469",
+            "positive": 14,
+            "negative": 13,
+            "common": 13.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:181",
+            "positive": 14,
+            "negative": 13,
+            "common": 13.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:592",
+            "positive": 5,
+            "negative": 8,
+            "common": 6.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:302",
+            "positive": 16,
+            "negative": 10,
+            "common": 13.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:376",
+            "positive": 13,
+            "negative": 10,
+            "common": 11.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:363",
+            "positive": 13,
+            "negative": 10,
+            "common": 11.5,
+            "shared_prefix": 5,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:315",
+            "positive": 9,
+            "negative": 9,
+            "common": 9.0,
+            "shared_prefix": 8,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:64",
+            "positive": 14,
+            "negative": 10,
+            "common": 12.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:777",
+            "positive": 8,
+            "negative": 8,
+            "common": 8.0,
+            "shared_prefix": 1,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:735",
+            "positive": 12,
+            "negative": 11,
+            "common": 11.5,
+            "shared_prefix": 8,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:654",
+            "positive": 7,
+            "negative": 8,
+            "common": 7.5,
+            "shared_prefix": 2,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:253",
+            "positive": 10,
+            "negative": 6,
+            "common": 8.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:83",
+            "positive": 11,
+            "negative": 3,
+            "common": 7.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:62",
+            "positive": 16,
+            "negative": 4,
+            "common": 10.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:430",
+            "positive": 2,
+            "negative": 1,
+            "common": 1.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:307",
+            "positive": 9,
+            "negative": 8,
+            "common": 8.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:97",
+            "positive": 10,
+            "negative": 9,
+            "common": 9.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:298",
+            "positive": 15,
+            "negative": 11,
+            "common": 13.0,
+            "shared_prefix": 5,
+            "strict_prefix": false
+          }
+        ]
+      },
+      "all_1152_parent_grades_and_original_fields_identical": true,
+      "initial_W_matches_frozen_CE_starting_bytes": true
+    },
+    "qwen3-8b": {
+      "model": "qwen3-8b",
+      "directory": "/tmp/td_r20_e34_inputs/qwen3-8b",
+      "n": 192,
+      "raw_sha256": "e5385d1b1c6fc736010b5f1bd9e3fdcaeb6660297fce4bc398ae7341258ad8e4",
+      "scored_sha256": "61de91465a965128960a661f7f12380a2d6576ec92a666f060efd45fbd5c0394",
+      "conditions": {
+        "baseline": {
+          "correct": 52,
+          "wrong": 65,
+          "abstain": 75,
+          "answered": 117,
+          "fffd": 0,
+          "unfinished": 0,
+          "max_delta_over_base": 0,
+          "median_delta_over_base": 0
+        },
+        "source_only": {
+          "correct": 50,
+          "wrong": 61,
+          "abstain": 81,
+          "answered": 111,
+          "fffd": 0,
+          "unfinished": 1,
+          "max_delta_over_base": 0,
+          "median_delta_over_base": 0
+        },
+        "equal_logit_mix": {
+          "correct": 49,
+          "wrong": 64,
+          "abstain": 79,
+          "answered": 113,
+          "fffd": 0,
+          "unfinished": 0,
+          "max_delta_over_base": 0,
+          "median_delta_over_base": 0
+        },
+        "source_das_swap": {
+          "correct": 51,
+          "wrong": 66,
+          "abstain": 75,
+          "answered": 117,
+          "fffd": 0,
+          "unfinished": 1,
+          "max_delta_over_base": 0.016491305083036423,
+          "median_delta_over_base": 0.0017606610781513155
+        },
+        "source_random_swap": {
+          "correct": 52,
+          "wrong": 65,
+          "abstain": 75,
+          "answered": 117,
+          "fffd": 0,
+          "unfinished": 1,
+          "max_delta_over_base": 0.011613507755100727,
+          "median_delta_over_base": 0.0013720067217946053
+        },
+        "trained_source_swap_das_init": {
+          "correct": 86,
+          "wrong": 100,
+          "abstain": 6,
+          "answered": 186,
+          "fffd": 0,
+          "unfinished": 4,
+          "max_delta_over_base": 0.1831454038619995,
+          "median_delta_over_base": 0.004812284838408232
+        },
+        "pair_preference_source_swap": {
+          "correct": 107,
+          "wrong": 70,
+          "abstain": 15,
+          "answered": 177,
+          "fffd": 0,
+          "unfinished": 46,
+          "max_delta_over_base": 0.17408940196037292,
+          "median_delta_over_base": 0.004625539993867278
+        }
+      },
+      "comparisons": {
+        "source_only_vs_baseline": {
+          "transitions": {
+            "wrong->wrong": 55,
+            "wrong->abstain": 5,
+            "correct->correct": 41,
+            "abstain->abstain": 70,
+            "wrong->correct": 5,
+            "correct->abstain": 6,
+            "correct->wrong": 5,
+            "abstain->correct": 4,
+            "abstain->wrong": 1
+          },
+          "net_correct": -2,
+          "corrected": 9,
+          "harmed": 11,
+          "exact_p_exploratory_only": 0.8238029479980469,
+          "both_answered_n": 106,
+          "both_answered_net_correct": 0
+        },
+        "equal_logit_mix_vs_baseline": {
+          "transitions": {
+            "wrong->wrong": 59,
+            "correct->correct": 45,
+            "abstain->abstain": 73,
+            "wrong->correct": 3,
+            "correct->abstain": 3,
+            "correct->wrong": 4,
+            "abstain->correct": 1,
+            "wrong->abstain": 3,
+            "abstain->wrong": 1
+          },
+          "net_correct": -3,
+          "corrected": 4,
+          "harmed": 7,
+          "exact_p_exploratory_only": 0.548828125,
+          "both_answered_n": 111,
+          "both_answered_net_correct": -1
+        },
+        "source_das_swap_vs_baseline": {
+          "transitions": {
+            "wrong->wrong": 65,
+            "correct->correct": 51,
+            "abstain->abstain": 75,
+            "correct->wrong": 1
+          },
+          "net_correct": -1,
+          "corrected": 0,
+          "harmed": 1,
+          "exact_p_exploratory_only": 1.0,
+          "both_answered_n": 117,
+          "both_answered_net_correct": -1
+        },
+        "source_random_swap_vs_baseline": {
+          "transitions": {
+            "wrong->wrong": 65,
+            "correct->correct": 52,
+            "abstain->abstain": 75
+          },
+          "net_correct": 0,
+          "corrected": 0,
+          "harmed": 0,
+          "exact_p_exploratory_only": 1.0,
+          "both_answered_n": 117,
+          "both_answered_net_correct": 0
+        },
+        "trained_source_swap_das_init_vs_baseline": {
+          "transitions": {
+            "wrong->correct": 9,
+            "wrong->wrong": 55,
+            "correct->correct": 40,
+            "abstain->correct": 37,
+            "abstain->wrong": 33,
+            "correct->wrong": 12,
+            "abstain->abstain": 5,
+            "wrong->abstain": 1
+          },
+          "net_correct": 34,
+          "corrected": 46,
+          "harmed": 12,
+          "exact_p_exploratory_only": 8.219663963332513e-06,
+          "both_answered_n": 116,
+          "both_answered_net_correct": -3
+        },
+        "pair_preference_source_swap_vs_baseline": {
+          "transitions": {
+            "wrong->wrong": 49,
+            "wrong->correct": 16,
+            "correct->correct": 44,
+            "abstain->abstain": 15,
+            "abstain->correct": 47,
+            "abstain->wrong": 13,
+            "correct->wrong": 8
+          },
+          "net_correct": 55,
+          "corrected": 63,
+          "harmed": 8,
+          "exact_p_exploratory_only": 1.0271364278048329e-11,
+          "both_answered_n": 117,
+          "both_answered_net_correct": 8
+        },
+        "trained_source_swap_das_init_vs_source_only": {
+          "transitions": {
+            "wrong->correct": 8,
+            "abstain->wrong": 36,
+            "correct->correct": 38,
+            "abstain->correct": 40,
+            "wrong->wrong": 52,
+            "correct->wrong": 12,
+            "abstain->abstain": 5,
+            "wrong->abstain": 1
+          },
+          "net_correct": 36,
+          "corrected": 48,
+          "harmed": 12,
+          "exact_p_exploratory_only": 3.183628737933597e-06,
+          "both_answered_n": 110,
+          "both_answered_net_correct": -4
+        },
+        "trained_source_swap_das_init_vs_equal_logit_mix": {
+          "transitions": {
+            "wrong->correct": 7,
+            "wrong->wrong": 56,
+            "correct->correct": 39,
+            "abstain->correct": 40,
+            "abstain->wrong": 34,
+            "correct->wrong": 10,
+            "abstain->abstain": 5,
+            "wrong->abstain": 1
+          },
+          "net_correct": 37,
+          "corrected": 47,
+          "harmed": 10,
+          "exact_p_exploratory_only": 7.513043097095995e-07,
+          "both_answered_n": 112,
+          "both_answered_net_correct": -3
+        },
+        "trained_source_swap_das_init_vs_source_das_swap": {
+          "transitions": {
+            "wrong->correct": 9,
+            "wrong->wrong": 56,
+            "correct->correct": 40,
+            "abstain->correct": 37,
+            "abstain->wrong": 33,
+            "correct->wrong": 11,
+            "abstain->abstain": 5,
+            "wrong->abstain": 1
+          },
+          "net_correct": 35,
+          "corrected": 46,
+          "harmed": 11,
+          "exact_p_exploratory_only": 3.3118847623803127e-06,
+          "both_answered_n": 116,
+          "both_answered_net_correct": -2
+        },
+        "trained_source_swap_das_init_vs_source_random_swap": {
+          "transitions": {
+            "wrong->correct": 9,
+            "wrong->wrong": 55,
+            "correct->correct": 40,
+            "abstain->correct": 37,
+            "abstain->wrong": 33,
+            "correct->wrong": 12,
+            "abstain->abstain": 5,
+            "wrong->abstain": 1
+          },
+          "net_correct": 34,
+          "corrected": 46,
+          "harmed": 12,
+          "exact_p_exploratory_only": 8.219663963332513e-06,
+          "both_answered_n": 116,
+          "both_answered_net_correct": -3
+        }
+      },
+      "raw_score_trace_identity_checks_passed": true,
+      "pair_comparisons": {
+        "baseline": {
+          "transitions": {
+            "wrong->wrong": 49,
+            "wrong->correct": 16,
+            "correct->correct": 44,
+            "abstain->abstain": 15,
+            "abstain->correct": 47,
+            "abstain->wrong": 13,
+            "correct->wrong": 8
+          },
+          "net_correct": 55,
+          "corrected": 63,
+          "harmed": 8,
+          "exact_p_exploratory_only": 1.0271364278048329e-11,
+          "both_answered_n": 117,
+          "both_answered_net_correct": 8
+        },
+        "source_only": {
+          "transitions": {
+            "wrong->wrong": 46,
+            "abstain->correct": 50,
+            "correct->correct": 42,
+            "abstain->abstain": 15,
+            "abstain->wrong": 16,
+            "wrong->correct": 15,
+            "correct->wrong": 8
+          },
+          "net_correct": 57,
+          "corrected": 65,
+          "harmed": 8,
+          "exact_p_exploratory_only": 3.230981506909271e-12,
+          "both_answered_n": 111,
+          "both_answered_net_correct": 7
+        },
+        "equal_logit_mix": {
+          "transitions": {
+            "wrong->wrong": 48,
+            "wrong->correct": 16,
+            "correct->correct": 41,
+            "abstain->abstain": 15,
+            "abstain->correct": 50,
+            "abstain->wrong": 14,
+            "correct->wrong": 8
+          },
+          "net_correct": 58,
+          "corrected": 66,
+          "harmed": 8,
+          "exact_p_exploratory_only": 1.8077410513282367e-12,
+          "both_answered_n": 113,
+          "both_answered_net_correct": 8
+        },
+        "source_das_swap": {
+          "transitions": {
+            "wrong->wrong": 49,
+            "wrong->correct": 17,
+            "correct->correct": 43,
+            "abstain->abstain": 15,
+            "abstain->correct": 47,
+            "abstain->wrong": 13,
+            "correct->wrong": 8
+          },
+          "net_correct": 56,
+          "corrected": 64,
+          "harmed": 8,
+          "exact_p_exploratory_only": 5.765519304519332e-12,
+          "both_answered_n": 117,
+          "both_answered_net_correct": 9
+        },
+        "source_random_swap": {
+          "transitions": {
+            "wrong->wrong": 49,
+            "wrong->correct": 16,
+            "correct->correct": 44,
+            "abstain->abstain": 15,
+            "abstain->correct": 47,
+            "abstain->wrong": 13,
+            "correct->wrong": 8
+          },
+          "net_correct": 55,
+          "corrected": 63,
+          "harmed": 8,
+          "exact_p_exploratory_only": 1.0271364278048329e-11,
+          "both_answered_n": 117,
+          "both_answered_net_correct": 8
+        },
+        "trained_source_swap_das_init": {
+          "transitions": {
+            "correct->wrong": 8,
+            "wrong->correct": 30,
+            "correct->correct": 74,
+            "correct->abstain": 4,
+            "wrong->wrong": 62,
+            "wrong->abstain": 8,
+            "abstain->abstain": 3,
+            "abstain->correct": 3
+          },
+          "net_correct": 21,
+          "corrected": 33,
+          "harmed": 12,
+          "exact_p_exploratory_only": 0.0024589003220967243,
+          "both_answered_n": 174,
+          "both_answered_net_correct": 22
+        }
+      },
+      "training": {
+        "losses": [
+          0.6638451625147591,
+          0.5221756456581794,
+          0.4411489006597549
+        ],
+        "gradient_audit": {
+          "updates": 276,
+          "nonzero_updates": 276,
+          "minimum": 0.059244945645332336,
+          "maximum": 15.314628601074219
+        },
+        "compute": {
+          "model_forwards": {
+            "diagnostics": 42,
+            "unsteered_reference": 265,
+            "preference_optimization": 1590
+          },
+          "input_token_positions": {
+            "diagnostics": 3035,
+            "unsteered_reference": 20210,
+            "preference_optimization": 125235
+          },
+          "not_compute_matched_to_positive_CE": true,
+          "note": "negative-answer branches and fixed-reference forwards add computation; optimizer updates stay matched"
+        },
+        "loss_trace": [
+          {
+            "pair_id": "tqa:765",
+            "shared_answer_tokens": 2,
+            "first_divergence_uses_one_prefix_only_logits": true,
+            "strict_prefix_pair": false,
+            "suffix_start": 3,
+            "common_length": 8.5,
+            "positive_tokens": 8,
+            "negative_tokens": 9,
+            "first_logit_difference": 19.372255325317383,
+            "positive_suffix_sum_logp": -17.501516342163086,
+            "negative_suffix_sum_logp": -7.272496700286865,
+            "appended_eos": false,
+            "shared_prefix_contains_current_or_future_targets": false,
+            "reference_gap": 9.375350952148438,
+            "relative_margin": -0.027307622134685516,
+            "loss": 0.7068941593170166,
+            "shared_non_target_logit_gradient_max": 0.0,
+            "shared_good_token_gradient": -0.05962665006518364,
+            "shared_bad_token_gradient": 0.05962665006518364,
+            "gradient_scope": "direct shared-logit coordinates, not parameter-level refusal invariance",
+            "gradient_norm": 0.18582460284233093
+          },
+          {
+            "pair_id": "tqa:750",
+            "shared_answer_tokens": 3,
+            "first_divergence_uses_one_prefix_only_logits": true,
+            "strict_prefix_pair": false,
+            "suffix_start": 4,
+            "common_length": 7.5,
+            "positive_tokens": 8,
+            "negative_tokens": 7,
+            "first_logit_difference": 24.862905502319336,
+            "positive_suffix_sum_logp": -9.939530372619629,
+            "negative_suffix_sum_logp": -25.599878311157227,
+            "appended_eos": false,
+            "shared_prefix_contains_current_or_future_targets": false,
+            "reference_gap": 40.794105529785156,
+            "relative_margin": -0.03611348569393158,
+            "loss": 0.7113668918609619,
+            "shared_non_target_logit_gradient_max": 0.0,
+            "shared_good_token_gradient": -0.06787031888961792,
+            "shared_bad_token_gradient": 0.06787031888961792,
+            "gradient_scope": "direct shared-logit coordinates, not parameter-level refusal invariance",
+            "gradient_norm": 0.34142330288887024
+          },
+          {
+            "pair_id": "tqa:709",
+            "shared_answer_tokens": 1,
+            "first_divergence_uses_one_prefix_only_logits": true,
+            "strict_prefix_pair": false,
+            "suffix_start": 2,
+            "common_length": 6.5,
+            "positive_tokens": 9,
+            "negative_tokens": 4,
+            "first_logit_difference": -28.728515625,
+            "positive_suffix_sum_logp": -5.700404644012451,
+            "negative_suffix_sum_logp": -14.189935684204102,
+            "appended_eos": false,
+            "shared_prefix_contains_current_or_future_targets": false,
+            "reference_gap": -20.37370491027832,
+            "relative_margin": 0.02072613127529621,
+            "loss": 0.6828377842903137,
+            "shared_non_target_logit_gradient_max": 0.0,
+            "shared_good_token_gradient": -0.07612594962120056,
+            "shared_bad_token_gradient": 0.07612594962120056,
+            "gradient_scope": "direct shared-logit coordinates, not parameter-level refusal invariance",
+            "gradient_norm": 0.31411316990852356
+          }
+        ],
+        "pair_lengths": [
+          {
+            "pair_id": "tqa:765",
+            "positive": 8,
+            "negative": 9,
+            "common": 8.5,
+            "shared_prefix": 2,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:750",
+            "positive": 8,
+            "negative": 7,
+            "common": 7.5,
+            "shared_prefix": 3,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:709",
+            "positive": 9,
+            "negative": 4,
+            "common": 6.5,
+            "shared_prefix": 1,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:668",
+            "positive": 19,
+            "negative": 19,
+            "common": 19.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:311",
+            "positive": 8,
+            "negative": 8,
+            "common": 8.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:697",
+            "positive": 8,
+            "negative": 7,
+            "common": 7.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:772",
+            "positive": 14,
+            "negative": 15,
+            "common": 14.5,
+            "shared_prefix": 13,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:652",
+            "positive": 12,
+            "negative": 11,
+            "common": 11.5,
+            "shared_prefix": 4,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:462",
+            "positive": 13,
+            "negative": 20,
+            "common": 16.5,
+            "shared_prefix": 2,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:277",
+            "positive": 14,
+            "negative": 17,
+            "common": 15.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:454",
+            "positive": 8,
+            "negative": 14,
+            "common": 11.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:318",
+            "positive": 12,
+            "negative": 1,
+            "common": 6.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:456",
+            "positive": 8,
+            "negative": 11,
+            "common": 9.5,
+            "shared_prefix": 2,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:265",
+            "positive": 11,
+            "negative": 12,
+            "common": 11.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:502",
+            "positive": 15,
+            "negative": 17,
+            "common": 16.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:518",
+            "positive": 10,
+            "negative": 12,
+            "common": 11.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:99",
+            "positive": 16,
+            "negative": 10,
+            "common": 13.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:796",
+            "positive": 21,
+            "negative": 13,
+            "common": 17.0,
+            "shared_prefix": 6,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:577",
+            "positive": 11,
+            "negative": 8,
+            "common": 9.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:198",
+            "positive": 7,
+            "negative": 8,
+            "common": 7.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:421",
+            "positive": 1,
+            "negative": 1,
+            "common": 1.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:254",
+            "positive": 13,
+            "negative": 9,
+            "common": 11.0,
+            "shared_prefix": 7,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:583",
+            "positive": 5,
+            "negative": 10,
+            "common": 7.5,
+            "shared_prefix": 1,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:130",
+            "positive": 19,
+            "negative": 18,
+            "common": 18.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:12",
+            "positive": 19,
+            "negative": 17,
+            "common": 18.0,
+            "shared_prefix": 13,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:542",
+            "positive": 8,
+            "negative": 10,
+            "common": 9.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:169",
+            "positive": 5,
+            "negative": 5,
+            "common": 5.0,
+            "shared_prefix": 4,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:499",
+            "positive": 13,
+            "negative": 6,
+            "common": 9.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:334",
+            "positive": 15,
+            "negative": 6,
+            "common": 10.5,
+            "shared_prefix": 3,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:807",
+            "positive": 7,
+            "negative": 8,
+            "common": 7.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:156",
+            "positive": 12,
+            "negative": 13,
+            "common": 12.5,
+            "shared_prefix": 2,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:433",
+            "positive": 3,
+            "negative": 1,
+            "common": 2.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:761",
+            "positive": 10,
+            "negative": 9,
+            "common": 9.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:337",
+            "positive": 11,
+            "negative": 7,
+            "common": 9.0,
+            "shared_prefix": 2,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:65",
+            "positive": 11,
+            "negative": 9,
+            "common": 10.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:89",
+            "positive": 7,
+            "negative": 7,
+            "common": 7.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:28",
+            "positive": 13,
+            "negative": 12,
+            "common": 12.5,
+            "shared_prefix": 4,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:659",
+            "positive": 9,
+            "negative": 10,
+            "common": 9.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:113",
+            "positive": 14,
+            "negative": 11,
+            "common": 12.5,
+            "shared_prefix": 8,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:661",
+            "positive": 11,
+            "negative": 10,
+            "common": 10.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:695",
+            "positive": 14,
+            "negative": 12,
+            "common": 13.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:474",
+            "positive": 9,
+            "negative": 9,
+            "common": 9.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:490",
+            "positive": 12,
+            "negative": 8,
+            "common": 10.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:638",
+            "positive": 10,
+            "negative": 7,
+            "common": 8.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:124",
+            "positive": 6,
+            "negative": 8,
+            "common": 7.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:699",
+            "positive": 9,
+            "negative": 9,
+            "common": 9.0,
+            "shared_prefix": 1,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:643",
+            "positive": 7,
+            "negative": 7,
+            "common": 7.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:178",
+            "positive": 8,
+            "negative": 5,
+            "common": 6.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:193",
+            "positive": 18,
+            "negative": 12,
+            "common": 15.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:512",
+            "positive": 25,
+            "negative": 22,
+            "common": 23.5,
+            "shared_prefix": 17,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:472",
+            "positive": 16,
+            "negative": 16,
+            "common": 16.0,
+            "shared_prefix": 14,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:574",
+            "positive": 6,
+            "negative": 3,
+            "common": 4.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:505",
+            "positive": 14,
+            "negative": 13,
+            "common": 13.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:279",
+            "positive": 13,
+            "negative": 15,
+            "common": 14.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:461",
+            "positive": 18,
+            "negative": 21,
+            "common": 19.5,
+            "shared_prefix": 2,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:455",
+            "positive": 8,
+            "negative": 14,
+            "common": 11.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:579",
+            "positive": 11,
+            "negative": 6,
+            "common": 8.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:233",
+            "positive": 11,
+            "negative": 10,
+            "common": 10.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:370",
+            "positive": 17,
+            "negative": 9,
+            "common": 13.0,
+            "shared_prefix": 5,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:38",
+            "positive": 10,
+            "negative": 7,
+            "common": 8.5,
+            "shared_prefix": 6,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:48",
+            "positive": 14,
+            "negative": 15,
+            "common": 14.5,
+            "shared_prefix": 8,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:673",
+            "positive": 22,
+            "negative": 12,
+            "common": 17.0,
+            "shared_prefix": 4,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:258",
+            "positive": 11,
+            "negative": 9,
+            "common": 10.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:165",
+            "positive": 6,
+            "negative": 7,
+            "common": 6.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:290",
+            "positive": 10,
+            "negative": 9,
+            "common": 9.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:106",
+            "positive": 11,
+            "negative": 7,
+            "common": 9.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:792",
+            "positive": 6,
+            "negative": 9,
+            "common": 7.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:143",
+            "positive": 8,
+            "negative": 7,
+            "common": 7.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:694",
+            "positive": 8,
+            "negative": 14,
+            "common": 11.0,
+            "shared_prefix": 2,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:692",
+            "positive": 9,
+            "negative": 13,
+            "common": 11.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:436",
+            "positive": 2,
+            "negative": 3,
+            "common": 2.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:11",
+            "positive": 8,
+            "negative": 8,
+            "common": 8.0,
+            "shared_prefix": 3,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:255",
+            "positive": 19,
+            "negative": 19,
+            "common": 19.0,
+            "shared_prefix": 4,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:794",
+            "positive": 7,
+            "negative": 7,
+            "common": 7.0,
+            "shared_prefix": 2,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:469",
+            "positive": 16,
+            "negative": 15,
+            "common": 15.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:181",
+            "positive": 14,
+            "negative": 13,
+            "common": 13.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:592",
+            "positive": 5,
+            "negative": 8,
+            "common": 6.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:302",
+            "positive": 16,
+            "negative": 10,
+            "common": 13.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:376",
+            "positive": 13,
+            "negative": 10,
+            "common": 11.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:363",
+            "positive": 13,
+            "negative": 10,
+            "common": 11.5,
+            "shared_prefix": 5,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:315",
+            "positive": 9,
+            "negative": 9,
+            "common": 9.0,
+            "shared_prefix": 8,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:64",
+            "positive": 14,
+            "negative": 10,
+            "common": 12.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:777",
+            "positive": 8,
+            "negative": 8,
+            "common": 8.0,
+            "shared_prefix": 1,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:735",
+            "positive": 12,
+            "negative": 11,
+            "common": 11.5,
+            "shared_prefix": 8,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:654",
+            "positive": 7,
+            "negative": 8,
+            "common": 7.5,
+            "shared_prefix": 2,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:253",
+            "positive": 10,
+            "negative": 6,
+            "common": 8.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:83",
+            "positive": 11,
+            "negative": 3,
+            "common": 7.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:62",
+            "positive": 16,
+            "negative": 4,
+            "common": 10.0,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:430",
+            "positive": 2,
+            "negative": 1,
+            "common": 1.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:307",
+            "positive": 9,
+            "negative": 8,
+            "common": 8.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:97",
+            "positive": 10,
+            "negative": 9,
+            "common": 9.5,
+            "shared_prefix": 0,
+            "strict_prefix": false
+          },
+          {
+            "pair_id": "tqa:298",
+            "positive": 15,
+            "negative": 11,
+            "common": 13.0,
+            "shared_prefix": 5,
+            "strict_prefix": false
+          }
+        ]
+      },
+      "all_1152_parent_grades_and_original_fields_identical": true,
+      "initial_W_matches_frozen_CE_starting_bytes": true
+    }
+  }
+}

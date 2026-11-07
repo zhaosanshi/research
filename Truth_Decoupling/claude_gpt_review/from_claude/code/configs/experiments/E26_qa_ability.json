@@ -1,0 +1,49 @@
+{
+  "name": "E26_qa_ability",
+  "protocol": "joint_actual_coverage_v1",
+  "source_experiment": "E2b_tqa",
+  "seed": 42,
+  "models": [
+    "llama3.1-8b",
+    "qwen3-8b"
+  ],
+  "coverages": [
+    0.25,
+    0.5,
+    0.75
+  ],
+  "n_boot": 2000,
+  "batch_size": 8,
+  "max_new_tokens": 48,
+  "e_top_k": 3,
+  "c_top_k": 1,
+  "c_alphas": [
+    -1.0,
+    1.0
+  ],
+  "include_joint_simple": true,
+  "qa_gate_user": "Question: {question}\nThis is an answerability check, not a request to answer the question above. Can you provide an accurate, substantive answer to it? Reply Yes if you can provide such an answer. This includes a correct answer of 'No', correcting a false premise, or accurately explaining that the requested answer is objectively unknown, nonexistent, or not uniquely determined by the question. Merely expressing your own ignorance or declining without a substantive answer does not qualify. Reply No if you cannot provide an accurate substantive answer. Do not answer the original question here. Reply with exactly one word: Yes or No.",
+  "tf_gate_user": "Statement: {statement}\nCan you determine whether this statement is true or false? Reply Yes if you can determine either that it is true OR that it is false. Reply No only if you cannot determine which. This is NOT asking whether the statement itself is true. Reply with exactly one word: Yes or No.",
+  "gate_labels": {
+    "yes": "Yes",
+    "no": "No"
+  },
+  "abstention_output": "I don't know.",
+  "qa_e_selection": "top distinct-layer continuous candidates from the existing tuning-only shortlist; select again on E26 tuning quota objective",
+  "tf_e_selection": "top distinct-layer candidates from saved TF tuning metrics; independently retune E/C/EC on E26 tuning quotas",
+  "commitment_estimator": "continuous first-token Yes-minus-No logit covariance, orthogonal to same-layer E; scale by estimation projection SD",
+  "main_score": "intervened first-token commitment margin; actual non-answer candidates cannot fill a quota",
+  "simple_scores": {
+    "tf": "absolute native True-minus-False log probability margin",
+    "qa": "unsteered length-normalized log probability of the generated answer"
+  },
+  "precision": "float32 output projection; native frozen backbone",
+  "notes": "New TF gate uses the frozen E33 ability-role system and explicit either-truth-value instruction. Old prepared banks retain their own saved prompts. Exact quota is an offline comparison: QA actual-answer eligibility uses reference-informed semantic abstention grades; A/B correctness does not rank answers. All E/C/EC families have simple-score controls; unsupported quotas remain explicit. New QA gate uses the fixed E35 substantive-ability prompt; residual model confusion is reported, not tuned away. This run evaluates QA only with the current E4_qa full-personal-refusal guard uniformly enabled. Previously completed TF results remain in their separate artifacts.",
+  "tf_gate_system": "You assess whether you can determine the answer to a question. Follow the requested response format.",
+  "tf_gate_definition": "ability_either_truth_value_v2; Yes means able to determine True OR False, not assent to the statement",
+  "evaluation_tasks": [
+    "qa"
+  ],
+  "qa_gate_system": "You assess whether you can determine the answer to a question. Follow the requested response format.",
+  "qa_gate_definition": "substantive_ability_v2; a correct original No, false-premise correction, or accurate objective-unknown explanation can still mean ability Yes; personal ignorance alone cannot"
+}

@@ -317,13 +317,16 @@ class AdapterSourceRunTests(unittest.TestCase):
     def test_default_cli_judge_phase_executes_real_reporting_with_mocked_judge_api(self):
         fixture = fixtures.QADASPipelineTests(methodName='runTest')
         fixture.setUp(); self.addCleanup(fixture.doCleanups)
-        args = SimpleNamespace(run_dir=fixture.run / 'adapter', layers=[0], pilot=2, init='das', alpha=1.,
+        args = SimpleNamespace(run_dir=fixture.run / 'adapter', layers=[0], pilot=None, init='das', alpha=1.,
                                epochs=1, lr=.001, clip=1., ranking_weight=0., seed=42, limit=None,
                                model=fixture.args.model, judge_exp=script.DEFAULT_JUDGE_EXPERIMENT)
         ns, meta, bank, prepared = script.source_run(fixture.run)
         adapter = script.train(args, ns, meta, bank, prepared, bundle=fixture.bundle)
         for phase, split in [('check', 'tune'), ('tune', 'tune'), ('test', 'test')]:
             with self.subTest(phase=phase):
+                if split == 'test':
+                    args.primary_quality_rule = 'R0'
+                    script.freeze(args, meta, prepared, adapter)
                 raw = script.generate(args, ns, meta, bank, prepared, adapter, split,
                                       check=(phase == 'check'), bundle=fixture.bundle)
                 self.assertFalse(raw['diagnostic_only'])
@@ -355,7 +358,10 @@ class AdapterSourceRunTests(unittest.TestCase):
                 self.assertEqual(set(summary['rates']), set(raw['conditions']))
                 self.assertTrue(all(r['n_unresolved'] == 0 for r in summary['rates'].values()))
                 report = (args.run_dir / (phase + '_scored.md')).read_text()
-                self.assertIn('小样本线路检查', report)
+                if phase == 'check':
+                    self.assertIn('小样本线路检查', report)
+                else:
+                    self.assertNotIn('小样本线路检查', report)
                 self.assertNotIn('含金标来源的条件不是可部署性能', report)
                 self.assertTrue(all(set(r['outcome']) == set(raw['conditions']) for r in items['evaluations']))
 

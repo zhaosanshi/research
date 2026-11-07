@@ -1,0 +1,264 @@
+{
+  "protocol": "e26_c_dose_probe_v2",
+  "model": "qwen3-8b",
+  "bank_fingerprint": "c12728e66834717207f0861ee89d41892e610242c07647346fd994c2303ab0df",
+  "source_sha256": {
+    "bank.json": "9c82eb63ed81732f39a777eccffa51c0966e0bbd1b694a24978c6886286c403b",
+    "bank.npz": "a2ce5a0b7ea7d7c12b99d90002f875d9e6c5f1fa9c775d1c50369381fc211a0c",
+    "data.json": "bcad2b0a22fc8fccaad963611072630c228dc92999f1c8b425fcea0ecebc8e8e"
+  },
+  "code_sha256": {
+    "scripts/review_checks/e26_c_dose_probe.py": "2bebb1325ced933af7cc1cd8bd8e390a1edf664532019697c96b2f6de7609c89",
+    "scripts/e26_matched_coverage.py": "baa2b2f402f75814146829491550d0820acf87d1472b3e2d1acb6dcde0be47f5",
+    "core/qa_precision.py": "7943d6b9e188483605b55de8339539996190c1252461900d6c14ab0006e44150",
+    "core/joint_steering.py": "93c408106d78efd8de42af5882fc73b0dae5747d7a9f91c05636d4339688d45e",
+    "core/intervene.py": "c462947f5d13b7ed2578d705ba517f2d03e614c81fd2f79e89faec4bc38ff8f2",
+    "core/model_io.py": "677961abb3d392bde98e8fe3436484d3fe5797af4c20e02a2491fa468cf32d85"
+  },
+  "n_requested": 3,
+  "alphas": [
+    -2.0,
+    -1.0,
+    1.0,
+    2.0
+  ],
+  "batch_size": 8,
+  "precision": "float32 output projection, native frozen backbone (matches E26)",
+  "rank_rule": "average ranks for ties; undefined correlation is null",
+  "tasks": {
+    "tf": {
+      "n_actual": 3,
+      "ids": [
+        "tqa:685:T",
+        "tqa:685:F",
+        "tqa:270:T"
+      ],
+      "baseline_margins": [
+        5.805461883544922,
+        -7.9620819091796875,
+        5.037879943847656
+      ],
+      "baseline_yes_share": 0.6666666666666666,
+      "baseline_margin_sd": 6.316938888583664,
+      "methods": {
+        "das_L30": {
+          "-2.0": {
+            "margins": [
+              -14.282649993896484,
+              -33.52135467529297,
+              -16.467689514160156
+            ],
+            "mean_shift": -22.384318033854168,
+            "shift_in_sd": -3.5435387976142048,
+            "yes_share": 0.0,
+            "flip_share": 0.6666666666666666,
+            "rank_spearman_vs_base": 1.0
+          },
+          "-1.0": {
+            "margins": [
+              -2.8210487365722656,
+              -21.113773345947266,
+              -3.9766387939453125
+            ],
+            "mean_shift": -10.264240264892578,
+            "shift_in_sd": -1.624875663027658,
+            "yes_share": 0.0,
+            "flip_share": 0.6666666666666666,
+            "rank_spearman_vs_base": 1.0
+          },
+          "1.0": {
+            "margins": [
+              11.204635620117188,
+              2.494770050048828,
+              10.50946044921875
+            ],
+            "mean_shift": 7.109202067057292,
+            "shift_in_sd": 1.1254188448625728,
+            "yes_share": 1.0,
+            "flip_share": 0.3333333333333333,
+            "rank_spearman_vs_base": 1.0
+          },
+          "2.0": {
+            "margins": [
+              14.007331848144531,
+              9.704692840576172,
+              13.209308624267578
+            ],
+            "mean_shift": 11.346691131591797,
+            "shift_in_sd": 1.7962325315665457,
+            "yes_share": 1.0,
+            "flip_share": 0.3333333333333333,
+            "rank_spearman_vs_base": 1.0
+          }
+        },
+        "md_L30": {
+          "-2.0": {
+            "margins": [
+              -10.384529113769531,
+              -29.992218017578125,
+              -11.674430847167969
+            ],
+            "mean_shift": -18.31081263224284,
+            "shift_in_sd": -2.8986844665119675,
+            "yes_share": 0.0,
+            "flip_share": 0.6666666666666666,
+            "rank_spearman_vs_base": 1.0
+          },
+          "-1.0": {
+            "margins": [
+              -1.766998291015625,
+              -18.99374771118164,
+              -2.8062515258789062
+            ],
+            "mean_shift": -8.816085815429688,
+            "shift_in_sd": -1.395626263119725,
+            "yes_share": 0.0,
+            "flip_share": 0.6666666666666666,
+            "rank_spearman_vs_base": 1.0
+          },
+          "1.0": {
+            "margins": [
+              12.251274108886719,
+              1.8848495483398438,
+              11.635124206542969
+            ],
+            "mean_shift": 7.629995981852214,
+            "shift_in_sd": 1.2078628773252156,
+            "yes_share": 1.0,
+            "flip_share": 0.3333333333333333,
+            "rank_spearman_vs_base": 1.0
+          },
+          "2.0": {
+            "margins": [
+              17.591033935546875,
+              10.380504608154297,
+              16.792621612548828
+            ],
+            "mean_shift": 13.96096674601237,
+            "shift_in_sd": 2.210084186700529,
+            "yes_share": 1.0,
+            "flip_share": 0.3333333333333333,
+            "rank_spearman_vs_base": 1.0
+          }
+        }
+      }
+    },
+    "qa": {
+      "n_actual": 3,
+      "ids": [
+        "tqa:685",
+        "tqa:270",
+        "tqa:480"
+      ],
+      "baseline_margins": [
+        7.595073699951172,
+        -11.419273376464844,
+        21.01268768310547
+      ],
+      "baseline_yes_share": 0.6666666666666666,
+      "baseline_margin_sd": 13.305846074868466,
+      "methods": {
+        "das_L31": {
+          "-2.0": {
+            "margins": [
+              -21.775379180908203,
+              -36.914825439453125,
+              -13.107154846191406
+            ],
+            "mean_shift": -29.661949157714844,
+            "shift_in_sd": -2.2292418678838555,
+            "yes_share": 0.0,
+            "flip_share": 0.6666666666666666,
+            "rank_spearman_vs_base": 1.0
+          },
+          "-1.0": {
+            "margins": [
+              -5.102863311767578,
+              -26.295188903808594,
+              6.512481689453125
+            ],
+            "mean_shift": -14.024686177571615,
+            "shift_in_sd": -1.0540243813627805,
+            "yes_share": 0.3333333333333333,
+            "flip_share": 0.3333333333333333,
+            "rank_spearman_vs_base": 1.0
+          },
+          "1.0": {
+            "margins": [
+              17.24637222290039,
+              1.0983619689941406,
+              29.766407012939453
+            ],
+            "mean_shift": 10.307551066080729,
+            "shift_in_sd": 0.7746633327999493,
+            "yes_share": 1.0,
+            "flip_share": 0.3333333333333333,
+            "rank_spearman_vs_base": 1.0
+          },
+          "2.0": {
+            "margins": [
+              23.250404357910156,
+              10.779659271240234,
+              33.98618698120117
+            ],
+            "mean_shift": 16.94258753458659,
+            "shift_in_sd": 1.273319068870566,
+            "yes_share": 1.0,
+            "flip_share": 0.3333333333333333,
+            "rank_spearman_vs_base": 1.0
+          }
+        },
+        "md_L31": {
+          "-2.0": {
+            "margins": [
+              -21.586711883544922,
+              -36.78877258300781,
+              -12.916019439697266
+            ],
+            "mean_shift": -29.493330637613933,
+            "shift_in_sd": -2.2165693539262956,
+            "yes_share": 0.0,
+            "flip_share": 0.6666666666666666,
+            "rank_spearman_vs_base": 1.0
+          },
+          "-1.0": {
+            "margins": [
+              -5.037986755371094,
+              -26.122772216796875,
+              6.49505615234375
+            ],
+            "mean_shift": -13.951396942138672,
+            "shift_in_sd": -1.0485163336204149,
+            "yes_share": 0.3333333333333333,
+            "flip_share": 0.3333333333333333,
+            "rank_spearman_vs_base": 1.0
+          },
+          "1.0": {
+            "margins": [
+              17.190982818603516,
+              1.1063423156738281,
+              29.96526336669922
+            ],
+            "mean_shift": 10.358033498128256,
+            "shift_in_sd": 0.7784573367109727,
+            "yes_share": 1.0,
+            "flip_share": 0.3333333333333333,
+            "rank_spearman_vs_base": 1.0
+          },
+          "2.0": {
+            "margins": [
+              23.515060424804688,
+              10.876651763916016,
+              34.25679397583008
+            ],
+            "mean_shift": 17.153339385986328,
+            "shift_in_sd": 1.2891581106131123,
+            "yes_share": 1.0,
+            "flip_share": 0.3333333333333333,
+            "rank_spearman_vs_base": 1.0
+          }
+        }
+      }
+    }
+  }
+}

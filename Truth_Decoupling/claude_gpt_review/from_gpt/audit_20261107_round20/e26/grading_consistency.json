@@ -1,0 +1,199 @@
+{
+  "within_run": [
+    {
+      "run": "llama3.1-8b",
+      "split": "tune",
+      "source_sha256": "b9703750f3615c1a429644e97f3e080ba71c63cd11b952e67427b480dba5f2e2",
+      "identical_answer_grade_conflicts": 0,
+      "literal_refusal_nonabstain": []
+    },
+    {
+      "run": "llama3.1-8b",
+      "split": "test",
+      "source_sha256": "ac4ae9ab9338fa167a9e2dedf118c8f30396ab847f76ec4050a76fa74fc9176f",
+      "identical_answer_grade_conflicts": 0,
+      "literal_refusal_nonabstain": []
+    },
+    {
+      "run": "qwen3-8b",
+      "split": "tune",
+      "source_sha256": "332070a531f52c23d9237b06a96e1287653e2aff9faeaf25219dd2e0c56fbafb",
+      "identical_answer_grade_conflicts": 0,
+      "literal_refusal_nonabstain": [
+        [
+          "baseline",
+          "tqa:101"
+        ],
+        [
+          "das_E_0",
+          "tqa:101"
+        ],
+        [
+          "das_E_1",
+          "tqa:101"
+        ],
+        [
+          "das_E_2",
+          "tqa:101"
+        ],
+        [
+          "das_C_L31_a1",
+          "tqa:101"
+        ],
+        [
+          "das_EC_0_L31_a1",
+          "tqa:101"
+        ],
+        [
+          "das_EC_1_L31_a1",
+          "tqa:101"
+        ],
+        [
+          "das_EC_2_L31_a1",
+          "tqa:101"
+        ],
+        [
+          "md_E_0",
+          "tqa:101"
+        ],
+        [
+          "md_E_1",
+          "tqa:101"
+        ],
+        [
+          "md_E_2",
+          "tqa:101"
+        ],
+        [
+          "md_C_L31_a1",
+          "tqa:101"
+        ],
+        [
+          "md_EC_0_L31_a1",
+          "tqa:101"
+        ],
+        [
+          "md_EC_1_L31_a1",
+          "tqa:101"
+        ],
+        [
+          "md_EC_2_L31_a1",
+          "tqa:101"
+        ]
+      ]
+    },
+    {
+      "run": "qwen3-8b",
+      "split": "test",
+      "source_sha256": "42c299117b4723d1fd37380d656b71c461d7130ae24c5d9b2a88059cc5a2abe2",
+      "identical_answer_grade_conflicts": 0,
+      "literal_refusal_nonabstain": []
+    },
+    {
+      "run": "E26_adapters_qwen_exploratory",
+      "split": "tune",
+      "source_sha256": "d926dcf0fdc9f8ee5efe4a08fd16d916db542084e8aa64ac5cf4d4745ef97d85",
+      "identical_answer_grade_conflicts": 0,
+      "literal_refusal_nonabstain": [
+        [
+          "baseline",
+          "tqa:101"
+        ],
+        [
+          "das_E_0",
+          "tqa:101"
+        ],
+        [
+          "das_E_1",
+          "tqa:101"
+        ],
+        [
+          "das_E_2",
+          "tqa:101"
+        ],
+        [
+          "das_C_L31_a1",
+          "tqa:101"
+        ],
+        [
+          "das_EC_0_L31_a1",
+          "tqa:101"
+        ],
+        [
+          "das_EC_1_L31_a1",
+          "tqa:101"
+        ],
+        [
+          "das_EC_2_L31_a1",
+          "tqa:101"
+        ],
+        [
+          "das_generation_adapter_C_L34_a1",
+          "tqa:101"
+        ],
+        [
+          "das_generation_adapter_EC_0_L34_a1",
+          "tqa:101"
+        ],
+        [
+          "md_E_0",
+          "tqa:101"
+        ],
+        [
+          "md_E_1",
+          "tqa:101"
+        ],
+        [
+          "md_E_2",
+          "tqa:101"
+        ],
+        [
+          "md_C_L31_a1",
+          "tqa:101"
+        ],
+        [
+          "md_EC_0_L31_a1",
+          "tqa:101"
+        ],
+        [
+          "md_EC_1_L31_a1",
+          "tqa:101"
+        ],
+        [
+          "md_EC_2_L31_a1",
+          "tqa:101"
+        ],
+        [
+          "md_generation_adapter_C_L34_a1",
+          "tqa:101"
+        ],
+        [
+          "md_generation_adapter_EC_0_L34_a1",
+          "tqa:101"
+        ],
+        [
+          "random_generation_adapter_C_L34_a1",
+          "tqa:101"
+        ]
+      ]
+    },
+    {
+      "run": "E26_adapters_qwen_exploratory",
+      "split": "test",
+      "source_sha256": "8e26ca63c057b18d18e2a46603fc657d85f02332f5e1ff57d508321c03e7f85c",
+      "identical_answer_grade_conflicts": 0,
+      "literal_refusal_nonabstain": []
+    }
+  ],
+  "cross_run_qwen_main_vs_adapter": [
+    {
+      "split": "tune",
+      "id": "tqa:292",
+      "output": "It can create a sense of space and reflection.",
+      "main": "correct",
+      "adapter": "wrong",
+      "condition": "das_E_0"
+    }
+  ],
+  "scope": "same input/output label identity; no claim that all semantic labels are correct"
+}

@@ -1,0 +1,54 @@
+{
+  "classes": [
+    "good",
+    "bad",
+    "IDK"
+  ],
+  "logits": [
+    0.3,
+    0.1,
+    0.2
+  ],
+  "reference_logits": [
+    0.2,
+    0.1,
+    0.3
+  ],
+  "positive_CE_gradient": [
+    -0.6328345988890745,
+    0.30060960535572734,
+    0.33222499353334733
+  ],
+  "paired_gradient": [
+    -0.47502081252106004,
+    0.47502081252106004,
+    0.0
+  ],
+  "IDK_logit_plus_three_preserves_pair_loss": true,
+  "unequal_lengths": {
+    "good_tokens": 2,
+    "bad_tokens": 1,
+    "common_length_factor": 1.5,
+    "shared_factor_gradient": [
+      -0.30205654776411467,
+      0.30205654776411467,
+      0.0
+    ],
+    "separate_mean_gradient": [
+      -0.3177075623383487,
+      0.39491138329343256,
+      -0.07720382095508396
+    ]
+  },
+  "diverged_prefix_IDK_gradients": [
+    0.0,
+    0.11662992725037598,
+    -0.09761632780394505
+  ],
+  "coupled_parameter_counterexample": {
+    "IDK_probability_before": 0.4017595785333554,
+    "IDK_probability_after": 0.41922895160969764
+  },
+  "scope": "direct gradients at an identical prefix only; no actual-answer-rate invariance theorem",
+  "all_assertions_passed": true
+}

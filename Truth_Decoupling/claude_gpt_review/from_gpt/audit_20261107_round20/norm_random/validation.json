@@ -1,0 +1,50 @@
+{
+  "source_base": "E34 original frozen training-code snapshot plus the two listed production files",
+  "tests": [
+    {
+      "file": "from_gpt/test_norm_matched_random_20261107.py",
+      "passed": 4
+    },
+    {
+      "file": "from_gpt/test_e36_parent_integrity_20261107.py",
+      "passed": 3
+    }
+  ],
+  "test_evidence": "executed unittest outputs in this session; meaningful actual tensor/cache and metadata rejection paths",
+  "production_and_test_sha256": {
+    "from_claude/code/core/qa_norm_matched_random.py": "3260b09bd59f905a60b1d6045d72c77de52cc0bba14d023c2f11c054bd1b6614",
+    "from_claude/code/scripts/e36_norm_matched_random.py": "afcca8067c7af333e4c01842215804cbcc387f0f7ca5697bc94e91cfef96ac00",
+    "from_gpt/test_norm_matched_random_20261107.py": "3c0a44f68572ac720ec81ad84c294bf6581010de6eeea0eb370311921d0ec670",
+    "from_gpt/test_e36_parent_integrity_20261107.py": "d831f140bd148140f321367c78cec1d05040d9edf174b1a8d11f09308066b194"
+  },
+  "real_pilots": {
+    "llama3.1-8b": {
+      "questions": 3,
+      "actual_writes": 54,
+      "max_relative_norm_error": 8.391760484527932e-05,
+      "frozen_parent_grades": 21
+    },
+    "qwen3-8b": {
+      "questions": 3,
+      "actual_writes": 61,
+      "max_relative_norm_error": 0.0006753227508549245,
+      "frozen_parent_grades": 21
+    }
+  },
+  "full_runs": {
+    "models": [
+      "llama3.1-8b",
+      "qwen3-8b"
+    ],
+    "questions_each": 192,
+    "new_seeds": [
+      42,
+      43,
+      44
+    ],
+    "new_outputs_each": 576,
+    "frozen_parent_grades_each": 1344,
+    "all_generation_judging_and_matched_score_stages_exit_zero": true
+  },
+  "scope": "conditional same-state norm matching; learned scalar dose is explicitly borrowed"
+}

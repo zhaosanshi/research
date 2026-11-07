@@ -1,0 +1,24 @@
+{
+  "all_match": true,
+  "runs": [
+    {
+      "run": "qa_ability_full",
+      "model": "qwen3-8b",
+      "all_match": true,
+      "tasks": [
+        {
+          "task": "qa",
+          "test_arm_cells": 33,
+          "frozen_choices": 36,
+          "exact_comparisons": 210,
+          "n_test": 523,
+          "bootstrap_all_intervals_checked": true
+        }
+      ],
+      "scope": "raw payloads, TF labels, QA grade consistency (not semantic regrading), quota/delivery/native counts, frozen choices/thresholds, exact p values, all bootstrap CIs"
+    }
+  ],
+  "test_arm_cells": 33,
+  "frozen_choices": 36,
+  "exact_comparisons": 210
+}

@@ -13,6 +13,7 @@ import math
 import os
 from pathlib import Path
 import string
+import time
 from types import SimpleNamespace
 
 import numpy as np
@@ -552,6 +553,9 @@ def judge(args, meta, filename, output_stem):
     if (data.get("model") != args.model or data.get("conditions") != [c["name"] for c in data["condition_specs"]]
             or len(set(data["conditions"])) != len(data["conditions"])):
         raise ValueError("generation identity/condition list disagrees before grading")
+    ids = [row.get('pair_id') for row in data.get('evaluations', [])]
+    if not ids or any(not isinstance(pid, str) or not pid for pid in ids) or len(ids) != len(set(ids)):
+        raise ValueError('grading requires unique nonempty question IDs; duplicate questions must not be silently deduplicated')
     stem = args.run_dir / output_stem
     if output_stem == "tune_scored" and (args.run_dir / "selection.json").exists():
         raise ValueError("tuning grades are frozen; start a new run to change them")
@@ -561,7 +565,8 @@ def judge(args, meta, filename, output_stem):
     # cannot summarize, and reuse both these rows and the existing judge cache.
     from core.judge import judge_from_config
     judge_cfg = e24.load_experiment(args.judge_exp)["judge"]
-    grader = judge_from_config(judge_cfg, cache_dir=os.path.join(e24.RESULTS_DIR, "judge_cache"))
+    judge_cache_dir = getattr(args, 'judge_cache_dir', None) or os.path.join(e24.RESULTS_DIR, "judge_cache")
+    grader = judge_from_config(judge_cfg, cache_dir=judge_cache_dir)
     if getattr(grader, "qa_rubric_id", None) != QA_GRADER_VERSION:
         raise ValueError("the deployed judge must use the current semantic rubric")
     source_hash, judge_hash = digest(path), fingerprint(judge_cfg)
@@ -572,7 +577,7 @@ def judge(args, meta, filename, output_stem):
                 or pending.get("grading_judge_config_sha256") != judge_hash
                 or pending.get("grading_judge_name") != grader.name):
             raise ValueError("pending grades belong to different generation or judge settings")
-        verify_question_rows(pending["evaluations"], data["evaluations"])
+        verify_question_rows([{**row, 'idx': i} for i, row in enumerate(pending["evaluations"])], data["evaluations"])
         if (pending.get("conditions") != data["conditions"]
                 or pending.get("condition_specs") != data["condition_specs"]
                 or any(a["outputs"] != b["outputs"] for a, b in zip(pending["evaluations"], data["evaluations"]))):
@@ -581,24 +586,52 @@ def judge(args, meta, filename, output_stem):
         pending = copy.deepcopy(data)
         pending.update(grading_source_generation_sha256=source_hash,
                        grading_judge_config_sha256=judge_hash, grading_judge_name=grader.name)
+    # idx is display/order metadata, not question identity. E24's legacy
+    # reporter deduplicates by idx, so missing/duplicate old indices otherwise
+    # crash or silently discard valid distinct questions. Normalize only this
+    # derived grading copy; preserve the original generation bytes and hash.
+    index_changes = []
+    for index, row in enumerate(pending['evaluations']):
+        if type(row.get('idx')) is not int or row['idx'] != index:
+            index_changes.append({'pair_id': row['pair_id'], 'original_idx': row.get('idx'), 'grading_idx': index})
+        row['idx'] = index
+    if 'grading_row_index_normalization' not in pending:
+        pending['grading_row_index_normalization'] = {
+            'policy': 'enumerate_unique_question_ids_in_original_order',
+            'source_generation_unchanged': True, 'changes': index_changes}
     pending["grading_completed"] = False
-    for row in pending["evaluations"]:
-        references, only_refusal = reference_answers(row["gold"])
-        previous_references = row.get("judge_reference_answers")
-        row["judge_reference_answers"], row["gold_is_abstention"] = references, only_refusal
-        row.setdefault("judge", {})
-        row.setdefault("outcome", {})
-        for name in data["conditions"]:
-            cached = row["judge"].get(name, {})
-            if (previous_references != references or cached.get("rubric_id") != QA_GRADER_VERSION
-                    or cached.get("label") not in ("correct", "wrong", "abstain")):
-                row["judge"][name] = grader.qa_grade(
-                    row["question"], references, row["outputs"][name], incorrect=row.get("incorrect") or None)
-            grade = row["judge"][name]
-            if grade.get("rubric_id") != QA_GRADER_VERSION:
-                raise ValueError("an item uses a different grading rubric")
-            row["outcome"][name] = judged_outcome(grade["label"])
-            save(pending_path, pending)
+    # Semantic API responses remain individually cached. Avoid rewriting the
+    # entire multi-megabyte generation trace for every reused control label.
+    progress_count, progress_saved_at = 0, time.monotonic()
+    try:
+        for row in pending["evaluations"]:
+            references, only_refusal = reference_answers(row["gold"])
+            previous_references = row.get("judge_reference_answers")
+            row["judge_reference_answers"], row["gold_is_abstention"] = references, only_refusal
+            row.setdefault("judge", {})
+            row.setdefault("outcome", {})
+            for name in data["conditions"]:
+                cached = row["judge"].get(name, {})
+                if (previous_references != references or cached.get("rubric_id") != QA_GRADER_VERSION
+                        or cached.get("label") not in ("correct", "wrong", "abstain")):
+                    row["judge"][name] = grader.qa_grade(
+                        row["question"], references, row["outputs"][name], incorrect=row.get("incorrect") or None)
+                # The requested config owns the policy even for a custom semantic
+                # grader or reused old grade. This is idempotent for LLMJudge results.
+                from core.qa_scoring import apply_configured_outcome_policy
+                row['judge'][name] = apply_configured_outcome_policy(
+                    row['judge'][name], row['question'], row['outputs'][name], judge_cfg)
+                grade = row["judge"][name]
+                if grade.get("rubric_id") != QA_GRADER_VERSION:
+                    raise ValueError("an item uses a different grading rubric")
+                row["outcome"][name] = judged_outcome(grade["label"])
+                progress_count += 1
+                if progress_count % 64 == 0 or time.monotonic() - progress_saved_at >= 5.:
+                    save(pending_path, pending)
+                    progress_saved_at = time.monotonic()
+    finally:
+        # Preserve every resolved/derived grade even on parser/API/cancel errors.
+        save(pending_path, pending)
     unresolved = [{"pair_id": row["pair_id"], "condition": name}
                   for row in pending["evaluations"] for name in data["conditions"]
                   if row["outcome"][name] not in ("correct", "wrong", "abstain")]
@@ -616,13 +649,29 @@ def judge(args, meta, filename, output_stem):
             "# 语义判分未完成\n\n尚有 %d 条判定未完成；已保存逐题结果，可重跑同一阶段补判。"
             "\n\n未发布正确率、作答率或区间主表；不会删除未判题后改变分母。\n" % len(unresolved), encoding="utf-8")
         raise RuntimeError("semantic grading incomplete: %d unresolved question/condition grades; retry the same phase" % len(unresolved))
+    frozen_controls = getattr(args, 'frozen_control_grades', None)
+    if frozen_controls is not None:
+        if set(frozen_controls) != {r['pair_id'] for r in pending['evaluations']}:
+            raise ValueError('frozen control grades do not cover the exact evaluation cohort')
+        verified = 0
+        for row in pending['evaluations']:
+            for name, expected_grade in frozen_controls[row['pair_id']].items():
+                actual = row['judge'].get(name, {})
+                if (actual.get('label') != expected_grade.get('label')
+                        or actual.get('rubric_id') != expected_grade.get('rubric_id')):
+                    raise ValueError('identical control question/output received a different grade: ' + row['pair_id'] + '/' + name)
+                verified += 1
+        pending['frozen_control_grade_verification'] = {
+            'source_scored_items_sha256': getattr(args, 'frozen_control_source_sha256', None),
+            'question_condition_grades_checked': verified, 'all_identical': True}
     pending["grading_completed"] = True
     save(pending_path, pending)
     # The legacy reporter reuses these already-resolved labels and performs its
     # normal reference partition, transitions and paired bootstrap. Bind its
     # published provenance back to the original, unmodified generation file.
     e24.phase_judge(SimpleNamespace(model=args.model, tag="E25_DAS_" + data["split"], phase="judge",
-        judge_exp=args.judge_exp, input_file=str(pending_path), output_prefix=str(stem), rejudge=False, n_boot=2000))
+        judge_exp=args.judge_exp, input_file=str(pending_path), output_prefix=str(stem), rejudge=False,
+        n_boot=2000, judge_cache_dir=judge_cache_dir))
     summary_path, items_path = Path(str(stem) + ".json"), Path(str(stem) + "_items.json")
     summary, items = read(summary_path), read(items_path)
     summary.update(completed=True, status="complete", source_generation_sha256=source_hash)

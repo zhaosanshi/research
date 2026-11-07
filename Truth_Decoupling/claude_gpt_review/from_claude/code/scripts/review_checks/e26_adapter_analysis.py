@@ -17,15 +17,19 @@ import json
 import sys
 from math import comb
 from pathlib import Path
+from e26_independent_recount import audit_run, require
 
 run, out_path = Path(sys.argv[1]), sys.argv[2]
+audit_run(run)
 rep = json.loads((run / "report.json").read_text())
+require(rep["model"] == "qwen3-8b" and set(rep["tables"]["qa"]) == {"0.25", "0.5", "0.75"},
+        "adapter analysis requires the declared Qwen coverage grid")
 delivered = json.loads((run / "delivered_answers.json").read_text())["qa"]
 
 
 def sign_p(up, down):
     n = up + down
-    return None if n == 0 else min(1.0, 2 * sum(comb(n, i) for i in range(0, min(up, down) + 1)) / 2 ** n)
+    return 1.0 if n == 0 else min(1.0, 2 * sum(comb(n, i) for i in range(0, min(up, down) + 1)) / 2 ** n)
 
 
 def holm(ps):
@@ -48,6 +52,9 @@ def correct_map(arm_rows, rule):
 
 
 methods = ["das_generation_adapter", "md_generation_adapter", "random_generation_adapter"]
+bank = json.loads((run / "bank.json").read_text())
+require(set(methods).issubset({c["method"] for c in bank["conditions"]["qa"]}),
+        "declared adapter methods are missing")
 pairs = []
 for m in methods:
     pairs += [(m + "_E", "baseline_commitment"), (m + "_E_simple", "baseline_simple"), (m + "_EC", m + "_E"), (m + "_E_simple", "das_E_simple")]
@@ -59,15 +66,19 @@ for cov in sorted(rep["tables"]["qa"], key=float):
         fam = "%s - %s" % (a.replace("das_generation_adapter", "A").replace("md_generation_adapter", "A").replace("random_generation_adapter", "A"), b.replace("das_generation_adapter", "A").replace("md_generation_adapter", "A").replace("random_generation_adapter", "A"))
         rec = {"coverage": float(cov), "a": a, "b": b}
         fa, fb = arms.get(a, {}).get("feasible"), arms.get(b, {}).get("feasible")
-        if not (fa and fb) or cov not in delivered or a not in delivered[cov] or b not in delivered[cov]:
-            rec.update({"note": "infeasible or missing", "p_judged": 1.0, "p_fffd": 1.0})
+        if not (fa and fb):
+            rec.update({"note": "infeasible; retained in 9-cell Holm family with p=1", "p_judged": 1.0, "p_fffd": 1.0})
         else:
+            require(cov in delivered and a in delivered[cov] and b in delivered[cov], "missing feasible delivery")
             hit = [c for c in comps if {c["arm_a"], c["arm_b"]} == {a, b}]
+            require(len(hit) == 1 and (hit[0].get("exact_fixed_deliveries") or {}).get("p_value") is not None,
+                    "missing/duplicate feasible comparison")
             ex = (hit[0].get("exact_fixed_deliveries") or {}) if hit else {}
             sign = 1 if hit and hit[0]["arm_a"] == a else -1
             rec.update({"k": entry["k"], "n": entry["n"], "correct_a": arms[a]["correct"], "correct_b": arms[b]["correct"],
                         "delta_judged": sign * ex.get("delta_correct_count", 0), "p_judged": ex.get("p_value", 1.0)})
             ca, cb = correct_map(delivered[cov][a], "fffd"), correct_map(delivered[cov][b], "fffd")
+            require(set(ca) == set(cb), "adapter comparison cohorts differ")
             up = sum(ca[k] and not cb[k] for k in ca); down = sum(cb[k] and not ca[k] for k in ca)
             rec.update({"correct_a_fffd": sum(ca.values()), "correct_b_fffd": sum(cb.values()), "delta_fffd": up - down,
                         "p_fffd": sign_p(up, down) if up + down else 1.0,
@@ -77,7 +88,7 @@ for fam, recs in families.items():
     for key in ("judged", "fffd"):
         for r, h in zip(recs, holm([r["p_" + key] for r in recs])):
             r["p_holm_" + key] = h
-json.dump({"exploratory": True, "families": families}, open(out_path, "w"), indent=1, ensure_ascii=False)
+json.dump({"exploratory": True, "holm_family_size": 9, "infeasible_policy": "retain with p=1; six feasible plus three infeasible cells per family", "families": families}, open(out_path, "w"), indent=1, ensure_ascii=False)
 for fam, recs in families.items():
     print("\n" + fam)
     for r in recs:

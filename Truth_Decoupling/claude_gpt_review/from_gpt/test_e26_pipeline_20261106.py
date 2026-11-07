@@ -119,7 +119,12 @@ class E26IntegrationTests(unittest.TestCase):
         for method, path in [('das', self.args.tf_das_sweep), ('meandiff', self.args.tf_md_sweep)]:
             conds = {n: {s: {'ans': 1., 'J': 1., 'AUROC': 1., 'B': .5} for s in ['A', 'B', 'all']}
                      for n in ['baseline', 'E_L0_a1', 'E_L1_a1']}
-            joint.save(path, {'model': self.args.model, 'e_estimator': method, 'conds': conds})
+            metadata = {'model': self.args.model, 'e_estimator': method, 'conds': conds}
+            if method == 'das':
+                metadata['das'] = {'dir': str(self.args.tf_das_dir), 'variant': 'tf-ce-bidir',
+                    'per_layer': {str(l): {'files': ['das_E_L%d_r1_s42_tf-ce-bidir.pt' % l]}
+                                  for l in range(self.bundle.num_layers)}}
+            joint.save(path, metadata)
             arrays = {'ids': np.array([r['id'] for r in eval_rows]), 'labels': labels, 'half_a': tune}
             for name in conds:
                 arrays[name + '__answer'] = yes
@@ -155,6 +160,7 @@ class E26IntegrationTests(unittest.TestCase):
     def test_complete_real_inference_judging_freeze_report_and_actual_deliveries(self):
         meta, bank, data = self.prepare()
         selected = self.tune(meta, bank, data)
+        self.assertIn('das_EC_simple', selected['tasks']['qa']['choices']['0.5'])
         before = (self.args.run_dir / 'selection.json').read_bytes()
         joint.collect(self.args, meta, bank, data, 'test', bundle=self.bundle)
         joint.judge_qa(self.args, meta, data, 'test', judge=LocalJudge())
