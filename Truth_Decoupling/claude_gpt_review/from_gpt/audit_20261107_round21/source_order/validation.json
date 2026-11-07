@@ -1,0 +1,43 @@
+{
+  "executed_tests": 11,
+  "all_passed": true,
+  "real_pilot_models": [
+    "llama3.1-8b",
+    "qwen3-8b"
+  ],
+  "pilot_conditions_per_model": 10,
+  "pilot_questions_per_model": 3,
+  "pilot_dose_modes": [
+    "original_sigma_diagnostic",
+    "train_relative_norm_matched"
+  ],
+  "all_120_pilot_outputs_finished_without_replacement_character": true,
+  "frozen_runtime": "review_r21_source_order_v1_codex_20261107/code",
+  "files": {
+    "from_claude/code/core/qa_source_commitment.py": "e2d63b5358dd00576371ce7e919b583dada3a0d5e0ee2831d27a0f5e1585be84",
+    "from_claude/code/scripts/e37_source_commitment_order.py": "6c4f3e4263797d6a0b4f893a794bcdc16fe52d1a323aed730bb0fe71d5872a4f",
+    "from_gpt/test_source_commitment_order_20261107.py": "c6935d57b2d67d445fa3a876e00fcaf57dae45beb72716018cfdf9303a0317cb",
+    "from_claude/code/core/qa_reference_grades.py": "abfad01eb40bbc8da7bcd73cb8e9fe13c5ef07654647424dd04704e8d1802966",
+    "from_gpt/test_source_reference_grades_20261107.py": "2d2e383b4f4788d3db9edc8c7fcb64b147f7b37ed93d2316a4798b5dff8f9c30"
+  },
+  "source_hardening": "Independent saved-state/profile recount is required for the delivered calibration; current loader binds state hash and identity but does not recompute JSON profile by itself.",
+  "gate_limit": "C-only ability readout validates C; E-containing gate uses cross-task base/source prompts and is diagnostic only.",
+  "source_commitment_tests": 8,
+  "reference_grade_tests": 3,
+  "future_judge_fix": "Future E37 freezes full same-budget reference grade SHA, seeds reference_run cache after uniform guard conversion, and verifies all matching complete semantic requests including renamed C/EC arms. Old v1 runtime stays unchanged.",
+  "generation_runtime_entry_sha256": "6ef958b33f4fcf82247e8db858611d45e8411711ac85d1e41da387f2a1adf178",
+  "runtime_and_future_entry_differ_only_in_reference_grade_binding_and_verification": true,
+  "reference_lock": {
+    "llama3.1-8b": {
+      "matches": 1899,
+      "changed_labels": 0,
+      "audit_sha256": "c02cf2a6ca44160160d3b9da0682069efbb0f708fffb0c1dd9b2ae69a415677c"
+    },
+    "qwen3-8b": {
+      "matches": 1818,
+      "changed_labels": 0,
+      "audit_sha256": "7ac40e8cfa6b24bdda333c9b5c7a5401b0890faa320ce5eb311a3aba327e8364"
+    }
+  },
+  "tests_log_sha256": "d626a766f48519c6c474c755e92be44c73e82f732c3d9e447b8a89aca74b6565"
+}

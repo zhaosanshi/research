@@ -161,7 +161,7 @@ class MatchedSourceTests(unittest.TestCase):
                   'model':self.raw['model'], 'question_ids':ids, 'alpha':1., 'same_prefix_tokens':True,
                   'config':{k:self.f.cfg[k] for k in ('qa_system','qa_user','max_new_tokens','batch_size')},
                   'source_system':'truthful source', 'adapter_sha256':'a'*64}
-        for protocol in matched.SOURCE_PROTOCOLS[3:]:
+        for protocol in matched.SOURCE_PROTOCOLS[3:7]:
             p = deepcopy(parent)
             if protocol == matched.SOURCE_PROTOCOLS[6]:p['protocol']=matched.SOURCE_PROTOCOLS[3]
             identity = {**deepcopy(parent), 'protocol':protocol, 'control_generation_sha256':'b'*64,

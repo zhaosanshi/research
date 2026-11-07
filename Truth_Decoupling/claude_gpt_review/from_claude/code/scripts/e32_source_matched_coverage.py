@@ -31,11 +31,112 @@ SOURCE_PROTOCOLS = ('same_prefix_source_interchange_v1', 'supervised_same_prefix
                     'source_natural_completion_diagnostic_v1',
                     'supervised_source_pair_preference_question_mask_v1',
                     'source_actual_norm_random_orientation_control_v1',
-                    'source_question_mask_uniform256_diagnostic_v1')
+                    'source_question_mask_uniform256_diagnostic_v1',
+                    'source_e_commitment_layer_order_v1',
+                    'source_e_commitment_neighbor_extension_v1')
 CONTROL_NAMES = ['baseline', 'source_only', 'equal_logit_mix', 'source_das_swap', 'source_random_swap']
 PREFERENCE_NAMES = CONTROL_NAMES + ['trained_source_swap_das_init', 'pair_preference_source_swap']
 MASKED_NAME = 'pair_preference_question_masked_source'
 MASK_MODE = 'question_attention_keys_masked_positions_preserved_v1'
+ORDER_NAMES = ['baseline', 'E_source', 'C_before_m1', 'EC_before_m1',
+               'C_before_p1', 'EC_before_p1', 'C_after_m1', 'EC_after_m1',
+               'C_after_p1', 'EC_after_p1']
+NEIGHBOR_NAMES = ['C_neighbor_m1','EC_neighbor_m1','C_neighbor_p1','EC_neighbor_p1']
+
+
+def neighbor_source_names(raw, meta, question_ids, full_ids, pilot):
+    ident=raw['identity'];parent=raw.get('control_identity') or {}
+    order_source_names({'identity':parent,'condition_specs':parent.get('condition_specs')},meta,full_ids,False)
+    specs=raw.get('condition_specs')
+    coefficient=ident.get('neighbor_c_coefficient')
+    if (meta['model']!='llama3.1-8b' or ident.get('model')!=meta['model']
+            or parent.get('protocol')!=SOURCE_PROTOCOLS[7]
+            or not parent_cohort_matches(parent.get('question_ids'),question_ids,full_ids,pilot)
+            or ident.get('question_ids')!=question_ids
+            or any(ident.get(k)!=parent.get(k) for k in ('source','layer','e_layer','config','source_system',
+                    'max_new_tokens','batch_size','alpha','adapter_sha256','c_bank_meta_sha256','c_bank_sha256','c_data_sha256'))
+            or ident.get('neighbor_c_layer')!=14 or ident.get('layer')!=15
+            or ident.get('all_arms_freshly_generated') is not False or ident.get('all_controls_inherited_exactly') is not True
+            or ident.get('source_has_C') is not False or ident.get('training_called') is not False
+            or ident.get('same_prefix_tokens') is not True
+            or isinstance(coefficient,bool) or not isinstance(coefficient,(int,float))
+            or not math.isfinite(coefficient) or coefficient<=0
+            or ident.get('c_layers')!={**parent['c_layers'],'neighbor':14}
+            or ident.get('c_coefficients')!={**parent['c_coefficients'],'neighbor':coefficient}
+            or ident.get('conditions')!=ORDER_NAMES+NEIGHBOR_NAMES
+            or any(not sha256_value(ident.get(k)) for k in ('parent_generation_sha256','parent_scored_sha256',
+                    'parent_plan_sha256','e39_plan_sha256','e39_report_sha256','e39_calibration_sha256','e39_gate_sha256'))
+            or not isinstance(specs,list) or len(specs)!=14 or specs!=ident.get('condition_specs')
+            or specs[:10]!=parent['condition_specs']):
+        raise ValueError('neighbor-C extension has a foreign parent, changed old arm, or unfrozen neighbor')
+    for name,spec in zip(NEIGHBOR_NAMES,specs[10:]):
+        enabled=name.startswith('EC_');alpha=-1. if name.endswith('_m1') else 1.
+        c=spec.get('c')
+        if (spec.get('name')!=name or spec.get('e_enabled') is not enabled
+                or spec.get('uses_reference_answer') is not False
+                or spec.get('e')!=({'layer':15,'alpha':1.} if enabled else None)
+                or not isinstance(c,dict) or any(c.get(k)!=v for k,v in
+                    {'layer':14,'side':'neighbor','alpha':alpha,'position':'base_prompt_end_only'}.items())):
+            raise ValueError('neighbor C sign, direction site or fixed E definition changed')
+    return ORDER_NAMES+NEIGHBOR_NAMES
+
+
+def order_source_names(raw, meta, question_ids, pilot):
+    """E37 varies the physical C layer around a fixed source-E checkpoint."""
+    ident = raw['identity']
+    model_plan = {'llama3.1-8b': (15, 7, 23, 48), 'qwen3-8b': (17, 8, 26, 256)}
+    if meta['model'] not in model_plan:
+        raise ValueError('unregistered source/C order model')
+    e_layer, before, after, budget = model_plan[meta['model']]
+    expected_config = {k:meta['config'][k] for k in ('qa_system','qa_user','max_new_tokens','batch_size')}
+    if (ident.get('model') != meta['model'] or ident.get('config') != expected_config
+            or ident.get('layer') != e_layer or ident.get('e_layer') != e_layer
+            or not 0 <= before < e_layer < after < meta['num_layers']
+            or ident.get('c_layers') != {'before':before,'after':after}
+            or ident.get('max_new_tokens') != budget or ident.get('batch_size') != 1
+            or ident.get('question_ids') != question_ids or ident.get('conditions') != ORDER_NAMES
+            or ident.get('alpha') != 1. or ident.get('c_alphas') != [-1.,1.]
+            or ident.get('c_position') != 'base_prompt_end_only'
+            or ident.get('same_prefix_tokens') is not True or ident.get('source_has_C') is not False
+            or ident.get('gold_used_at_inference') is not False
+            or ident.get('training_called') is not False or ident.get('all_arms_freshly_generated') is not True
+            or any(not sha256_value(ident.get(k)) for k in ('adapter_sha256','adapter_manifest_sha256',
+                        'c_bank_meta_sha256','c_bank_sha256','c_data_sha256','reference_generation_sha256'))):
+        raise ValueError('source/C order layers, budget, cohort or provenance differ')
+    mode = ident.get('calibration_mode')
+    coefficients = ident.get('c_coefficients')
+    if (not isinstance(coefficients,dict) or set(coefficients) != {'before','after'}
+            or any(isinstance(v,bool) or not isinstance(v,(int,float)) or not math.isfinite(v) or v <= 0
+                   for v in coefficients.values())):
+        raise ValueError('order comparison has invalid frozen C coefficients')
+    if mode == 'original_sigma_diagnostic':
+        if not pilot or ident.get('pilot') is not True:
+            raise ValueError('original sigma is a wiring diagnostic, not the full order comparison')
+    elif mode == 'train_relative_norm_matched':
+        if not sha256_value(ident.get('c_calibration_sha256')):
+            raise ValueError('order comparison has no frozen training-only C calibration')
+    else:
+        raise ValueError('unknown order-comparison C calibration')
+    specs = raw.get('condition_specs')
+    if not isinstance(specs,list) or specs != ident.get('condition_specs') or len(specs) != len(ORDER_NAMES):
+        raise ValueError('source/C order condition definitions differ')
+    for name, spec in zip(ORDER_NAMES,specs):
+        enabled = name == 'E_source' or name.startswith('EC_')
+        expected_e = {'layer':e_layer,'alpha':1.} if enabled else None
+        if (spec.get('name') != name or spec.get('e_enabled') is not enabled
+                or spec.get('e') != expected_e or spec.get('uses_reference_answer') is not False):
+            raise ValueError('fixed E or reference-free order condition changed')
+        c = spec.get('c')
+        if name in ('baseline','E_source'):
+            if c is not None:raise ValueError('baseline/E-only unexpectedly contains C')
+        else:
+            side = 'before' if '_before_' in name else 'after'
+            alpha = -1. if name.endswith('_m1') else 1.
+            if not isinstance(c,dict) or any(c.get(k)!=v for k,v in
+                    {'layer':ident['c_layers'][side], 'side':side, 'alpha':alpha,
+                     'position':'base_prompt_end_only'}.items()):
+                raise ValueError('C sign, position or physical order changed')
+    return ORDER_NAMES
 
 
 def sha256_value(value):
@@ -118,7 +219,12 @@ def inputs(args):
     if args.stem == 'tune' and (raw.get('pilot') or raw.get('wiring_pilot')):
         raise ValueError('a wiring pilot cannot be presented as a full tuning comparison')
     identity = raw['identity']
-    if raw.get('protocol') in SOURCE_PROTOCOLS[3:]:
+    if raw.get('protocol') == SOURCE_PROTOCOLS[8]:
+        expected_names = neighbor_source_names(raw,meta,[q['pair_id'] for q in questions],
+                                              [q['pair_id'] for q in prepared['splits']['tune']],args.stem=='check')
+    elif raw.get('protocol') == SOURCE_PROTOCOLS[7]:
+        expected_names = order_source_names(raw, meta, [q['pair_id'] for q in questions], args.stem == 'check')
+    elif raw.get('protocol') in SOURCE_PROTOCOLS[3:7]:
         expected_names = extended_source_names(raw, meta, [q['pair_id'] for q in questions],
                                               [q['pair_id'] for q in prepared['splits']['tune']], args.stem == 'check')
     elif raw.get('protocol') == SOURCE_PROTOCOLS[2]:

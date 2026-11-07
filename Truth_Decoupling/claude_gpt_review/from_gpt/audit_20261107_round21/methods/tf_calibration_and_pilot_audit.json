@@ -1,0 +1,384 @@
+[
+  {
+    "model": "llama3.1-8b",
+    "calibration_sha256": "b9f80e7c1311ce1b81411a89ec9665a6ed8efd2628785151e67e61b52c4d3d51",
+    "states_sha256": "45d26e4f79c5264d313c1444ab9f7c7218b0b040c26e6cb7d793b55d5b8c5beb",
+    "raw_pilot_sha256": "b34db3939363dd86053d7165c9f2b8ce0e7b3dd26088b12eee4b1d9b7ac8bcbd",
+    "calibration": {
+      "das": {
+        "recomputed_rho": 0.01825690670180259,
+        "recorded_rho": 0.018256906419992447,
+        "tolerance": 9.138453209996224e-05,
+        "layers": {
+          "before": {
+            "layer": 7,
+            "dtype": "torch.bfloat16",
+            "n": 192,
+            "coefficient": 0.08344512738680883,
+            "original_sigma": 0.08344512738680883,
+            "original_median": 0.01825690670180259,
+            "matched_median": 0.01825690670180259,
+            "positive_median": 0.018256051574531945,
+            "negative_median": 0.018256962567007713,
+            "profile_max_cpu_gpu_float_difference": 3.2512546682683663e-09,
+            "actual_median_error": 0.0
+          },
+          "after": {
+            "layer": 23,
+            "dtype": "torch.bfloat16",
+            "n": 192,
+            "coefficient": 0.3946732614182168,
+            "original_sigma": 1.954208392503313,
+            "original_median": 0.08975466590150943,
+            "matched_median": 0.018256078250087626,
+            "positive_median": 0.01825962274991395,
+            "negative_median": 0.01825386297215948,
+            "profile_max_cpu_gpu_float_difference": 1.3169935184076387e-08,
+            "actual_median_error": 8.284517149653725e-07
+          }
+        }
+      },
+      "md": {
+        "recomputed_rho": 0.01845180683441241,
+        "recorded_rho": 0.018451808020472527,
+        "tolerance": 9.235904010236263e-05,
+        "layers": {
+          "before": {
+            "layer": 7,
+            "dtype": "torch.bfloat16",
+            "n": 192,
+            "coefficient": 0.08421999559969175,
+            "original_sigma": 0.08421999559969175,
+            "original_median": 0.01845180683441241,
+            "matched_median": 0.01845180683441241,
+            "positive_median": 0.018450685020389733,
+            "negative_median": 0.01845468606844255,
+            "profile_max_cpu_gpu_float_difference": 3.0763801402156066e-09,
+            "actual_median_error": 0.0
+          },
+          "after": {
+            "layer": 23,
+            "dtype": "torch.bfloat16",
+            "n": 192,
+            "coefficient": 0.39954197229760435,
+            "original_sigma": 1.9183224957825438,
+            "original_median": 0.0880873915336905,
+            "matched_median": 0.018451719093794637,
+            "positive_median": 0.018448660377621152,
+            "negative_median": 0.01845292178952629,
+            "profile_max_cpu_gpu_float_difference": 1.2472386734518892e-08,
+            "actual_median_error": 8.774061777128139e-08
+          }
+        }
+      }
+    },
+    "actual_order_contexts_checked": 228,
+    "actual_C_requested_scale_checks": 192,
+    "gate_effects": {
+      "das_C_L7_a-1": {
+        "reference": "baseline",
+        "median_delta_yes_no": 0.006062507629394531,
+        "min_delta_yes_no": -0.08575248718261719,
+        "max_delta_yes_no": 0.07011222839355469,
+        "min_yes_no_probability_mass": 0.9998630818989802
+      },
+      "das_EC_L7_a-1": {
+        "reference": "das_E",
+        "median_delta_yes_no": -0.012568473815917969,
+        "min_delta_yes_no": -0.04703712463378906,
+        "max_delta_yes_no": 0.04017448425292969,
+        "min_yes_no_probability_mass": 0.9998666614020463
+      },
+      "das_C_L7_a1": {
+        "reference": "baseline",
+        "median_delta_yes_no": 0.011992454528808594,
+        "min_delta_yes_no": -0.04086875915527344,
+        "max_delta_yes_no": 0.06476783752441406,
+        "min_yes_no_probability_mass": 0.9998518488736547
+      },
+      "das_EC_L7_a1": {
+        "reference": "das_E",
+        "median_delta_yes_no": -0.018975257873535156,
+        "min_delta_yes_no": -0.08153915405273438,
+        "max_delta_yes_no": 0.009975433349609375,
+        "min_yes_no_probability_mass": 0.9998527487772217
+      },
+      "das_C_L23_a-1": {
+        "reference": "baseline",
+        "median_delta_yes_no": -0.2992982864379883,
+        "min_delta_yes_no": -0.4306621551513672,
+        "max_delta_yes_no": -0.22101974487304688,
+        "min_yes_no_probability_mass": 0.9998247385765967
+      },
+      "das_EC_L23_a-1": {
+        "reference": "das_E",
+        "median_delta_yes_no": -0.36181640625,
+        "min_delta_yes_no": -0.4427528381347656,
+        "max_delta_yes_no": -0.20093154907226562,
+        "min_yes_no_probability_mass": 0.9998272327578928
+      },
+      "das_C_L23_a1": {
+        "reference": "baseline",
+        "median_delta_yes_no": 0.3970308303833008,
+        "min_delta_yes_no": 0.21807479858398438,
+        "max_delta_yes_no": 0.4749279022216797,
+        "min_yes_no_probability_mass": 0.9998852667217624
+      },
+      "das_EC_L23_a1": {
+        "reference": "das_E",
+        "median_delta_yes_no": 0.3687591552734375,
+        "min_delta_yes_no": 0.1547069549560547,
+        "max_delta_yes_no": 0.4312629699707031,
+        "min_yes_no_probability_mass": 0.9998818109777934
+      },
+      "md_C_L7_a-1": {
+        "reference": "baseline",
+        "median_delta_yes_no": -0.022266387939453125,
+        "min_delta_yes_no": -0.060497283935546875,
+        "max_delta_yes_no": 0.03186607360839844,
+        "min_yes_no_probability_mass": 0.9998542449154546
+      },
+      "md_EC_L7_a-1": {
+        "reference": "md_E",
+        "median_delta_yes_no": -0.0431060791015625,
+        "min_delta_yes_no": -0.05914115905761719,
+        "max_delta_yes_no": -0.027278900146484375,
+        "min_yes_no_probability_mass": 0.9997879435682547
+      },
+      "md_C_L7_a1": {
+        "reference": "baseline",
+        "median_delta_yes_no": 0.01918506622314453,
+        "min_delta_yes_no": -0.010923385620117188,
+        "max_delta_yes_no": 0.05151176452636719,
+        "min_yes_no_probability_mass": 0.9998564073827536
+      },
+      "md_EC_L7_a1": {
+        "reference": "md_E",
+        "median_delta_yes_no": 0.042717933654785156,
+        "min_delta_yes_no": -0.0027446746826171875,
+        "max_delta_yes_no": 0.11219978332519531,
+        "min_yes_no_probability_mass": 0.9997921825373534
+      },
+      "md_C_L23_a-1": {
+        "reference": "baseline",
+        "median_delta_yes_no": -0.2952613830566406,
+        "min_delta_yes_no": -0.4101886749267578,
+        "max_delta_yes_no": -0.1906108856201172,
+        "min_yes_no_probability_mass": 0.9998223772243346
+      },
+      "md_EC_L23_a-1": {
+        "reference": "md_E",
+        "median_delta_yes_no": -0.3823060989379883,
+        "min_delta_yes_no": -0.4377937316894531,
+        "max_delta_yes_no": -0.16756820678710938,
+        "min_yes_no_probability_mass": 0.9997474387595315
+      },
+      "md_C_L23_a1": {
+        "reference": "baseline",
+        "median_delta_yes_no": 0.3798980712890625,
+        "min_delta_yes_no": 0.2194347381591797,
+        "max_delta_yes_no": 0.46888160705566406,
+        "min_yes_no_probability_mass": 0.9998855036508851
+      },
+      "md_EC_L23_a1": {
+        "reference": "md_E",
+        "median_delta_yes_no": 0.4061393737792969,
+        "min_delta_yes_no": 0.18426513671875,
+        "max_delta_yes_no": 0.44774818420410156,
+        "min_yes_no_probability_mass": 0.9998235594350131
+      }
+    },
+    "status": "pass_no_blocker_for_fixed_full_run"
+  },
+  {
+    "model": "qwen3-8b",
+    "calibration_sha256": "3f8f5935a2ff1516af5f42b108d28b5525bd16531bbcae0535a2993f16177d69",
+    "states_sha256": "60add0a7d3a4a7ab20b8d36f3c2044c576830aea057e4c9b12ac396d0c4250a6",
+    "raw_pilot_sha256": "491ed922b36be92eb2101e05c428c38d69b48b1fb70436d761542090c664e6ba",
+    "calibration": {
+      "das": {
+        "recomputed_rho": 0.011705393915583274,
+        "recorded_rho": 0.01170539390295744,
+        "tolerance": 5.86269695147872e-05,
+        "layers": {
+          "before": {
+            "layer": 8,
+            "dtype": "torch.bfloat16",
+            "n": 192,
+            "coefficient": 0.4937410147825871,
+            "original_sigma": 0.4937410147825871,
+            "original_median": 0.011705393915583274,
+            "matched_median": 0.011705393915583274,
+            "positive_median": 0.011701425454573602,
+            "negative_median": 0.011706941350498115,
+            "profile_max_cpu_gpu_float_difference": 1.918320991639577e-09,
+            "actual_median_error": 0.0
+          },
+          "after": {
+            "layer": 26,
+            "dtype": "torch.bfloat16",
+            "n": 192,
+            "coefficient": 3.1217227619304078,
+            "original_sigma": 20.79970241120085,
+            "original_median": 0.07753658251632306,
+            "matched_median": 0.011705581729153463,
+            "positive_median": 0.011711687637648311,
+            "negative_median": 0.011701305800405128,
+            "profile_max_cpu_gpu_float_difference": 1.1497705995622276e-08,
+            "actual_median_error": 1.8781357018909928e-07
+          }
+        }
+      },
+      "md": {
+        "recomputed_rho": 0.011783755648519488,
+        "recorded_rho": 0.01178375631570816,
+        "tolerance": 5.901878157854081e-05,
+        "layers": {
+          "before": {
+            "layer": 8,
+            "dtype": "torch.bfloat16",
+            "n": 192,
+            "coefficient": 0.4985252147859684,
+            "original_sigma": 0.4985252147859684,
+            "original_median": 0.011783755648519488,
+            "matched_median": 0.011783755648519488,
+            "positive_median": 0.011786251677757577,
+            "negative_median": 0.011782459159848872,
+            "profile_max_cpu_gpu_float_difference": 2.0941635058002728e-09,
+            "actual_median_error": 0.0
+          },
+          "after": {
+            "layer": 26,
+            "dtype": "torch.bfloat16",
+            "n": 192,
+            "coefficient": 3.1478028259548108,
+            "original_sigma": 19.428458307135426,
+            "original_median": 0.07238132691483479,
+            "matched_median": 0.011783911420179408,
+            "positive_median": 0.011784928675996093,
+            "negative_median": 0.0117810153280541,
+            "profile_max_cpu_gpu_float_difference": 1.4393604322315845e-08,
+            "actual_median_error": 1.5577165991993713e-07
+          }
+        }
+      }
+    },
+    "actual_order_contexts_checked": 228,
+    "actual_C_requested_scale_checks": 192,
+    "gate_effects": {
+      "das_C_L8_a-1": {
+        "reference": "baseline",
+        "median_delta_yes_no": 0.00655364990234375,
+        "min_delta_yes_no": -0.08305740356445312,
+        "max_delta_yes_no": 0.18157577514648438,
+        "min_yes_no_probability_mass": 0.9999999999700973
+      },
+      "das_EC_L8_a-1": {
+        "reference": "das_E",
+        "median_delta_yes_no": -0.3272991180419922,
+        "min_delta_yes_no": -0.6912078857421875,
+        "max_delta_yes_no": -0.069976806640625,
+        "min_yes_no_probability_mass": 0.9999999999722476
+      },
+      "das_C_L8_a1": {
+        "reference": "baseline",
+        "median_delta_yes_no": -0.04124259948730469,
+        "min_delta_yes_no": -0.296295166015625,
+        "max_delta_yes_no": 0.0530548095703125,
+        "min_yes_no_probability_mass": 0.9999999999691157
+      },
+      "das_EC_L8_a1": {
+        "reference": "das_E",
+        "median_delta_yes_no": 0.21942520141601562,
+        "min_delta_yes_no": -0.3154449462890625,
+        "max_delta_yes_no": 0.41812896728515625,
+        "min_yes_no_probability_mass": 0.9999999999715675
+      },
+      "das_C_L26_a-1": {
+        "reference": "baseline",
+        "median_delta_yes_no": -0.8523445129394531,
+        "min_delta_yes_no": -0.9437828063964844,
+        "max_delta_yes_no": -0.77923583984375,
+        "min_yes_no_probability_mass": 0.9999999999705425
+      },
+      "das_EC_L26_a-1": {
+        "reference": "das_E",
+        "median_delta_yes_no": -0.7671356201171875,
+        "min_delta_yes_no": -0.8926353454589844,
+        "max_delta_yes_no": -0.6485786437988281,
+        "min_yes_no_probability_mass": 0.9999999999707938
+      },
+      "das_C_L26_a1": {
+        "reference": "baseline",
+        "median_delta_yes_no": 0.8081455230712891,
+        "min_delta_yes_no": 0.6601753234863281,
+        "max_delta_yes_no": 0.9485435485839844,
+        "min_yes_no_probability_mass": 0.999999999975116
+      },
+      "das_EC_L26_a1": {
+        "reference": "das_E",
+        "median_delta_yes_no": 0.8514747619628906,
+        "min_delta_yes_no": 0.7782554626464844,
+        "max_delta_yes_no": 0.9796218872070312,
+        "min_yes_no_probability_mass": 0.9999999999773289
+      },
+      "md_C_L8_a-1": {
+        "reference": "baseline",
+        "median_delta_yes_no": -0.21540451049804688,
+        "min_delta_yes_no": -0.3476524353027344,
+        "max_delta_yes_no": 0.21343612670898438,
+        "min_yes_no_probability_mass": 0.9999999999700173
+      },
+      "md_EC_L8_a-1": {
+        "reference": "md_E",
+        "median_delta_yes_no": -0.12715911865234375,
+        "min_delta_yes_no": -0.6353225708007812,
+        "max_delta_yes_no": 0.2713508605957031,
+        "min_yes_no_probability_mass": 0.9999999999741305
+      },
+      "md_C_L8_a1": {
+        "reference": "baseline",
+        "median_delta_yes_no": -0.05428886413574219,
+        "min_delta_yes_no": -0.167572021484375,
+        "max_delta_yes_no": 0.2557487487792969,
+        "min_yes_no_probability_mass": 0.999999999974328
+      },
+      "md_EC_L8_a1": {
+        "reference": "md_E",
+        "median_delta_yes_no": 0.09741020202636719,
+        "min_delta_yes_no": -0.2134857177734375,
+        "max_delta_yes_no": 0.6112403869628906,
+        "min_yes_no_probability_mass": 0.9999999999716023
+      },
+      "md_C_L26_a-1": {
+        "reference": "baseline",
+        "median_delta_yes_no": -0.8981819152832031,
+        "min_delta_yes_no": -0.987457275390625,
+        "max_delta_yes_no": -0.8100395202636719,
+        "min_yes_no_probability_mass": 0.9999999999710829
+      },
+      "md_EC_L26_a-1": {
+        "reference": "md_E",
+        "median_delta_yes_no": -0.8723735809326172,
+        "min_delta_yes_no": -1.0306129455566406,
+        "max_delta_yes_no": -0.7044258117675781,
+        "min_yes_no_probability_mass": 0.9999999999782614
+      },
+      "md_C_L26_a1": {
+        "reference": "baseline",
+        "median_delta_yes_no": 0.8490886688232422,
+        "min_delta_yes_no": 0.6646614074707031,
+        "max_delta_yes_no": 0.9986381530761719,
+        "min_yes_no_probability_mass": 0.9999999999767201
+      },
+      "md_EC_L26_a1": {
+        "reference": "md_E",
+        "median_delta_yes_no": 0.9039363861083984,
+        "min_delta_yes_no": 0.7674827575683594,
+        "max_delta_yes_no": 1.10113525390625,
+        "min_yes_no_probability_mass": 0.9999999999744864
+      }
+    },
+    "status": "pass_no_blocker_for_fixed_full_run"
+  }
+]

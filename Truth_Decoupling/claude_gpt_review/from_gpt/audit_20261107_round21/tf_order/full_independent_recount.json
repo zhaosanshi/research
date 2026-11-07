@@ -1,0 +1,4422 @@
+{
+  "llama3.1-8b": {
+    "model": "llama3.1-8b",
+    "pilot_limit": null,
+    "source_plan_sha256": "e31d123680cef48d6d9d101c41f2f23b2dd88006839ebe22bf6fde8f495a7000",
+    "raw_sha256": "cc2ca91e8ee21a38d0ae2b8c903786aec0ca46ad88626b62216df88886178262",
+    "report_sha256": "9e4f882c229df31cce8cd2b0778750200d8ff47174091c9ae07103b663f9f53a",
+    "cells_checked": 114,
+    "calibration_independently_recomputed": {
+      "das_before": {
+        "native_dtype": "torch.bfloat16",
+        "n": 192,
+        "rho": 0.018256906419992447,
+        "recomputed_median": 0.018256920389831066,
+        "coefficient": 0.08344512738680883,
+        "negative_median": 0.018256977200508118,
+        "positive_median": 0.01825606543570757
+      },
+      "das_after": {
+        "native_dtype": "torch.bfloat16",
+        "n": 192,
+        "rho": 0.018256906419992447,
+        "recomputed_median": 0.018256084993481636,
+        "coefficient": 0.3946732614182168,
+        "negative_median": 0.018253871239721775,
+        "positive_median": 0.018259632401168346
+      },
+      "md_before": {
+        "native_dtype": "torch.bfloat16",
+        "n": 192,
+        "rho": 0.018451808020472527,
+        "recomputed_median": 0.01845182105898857,
+        "coefficient": 0.08421999559969175,
+        "negative_median": 0.018454698845744133,
+        "positive_median": 0.018450697883963585
+      },
+      "md_after": {
+        "native_dtype": "torch.bfloat16",
+        "n": 192,
+        "rho": 0.018451808020472527,
+        "recomputed_median": 0.018451733514666557,
+        "coefficient": 0.39954197229760435,
+        "negative_median": 0.018452935852110386,
+        "positive_median": 0.018448670394718647
+      }
+    },
+    "source_controls_independently_recomputed": {
+      "baseline": {
+        "score": 0.0,
+        "simple_score": 0.0,
+        "prediction_mismatches": 0
+      },
+      "das_E": {
+        "score": 0.0,
+        "simple_score": 0.0,
+        "prediction_mismatches": 0
+      },
+      "md_E": {
+        "score": 0.0,
+        "simple_score": 0.0,
+        "prediction_mismatches": 0
+      }
+    },
+    "cells": [
+      {
+        "condition": "baseline",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 79
+      },
+      {
+        "condition": "baseline",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 140
+      },
+      {
+        "condition": "baseline",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 208
+      },
+      {
+        "condition": "baseline",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 58
+      },
+      {
+        "condition": "baseline",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 135
+      },
+      {
+        "condition": "baseline",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 200
+      },
+      {
+        "condition": "das_E",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 84
+      },
+      {
+        "condition": "das_E",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 155
+      },
+      {
+        "condition": "das_E",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 223
+      },
+      {
+        "condition": "das_E",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 61
+      },
+      {
+        "condition": "das_E",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 139
+      },
+      {
+        "condition": "das_E",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 206
+      },
+      {
+        "condition": "das_C_L7_a-1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 78
+      },
+      {
+        "condition": "das_C_L7_a-1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 140
+      },
+      {
+        "condition": "das_C_L7_a-1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 208
+      },
+      {
+        "condition": "das_C_L7_a-1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 58
+      },
+      {
+        "condition": "das_C_L7_a-1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 135
+      },
+      {
+        "condition": "das_C_L7_a-1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 200
+      },
+      {
+        "condition": "das_EC_L7_a-1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 84
+      },
+      {
+        "condition": "das_EC_L7_a-1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 155
+      },
+      {
+        "condition": "das_EC_L7_a-1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 223
+      },
+      {
+        "condition": "das_EC_L7_a-1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 62
+      },
+      {
+        "condition": "das_EC_L7_a-1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 138
+      },
+      {
+        "condition": "das_EC_L7_a-1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 206
+      },
+      {
+        "condition": "das_C_L7_a1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 78
+      },
+      {
+        "condition": "das_C_L7_a1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 140
+      },
+      {
+        "condition": "das_C_L7_a1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 208
+      },
+      {
+        "condition": "das_C_L7_a1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 58
+      },
+      {
+        "condition": "das_C_L7_a1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 135
+      },
+      {
+        "condition": "das_C_L7_a1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 200
+      },
+      {
+        "condition": "das_EC_L7_a1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 85
+      },
+      {
+        "condition": "das_EC_L7_a1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 155
+      },
+      {
+        "condition": "das_EC_L7_a1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 223
+      },
+      {
+        "condition": "das_EC_L7_a1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 61
+      },
+      {
+        "condition": "das_EC_L7_a1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 138
+      },
+      {
+        "condition": "das_EC_L7_a1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 205
+      },
+      {
+        "condition": "das_C_L23_a-1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 79
+      },
+      {
+        "condition": "das_C_L23_a-1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 140
+      },
+      {
+        "condition": "das_C_L23_a-1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 208
+      },
+      {
+        "condition": "das_C_L23_a-1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 58
+      },
+      {
+        "condition": "das_C_L23_a-1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 135
+      },
+      {
+        "condition": "das_C_L23_a-1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 200
+      },
+      {
+        "condition": "das_EC_L23_a-1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 84
+      },
+      {
+        "condition": "das_EC_L23_a-1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 155
+      },
+      {
+        "condition": "das_EC_L23_a-1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 222
+      },
+      {
+        "condition": "das_EC_L23_a-1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 61
+      },
+      {
+        "condition": "das_EC_L23_a-1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 139
+      },
+      {
+        "condition": "das_EC_L23_a-1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 205
+      },
+      {
+        "condition": "das_C_L23_a1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 79
+      },
+      {
+        "condition": "das_C_L23_a1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 140
+      },
+      {
+        "condition": "das_C_L23_a1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 209
+      },
+      {
+        "condition": "das_C_L23_a1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 58
+      },
+      {
+        "condition": "das_C_L23_a1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 135
+      },
+      {
+        "condition": "das_C_L23_a1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 199
+      },
+      {
+        "condition": "das_EC_L23_a1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 84
+      },
+      {
+        "condition": "das_EC_L23_a1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 155
+      },
+      {
+        "condition": "das_EC_L23_a1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 223
+      },
+      {
+        "condition": "das_EC_L23_a1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 62
+      },
+      {
+        "condition": "das_EC_L23_a1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 138
+      },
+      {
+        "condition": "das_EC_L23_a1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 207
+      },
+      {
+        "condition": "md_E",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 82
+      },
+      {
+        "condition": "md_E",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 150
+      },
+      {
+        "condition": "md_E",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 215
+      },
+      {
+        "condition": "md_E",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 61
+      },
+      {
+        "condition": "md_E",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 137
+      },
+      {
+        "condition": "md_E",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 201
+      },
+      {
+        "condition": "md_C_L7_a-1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 78
+      },
+      {
+        "condition": "md_C_L7_a-1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 140
+      },
+      {
+        "condition": "md_C_L7_a-1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 209
+      },
+      {
+        "condition": "md_C_L7_a-1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 58
+      },
+      {
+        "condition": "md_C_L7_a-1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 135
+      },
+      {
+        "condition": "md_C_L7_a-1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 199
+      },
+      {
+        "condition": "md_EC_L7_a-1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 82
+      },
+      {
+        "condition": "md_EC_L7_a-1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 150
+      },
+      {
+        "condition": "md_EC_L7_a-1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 216
+      },
+      {
+        "condition": "md_EC_L7_a-1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 61
+      },
+      {
+        "condition": "md_EC_L7_a-1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 137
+      },
+      {
+        "condition": "md_EC_L7_a-1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 201
+      },
+      {
+        "condition": "md_C_L7_a1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 79
+      },
+      {
+        "condition": "md_C_L7_a1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 140
+      },
+      {
+        "condition": "md_C_L7_a1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 209
+      },
+      {
+        "condition": "md_C_L7_a1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 58
+      },
+      {
+        "condition": "md_C_L7_a1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 135
+      },
+      {
+        "condition": "md_C_L7_a1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 199
+      },
+      {
+        "condition": "md_EC_L7_a1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 82
+      },
+      {
+        "condition": "md_EC_L7_a1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 150
+      },
+      {
+        "condition": "md_EC_L7_a1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 215
+      },
+      {
+        "condition": "md_EC_L7_a1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 61
+      },
+      {
+        "condition": "md_EC_L7_a1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 138
+      },
+      {
+        "condition": "md_EC_L7_a1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 201
+      },
+      {
+        "condition": "md_C_L23_a-1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 79
+      },
+      {
+        "condition": "md_C_L23_a-1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 139
+      },
+      {
+        "condition": "md_C_L23_a-1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 209
+      },
+      {
+        "condition": "md_C_L23_a-1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 58
+      },
+      {
+        "condition": "md_C_L23_a-1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 135
+      },
+      {
+        "condition": "md_C_L23_a-1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 199
+      },
+      {
+        "condition": "md_EC_L23_a-1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 82
+      },
+      {
+        "condition": "md_EC_L23_a-1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 149
+      },
+      {
+        "condition": "md_EC_L23_a-1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 216
+      },
+      {
+        "condition": "md_EC_L23_a-1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 61
+      },
+      {
+        "condition": "md_EC_L23_a-1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 137
+      },
+      {
+        "condition": "md_EC_L23_a-1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 202
+      },
+      {
+        "condition": "md_C_L23_a1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 79
+      },
+      {
+        "condition": "md_C_L23_a1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 140
+      },
+      {
+        "condition": "md_C_L23_a1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 210
+      },
+      {
+        "condition": "md_C_L23_a1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 58
+      },
+      {
+        "condition": "md_C_L23_a1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 135
+      },
+      {
+        "condition": "md_C_L23_a1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 200
+      },
+      {
+        "condition": "md_EC_L23_a1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 82
+      },
+      {
+        "condition": "md_EC_L23_a1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 150
+      },
+      {
+        "condition": "md_EC_L23_a1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 216
+      },
+      {
+        "condition": "md_EC_L23_a1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 61
+      },
+      {
+        "condition": "md_EC_L23_a1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 137
+      },
+      {
+        "condition": "md_EC_L23_a1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 201
+      }
+    ],
+    "comparisons": [
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "condition": "das_EC_L7_a-1",
+        "c_layer": 7,
+        "e_layer": 11,
+        "c_alpha": -1.0,
+        "order": "C_before_E",
+        "selector": "simple",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 79,
+          "E": 84,
+          "C": 78,
+          "EC": 84
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": -1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          0.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "condition": "das_EC_L7_a-1",
+        "c_layer": 7,
+        "e_layer": 11,
+        "c_alpha": -1.0,
+        "order": "C_before_E",
+        "selector": "simple",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 140,
+          "E": 155,
+          "C": 140,
+          "EC": 155
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -3.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "condition": "das_EC_L7_a-1",
+        "c_layer": 7,
+        "e_layer": 11,
+        "c_alpha": -1.0,
+        "order": "C_before_E",
+        "selector": "simple",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 208,
+          "E": 223,
+          "C": 208,
+          "EC": 223
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -3.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "condition": "das_EC_L7_a-1",
+        "c_layer": 7,
+        "e_layer": 11,
+        "c_alpha": -1.0,
+        "order": "C_before_E",
+        "selector": "commitment",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 58,
+          "E": 61,
+          "C": 58,
+          "EC": 62
+        },
+        "EC_minus_E": 1,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -1.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "condition": "das_EC_L7_a-1",
+        "c_layer": 7,
+        "e_layer": 11,
+        "c_alpha": -1.0,
+        "order": "C_before_E",
+        "selector": "commitment",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 135,
+          "E": 139,
+          "C": 135,
+          "EC": 138
+        },
+        "EC_minus_E": -1,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -1.0,
+          1.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "condition": "das_EC_L7_a-1",
+        "c_layer": 7,
+        "e_layer": 11,
+        "c_alpha": -1.0,
+        "order": "C_before_E",
+        "selector": "commitment",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 200,
+          "E": 206,
+          "C": 200,
+          "EC": 206
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -1.0,
+          4.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "condition": "das_EC_L7_a1",
+        "c_layer": 7,
+        "e_layer": 11,
+        "c_alpha": 1.0,
+        "order": "C_before_E",
+        "selector": "simple",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 79,
+          "E": 84,
+          "C": 78,
+          "EC": 85
+        },
+        "EC_minus_E": 1,
+        "C_minus_base": -1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          0.0,
+          3.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "condition": "das_EC_L7_a1",
+        "c_layer": 7,
+        "e_layer": 11,
+        "c_alpha": 1.0,
+        "order": "C_before_E",
+        "selector": "simple",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 140,
+          "E": 155,
+          "C": 140,
+          "EC": 155
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "condition": "das_EC_L7_a1",
+        "c_layer": 7,
+        "e_layer": 11,
+        "c_alpha": 1.0,
+        "order": "C_before_E",
+        "selector": "simple",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 208,
+          "E": 223,
+          "C": 208,
+          "EC": 223
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "condition": "das_EC_L7_a1",
+        "c_layer": 7,
+        "e_layer": 11,
+        "c_alpha": 1.0,
+        "order": "C_before_E",
+        "selector": "commitment",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 58,
+          "E": 61,
+          "C": 58,
+          "EC": 61
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -3.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "condition": "das_EC_L7_a1",
+        "c_layer": 7,
+        "e_layer": 11,
+        "c_alpha": 1.0,
+        "order": "C_before_E",
+        "selector": "commitment",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 135,
+          "E": 139,
+          "C": 135,
+          "EC": 138
+        },
+        "EC_minus_E": -1,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -3.0,
+          1.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "condition": "das_EC_L7_a1",
+        "c_layer": 7,
+        "e_layer": 11,
+        "c_alpha": 1.0,
+        "order": "C_before_E",
+        "selector": "commitment",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 200,
+          "E": 206,
+          "C": 200,
+          "EC": 205
+        },
+        "EC_minus_E": -1,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -3.0,
+          3.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "condition": "das_EC_L23_a-1",
+        "c_layer": 23,
+        "e_layer": 11,
+        "c_alpha": -1.0,
+        "order": "E_before_C",
+        "selector": "simple",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 79,
+          "E": 84,
+          "C": 79,
+          "EC": 84
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -1.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "condition": "das_EC_L23_a-1",
+        "c_layer": 23,
+        "e_layer": 11,
+        "c_alpha": -1.0,
+        "order": "E_before_C",
+        "selector": "simple",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 140,
+          "E": 155,
+          "C": 140,
+          "EC": 155
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "condition": "das_EC_L23_a-1",
+        "c_layer": 23,
+        "e_layer": 11,
+        "c_alpha": -1.0,
+        "order": "E_before_C",
+        "selector": "simple",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 208,
+          "E": 223,
+          "C": 208,
+          "EC": 222
+        },
+        "EC_minus_E": -1,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "condition": "das_EC_L23_a-1",
+        "c_layer": 23,
+        "e_layer": 11,
+        "c_alpha": -1.0,
+        "order": "E_before_C",
+        "selector": "commitment",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 58,
+          "E": 61,
+          "C": 58,
+          "EC": 61
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -1.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "condition": "das_EC_L23_a-1",
+        "c_layer": 23,
+        "e_layer": 11,
+        "c_alpha": -1.0,
+        "order": "E_before_C",
+        "selector": "commitment",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 135,
+          "E": 139,
+          "C": 135,
+          "EC": 139
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -1.0,
+          0.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "condition": "das_EC_L23_a-1",
+        "c_layer": 23,
+        "e_layer": 11,
+        "c_alpha": -1.0,
+        "order": "E_before_C",
+        "selector": "commitment",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 200,
+          "E": 206,
+          "C": 200,
+          "EC": 205
+        },
+        "EC_minus_E": -1,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "condition": "das_EC_L23_a1",
+        "c_layer": 23,
+        "e_layer": 11,
+        "c_alpha": 1.0,
+        "order": "E_before_C",
+        "selector": "simple",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 79,
+          "E": 84,
+          "C": 79,
+          "EC": 84
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -1.0,
+          1.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "condition": "das_EC_L23_a1",
+        "c_layer": 23,
+        "e_layer": 11,
+        "c_alpha": 1.0,
+        "order": "E_before_C",
+        "selector": "simple",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 140,
+          "E": 155,
+          "C": 140,
+          "EC": 155
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "condition": "das_EC_L23_a1",
+        "c_layer": 23,
+        "e_layer": 11,
+        "c_alpha": 1.0,
+        "order": "E_before_C",
+        "selector": "simple",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 208,
+          "E": 223,
+          "C": 209,
+          "EC": 223
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "condition": "das_EC_L23_a1",
+        "c_layer": 23,
+        "e_layer": 11,
+        "c_alpha": 1.0,
+        "order": "E_before_C",
+        "selector": "commitment",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 58,
+          "E": 61,
+          "C": 58,
+          "EC": 62
+        },
+        "EC_minus_E": 1,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -1.0,
+          3.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "condition": "das_EC_L23_a1",
+        "c_layer": 23,
+        "e_layer": 11,
+        "c_alpha": 1.0,
+        "order": "E_before_C",
+        "selector": "commitment",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 135,
+          "E": 139,
+          "C": 135,
+          "EC": 138
+        },
+        "EC_minus_E": -1,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -1.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "das",
+        "condition": "das_EC_L23_a1",
+        "c_layer": 23,
+        "e_layer": 11,
+        "c_alpha": 1.0,
+        "order": "E_before_C",
+        "selector": "commitment",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 200,
+          "E": 206,
+          "C": 199,
+          "EC": 207
+        },
+        "EC_minus_E": 1,
+        "C_minus_base": -1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -1.0,
+          4.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "condition": "md_EC_L7_a-1",
+        "c_layer": 7,
+        "e_layer": 13,
+        "c_alpha": -1.0,
+        "order": "C_before_E",
+        "selector": "simple",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 79,
+          "E": 82,
+          "C": 78,
+          "EC": 82
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": -1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -1.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "condition": "md_EC_L7_a-1",
+        "c_layer": 7,
+        "e_layer": 13,
+        "c_alpha": -1.0,
+        "order": "C_before_E",
+        "selector": "simple",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 140,
+          "E": 150,
+          "C": 140,
+          "EC": 150
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          1.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "condition": "md_EC_L7_a-1",
+        "c_layer": 7,
+        "e_layer": 13,
+        "c_alpha": -1.0,
+        "order": "C_before_E",
+        "selector": "simple",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 208,
+          "E": 215,
+          "C": 209,
+          "EC": 216
+        },
+        "EC_minus_E": 1,
+        "C_minus_base": 1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          1.0249999999998636
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "condition": "md_EC_L7_a-1",
+        "c_layer": 7,
+        "e_layer": 13,
+        "c_alpha": -1.0,
+        "order": "C_before_E",
+        "selector": "commitment",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 58,
+          "E": 61,
+          "C": 58,
+          "EC": 61
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "condition": "md_EC_L7_a-1",
+        "c_layer": 7,
+        "e_layer": 13,
+        "c_alpha": -1.0,
+        "order": "C_before_E",
+        "selector": "commitment",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 135,
+          "E": 137,
+          "C": 135,
+          "EC": 137
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -1.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "condition": "md_EC_L7_a-1",
+        "c_layer": 7,
+        "e_layer": 13,
+        "c_alpha": -1.0,
+        "order": "C_before_E",
+        "selector": "commitment",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 200,
+          "E": 201,
+          "C": 199,
+          "EC": 201
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": -1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "condition": "md_EC_L7_a1",
+        "c_layer": 7,
+        "e_layer": 13,
+        "c_alpha": 1.0,
+        "order": "C_before_E",
+        "selector": "simple",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 79,
+          "E": 82,
+          "C": 79,
+          "EC": 82
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -1.0,
+          1.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "condition": "md_EC_L7_a1",
+        "c_layer": 7,
+        "e_layer": 13,
+        "c_alpha": 1.0,
+        "order": "C_before_E",
+        "selector": "simple",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 140,
+          "E": 150,
+          "C": 140,
+          "EC": 150
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "condition": "md_EC_L7_a1",
+        "c_layer": 7,
+        "e_layer": 13,
+        "c_alpha": 1.0,
+        "order": "C_before_E",
+        "selector": "simple",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 208,
+          "E": 215,
+          "C": 209,
+          "EC": 215
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "condition": "md_EC_L7_a1",
+        "c_layer": 7,
+        "e_layer": 13,
+        "c_alpha": 1.0,
+        "order": "C_before_E",
+        "selector": "commitment",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 58,
+          "E": 61,
+          "C": 58,
+          "EC": 61
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "condition": "md_EC_L7_a1",
+        "c_layer": 7,
+        "e_layer": 13,
+        "c_alpha": 1.0,
+        "order": "C_before_E",
+        "selector": "commitment",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 135,
+          "E": 137,
+          "C": 135,
+          "EC": 138
+        },
+        "EC_minus_E": 1,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "condition": "md_EC_L7_a1",
+        "c_layer": 7,
+        "e_layer": 13,
+        "c_alpha": 1.0,
+        "order": "C_before_E",
+        "selector": "commitment",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 200,
+          "E": 201,
+          "C": 199,
+          "EC": 201
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": -1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -4.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "condition": "md_EC_L23_a-1",
+        "c_layer": 23,
+        "e_layer": 13,
+        "c_alpha": -1.0,
+        "order": "E_before_C",
+        "selector": "simple",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 79,
+          "E": 82,
+          "C": 79,
+          "EC": 82
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "condition": "md_EC_L23_a-1",
+        "c_layer": 23,
+        "e_layer": 13,
+        "c_alpha": -1.0,
+        "order": "E_before_C",
+        "selector": "simple",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 140,
+          "E": 150,
+          "C": 139,
+          "EC": 149
+        },
+        "EC_minus_E": -1,
+        "C_minus_base": -1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -3.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "condition": "md_EC_L23_a-1",
+        "c_layer": 23,
+        "e_layer": 13,
+        "c_alpha": -1.0,
+        "order": "E_before_C",
+        "selector": "simple",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 208,
+          "E": 215,
+          "C": 209,
+          "EC": 216
+        },
+        "EC_minus_E": 1,
+        "C_minus_base": 1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          3.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "condition": "md_EC_L23_a-1",
+        "c_layer": 23,
+        "e_layer": 13,
+        "c_alpha": -1.0,
+        "order": "E_before_C",
+        "selector": "commitment",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 58,
+          "E": 61,
+          "C": 58,
+          "EC": 61
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "condition": "md_EC_L23_a-1",
+        "c_layer": 23,
+        "e_layer": 13,
+        "c_alpha": -1.0,
+        "order": "E_before_C",
+        "selector": "commitment",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 135,
+          "E": 137,
+          "C": 135,
+          "EC": 137
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -1.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "condition": "md_EC_L23_a-1",
+        "c_layer": 23,
+        "e_layer": 13,
+        "c_alpha": -1.0,
+        "order": "E_before_C",
+        "selector": "commitment",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 200,
+          "E": 201,
+          "C": 199,
+          "EC": 202
+        },
+        "EC_minus_E": 1,
+        "C_minus_base": -1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -1.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "condition": "md_EC_L23_a1",
+        "c_layer": 23,
+        "e_layer": 13,
+        "c_alpha": 1.0,
+        "order": "E_before_C",
+        "selector": "simple",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 79,
+          "E": 82,
+          "C": 79,
+          "EC": 82
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "condition": "md_EC_L23_a1",
+        "c_layer": 23,
+        "e_layer": 13,
+        "c_alpha": 1.0,
+        "order": "E_before_C",
+        "selector": "simple",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 140,
+          "E": 150,
+          "C": 140,
+          "EC": 150
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          3.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "condition": "md_EC_L23_a1",
+        "c_layer": 23,
+        "e_layer": 13,
+        "c_alpha": 1.0,
+        "order": "E_before_C",
+        "selector": "simple",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 208,
+          "E": 215,
+          "C": 210,
+          "EC": 216
+        },
+        "EC_minus_E": 1,
+        "C_minus_base": 2,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -3.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "condition": "md_EC_L23_a1",
+        "c_layer": 23,
+        "e_layer": 13,
+        "c_alpha": 1.0,
+        "order": "E_before_C",
+        "selector": "commitment",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 58,
+          "E": 61,
+          "C": 58,
+          "EC": 61
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -1.0249999999999986,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "condition": "md_EC_L23_a1",
+        "c_layer": 23,
+        "e_layer": 13,
+        "c_alpha": 1.0,
+        "order": "E_before_C",
+        "selector": "commitment",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 135,
+          "E": 137,
+          "C": 135,
+          "EC": 137
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "llama3.1-8b",
+        "method": "md",
+        "condition": "md_EC_L23_a1",
+        "c_layer": 23,
+        "e_layer": 13,
+        "c_alpha": 1.0,
+        "order": "E_before_C",
+        "selector": "commitment",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 200,
+          "E": 201,
+          "C": 200,
+          "EC": 201
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -4.0,
+          1.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      }
+    ],
+    "interpretation": "Exploratory fixed-grid tuning audit. Group-swap p fixes observed masks; bootstrap resamples/reselects whole questions."
+  },
+  "qwen3-8b": {
+    "model": "qwen3-8b",
+    "pilot_limit": null,
+    "source_plan_sha256": "91f8b7b7fdd182154dcfbad48f797b8e63ea6738f055e771c682624f06e4dc63",
+    "raw_sha256": "4e80ec908a87d2451fd93443fa1f63830df4991236bb76e6237a3da707efd12a",
+    "report_sha256": "bf6c84009bcf0d022d4ef945a79f16d36caab654ab5ea341ffbdc22f931dd98f",
+    "cells_checked": 114,
+    "calibration_independently_recomputed": {
+      "das_before": {
+        "native_dtype": "torch.bfloat16",
+        "n": 192,
+        "rho": 0.01170539390295744,
+        "recomputed_median": 0.011705401819199324,
+        "coefficient": 0.4937410147825871,
+        "negative_median": 0.011706947814673185,
+        "positive_median": 0.0117014329880476
+      },
+      "das_after": {
+        "native_dtype": "torch.bfloat16",
+        "n": 192,
+        "rho": 0.01170539390295744,
+        "recomputed_median": 0.01170559274032712,
+        "coefficient": 3.1217227619304078,
+        "negative_median": 0.011701320298016071,
+        "positive_median": 0.011711700353771448
+      },
+      "md_before": {
+        "native_dtype": "torch.bfloat16",
+        "n": 192,
+        "rho": 0.01178375631570816,
+        "recomputed_median": 0.01178376330062747,
+        "coefficient": 0.4985252147859684,
+        "negative_median": 0.011782465036958456,
+        "positive_median": 0.01178625738248229
+      },
+      "md_after": {
+        "native_dtype": "torch.bfloat16",
+        "n": 192,
+        "rho": 0.01178375631570816,
+        "recomputed_median": 0.011783923488110304,
+        "coefficient": 3.1478028259548108,
+        "negative_median": 0.011781026609241962,
+        "positive_median": 0.01178493956103921
+      }
+    },
+    "source_controls_independently_recomputed": {
+      "baseline": {
+        "score": 0.0,
+        "simple_score": 0.0,
+        "prediction_mismatches": 0
+      },
+      "das_E": {
+        "score": 0.0,
+        "simple_score": 0.0,
+        "prediction_mismatches": 0
+      },
+      "md_E": {
+        "score": 0.0,
+        "simple_score": 0.0,
+        "prediction_mismatches": 0
+      }
+    },
+    "cells": [
+      {
+        "condition": "baseline",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 83
+      },
+      {
+        "condition": "baseline",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 161
+      },
+      {
+        "condition": "baseline",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 226
+      },
+      {
+        "condition": "baseline",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 70
+      },
+      {
+        "condition": "baseline",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 133
+      },
+      {
+        "condition": "baseline",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 194
+      },
+      {
+        "condition": "das_E",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 89
+      },
+      {
+        "condition": "das_E",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 168
+      },
+      {
+        "condition": "das_E",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 227
+      },
+      {
+        "condition": "das_E",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 74
+      },
+      {
+        "condition": "das_E",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 144
+      },
+      {
+        "condition": "das_E",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 203
+      },
+      {
+        "condition": "das_C_L8_a-1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 82
+      },
+      {
+        "condition": "das_C_L8_a-1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 162
+      },
+      {
+        "condition": "das_C_L8_a-1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 226
+      },
+      {
+        "condition": "das_C_L8_a-1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 71
+      },
+      {
+        "condition": "das_C_L8_a-1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 133
+      },
+      {
+        "condition": "das_C_L8_a-1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 194
+      },
+      {
+        "condition": "das_EC_L8_a-1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 89
+      },
+      {
+        "condition": "das_EC_L8_a-1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 167
+      },
+      {
+        "condition": "das_EC_L8_a-1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 228
+      },
+      {
+        "condition": "das_EC_L8_a-1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 74
+      },
+      {
+        "condition": "das_EC_L8_a-1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 142
+      },
+      {
+        "condition": "das_EC_L8_a-1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 202
+      },
+      {
+        "condition": "das_C_L8_a1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 83
+      },
+      {
+        "condition": "das_C_L8_a1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 162
+      },
+      {
+        "condition": "das_C_L8_a1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 226
+      },
+      {
+        "condition": "das_C_L8_a1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 70
+      },
+      {
+        "condition": "das_C_L8_a1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 133
+      },
+      {
+        "condition": "das_C_L8_a1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 194
+      },
+      {
+        "condition": "das_EC_L8_a1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 89
+      },
+      {
+        "condition": "das_EC_L8_a1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 167
+      },
+      {
+        "condition": "das_EC_L8_a1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 228
+      },
+      {
+        "condition": "das_EC_L8_a1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 74
+      },
+      {
+        "condition": "das_EC_L8_a1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 142
+      },
+      {
+        "condition": "das_EC_L8_a1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 202
+      },
+      {
+        "condition": "das_C_L26_a-1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 83
+      },
+      {
+        "condition": "das_C_L26_a-1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 161
+      },
+      {
+        "condition": "das_C_L26_a-1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 225
+      },
+      {
+        "condition": "das_C_L26_a-1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 70
+      },
+      {
+        "condition": "das_C_L26_a-1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 134
+      },
+      {
+        "condition": "das_C_L26_a-1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 195
+      },
+      {
+        "condition": "das_EC_L26_a-1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 88
+      },
+      {
+        "condition": "das_EC_L26_a-1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 167
+      },
+      {
+        "condition": "das_EC_L26_a-1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 227
+      },
+      {
+        "condition": "das_EC_L26_a-1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 74
+      },
+      {
+        "condition": "das_EC_L26_a-1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 144
+      },
+      {
+        "condition": "das_EC_L26_a-1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 203
+      },
+      {
+        "condition": "das_C_L26_a1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 82
+      },
+      {
+        "condition": "das_C_L26_a1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 163
+      },
+      {
+        "condition": "das_C_L26_a1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 227
+      },
+      {
+        "condition": "das_C_L26_a1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 71
+      },
+      {
+        "condition": "das_C_L26_a1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 134
+      },
+      {
+        "condition": "das_C_L26_a1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 195
+      },
+      {
+        "condition": "das_EC_L26_a1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 89
+      },
+      {
+        "condition": "das_EC_L26_a1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 169
+      },
+      {
+        "condition": "das_EC_L26_a1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 229
+      },
+      {
+        "condition": "das_EC_L26_a1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 75
+      },
+      {
+        "condition": "das_EC_L26_a1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 143
+      },
+      {
+        "condition": "das_EC_L26_a1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 202
+      },
+      {
+        "condition": "md_E",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 85
+      },
+      {
+        "condition": "md_E",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 164
+      },
+      {
+        "condition": "md_E",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 231
+      },
+      {
+        "condition": "md_E",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 75
+      },
+      {
+        "condition": "md_E",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 139
+      },
+      {
+        "condition": "md_E",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 198
+      },
+      {
+        "condition": "md_C_L8_a-1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 82
+      },
+      {
+        "condition": "md_C_L8_a-1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 162
+      },
+      {
+        "condition": "md_C_L8_a-1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 226
+      },
+      {
+        "condition": "md_C_L8_a-1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 69
+      },
+      {
+        "condition": "md_C_L8_a-1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 132
+      },
+      {
+        "condition": "md_C_L8_a-1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 195
+      },
+      {
+        "condition": "md_EC_L8_a-1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 85
+      },
+      {
+        "condition": "md_EC_L8_a-1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 164
+      },
+      {
+        "condition": "md_EC_L8_a-1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 230
+      },
+      {
+        "condition": "md_EC_L8_a-1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 76
+      },
+      {
+        "condition": "md_EC_L8_a-1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 140
+      },
+      {
+        "condition": "md_EC_L8_a-1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 199
+      },
+      {
+        "condition": "md_C_L8_a1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 83
+      },
+      {
+        "condition": "md_C_L8_a1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 162
+      },
+      {
+        "condition": "md_C_L8_a1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 226
+      },
+      {
+        "condition": "md_C_L8_a1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 70
+      },
+      {
+        "condition": "md_C_L8_a1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 132
+      },
+      {
+        "condition": "md_C_L8_a1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 192
+      },
+      {
+        "condition": "md_EC_L8_a1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 84
+      },
+      {
+        "condition": "md_EC_L8_a1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 164
+      },
+      {
+        "condition": "md_EC_L8_a1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 230
+      },
+      {
+        "condition": "md_EC_L8_a1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 75
+      },
+      {
+        "condition": "md_EC_L8_a1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 139
+      },
+      {
+        "condition": "md_EC_L8_a1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 199
+      },
+      {
+        "condition": "md_C_L26_a-1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 83
+      },
+      {
+        "condition": "md_C_L26_a-1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 161
+      },
+      {
+        "condition": "md_C_L26_a-1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 224
+      },
+      {
+        "condition": "md_C_L26_a-1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 70
+      },
+      {
+        "condition": "md_C_L26_a-1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 134
+      },
+      {
+        "condition": "md_C_L26_a-1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 195
+      },
+      {
+        "condition": "md_EC_L26_a-1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 84
+      },
+      {
+        "condition": "md_EC_L26_a-1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 164
+      },
+      {
+        "condition": "md_EC_L26_a-1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 231
+      },
+      {
+        "condition": "md_EC_L26_a-1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 75
+      },
+      {
+        "condition": "md_EC_L26_a-1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 137
+      },
+      {
+        "condition": "md_EC_L26_a-1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 195
+      },
+      {
+        "condition": "md_C_L26_a1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 83
+      },
+      {
+        "condition": "md_C_L26_a1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 162
+      },
+      {
+        "condition": "md_C_L26_a1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 227
+      },
+      {
+        "condition": "md_C_L26_a1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 71
+      },
+      {
+        "condition": "md_C_L26_a1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 134
+      },
+      {
+        "condition": "md_C_L26_a1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 195
+      },
+      {
+        "condition": "md_EC_L26_a1",
+        "selector": "simple",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 85
+      },
+      {
+        "condition": "md_EC_L26_a1",
+        "selector": "simple",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 164
+      },
+      {
+        "condition": "md_EC_L26_a1",
+        "selector": "simple",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 231
+      },
+      {
+        "condition": "md_EC_L26_a1",
+        "selector": "commitment",
+        "coverage": 0.25,
+        "k": 96,
+        "correct": 74
+      },
+      {
+        "condition": "md_EC_L26_a1",
+        "selector": "commitment",
+        "coverage": 0.5,
+        "k": 192,
+        "correct": 139
+      },
+      {
+        "condition": "md_EC_L26_a1",
+        "selector": "commitment",
+        "coverage": 0.75,
+        "k": 288,
+        "correct": 200
+      }
+    ],
+    "comparisons": [
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "condition": "das_EC_L8_a-1",
+        "c_layer": 8,
+        "e_layer": 16,
+        "c_alpha": -1.0,
+        "order": "C_before_E",
+        "selector": "simple",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 83,
+          "E": 89,
+          "C": 82,
+          "EC": 89
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": -1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "condition": "das_EC_L8_a-1",
+        "c_layer": 8,
+        "e_layer": 16,
+        "c_alpha": -1.0,
+        "order": "C_before_E",
+        "selector": "simple",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 161,
+          "E": 168,
+          "C": 162,
+          "EC": 167
+        },
+        "EC_minus_E": -1,
+        "C_minus_base": 1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -1.0,
+          3.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "condition": "das_EC_L8_a-1",
+        "c_layer": 8,
+        "e_layer": 16,
+        "c_alpha": -1.0,
+        "order": "C_before_E",
+        "selector": "simple",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 226,
+          "E": 227,
+          "C": 226,
+          "EC": 228
+        },
+        "EC_minus_E": 1,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "condition": "das_EC_L8_a-1",
+        "c_layer": 8,
+        "e_layer": 16,
+        "c_alpha": -1.0,
+        "order": "C_before_E",
+        "selector": "commitment",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 70,
+          "E": 74,
+          "C": 71,
+          "EC": 74
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -3.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "condition": "das_EC_L8_a-1",
+        "c_layer": 8,
+        "e_layer": 16,
+        "c_alpha": -1.0,
+        "order": "C_before_E",
+        "selector": "commitment",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 133,
+          "E": 144,
+          "C": 133,
+          "EC": 142
+        },
+        "EC_minus_E": -2,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 0.5,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -4.0,
+          3.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "condition": "das_EC_L8_a-1",
+        "c_layer": 8,
+        "e_layer": 16,
+        "c_alpha": -1.0,
+        "order": "C_before_E",
+        "selector": "commitment",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 194,
+          "E": 203,
+          "C": 194,
+          "EC": 202
+        },
+        "EC_minus_E": -1,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -4.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "condition": "das_EC_L8_a1",
+        "c_layer": 8,
+        "e_layer": 16,
+        "c_alpha": 1.0,
+        "order": "C_before_E",
+        "selector": "simple",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 83,
+          "E": 89,
+          "C": 83,
+          "EC": 89
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -3.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "condition": "das_EC_L8_a1",
+        "c_layer": 8,
+        "e_layer": 16,
+        "c_alpha": 1.0,
+        "order": "C_before_E",
+        "selector": "simple",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 161,
+          "E": 168,
+          "C": 162,
+          "EC": 167
+        },
+        "EC_minus_E": -1,
+        "C_minus_base": 1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "condition": "das_EC_L8_a1",
+        "c_layer": 8,
+        "e_layer": 16,
+        "c_alpha": 1.0,
+        "order": "C_before_E",
+        "selector": "simple",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 226,
+          "E": 227,
+          "C": 226,
+          "EC": 228
+        },
+        "EC_minus_E": 1,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "condition": "das_EC_L8_a1",
+        "c_layer": 8,
+        "e_layer": 16,
+        "c_alpha": 1.0,
+        "order": "C_before_E",
+        "selector": "commitment",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 70,
+          "E": 74,
+          "C": 70,
+          "EC": 74
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "condition": "das_EC_L8_a1",
+        "c_layer": 8,
+        "e_layer": 16,
+        "c_alpha": 1.0,
+        "order": "C_before_E",
+        "selector": "commitment",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 133,
+          "E": 144,
+          "C": 133,
+          "EC": 142
+        },
+        "EC_minus_E": -2,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 0.625,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -4.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "condition": "das_EC_L8_a1",
+        "c_layer": 8,
+        "e_layer": 16,
+        "c_alpha": 1.0,
+        "order": "C_before_E",
+        "selector": "commitment",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 194,
+          "E": 203,
+          "C": 194,
+          "EC": 202
+        },
+        "EC_minus_E": -1,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -4.0,
+          3.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "condition": "das_EC_L26_a-1",
+        "c_layer": 26,
+        "e_layer": 16,
+        "c_alpha": -1.0,
+        "order": "E_before_C",
+        "selector": "simple",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 83,
+          "E": 89,
+          "C": 83,
+          "EC": 88
+        },
+        "EC_minus_E": -1,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -3.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "condition": "das_EC_L26_a-1",
+        "c_layer": 26,
+        "e_layer": 16,
+        "c_alpha": -1.0,
+        "order": "E_before_C",
+        "selector": "simple",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 161,
+          "E": 168,
+          "C": 161,
+          "EC": 167
+        },
+        "EC_minus_E": -1,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "condition": "das_EC_L26_a-1",
+        "c_layer": 26,
+        "e_layer": 16,
+        "c_alpha": -1.0,
+        "order": "E_before_C",
+        "selector": "simple",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 226,
+          "E": 227,
+          "C": 225,
+          "EC": 227
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": -1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -4.0,
+          1.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "condition": "das_EC_L26_a-1",
+        "c_layer": 26,
+        "e_layer": 16,
+        "c_alpha": -1.0,
+        "order": "E_before_C",
+        "selector": "commitment",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 70,
+          "E": 74,
+          "C": 70,
+          "EC": 74
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -1.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "condition": "das_EC_L26_a-1",
+        "c_layer": 26,
+        "e_layer": 16,
+        "c_alpha": -1.0,
+        "order": "E_before_C",
+        "selector": "commitment",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 133,
+          "E": 144,
+          "C": 134,
+          "EC": 144
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          1.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "condition": "das_EC_L26_a-1",
+        "c_layer": 26,
+        "e_layer": 16,
+        "c_alpha": -1.0,
+        "order": "E_before_C",
+        "selector": "commitment",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 194,
+          "E": 203,
+          "C": 195,
+          "EC": 203
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -3.0,
+          3.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "condition": "das_EC_L26_a1",
+        "c_layer": 26,
+        "e_layer": 16,
+        "c_alpha": 1.0,
+        "order": "E_before_C",
+        "selector": "simple",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 83,
+          "E": 89,
+          "C": 82,
+          "EC": 89
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": -1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          1.0249999999998636
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "condition": "das_EC_L26_a1",
+        "c_layer": 26,
+        "e_layer": 16,
+        "c_alpha": 1.0,
+        "order": "E_before_C",
+        "selector": "simple",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 161,
+          "E": 168,
+          "C": 163,
+          "EC": 169
+        },
+        "EC_minus_E": 1,
+        "C_minus_base": 2,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -1.0,
+          3.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "condition": "das_EC_L26_a1",
+        "c_layer": 26,
+        "e_layer": 16,
+        "c_alpha": 1.0,
+        "order": "E_before_C",
+        "selector": "simple",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 226,
+          "E": 227,
+          "C": 227,
+          "EC": 229
+        },
+        "EC_minus_E": 2,
+        "C_minus_base": 1,
+        "pair_swap_p_fixed_selection": 0.625,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          3.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "condition": "das_EC_L26_a1",
+        "c_layer": 26,
+        "e_layer": 16,
+        "c_alpha": 1.0,
+        "order": "E_before_C",
+        "selector": "commitment",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 70,
+          "E": 74,
+          "C": 71,
+          "EC": 75
+        },
+        "EC_minus_E": 1,
+        "C_minus_base": 1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -1.0,
+          4.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "condition": "das_EC_L26_a1",
+        "c_layer": 26,
+        "e_layer": 16,
+        "c_alpha": 1.0,
+        "order": "E_before_C",
+        "selector": "commitment",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 133,
+          "E": 144,
+          "C": 134,
+          "EC": 143
+        },
+        "EC_minus_E": -1,
+        "C_minus_base": 1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -5.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "das",
+        "condition": "das_EC_L26_a1",
+        "c_layer": 26,
+        "e_layer": 16,
+        "c_alpha": 1.0,
+        "order": "E_before_C",
+        "selector": "commitment",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 194,
+          "E": 203,
+          "C": 195,
+          "EC": 202
+        },
+        "EC_minus_E": -1,
+        "C_minus_base": 1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -5.0,
+          3.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "condition": "md_EC_L8_a-1",
+        "c_layer": 8,
+        "e_layer": 21,
+        "c_alpha": -1.0,
+        "order": "C_before_E",
+        "selector": "simple",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 83,
+          "E": 85,
+          "C": 82,
+          "EC": 85
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": -1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -1.0,
+          0.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "condition": "md_EC_L8_a-1",
+        "c_layer": 8,
+        "e_layer": 21,
+        "c_alpha": -1.0,
+        "order": "C_before_E",
+        "selector": "simple",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 161,
+          "E": 164,
+          "C": 162,
+          "EC": 164
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          3.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "condition": "md_EC_L8_a-1",
+        "c_layer": 8,
+        "e_layer": 21,
+        "c_alpha": -1.0,
+        "order": "C_before_E",
+        "selector": "simple",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 226,
+          "E": 231,
+          "C": 226,
+          "EC": 230
+        },
+        "EC_minus_E": -1,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          2.0249999999998636
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "condition": "md_EC_L8_a-1",
+        "c_layer": 8,
+        "e_layer": 21,
+        "c_alpha": -1.0,
+        "order": "C_before_E",
+        "selector": "commitment",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 70,
+          "E": 75,
+          "C": 69,
+          "EC": 76
+        },
+        "EC_minus_E": 1,
+        "C_minus_base": -1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -3.0,
+          3.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "condition": "md_EC_L8_a-1",
+        "c_layer": 8,
+        "e_layer": 21,
+        "c_alpha": -1.0,
+        "order": "C_before_E",
+        "selector": "commitment",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 133,
+          "E": 139,
+          "C": 132,
+          "EC": 140
+        },
+        "EC_minus_E": 1,
+        "C_minus_base": -1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "condition": "md_EC_L8_a-1",
+        "c_layer": 8,
+        "e_layer": 21,
+        "c_alpha": -1.0,
+        "order": "C_before_E",
+        "selector": "commitment",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 194,
+          "E": 198,
+          "C": 195,
+          "EC": 199
+        },
+        "EC_minus_E": 1,
+        "C_minus_base": 1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          4.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "condition": "md_EC_L8_a1",
+        "c_layer": 8,
+        "e_layer": 21,
+        "c_alpha": 1.0,
+        "order": "C_before_E",
+        "selector": "simple",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 83,
+          "E": 85,
+          "C": 83,
+          "EC": 84
+        },
+        "EC_minus_E": -1,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          1.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "condition": "md_EC_L8_a1",
+        "c_layer": 8,
+        "e_layer": 21,
+        "c_alpha": 1.0,
+        "order": "C_before_E",
+        "selector": "simple",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 161,
+          "E": 164,
+          "C": 162,
+          "EC": 164
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          1.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "condition": "md_EC_L8_a1",
+        "c_layer": 8,
+        "e_layer": 21,
+        "c_alpha": 1.0,
+        "order": "C_before_E",
+        "selector": "simple",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 226,
+          "E": 231,
+          "C": 226,
+          "EC": 230
+        },
+        "EC_minus_E": -1,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -1.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "condition": "md_EC_L8_a1",
+        "c_layer": 8,
+        "e_layer": 21,
+        "c_alpha": 1.0,
+        "order": "C_before_E",
+        "selector": "commitment",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 70,
+          "E": 75,
+          "C": 70,
+          "EC": 75
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -3.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "condition": "md_EC_L8_a1",
+        "c_layer": 8,
+        "e_layer": 21,
+        "c_alpha": 1.0,
+        "order": "C_before_E",
+        "selector": "commitment",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 133,
+          "E": 139,
+          "C": 132,
+          "EC": 139
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": -1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "condition": "md_EC_L8_a1",
+        "c_layer": 8,
+        "e_layer": 21,
+        "c_alpha": 1.0,
+        "order": "C_before_E",
+        "selector": "commitment",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 194,
+          "E": 198,
+          "C": 192,
+          "EC": 199
+        },
+        "EC_minus_E": 1,
+        "C_minus_base": -2,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          3.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "condition": "md_EC_L26_a-1",
+        "c_layer": 26,
+        "e_layer": 21,
+        "c_alpha": -1.0,
+        "order": "E_before_C",
+        "selector": "simple",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 83,
+          "E": 85,
+          "C": 83,
+          "EC": 84
+        },
+        "EC_minus_E": -1,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -3.0,
+          1.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "condition": "md_EC_L26_a-1",
+        "c_layer": 26,
+        "e_layer": 21,
+        "c_alpha": -1.0,
+        "order": "E_before_C",
+        "selector": "simple",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 161,
+          "E": 164,
+          "C": 161,
+          "EC": 164
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          3.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "condition": "md_EC_L26_a-1",
+        "c_layer": 26,
+        "e_layer": 21,
+        "c_alpha": -1.0,
+        "order": "E_before_C",
+        "selector": "simple",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 226,
+          "E": 231,
+          "C": 224,
+          "EC": 231
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": -2,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "condition": "md_EC_L26_a-1",
+        "c_layer": 26,
+        "e_layer": 21,
+        "c_alpha": -1.0,
+        "order": "E_before_C",
+        "selector": "commitment",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 70,
+          "E": 75,
+          "C": 70,
+          "EC": 75
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          1.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "condition": "md_EC_L26_a-1",
+        "c_layer": 26,
+        "e_layer": 21,
+        "c_alpha": -1.0,
+        "order": "E_before_C",
+        "selector": "commitment",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 133,
+          "E": 139,
+          "C": 134,
+          "EC": 137
+        },
+        "EC_minus_E": -2,
+        "C_minus_base": 1,
+        "pair_swap_p_fixed_selection": 0.625,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -5.0,
+          0.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "condition": "md_EC_L26_a-1",
+        "c_layer": 26,
+        "e_layer": 21,
+        "c_alpha": -1.0,
+        "order": "E_before_C",
+        "selector": "commitment",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 194,
+          "E": 198,
+          "C": 195,
+          "EC": 195
+        },
+        "EC_minus_E": -3,
+        "C_minus_base": 1,
+        "pair_swap_p_fixed_selection": 0.25,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -7.0,
+          0.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "condition": "md_EC_L26_a1",
+        "c_layer": 26,
+        "e_layer": 21,
+        "c_alpha": 1.0,
+        "order": "E_before_C",
+        "selector": "simple",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 83,
+          "E": 85,
+          "C": 83,
+          "EC": 85
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 0,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -1.0,
+          1.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "condition": "md_EC_L26_a1",
+        "c_layer": 26,
+        "e_layer": 21,
+        "c_alpha": 1.0,
+        "order": "E_before_C",
+        "selector": "simple",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 161,
+          "E": 164,
+          "C": 162,
+          "EC": 164
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "condition": "md_EC_L26_a1",
+        "c_layer": 26,
+        "e_layer": 21,
+        "c_alpha": 1.0,
+        "order": "E_before_C",
+        "selector": "simple",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 226,
+          "E": 231,
+          "C": 227,
+          "EC": 231
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -1.0,
+          3.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "condition": "md_EC_L26_a1",
+        "c_layer": 26,
+        "e_layer": 21,
+        "c_alpha": 1.0,
+        "order": "E_before_C",
+        "selector": "commitment",
+        "coverage": "0.25",
+        "k": 96,
+        "correct": {
+          "base": 70,
+          "E": 75,
+          "C": 71,
+          "EC": 74
+        },
+        "EC_minus_E": -1,
+        "C_minus_base": 1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          2.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "condition": "md_EC_L26_a1",
+        "c_layer": 26,
+        "e_layer": 21,
+        "c_alpha": 1.0,
+        "order": "E_before_C",
+        "selector": "commitment",
+        "coverage": "0.5",
+        "k": 192,
+        "correct": {
+          "base": 133,
+          "E": 139,
+          "C": 134,
+          "EC": 139
+        },
+        "EC_minus_E": 0,
+        "C_minus_base": 1,
+        "pair_swap_p_fixed_selection": 1.0,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -3.0,
+          3.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      },
+      {
+        "model": "qwen3-8b",
+        "method": "md",
+        "condition": "md_EC_L26_a1",
+        "c_layer": 26,
+        "e_layer": 21,
+        "c_alpha": 1.0,
+        "order": "E_before_C",
+        "selector": "commitment",
+        "coverage": "0.75",
+        "k": 288,
+        "correct": {
+          "base": 194,
+          "E": 198,
+          "C": 195,
+          "EC": 200
+        },
+        "EC_minus_E": 2,
+        "C_minus_base": 1,
+        "pair_swap_p_fixed_selection": 0.625,
+        "question_bootstrap_reselect_ci95_correct_count": [
+          -2.0,
+          5.0
+        ],
+        "n_question_groups": 192,
+        "n_boot": 2000,
+        "holm_within_48_prespecified_points": 1
+      }
+    ],
+    "interpretation": "Exploratory fixed-grid tuning audit. Group-swap p fixes observed masks; bootstrap resamples/reselects whole questions."
+  }
+}

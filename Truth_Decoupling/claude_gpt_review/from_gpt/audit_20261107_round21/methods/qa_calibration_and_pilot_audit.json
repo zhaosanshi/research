@@ -1,0 +1,412 @@
+[
+  {
+    "model": "llama3.1-8b",
+    "calibration": {
+      "recomputed_rho": 0.018418745706257147,
+      "recorded_rho": 0.018418746069073677,
+      "tolerance": 9.219373034536839e-05,
+      "layers": {
+        "before": {
+          "layer": 7,
+          "dtype": "torch.bfloat16",
+          "n": 92,
+          "coefficient": 0.08551534514766178,
+          "original_sigma": 0.08551534514766178,
+          "original_median": 0.018418745706257147,
+          "matched_median": 0.018418745706257147,
+          "positive_median": 0.018419959465027235,
+          "negative_median": 0.018417400390037905,
+          "profile_max_cpu_gpu_float_difference": 2.70203097049726e-09,
+          "actual_median_error": 0.0
+        },
+        "after": {
+          "layer": 23,
+          "dtype": "torch.bfloat16",
+          "n": 92,
+          "coefficient": 0.41540841165672726,
+          "original_sigma": 2.7412581499829414,
+          "original_median": 0.1211442309488806,
+          "matched_median": 0.01841873044873822,
+          "positive_median": 0.018422663398462217,
+          "negative_median": 0.01840885476188853,
+          "profile_max_cpu_gpu_float_difference": 1.763373244645372e-08,
+          "actual_median_error": 1.5257518925365643e-08
+        }
+      }
+    },
+    "calibration_sha256": "4bb683d5aa440a23a4cdb88b067cf7d22f9540e2e847a68b3451443f807ed2e8",
+    "states_sha256": "37f67b3a7ee177b944e1ca5962f0baa400b74e3508adcc35207ccd4a67d2727f",
+    "pilot_sha256": "1098c1db2626777bf26b8e6ab2ff55f0c44fb805ba24dfd2259836fa8d448921",
+    "actual_decode_steps_checked": 180,
+    "actual_prefill_C_writes_checked": 24,
+    "baseline_E_text_and_tokens_exact_reference": true,
+    "gate_effects": {
+      "C_before_m1": [
+        {
+          "pair_id": "tqa:685",
+          "delta_yes_no": -0.00775909423828125,
+          "yes_no_probability_mass": 0.9999980253633112,
+          "scope": "C-only ability gate"
+        },
+        {
+          "pair_id": "tqa:270",
+          "delta_yes_no": 0.010112762451171875,
+          "yes_no_probability_mass": 0.9999123513698578,
+          "scope": "C-only ability gate"
+        },
+        {
+          "pair_id": "tqa:480",
+          "delta_yes_no": -0.017366409301757812,
+          "yes_no_probability_mass": 0.9999990221112967,
+          "scope": "C-only ability gate"
+        }
+      ],
+      "EC_before_m1": [
+        {
+          "pair_id": "tqa:685",
+          "delta_yes_no": -0.035396575927734375,
+          "yes_no_probability_mass": 0.9999981361906976,
+          "scope": "cross-task source-E gate diagnostic"
+        },
+        {
+          "pair_id": "tqa:270",
+          "delta_yes_no": 0.04031944274902344,
+          "yes_no_probability_mass": 0.9999083578586578,
+          "scope": "cross-task source-E gate diagnostic"
+        },
+        {
+          "pair_id": "tqa:480",
+          "delta_yes_no": 0.002872467041015625,
+          "yes_no_probability_mass": 0.9999986629700288,
+          "scope": "cross-task source-E gate diagnostic"
+        }
+      ],
+      "C_before_p1": [
+        {
+          "pair_id": "tqa:685",
+          "delta_yes_no": 0.061145782470703125,
+          "yes_no_probability_mass": 0.9999981946311891,
+          "scope": "C-only ability gate"
+        },
+        {
+          "pair_id": "tqa:270",
+          "delta_yes_no": -0.0131683349609375,
+          "yes_no_probability_mass": 0.999900609254837,
+          "scope": "C-only ability gate"
+        },
+        {
+          "pair_id": "tqa:480",
+          "delta_yes_no": -0.05816459655761719,
+          "yes_no_probability_mass": 0.9999989275238477,
+          "scope": "C-only ability gate"
+        }
+      ],
+      "EC_before_p1": [
+        {
+          "pair_id": "tqa:685",
+          "delta_yes_no": -0.0377044677734375,
+          "yes_no_probability_mass": 0.9999980183783919,
+          "scope": "cross-task source-E gate diagnostic"
+        },
+        {
+          "pair_id": "tqa:270",
+          "delta_yes_no": -0.037395477294921875,
+          "yes_no_probability_mass": 0.999891072511673,
+          "scope": "cross-task source-E gate diagnostic"
+        },
+        {
+          "pair_id": "tqa:480",
+          "delta_yes_no": -0.08155441284179688,
+          "yes_no_probability_mass": 0.9999984494643286,
+          "scope": "cross-task source-E gate diagnostic"
+        }
+      ],
+      "C_after_m1": [
+        {
+          "pair_id": "tqa:685",
+          "delta_yes_no": -0.5450973510742188,
+          "yes_no_probability_mass": 0.9999980074353516,
+          "scope": "C-only ability gate"
+        },
+        {
+          "pair_id": "tqa:270",
+          "delta_yes_no": -0.2747917175292969,
+          "yes_no_probability_mass": 0.9998819530010223,
+          "scope": "C-only ability gate"
+        },
+        {
+          "pair_id": "tqa:480",
+          "delta_yes_no": -0.667388916015625,
+          "yes_no_probability_mass": 0.9999987598275766,
+          "scope": "C-only ability gate"
+        }
+      ],
+      "EC_after_m1": [
+        {
+          "pair_id": "tqa:685",
+          "delta_yes_no": -0.5296974182128906,
+          "yes_no_probability_mass": 0.9999978831037879,
+          "scope": "cross-task source-E gate diagnostic"
+        },
+        {
+          "pair_id": "tqa:270",
+          "delta_yes_no": -0.3387317657470703,
+          "yes_no_probability_mass": 0.9998888671398163,
+          "scope": "cross-task source-E gate diagnostic"
+        },
+        {
+          "pair_id": "tqa:480",
+          "delta_yes_no": -0.5821113586425781,
+          "yes_no_probability_mass": 0.99999838124495,
+          "scope": "cross-task source-E gate diagnostic"
+        }
+      ],
+      "C_after_p1": [
+        {
+          "pair_id": "tqa:685",
+          "delta_yes_no": 0.5695228576660156,
+          "yes_no_probability_mass": 0.9999982875306159,
+          "scope": "C-only ability gate"
+        },
+        {
+          "pair_id": "tqa:270",
+          "delta_yes_no": 0.2798881530761719,
+          "yes_no_probability_mass": 0.9999151527881622,
+          "scope": "C-only ability gate"
+        },
+        {
+          "pair_id": "tqa:480",
+          "delta_yes_no": 0.6452198028564453,
+          "yes_no_probability_mass": 0.999998964718543,
+          "scope": "C-only ability gate"
+        }
+      ],
+      "EC_after_p1": [
+        {
+          "pair_id": "tqa:685",
+          "delta_yes_no": 0.5259208679199219,
+          "yes_no_probability_mass": 0.9999983052257448,
+          "scope": "cross-task source-E gate diagnostic"
+        },
+        {
+          "pair_id": "tqa:270",
+          "delta_yes_no": 0.31598854064941406,
+          "yes_no_probability_mass": 0.9999069273471832,
+          "scope": "cross-task source-E gate diagnostic"
+        },
+        {
+          "pair_id": "tqa:480",
+          "delta_yes_no": 0.5693569183349609,
+          "yes_no_probability_mass": 0.999998860002961,
+          "scope": "cross-task source-E gate diagnostic"
+        }
+      ]
+    },
+    "status": "pass_no_observed_blocker"
+  },
+  {
+    "model": "qwen3-8b",
+    "calibration": {
+      "recomputed_rho": 0.010587391014777164,
+      "recorded_rho": 0.010587390512228012,
+      "tolerance": 5.3036952561140065e-05,
+      "layers": {
+        "before": {
+          "layer": 8,
+          "dtype": "torch.bfloat16",
+          "n": 92,
+          "coefficient": 0.4589245741450262,
+          "original_sigma": 0.4589245741450262,
+          "original_median": 0.010587391014777164,
+          "matched_median": 0.010587391014777164,
+          "positive_median": 0.010589894648407483,
+          "negative_median": 0.01058592826681026,
+          "profile_max_cpu_gpu_float_difference": 1.2833937749340274e-09,
+          "actual_median_error": 0.0
+        },
+        "after": {
+          "layer": 26,
+          "dtype": "torch.bfloat16",
+          "n": 92,
+          "coefficient": 2.9515022384630933,
+          "original_sigma": 27.450944733982695,
+          "original_median": 0.09748150490780813,
+          "matched_median": 0.01058741629794397,
+          "positive_median": 0.010587036669436726,
+          "negative_median": 0.01058741629794397,
+          "profile_max_cpu_gpu_float_difference": 1.3539851684285509e-08,
+          "actual_median_error": 2.52831668066944e-08
+        }
+      }
+    },
+    "calibration_sha256": "689250f4d10363225736eedffaa859f944bc8349b97ad5572b71f1e2a0adf170",
+    "states_sha256": "d0b10f320671f14d4bfcee02fb1e803ff869035b5b12132e8e065701f1962339",
+    "pilot_sha256": "94baa54a447ea7eee4923288b71db71e007b80bc84c6806b8032ea9d13897833",
+    "actual_decode_steps_checked": 375,
+    "actual_prefill_C_writes_checked": 24,
+    "baseline_E_text_and_tokens_exact_reference": true,
+    "gate_effects": {
+      "C_before_m1": [
+        {
+          "pair_id": "tqa:685",
+          "delta_yes_no": -0.014801025390625,
+          "yes_no_probability_mass": 1.0000000009731966,
+          "scope": "C-only ability gate"
+        },
+        {
+          "pair_id": "tqa:270",
+          "delta_yes_no": 0.7133636474609375,
+          "yes_no_probability_mass": 0.9999999961755748,
+          "scope": "C-only ability gate"
+        },
+        {
+          "pair_id": "tqa:480",
+          "delta_yes_no": 0.10544204711914062,
+          "yes_no_probability_mass": 1.0000000000077491,
+          "scope": "C-only ability gate"
+        }
+      ],
+      "EC_before_m1": [
+        {
+          "pair_id": "tqa:685",
+          "delta_yes_no": 0.14278793334960938,
+          "yes_no_probability_mass": 1.0000000012142067,
+          "scope": "cross-task source-E gate diagnostic"
+        },
+        {
+          "pair_id": "tqa:270",
+          "delta_yes_no": 0.5049209594726562,
+          "yes_no_probability_mass": 0.9999999738315637,
+          "scope": "cross-task source-E gate diagnostic"
+        },
+        {
+          "pair_id": "tqa:480",
+          "delta_yes_no": -0.07591629028320312,
+          "yes_no_probability_mass": 1.000000000008704,
+          "scope": "cross-task source-E gate diagnostic"
+        }
+      ],
+      "C_before_p1": [
+        {
+          "pair_id": "tqa:685",
+          "delta_yes_no": -0.025238037109375,
+          "yes_no_probability_mass": 1.0000000009834071,
+          "scope": "C-only ability gate"
+        },
+        {
+          "pair_id": "tqa:270",
+          "delta_yes_no": 0.5185394287109375,
+          "yes_no_probability_mass": 1.0000000057052603,
+          "scope": "C-only ability gate"
+        },
+        {
+          "pair_id": "tqa:480",
+          "delta_yes_no": -0.630706787109375,
+          "yes_no_probability_mass": 1.000000000016179,
+          "scope": "C-only ability gate"
+        }
+      ],
+      "EC_before_p1": [
+        {
+          "pair_id": "tqa:685",
+          "delta_yes_no": -0.3300666809082031,
+          "yes_no_probability_mass": 1.0000000019482775,
+          "scope": "cross-task source-E gate diagnostic"
+        },
+        {
+          "pair_id": "tqa:270",
+          "delta_yes_no": 0.03345489501953125,
+          "yes_no_probability_mass": 1.0000000410173016,
+          "scope": "cross-task source-E gate diagnostic"
+        },
+        {
+          "pair_id": "tqa:480",
+          "delta_yes_no": -0.13304519653320312,
+          "yes_no_probability_mass": 1.0000000000092157,
+          "scope": "cross-task source-E gate diagnostic"
+        }
+      ],
+      "C_after_m1": [
+        {
+          "pair_id": "tqa:685",
+          "delta_yes_no": -0.7546195983886719,
+          "yes_no_probability_mass": 1.0000000020393875,
+          "scope": "C-only ability gate"
+        },
+        {
+          "pair_id": "tqa:270",
+          "delta_yes_no": -0.930999755859375,
+          "yes_no_probability_mass": 1.000000024975634,
+          "scope": "C-only ability gate"
+        },
+        {
+          "pair_id": "tqa:480",
+          "delta_yes_no": -0.6999359130859375,
+          "yes_no_probability_mass": 1.0000000000173388,
+          "scope": "C-only ability gate"
+        }
+      ],
+      "EC_after_m1": [
+        {
+          "pair_id": "tqa:685",
+          "delta_yes_no": -0.9127540588378906,
+          "yes_no_probability_mass": 1.0000000034890622,
+          "scope": "cross-task source-E gate diagnostic"
+        },
+        {
+          "pair_id": "tqa:270",
+          "delta_yes_no": -0.8863868713378906,
+          "yes_no_probability_mass": 0.9999999927749741,
+          "scope": "cross-task source-E gate diagnostic"
+        },
+        {
+          "pair_id": "tqa:480",
+          "delta_yes_no": -0.6965675354003906,
+          "yes_no_probability_mass": 1.0000000000161906,
+          "scope": "cross-task source-E gate diagnostic"
+        }
+      ],
+      "C_after_p1": [
+        {
+          "pair_id": "tqa:685",
+          "delta_yes_no": 0.6976318359375,
+          "yes_no_probability_mass": 1.000000000477304,
+          "scope": "C-only ability gate"
+        },
+        {
+          "pair_id": "tqa:270",
+          "delta_yes_no": 0.9156723022460938,
+          "yes_no_probability_mass": 1.0000000588673856,
+          "scope": "C-only ability gate"
+        },
+        {
+          "pair_id": "tqa:480",
+          "delta_yes_no": 0.37160491943359375,
+          "yes_no_probability_mass": 1.0000000000059381,
+          "scope": "C-only ability gate"
+        }
+      ],
+      "EC_after_p1": [
+        {
+          "pair_id": "tqa:685",
+          "delta_yes_no": 0.681915283203125,
+          "yes_no_probability_mass": 1.0000000007081946,
+          "scope": "cross-task source-E gate diagnostic"
+        },
+        {
+          "pair_id": "tqa:270",
+          "delta_yes_no": 0.9826393127441406,
+          "yes_no_probability_mass": 1.0000000348061349,
+          "scope": "cross-task source-E gate diagnostic"
+        },
+        {
+          "pair_id": "tqa:480",
+          "delta_yes_no": 0.6433525085449219,
+          "yes_no_probability_mass": 1.0000000000042397,
+          "scope": "cross-task source-E gate diagnostic"
+        }
+      ]
+    },
+    "status": "pass_no_observed_blocker"
+  }
+]

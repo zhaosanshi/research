@@ -1,0 +1,82 @@
+[
+  {
+    "model": "llama3.1-8b",
+    "C_layer": 14,
+    "training_only": true,
+    "coefficient": 0.14901370964853528,
+    "fixed_rho": 0.018418746069073677,
+    "independent_actual_median": 0.018418774805331516,
+    "calibration_error": 2.873625783855749e-08,
+    "criteria": {
+      "expected_sign_at_least": 83,
+      "n": 92,
+      "median_abs_minimum": 0.1
+    },
+    "functional_results": {
+      "C_minus": {
+        "expected_sign_count": 92,
+        "n": 92,
+        "median_absolute_change": 0.20497703552246094,
+        "opposite_sign_count": 0,
+        "qualifies": true,
+        "min_label_mass": 0.9996987879276276
+      },
+      "C_plus": {
+        "expected_sign_count": 92,
+        "n": 92,
+        "median_absolute_change": 0.20329570770263672,
+        "opposite_sign_count": 0,
+        "qualifies": true,
+        "min_label_mass": 0.9997888505458832
+      }
+    },
+    "qualifies": true,
+    "source_sha256": {
+      "plan.json": "2836e50374c53aaddaa1ec7af064f9477be7f81dfea626f7f7ba4fedb78a11e4",
+      "calibration.json": "f6eb091514dea201ea4a5536960e6f78486d35fb6c54d9aff46631a0252b7ae1",
+      "native_states.pt": "6235d2380b6ef8eb5447e697a6b3168803c7382fc9124c3b962c2349ef4c6831",
+      "train_gate.json": "7153b7032cb015d441267e4c728a840cea208997e2fb533ce5187f829667e0c3",
+      "report.json": "8a01458f155120902b0793265a63ce3824e8e82f6383a873a22fd8dac73992ea"
+    }
+  },
+  {
+    "model": "qwen3-8b",
+    "C_layer": 16,
+    "training_only": true,
+    "coefficient": 0.683882370193206,
+    "fixed_rho": 0.010587390512228012,
+    "independent_actual_median": 0.010587431984207932,
+    "calibration_error": 4.147197991966056e-08,
+    "criteria": {
+      "expected_sign_at_least": 83,
+      "n": 92,
+      "median_abs_minimum": 0.1
+    },
+    "functional_results": {
+      "C_minus": {
+        "expected_sign_count": 59,
+        "n": 92,
+        "median_absolute_change": 0.1645946502685547,
+        "opposite_sign_count": 33,
+        "qualifies": false,
+        "min_label_mass": 0.9999999403953552
+      },
+      "C_plus": {
+        "expected_sign_count": 60,
+        "n": 92,
+        "median_absolute_change": 0.1592998504638672,
+        "opposite_sign_count": 32,
+        "qualifies": false,
+        "min_label_mass": 0.9999999430585831
+      }
+    },
+    "qualifies": false,
+    "source_sha256": {
+      "plan.json": "4b6be542fae1d8d054cf0ccc1100e177c2f624341972ed63057a8df4372c8212",
+      "calibration.json": "5615dea97d0d4095f5a25f496ab08a3fa6211d085ec74c9351be4da176815d5b",
+      "native_states.pt": "4b95c35b6a3827aa6942e69fdaefbdc761afd0b4fdd84e8c772e3b1b112b8a65",
+      "train_gate.json": "e6fc738d2f6b15719c8f8051c38d569e75c91bad1822ecaad3567bc97d6aa827",
+      "report.json": "2ab29429212c2f7de55885cfe6a7b217440cd0e9be8c9b99052f4c8d822606aa"
+    }
+  }
+]

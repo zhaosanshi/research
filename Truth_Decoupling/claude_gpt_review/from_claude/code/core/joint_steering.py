@@ -84,7 +84,11 @@ def candidate_conditions(task, e_choices, c_layers, c_alphas):
 
 
 def intervention_specs(bank, condition, context="answer"):
-    """E first, then C. C writes prompt end only; QA E may write each step.
+    """Construct E/C specs; model layer order determines physical write order.
+
+    Listing E first only controls registration order if both specs share a
+    layer. At different layers, the shallower intervention executes first.
+    C writes prompt end only; QA E may write each step.
 
     Gate prompts have their own estimation-set centres. The E vector and C
     vector are the same in gate/answer contexts; their efficacy is empirical.

@@ -1,0 +1,49 @@
+task,model,method,selector,coverage,E_only,C_only,EC_E,EC_C,EC_order,same_E,E_condition,C_condition,EC_condition
+tf,llama3.1-8b,das,commitment,0.25,L15 / 2,L26 / -1,L15 / 2,L26 / -1,E_before_C,True,das_E_0,das_C_L26_a-1,das_EC_0_L26_a-1
+tf,llama3.1-8b,das,simple,0.25,L13 / 3,L26 / -1,L13 / 3,L26 / -1,E_before_C,True,das_E_2,das_C_L26_a-1,das_EC_2_L26_a-1
+tf,llama3.1-8b,md,commitment,0.25,L15 / 2,L24 / -1,L15 / 2,L24 / -1,E_before_C,True,md_E_1,md_C_L24_a-1,md_EC_1_L24_a-1
+tf,llama3.1-8b,md,simple,0.25,L13 / 3,L24 / -1,L15 / 2,L24 / -1,E_before_C,False,md_E_2,md_C_L24_a-1,md_EC_1_L24_a-1
+tf,llama3.1-8b,das,commitment,0.5,L11 / 3,L26 / -1,L15 / 2,L26 / -1,E_before_C,False,das_E_1,das_C_L26_a-1,das_EC_0_L26_a-1
+tf,llama3.1-8b,das,simple,0.5,L13 / 3,L26 / +1,L13 / 3,L26 / -1,E_before_C,True,das_E_2,das_C_L26_a1,das_EC_2_L26_a-1
+tf,llama3.1-8b,md,commitment,0.5,L13 / 3,L24 / -1,L13 / 3,L24 / +1,E_before_C,True,md_E_2,md_C_L24_a-1,md_EC_2_L24_a1
+tf,llama3.1-8b,md,simple,0.5,L16 / 3,L24 / +1,L13 / 3,L24 / +1,E_before_C,False,md_E_0,md_C_L24_a1,md_EC_2_L24_a1
+tf,llama3.1-8b,das,commitment,0.75,L15 / 2,L26 / -1,L15 / 2,L26 / -1,E_before_C,True,das_E_0,das_C_L26_a-1,das_EC_0_L26_a-1
+tf,llama3.1-8b,das,simple,0.75,L13 / 3,L26 / +1,L13 / 3,L26 / +1,E_before_C,True,das_E_2,das_C_L26_a1,das_EC_2_L26_a1
+tf,llama3.1-8b,md,commitment,0.75,L16 / 3,L24 / -1,L15 / 2,L24 / -1,E_before_C,False,md_E_0,md_C_L24_a-1,md_EC_1_L24_a-1
+tf,llama3.1-8b,md,simple,0.75,L16 / 3,L24 / +1,L15 / 2,L24 / +1,E_before_C,False,md_E_0,md_C_L24_a1,md_EC_1_L24_a1
+tf,qwen3-8b,das,commitment,0.25,L16 / 3,L29 / +1,L16 / 3,L29 / +1,E_before_C,True,das_E_2,das_C_L29_a1,das_EC_2_L29_a1
+tf,qwen3-8b,das,simple,0.25,L35 / 3,L29 / +1,L35 / 3,L29 / -1,C_before_E,True,das_E_0,das_C_L29_a1,das_EC_0_L29_a-1
+tf,qwen3-8b,md,commitment,0.25,L21 / 2,L35 / +1,L21 / 2,L35 / +1,E_before_C,True,md_E_1,md_C_L35_a1,md_EC_1_L35_a1
+tf,qwen3-8b,md,simple,0.25,L21 / 2,L35 / +1,L21 / 2,L35 / +1,E_before_C,True,md_E_1,md_C_L35_a1,md_EC_1_L35_a1
+tf,qwen3-8b,das,commitment,0.5,L16 / 3,L29 / -1,L16 / 3,L29 / -1,E_before_C,True,das_E_2,das_C_L29_a-1,das_EC_2_L29_a-1
+tf,qwen3-8b,das,simple,0.5,L35 / 3,L29 / -1,L35 / 3,L29 / +1,C_before_E,True,das_E_0,das_C_L29_a-1,das_EC_0_L29_a1
+tf,qwen3-8b,md,commitment,0.5,L21 / 2,L35 / +1,L21 / 2,L35 / +1,E_before_C,True,md_E_1,md_C_L35_a1,md_EC_1_L35_a1
+tf,qwen3-8b,md,simple,0.5,L21 / 2,L35 / -1,L19 / 3,L35 / +1,E_before_C,False,md_E_1,md_C_L35_a-1,md_EC_2_L35_a1
+tf,qwen3-8b,das,commitment,0.75,L35 / 3,L29 / -1,L35 / 3,L29 / +1,C_before_E,True,das_E_0,das_C_L29_a-1,das_EC_0_L29_a1
+tf,qwen3-8b,das,simple,0.75,L35 / 3,L29 / -1,L35 / 3,L29 / +1,C_before_E,True,das_E_0,das_C_L29_a-1,das_EC_0_L29_a1
+tf,qwen3-8b,md,commitment,0.75,L20 / 3,L35 / +1,L21 / 2,L35 / +1,E_before_C,False,md_E_0,md_C_L35_a1,md_EC_1_L35_a1
+tf,qwen3-8b,md,simple,0.75,L21 / 2,L35 / +1,L20 / 3,L35 / +1,E_before_C,False,md_E_1,md_C_L35_a1,md_EC_0_L35_a1
+qa,llama3.1-8b,das,commitment,0.25,L29 / 3,L24 / -1,L27 / 2,L24 / +1,C_before_E,False,das_E_2,das_C_L24_a-1,das_EC_1_L24_a1
+qa,llama3.1-8b,das,simple,0.25,L10 / 2,L24 / +1,L10 / 2,L24 / -1,E_before_C,True,das_E_0,das_C_L24_a1,das_EC_0_L24_a-1
+qa,llama3.1-8b,md,commitment,0.25,L11 / 3,L24 / -1,L11 / 3,L24 / -1,E_before_C,True,md_E_2,md_C_L24_a-1,md_EC_2_L24_a-1
+qa,llama3.1-8b,md,simple,0.25,L7 / 3,L24 / +1,L7 / 3,L24 / -1,E_before_C,True,md_E_0,md_C_L24_a1,md_EC_0_L24_a-1
+qa,llama3.1-8b,das,commitment,0.5,L29 / 3,L24 / -1,L29 / 3,L24 / -1,C_before_E,True,das_E_2,das_C_L24_a-1,das_EC_2_L24_a-1
+qa,llama3.1-8b,das,simple,0.5,L27 / 2,L24 / -1,L10 / 2,L24 / -1,E_before_C,False,das_E_1,das_C_L24_a-1,das_EC_0_L24_a-1
+qa,llama3.1-8b,md,commitment,0.5,L11 / 3,L24 / -1,L11 / 3,L24 / -1,E_before_C,True,md_E_2,md_C_L24_a-1,md_EC_2_L24_a-1
+qa,llama3.1-8b,md,simple,0.5,L10 / 3,L24 / -1,L11 / 3,L24 / +1,E_before_C,False,md_E_1,md_C_L24_a-1,md_EC_2_L24_a1
+qa,llama3.1-8b,das,commitment,0.75,L29 / 3,L24 / -1,L29 / 3,L24 / -1,C_before_E,True,das_E_2,das_C_L24_a-1,das_EC_2_L24_a-1
+qa,llama3.1-8b,das,simple,0.75,L29 / 3,L24 / -1,L29 / 3,L24 / -1,C_before_E,True,das_E_2,das_C_L24_a-1,das_EC_2_L24_a-1
+qa,llama3.1-8b,md,commitment,0.75,L10 / 3,L24 / -1,L11 / 3,L24 / -1,E_before_C,False,md_E_1,md_C_L24_a-1,md_EC_2_L24_a-1
+qa,llama3.1-8b,md,simple,0.75,L11 / 3,L24 / -1,L11 / 3,L24 / -1,E_before_C,True,md_E_2,md_C_L24_a-1,md_EC_2_L24_a-1
+qa,qwen3-8b,das,commitment,0.25,L34 / 3,L24 / -1,L23 / 3,L24 / -1,E_before_C,False,das_E_1,das_C_L24_a-1,das_EC_0_L24_a-1
+qa,qwen3-8b,das,simple,0.25,L29 / 2,L24 / -1,L29 / 2,L24 / -1,C_before_E,True,das_E_2,das_C_L24_a-1,das_EC_2_L24_a-1
+qa,qwen3-8b,md,commitment,0.25,L12 / 2,L24 / -1,L12 / 2,L24 / -1,E_before_C,True,md_E_1,md_C_L24_a-1,md_EC_1_L24_a-1
+qa,qwen3-8b,md,simple,0.25,L12 / 2,L24 / -1,L12 / 2,L24 / -1,E_before_C,True,md_E_1,md_C_L24_a-1,md_EC_1_L24_a-1
+qa,qwen3-8b,das,commitment,0.5,L29 / 2,L24 / -1,L23 / 3,L24 / -1,E_before_C,False,das_E_2,das_C_L24_a-1,das_EC_0_L24_a-1
+qa,qwen3-8b,das,simple,0.5,L34 / 3,L24 / -1,L23 / 3,L24 / -1,E_before_C,False,das_E_1,das_C_L24_a-1,das_EC_0_L24_a-1
+qa,qwen3-8b,md,commitment,0.5,L12 / 2,L24 / -1,L13 / 2,L24 / -1,E_before_C,False,md_E_1,md_C_L24_a-1,md_EC_2_L24_a-1
+qa,qwen3-8b,md,simple,0.5,L11 / 3,L24 / -1,L12 / 2,L24 / -1,E_before_C,False,md_E_0,md_C_L24_a-1,md_EC_1_L24_a-1
+qa,qwen3-8b,das,commitment,0.75,—,—,—,—,,,,,
+qa,qwen3-8b,das,simple,0.75,—,—,—,—,,,,,
+qa,qwen3-8b,md,commitment,0.75,—,—,—,—,,,,,
+qa,qwen3-8b,md,simple,0.75,—,—,—,—,,,,,
