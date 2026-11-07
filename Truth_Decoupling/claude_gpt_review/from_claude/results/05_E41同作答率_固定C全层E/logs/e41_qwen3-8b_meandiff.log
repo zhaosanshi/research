@@ -1,0 +1,19 @@
+evaluation: 1442 statements; tune 384 statements; test 1058 statements
+W1107 15:01:13.769000 306631 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1107 15:01:13.969000 306631 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:00<00:00, 356.43it/s]
+estimation set: 192 statements; model says Yes on 82 (self-report direction)
+fixed C Cs_L33_abst_a2: gap 201.09, cos(C, E) before orthogonalisation +0.203
+fixed C Cs_L24_ans_a2: gap 48.16, cos(C, E) before orthogonalisation +0.372
+219 conditions
+  [  1/219] baseline                   test: ans 0.482 (+0.000) | J +0.440 (+0.000) | AUROC 0.812 (+0.000) | answered 510, correct among them 337  (44s)
+  [  2/219] Cs_L33_abst_a2             test: ans 0.000 (-0.482) | J +0.427 (-0.013) | AUROC 0.811 (-0.001) | answered 0, correct among them 0  (74s)
+  [  3/219] Cs_L24_ans_a2              test: ans 0.926 (+0.444) | J +0.423 (-0.017) | AUROC 0.795 (-0.018) | answered 980, correct among them 677  (104s)
+  REFERENCE MISMATCH E_L0_a2: answer identical False, ptrue diff 0.185, margin diff 1
+  [  4/219] E_L0_a2                    test: ans 0.480 (-0.002) | J +0.437 (-0.004) | AUROC 0.812 (-0.000) | answered 508, correct among them 336  (134s)
+  [  5/219] E_L0_a2+Cs_L33_abst_a2     test: ans 0.000 (-0.482) | J +0.427 (-0.013) | AUROC 0.811 (-0.001) | answered 0, correct among them 0  (165s)
+  [  6/219] E_L0_a2+Cs_L24_ans_a2      test: ans 0.924 (+0.442) | J +0.425 (-0.015) | AUROC 0.795 (-0.018) | answered 978, correct among them 676  (196s)
+  REFERENCE MISMATCH E_L0_a3: answer identical False, ptrue diff 0.241, margin diff 1.25
+  [  7/219] E_L0_a3                    test: ans 0.478 (-0.004) | J +0.437 (-0.004) | AUROC 0.812 (-0.000) | answered 506, correct among them 334  (226s)
+  [  8/219] E_L0_a3+Cs_L33_abst_a2     test: ans 0.000 (-0.482) | J +0.425 (-0.015) | AUROC 0.811 (-0.001) | answered 0, correct among them 0  (256s)
+  [  9/219] E_L0_a3+Cs_L24_ans_a2      test: ans 0.924 (+0.442) | J +0.423 (-0.017) | AUROC 0.795 (-0.017) | answered 978, correct among them 675  (287s)

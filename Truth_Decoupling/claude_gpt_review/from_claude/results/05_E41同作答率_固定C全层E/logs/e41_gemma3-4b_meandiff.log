@@ -1,0 +1,203 @@
+evaluation: 1442 statements; tune 384 statements; test 1058 statements
+W1107 14:18:15.164000 305163 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1107 14:18:15.364000 305163 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 64.06it/s]
+estimation set: 192 statements; model says Yes on 146 (self-report direction)
+fixed C Cp_L25_abst_a2: gap 4574.74, cos(C, E) before orthogonalisation +0.094
+fixed C Cp_L23_ans_a2: gap 2996.33, cos(C, E) before orthogonalisation +0.093
+207 conditions
+  [  1/207] baseline                   test: ans 0.747 (+0.000) | J +0.439 (+0.000) | AUROC 0.792 (+0.000) | answered 790, correct among them 538  (31s)
+  [  2/207] Cp_L25_abst_a2             test: ans 0.000 (-0.747) | J +0.442 (+0.004) | AUROC 0.796 (+0.004) | answered 0, correct among them 0  (50s)
+  [  3/207] Cp_L23_ans_a2              test: ans 1.000 (+0.253) | J +0.442 (+0.004) | AUROC 0.776 (-0.016) | answered 1058, correct among them 763  (70s)
+  REFERENCE MISMATCH E_L0_a2: answer identical False, ptrue diff 0.44, margin diff 3
+  [  4/207] E_L0_a2                    test: ans 0.747 (+0.000) | J +0.442 (+0.004) | AUROC 0.793 (+0.001) | answered 790, correct among them 540  (90s)
+  [  5/207] E_L0_a2+Cp_L25_abst_a2     test: ans 0.000 (-0.747) | J +0.446 (+0.008) | AUROC 0.796 (+0.004) | answered 0, correct among them 0  (109s)
+  [  6/207] E_L0_a2+Cp_L23_ans_a2      test: ans 1.000 (+0.253) | J +0.444 (+0.006) | AUROC 0.775 (-0.017) | answered 1058, correct among them 764  (129s)
+  REFERENCE MISMATCH E_L0_a3: answer identical False, ptrue diff 0.612, margin diff 4
+  [  7/207] E_L0_a3                    test: ans 0.747 (+0.000) | J +0.440 (+0.002) | AUROC 0.793 (+0.001) | answered 790, correct among them 539  (148s)
+  [  8/207] E_L0_a3+Cp_L25_abst_a2     test: ans 0.000 (-0.747) | J +0.440 (+0.002) | AUROC 0.795 (+0.003) | answered 0, correct among them 0  (168s)
+  [  9/207] E_L0_a3+Cp_L23_ans_a2      test: ans 1.000 (+0.253) | J +0.440 (+0.002) | AUROC 0.775 (-0.017) | answered 1058, correct among them 762  (188s)
+  REFERENCE MISMATCH E_L1_a2: answer identical False, ptrue diff 0.549, margin diff 3.5
+  [ 10/207] E_L1_a2                    test: ans 0.747 (+0.000) | J +0.439 (+0.000) | AUROC 0.793 (+0.000) | answered 790, correct among them 538  (207s)
+  [ 11/207] E_L1_a2+Cp_L25_abst_a2     test: ans 0.000 (-0.747) | J +0.446 (+0.008) | AUROC 0.796 (+0.003) | answered 0, correct among them 0  (227s)
+  [ 12/207] E_L1_a2+Cp_L23_ans_a2      test: ans 1.000 (+0.253) | J +0.444 (+0.006) | AUROC 0.775 (-0.017) | answered 1058, correct among them 764  (246s)
+  REFERENCE MISMATCH E_L1_a3: answer identical False, ptrue diff 0.655, margin diff 5
+  [ 13/207] E_L1_a3                    test: ans 0.747 (+0.000) | J +0.440 (+0.002) | AUROC 0.792 (+0.000) | answered 790, correct among them 539  (266s)
+  [ 14/207] E_L1_a3+Cp_L25_abst_a2     test: ans 0.000 (-0.747) | J +0.440 (+0.002) | AUROC 0.796 (+0.003) | answered 0, correct among them 0  (286s)
+  [ 15/207] E_L1_a3+Cp_L23_ans_a2      test: ans 1.000 (+0.253) | J +0.442 (+0.004) | AUROC 0.776 (-0.017) | answered 1058, correct among them 763  (305s)
+  REFERENCE MISMATCH E_L2_a2: answer identical False, ptrue diff 0.482, margin diff 4
+  [ 16/207] E_L2_a2                    test: ans 0.749 (+0.002) | J +0.440 (+0.002) | AUROC 0.792 (+0.000) | answered 792, correct among them 541  (325s)
+  [ 17/207] E_L2_a2+Cp_L25_abst_a2     test: ans 0.000 (-0.747) | J +0.448 (+0.009) | AUROC 0.796 (+0.003) | answered 0, correct among them 0  (344s)
+  [ 18/207] E_L2_a2+Cp_L23_ans_a2      test: ans 1.000 (+0.253) | J +0.444 (+0.006) | AUROC 0.776 (-0.017) | answered 1058, correct among them 764  (364s)
+  REFERENCE MISMATCH E_L2_a3: answer identical False, ptrue diff 0.575, margin diff 5.5
+  [ 19/207] E_L2_a3                    test: ans 0.747 (+0.000) | J +0.440 (+0.002) | AUROC 0.792 (-0.000) | answered 790, correct among them 539  (384s)
+  [ 20/207] E_L2_a3+Cp_L25_abst_a2     test: ans 0.000 (-0.747) | J +0.442 (+0.004) | AUROC 0.795 (+0.003) | answered 0, correct among them 0  (404s)
+  [ 21/207] E_L2_a3+Cp_L23_ans_a2      test: ans 1.000 (+0.253) | J +0.442 (+0.004) | AUROC 0.775 (-0.017) | answered 1058, correct among them 763  (423s)
+  REFERENCE MISMATCH E_L3_a2: answer identical False, ptrue diff 0.44, margin diff 4
+  [ 22/207] E_L3_a2                    test: ans 0.747 (+0.000) | J +0.444 (+0.006) | AUROC 0.793 (+0.000) | answered 790, correct among them 541  (443s)
+  [ 23/207] E_L3_a2+Cp_L25_abst_a2     test: ans 0.000 (-0.747) | J +0.450 (+0.011) | AUROC 0.796 (+0.003) | answered 0, correct among them 0  (462s)
+  [ 24/207] E_L3_a2+Cp_L23_ans_a2      test: ans 1.000 (+0.253) | J +0.446 (+0.008) | AUROC 0.776 (-0.017) | answered 1058, correct among them 765  (482s)
+  REFERENCE MISMATCH E_L3_a3: answer identical False, ptrue diff 0.593, margin diff 6.5
+  [ 25/207] E_L3_a3                    test: ans 0.749 (+0.002) | J +0.442 (+0.004) | AUROC 0.793 (+0.001) | answered 792, correct among them 542  (502s)
+  [ 26/207] E_L3_a3+Cp_L25_abst_a2     test: ans 0.000 (-0.747) | J +0.444 (+0.006) | AUROC 0.795 (+0.003) | answered 0, correct among them 0  (521s)
+  [ 27/207] E_L3_a3+Cp_L23_ans_a2      test: ans 1.000 (+0.253) | J +0.442 (+0.004) | AUROC 0.776 (-0.017) | answered 1058, correct among them 763  (541s)
+  REFERENCE MISMATCH E_L4_a2: answer identical False, ptrue diff 0.874, margin diff 9
+  [ 28/207] E_L4_a2                    test: ans 0.747 (+0.000) | J +0.440 (+0.002) | AUROC 0.793 (+0.000) | answered 790, correct among them 539  (561s)
+  [ 29/207] E_L4_a2+Cp_L25_abst_a2     test: ans 0.000 (-0.747) | J +0.444 (+0.006) | AUROC 0.796 (+0.004) | answered 0, correct among them 0  (580s)
+  [ 30/207] E_L4_a2+Cp_L23_ans_a2      test: ans 1.000 (+0.253) | J +0.440 (+0.002) | AUROC 0.775 (-0.017) | answered 1058, correct among them 762  (600s)
+  REFERENCE MISMATCH E_L4_a3: answer identical False, ptrue diff 0.994, margin diff 13
+  [ 31/207] E_L4_a3                    test: ans 0.749 (+0.002) | J +0.440 (+0.002) | AUROC 0.792 (+0.000) | answered 792, correct among them 541  (620s)
+  [ 32/207] E_L4_a3+Cp_L25_abst_a2     test: ans 0.000 (-0.747) | J +0.444 (+0.006) | AUROC 0.796 (+0.003) | answered 0, correct among them 0  (639s)
+  [ 33/207] E_L4_a3+Cp_L23_ans_a2      test: ans 1.000 (+0.253) | J +0.442 (+0.004) | AUROC 0.776 (-0.016) | answered 1058, correct among them 763  (659s)
+  REFERENCE MISMATCH E_L5_a2: answer identical False, ptrue diff 0.993, margin diff 16.5
+  [ 34/207] E_L5_a2                    test: ans 0.747 (+0.000) | J +0.440 (+0.002) | AUROC 0.792 (-0.000) | answered 790, correct among them 539  (679s)
+  [ 35/207] E_L5_a2+Cp_L25_abst_a2     test: ans 0.000 (-0.747) | J +0.444 (+0.006) | AUROC 0.796 (+0.003) | answered 0, correct among them 0  (698s)
+  [ 36/207] E_L5_a2+Cp_L23_ans_a2      test: ans 1.000 (+0.253) | J +0.442 (+0.004) | AUROC 0.776 (-0.016) | answered 1058, correct among them 763  (718s)
+  REFERENCE MISMATCH E_L5_a3: answer identical False, ptrue diff 0.998, margin diff 20.5
+  [ 37/207] E_L5_a3                    test: ans 0.745 (-0.002) | J +0.439 (+0.000) | AUROC 0.793 (+0.000) | answered 788, correct among them 537  (737s)
+  [ 38/207] E_L5_a3+Cp_L25_abst_a2     test: ans 0.000 (-0.747) | J +0.440 (+0.002) | AUROC 0.796 (+0.004) | answered 0, correct among them 0  (757s)
+  [ 39/207] E_L5_a3+Cp_L23_ans_a2      test: ans 1.000 (+0.253) | J +0.442 (+0.004) | AUROC 0.775 (-0.017) | answered 1058, correct among them 763  (777s)
+  REFERENCE MISMATCH E_L6_a2: answer identical False, ptrue diff 0.942, margin diff 9.5
+  [ 40/207] E_L6_a2                    test: ans 0.750 (+0.004) | J +0.446 (+0.008) | AUROC 0.792 (-0.000) | answered 794, correct among them 545  (796s)
+  [ 41/207] E_L6_a2+Cp_L25_abst_a2     test: ans 0.000 (-0.747) | J +0.440 (+0.002) | AUROC 0.795 (+0.003) | answered 0, correct among them 0  (816s)
+  [ 42/207] E_L6_a2+Cp_L23_ans_a2      test: ans 1.000 (+0.253) | J +0.444 (+0.006) | AUROC 0.775 (-0.017) | answered 1058, correct among them 764  (836s)
+  REFERENCE MISMATCH E_L6_a3: answer identical False, ptrue diff 0.993, margin diff 13.5
+  [ 43/207] E_L6_a3                    test: ans 0.749 (+0.002) | J +0.446 (+0.008) | AUROC 0.792 (+0.000) | answered 792, correct among them 544  (855s)
+  [ 44/207] E_L6_a3+Cp_L25_abst_a2     test: ans 0.000 (-0.747) | J +0.442 (+0.004) | AUROC 0.795 (+0.003) | answered 0, correct among them 0  (875s)
+  [ 45/207] E_L6_a3+Cp_L23_ans_a2      test: ans 1.000 (+0.253) | J +0.444 (+0.006) | AUROC 0.775 (-0.017) | answered 1058, correct among them 764  (895s)
+  REFERENCE MISMATCH E_L7_a2: answer identical False, ptrue diff 0.964, margin diff 9.5
+  [ 46/207] E_L7_a2                    test: ans 0.745 (-0.002) | J +0.440 (+0.002) | AUROC 0.792 (+0.000) | answered 788, correct among them 537  (914s)
+  [ 47/207] E_L7_a2+Cp_L25_abst_a2     test: ans 0.000 (-0.747) | J +0.442 (+0.004) | AUROC 0.796 (+0.004) | answered 0, correct among them 0  (934s)
+  [ 48/207] E_L7_a2+Cp_L23_ans_a2      test: ans 1.000 (+0.253) | J +0.448 (+0.009) | AUROC 0.776 (-0.017) | answered 1058, correct among them 766  (954s)
+  REFERENCE MISMATCH E_L7_a3: answer identical False, ptrue diff 0.989, margin diff 13.5
+  [ 49/207] E_L7_a3                    test: ans 0.745 (-0.002) | J +0.440 (+0.002) | AUROC 0.792 (+0.000) | answered 788, correct among them 537  (973s)
+  [ 50/207] E_L7_a3+Cp_L25_abst_a2     test: ans 0.000 (-0.747) | J +0.440 (+0.002) | AUROC 0.795 (+0.003) | answered 0, correct among them 0  (993s)
+  [ 51/207] E_L7_a3+Cp_L23_ans_a2      test: ans 1.000 (+0.253) | J +0.444 (+0.006) | AUROC 0.776 (-0.017) | answered 1058, correct among them 764  (1013s)
+  REFERENCE MISMATCH E_L8_a2: answer identical False, ptrue diff 1, margin diff 22.2
+  [ 52/207] E_L8_a2                    test: ans 0.749 (+0.002) | J +0.442 (+0.004) | AUROC 0.792 (+0.000) | answered 792, correct among them 542  (1032s)
+  [ 53/207] E_L8_a2+Cp_L25_abst_a2     test: ans 0.000 (-0.747) | J +0.446 (+0.008) | AUROC 0.796 (+0.003) | answered 0, correct among them 0  (1052s)
+  [ 54/207] E_L8_a2+Cp_L23_ans_a2      test: ans 1.000 (+0.253) | J +0.446 (+0.008) | AUROC 0.775 (-0.017) | answered 1058, correct among them 765  (1071s)
+  REFERENCE MISMATCH E_L8_a3: answer identical False, ptrue diff 1, margin diff 23.5
+  [ 55/207] E_L8_a3                    test: ans 0.747 (+0.000) | J +0.446 (+0.008) | AUROC 0.792 (-0.000) | answered 790, correct among them 543  (1091s)
+  [ 56/207] E_L8_a3+Cp_L25_abst_a2     test: ans 0.000 (-0.747) | J +0.448 (+0.009) | AUROC 0.796 (+0.003) | answered 0, correct among them 0  (1111s)
+  [ 57/207] E_L8_a3+Cp_L23_ans_a2      test: ans 1.000 (+0.253) | J +0.442 (+0.004) | AUROC 0.775 (-0.018) | answered 1058, correct among them 763  (1130s)
+  REFERENCE MISMATCH E_L9_a2: answer identical False, ptrue diff 0.995, margin diff 13.5
+  [ 58/207] E_L9_a2                    test: ans 0.747 (+0.000) | J +0.440 (+0.002) | AUROC 0.793 (+0.000) | answered 790, correct among them 539  (1150s)
+  [ 59/207] E_L9_a2+Cp_L25_abst_a2     test: ans 0.000 (-0.747) | J +0.448 (+0.009) | AUROC 0.795 (+0.003) | answered 0, correct among them 0  (1170s)
+  [ 60/207] E_L9_a2+Cp_L23_ans_a2      test: ans 1.000 (+0.253) | J +0.442 (+0.004) | AUROC 0.776 (-0.017) | answered 1058, correct among them 763  (1189s)
+  REFERENCE MISMATCH E_L9_a3: answer identical False, ptrue diff 0.999, margin diff 18.5
+  [ 61/207] E_L9_a3                    test: ans 0.747 (+0.000) | J +0.440 (+0.002) | AUROC 0.792 (-0.000) | answered 790, correct among them 539  (1209s)
+  [ 62/207] E_L9_a3+Cp_L25_abst_a2     test: ans 0.000 (-0.747) | J +0.448 (+0.009) | AUROC 0.796 (+0.004) | answered 0, correct among them 0  (1228s)
+  [ 63/207] E_L9_a3+Cp_L23_ans_a2      test: ans 1.000 (+0.253) | J +0.444 (+0.006) | AUROC 0.776 (-0.017) | answered 1058, correct among them 764  (1248s)
+  REFERENCE MISMATCH E_L10_a2: answer identical False, ptrue diff 1, margin diff 25.5
+  [ 64/207] E_L10_a2                   test: ans 0.750 (+0.004) | J +0.437 (-0.002) | AUROC 0.793 (+0.000) | answered 794, correct among them 541  (1268s)
+  [ 65/207] E_L10_a2+Cp_L25_abst_a2    test: ans 0.000 (-0.747) | J +0.446 (+0.008) | AUROC 0.796 (+0.003) | answered 0, correct among them 0  (1287s)
+  [ 66/207] E_L10_a2+Cp_L23_ans_a2     test: ans 1.000 (+0.253) | J +0.446 (+0.008) | AUROC 0.775 (-0.017) | answered 1058, correct among them 765  (1307s)
+  REFERENCE MISMATCH E_L10_a3: answer identical False, ptrue diff 1, margin diff 32.5
+  [ 67/207] E_L10_a3                   test: ans 0.752 (+0.006) | J +0.439 (+0.000) | AUROC 0.791 (-0.001) | answered 796, correct among them 544  (1326s)
+  [ 68/207] E_L10_a3+Cp_L25_abst_a2    test: ans 0.000 (-0.747) | J +0.439 (+0.000) | AUROC 0.795 (+0.003) | answered 0, correct among them 0  (1346s)
+  [ 69/207] E_L10_a3+Cp_L23_ans_a2     test: ans 1.000 (+0.253) | J +0.439 (+0.000) | AUROC 0.775 (-0.017) | answered 1058, correct among them 761  (1366s)
+  REFERENCE MISMATCH E_L11_a2: answer identical False, ptrue diff 0.992, margin diff 20.5
+  [ 70/207] E_L11_a2                   test: ans 0.749 (+0.002) | J +0.439 (+0.000) | AUROC 0.790 (-0.002) | answered 792, correct among them 541  (1385s)
+  [ 71/207] E_L11_a2+Cp_L25_abst_a2    test: ans 0.000 (-0.747) | J +0.446 (+0.008) | AUROC 0.795 (+0.003) | answered 0, correct among them 0  (1405s)
+  [ 72/207] E_L11_a2+Cp_L23_ans_a2     test: ans 1.000 (+0.253) | J +0.446 (+0.008) | AUROC 0.774 (-0.018) | answered 1058, correct among them 765  (1425s)
+  REFERENCE MISMATCH E_L11_a3: answer identical False, ptrue diff 1, margin diff 24
+  [ 73/207] E_L11_a3                   test: ans 0.750 (+0.004) | J +0.439 (+0.000) | AUROC 0.789 (-0.003) | answered 794, correct among them 543  (1444s)
+  [ 74/207] E_L11_a3+Cp_L25_abst_a2    test: ans 0.000 (-0.747) | J +0.442 (+0.004) | AUROC 0.794 (+0.002) | answered 0, correct among them 0  (1464s)
+  [ 75/207] E_L11_a3+Cp_L23_ans_a2     test: ans 1.000 (+0.253) | J +0.442 (+0.004) | AUROC 0.774 (-0.019) | answered 1058, correct among them 763  (1483s)
+  REFERENCE MISMATCH E_L12_a2: answer identical False, ptrue diff 1, margin diff 18.5
+  [ 76/207] E_L12_a2                   test: ans 0.747 (+0.000) | J +0.437 (-0.002) | AUROC 0.792 (-0.000) | answered 790, correct among them 537  (1503s)
+  [ 77/207] E_L12_a2+Cp_L25_abst_a2    test: ans 0.000 (-0.747) | J +0.452 (+0.013) | AUROC 0.796 (+0.003) | answered 0, correct among them 0  (1522s)
+  [ 78/207] E_L12_a2+Cp_L23_ans_a2     test: ans 1.000 (+0.253) | J +0.444 (+0.006) | AUROC 0.775 (-0.017) | answered 1058, correct among them 764  (1542s)
+  REFERENCE MISMATCH E_L12_a3: answer identical False, ptrue diff 1, margin diff 24
+  [ 79/207] E_L12_a3                   test: ans 0.752 (+0.006) | J +0.440 (+0.002) | AUROC 0.792 (-0.001) | answered 796, correct among them 544  (1562s)
+  [ 80/207] E_L12_a3+Cp_L25_abst_a2    test: ans 0.000 (-0.747) | J +0.450 (+0.011) | AUROC 0.795 (+0.003) | answered 0, correct among them 0  (1581s)
+  [ 81/207] E_L12_a3+Cp_L23_ans_a2     test: ans 1.000 (+0.253) | J +0.440 (+0.002) | AUROC 0.775 (-0.017) | answered 1058, correct among them 762  (1601s)
+  REFERENCE MISMATCH E_L13_a2: answer identical False, ptrue diff 1, margin diff 35.5
+  [ 82/207] E_L13_a2                   test: ans 0.747 (+0.000) | J +0.439 (+0.000) | AUROC 0.792 (-0.000) | answered 790, correct among them 538  (1621s)
+  [ 83/207] E_L13_a2+Cp_L25_abst_a2    test: ans 0.000 (-0.747) | J +0.442 (+0.004) | AUROC 0.795 (+0.003) | answered 0, correct among them 0  (1640s)
+  [ 84/207] E_L13_a2+Cp_L23_ans_a2     test: ans 1.000 (+0.253) | J +0.439 (+0.000) | AUROC 0.776 (-0.017) | answered 1058, correct among them 761  (1660s)
+  REFERENCE MISMATCH E_L13_a3: answer identical False, ptrue diff 1, margin diff 42.3
+  [ 85/207] E_L13_a3                   test: ans 0.747 (+0.000) | J +0.439 (+0.000) | AUROC 0.792 (+0.000) | answered 790, correct among them 538  (1680s)
+  [ 86/207] E_L13_a3+Cp_L25_abst_a2    test: ans 0.000 (-0.747) | J +0.440 (+0.002) | AUROC 0.796 (+0.003) | answered 0, correct among them 0  (1699s)
+  [ 87/207] E_L13_a3+Cp_L23_ans_a2     test: ans 1.000 (+0.253) | J +0.439 (+0.000) | AUROC 0.775 (-0.018) | answered 1058, correct among them 761  (1719s)
+  REFERENCE MISMATCH E_L14_a2: answer identical False, ptrue diff 1, margin diff 19
+  [ 88/207] E_L14_a2                   test: ans 0.747 (+0.000) | J +0.439 (+0.000) | AUROC 0.794 (+0.001) | answered 790, correct among them 540  (1738s)
+  [ 89/207] E_L14_a2+Cp_L25_abst_a2    test: ans 0.000 (-0.747) | J +0.439 (+0.000) | AUROC 0.795 (+0.003) | answered 0, correct among them 0  (1758s)
+  [ 90/207] E_L14_a2+Cp_L23_ans_a2     test: ans 1.000 (+0.253) | J +0.442 (+0.004) | AUROC 0.776 (-0.016) | answered 1058, correct among them 763  (1778s)
+  REFERENCE MISMATCH E_L14_a3: answer identical False, ptrue diff 1, margin diff 23.5
+  [ 91/207] E_L14_a3                   test: ans 0.743 (-0.004) | J +0.437 (-0.002) | AUROC 0.794 (+0.001) | answered 786, correct among them 535  (1797s)
+  [ 92/207] E_L14_a3+Cp_L25_abst_a2    test: ans 0.000 (-0.747) | J +0.437 (-0.002) | AUROC 0.795 (+0.002) | answered 0, correct among them 0  (1817s)
+  [ 93/207] E_L14_a3+Cp_L23_ans_a2     test: ans 1.000 (+0.253) | J +0.444 (+0.006) | AUROC 0.776 (-0.016) | answered 1058, correct among them 764  (1837s)
+  REFERENCE MISMATCH E_L15_a2: answer identical False, ptrue diff 1, margin diff 21.8
+  [ 94/207] E_L15_a2                   test: ans 0.728 (-0.019) | J +0.490 (+0.051) | AUROC 0.813 (+0.021) | answered 770, correct among them 540  (1856s)
+  [ 95/207] E_L15_a2+Cp_L25_abst_a2    test: ans 0.000 (-0.747) | J +0.488 (+0.049) | AUROC 0.817 (+0.024) | answered 0, correct among them 0  (1875s)
+  [ 96/207] E_L15_a2+Cp_L23_ans_a2     test: ans 1.000 (+0.253) | J +0.486 (+0.047) | AUROC 0.799 (+0.006) | answered 1058, correct among them 786  (1895s)
+  REFERENCE MISMATCH E_L15_a3: answer identical False, ptrue diff 1, margin diff 23.7
+  [ 97/207] E_L15_a3                   test: ans 0.720 (-0.026) | J +0.505 (+0.066) | AUROC 0.819 (+0.026) | answered 762, correct among them 541  (1915s)
+  [ 98/207] E_L15_a3+Cp_L25_abst_a2    test: ans 0.000 (-0.747) | J +0.518 (+0.079) | AUROC 0.822 (+0.030) | answered 0, correct among them 0  (1934s)
+  [ 99/207] E_L15_a3+Cp_L23_ans_a2     test: ans 1.000 (+0.253) | J +0.497 (+0.059) | AUROC 0.805 (+0.013) | answered 1058, correct among them 792  (1954s)
+  REFERENCE MISMATCH E_L16_a2: answer identical False, ptrue diff 1, margin diff 26.5
+  [100/207] E_L16_a2                   test: ans 0.735 (-0.011) | J +0.493 (+0.055) | AUROC 0.821 (+0.029) | answered 778, correct among them 544  (1973s)
+  [101/207] E_L16_a2+Cp_L25_abst_a2    test: ans 0.000 (-0.747) | J +0.476 (+0.038) | AUROC 0.822 (+0.030) | answered 0, correct among them 0  (1993s)
+  [102/207] E_L16_a2+Cp_L23_ans_a2     test: ans 1.000 (+0.253) | J +0.503 (+0.064) | AUROC 0.806 (+0.014) | answered 1058, correct among them 795  (2013s)
+  REFERENCE MISMATCH E_L16_a3: answer identical False, ptrue diff 1, margin diff 29.8
+  [103/207] E_L16_a3                   test: ans 0.709 (-0.038) | J +0.512 (+0.074) | AUROC 0.826 (+0.033) | answered 750, correct among them 532  (2032s)
+  [104/207] E_L16_a3+Cp_L25_abst_a2    test: ans 0.000 (-0.747) | J +0.491 (+0.053) | AUROC 0.826 (+0.034) | answered 0, correct among them 0  (2052s)
+  [105/207] E_L16_a3+Cp_L23_ans_a2     test: ans 1.000 (+0.253) | J +0.512 (+0.074) | AUROC 0.813 (+0.021) | answered 1058, correct among them 800  (2072s)
+  REFERENCE MISMATCH E_L17_a2: answer identical False, ptrue diff 1, margin diff 19
+  [106/207] E_L17_a2                   test: ans 0.701 (-0.045) | J +0.490 (+0.051) | AUROC 0.809 (+0.017) | answered 742, correct among them 519  (2091s)
+  [107/207] E_L17_a2+Cp_L25_abst_a2    test: ans 0.000 (-0.747) | J +0.469 (+0.030) | AUROC 0.815 (+0.023) | answered 0, correct among them 0  (2111s)
+  [108/207] E_L17_a2+Cp_L23_ans_a2     test: ans 1.000 (+0.253) | J +0.486 (+0.047) | AUROC 0.794 (+0.002) | answered 1058, correct among them 786  (2131s)
+  REFERENCE MISMATCH E_L17_a3: answer identical False, ptrue diff 1, margin diff 22
+  [109/207] E_L17_a3                   test: ans 0.692 (-0.055) | J +0.497 (+0.059) | AUROC 0.811 (+0.019) | answered 732, correct among them 512  (2150s)
+  [110/207] E_L17_a3+Cp_L25_abst_a2    test: ans 0.000 (-0.747) | J +0.480 (+0.042) | AUROC 0.817 (+0.025) | answered 0, correct among them 0  (2170s)
+  [111/207] E_L17_a3+Cp_L23_ans_a2     test: ans 1.000 (+0.253) | J +0.488 (+0.049) | AUROC 0.798 (+0.006) | answered 1058, correct among them 787  (2189s)
+  REFERENCE MISMATCH E_L18_a2: answer identical False, ptrue diff 1, margin diff 20.2
+  [112/207] E_L18_a2                   test: ans 0.699 (-0.047) | J +0.495 (+0.057) | AUROC 0.810 (+0.018) | answered 740, correct among them 520  (2209s)
+  [113/207] E_L18_a2+Cp_L25_abst_a2    test: ans 0.000 (-0.747) | J +0.474 (+0.036) | AUROC 0.817 (+0.025) | answered 0, correct among them 0  (2228s)
+  [114/207] E_L18_a2+Cp_L23_ans_a2     test: ans 1.000 (+0.253) | J +0.490 (+0.051) | AUROC 0.797 (+0.004) | answered 1058, correct among them 788  (2248s)
+  REFERENCE MISMATCH E_L18_a3: answer identical False, ptrue diff 1, margin diff 23.2
+  [115/207] E_L18_a3                   test: ans 0.675 (-0.072) | J +0.486 (+0.047) | AUROC 0.813 (+0.021) | answered 714, correct among them 494  (2268s)
+  [116/207] E_L18_a3+Cp_L25_abst_a2    test: ans 0.000 (-0.747) | J +0.486 (+0.047) | AUROC 0.823 (+0.030) | answered 0, correct among them 0  (2287s)
+  [117/207] E_L18_a3+Cp_L23_ans_a2     test: ans 1.000 (+0.253) | J +0.497 (+0.059) | AUROC 0.801 (+0.008) | answered 1058, correct among them 792  (2307s)
+  REFERENCE MISMATCH E_L19_a2: answer identical False, ptrue diff 1, margin diff 26.5
+  [118/207] E_L19_a2                   test: ans 0.660 (-0.087) | J +0.471 (+0.032) | AUROC 0.798 (+0.006) | answered 698, correct among them 479  (2326s)
+  [119/207] E_L19_a2+Cp_L25_abst_a2    test: ans 0.000 (-0.747) | J +0.456 (+0.017) | AUROC 0.803 (+0.011) | answered 0, correct among them 0  (2346s)
+  [120/207] E_L19_a2+Cp_L23_ans_a2     test: ans 1.000 (+0.253) | J +0.469 (+0.030) | AUROC 0.787 (-0.005) | answered 1058, correct among them 777  (2366s)
+  REFERENCE MISMATCH E_L19_a3: answer identical False, ptrue diff 1, margin diff 29.2
+  [121/207] E_L19_a3                   test: ans 0.641 (-0.106) | J +0.469 (+0.030) | AUROC 0.799 (+0.007) | answered 678, correct among them 461  (2385s)
+  [122/207] E_L19_a3+Cp_L25_abst_a2    test: ans 0.000 (-0.747) | J +0.454 (+0.015) | AUROC 0.803 (+0.011) | answered 0, correct among them 0  (2405s)
+  [123/207] E_L19_a3+Cp_L23_ans_a2     test: ans 1.000 (+0.253) | J +0.465 (+0.026) | AUROC 0.788 (-0.004) | answered 1058, correct among them 775  (2425s)
+  REFERENCE MISMATCH E_L20_a2: answer identical False, ptrue diff 1, margin diff 35.5
+  [124/207] E_L20_a2                   test: ans 0.660 (-0.087) | J +0.461 (+0.023) | AUROC 0.795 (+0.003) | answered 698, correct among them 476  (2444s)
+  [125/207] E_L20_a2+Cp_L25_abst_a2    test: ans 0.000 (-0.747) | J +0.456 (+0.017) | AUROC 0.800 (+0.008) | answered 0, correct among them 0  (2464s)
+  [126/207] E_L20_a2+Cp_L23_ans_a2     test: ans 0.998 (+0.251) | J +0.467 (+0.028) | AUROC 0.786 (-0.006) | answered 1056, correct among them 774  (2484s)
+  REFERENCE MISMATCH E_L20_a3: answer identical False, ptrue diff 1, margin diff 40.3
+  [127/207] E_L20_a3                   test: ans 0.641 (-0.106) | J +0.463 (+0.025) | AUROC 0.794 (+0.002) | answered 678, correct among them 461  (2503s)
+  [128/207] E_L20_a3+Cp_L25_abst_a2    test: ans 0.000 (-0.747) | J +0.461 (+0.023) | AUROC 0.798 (+0.006) | answered 0, correct among them 0  (2523s)
+  [129/207] E_L20_a3+Cp_L23_ans_a2     test: ans 0.977 (+0.231) | J +0.459 (+0.021) | AUROC 0.788 (-0.005) | answered 1034, correct among them 750  (2542s)
+  REFERENCE MISMATCH E_L21_a2: answer identical False, ptrue diff 1, margin diff 32.2
+  [130/207] E_L21_a2                   test: ans 0.660 (-0.087) | J +0.473 (+0.034) | AUROC 0.798 (+0.006) | answered 698, correct among them 481  (2562s)
+  [131/207] E_L21_a2+Cp_L25_abst_a2    test: ans 0.000 (-0.747) | J +0.456 (+0.017) | AUROC 0.798 (+0.006) | answered 0, correct among them 0  (2581s)
+  [132/207] E_L21_a2+Cp_L23_ans_a2     test: ans 0.875 (+0.129) | J +0.471 (+0.032) | AUROC 0.791 (-0.001) | answered 926, correct among them 659  (2601s)
+  REFERENCE MISMATCH E_L21_a3: answer identical False, ptrue diff 1, margin diff 39.5
+  [133/207] E_L21_a3                   test: ans 0.643 (-0.104) | J +0.482 (+0.043) | AUROC 0.799 (+0.006) | answered 680, correct among them 472  (2620s)
+  [134/207] E_L21_a3+Cp_L25_abst_a2    test: ans 0.000 (-0.747) | J +0.465 (+0.026) | AUROC 0.798 (+0.006) | answered 0, correct among them 0  (2640s)
+  [135/207] E_L21_a3+Cp_L23_ans_a2     test: ans 0.822 (+0.076) | J +0.476 (+0.038) | AUROC 0.792 (+0.000) | answered 870, correct among them 616  (2660s)
+  REFERENCE MISMATCH E_L22_a2: answer identical False, ptrue diff 1, margin diff 31.5
+  [136/207] E_L22_a2                   test: ans 0.675 (-0.072) | J +0.486 (+0.047) | AUROC 0.802 (+0.010) | answered 714, correct among them 499  (2679s)
+  [137/207] E_L22_a2+Cp_L25_abst_a2    test: ans 0.000 (-0.747) | J +0.480 (+0.042) | AUROC 0.801 (+0.009) | answered 0, correct among them 0  (2699s)
+  [138/207] E_L22_a2+Cp_L23_ans_a2     test: ans 0.887 (+0.140) | J +0.474 (+0.036) | AUROC 0.792 (-0.000) | answered 938, correct among them 671  (2719s)
+  REFERENCE MISMATCH E_L22_a3: answer identical False, ptrue diff 1, margin diff 36.2
+  [139/207] E_L22_a3                   test: ans 0.654 (-0.093) | J +0.493 (+0.055) | AUROC 0.800 (+0.008) | answered 692, correct among them 482  (2738s)
+  [140/207] E_L22_a3+Cp_L25_abst_a2    test: ans 0.000 (-0.747) | J +0.484 (+0.045) | AUROC 0.799 (+0.007) | answered 0, correct among them 0  (2758s)
+  [141/207] E_L22_a3+Cp_L23_ans_a2     test: ans 0.836 (+0.089) | J +0.488 (+0.049) | AUROC 0.792 (-0.000) | answered 884, correct among them 636  (2778s)
+  REFERENCE MISMATCH E_L23_a2: answer identical False, ptrue diff 1, margin diff 42.5
+  [142/207] E_L23_a2                   test: ans 0.722 (-0.025) | J +0.457 (+0.019) | AUROC 0.788 (-0.005) | answered 764, correct among them 528  (2797s)
+  [143/207] E_L23_a2+Cp_L25_abst_a2    test: ans 0.000 (-0.747) | J +0.444 (+0.006) | AUROC 0.795 (+0.003) | answered 0, correct among them 0  (2817s)
+  [144/207] E_L23_a2+Cp_L23_ans_a2     test: ans 0.955 (+0.208) | J +0.448 (+0.009) | AUROC 0.785 (-0.008) | answered 1010, correct among them 722  (2836s)
+  REFERENCE MISMATCH E_L23_a3: answer identical False, ptrue diff 1, margin diff 56
+  [145/207] E_L23_a3                   test: ans 0.709 (-0.038) | J +0.459 (+0.021) | AUROC 0.785 (-0.007) | answered 750, correct among them 520  (2856s)
+  [146/207] E_L23_a3+Cp_L25_abst_a2    test: ans 0.000 (-0.747) | J +0.448 (+0.009) | AUROC 0.786 (-0.006) | answered 0, correct among them 0  (2875s)
+  [147/207] E_L23_a3+Cp_L23_ans_a2     test: ans 0.919 (+0.172) | J +0.456 (+0.017) | AUROC 0.786 (-0.007) | answered 972, correct among them 690  (2895s)

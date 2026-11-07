@@ -1,0 +1,40 @@
+# E41 analysis: qwen3-8b (das E), chosen E E_L35_a3, fixed C Cs_L33_abst_a2 / Cs_L24_ans_a2; 1058 test statements, 2000 pair-bootstrap resamples
+
+## Test-half summaries
+
+| condition | answer rate | J | AUROC | B | K answered | correct among answered |
+|---|---|---|---|---|---|---|
+| baseline | 0.482 | +0.440 | 0.812 | 0.445 | 510 | 337 |
+| E_L35_a3 | 0.488 | +0.510 | 0.843 | 0.448 | 516 | 352 |
+| Cs_L33_abst_a2 | 0.000 | +0.427 | 0.811 | 0.405 | 0 | 0 |
+| Cs_L24_ans_a2 | 0.926 | +0.423 | 0.795 | 0.490 | 980 | 677 |
+| E_L35_a3+Cs_L33_abst_a2 | 0.000 | +0.505 | 0.841 | 0.451 | 0 | 0 |
+| E_L35_a3+Cs_L24_ans_a2 | 0.904 | +0.403 | 0.838 | 0.347 | 956 | 647 |
+
+## Primary (pre-declared): E+C natural vs E thresholded to the same K (positive = C's selection beats a threshold)
+
+| contrast | K | diff (correct) | 95% CI | bootstrap p | Holm p |
+|---|---|---|---|---|---|
+| P1 E_L35_a3+Cs_L33_abst_a2 vs E@gate | 0 | +0 | [+0.0, +0.0] | 1.0000 | 1.0000 |
+| P2 E_L35_a3+Cs_L33_abst_a2 vs E@conf | 0 | +0 | [+0.0, +0.0] | 1.0000 | 1.0000 |
+| P1 E_L35_a3+Cs_L24_ans_a2 vs E@gate | 956 | -53 | [-71.0, -35.0] | 0.0005 | 0.0020 |
+| P2 E_L35_a3+Cs_L24_ans_a2 vs E@conf | 956 | -95 | [-115.0, -78.0] | 0.0005 | 0.0020 |
+
+## Secondary
+
+| contrast | K | diff | 95% CI | bootstrap p |
+|---|---|---|---|---|
+| P4 E vs baseline@gate | 516 | +10 | [-2.0, +23.0] | 0.1310 |
+| P4b E vs baseline@conf | 516 | -92 | [-112.0, -74.0] | 0.0005 |
+| P3 Cs_L33_abst_a2 vs baseline@gate | 0 | +0 | [+0.0, +0.0] | 1.0000 |
+| P3b Cs_L33_abst_a2 vs baseline@conf | 0 | +0 | [+0.0, +0.0] | 1.0000 |
+| E_L35_a3+Cs_L33_abst_a2 vs baseline@gate | 0 | +0 | [+0.0, +0.0] | 1.0000 |
+| E_L35_a3+Cs_L33_abst_a2 vs baseline@conf | 0 | +0 | [+0.0, +0.0] | 1.0000 |
+| P3 Cs_L24_ans_a2 vs baseline@gate | 980 | -12 | [-26.0, +3.0] | 0.1190 |
+| P3b Cs_L24_ans_a2 vs baseline@conf | 980 | -45 | [-60.0, -30.0] | 0.0005 |
+| E_L35_a3+Cs_L24_ans_a2 vs baseline@gate | 956 | -19 | [-40.0, +2.0] | 0.0850 |
+| E_L35_a3+Cs_L24_ans_a2 vs baseline@conf | 956 | -60 | [-82.0, -38.0] | 0.0005 |
+
+### Additivity at the chosen E (test; diff with 95% CI)
+
+| pair | d answer rate | d J | d AUROC | d B |
