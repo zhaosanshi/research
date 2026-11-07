@@ -153,7 +153,7 @@ C 每层对同层新 DAS-E 正交化后全层重扫；两份扫描的基线数�
 
 | 结果 | 原始文件 |
 |---|---|
-| 真假判断 E 行与 2×2（三模型） | [`第16轮_DAS正结果搜索/tfce/<模型>/E23/`](../../../claude_gpt_review/from_claude/results/02_问答DAS_v1/第16轮_DAS正结果搜索/tfce/)：`knob_sweep_das_tfce_{full,C}.{json,md,npz}`（逐题数组）、`report_2x2_das_tfce.md`、`compare_*.md`；旧对照逐题数组在 `tfce/<模型>/old_inputs/` |
+| 真假判断 E 行与 2×2（三模型；Mistral 11-08 的同类文件在本目录 [`关键结果文件/逐层与严格性/mistral-7b/`](关键结果文件/逐层与严格性/mistral-7b/)） | [`第16轮_DAS正结果搜索/tfce/<模型>/E23/`](../../../claude_gpt_review/from_claude/results/02_问答DAS_v1/第16轮_DAS正结果搜索/tfce/)：`knob_sweep_das_tfce_{full,C}.{json,md,npz}`（逐题数组）、`report_2x2_das_tfce.md`、`compare_*.md`；旧对照逐题数组在 `tfce/<模型>/old_inputs/` |
 | 拆分对照（Llama） | [`tfce1/llama3.1-8b/`](../../../claude_gpt_review/from_claude/results/02_问答DAS_v1/第16轮_DAS正结果搜索/tfce1/) |
 | 全扫描计数 | [`measurements/sweep_dissociation.json`](../../../claude_gpt_review/from_claude/results/02_问答DAS_v1/第16轮_DAS正结果搜索/measurements/sweep_dissociation.json) |
 | 自由问答 v1 | [`第16轮_全量/<模型>/`](../../../claude_gpt_review/from_claude/results/02_问答DAS_v1/第16轮_全量/)：逐题生成、逐题裁判、冻结、测试、诊断 |
