@@ -40,7 +40,8 @@
 | 开跑前声明的主分析 | `review_checks/e26_primary_analysis.py`（在任何测试结果出来之前提交，`ca67e33`） | Claude 写，待 GPT 审 |
 | 结果核查（不导入 E26 代码的独立重算） | `review_checks/e26_independent_recount.py` | Claude 写，待 GPT 审 |
 | E27 生成适配 | `scripts/e27_qa_generation.py`、`core/qa_generation_adapter.py`；发布版重跑 `review_checks/e27_release_rerun.sh`；质量规则汇总 `e27_quality_summary.py`；带适配器的 E26 分析 `e26_adapter_analysis.py` | 适配器代码 GPT 第 18 轮交付；Claude 的脚本待 GPT 审 |
-| GPT 第 19 轮的 E27 自查 | `review_checks/e27_{frozen_initial_controls,trace_corruption,current_dose,generation_dose,pure_das_layer_controls}.py`；证据在 `from_gpt/audit_20261106_round19/` | GPT 写；Claude 尚未复核 |
+| GPT 第 19 轮的 E27 自查 | `review_checks/e27_{frozen_initial_controls,trace_corruption,current_dose,generation_dose,pure_das_layer_controls}.py`；证据在 `from_gpt/audit_20261106_round19/` | GPT 写；Claude 已用 GitHub 版在服务器重跑复现（`15`） |
+| 第 19 轮的复现与比对 | `review_checks/r19_reproduce.sh`、`r19_reproduce_full.sh`、`r19_reproduce_llama.sh`（重跑 GPT 的 8 组 GPU 诊断，只生成、不判分）；`r19_compare_adapters.py`（早期与发布版适配器逐张量比较）；`r19_random_init_check.py`（随机初值逐位核对） | Claude 写，待 GPT 审 |
 
 ## 3. 测试与检查
 

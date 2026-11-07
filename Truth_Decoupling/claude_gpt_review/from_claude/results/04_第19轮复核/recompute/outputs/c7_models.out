@@ -1,0 +1,25 @@
+same 192 tune ids in both models: True
+llama3.1-8b: baseline=59 original_das=64 content_trained=62 (adapter - original_das = -2); baseline abstentions=24
+   transitions baseline->adapter: {'abstain->abstain': 23, 'abstain->correct': 1, 'correct->correct': 55, 'correct->wrong': 4, 'wrong->correct': 6, 'wrong->wrong': 103}  net=+3
+   transitions baseline->original_das: {'abstain->abstain': 24, 'correct->correct': 59, 'wrong->abstain': 2, 'wrong->correct': 5, 'wrong->wrong': 102}
+qwen3-8b: baseline=50 original_das=51 content_trained=66 (adapter - original_das = +15); baseline abstentions=75
+   transitions baseline->adapter: {'abstain->abstain': 57, 'abstain->correct': 15, 'abstain->wrong': 3, 'correct->abstain': 1, 'correct->correct': 46, 'correct->wrong': 3, 'wrong->abstain': 1, 'wrong->correct': 5, 'wrong->wrong': 61}  net=+16
+   transitions baseline->original_das: {'abstain->abstain': 75, 'correct->correct': 47, 'correct->wrong': 3, 'wrong->abstain': 1, 'wrong->correct': 4, 'wrong->wrong': 62}
+both originally answered: 115 | both originally wrong: 55
+  llama3.1-8b: on both-answered fixed=5 broken=4 net=+1; on both-wrong fixed=3
+  qwen3-8b: on both-answered fixed=4 broken=4 net=+0; on both-wrong fixed=4
+  llama3.1-8b ce_alpha1_ep3: baseline/original_das texts+finished+labels identical across das/md/random runs: True
+  llama3.1-8b ce_alpha3_ep3: baseline/original_das texts+finished+labels identical across das/md/random runs: True
+  llama3.1-8b: r18 original_das vs E25 v1u E_qa_das_continuous_L29_a3: text_diff=0 finished_diff=0 label_diff=0; baseline text_diff=0
+     v1u E_qa_das_continuous_L10_a2: net correct vs baseline +1 (1/0)
+     v1u E_qa_das_continuous_L27_a2: net correct vs baseline +1 (2/1)
+     v1u E_qa_das_continuous_L29_a3: net correct vs baseline +5 (5/0)
+  llama3.1-8b: training ids n=92, identical across inits=True, overlap with tune=0
+  qwen3-8b ce_alpha1_ep3: baseline/original_das texts+finished+labels identical across das/md/random runs: True
+  qwen3-8b ce_alpha3_ep3: baseline/original_das texts+finished+labels identical across das/md/random runs: True
+  qwen3-8b: r18 original_das vs E25 v1u E_qa_das_continuous_L34_a3: text_diff=0 finished_diff=0 label_diff=0; baseline text_diff=0
+     v1u E_qa_das_continuous_L23_a3: net correct vs baseline -1 (1/2)
+     v1u E_qa_das_continuous_L34_a3: net correct vs baseline +1 (4/3)
+     v1u E_qa_das_continuous_L29_a2: net correct vs baseline +0 (0/0)
+  qwen3-8b: training ids n=92, identical across inits=True, overlap with tune=0
+training ids identical across models: True

@@ -1,0 +1,30 @@
+--- 15 E27 adapters in the round-18 archive (excluding eos_pilot3)
+  llama3.1-8b ce_alpha1_ep3 das: n_train_ids=92 epochs=3 ranking_weight=0.0 updates=276 zero_updates=0 grad_min=0.169 grad_max=14.671 losses=[2.2633, 2.1715, 2.1332] include_eos=None keys_has_stop_token_id=False
+  llama3.1-8b ce_alpha1_ep3 md: n_train_ids=92 epochs=3 ranking_weight=0.0 updates=276 zero_updates=0 grad_min=0.144 grad_max=14.788 losses=[2.2798, 2.1887, 2.1313] include_eos=None keys_has_stop_token_id=False
+  llama3.1-8b ce_alpha1_ep3 random: n_train_ids=92 epochs=3 ranking_weight=0.0 updates=276 zero_updates=0 grad_min=0.109 grad_max=17.416 losses=[2.2814, 2.1983, 2.1162] include_eos=None keys_has_stop_token_id=False
+  llama3.1-8b ce_alpha3_ep3 das: n_train_ids=92 epochs=3 ranking_weight=0.0 updates=276 zero_updates=0 grad_min=0.451 grad_max=37.685 losses=[2.2006, 1.9934, 1.9094] include_eos=None keys_has_stop_token_id=False
+  llama3.1-8b ce_alpha3_ep3 md: n_train_ids=92 epochs=3 ranking_weight=0.0 updates=276 zero_updates=0 grad_min=0.346 grad_max=33.204 losses=[2.2764, 2.058, 1.9444] include_eos=None keys_has_stop_token_id=False
+  llama3.1-8b ce_alpha3_ep3 random: n_train_ids=92 epochs=3 ranking_weight=0.0 updates=276 zero_updates=0 grad_min=0.314 grad_max=37.229 losses=[2.2723, 2.0776, 1.9227] include_eos=None keys_has_stop_token_id=False
+  qwen3-8b ce_alpha1_ep3 das: n_train_ids=92 epochs=3 ranking_weight=0.0 updates=276 zero_updates=0 grad_min=0.291 grad_max=36.812 losses=[4.159, 3.611, 3.485] include_eos=None keys_has_stop_token_id=False
+  qwen3-8b ce_alpha1_ep3 md: n_train_ids=92 epochs=3 ranking_weight=0.0 updates=276 zero_updates=0 grad_min=0.019 grad_max=30.059 losses=[4.5307, 4.1463, 3.739] include_eos=None keys_has_stop_token_id=False
+  qwen3-8b ce_alpha1_ep3 random: n_train_ids=92 epochs=3 ranking_weight=0.0 updates=276 zero_updates=0 grad_min=0.217 grad_max=26.849 losses=[4.5296, 4.0505, 3.6492] include_eos=None keys_has_stop_token_id=False
+  qwen3-8b ce_alpha3_ep3 das: n_train_ids=92 epochs=3 ranking_weight=0.0 updates=276 zero_updates=0 grad_min=0.222 grad_max=135.448 losses=[3.5714, 2.7633, 2.583] include_eos=None keys_has_stop_token_id=False
+  qwen3-8b ce_alpha3_ep3 md: n_train_ids=92 epochs=3 ranking_weight=0.0 updates=276 zero_updates=0 grad_min=0.082 grad_max=76.642 losses=[4.2272, 3.2307, 2.7695] include_eos=None keys_has_stop_token_id=False
+  qwen3-8b ce_alpha3_ep3 random: n_train_ids=92 epochs=3 ranking_weight=0.0 updates=276 zero_updates=0 grad_min=0.177 grad_max=74.654 losses=[4.3838, 3.1421, 2.6272] include_eos=None keys_has_stop_token_id=False
+  qwen3-8b ce_eos_alpha3_ep3 das: n_train_ids=92 epochs=3 ranking_weight=0.0 updates=276 zero_updates=0 grad_min=1.142 grad_max=59.052 losses=[3.8713, 2.9323, 2.7218] include_eos=True keys_has_stop_token_id=True
+  qwen3-8b ce_eos_alpha3_ep3 md: n_train_ids=92 epochs=3 ranking_weight=0.0 updates=276 zero_updates=0 grad_min=1.305 grad_max=71.925 losses=[4.6048, 3.1841, 2.8838] include_eos=True keys_has_stop_token_id=True
+  qwen3-8b ce_eos_alpha3_ep3 random: n_train_ids=92 epochs=3 ranking_weight=0.0 updates=276 zero_updates=0 grad_min=1.634 grad_max=68.609 losses=[4.0969, 2.7887, 2.5511] include_eos=True keys_has_stop_token_id=True
+  adapters counted: 15
+--- release adapter.json train_config keys (Qwen das_s42): ['alpha', 'clip', 'epochs', 'include_eos', 'lr', 'optimizer', 'ranking_weight', 'seed', 'stop_token_id']
+--- early adapter.json train_config keys (Qwen das): ['alpha', 'clip', 'epochs', 'lr', 'optimizer', 'ranking_weight', 'seed']
+--- Qwen trace identity fields
+  class Qwen3ForCausalLM output_head_shape [151936, 4096] tokenizer Qwen2TokenizerFast backend_json_sha256 a63080b4b30dc861 script sha a7b6736c6c55cfbb
+  source snapshot sha256: a7b6736c6c55cfbb
+  tqa:138 len(output)=16
+  tqa:150 len(output)=16
+  tqa:412 len(output)=16
+--- pure-DAS pilot: context questions vs stored questions
+  pilot tune.json evaluations: 3 | batch_context batches: 3 ids per batch: [8, 8, 8]
+  check_generations keys: ['model', 'protocol', 'protocol_fingerprint', 'bank_protocol_fingerprint', 'bank_sha256', 'training_sha256', 'questions_sha256', 'split', 'pilot', 'diagnostic_only', 'precision', 'E']
+  check_generations rows: 24
+  questions.json byte-identical to E25 v1u source questions.json: True
