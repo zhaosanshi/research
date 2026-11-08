@@ -72,6 +72,9 @@ def main():
     ap.add_argument("--ref-e-npz", default=None, help="knob_sweep_das_tfce_full.npz of the 2x2: baseline and E-only conditions must match")
     ap.add_argument("--ref-c-npz", default=None, help="knob_sweep_das_tfce_C.npz of the 2x2: the two C-only conditions must match")
     ap.add_argument("--tag", default="das")
+    ap.add_argument("--e-layers", nargs="+", type=int, default=None,
+                    help="restrict the E sweep to these layers (N7: C mid-strength curve at the 2x2-chosen E only); "
+                         "directions are still estimated at every layer exactly as before")
     args = ap.parse_args()
     e22.SPLIT_A = dict(e22.SPLIT_WORDINGS[args.wording])
     cfix = [parse_c(args.c_abst), parse_c(args.c_ans)]
@@ -106,6 +109,10 @@ def main():
     for c in cfix:
         if c["layer"] not in L:
             raise SystemExit("C layer %d outside this model's %d layers" % (c["layer"], bundle.num_layers))
+    E_L = sorted(set(args.e_layers)) if args.e_layers else L
+    for l in E_L:
+        if l not in L:
+            raise SystemExit("E layer %d outside this model's %d layers" % (l, bundle.num_layers))
 
     # ---- texts, label maps (as the sweep) ---------------------------------------------------------------------------- #
     tA = [bundle.build_chat(st["system"], e22.split_user(r, e22.SPLIT_A["instr"])) for r in recs]
@@ -158,7 +165,7 @@ def main():
     conds = [("baseline", [], [])]
     for c in cfix:
         conds.append((c["name"], [c_specs[c["name"]]], [c_specs[c["name"]]]))
-    for l in L:
+    for l in E_L:
         d = dirs[l]
         for a in args.e_alphas:
             eA_spec = SteerSpec(d["wE"], l, mode="amplify", alpha=a, center=d["cA"]); eB_spec = SteerSpec(d["wE"], l, mode="amplify", alpha=a, center=d["cB"])
@@ -210,7 +217,7 @@ def main():
                 "AUROC_margin": float(auroc(mg[mask], lab)), "acc_all": float(correct.mean()),
                 "n_answered": int(a.sum()), "correct_answered": int(correct[a].sum()), "acc_answered": float(correct[a].mean()) if a.any() else float("nan")}
 
-    res = {"model": mcfg["name"], "protocol": "e41_fixed_c_all_e_v1", "n": len(recs), "n_est": len(est), "layers": L, "num_layers": bundle.num_layers,
+    res = {"model": mcfg["name"], "protocol": "e41_fixed_c_all_e_v1", "n": len(recs), "n_est": len(est), "layers": L, "e_layers": E_L, "num_layers": bundle.num_layers,
            "tune_pairs": args.tune_pairs, "limit": args.limit, "wording": args.wording, "e_alphas": args.e_alphas, "e_estimator": args.e_estimator,
            "das": {"dir": args.das_dir, "variant": args.das_variant, "per_layer": das_meta_all}, "c_orth": args.c_orth, "fixed_C": c_meta,
            "cos_E_vs_meandiff_per_layer": {str(l): dirs[l]["cos_E_vs_md"] for l in L},
