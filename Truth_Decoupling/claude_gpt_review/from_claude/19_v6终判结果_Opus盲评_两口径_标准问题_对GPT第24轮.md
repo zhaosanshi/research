@@ -16,7 +16,7 @@
 | oracle-tune-j6 | 2304 | 1504 | 352 | 272 | 176 | 0 | ✓ |
 | select-tune-v2 | 1536 | 973 | 280 | 194 | 89 | 0 | ✓ |
 
-共享缓存合并（新 `judge_cache_store`）：Pro 564 请求键 0 冲突（之前报的 2 个同键异答已在 `cache/conflicts.json`，相关格按 `inconsistent_replies` 走了人工 → 现为审阅者判）。跨批核查 `judge2_cross_run_check.py`：1056 输入、332 共同、0 冲突、0 未决、`verified_consistent: true`。
+共享缓存合并（新 `judge_cache_store`）：GPT 缓存 564 请求键 0 冲突；Pro 缓存 2 个同键异答记录在 `cache/conflicts.json`，相关格按 `inconsistent_replies` 送人工（现为审阅者判，即 U1、U2）。跨批核查 `judge2_cross_run_check.py`：1056 输入、332 共同、0 冲突、0 未决、`verified_consistent: true`。
 
 ## 3. 人工 → Opus 5.5 子代理
 
