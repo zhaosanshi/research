@@ -104,7 +104,7 @@ class PersonalRefusalGuardTests(unittest.TestCase):
         cfg=json.loads((CODE/'configs/experiments/E4_qa.json').read_text())
         for key in ('judge','judge_second'):
             self.assertTrue(cfg[key]['full_personal_refusal_guard']);self.assertEqual(cfg[key]['outcome_policy'],FULL_PERSONAL_REFUSAL_POLICY)
-        self.assertEqual(QA_GRADER_VERSION,'qa_semantic_v3')
+        self.assertEqual(QA_GRADER_VERSION,'qa_semantic_v4_judge_may_abstain')
         with self.assertRaises(ValueError):LLMJudge('offline',api_key='offline-test-only',full_personal_refusal_guard=True,outcome_policy=OUTCOME_POLICY)
 
     def test_actual_e25_to_e24_reused_grade_cannot_bypass_policy(self):

@@ -47,6 +47,8 @@ from core.qa_source_interchange import SourceInterchangeDecoder
 from core.readout import build_label_token_map, label_logprobs_from_logits, rule_abstains
 
 PROTOCOL = 'e42_oracle_select_v1'
+SELECTION_RULE_VERSION = 'tf_oriented_per_question_layer_zscore_v2'
+ORIENTATION_MIN_ABS_COSINE = 1e-8
 SOURCE_SYSTEM = ("Answer factual questions truthfully. Correct false premises rather than accepting them. "
                  "Give a short, direct answer of a few words. If you do not know the answer, say 'I don't know'.")
 GOLD_SYSTEM = SOURCE_SYSTEM + " The user message states the correct answer; answer in agreement with it."
@@ -68,45 +70,96 @@ def gold_text(q):
     return ' '.join(gold.split()).rstrip('.')
 
 
-def prompts_for(bundle, cfg, q):
+def prompts_for(bundle, cfg, q, *, include_gold=True):
     user = cfg['qa_user'].format(question=q['question'])
-    gold_user = cfg['qa_user'].format(question=GOLD_NOTE.format(question=q['question'], gold=gold_text(q)))
-    return {'base': chat_ids(bundle, cfg['qa_system'], user),
-            'truthful': chat_ids(bundle, SOURCE_SYSTEM, user),
-            'gold': chat_ids(bundle, GOLD_SYSTEM, gold_user)}
+    result = {'base': chat_ids(bundle, cfg['qa_system'], user),
+              'truthful': chat_ids(bundle, SOURCE_SYSTEM, user)}
+    if include_gold:
+        gold_user = cfg['qa_user'].format(question=GOLD_NOTE.format(question=q['question'], gold=gold_text(q)))
+        result['gold'] = chat_ids(bundle, GOLD_SYSTEM, gold_user)
+    return result
 
 
-def tf_estimation(bundle, layers):
+def tf_estimation(bundle, layers, return_provenance=False, expected_train_ids=None, evaluation_ids=None):
     """TF estimation statements -> per-layer mean-difference direction, used only to orient DAS signs (true = +)."""
     exp = load_experiment('E2b_tqa')
     est = []
     for ds in exp['eval_datasets']:
         est += load_split(ds, 'calib') + load_split(ds, 'dev')
-    y = np.array([bool(r['label']) for r in est])
+    pair_ids = list(dict.fromkeys(str(r.get('pair_id') or r['id']) for r in est))
+    if expected_train_ids is not None and set(pair_ids) != set(map(str, expected_train_ids)):
+        raise ValueError('TF orientation cohort differs from the frozen QA estimation questions')
+    if evaluation_ids is not None and set(pair_ids) & set(map(str, evaluation_ids)):
+        raise ValueError('TF orientation must not use current evaluation questions')
+    if not est or any(type(r.get('label')) is not bool for r in est):
+        raise ValueError('orientation requires explicit boolean TF training labels')
+    y = np.array([r['label'] for r in est])
+    if not y.any() or y.all():
+        raise ValueError('orientation requires both true and false estimation statements')
     acts, _ = capture_last_token(bundle, [tf_prompt(bundle, exp['prompts'], r['text'], allow_idk=False) for r in est],
                                  list(layers), batch_size=8)
     wmd = {}
     for l in layers:
         H = acts[('resid', l)].numpy().astype(np.float64)
         wmd[l], _ = mean_diff_direction(H[y], H[~y])
-    return exp['prompts'], wmd, len(est)
+    result = (exp['prompts'], wmd, len(est))
+    if return_provenance:
+        provenance = {'split_rule': 'TF calib + dev only, identical E25 estimation split rule',
+            'n_statements': len(est), 'estimation_pair_ids': pair_ids, 'statement_identity_sha256': qa.fingerprint([
+                {k:r.get(k) for k in ('id','pair_id','text','label')} for r in est]),
+            'prompts_sha256': qa.fingerprint(exp['prompts']), 'batch_size': 8,
+            'mean_difference_sha256': {str(l):qa.fingerprint(w.tolist()) for l,w in wmd.items()},
+            'uses_tuning_correctness_labels': False}
+        return result + (provenance,)
+    return result
 
 
-def directions(args, bank, meta, layers, wmd=None):
-    """{family: {layer: unit torch vector}}; dasce = TF gold-label CE DAS (results_das_tfce/E1), qadas = QA-context DAS bank."""
+def orient_readout_direction(direction, mean_difference, min_abs_cosine=ORIENTATION_MIN_ABS_COSINE):
+    """Resolve the sign from TF estimation data; a near-zero dot has no polarity evidence."""
+    value = torch.as_tensor(direction).detach().float().clone()
+    w = value.double().cpu().numpy()
+    anchor = np.asarray(mean_difference, dtype=np.float64)
+    if w.ndim != 1 or anchor.shape != w.shape or not np.isfinite(w).all() or not np.isfinite(anchor).all():
+        raise ValueError('orientation needs aligned finite vectors')
+    norm = np.sqrt(np.sum(w*w)) * np.sqrt(np.sum(anchor*anchor))
+    if not np.isfinite(norm) or norm < 1e-12:
+        raise ValueError('orientation requires nonzero directions')
+    cosine = float(np.sum(w * anchor) / norm)
+    informative = abs(cosine) > min_abs_cosine
+    flipped = informative and cosine < 0
+    if flipped:
+        value = -value
+    return value, {'status': 'tf_mean_difference_aligned' if informative else 'orientation_uninformative',
+        'eligible_for_readout_selection': informative, 'cosine_before': cosine,
+        'cosine_after': -cosine if flipped else cosine, 'flipped': flipped,
+        'minimum_absolute_cosine': min_abs_cosine,
+        'raw_direction_sha256': qa.fingerprint(w.tolist()),
+        'oriented_direction_sha256': qa.fingerprint(value.tolist()),
+        'reference_mean_difference_sha256': qa.fingerprint(anchor.tolist())}
+
+
+def directions(args, bank, meta, layers, wmd=None, return_orientation=False):
+    """Load rank-one axes; align BOTH families only for TF readout, not oracle writes."""
     out = {f: {} for f in args.families}
+    orientation = {f: {} for f in args.families}
     for l in layers:
         if 'dasce' in out:
             w, _ = load_das_direction('%s/results_das_tfce/E1/%s' % (args.direction_root, meta['model']), 'E', l,
-                                      variant='tf-ce-bidir', align_to=None if wmd is None else wmd.get(l))
+                                      variant='tf-ce-bidir', align_to=None)
             if w is not None:
                 out['dasce'][l] = torch.as_tensor(np.asarray(w, dtype=np.float64)).float()
         if 'qadas' in out and ('E_qa_das_L%d' % l) in bank:
             out['qadas'][l] = torch.as_tensor(bank['E_qa_das_L%d' % l]).float().clone()
-    for f, by in out.items():
+    for family, by in out.items():
         if not by:
-            raise ValueError('no %s direction found for layers %s' % (f, layers))
-    return out
+            raise ValueError('no %s direction found for layers %s' % (family, layers))
+        for layer, value in list(by.items()):
+            if wmd is None:
+                orientation[family][str(layer)] = {'status': 'projection_only_sign_irrelevant',
+                    'eligible_for_readout_selection': False, 'flipped': False}
+            else:
+                by[layer], orientation[family][str(layer)] = orient_readout_direction(value, wmd[layer])
+    return (out, orientation) if return_orientation else out
 
 
 # ----------------------------------------------------------------------------- decoding with per-step audit
@@ -245,8 +298,15 @@ def statement(q, a):
 
 def run_select(args, bundle, meta, prepared, bank, questions, out_path):
     read_layers = sorted(args.read_layers)
-    prompts, wmd, n_est = tf_estimation(bundle, read_layers)
-    dirs = directions(args, bank, meta, read_layers, wmd=wmd)
+    prompts, wmd, n_est, orientation_source = tf_estimation(bundle, read_layers, return_provenance=True,
+        expected_train_ids=[q['pair_id'] for q in prepared['splits']['train']],
+        evaluation_ids=[q['pair_id'] for q in questions])
+    loaded_dirs, direction_orientation = directions(args, bank, meta, read_layers, wmd=wmd, return_orientation=True)
+    dirs = {f: {l:w for l,w in by.items() if direction_orientation[f][str(l)]['eligible_for_readout_selection']}
+            for f,by in loaded_dirs.items()}
+    dirs = {f:by for f,by in dirs.items() if by}
+    if not dirs:
+        raise ValueError('orientation_uninformative: no requested axis has a usable TF-estimation polarity')
     k = args.k
     cand_names = ['greedy', 'truthful_source_only'] + ['sample_%d' % i for i in range(k)]
     identity = {'protocol': PROTOCOL, 'phase': 'select', 'model': meta['model'],
@@ -255,7 +315,12 @@ def run_select(args, bundle, meta, prepared, bank, questions, out_path):
                 'user_template': meta['config']['qa_user'], 'max_new_tokens': args.max_new_tokens,
                 'k': k, 'temperature': args.temperature, 'top_p': args.top_p, 'seed': args.seed,
                 'read_layers': read_layers, 'families': list(args.families),
-                'orientation': 'DAS signs aligned to the TF mean-difference direction of %d estimation statements (true = +)' % n_est,
+                'selection_rule_version': SELECTION_RULE_VERSION,
+                'direction_orientation': direction_orientation, 'orientation_source': orientation_source,
+                'available_read_layers_by_family': {f:sorted(by) for f,by in dirs.items()},
+                'selection_normalization': {'basis': 'same-question inference-time eligible candidate pool', 'ddof': 0,
+                    'constant_layer': 'zero contribution', 'std_epsilon': 1e-12, 'uses_correctness_labels': False},
+                'orientation': 'Both DASCE and QADAS signs aligned to TF mean differences of %d estimation statements; orientation_uninformative axes excluded, never assumed true-positive' % n_est,
                 'statement_template': 'The answer to the question "Q" is: A.', 'conditions': cand_names,
                 'direction_sha256': {f: {str(l): qa.fingerprint(w.tolist()) for l, w in by.items()} for f, by in dirs.items()},
                 'question_ids': [q['pair_id'] for q in questions], 'split': 'tune',
@@ -270,7 +335,7 @@ def run_select(args, bundle, meta, prepared, bank, questions, out_path):
     label_variants = {'True': st['label_variants']['True'], 'False': st['label_variants']['False']}
     with fp32_output_projection(bundle):
         for qi, q in enumerate(questions):
-            p = prompts_for(bundle, meta['config'], q)
+            p = prompts_for(bundle, meta['config'], q, include_gold=False)
             row = {**copy.deepcopy(q), 'idx': len(result['evaluations']), 'outputs': {}, 'finished': {}, 'rule_abstain': {},
                    'generation_token_ids': {}, 'diag': {}, 'prompt_token_ids': {'base': p['base'], 'truthful': p['truthful']}}
             for ci, name in enumerate(cand_names):
@@ -320,9 +385,18 @@ def picks(row, cand_names, dirs, read_layers, seed):
         for l in by:
             key = 'coord_%s_L%d' % (fam, l)
             out[key] = max(pool, key=lambda n: row['readout'][n][key])
-        # the mean over the readout layers of this family (z-scored within the question)
-        vals = {n: np.mean([row['readout'][n]['coord_%s_L%d' % (fam, l)] for l in by]) for n in pool}
-        out['coord_%s_mean' % fam] = max(pool, key=lambda n: vals[n])
+        # Equal layer weighting after scaling each layer on this question's
+        # already-frozen inference pool. No labels, gold answers, or other
+        # questions enter this normalization. Historical missing-version runs
+        # used the raw mean; preserve their recorded picks as that older method.
+        values = np.asarray([[row['readout'][n]['coord_%s_L%d' % (fam, l)] for l in by] for n in pool], dtype=float)
+        if not np.isfinite(values).all():
+            raise ValueError('nonfinite layer coordinates cannot select a candidate')
+        std = values.std(axis=0)
+        standardized = np.divide(values - values.mean(axis=0), std,
+                                 out=np.zeros_like(values), where=std > 1e-12)
+        means = standardized.mean(axis=1)
+        out['coord_%s_mean' % fam] = pool[int(np.argmax(means))]
     return out
 
 

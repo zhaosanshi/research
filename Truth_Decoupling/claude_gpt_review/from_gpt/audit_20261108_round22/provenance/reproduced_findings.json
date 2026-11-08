@@ -1,0 +1,98 @@
+{
+  "snapshot": "cf8f752",
+  "network_calls": 0,
+  "scope": "synthetic isolated filesystem and stub clients; no production data changed",
+  "files": {
+    "from_gpt/audit_20261108_round22/provenance/source_cf8f752/core/judge.py": "26a9c6ff8e1932c8f4a94e72607d60026b449cd7972f0b77adfea75ca90bd282",
+    "from_gpt/audit_20261108_round22/provenance/source_cf8f752/core/judge_two_axis.py": "117c549ac61840891d3e3ae77fc0ed5610590762efd133967dd276dcd3ad40b8",
+    "from_gpt/audit_20261108_round22/provenance/source_cf8f752/core/qa_reference_grades.py": "abfad01eb40bbc8da7bcd73cb8e9fe13c5ef07654647424dd04704e8d1802966",
+    "from_gpt/audit_20261108_round22/provenance/source_cf8f752/scripts/review_checks/judge_two_axis_run.py": "4ae4b58630351875458490187440d7c65f4105e2630bb1eb5a448103ecca9ce9",
+    "from_gpt/audit_20261108_round22/provenance/source_cf8f752/scripts/review_checks/judge_human_review.py": "1d787d4e8d71267f8ecb9d9650a9ae0f095793f76073dedd0949c361510e91a3"
+  },
+  "observations": {
+    "changed_references_reuses_old_vote": {
+      "new_api_calls": 0,
+      "retained_truth": "T",
+      "stale_regraded": 0,
+      "unsafe_reproduced": true
+    },
+    "changed_model_reuses_old_vote": {
+      "new_api_calls": 0,
+      "summary_model": "model-new",
+      "retained_row_model": "model-old",
+      "unsafe_reproduced": true
+    },
+    "unbound_legacy_row_backfilled": {
+      "stats": {
+        "stale": [],
+        "legacy_backfilled": 1,
+        "orphans_dropped": 0
+      },
+      "accepted": [
+        {
+          "cell_id": "q|base",
+          "model": "old-model",
+          "rubric": "qa_two_axis_v5",
+          "truth": "T",
+          "info": "S",
+          "qa_sha": "3d26cf028f0b85da",
+          "qa_sha_backfilled": true
+        }
+      ],
+      "unsafe_reproduced": true
+    },
+    "human_verdict_transfers_to_changed_answer": {
+      "current_answer": "Lyon.",
+      "old_reviewed_answer": "Paris.",
+      "final_label": "A",
+      "source": "human",
+      "machine_label": "B",
+      "unsafe_reproduced": true
+    },
+    "identical_answers_different_final_labels": {
+      "labels": {
+        "base": "B",
+        "EC": "A"
+      },
+      "unsafe_reproduced": true
+    },
+    "changed_request_params_share_cache": {
+      "new_api_calls": 0,
+      "old_request": {
+        "extra_body": {
+          "thinking": {
+            "type": "disabled"
+          }
+        },
+        "max_tokens": 8,
+        "temperature": 0.0
+      },
+      "new_request": {
+        "extra_body": {
+          "thinking": {
+            "type": "enabled"
+          }
+        },
+        "max_tokens": 1024,
+        "temperature": 0.0
+      },
+      "retained_votes": [
+        "T",
+        "S"
+      ],
+      "unsafe_reproduced": true
+    },
+    "different_long_tails_same_judging_request": {
+      "full_qa_sha_different": true,
+      "v5_truth_prompt_equal": true,
+      "legacy_key_equal": true,
+      "unsafe_reproduced": true
+    },
+    "resolved_malformed_reply_stays_pending": {
+      "first": "unresolved",
+      "second": "correct",
+      "pending_count": 1,
+      "unsafe_reproduced": true
+    }
+  }
+}

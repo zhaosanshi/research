@@ -105,6 +105,17 @@ def is_personal_refusal_gold(text):
     return normalized in {"i have no comment", "i dont know", "i do not know"}
 
 
-def reference_answers(gold):
-    retained = [answer for answer in gold if not is_personal_refusal_gold(answer)]
+def reference_answers(gold, question=None):
+    """Historical filtering without a question; context-aware strict filtering for v6.
+
+    Never strip numbers/Unicode out of a new reference or discard a literal
+    requested translation/title merely because its text resembles a refusal.
+    Legacy callers retain their frozen reference partition unchanged.
+    """
+    if question is None:
+        retained = [answer for answer in gold if not is_personal_refusal_gold(answer)]
+    else:
+        if not isinstance(gold,(list,tuple)) or any(not isinstance(a,str) for a in gold):
+            raise ValueError('reference answers must be a sequence of strings')
+        retained = [answer for answer in gold if not full_personal_refusal_decision(question,answer)['apply']]
     return retained or list(gold), not bool(retained)

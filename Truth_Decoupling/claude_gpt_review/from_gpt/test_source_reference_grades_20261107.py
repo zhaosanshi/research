@@ -13,9 +13,9 @@ from unittest.mock import patch
 HERE=Path(__file__).resolve().parent;CODE=HERE.parent/'from_claude/code'
 sys.path[:0]=[str(CODE),str(CODE/'scripts')]
 import e37_source_commitment_order as entry
-from core.judge import QA_GRADER_VERSION,qa_cache_key
+from core.judge import QA_GRADER_VERSION,qa_cache_key,cache_filename
 from core.qa_generation_adapter import fingerprint
-from core.qa_reference_grades import reference_index,verify_matching_grades
+from core.qa_reference_grades import reference_index,verify_matching_grades,semantic_key
 from core.qa_scoring import apply_configured_outcome_policy
 
 
@@ -61,7 +61,7 @@ class ReferenceTests(unittest.TestCase):
         return raw,reference
 
     def test_policy_conversion_is_uniform_without_changing_parent(self):
-        value=self.reference();key=qa_cache_key(self.cfg['model'],'Question 1?',['gold'],"I don't know.",['bad'])
+        value=self.reference();key=semantic_key(self.cfg,self.graded['evaluations'][1],"I don't know.")
         self.assertEqual(value['index'][key]['original_label'],'correct')
         self.assertEqual(value['index'][key]['grade']['label'],'abstain')
         self.assertEqual(self.graded['evaluations'][1]['judge']['baseline']['label'],'correct')
@@ -80,16 +80,16 @@ class ReferenceTests(unittest.TestCase):
         raw,reference=self.current();cache=self.parent/'judge_cache';cache.mkdir()
         lines=[]
         for row in self.graded['evaluations']:
-            lines.append({'key':qa_cache_key(self.cfg['model'],row['question'],['gold'],row['outputs']['baseline'],['bad']),
+            lines.append({'key':qa_cache_key(self.cfg['model'],row['question'],['gold'],row['outputs']['baseline'],['bad'],config=self.cfg),
                           'model':self.cfg['model'],'answer':row['judge']['baseline']['raw']})
-        (cache/'judge_cache_deepseek-chat.jsonl').write_text(''.join(json.dumps(v)+'\n' for v in lines))
+        (cache/cache_filename(self.cfg['model'])).write_text(''.join(json.dumps(v)+'\n' for v in lines))
         cfg=self.cfg
         class CacheOnlyJudge:
             name=cfg['name'];qa_rubric_id=QA_GRADER_VERSION;n_calls=0;n_cache_hits=0
             def __init__(self,cache_dir):
-                self.entries={v['key']:v['answer'] for v in map(json.loads,(Path(cache_dir)/'judge_cache_deepseek-chat.jsonl').read_text().splitlines())}
+                self.entries={v['key']:v['answer'] for v in map(json.loads,(Path(cache_dir)/cache_filename(cfg['model'])).read_text().splitlines())}
             def qa_grade(self,question,gold,prediction,incorrect=None):
-                key=qa_cache_key(cfg['model'],question,gold,prediction,incorrect)
+                key=qa_cache_key(cfg['model'],question,gold,prediction,incorrect,config=cfg)
                 if key not in self.entries:raise AssertionError('unexpected API request')
                 letter=self.entries[key];self.n_cache_hits+=1
                 return {'raw':letter,'label':{'A':'correct','B':'wrong','C':'abstain'}[letter],'rubric_id':QA_GRADER_VERSION}

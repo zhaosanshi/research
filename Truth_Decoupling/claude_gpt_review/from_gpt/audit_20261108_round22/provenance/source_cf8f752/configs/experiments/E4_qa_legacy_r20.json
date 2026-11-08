@@ -1,0 +1,39 @@
+{
+  "name": "E4_qa",
+  "description": "QA-level conditions (baseline / cautious prompt / C_add / E_amp / Both), two-phase: GPU generate, API judge.",
+  "model": "qwen3-8b",
+  "prompts": "default_v1",
+  "qa_datasets": [
+    "simpleqa",
+    "truthfulqa",
+    "halueval_qa"
+  ],
+  "alpha_e": 1.0,
+  "alpha_c": 1.0,
+  "e_layer": null,
+  "c_layer": null,
+  "batch_size": 8,
+  "seed": 42,
+  "judge": {
+    "name": "deepseek",
+    "model": "deepseek-v4-pro",
+    "base_url": "https://api.deepseek.com",
+    "api_key_env": "DEEPSEEK_API_KEY",
+    "max_tokens": 8,
+    "sleep": 0.05,
+    "extra_body": {
+      "thinking": {
+        "type": "disabled"
+      }
+    },
+    "notes": "2026-11-08 (赵磊's rule): judge is always deepseek-v4-pro; deepseek-chat was an alias for deepseek-flash (V4.1-Flash-1017), never pro. Legacy r20 config kept for the frozen-parent checks only; those parents were graded under qa_semantic_v3 / deepseek-chat and must be re-graded before reuse."
+  },
+  "judge_second": {
+    "name": "gpt",
+    "model": "${TD_SECOND_JUDGE_MODEL:-gpt-5.4}",
+    "base_url": "${TD_SECOND_JUDGE_BASE_URL:-https://xiaoai.plus/v1}",
+    "api_key_env": "XIAOAI_API_KEY",
+    "max_tokens": 8,
+    "sleep": 0.3
+  }
+}

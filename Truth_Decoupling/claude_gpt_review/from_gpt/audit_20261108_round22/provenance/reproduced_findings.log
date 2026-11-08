@@ -1,0 +1,86 @@
+{
+  "changed_references_reuses_old_vote": {
+    "new_api_calls": 0,
+    "retained_truth": "T",
+    "stale_regraded": 0,
+    "unsafe_reproduced": true
+  },
+  "changed_model_reuses_old_vote": {
+    "new_api_calls": 0,
+    "summary_model": "model-new",
+    "retained_row_model": "model-old",
+    "unsafe_reproduced": true
+  },
+  "unbound_legacy_row_backfilled": {
+    "stats": {
+      "stale": [],
+      "legacy_backfilled": 1,
+      "orphans_dropped": 0
+    },
+    "accepted": [
+      {
+        "cell_id": "q|base",
+        "model": "old-model",
+        "rubric": "qa_two_axis_v5",
+        "truth": "T",
+        "info": "S",
+        "qa_sha": "3d26cf028f0b85da",
+        "qa_sha_backfilled": true
+      }
+    ],
+    "unsafe_reproduced": true
+  },
+  "human_verdict_transfers_to_changed_answer": {
+    "current_answer": "Lyon.",
+    "old_reviewed_answer": "Paris.",
+    "final_label": "A",
+    "source": "human",
+    "machine_label": "B",
+    "unsafe_reproduced": true
+  },
+  "identical_answers_different_final_labels": {
+    "labels": {
+      "base": "B",
+      "EC": "A"
+    },
+    "unsafe_reproduced": true
+  },
+  "changed_request_params_share_cache": {
+    "new_api_calls": 0,
+    "old_request": {
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "max_tokens": 8,
+      "temperature": 0.0
+    },
+    "new_request": {
+      "extra_body": {
+        "thinking": {
+          "type": "enabled"
+        }
+      },
+      "max_tokens": 1024,
+      "temperature": 0.0
+    },
+    "retained_votes": [
+      "T",
+      "S"
+    ],
+    "unsafe_reproduced": true
+  },
+  "different_long_tails_same_judging_request": {
+    "full_qa_sha_different": true,
+    "v5_truth_prompt_equal": true,
+    "legacy_key_equal": true,
+    "unsafe_reproduced": true
+  },
+  "resolved_malformed_reply_stays_pending": {
+    "first": "unresolved",
+    "second": "correct",
+    "pending_count": 1,
+    "unsafe_reproduced": true
+  }
+}

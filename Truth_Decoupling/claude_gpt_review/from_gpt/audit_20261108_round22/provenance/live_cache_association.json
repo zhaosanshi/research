@@ -1,0 +1,120 @@
+{
+  "scope": "Historical v5 only; no vote promoted to v6 and no new API call",
+  "runtime": {
+    "core/judge_two_axis.py": "117c549ac61840891d3e3ae77fc0ed5610590762efd133967dd276dcd3ad40b8",
+    "core/judge.py": "26a9c6ff8e1932c8f4a94e72607d60026b449cd7972f0b77adfea75ca90bd282",
+    "configs/judges/two_axis_v5.json": "1dc54c2a9452fad0ff959a06c7fc47a1520fed641ba82c60b1c989d67eb53b30"
+  },
+  "runs": {
+    "select-tune": {
+      "generation_sha256": "b6b3dc372b43c1ad6afc1334fc0a68ad5cb7588b66a8c696d2c3692b35be40cd",
+      "cells_sha256": "b59872b45b76a9f08a021ff8a1baca69a825149faaceeff0b31f9eb4ef6bfe89",
+      "cells_exactly_match_generation": true,
+      "n_cells": 1536,
+      "max_answer_chars": 270,
+      "all_predictions_fully_present_in_v5_prompt": true,
+      "judges": {
+        "pro": {
+          "vote_rows": 1536,
+          "placeholders": 0,
+          "verified_axis_cache_links": 3072,
+          "unique_cache_keys_used": 1694,
+          "cache_rows_in_file": 1694,
+          "failures": [],
+          "uncached_transient_failures": [],
+          "qa_sha_marked_backfilled_rows": 1536,
+          "provider_reported_resolved_models": [
+            "deepseek-v4-pro"
+          ],
+          "parameters_not_recorded_at_call_time": [
+            "base_url",
+            "extra_body",
+            "send_temperature"
+          ],
+          "cache_sha256": "c7118b3f1712ce83361254f0202110fd993d1b8dcd86928cd09f88f402d9fe1d",
+          "vote_file_sha256": "6edba25c37de13ebcae88ade7d0462302994d3c0dc7faee2884a5fb87627f764",
+          "interpretation": "Exact v5 prompt/cache response match and recorded parameters agree; unknown parameters not backfilled. This is NOT a v6 vote."
+        },
+        "gpt": {
+          "vote_rows": 298,
+          "placeholders": 0,
+          "verified_axis_cache_links": 595,
+          "unique_cache_keys_used": 439,
+          "cache_rows_in_file": 439,
+          "failures": [],
+          "uncached_transient_failures": [
+            {
+              "cell_id": "tqa:463|sample_0",
+              "axis": "truth",
+              "reason": "transient failure intentionally not cached; contributes no vote"
+            }
+          ],
+          "qa_sha_marked_backfilled_rows": 0,
+          "provider_reported_resolved_models": [
+            "gpt-5.5-2026-04-24"
+          ],
+          "parameters_not_recorded_at_call_time": [
+            "base_url",
+            "extra_body",
+            "send_temperature"
+          ],
+          "cache_sha256": "9552d137e73fb35b2455ef21c1ad5dec1aa8e0de098e14580ed1df7006cc3985",
+          "vote_file_sha256": "a7ee787bf5d23d5fe868e453bca7e1e96dbb7e6791cd3843539d3b2353dfd268",
+          "interpretation": "Exact v5 prompt/cache response match and recorded parameters agree; unknown parameters not backfilled. This is NOT a v6 vote."
+        }
+      }
+    },
+    "oracle-tune": {
+      "generation_sha256": "bad8308887be1cfe183dbbf9c9185bd33ce3e808ba7b703779514f082d04b3d3",
+      "cells_sha256": "5da4a09444b7adfb0d1be94b365669a4a4a16823e856b59757974724789699a3",
+      "cells_exactly_match_generation": true,
+      "n_cells": 2304,
+      "max_answer_chars": 254,
+      "all_predictions_fully_present_in_v5_prompt": true,
+      "judges": {
+        "pro": {
+          "vote_rows": 2304,
+          "placeholders": 0,
+          "verified_axis_cache_links": 4608,
+          "unique_cache_keys_used": 1080,
+          "cache_rows_in_file": 1080,
+          "failures": [],
+          "uncached_transient_failures": [],
+          "qa_sha_marked_backfilled_rows": 2304,
+          "provider_reported_resolved_models": [
+            "deepseek-v4-pro"
+          ],
+          "parameters_not_recorded_at_call_time": [
+            "base_url",
+            "extra_body",
+            "send_temperature"
+          ],
+          "cache_sha256": "1c6ca4d5ee41793e56b5e5d4bff6e731f2e3c71c53e27ae895ef0aa48980cda2",
+          "vote_file_sha256": "bbbd916e5192d6c4984e93524df3ab544cae78d2228b6ee9f5ab55d1ad93a027",
+          "interpretation": "Exact v5 prompt/cache response match and recorded parameters agree; unknown parameters not backfilled. This is NOT a v6 vote."
+        },
+        "gpt": {
+          "vote_rows": 384,
+          "placeholders": 0,
+          "verified_axis_cache_links": 768,
+          "unique_cache_keys_used": 224,
+          "cache_rows_in_file": 224,
+          "failures": [],
+          "uncached_transient_failures": [],
+          "qa_sha_marked_backfilled_rows": 0,
+          "provider_reported_resolved_models": [
+            "gpt-5.5-2026-04-24"
+          ],
+          "parameters_not_recorded_at_call_time": [
+            "base_url",
+            "extra_body",
+            "send_temperature"
+          ],
+          "cache_sha256": "354069cba1c46a91274079d1a80893ac1cd01b707e33d40f8234faae356750ec",
+          "vote_file_sha256": "8cf6f3ce79adbf2dc8547c992fe8c022143a70bc4bd4597abcca8c766e4c0427",
+          "interpretation": "Exact v5 prompt/cache response match and recorded parameters agree; unknown parameters not backfilled. This is NOT a v6 vote."
+        }
+      }
+    }
+  }
+}

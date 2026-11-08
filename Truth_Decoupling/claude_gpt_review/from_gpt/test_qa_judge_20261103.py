@@ -19,7 +19,7 @@ CODE_DIR = Path(__file__).resolve().parents[1] / "from_claude" / "code"
 sys.path.insert(0, str(CODE_DIR))
 
 from core.io_utils import stable_hash
-from core.judge import LLMJudge, QA_GRADER_SYSTEM, QA_GRADER_VERSION
+from core.judge import LLMJudge, QA_GRADER_SYSTEM, QA_GRADER_VERSION,request_cache_key
 
 
 class CapturingJudge(LLMJudge):
@@ -28,6 +28,10 @@ class CapturingJudge(LLMJudge):
     def __init__(self, raw="A"):
         self.raw = raw
         self.prompts = []
+        self.model = 'offline-capture'
+        self.review_queue_path = None
+        self._queued = set()
+        self.n_judge_abstained = 0
 
     def complete(self, system, user):
         self.prompts.append((system, user))
@@ -48,7 +52,7 @@ class QAJudgeRubricTests(unittest.TestCase):
         return judge.prompts[0], result
 
     def test_version_and_legacy_letter_parsing_are_preserved(self):
-        self.assertEqual(QA_GRADER_VERSION, "qa_semantic_v3")
+        self.assertEqual(QA_GRADER_VERSION, "qa_semantic_v4_judge_may_abstain")
         self.assertEqual(LLMJudge.qa_rubric_id, QA_GRADER_VERSION)
         fixtures = [
             ("A", "correct"),
@@ -78,7 +82,7 @@ class QAJudgeRubricTests(unittest.TestCase):
             captured = CapturingJudge()
             captured.qa_grade("Question", ["Gold"], "Prediction")
             system, user = captured.prompts[0]
-            key = stable_hash("offline-same-judge", system, user, length=24)
+            key = request_cache_key("offline-same-judge", system, user)
             bad = {"key": key, "model": "offline-same-judge", "answer": "Answer: A"}
             path.write_text(json.dumps(bad) + "\n")
             first = LLMJudge("offline-same-judge", api_key="offline-test-only",
@@ -200,7 +204,7 @@ class QAJudgeRubricTests(unittest.TestCase):
         )
         (system, user), result = self.capture()
         legacy_key = stable_hash("offline-judge", legacy_system, legacy_user, length=24)
-        current_key = stable_hash("offline-judge", system, user, length=24)
+        current_key = request_cache_key("offline-judge", system, user)
         self.assertNotEqual(current_key, legacy_key)
         self.assertNotEqual(system, legacy_system)
         self.assertEqual(system, QA_GRADER_SYSTEM)

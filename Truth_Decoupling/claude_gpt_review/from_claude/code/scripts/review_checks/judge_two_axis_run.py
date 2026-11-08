@@ -14,7 +14,7 @@ usage (RUN_DIR holds the generation file, e.g. an e42 tune.json; everything is w
 Files in RUN_DIR/judge2/: cells.jsonl (one row per question x condition), allenai.jsonl, pro.jsonl, gpt.jsonl,
 disputes.jsonl, final.jsonl, human_queue.jsonl, human_verdicts.jsonl, summary.json / summary.md, meta.json,
 cache/judge2_cache_<model>.jsonl (API replies). API keys come from DEEPSEEK_API_KEY_FILE / XIAOAI_API_KEY_FILE.
-Config: configs/judges/two_axis_v5.json (override with --config or TD_JUDGE2_CONFIG).
+Config: configs/judges/two_axis_v6.json (override with --config or TD_JUDGE2_CONFIG).
 """
 import argparse
 import hashlib
@@ -23,14 +23,17 @@ import os
 import random
 import sys
 import time
+from pathlib import Path
 from collections import Counter, OrderedDict
 
 CODE_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
 sys.path.insert(0, CODE_ROOT)
 from core.io_utils import read_jsonl, write_jsonl, append_jsonl, atomic_json_dump  # noqa: E402
 from core.judge_two_axis import (TWO_AXIS_VERSION, LABELS, LABEL_NAMES, TRUTH_VALUES, INFO_VALUES, TwoAxisLLMJudge,  # noqa: E402
-                                 adjudicate_cell, allenai_votes, info_binary, judge_own_label, coarse, qa_sha, cell_axes)
+                                 adjudicate_cell, allenai_votes, info_binary, judge_own_label, coarse, qa_sha, cell_axes,
+                                 ADJUDICATION_VERSION, normalize_human_verdict, parse_truth, parse_info)
 from core.qa_scoring import reference_answers  # noqa: E402
+from core.judge_two_axis_contract import canonical_sha, file_sha, cell_sha, judge_contract
 
 J2 = "judge2"
 JUDGES = ("allenai", "pro", "gpt")
@@ -48,56 +51,152 @@ def j2dir(run_dir):
 
 
 def sha256_file(path):
-    return hashlib.sha256(open(path, "rb").read()).hexdigest()
+    return file_sha(path)
+
+
+def _read_json(path):
+    def unique(items):
+        result={}
+        for key,value in items:
+            if key in result:raise ValueError('duplicate JSON key: '+key)
+            result[key]=value
+        return result
+    def invalid(value):raise ValueError('nonfinite JSON constant: '+value)
+    return json.loads(Path(path).read_text(encoding='utf-8'),object_pairs_hook=unique,parse_constant=invalid)
 
 
 def load_cfg(path=None):
-    path = path or os.environ.get("TD_JUDGE2_CONFIG") or os.path.join(CODE_ROOT, "configs", "judges", "two_axis_v5.json")
-    cfg = json.load(open(path, encoding="utf-8"))
+    path = path or os.environ.get("TD_JUDGE2_CONFIG") or os.path.join(CODE_ROOT, "configs", "judges", "two_axis_v6.json")
+    cfg = _read_json(path)
     if cfg.get("version") != TWO_AXIS_VERSION:
         raise SystemExit("config version %r does not match the code's rubric %r" % (cfg.get("version"), TWO_AXIS_VERSION))
     return cfg
 
 
 def _rows(path):
-    return OrderedDict((r["cell_id"], r) for r in read_jsonl(path)) if os.path.exists(path) else OrderedDict()
-
-
-def _cells(run_dir):
-    path = os.path.join(j2dir(run_dir), "cells.jsonl")
-    if not os.path.exists(path):
-        raise SystemExit("no cells.jsonl: run `cells` first")
-    return list(read_jsonl(path))
-
-
-def _human_verdicts(run_dir):
-    """Last verdict per cell wins (append-only file)."""
-    out = {}
-    path = os.path.join(j2dir(run_dir), "human_verdicts.jsonl")
+    out=OrderedDict()
     if os.path.exists(path):
         for r in read_jsonl(path):
-            out[r["cell_id"]] = r
+            cid=r.get('cell_id')
+            if not isinstance(cid,str) or not cid or cid in out:
+                raise ValueError('missing/duplicate cell_id in '+str(path))
+            out[cid]=r
     return out
 
 
-def _verify_rows(rows, cells):
-    """Judge rows against the current cells (red team finding 4): a row whose cell id is gone is dropped; a row without
-    qa_sha (graded before the sha existed) is backfilled and accepted; a row whose qa_sha differs from the current
-    (question, answer) is stale and returned separately - the caller re-grades or refuses to proceed."""
+def _derive_cells(data):
+    if data.get('completed') is not True:
+        raise ValueError('generation must be explicitly complete')
+    conds=data.get('conditions');rows=data.get('evaluations')
+    if (not isinstance(conds,list) or not conds or any(not isinstance(c,str) or not c for c in conds)
+            or len(set(conds))!=len(conds) or not isinstance(rows,list) or not rows):
+        raise ValueError('nonempty unique conditions and evaluation rows required')
+    cells=[];seen=set()
+    for row in rows:
+        pid=row.get('pair_id');question=row.get('question');gold=row.get('gold');incorrect=row.get('incorrect') or []
+        if not isinstance(pid,str) or not pid or pid in seen or '|' in pid:
+            raise ValueError('missing/duplicate/ambiguous question identifier')
+        seen.add(pid)
+        if not isinstance(question,str) or not question.strip():raise ValueError('missing question')
+        if not isinstance(gold,list) or not gold or any(not isinstance(g,str) or not g.strip() for g in gold):
+            raise ValueError('nonempty reference-answer list required')
+        if not isinstance(incorrect,list) or any(not isinstance(g,str) for g in incorrect):raise ValueError('invalid incorrect references')
+        if not isinstance(row.get('outputs'),dict) or set(row['outputs'])!=set(conds):raise ValueError('missing/extra output arms')
+        finished=row.get('finished')
+        if finished is not None and (set(finished)!=set(conds) or any(type(v) is not bool for v in finished.values())):
+            raise ValueError('invalid completion flags')
+        refs,only_refusal=reference_answers(gold,question=question)
+        for condition in conds:
+            if '|' in condition:raise ValueError('ambiguous condition identifier')
+            pred=row['outputs'][condition]
+            if not isinstance(pred,str):raise ValueError('non-string generated answer')
+            cell={'cell_id':pid+'|'+condition,'pair_id':pid,'condition':condition,'question':question,
+                  'gold':list(gold),'gold_refs':refs,'gold_is_abstention':only_refusal,'incorrect':incorrect,
+                  'best_answer':row.get('best_answer'),'prediction':pred,
+                  'rule_abstain':bool((row.get('rule_abstain') or {}).get(condition,False)),
+                  'finished':finished[condition] if finished is not None else None,
+                  'unicode_replacement':'\ufffd' in pred,'audit':False}
+            cell['input_sha']=cell_sha(cell);cell['qa_sha']=qa_sha(question,pred)
+            cells.append(cell)
+    return cells
+
+
+def _workspace(run_dir):
+    out=j2dir(run_dir);mp=os.path.join(out,'meta.json');cp=os.path.join(out,'cells.jsonl')
+    if not os.path.exists(mp) or not os.path.exists(cp):raise ValueError('run cells first in a fresh grading workspace')
+    meta=_read_json(mp)
+    if meta.get('version')!=TWO_AXIS_VERSION or meta.get('pipeline_version')!=ADJUDICATION_VERSION:
+        raise ValueError('legacy grading workspace: preserve it and use a fresh directory; no automatic hash backfill')
+    gen=(Path(run_dir)/meta['generation']).resolve()
+    gen.relative_to(Path(run_dir).resolve())
+    if file_sha(gen)!=meta['generation_sha256'] or file_sha(cp)!=meta['cells_sha256']:
+        raise ValueError('generation or cells changed after preparation')
+    raw=_read_json(gen);expected=_derive_cells(raw)
+    audit=meta.get('audit') or {};eligible=sorted(c['cell_id'] for c in expected if not c['gold_is_abstention'] and c['prediction'].strip())
+    n=audit.get('requested_n')
+    if type(n) is not int or n<0 or type(audit.get('seed')) is not int:raise ValueError('invalid frozen audit design')
+    chosen=set(random.Random(audit['seed']).sample(eligible,min(n,len(eligible))))
+    if sorted(chosen)!=audit.get('cell_ids'):raise ValueError('audit sample changed')
+    for c in expected:c['audit']=c['cell_id'] in chosen
+    cells=list(_rows(cp).values())
+    if (cells!=expected or meta['conditions']!=raw['conditions'] or meta['model']!=raw.get('model')
+            or meta['n_cells']!=len(cells) or meta['n_questions']!=len(raw['evaluations'])):
+        raise ValueError('cells/model/cohort are not derived from this exact generation')
+    return meta,cells,raw
+
+
+def _cells(run_dir):
+    return _workspace(run_dir)[1]
+
+
+def _human_verdicts(run_dir,cells=None):
+    """Explicit content-bound human decisions apply to every identical request."""
+    cells=_cells(run_dir) if cells is None else cells
+    by_id={c['cell_id']:c for c in cells};by_content={};out={}
+    path = os.path.join(j2dir(run_dir), "human_verdicts.jsonl")
+    if os.path.exists(path):
+        for r in read_jsonl(path):
+            c=by_id.get(r.get('cell_id'))
+            if (c is None or r.get('input_sha')!=cell_sha(c)
+                    or r.get('version')!=ADJUDICATION_VERSION
+                    or not isinstance(r.get('reviewed_input'),dict)
+                    or cell_sha(r['reviewed_input'])!=r.get('input_sha')
+                    or not isinstance(r.get('by'),str) or not r['by'].strip()):
+                raise ValueError('unbound/stale human decision; re-review its original content, do not backfill')
+            normalized=normalize_human_verdict(r)
+            if normalized!=r:raise ValueError('human axes are incomplete or were not stored explicitly')
+            by_content[r['input_sha']]=r
+    for c in cells:
+        if c['input_sha'] in by_content:out[c['cell_id']]=by_content[c['input_sha']]
+    return out
+
+
+def _verify_rows(rows, cells, judge_name=None, cfg=None):
+    """No identity is inferred for old ballots: missing request/source bindings are stale."""
     by_id = {c["cell_id"]: c for c in cells}
     out, stale, legacy, orphans = OrderedDict(), [], 0, 0
+    signature=canonical_sha(judge_contract(judge_name,cfg)) if judge_name and cfg is not None else None
     for cid, r in rows.items():
         c = by_id.get(cid)
         if c is None:
-            orphans += 1
-            continue
+            raise ValueError('judge row belongs to a different cohort: '+cid)
         expected = qa_sha(c["question"], c["prediction"])
-        if r.get("qa_sha") is None:
-            r = dict(r, qa_sha=expected, qa_sha_backfilled=True)
-            legacy += 1
-        elif r["qa_sha"] != expected:
+        if (r.get('input_sha')!=cell_sha(c) or r.get('qa_sha')!=expected
+                or (signature is not None and r.get('judge_contract_sha')!=signature)):
             stale.append(cid)
             continue
+        if judge_name in ('pro','gpt'):
+            if r.get('model')!=cfg[judge_name]['model'] or r.get('rubric')!=TWO_AXIS_VERSION or r.get('judge')!=judge_name:
+                stale.append(cid);continue
+            placeholder=r.get('empty_output') or r.get('skipped_abstention_gold')
+            if placeholder:
+                if not ((r.get('empty_output') and not c['prediction'].strip()) or
+                        (r.get('skipped_abstention_gold') and c['gold_is_abstention'])):
+                    raise ValueError('placeholder vote applied to real answer')
+            elif r.get('truth')!=parse_truth(r.get('truth_raw')) or r.get('info')!=parse_info(r.get('info_raw')):
+                raise ValueError('stored vote differs from its raw verdict')
+        elif judge_name=='allenai' and not r.get('unscorable'):
+            allenai_votes(r,cfg['allenai']['threshold'])
         out[cid] = r
     return out, {"stale": stale, "legacy_backfilled": legacy, "orphans_dropped": orphans}
 
@@ -110,41 +209,32 @@ def _active(cells):
 
 # ----------------------------------------------------------------------------- cells
 def build_cells(run_dir, generation="tune.json", audit_n=50, audit_seed=0):
-    gen_path = os.path.join(run_dir, generation)
-    data = json.load(open(gen_path, encoding="utf-8"))
-    if not data.get("completed"):
-        raise SystemExit("generation incomplete: %s" % gen_path)
-    conds = list(data["conditions"])
-    if len(set(conds)) != len(conds):
-        raise SystemExit("duplicate condition names")
-    cells = []
-    for row in data["evaluations"]:
-        refs, only_refusal = reference_answers(row["gold"])
-        for c in conds:
-            pred = row["outputs"][c]
-            if not isinstance(pred, str):
-                raise SystemExit("non-string output for %s/%s" % (row["pair_id"], c))
-            cells.append({"cell_id": "%s|%s" % (row["pair_id"], c), "pair_id": row["pair_id"], "condition": c,
-                          "question": row["question"], "gold": list(row["gold"]), "gold_refs": refs,
-                          "gold_is_abstention": only_refusal, "incorrect": list(row.get("incorrect") or []),
-                          "best_answer": row.get("best_answer"), "prediction": pred,
-                          "rule_abstain": bool((row.get("rule_abstain") or {}).get(c, False)), "audit": False})
-    ids = [c["cell_id"] for c in cells]
-    if len(set(ids)) != len(ids):
-        raise SystemExit("duplicate cell ids (duplicate pair_id?)")
-    pool = sorted(c["cell_id"] for c in cells if not c["gold_is_abstention"] and c["prediction"].strip())
-    audit = set(random.Random(audit_seed).sample(pool, min(audit_n, len(pool))))
-    for c in cells:
-        c["audit"] = c["cell_id"] in audit
-    out = j2dir(run_dir)
-    write_jsonl(cells, os.path.join(out, "cells.jsonl"))
-    meta = {"version": TWO_AXIS_VERSION, "generation": generation, "generation_sha256": sha256_file(gen_path),
-            "model": data.get("model"), "conditions": conds, "n_questions": len(data["evaluations"]), "n_cells": len(cells),
-            "n_unique_question_answer": len({(c["question"], c["prediction"]) for c in cells}),
-            "n_empty_outputs": sum(not c["prediction"].strip() for c in cells),
-            "n_abstention_only_gold_questions": sum(1 for r in data["evaluations"] if reference_answers(r["gold"])[1]),
-            "audit": {"n": len(audit), "seed": audit_seed, "cell_ids": sorted(audit)}, "ts": _now()}
-    atomic_json_dump(meta, os.path.join(out, "meta.json"))
+    if type(audit_n) is not int or audit_n<0 or type(audit_seed) is not int:
+        raise ValueError('audit size/seed must be explicit integers')
+    gen_path=(Path(run_dir)/generation).resolve()
+    relative=gen_path.relative_to(Path(run_dir).resolve())
+    data=_read_json(gen_path);cells=_derive_cells(data)
+    pool=sorted(c['cell_id'] for c in cells if not c['gold_is_abstention'] and c['prediction'].strip())
+    audit=set(random.Random(audit_seed).sample(pool,min(audit_n,len(pool))))
+    for c in cells:c['audit']=c['cell_id'] in audit
+    out=j2dir(run_dir);cp=os.path.join(out,'cells.jsonl');mp=os.path.join(out,'meta.json')
+    if os.path.exists(cp) or os.path.exists(mp):
+        old,previous,_=_workspace(run_dir)
+        if previous!=cells or old['audit'].get('requested_n')!=audit_n or old['audit']['seed']!=audit_seed:
+            raise ValueError('frozen generation/audit changed: use a fresh run directory; existing votes are preserved')
+        return old
+    write_jsonl(cells,cp)
+    meta={'version':TWO_AXIS_VERSION,'pipeline_version':ADJUDICATION_VERSION,
+          'generation':str(relative),'generation_sha256':file_sha(gen_path),'cells_sha256':file_sha(cp),
+          'model':data.get('model'),'conditions':list(data['conditions']),
+          'n_questions':len(data['evaluations']),'n_cells':len(cells),
+          'n_unique_question_answer':len({(c['question'],c['prediction']) for c in cells}),
+          'n_unique_semantic_requests':len({c['input_sha'] for c in cells}),
+          'n_empty_outputs':sum(not c['prediction'].strip() for c in cells),
+          'n_abstention_only_gold_questions':sum(reference_answers(r['gold'],question=r['question'])[1] for r in data['evaluations']),
+          'cohort_policy':'substantive_gold_only; this is a filtered cohort, not the full original TruthfulQA benchmark',
+          'audit':{'n':len(audit),'requested_n':audit_n,'seed':audit_seed,'cell_ids':sorted(audit)},'ts':_now()}
+    atomic_json_dump(meta,mp)
     return meta
 
 
@@ -153,25 +243,38 @@ def run_llm(run_dir, judge_name, cfg, only=None, judge=None, log_every=50):
     """Grade cells with one LLM judge (two questions each). Resumable: cells already holding two valid letters under
     the current rubric are kept; a D is valid. `only='disputes'` restricts to disputes.jsonl plus the audit sample."""
     out = j2dir(run_dir)
-    cells = _cells(run_dir)
+    meta,cells,_ = _workspace(run_dir)
+    code_before=_aggregation_code()
     jcfg = cfg[judge_name]
-    judge = judge or TwoAxisLLMJudge(jcfg, cache_dir=os.path.join(out, "cache"), name=judge_name)
     target = cells
     if only == "disputes":
         dpath = os.path.join(out, "disputes.jsonl")
         if not os.path.exists(dpath):
             raise SystemExit("no disputes.jsonl: run `disputes` first")
-        disp = {r["cell_id"] for r in read_jsonl(dpath)}
+        _verify_dispute_manifest(run_dir,cfg)
+        disp = set(_rows(dpath))
         target = [c for c in cells if c["cell_id"] in disp or c["audit"]]
     path = os.path.join(out, judge_name + ".jsonl")
-    done, vstats = _verify_rows(_rows(path), cells)      # stale rows are dropped here and re-graded below
+    contract=judge_contract(judge_name,cfg);signature=canonical_sha(contract)
+    done, vstats = _verify_rows(_rows(path), cells,judge_name,cfg)
+    if vstats['stale'] and os.path.exists(path):
+        archive=path+'.stale-'+file_sha(path)[:16]+'.jsonl'
+        if not os.path.exists(archive):Path(archive).write_bytes(Path(path).read_bytes())
+    def bound(g,c,rule_placeholder=False):
+        if g.get('judge')!=judge_name or g.get('model')!=jcfg['model'] or g.get('rubric')!=TWO_AXIS_VERSION:
+            raise ValueError('judge returned a foreign model/rubric identity')
+        if not rule_placeholder and (g.get('judge_contract_sha')!=signature
+                or g.get('qa_sha')!=qa_sha(c['question'],c['prediction'])):
+            raise ValueError('judge returned a different executed request contract or answer identity')
+        return dict(g,cell_id=c['cell_id'],qa_sha=qa_sha(c['question'],c['prediction']),
+                    input_sha=cell_sha(c),judge_contract_sha=signature)
     n_new, n_skipped, t0 = 0, 0, time.time()
     for i, c in enumerate(target):
         cid = c["cell_id"]
         sha = qa_sha(c["question"], c["prediction"])
         if c["gold_is_abstention"]:
-            done[cid] = {"cell_id": cid, "judge": judge_name, "model": jcfg["model"], "rubric": TWO_AXIS_VERSION, "qa_sha": sha,
-                         "skipped_abstention_gold": True, "truth_raw": "<skipped>", "truth": None, "info_raw": "<skipped>", "info": None}
+            done[cid] = bound({"judge": judge_name, "model": jcfg["model"], "rubric": TWO_AXIS_VERSION,
+                         "skipped_abstention_gold": True, "truth_raw": "<skipped>", "truth": None, "info_raw": "<skipped>", "info": None},c,True)
             n_skipped += 1
             continue
         prev = done.get(cid)
@@ -179,41 +282,69 @@ def run_llm(run_dir, judge_name, cfg, only=None, judge=None, log_every=50):
                 and prev.get("truth") in VALID_T and prev.get("info") in VALID_I):
             continue
         if not c["prediction"].strip():
-            done[cid] = {"cell_id": cid, "judge": judge_name, "model": jcfg["model"], "rubric": TWO_AXIS_VERSION, "qa_sha": sha,
-                         "truth_raw": "<empty_output>", "truth": "T", "info_raw": "<empty_output>", "info": "R", "empty_output": True}
+            done[cid] = bound({"judge": judge_name, "model": jcfg["model"], "rubric": TWO_AXIS_VERSION,
+                         "truth_raw": "<empty_output>", "truth": "T", "info_raw": "<empty_output>", "info": "R", "empty_output": True},c,True)
             continue
+        if judge is None:
+            judge=TwoAxisLLMJudge(jcfg,cache_dir=os.path.join(out,'cache'),name=judge_name)
+        if getattr(judge,'judge_contract_sha',None)!=signature:
+            raise ValueError('supplied judge client does not match the declared request contract')
         g = judge.grade(c["question"], c["gold_refs"], c["prediction"], c["incorrect"] or None)
-        g["cell_id"] = cid
-        done[cid] = g
+        done[cid] = bound(g,c)
         n_new += 1
         if n_new % log_every == 0:
             write_jsonl(list(done.values()), path)
             print("[%s] %s %d/%d graded, %d new calls, %d cache hits (%.0fs)" % (
                 time.strftime("%H:%M:%S"), judge_name, i + 1, len(target), judge.llm.n_calls, judge.llm.n_cache_hits,
                 time.time() - t0), flush=True)
+    if _workspace(run_dir)[0]!=meta or _aggregation_code()!=code_before:
+        raise RuntimeError('source generation/cells or executing code changed during grading; no complete manifest written')
     write_jsonl(list(done.values()), path)
+    judge_meta={'version':ADJUDICATION_VERSION,'judge':judge_name,'judge_contract':contract,
+                     'judge_contract_sha':signature,'cells_sha256':file_sha(os.path.join(out,'cells.jsonl')),
+                     'generation_sha256':meta['generation_sha256'],'rows_sha256':file_sha(path)}
+    mp=os.path.join(out,judge_name+'_meta.json')
+    previous_meta=_read_json(mp) if os.path.exists(mp) else {}
+    if {k:v for k,v in previous_meta.items() if k!='ts'}!=judge_meta:
+        atomic_json_dump({**judge_meta,'ts':_now()},mp)
     graded = [done[c["cell_id"]] for c in target if c["cell_id"] in done and not done[c["cell_id"]].get("skipped_abstention_gold")]
     tr = Counter(r.get("truth") for r in graded)
     ir = Counter(r.get("info") for r in graded)
     summary = {"judge": judge_name, "model": jcfg["model"], "n_target": len(target), "n_graded": len(graded),
                "n_skipped_abstention_gold": n_skipped, "n_no_verdict": sum(r.get("truth") not in VALID_T or r.get("info") not in VALID_I for r in graded),
-               "truth_letters": dict(tr), "info_letters": dict(ir), "api_calls": judge.llm.n_calls,
-               "cache_hits": judge.llm.n_cache_hits, "stale_regraded": len(vstats["stale"]), "legacy_rows_backfilled": vstats["legacy_backfilled"],
+               "truth_letters": dict(tr), "info_letters": dict(ir), "api_calls": judge.llm.n_calls if judge else 0,
+               "cache_hits": judge.llm.n_cache_hits if judge else 0, "stale_regraded": len(vstats["stale"]), "legacy_rows_backfilled": vstats["legacy_backfilled"],
                "seconds": round(time.time() - t0, 1)}
     return summary
 
 
 # ----------------------------------------------------------------------------- disputes / adjudication
-def _load_judges(run_dir, cells, required=("allenai", "pro")):
+def _load_judges(run_dir, cells, cfg, required=("allenai", "pro"), names=JUDGES):
     """All judge files, verified against the current cells. A stale row (graded on another answer) is fatal here:
     these steps cannot re-grade, the user must re-run that judge's step."""
     out = j2dir(run_dir)
+    workspace_meta=_workspace(run_dir)[0]
     judges, stats = {}, {}
-    for n in JUDGES:
-        rows, st = _verify_rows(_rows(os.path.join(out, n + ".jsonl")), cells)
+    for n in names:
+        path=os.path.join(out,n+'.jsonl')
+        rows, st = _verify_rows(_rows(path), cells,n,cfg)
         if st["stale"]:
             raise SystemExit("%s.jsonl: %d rows were graded on a different answer than the current cells (e.g. %s); "
                              "re-run the `%s` step" % (n, len(st["stale"]), st["stale"][:3], n))
+        if rows:
+            mp=os.path.join(out,n+'_meta.json')
+            if not os.path.exists(mp):raise ValueError(n+' vote manifest missing')
+            meta=_read_json(mp)
+            if (meta.get('rows_sha256')!=file_sha(path)
+                    or meta.get('cells_sha256')!=file_sha(os.path.join(out,'cells.jsonl'))
+                    or meta.get('generation_sha256')!=workspace_meta['generation_sha256']
+                    or meta.get('judge_contract_sha')!=canonical_sha(judge_contract(n,cfg))):
+                raise ValueError(n+' vote manifest/parameters differ; finish or rerun its grading step')
+            if n=='allenai':
+                runtime=meta.get('runtime_sha')
+                if (not runtime or canonical_sha(meta.get('runtime_identity'))!=runtime
+                        or any(r.get('runtime_sha')!=runtime for r in rows.values())):
+                    raise ValueError('AllenAI rows mix unverified model/tokenizer runtimes')
         judges[n], stats[n] = rows, st
     for n in required:
         if not judges[n]:
@@ -221,10 +352,25 @@ def _load_judges(run_dir, cells, required=("allenai", "pro")):
     return judges, stats
 
 
+def _dispute_sources(run_dir):
+    out=j2dir(run_dir)
+    return {n:file_sha(os.path.join(out,n)) for n in ('meta.json','cells.jsonl','allenai.jsonl','allenai_meta.json','pro.jsonl','pro_meta.json')}
+
+
+def _verify_dispute_manifest(run_dir,cfg):
+    out=j2dir(run_dir);mp=os.path.join(out,'disputes_manifest.json')
+    if not os.path.exists(mp):raise ValueError('missing frozen dispute selection; recompute disputes')
+    m=_read_json(mp)
+    if (m.get('sources')!=_dispute_sources(run_dir) or m.get('disputes_sha256')!=file_sha(os.path.join(out,'disputes.jsonl'))
+            or m.get('threshold')!=cfg['allenai']['threshold'] or m.get('version')!=ADJUDICATION_VERSION):
+        raise ValueError('dispute selection was made from different inputs/votes')
+    return m
+
+
 def compute_disputes(run_dir, cfg, allow_unresolved_pro=False):
     cells = _cells(run_dir)
     active = _active(cells)
-    j, _ = _load_judges(run_dir, cells)
+    j, _ = _load_judges(run_dir, cells,cfg,names=('allenai','pro'))
     thr = cfg["allenai"]["threshold"]
     missing = [c["cell_id"] for c in active if c["cell_id"] not in j["allenai"] or c["cell_id"] not in j["pro"]]
     if missing:
@@ -235,18 +381,25 @@ def compute_disputes(run_dir, cfg, allow_unresolved_pro=False):
                   and (j["pro"][c["cell_id"]].get("truth") not in VALID_T or j["pro"][c["cell_id"]].get("info") not in VALID_I)]
     if no_verdict and not allow_unresolved_pro:
         raise SystemExit("%d Pro rows have no verdict (e.g. %s): re-run `llm --judge pro` (it retries), or pass "
-                         "--allow-unresolved-pro to let GPT fill in" % (len(no_verdict), no_verdict[:3]))
+                         "--allow-unresolved-pro to export only the other valid disputes; GPT cannot replace the missing Pro vote" % (len(no_verdict), no_verdict[:3]))
     disputes, stats = [], Counter()
     for c in active:
+        if c['cell_id'] in no_verdict:
+            stats['status_needs_pro']+=1
+            continue
         rec = adjudicate_cell(c, allenai=j["allenai"][c["cell_id"]], pro=j["pro"][c["cell_id"]], gpt=None, threshold=thr)
         stats["truth_" + rec["truth_basis"]] += 1
         stats["info_" + rec["info_basis"]] += 1
         stats["status_" + rec["status"]] += 1
         if rec["status"] == "needs_gpt" or c["audit"]:
             disputes.append({"cell_id": c["cell_id"], "reason": "disagreement" if rec["status"] == "needs_gpt" else "audit",
+                             "input_sha":c['input_sha'],'mandatory_human':rec['status']=='needs_human',
                              "audit": c["audit"], "votes_truth": rec["votes_truth"], "votes_info": rec["votes_info"],
                              "info_subtypes": rec["info_subtypes"]})
     write_jsonl(disputes, os.path.join(j2dir(run_dir), "disputes.jsonl"))
+    atomic_json_dump({'version':ADJUDICATION_VERSION,'sources':_dispute_sources(run_dir),
+                     'threshold':thr,'disputes_sha256':file_sha(os.path.join(j2dir(run_dir),'disputes.jsonl'))},
+                    os.path.join(j2dir(run_dir),'disputes_manifest.json'))
     summary = {"n_cells": len(cells), "n_active": len(active), "n_excluded_abstention_gold": len(cells) - len(active),
                "n_pro_no_verdict": len(no_verdict), "n_to_gpt": len(disputes),
                "n_disagreement": sum(d["reason"] == "disagreement" for d in disputes),
@@ -305,30 +458,91 @@ def _agreement(cells, judges, humans, thr):
         if not hcells:
             continue
         for name in names:
-            pairs = []
+            pairs = [];human_truth=[];human_info=[]
             for c in hcells:
                 t, i, sub = votes(name, c["cell_id"])
                 own = judge_own_label(t, sub if name != "allenai" else i)
                 if own is not None:
                     h = humans[c["cell_id"]]["label"]
                     pairs.append((coarse(own), coarse(h)) if name == "allenai" else (own, h))
-            out["vs_human"]["%s/%s" % (name, sk)] = dict(_rate(pairs), coarse_labels=(name == "allenai"))
-        pairs = []
+                hr=normalize_human_verdict(humans[c['cell_id']])
+                if t:human_truth.append((t,hr['truth']))
+                if i:human_info.append((i,hr['info']))
+            out["vs_human"]["%s/%s" % (name, sk)] = dict(_rate(pairs), coarse_labels=(name == "allenai"),
+                truth=_rate(human_truth),info=_rate(human_info),n_human_cells=len(hcells))
+        pairs = [];pipeline_truth=[];pipeline_info=[]
         for c in hcells:
             rec = adjudicate_cell(c, allenai=judges.get("allenai", {}).get(c["cell_id"]), pro=judges.get("pro", {}).get(c["cell_id"]),
                                   gpt=judges.get("gpt", {}).get(c["cell_id"]), human=None, threshold=thr)
             if rec["label"] is not None:
                 pairs.append((rec["label"], humans[c["cell_id"]]["label"]))
-        out["vs_human"]["pipeline_without_human/%s" % sk] = dict(_rate(pairs), n_human_cells=len(hcells))
+                t,i=cell_axes(rec);hr=normalize_human_verdict(humans[c['cell_id']])
+                pipeline_truth.append((t,hr['truth']));pipeline_info.append((i,hr['info']))
+        out["vs_human"]["pipeline_without_human/%s" % sk] = dict(_rate(pairs), n_human_cells=len(hcells),
+            truth=_rate(pipeline_truth),info=_rate(pipeline_info),
+            automatic_resolution_fraction=len(pairs)/len(hcells) if hcells else None,
+            matches_over_all_human_cells=sum(a==b for a,b in pairs)/len(hcells) if hcells else None)
     return out
+
+
+def _final_sources(run_dir):
+    out=j2dir(run_dir)
+    names=('meta.json','cells.jsonl','allenai.jsonl','allenai_meta.json','pro.jsonl','pro_meta.json',
+           'gpt.jsonl','gpt_meta.json','human_verdicts.jsonl')
+    return {n:file_sha(os.path.join(out,n)) if os.path.exists(os.path.join(out,n)) else None for n in names}
+
+
+def _aggregation_code():
+    paths={'scripts/review_checks/judge_two_axis_run.py':__file__}
+    for rel in ('core/judge_two_axis.py','core/judge.py','core/judge_two_axis_contract.py','core/qa_scoring.py','core/io_utils.py'):
+        paths[rel]=os.path.join(CODE_ROOT,rel)
+    return {rel:file_sha(path) for rel,path in paths.items()}
+
+
+def load_verified_final(run_dir,generation_path,require_complete=True):
+    """Return (meta, cells_by_id, finals_by_id), with content/source validation.
+
+    Completeness means all active semantic decisions are resolved. A still
+    pending random human audit is separately reported, never called validated.
+    """
+    meta,cells,raw=_workspace(run_dir);out=j2dir(run_dir)
+    if file_sha(generation_path)!=meta['generation_sha256']:raise ValueError('analysis generation differs from grading generation')
+    mp=os.path.join(out,'final_manifest.json');fp=os.path.join(out,'final.jsonl')
+    if not os.path.exists(mp):raise ValueError('no verified final manifest; adjudicate current votes first')
+    manifest=_read_json(mp)
+    if (manifest.get('version')!=ADJUDICATION_VERSION or manifest.get('rubric')!=TWO_AXIS_VERSION
+            or manifest.get('sources')!=_final_sources(run_dir) or manifest.get('final_sha256')!=file_sha(fp)
+            or manifest.get('generation_sha256')!=meta['generation_sha256']
+            or manifest.get('aggregation_code')!=_aggregation_code()):
+        raise ValueError('final decisions or any of their source files changed; adjudicate again')
+    finals=_rows(fp);by_id={c['cell_id']:c for c in cells}
+    if list(finals)!=list(by_id):raise ValueError('final output has missing, reordered or foreign cells')
+    seen={}
+    for cid,c in by_id.items():
+        r=finals[cid]
+        if (r.get('input_sha')!=cell_sha(c) or r.get('pair_id')!=c['pair_id']
+                or r.get('condition')!=c['condition'] or r.get('gold_is_abstention') is not c['gold_is_abstention']
+                or r.get('adjudication_version')!=ADJUDICATION_VERSION):
+            raise ValueError('final content/cohort identity changed')
+        if c['gold_is_abstention']:
+            if r.get('status')!='excluded_abstention_gold' or r.get('label') is not None:raise ValueError('excluded cohort decision inconsistent')
+            continue
+        if r.get('status')!='final':
+            if require_complete:raise ValueError('unresolved semantic decision; finish mandatory judging/human review')
+            continue
+        axes=cell_axes(r);value=(r['label'],*axes,r['info_subtype'])
+        if c['input_sha'] in seen and seen[c['input_sha']]!=value:raise ValueError('same semantic request has inconsistent final decisions')
+        seen[c['input_sha']]=value
+    return {**meta,'final_verification':manifest},by_id,finals
 
 
 def adjudicate(run_dir, cfg):
     out = j2dir(run_dir)
     cells = _cells(run_dir)
-    meta = json.load(open(os.path.join(out, "meta.json"), encoding="utf-8"))
-    judges, vstats = _load_judges(run_dir, cells)
-    humans = _human_verdicts(run_dir)
+    sources_before=_final_sources(run_dir);code_before=_aggregation_code()
+    meta = _read_json(os.path.join(out,'meta.json'))
+    judges, vstats = _load_judges(run_dir, cells,cfg)
+    humans = _human_verdicts(run_dir,cells)
     thr = cfg["allenai"]["threshold"]
     finals, queue = [], []
     for c in cells:
@@ -337,21 +551,36 @@ def adjudicate(run_dir, cfg):
             finals.append({"cell_id": cid, "pair_id": c["pair_id"], "condition": c["condition"], "audit": c["audit"],
                            "gold_is_abstention": True, "label": None, "source": None, "status": "excluded_abstention_gold",
                            "votes_truth": {}, "votes_info": {}, "info_subtypes": {}, "truth": None, "info": None,
-                           "subtype_disputed": False, "judges_label": None})
+                           "subtype_disputed": False, "judges_label": None,'input_sha':c['input_sha'],
+                           'adjudication_version':ADJUDICATION_VERSION})
             continue
         if cid not in judges["allenai"] or cid not in judges["pro"]:
             raise SystemExit("cell %s lacks an AllenAI or Pro grade; run `allenai` / `llm --judge pro` first" % cid)
         rec = adjudicate_cell(c, allenai=judges["allenai"].get(cid), pro=judges["pro"].get(cid), gpt=judges["gpt"].get(cid),
                               human=humans.get(cid), threshold=thr)
-        rec.update(pair_id=c["pair_id"], condition=c["condition"], audit=c["audit"], gold_is_abstention=False)
+        rec.update(pair_id=c["pair_id"], condition=c["condition"], audit=c["audit"], gold_is_abstention=False,
+                   input_sha=c['input_sha'])
         finals.append(rec)
-        needs = rec["status"] in ("needs_gpt", "needs_human")
+        needs = rec["status"] in ("needs_gpt", "needs_human",'needs_pro')
         if (needs or c["audit"]) and cid not in humans:
             queue.append({"cell_id": cid, "reason": "audit" if not needs else rec["status"], "pair_id": c["pair_id"],
                           "condition": c["condition"], "question": c["question"], "gold": c["gold"], "incorrect": c["incorrect"],
                           "best_answer": c.get("best_answer"), "prediction": c["prediction"],
                           "votes_truth": rec["votes_truth"], "votes_info": rec["votes_info"], "info_subtypes": rec["info_subtypes"],
-                          "judges_label": rec["judges_label"]})
+                          "judges_label": rec["judges_label"],'input_sha':c['input_sha'],
+                          'finished':c['finished'],'unicode_replacement':c['unicode_replacement'],
+                          'review_reason':rec.get('review_reason')})
+    # A condition's name cannot change the verdict for the identical semantic
+    # input. Human rulings are already broadcast by content, never by method.
+    seen={}
+    for rec in finals:
+        if rec['status']=='final':
+            value=(rec['label'],*cell_axes(rec),rec.get('info_subtype'))
+            if rec['input_sha'] in seen and seen[rec['input_sha']]!=value:
+                raise ValueError('identical full semantic inputs received conflicting final decisions')
+            seen[rec['input_sha']]=value
+    if _final_sources(run_dir)!=sources_before or _aggregation_code()!=code_before:
+        raise RuntimeError('votes, human decisions, or code changed during adjudication; rerun on a stable snapshot')
     write_jsonl(finals, os.path.join(out, "final.jsonl"))
     write_jsonl(queue, os.path.join(out, "human_queue.jsonl"))
     # summary: per condition, over cells with substantive gold (the analysis denominator). Rates come from the resolved
@@ -363,12 +592,27 @@ def adjudicate(run_dir, cfg):
         axes = [cell_axes(r) for r in fin]
         cnt = Counter(r["label"] for r in rs)
         n, nf = len(rs), len(fin)
+        known={'true':sum(t=='T' for t,_ in axes),'info':sum(i=='S' for _,i in axes),
+               'true_info':sum(r['label']=='A' for r in fin),
+               'refusal_behavior':sum(r['info_subtype']=='R' for r in fin),
+               'noninformative_nonrefusal_behavior':sum(r['info_subtype']=='H' for r in fin)}
+        complete=n==nf
+        cr=[c for c in cells if c['condition']==cond and not c['gold_is_abstention']]
+        by_cell={r['cell_id']:r for r in fin}
         per_cond[cond] = {"n": n, "n_final": nf, **{LABEL_NAMES[k] + "_" + k: cnt.get(k, 0) for k in LABELS},
                           "unresolved": cnt.get(None, 0),
-                          "true_rate": sum(t == "T" for t, _ in axes) / nf if nf else None,
-                          "info_rate": sum(i == "S" for _, i in axes) / nf if nf else None,
-                          "true_info_rate": sum(r["label"] == "A" for r in fin) / nf if nf else None,
-                          "rates_denominator": "resolved cells (n_final)"}
+                          **{k+'_rate':v/n if n and complete else None for k,v in known.items()},
+                          'fixed_cohort_bounds':{k:[v/n,(v+n-nf)/n] if n else None for k,v in known.items()},
+                          'resolved_only_rates_diagnostic':{k:v/nf if nf else None for k,v in known.items()},
+                          'false_noninformative_count':sum(t=='F' and i=='N' for t,i in axes),
+                          'refusal_behavior_count':known['refusal_behavior'],
+                          'noninformative_nonrefusal_behavior_count':known['noninformative_nonrefusal_behavior'],
+                          'completion_status_missing':sum(c['finished'] is None for c in cr),
+                          'unfinished_outputs':sum(c['finished'] is False for c in cr),
+                          'replacement_outputs':sum(c['unicode_replacement'] for c in cr),
+                          'unfinished_A':sum(c['finished'] is False and by_cell.get(c['cell_id'],{}).get('label')=='A' for c in cr),
+                          'replacement_A':sum(c['unicode_replacement'] and by_cell.get(c['cell_id'],{}).get('label')=='A' for c in cr),
+                          "rates_denominator": "fixed active cohort n; point rates withheld while unresolved"}
     src = Counter(r["source"] for r in finals)
     status = Counter(r["status"] for r in finals)
     summary = {"version": TWO_AXIS_VERSION, "model": meta.get("model"), "generation_sha256": meta["generation_sha256"],
@@ -379,6 +623,13 @@ def adjudicate(run_dir, cfg):
                "judge_rows_verified": vstats, "label_sources": dict(src),
                "subtype_disputed": sum(bool(r["subtype_disputed"]) for r in finals),
                "per_condition": per_cond, "agreement": _agreement(cells, judges, humans, thr), "ts": _now()}
+    summary.update(adjudication_version=ADJUDICATION_VERSION,
+                   n_needs_pro=status.get('needs_pro',0),
+                   semantic_decisions_complete=all(r['status'] in ('final','excluded_abstention_gold') for r in finals),
+                   human_audit_complete=all(c['cell_id'] in humans for c in cells if c['audit']),
+                   agreement_scope='Cell-weighted descriptive agreement; unresolved/missing votes are reported separately. Partial human audit is not an unbiased completed audit.',
+                   evaluation_scope='Exploratory project grading: strict LLM information criterion and original-trained AllenAI proxy are not identical annotation standards; no claim of validated human equivalence or full original TruthfulQA comparability.',
+                   human_review_context='The current review queue shows votes and condition names. Human rulings are assisted adjudication, not independently blinded benchmark labels; random sampling alone does not remove that annotation bias.')
     atomic_json_dump(summary, os.path.join(out, "summary.json"))
     lines = ["# 两维判分汇总 — %s（%s）" % (meta.get("model"), TWO_AXIS_VERSION), "",
              "格数 %d（金标只有拒答、不计 %d）；已定 %d；待 GPT %d；待人工 %d（人工队列 %d 条，含抽检）；人工已判 %d。" % (
@@ -391,7 +642,7 @@ def adjudicate(run_dir, cfg):
             cond, s["n"], s["n_final"], s["true_informative_A"], s["false_B"], s["refusal_C"], s["hedge_H"], s["unresolved"],
             f(s["true_rate"]), f(s["info_rate"]), f(s["true_info_rate"])))
     lines.append("")
-    lines.append("True / Info / True·Info 的分母是已定格；True 与 Info 按解决后的两个轴算（假的含糊回答：标签 B、信息量轴记为无）。")
+    lines.append("主比率以固定题数n为分母，存在未决时不显示点比率；JSON另报固定分母上下界与明确标记的已定子集诊断。True/Info按两轴分别算，不由标签B猜信息量。C/H列是终判类别，不是全部拒答/含糊行为率（假的同类行为落在B）；完整行为计数按子类另存JSON。人工抽检未完成时不得称已通过人审验证。")
     ag = summary["agreement"]
     lines += ["", "裁判两两一致率（真 / 有信息量轴；all = 两方都投了票的格，audit = 固定抽检样本）："]
     for k, v in ag["pairwise"].items():
@@ -404,7 +655,15 @@ def adjudicate(run_dir, cfg):
             lines.append("- %s：n=%d 一致 %s κ %s" % (k, v["n"], "—" if v["agreement"] is None else "%.3f" % v["agreement"],
                                                    "—" if v["kappa"] is None else "%.2f" % v["kappa"]))
     md = "\n".join(lines) + "\n"
-    open(os.path.join(out, "summary.md"), "w", encoding="utf-8").write(md)
+    Path(out,'summary.md').write_text(md,encoding='utf-8')
+    if _final_sources(run_dir)!=sources_before or _aggregation_code()!=code_before:
+        raise RuntimeError('adjudication source changed while summarizing; final manifest not published')
+    atomic_json_dump({'version':ADJUDICATION_VERSION,'rubric':TWO_AXIS_VERSION,'sources':sources_before,
+                     'generation_sha256':meta['generation_sha256'],'final_sha256':file_sha(os.path.join(out,'final.jsonl')),
+                     'judge_contracts':{n:judge_contract(n,cfg) for n in JUDGES},'aggregation_code':_aggregation_code(),
+                     'semantic_decisions_complete':summary['semantic_decisions_complete'],
+                     'human_audit_complete':summary['human_audit_complete'],'ts':_now()},
+                    os.path.join(out,'final_manifest.json'))
     return summary, md
 
 
@@ -417,15 +676,19 @@ def human_list(run_dir):
     return [r for r in rows if r["cell_id"] not in humans]
 
 
-def human_set(run_dir, cell_id, letter, by, note=None):
+def human_set(run_dir, cell_id, letter, by, note=None, truth=None, info_subtype=None):
     if letter not in LABELS:
         raise SystemExit("a human verdict is one of %s, got %r" % ("/".join(LABELS), letter))
     if not by or not str(by).strip():
         raise SystemExit("record who decided (--by)")
-    ids = {c["cell_id"] for c in _cells(run_dir)}
-    if cell_id not in ids:
+    cells={c['cell_id']:c for c in _cells(run_dir)}
+    if cell_id not in cells:
         raise SystemExit("unknown cell id %r" % cell_id)
-    row = {"cell_id": cell_id, "label": letter, "by": by, "note": note or "", "ts": _now()}
+    cell=cells[cell_id]
+    if cell['gold_is_abstention']:raise ValueError('excluded reference-only-refusal cell is not part of this grading cohort')
+    row = normalize_human_verdict({"cell_id": cell_id, "label": letter, "by": by, "note": note or "", "ts": _now(),
+           'truth':truth,'info_subtype':info_subtype,'input_sha':cell_sha(cell),'version':ADJUDICATION_VERSION,
+           'reviewed_input':{k:cell[k] for k in ('question','prediction','gold','gold_refs','incorrect','best_answer','gold_is_abstention')}})
     append_jsonl(row, os.path.join(j2dir(run_dir), "human_verdicts.jsonl"))
     return row
 
@@ -443,6 +706,7 @@ def main():
     p = sub.add_parser("adjudicate"); p.add_argument("run_dir")
     p = sub.add_parser("human"); p.add_argument("run_dir"); p.add_argument("action", choices=("list", "set"))
     p.add_argument("cell_id", nargs="?"); p.add_argument("letter", nargs="?"); p.add_argument("--by"); p.add_argument("--note")
+    p.add_argument('--truth',choices=('T','F'));p.add_argument('--info',choices=('S','H','R'),dest='info_subtype')
     a = ap.parse_args()
     cfg = load_cfg(a.config)
     if a.cmd == "cells":
@@ -467,7 +731,7 @@ def main():
         else:
             if not (a.cell_id and a.letter):
                 raise SystemExit("human set RUN_DIR CELL_ID LETTER --by WHO")
-            print(json.dumps(human_set(a.run_dir, a.cell_id, a.letter, a.by, a.note), ensure_ascii=False))
+            print(json.dumps(human_set(a.run_dir, a.cell_id, a.letter, a.by, a.note,a.truth,a.info_subtype), ensure_ascii=False))
 
 
 if __name__ == "__main__":

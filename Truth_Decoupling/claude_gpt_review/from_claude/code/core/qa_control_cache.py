@@ -40,7 +40,7 @@ def seed_control_cache(*, source_dir, run_dir, judge_config, scored_rows, condit
     for row in scored_rows:
         for condition in conditions:
             key = qa_cache_key(judge_config['model'], row['question'], row['judge_reference_answers'],
-                               row['outputs'][condition], row.get('incorrect') or None)
+                               row['outputs'][condition], row.get('incorrect') or None,config=judge_config)
             cached = source_entries.get(key, {})
             match = re.match(r'\s*\**\s*([ABC])\b', cached.get('answer', ''))
             label = {'A': 'correct', 'B': 'wrong', 'C': 'abstain'}.get(match.group(1)) if match else None

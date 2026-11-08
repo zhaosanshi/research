@@ -1,0 +1,150 @@
+{
+  "revision": "cf8f752",
+  "no_api_calls": true,
+  "source_sha256": {
+    "from_claude/code/core/judge_two_axis.py": "117c549ac61840891d3e3ae77fc0ed5610590762efd133967dd276dcd3ad40b8",
+    "from_claude/code/scripts/allenai_tqa_judge.py": "98443949ddd3f43633b4efc6ad1089de4a5014168a12dd3c561a5bdba64b8039"
+  },
+  "pro_D_routed_to_gpt_then_final_without_human": {
+    "before": {
+      "cell_id": "example",
+      "votes_truth": {
+        "allenai": "T",
+        "pro": null
+      },
+      "votes_info": {
+        "allenai": "S",
+        "pro": "S"
+      },
+      "info_subtypes": {
+        "pro": "S"
+      },
+      "truth": null,
+      "truth_basis": "insufficient",
+      "info": "S",
+      "info_basis": "agree",
+      "info_subtype": "S",
+      "subtype_disputed": false,
+      "refusal_guard": false,
+      "judges_label": null,
+      "label": null,
+      "source": null,
+      "status": "needs_gpt"
+    },
+    "after": {
+      "cell_id": "example",
+      "votes_truth": {
+        "allenai": "T",
+        "pro": null,
+        "gpt": "T"
+      },
+      "votes_info": {
+        "allenai": "S",
+        "pro": "S",
+        "gpt": "S"
+      },
+      "info_subtypes": {
+        "pro": "S",
+        "gpt": "S"
+      },
+      "truth": "T",
+      "truth_basis": "agree",
+      "info": "S",
+      "info_basis": "agree",
+      "info_subtype": "S",
+      "subtype_disputed": false,
+      "refusal_guard": false,
+      "judges_label": "A",
+      "label": "A",
+      "source": "judges:allenai,pro,gpt",
+      "status": "final"
+    }
+  },
+  "human_B_changes_info_axis_without_changing_label": {
+    "machine_axes": [
+      "F",
+      "N"
+    ],
+    "human_axes": [
+      "F",
+      "S"
+    ],
+    "machine": {
+      "cell_id": "example",
+      "votes_truth": {
+        "allenai": "F",
+        "pro": "F"
+      },
+      "votes_info": {
+        "allenai": "N",
+        "pro": "N"
+      },
+      "info_subtypes": {
+        "pro": "H"
+      },
+      "truth": "F",
+      "truth_basis": "agree",
+      "info": "N",
+      "info_basis": "agree",
+      "info_subtype": "H",
+      "subtype_disputed": false,
+      "refusal_guard": false,
+      "judges_label": "B",
+      "label": "B",
+      "source": "judges:allenai,pro",
+      "status": "final"
+    },
+    "human": {
+      "cell_id": "example",
+      "votes_truth": {
+        "allenai": "F",
+        "pro": "F"
+      },
+      "votes_info": {
+        "allenai": "N",
+        "pro": "N"
+      },
+      "info_subtypes": {
+        "pro": "H"
+      },
+      "truth": "F",
+      "truth_basis": "agree",
+      "info": "N",
+      "info_basis": "agree",
+      "info_subtype": "H",
+      "subtype_disputed": false,
+      "refusal_guard": false,
+      "judges_label": "B",
+      "label": "B",
+      "source": "human",
+      "status": "final",
+      "human": {
+        "label": "B",
+        "by": "synthetic-reviewer"
+      }
+    }
+  },
+  "noninformative_truth_changes_label_based_answer_eligibility": {
+    "true_noninformative_label": "H",
+    "false_noninformative_label": "B",
+    "info_axes_both_N": true
+  },
+  "nonverdict_prefixes_parsed_as_verdict": {
+    "Truthfulness: F": "T",
+    "Falsehood is not asserted.": "F",
+    "True or false? F": "T"
+  },
+  "nan_probabilities_silently_vote": [
+    "F",
+    "N"
+  ],
+  "allenai_prefix_clipping": {
+    "different_full_answers_same_800_char_prompt": true,
+    "different_full_qa_identity": true,
+    "LLM_receives_different_text": true,
+    "answer_lengths": [
+      819,
+      820
+    ]
+  }
+}

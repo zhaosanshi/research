@@ -1,0 +1,49 @@
+{
+  "reviewed_commit": "cf8f752245e0265b20fdab65b2d24de0339e0383",
+  "publication_base": "5563bd8be3536755b614e876b9c82ccc21a2d06e",
+  "mac": {
+    "tests": 85,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "report": "mac_tests_final.json"
+  },
+  "server": {
+    "tests": 85,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "report": "server_tests_final.json"
+  },
+  "identical_test_ids_and_sources": true,
+  "source_files_compared": 233,
+  "publication_code_matches_tested_code": true,
+  "syntax": {
+    "python_ast": 174,
+    "shell_syntax": 40,
+    "json_parse": 19
+  },
+  "additional_existing_checks": {
+    "two_axis_direct_assertions": 91,
+    "two_axis_pipeline_cases": 12,
+    "legacy_human_checks": 27,
+    "overlap_warning": "12 pipeline cases are also included in the 85; do not add counts as independent checks."
+  },
+  "real_gpu_smoke": {
+    "answers": 3,
+    "grader_models": 2,
+    "forwards": 6,
+    "probabilities_identical": 12,
+    "greedy_labels_identical": 6,
+    "long_text_over_limit_forwards": 0,
+    "report": "semantics/allenai_smoke/comparison.json"
+  },
+  "preserved_initial_failure": {
+    "report": "server_tests_old_fixture_failure.json",
+    "reason": "Two synthetic test judges lacked the newly required request/input identity. Updated only those test doubles, then reran all 85; production validation was not weakened."
+  },
+  "new_experiment_generations": 0,
+  "new_paid_judge_calls": 0,
+  "new_human_verdicts": 0,
+  "scope_limit": "Relevant QA judging/selection regression only, not a rerun of all 426 prior model experiment checks; execution correctness is not semantic judge accuracy."
+}

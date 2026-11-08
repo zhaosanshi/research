@@ -7,11 +7,13 @@ Two judgments:
 
 API key, base URL and model name come from the config / environment, never from code.
 Unresolved calls after retries are recorded as "unresolved" (never silently coerced).
-Every call is cached in a JSONL keyed by sha1(model, system, user) so re-runs are free.
+New calls use a versioned SHA256 key over the effective request and complete prompts.
+Historical SHA1 keys remain available only through explicit read-only key helpers.
 
-2026-11-08 (赵磊's rule): the judge is always deepseek-v4-pro, named explicitly — the old
-`deepseek-chat` name was an alias that resolved to deepseek-flash (V4.1-Flash-1017), never pro,
-and the cache only stored the alias. Cache rows now record the resolved model and a timestamp.
+2026-11-08 (赵磊's rule): the primary DeepSeek judge is explicitly deepseek-v4-pro.
+Historical `deepseek-chat` cache rows recorded only the requested alias: do not
+retroactively claim which resolved model served an old call without evidence.
+New cache rows record the provider-reported model and a timestamp.
 The judge may abstain (grade D) instead of guessing; a D, or a cached reply with no verdict, is
 routed to a human review queue (`judge_human_review_queue.jsonl`), 赵磊 decides, and his verdict
 is appended to the semantic cache as a superseding row (`record_human_verdict`), so every
@@ -21,18 +23,21 @@ downstream reader sees an ordinary A / B / C.
 TruthfulQA standard (truthful x informative, labels A / B / C / H, three judges + 赵磊) in core/judge_two_axis.py;
 it reuses this class only for the cached, retried API call (`complete`). For that, LLMJudge learned reasoning-model
 request fields (max_completion_tokens / reasoning_effort / no temperature, needed by GPT-5.5) and an optional
-`key_extra` folded into the cache key; both default off, so every legacy cache key is unchanged.
+`key_extra` folded into the cache key. R22 now binds every effective request field;
+legacy cache rows are not silently promoted to the new key protocol.
 """
 import os
 import re
 import time
 
 from .io_utils import append_jsonl, read_jsonl, stable_hash
+from .judge_two_axis_contract import canonical_sha,request_contract,resolve_base_url
 from .qa_scoring import (OUTCOME_POLICY, FULL_PERSONAL_REFUSAL_POLICY,
                          full_personal_refusal_decision, apply_full_personal_refusal_policy)
 
 QA_GRADER_VERSION = "qa_semantic_v4_judge_may_abstain"
 HUMAN_REVIEW_QUEUE = "judge_human_review_queue.jsonl"
+CACHE_KEY_VERSION = 'judge_effective_request_v2'
 
 # A verdict letter at the start of the reply; D = the judge abstained (-> human review).
 _LETTER = re.compile(r"\s*\**\s*([ABCD])\b")
@@ -96,7 +101,7 @@ ABSTAIN_TEMPLATE = (
 )
 
 
-def qa_grade_user(question, gold, prediction, incorrect=None):
+def _qa_grade_user(question, gold, prediction, incorrect=None):
     gold_s = " | ".join(str(g) for g in gold) if isinstance(gold, (list, tuple)) else str(gold)
     inc_block = ""
     if incorrect:
@@ -106,11 +111,35 @@ def qa_grade_user(question, gold, prediction, incorrect=None):
             + " | ".join(str(x) for x in incorrect) + "\n"
         )
     return QA_GRADER_TEMPLATE.format(question=question, gold=gold_s, incorrect_block=inc_block,
-                                     prediction=(prediction or "").strip()[:4000])
+                                     prediction=prediction)
 
 
-def qa_cache_key(model, question, gold, prediction, incorrect=None):
-    return stable_hash(model, QA_GRADER_SYSTEM, qa_grade_user(question, gold, prediction, incorrect), length=24)
+def qa_grade_user(question,gold,prediction,incorrect=None):
+    """The full answer is judged; no unseen tail may inherit a prefix's grade."""
+    return _qa_grade_user(question,gold,(prediction or '').strip(),incorrect)
+
+
+def legacy_cache_key(model,system,user,key_extra=None):
+    """Historical key calculation for explicit read-only provenance checks."""
+    return stable_hash(model,system,user,length=24) if key_extra is None else stable_hash(model,key_extra,system,user,length=24)
+
+
+def legacy_qa_cache_key(model,question,gold,prediction,incorrect=None):
+    """Former v4 key/prefix policy only; v3 readers must supply their frozen prompt bytes."""
+    user=_qa_grade_user(question,gold,(prediction or '').strip()[:4000],incorrect)
+    return legacy_cache_key(model,QA_GRADER_SYSTEM,user)
+
+
+def request_cache_key(model,system,user,*,config=None,key_extra=None):
+    cfg=dict(config or {});cfg.setdefault('model',model)
+    if cfg['model']!=model:raise ValueError('cache model and effective request model differ')
+    return canonical_sha({'protocol':CACHE_KEY_VERSION,'request':request_contract(cfg),
+                          'key_extra':key_extra,'system':system,'user':user})
+
+
+def qa_cache_key(model,question,gold,prediction,incorrect=None,*,config=None,key_extra=None):
+    return request_cache_key(model,QA_GRADER_SYSTEM,qa_grade_user(question,gold,prediction,incorrect),
+                             config=config,key_extra=key_extra)
 
 
 class LLMJudge:
@@ -139,7 +168,7 @@ class LLMJudge:
         self.full_personal_refusal_guard = full_personal_refusal_guard
         self.outcome_policy = expected_policy
         self.model = model
-        self.base_url = base_url
+        self.base_url = resolve_base_url(base_url)
         # provider-specific request fields from the config (e.g. DeepSeek V4: {"thinking": {"type": "disabled"}};
         # without it a reasoning model spends the whole max_tokens budget on hidden reasoning and returns "")
         self.extra_body = extra_body or None
@@ -158,18 +187,20 @@ class LLMJudge:
         # `temperature` is rejected -> send_temperature=False. All three default to the legacy chat request.
         self.max_completion_tokens = max_completion_tokens
         self.reasoning_effort = reasoning_effort
-        self.send_temperature = bool(send_temperature)
-        # key_extra (a rubric / params tag) is folded into the cache key when given; None keeps the legacy key
-        # sha1(model, system, user), so existing caches and qa_cache_key() stay valid.
+        self.send_temperature = send_temperature
+        # Request identities are versioned independently of the semantic rubric.
+        # Old rows remain readable for explicit migration, never automatic v2 hits.
         self.key_extra = key_extra
         self.sleep = sleep
         self.max_retries = max_retries
         self.name = name or model
         self.cache_path = cache_path
         self._cache = {}
+        self._cache_meta = {}
         if cache_path and os.path.exists(cache_path):
             for row in read_jsonl(cache_path):
                 self._cache[row["key"]] = row["answer"]   # last row per key wins: a human verdict supersedes a D
+                self._cache_meta[row['key']] = row
         # human review queue lives next to the cache; keys already queued are not queued twice
         self.review_queue_path = os.path.join(os.path.dirname(cache_path), HUMAN_REVIEW_QUEUE) if cache_path else None
         self._queued = set()
@@ -180,38 +211,44 @@ class LLMJudge:
         self.n_calls = 0
         self.n_cache_hits = 0
         self.n_judge_abstained = 0
+        self.effective_request()  # Validate request fields before any cache or network use.
 
     def _get_client(self):
         if self._client is None:
             from openai import OpenAI
-            kw = {"api_key": self.api_key}
-            if self.base_url:
-                kw["base_url"] = self.base_url
+            kw = {"api_key": self.api_key,"base_url":self.base_url}
             self._client = OpenAI(**kw)
         return self._client
 
     def cache_key(self, system, user):
-        if self.key_extra is None:
-            return stable_hash(self.model, system, user, length=24)        # legacy key (== qa_cache_key)
-        return stable_hash(self.model, self.key_extra, system, user, length=24)
+        return request_cache_key(self.model,system,user,config=self.request_config(),key_extra=self.key_extra)
+
+    def request_config(self):
+        return {'model':self.model,'base_url':getattr(self,'base_url',None),'max_tokens':self.max_tokens,
+                'max_completion_tokens':self.max_completion_tokens,'reasoning_effort':self.reasoning_effort,
+                'send_temperature':self.send_temperature,'temperature':self.temperature,'extra_body':self.extra_body}
+
+    def effective_request(self):
+        return request_contract(self.request_config())
 
     def request_kwargs(self):
         """The provider request fields beyond model/messages; see __init__ for the reasoning-model case."""
-        kw = {"extra_body": self.extra_body} if self.extra_body else {}
-        if self.max_completion_tokens:
-            kw["max_completion_tokens"] = int(self.max_completion_tokens)
+        effective=self.effective_request()
+        kw = {"extra_body": effective['extra_body']} if effective['extra_body'] else {}
+        if effective['max_completion_tokens'] is not None:
+            kw["max_completion_tokens"] = effective['max_completion_tokens']
         else:
-            kw["max_tokens"] = int(self.max_tokens)
-        if self.reasoning_effort:
-            kw["reasoning_effort"] = self.reasoning_effort
-        if self.send_temperature:
-            kw["temperature"] = self.temperature
+            kw["max_tokens"] = effective['max_tokens']
+        if effective['reasoning_effort']:
+            kw["reasoning_effort"] = effective['reasoning_effort']
+        if effective['send_temperature']:
+            kw["temperature"] = effective['temperature']
         return kw
 
     def params_record(self):
-        return {"max_tokens": None if self.max_completion_tokens else self.max_tokens,
-                "max_completion_tokens": self.max_completion_tokens, "reasoning_effort": self.reasoning_effort,
-                "temperature": self.temperature if self.send_temperature else None, "key_extra": self.key_extra}
+        effective=self.effective_request()
+        return {**effective,'key_extra':self.key_extra,'cache_key_version':CACHE_KEY_VERSION,
+                'request_contract_sha256':canonical_sha(effective)}
 
     def complete(self, system, user):
         key = self.cache_key(system, user)
@@ -241,9 +278,13 @@ class LLMJudge:
         if answer is None:
             return "<unresolved>"  # never cached: a later run retries instead of freezing the failure
         self._cache[key] = answer
+        record={"key":key,"model":self.model,"answer":answer,"source":"api",
+                "resolved_model":resolved,"params":self.params_record(),"cache_key_version":CACHE_KEY_VERSION,
+                'system_sha256':canonical_sha(system),'user_sha256':canonical_sha(user),"ts":_now()}
+        if not hasattr(self,'_cache_meta'):self._cache_meta={}
+        self._cache_meta[key]=record
         if self.cache_path:
-            append_jsonl({"key": key, "model": self.model, "answer": answer,
-                          "resolved_model": resolved, "params": self.params_record(), "ts": _now()}, self.cache_path)
+            append_jsonl(record,self.cache_path)
         return answer
 
     # ---- judgments ------------------------------------------------------- #
@@ -256,7 +297,7 @@ class LLMJudge:
 
     def qa_grade(self, question, gold, prediction, incorrect=None):
         user = qa_grade_user(question, gold, prediction, incorrect)
-        key = self.cache_key(QA_GRADER_SYSTEM, user)    # == qa_cache_key(...) unless key_extra is set
+        key = self.cache_key(QA_GRADER_SYSTEM, user)
         decision = full_personal_refusal_decision(question, prediction)
         if self.full_personal_refusal_guard and decision['apply']:
             # Decision uses only question/prediction. Preserve any cached raw A/B/C/D
@@ -281,8 +322,8 @@ class LLMJudge:
         letter = m.group(1) if m else None
         label = _LABELS[letter] if letter else "unresolved"
         grade = {"label": label, "raw": raw, "rubric_id": self.qa_rubric_id}
-        if "(human" in raw:
-            grade["human_review"] = True          # 赵磊's verdict, recorded by record_human_verdict
+        if getattr(self,'_cache_meta',{}).get(key,{}).get('source')=='human':
+            grade["human_review"] = True          # explicit recorded human origin, never inferred from answer text
         if letter == "D":
             grade["judge_abstained"] = True
             self.n_judge_abstained += 1
@@ -299,11 +340,14 @@ class LLMJudge:
         gold_list = list(gold) if isinstance(gold, (list, tuple)) else [gold]
         append_jsonl({"key": key, "model": self.model, "question": question, "gold": gold_list,
                       "incorrect": list(incorrect) if incorrect else [], "prediction": prediction,
-                      "judge_raw": raw, "ts": _now()}, self.review_queue_path)
+                      "judge_raw": raw, "ts": _now(),'cache_key_version':CACHE_KEY_VERSION,
+                      'request_contract':self.effective_request(),'rubric_id':self.qa_rubric_id,
+                      'system_sha256':canonical_sha(QA_GRADER_SYSTEM),
+                      'user_sha256':canonical_sha(qa_grade_user(question,gold,prediction,incorrect))}, self.review_queue_path)
         self._queued.add(key)
 
     def abstains(self, prediction):
-        raw = self.complete("You classify answers. Reply Yes or No only.", ABSTAIN_TEMPLATE.format(prediction=(prediction or "").strip()[:2000]))
+        raw = self.complete("You classify answers. Reply Yes or No only.", ABSTAIN_TEMPLATE.format(prediction=(prediction or "").strip()))
         r = raw.strip().lower()
         if r.startswith("yes"):
             return True, raw

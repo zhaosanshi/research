@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Human review of judge abstentions (赵磊's rule, 2026-11-08).
 
-  list CACHE_DIR                      pending items: queued by the judge (D / no verdict) and not yet
-                                      superseded by a human row in the semantic cache; JSON lines
+  list CACHE_DIR                      queued items whose latest semantic cache row is still D / no verdict;
+                                      a valid machine retry also resolves the queue, without claiming human review
   set  CACHE_DIR KEY LETTER --by WHO  record a verdict (A / B / C) as a superseding cache row
 
 Workflow: the judge (core/judge.py) appends to CACHE_DIR/judge_human_review_queue.jsonl whenever
@@ -15,7 +15,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
-from core.judge import HUMAN_REVIEW_QUEUE, cache_filename, record_human_verdict  # noqa: E402
+from core.judge import HUMAN_REVIEW_QUEUE, cache_filename, record_human_verdict, _LETTER  # noqa: E402
 from core.io_utils import read_jsonl  # noqa: E402
 
 
@@ -39,8 +39,14 @@ def pending(cache_dir):
         if q["model"] not in latest:
             latest[q["model"]] = _latest_answers(cache_dir, q["model"])
         cur = latest[q["model"]].get(q["key"])
-        if cur is not None and cur.get("source") == "human":
-            continue
+        if cur is not None:
+            answer=cur.get('answer')
+            verdict=_LETTER.match(answer) if isinstance(answer,str) else None
+            # A retried malformed response can become a valid machine verdict.
+            # It is then resolved, without inventing a human decision. D and
+            # malformed replies remain pending regardless of a source tag.
+            if verdict and verdict.group(1) in ('A','B','C'):
+                continue
         out.append(q)
     return out
 

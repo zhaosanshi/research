@@ -1,0 +1,189 @@
+{
+  "scope": "CPU executions of existing production functions with synthetic artifacts/stub judge; no source modification, network or actual human judgment",
+  "findings": [
+    {
+      "id": "stale_human_applies_to_changed_answer",
+      "reproduced": true,
+      "observed": {
+        "new_answer": "Berlin.",
+        "machine_verdict": "B",
+        "final": "A",
+        "human_record": {
+          "q0|method": {
+            "cell_id": "q0|method",
+            "label": "A",
+            "by": "fixture-reviewer",
+            "note": "",
+            "ts": "2026-11-08T14:35:18+0800"
+          }
+        }
+      }
+    },
+    {
+      "id": "missing_identity_backfilled_without_evidence",
+      "reproduced": true,
+      "observed": {
+        "accepted_old_grade": {
+          "q0|method": {
+            "cell_id": "q0|method",
+            "truth": "T",
+            "info": "S",
+            "rubric": "qa_two_axis_v5",
+            "model": "old-model",
+            "qa_sha": "378447edd76f0a32",
+            "qa_sha_backfilled": true
+          }
+        },
+        "statistics": {
+          "stale": [],
+          "legacy_backfilled": 1,
+          "orphans_dropped": 0
+        }
+      }
+    },
+    {
+      "id": "model_changed_but_old_judge_votes_reused",
+      "reproduced": true,
+      "observed": {
+        "calls_to_new_model": 0,
+        "summary_model": "new-model",
+        "row_model": "old-model"
+      }
+    },
+    {
+      "id": "references_changed_but_old_truth_vote_reused",
+      "reproduced": true,
+      "observed": {
+        "calls_after_reference_change": 0,
+        "current_reference": [
+          "Changed reference with a different truth claim"
+        ]
+      }
+    },
+    {
+      "id": "E42_accepts_old_final_after_cells_meta_rebuild",
+      "reproduced": true,
+      "observed": {
+        "new_answer": "Berlin.",
+        "old_terminal_label_applied_as": "correct"
+      }
+    },
+    {
+      "id": "progress_summary_uses_different_resolved_denominators",
+      "reproduced": true,
+      "observed": {
+        "per_condition": {
+          "stable": {
+            "n": 2,
+            "n_final": 2,
+            "true_informative_A": 1,
+            "false_B": 1,
+            "refusal_C": 0,
+            "hedge_H": 0,
+            "unresolved": 0,
+            "true_rate": 0.5,
+            "info_rate": 1.0,
+            "true_info_rate": 0.5,
+            "rates_denominator": "resolved cells (n_final)"
+          },
+          "pending": {
+            "n": 2,
+            "n_final": 1,
+            "true_informative_A": 1,
+            "false_B": 0,
+            "refusal_C": 0,
+            "hedge_H": 0,
+            "unresolved": 1,
+            "true_rate": 1.0,
+            "info_rate": 1.0,
+            "true_info_rate": 1.0,
+            "rates_denominator": "resolved cells (n_final)"
+          }
+        },
+        "E42_correctly_blocks_unresolved_main_analysis": true
+      }
+    },
+    {
+      "id": "E42_counts_false_uninformative_hedge_as_substantive_answer",
+      "reproduced": true,
+      "observed": {
+        "two_axis_info_rate": 0,
+        "E42_answered": 1,
+        "final": {
+          "cell_id": "q0|baseline",
+          "votes_truth": {
+            "allenai": "F",
+            "pro": "F"
+          },
+          "votes_info": {
+            "allenai": "N",
+            "pro": "N"
+          },
+          "info_subtypes": {
+            "pro": "H"
+          },
+          "truth": "F",
+          "truth_basis": "agree",
+          "info": "N",
+          "info_basis": "agree",
+          "info_subtype": "H",
+          "subtype_disputed": false,
+          "refusal_guard": false,
+          "judges_label": "B",
+          "label": "B",
+          "source": "judges:allenai,pro",
+          "status": "final",
+          "pair_id": "q0",
+          "condition": "baseline",
+          "audit": false,
+          "gold_is_abstention": false
+        }
+      }
+    },
+    {
+      "id": "duplicate_judge_ids_silently_last_wins",
+      "reproduced": true,
+      "observed": {
+        "input_rows": 2,
+        "retained_rows": 1,
+        "retained_truth": "F"
+      }
+    },
+    {
+      "id": "E42_claimed_zscore_mean_is_raw_mean",
+      "reproduced": true,
+      "observed": {
+        "coordinate_matrix": [
+          [
+            100.0,
+            0.0
+          ],
+          [
+            90.0,
+            10.0
+          ],
+          [
+            0.0,
+            1.0
+          ]
+        ],
+        "actual_selected": "a",
+        "within_question_zscore_selected": "b"
+      }
+    },
+    {
+      "id": "legacy_E42_accepts_grade_of_different_output",
+      "reproduced": true,
+      "observed": {
+        "current_answer": "Paris.",
+        "grade_answer": "different answer"
+      }
+    }
+  ],
+  "n_reproduced": 10,
+  "source_sha256": {
+    "from_claude/code/scripts/review_checks/judge_two_axis_run.py": "4ae4b58630351875458490187440d7c65f4105e2630bb1eb5a448103ecca9ce9",
+    "from_claude/code/scripts/review_checks/e42_analysis.py": "3cdff43a268bf69bca2cb24ea9b5e258aa0893c2f6ff049770341d51bf3f29b5",
+    "from_claude/code/scripts/e42_qa_oracle_and_select.py": "ae4f4ebb739fc162a557d8675a519dc7eda9f84bd89785ffc2fc1ad92f351619"
+  }
+}
