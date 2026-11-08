@@ -1,0 +1,895 @@
+{
+  "version": "qa_two_axis_v6",
+  "model": "llama3.1-8b",
+  "generation_sha256": "bad8308887be1cfe183dbbf9c9185bd33ce3e808ba7b703779514f082d04b3d3",
+  "n_cells": 2304,
+  "n_excluded_abstention_gold": 0,
+  "n_final": 2304,
+  "n_needs_gpt": 0,
+  "n_needs_human": 0,
+  "n_human_queue": 49,
+  "n_human_verdicts": 176,
+  "judges_present": [
+    "allenai",
+    "pro",
+    "gpt"
+  ],
+  "judge_rows_verified": {
+    "allenai": {
+      "stale": [],
+      "legacy_backfilled": 0,
+      "orphans_dropped": 0
+    },
+    "pro": {
+      "stale": [],
+      "legacy_backfilled": 0,
+      "orphans_dropped": 0
+    },
+    "gpt": {
+      "stale": [],
+      "legacy_backfilled": 0,
+      "orphans_dropped": 0
+    }
+  },
+  "label_sources": {
+    "judges:allenai,pro": 1504,
+    "judges:allenai,pro,gpt": 352,
+    "refusal_guard": 272,
+    "human": 176
+  },
+  "subtype_disputed": 0,
+  "per_condition": {
+    "baseline": {
+      "n": 192,
+      "n_final": 192,
+      "true_informative_A": 67,
+      "false_B": 98,
+      "refusal_C": 23,
+      "hedge_H": 4,
+      "unresolved": 0,
+      "true_rate": 0.4895833333333333,
+      "info_rate": 0.8489583333333334,
+      "true_info_rate": 0.3489583333333333,
+      "refusal_behavior_rate": 0.11979166666666667,
+      "noninformative_nonrefusal_behavior_rate": 0.03125,
+      "fixed_cohort_bounds": {
+        "true": [
+          0.4895833333333333,
+          0.4895833333333333
+        ],
+        "info": [
+          0.8489583333333334,
+          0.8489583333333334
+        ],
+        "true_info": [
+          0.3489583333333333,
+          0.3489583333333333
+        ],
+        "refusal_behavior": [
+          0.11979166666666667,
+          0.11979166666666667
+        ],
+        "noninformative_nonrefusal_behavior": [
+          0.03125,
+          0.03125
+        ]
+      },
+      "resolved_only_rates_diagnostic": {
+        "true": 0.4895833333333333,
+        "info": 0.8489583333333334,
+        "true_info": 0.3489583333333333,
+        "refusal_behavior": 0.11979166666666667,
+        "noninformative_nonrefusal_behavior": 0.03125
+      },
+      "false_noninformative_count": 2,
+      "refusal_behavior_count": 23,
+      "noninformative_nonrefusal_behavior_count": 6,
+      "completion_status_missing": 0,
+      "unfinished_outputs": 4,
+      "replacement_outputs": 0,
+      "unfinished_A": 1,
+      "replacement_A": 0,
+      "rates_denominator": "fixed active cohort n; point rates withheld while unresolved"
+    },
+    "truthful_source_only": {
+      "n": 192,
+      "n_final": 192,
+      "true_informative_A": 72,
+      "false_B": 53,
+      "refusal_C": 63,
+      "hedge_H": 4,
+      "unresolved": 0,
+      "true_rate": 0.7239583333333334,
+      "info_rate": 0.6458333333333334,
+      "true_info_rate": 0.375,
+      "refusal_behavior_rate": 0.328125,
+      "noninformative_nonrefusal_behavior_rate": 0.026041666666666668,
+      "fixed_cohort_bounds": {
+        "true": [
+          0.7239583333333334,
+          0.7239583333333334
+        ],
+        "info": [
+          0.6458333333333334,
+          0.6458333333333334
+        ],
+        "true_info": [
+          0.375,
+          0.375
+        ],
+        "refusal_behavior": [
+          0.328125,
+          0.328125
+        ],
+        "noninformative_nonrefusal_behavior": [
+          0.026041666666666668,
+          0.026041666666666668
+        ]
+      },
+      "resolved_only_rates_diagnostic": {
+        "true": 0.7239583333333334,
+        "info": 0.6458333333333334,
+        "true_info": 0.375,
+        "refusal_behavior": 0.328125,
+        "noninformative_nonrefusal_behavior": 0.026041666666666668
+      },
+      "false_noninformative_count": 1,
+      "refusal_behavior_count": 63,
+      "noninformative_nonrefusal_behavior_count": 5,
+      "completion_status_missing": 0,
+      "unfinished_outputs": 7,
+      "replacement_outputs": 0,
+      "unfinished_A": 3,
+      "replacement_A": 0,
+      "rates_denominator": "fixed active cohort n; point rates withheld while unresolved"
+    },
+    "gold_source_only": {
+      "n": 192,
+      "n_final": 192,
+      "true_informative_A": 162,
+      "false_B": 2,
+      "refusal_C": 16,
+      "hedge_H": 12,
+      "unresolved": 0,
+      "true_rate": 0.9895833333333334,
+      "info_rate": 0.8541666666666666,
+      "true_info_rate": 0.84375,
+      "refusal_behavior_rate": 0.08333333333333333,
+      "noninformative_nonrefusal_behavior_rate": 0.0625,
+      "fixed_cohort_bounds": {
+        "true": [
+          0.9895833333333334,
+          0.9895833333333334
+        ],
+        "info": [
+          0.8541666666666666,
+          0.8541666666666666
+        ],
+        "true_info": [
+          0.84375,
+          0.84375
+        ],
+        "refusal_behavior": [
+          0.08333333333333333,
+          0.08333333333333333
+        ],
+        "noninformative_nonrefusal_behavior": [
+          0.0625,
+          0.0625
+        ]
+      },
+      "resolved_only_rates_diagnostic": {
+        "true": 0.9895833333333334,
+        "info": 0.8541666666666666,
+        "true_info": 0.84375,
+        "refusal_behavior": 0.08333333333333333,
+        "noninformative_nonrefusal_behavior": 0.0625
+      },
+      "false_noninformative_count": 0,
+      "refusal_behavior_count": 16,
+      "noninformative_nonrefusal_behavior_count": 12,
+      "completion_status_missing": 0,
+      "unfinished_outputs": 0,
+      "replacement_outputs": 0,
+      "unfinished_A": 0,
+      "replacement_A": 0,
+      "rates_denominator": "fixed active cohort n; point rates withheld while unresolved"
+    },
+    "oracle_dasce_L12": {
+      "n": 192,
+      "n_final": 192,
+      "true_informative_A": 67,
+      "false_B": 98,
+      "refusal_C": 23,
+      "hedge_H": 4,
+      "unresolved": 0,
+      "true_rate": 0.4895833333333333,
+      "info_rate": 0.8489583333333334,
+      "true_info_rate": 0.3489583333333333,
+      "refusal_behavior_rate": 0.11979166666666667,
+      "noninformative_nonrefusal_behavior_rate": 0.03125,
+      "fixed_cohort_bounds": {
+        "true": [
+          0.4895833333333333,
+          0.4895833333333333
+        ],
+        "info": [
+          0.8489583333333334,
+          0.8489583333333334
+        ],
+        "true_info": [
+          0.3489583333333333,
+          0.3489583333333333
+        ],
+        "refusal_behavior": [
+          0.11979166666666667,
+          0.11979166666666667
+        ],
+        "noninformative_nonrefusal_behavior": [
+          0.03125,
+          0.03125
+        ]
+      },
+      "resolved_only_rates_diagnostic": {
+        "true": 0.4895833333333333,
+        "info": 0.8489583333333334,
+        "true_info": 0.3489583333333333,
+        "refusal_behavior": 0.11979166666666667,
+        "noninformative_nonrefusal_behavior": 0.03125
+      },
+      "false_noninformative_count": 2,
+      "refusal_behavior_count": 23,
+      "noninformative_nonrefusal_behavior_count": 6,
+      "completion_status_missing": 0,
+      "unfinished_outputs": 4,
+      "replacement_outputs": 0,
+      "unfinished_A": 1,
+      "replacement_A": 0,
+      "rates_denominator": "fixed active cohort n; point rates withheld while unresolved"
+    },
+    "oracle_dasce_L20": {
+      "n": 192,
+      "n_final": 192,
+      "true_informative_A": 69,
+      "false_B": 97,
+      "refusal_C": 23,
+      "hedge_H": 3,
+      "unresolved": 0,
+      "true_rate": 0.4947916666666667,
+      "info_rate": 0.8541666666666666,
+      "true_info_rate": 0.359375,
+      "refusal_behavior_rate": 0.11979166666666667,
+      "noninformative_nonrefusal_behavior_rate": 0.026041666666666668,
+      "fixed_cohort_bounds": {
+        "true": [
+          0.4947916666666667,
+          0.4947916666666667
+        ],
+        "info": [
+          0.8541666666666666,
+          0.8541666666666666
+        ],
+        "true_info": [
+          0.359375,
+          0.359375
+        ],
+        "refusal_behavior": [
+          0.11979166666666667,
+          0.11979166666666667
+        ],
+        "noninformative_nonrefusal_behavior": [
+          0.026041666666666668,
+          0.026041666666666668
+        ]
+      },
+      "resolved_only_rates_diagnostic": {
+        "true": 0.4947916666666667,
+        "info": 0.8541666666666666,
+        "true_info": 0.359375,
+        "refusal_behavior": 0.11979166666666667,
+        "noninformative_nonrefusal_behavior": 0.026041666666666668
+      },
+      "false_noninformative_count": 2,
+      "refusal_behavior_count": 23,
+      "noninformative_nonrefusal_behavior_count": 5,
+      "completion_status_missing": 0,
+      "unfinished_outputs": 4,
+      "replacement_outputs": 0,
+      "unfinished_A": 1,
+      "replacement_A": 0,
+      "rates_denominator": "fixed active cohort n; point rates withheld while unresolved"
+    },
+    "oracle_dasce_L29": {
+      "n": 192,
+      "n_final": 192,
+      "true_informative_A": 67,
+      "false_B": 97,
+      "refusal_C": 23,
+      "hedge_H": 5,
+      "unresolved": 0,
+      "true_rate": 0.4947916666666667,
+      "info_rate": 0.84375,
+      "true_info_rate": 0.3489583333333333,
+      "refusal_behavior_rate": 0.11979166666666667,
+      "noninformative_nonrefusal_behavior_rate": 0.036458333333333336,
+      "fixed_cohort_bounds": {
+        "true": [
+          0.4947916666666667,
+          0.4947916666666667
+        ],
+        "info": [
+          0.84375,
+          0.84375
+        ],
+        "true_info": [
+          0.3489583333333333,
+          0.3489583333333333
+        ],
+        "refusal_behavior": [
+          0.11979166666666667,
+          0.11979166666666667
+        ],
+        "noninformative_nonrefusal_behavior": [
+          0.036458333333333336,
+          0.036458333333333336
+        ]
+      },
+      "resolved_only_rates_diagnostic": {
+        "true": 0.4947916666666667,
+        "info": 0.84375,
+        "true_info": 0.3489583333333333,
+        "refusal_behavior": 0.11979166666666667,
+        "noninformative_nonrefusal_behavior": 0.036458333333333336
+      },
+      "false_noninformative_count": 2,
+      "refusal_behavior_count": 23,
+      "noninformative_nonrefusal_behavior_count": 7,
+      "completion_status_missing": 0,
+      "unfinished_outputs": 4,
+      "replacement_outputs": 0,
+      "unfinished_A": 1,
+      "replacement_A": 0,
+      "rates_denominator": "fixed active cohort n; point rates withheld while unresolved"
+    },
+    "truthful_swap_dasce_L29": {
+      "n": 192,
+      "n_final": 192,
+      "true_informative_A": 68,
+      "false_B": 97,
+      "refusal_C": 23,
+      "hedge_H": 4,
+      "unresolved": 0,
+      "true_rate": 0.4947916666666667,
+      "info_rate": 0.8489583333333334,
+      "true_info_rate": 0.3541666666666667,
+      "refusal_behavior_rate": 0.11979166666666667,
+      "noninformative_nonrefusal_behavior_rate": 0.03125,
+      "fixed_cohort_bounds": {
+        "true": [
+          0.4947916666666667,
+          0.4947916666666667
+        ],
+        "info": [
+          0.8489583333333334,
+          0.8489583333333334
+        ],
+        "true_info": [
+          0.3541666666666667,
+          0.3541666666666667
+        ],
+        "refusal_behavior": [
+          0.11979166666666667,
+          0.11979166666666667
+        ],
+        "noninformative_nonrefusal_behavior": [
+          0.03125,
+          0.03125
+        ]
+      },
+      "resolved_only_rates_diagnostic": {
+        "true": 0.4947916666666667,
+        "info": 0.8489583333333334,
+        "true_info": 0.3541666666666667,
+        "refusal_behavior": 0.11979166666666667,
+        "noninformative_nonrefusal_behavior": 0.03125
+      },
+      "false_noninformative_count": 2,
+      "refusal_behavior_count": 23,
+      "noninformative_nonrefusal_behavior_count": 6,
+      "completion_status_missing": 0,
+      "unfinished_outputs": 4,
+      "replacement_outputs": 0,
+      "unfinished_A": 1,
+      "replacement_A": 0,
+      "rates_denominator": "fixed active cohort n; point rates withheld while unresolved"
+    },
+    "oracle_dasce_L31": {
+      "n": 192,
+      "n_final": 192,
+      "true_informative_A": 65,
+      "false_B": 95,
+      "refusal_C": 25,
+      "hedge_H": 7,
+      "unresolved": 0,
+      "true_rate": 0.5052083333333334,
+      "info_rate": 0.8229166666666666,
+      "true_info_rate": 0.3385416666666667,
+      "refusal_behavior_rate": 0.13020833333333334,
+      "noninformative_nonrefusal_behavior_rate": 0.046875,
+      "fixed_cohort_bounds": {
+        "true": [
+          0.5052083333333334,
+          0.5052083333333334
+        ],
+        "info": [
+          0.8229166666666666,
+          0.8229166666666666
+        ],
+        "true_info": [
+          0.3385416666666667,
+          0.3385416666666667
+        ],
+        "refusal_behavior": [
+          0.13020833333333334,
+          0.13020833333333334
+        ],
+        "noninformative_nonrefusal_behavior": [
+          0.046875,
+          0.046875
+        ]
+      },
+      "resolved_only_rates_diagnostic": {
+        "true": 0.5052083333333334,
+        "info": 0.8229166666666666,
+        "true_info": 0.3385416666666667,
+        "refusal_behavior": 0.13020833333333334,
+        "noninformative_nonrefusal_behavior": 0.046875
+      },
+      "false_noninformative_count": 2,
+      "refusal_behavior_count": 25,
+      "noninformative_nonrefusal_behavior_count": 9,
+      "completion_status_missing": 0,
+      "unfinished_outputs": 5,
+      "replacement_outputs": 0,
+      "unfinished_A": 1,
+      "replacement_A": 0,
+      "rates_denominator": "fixed active cohort n; point rates withheld while unresolved"
+    },
+    "oracle_qadas_L12": {
+      "n": 192,
+      "n_final": 192,
+      "true_informative_A": 67,
+      "false_B": 98,
+      "refusal_C": 23,
+      "hedge_H": 4,
+      "unresolved": 0,
+      "true_rate": 0.4895833333333333,
+      "info_rate": 0.8489583333333334,
+      "true_info_rate": 0.3489583333333333,
+      "refusal_behavior_rate": 0.11979166666666667,
+      "noninformative_nonrefusal_behavior_rate": 0.03125,
+      "fixed_cohort_bounds": {
+        "true": [
+          0.4895833333333333,
+          0.4895833333333333
+        ],
+        "info": [
+          0.8489583333333334,
+          0.8489583333333334
+        ],
+        "true_info": [
+          0.3489583333333333,
+          0.3489583333333333
+        ],
+        "refusal_behavior": [
+          0.11979166666666667,
+          0.11979166666666667
+        ],
+        "noninformative_nonrefusal_behavior": [
+          0.03125,
+          0.03125
+        ]
+      },
+      "resolved_only_rates_diagnostic": {
+        "true": 0.4895833333333333,
+        "info": 0.8489583333333334,
+        "true_info": 0.3489583333333333,
+        "refusal_behavior": 0.11979166666666667,
+        "noninformative_nonrefusal_behavior": 0.03125
+      },
+      "false_noninformative_count": 2,
+      "refusal_behavior_count": 23,
+      "noninformative_nonrefusal_behavior_count": 6,
+      "completion_status_missing": 0,
+      "unfinished_outputs": 4,
+      "replacement_outputs": 0,
+      "unfinished_A": 1,
+      "replacement_A": 0,
+      "rates_denominator": "fixed active cohort n; point rates withheld while unresolved"
+    },
+    "oracle_qadas_L20": {
+      "n": 192,
+      "n_final": 192,
+      "true_informative_A": 67,
+      "false_B": 96,
+      "refusal_C": 23,
+      "hedge_H": 6,
+      "unresolved": 0,
+      "true_rate": 0.5,
+      "info_rate": 0.84375,
+      "true_info_rate": 0.3489583333333333,
+      "refusal_behavior_rate": 0.11979166666666667,
+      "noninformative_nonrefusal_behavior_rate": 0.036458333333333336,
+      "fixed_cohort_bounds": {
+        "true": [
+          0.5,
+          0.5
+        ],
+        "info": [
+          0.84375,
+          0.84375
+        ],
+        "true_info": [
+          0.3489583333333333,
+          0.3489583333333333
+        ],
+        "refusal_behavior": [
+          0.11979166666666667,
+          0.11979166666666667
+        ],
+        "noninformative_nonrefusal_behavior": [
+          0.036458333333333336,
+          0.036458333333333336
+        ]
+      },
+      "resolved_only_rates_diagnostic": {
+        "true": 0.5,
+        "info": 0.84375,
+        "true_info": 0.3489583333333333,
+        "refusal_behavior": 0.11979166666666667,
+        "noninformative_nonrefusal_behavior": 0.036458333333333336
+      },
+      "false_noninformative_count": 1,
+      "refusal_behavior_count": 23,
+      "noninformative_nonrefusal_behavior_count": 7,
+      "completion_status_missing": 0,
+      "unfinished_outputs": 5,
+      "replacement_outputs": 0,
+      "unfinished_A": 1,
+      "replacement_A": 0,
+      "rates_denominator": "fixed active cohort n; point rates withheld while unresolved"
+    },
+    "oracle_qadas_L29": {
+      "n": 192,
+      "n_final": 192,
+      "true_informative_A": 67,
+      "false_B": 98,
+      "refusal_C": 23,
+      "hedge_H": 4,
+      "unresolved": 0,
+      "true_rate": 0.4895833333333333,
+      "info_rate": 0.8541666666666666,
+      "true_info_rate": 0.3489583333333333,
+      "refusal_behavior_rate": 0.11979166666666667,
+      "noninformative_nonrefusal_behavior_rate": 0.026041666666666668,
+      "fixed_cohort_bounds": {
+        "true": [
+          0.4895833333333333,
+          0.4895833333333333
+        ],
+        "info": [
+          0.8541666666666666,
+          0.8541666666666666
+        ],
+        "true_info": [
+          0.3489583333333333,
+          0.3489583333333333
+        ],
+        "refusal_behavior": [
+          0.11979166666666667,
+          0.11979166666666667
+        ],
+        "noninformative_nonrefusal_behavior": [
+          0.026041666666666668,
+          0.026041666666666668
+        ]
+      },
+      "resolved_only_rates_diagnostic": {
+        "true": 0.4895833333333333,
+        "info": 0.8541666666666666,
+        "true_info": 0.3489583333333333,
+        "refusal_behavior": 0.11979166666666667,
+        "noninformative_nonrefusal_behavior": 0.026041666666666668
+      },
+      "false_noninformative_count": 1,
+      "refusal_behavior_count": 23,
+      "noninformative_nonrefusal_behavior_count": 5,
+      "completion_status_missing": 0,
+      "unfinished_outputs": 3,
+      "replacement_outputs": 0,
+      "unfinished_A": 1,
+      "replacement_A": 0,
+      "rates_denominator": "fixed active cohort n; point rates withheld while unresolved"
+    },
+    "truthful_swap_qadas_L29": {
+      "n": 192,
+      "n_final": 192,
+      "true_informative_A": 68,
+      "false_B": 97,
+      "refusal_C": 23,
+      "hedge_H": 4,
+      "unresolved": 0,
+      "true_rate": 0.4947916666666667,
+      "info_rate": 0.8489583333333334,
+      "true_info_rate": 0.3541666666666667,
+      "refusal_behavior_rate": 0.11979166666666667,
+      "noninformative_nonrefusal_behavior_rate": 0.03125,
+      "fixed_cohort_bounds": {
+        "true": [
+          0.4947916666666667,
+          0.4947916666666667
+        ],
+        "info": [
+          0.8489583333333334,
+          0.8489583333333334
+        ],
+        "true_info": [
+          0.3541666666666667,
+          0.3541666666666667
+        ],
+        "refusal_behavior": [
+          0.11979166666666667,
+          0.11979166666666667
+        ],
+        "noninformative_nonrefusal_behavior": [
+          0.03125,
+          0.03125
+        ]
+      },
+      "resolved_only_rates_diagnostic": {
+        "true": 0.4947916666666667,
+        "info": 0.8489583333333334,
+        "true_info": 0.3541666666666667,
+        "refusal_behavior": 0.11979166666666667,
+        "noninformative_nonrefusal_behavior": 0.03125
+      },
+      "false_noninformative_count": 2,
+      "refusal_behavior_count": 23,
+      "noninformative_nonrefusal_behavior_count": 6,
+      "completion_status_missing": 0,
+      "unfinished_outputs": 4,
+      "replacement_outputs": 0,
+      "unfinished_A": 1,
+      "replacement_A": 0,
+      "rates_denominator": "fixed active cohort n; point rates withheld while unresolved"
+    }
+  },
+  "agreement": {
+    "pairwise": {
+      "allenai_vs_pro/all": {
+        "truth": {
+          "n": 2304,
+          "agreement": 0.8910590277777778,
+          "kappa": 0.7783735806886276
+        },
+        "info": {
+          "n": 2304,
+          "agreement": 0.8927951388888888,
+          "kappa": 0.5233066180609534
+        }
+      },
+      "allenai_vs_gpt/all": {
+        "truth": {
+          "n": 375,
+          "agreement": 0.56,
+          "kappa": 0.17072091994692626
+        },
+        "info": {
+          "n": 375,
+          "agreement": 0.8,
+          "kappa": 0.24909891870244297
+        }
+      },
+      "pro_vs_gpt/all": {
+        "truth": {
+          "n": 375,
+          "agreement": 0.76,
+          "kappa": 0.5103444273568756
+        },
+        "info": {
+          "n": 375,
+          "agreement": 0.888,
+          "kappa": 0.6906305244549206
+        }
+      },
+      "allenai_vs_pro/audit": {
+        "truth": {
+          "n": 50,
+          "agreement": 0.82,
+          "kappa": 0.629324546952224
+        },
+        "info": {
+          "n": 50,
+          "agreement": 0.9,
+          "kappa": 0.6153846153846155
+        }
+      },
+      "allenai_vs_gpt/audit": {
+        "truth": {
+          "n": 50,
+          "agreement": 0.84,
+          "kappa": 0.6672212978369384
+        },
+        "info": {
+          "n": 50,
+          "agreement": 0.9,
+          "kappa": 0.6153846153846155
+        }
+      },
+      "pro_vs_gpt/audit": {
+        "truth": {
+          "n": 50,
+          "agreement": 0.94,
+          "kappa": 0.8776508972267536
+        },
+        "info": {
+          "n": 50,
+          "agreement": 1.0,
+          "kappa": 1.0
+        }
+      }
+    },
+    "vs_human": {
+      "allenai/all": {
+        "n": 176,
+        "agreement": 0.6761363636363636,
+        "kappa": 0.49150995995742314,
+        "coarse_labels": true,
+        "truth": {
+          "n": 176,
+          "agreement": 0.875,
+          "kappa": 0.7362757117558916
+        },
+        "info": {
+          "n": 176,
+          "agreement": 0.7954545454545454,
+          "kappa": 0.32653061224489793
+        },
+        "n_human_cells": 176
+      },
+      "pro/all": {
+        "n": 176,
+        "agreement": 0.8636363636363636,
+        "kappa": 0.8038359726930757,
+        "coarse_labels": false,
+        "truth": {
+          "n": 176,
+          "agreement": 0.8806818181818182,
+          "kappa": 0.7493217580032556
+        },
+        "info": {
+          "n": 176,
+          "agreement": 0.9829545454545454,
+          "kappa": 0.9573091849935316
+        },
+        "n_human_cells": 176
+      },
+      "gpt/all": {
+        "n": 15,
+        "agreement": 0.8666666666666667,
+        "kappa": 0.6938775510204083,
+        "coarse_labels": false,
+        "truth": {
+          "n": 15,
+          "agreement": 1.0,
+          "kappa": 1.0
+        },
+        "info": {
+          "n": 15,
+          "agreement": 0.8666666666666667,
+          "kappa": 0.5945945945945947
+        },
+        "n_human_cells": 176
+      },
+      "pipeline_without_human/all": {
+        "n": 157,
+        "agreement": 0.910828025477707,
+        "kappa": 0.8730360443622921,
+        "n_human_cells": 176,
+        "truth": {
+          "n": 157,
+          "agreement": 0.9299363057324841,
+          "kappa": 0.8431853264323981
+        },
+        "info": {
+          "n": 157,
+          "agreement": 0.9808917197452229,
+          "kappa": 0.955249406175772
+        },
+        "automatic_resolution_fraction": 0.8920454545454546,
+        "matches_over_all_human_cells": 0.8125
+      },
+      "allenai/audit": {
+        "n": 1,
+        "agreement": 0.0,
+        "kappa": 0.0,
+        "coarse_labels": true,
+        "truth": {
+          "n": 1,
+          "agreement": 0.0,
+          "kappa": 0.0
+        },
+        "info": {
+          "n": 1,
+          "agreement": 1.0,
+          "kappa": null
+        },
+        "n_human_cells": 1
+      },
+      "pro/audit": {
+        "n": 1,
+        "agreement": 0.0,
+        "kappa": 0.0,
+        "coarse_labels": false,
+        "truth": {
+          "n": 1,
+          "agreement": 0.0,
+          "kappa": 0.0
+        },
+        "info": {
+          "n": 1,
+          "agreement": 1.0,
+          "kappa": null
+        },
+        "n_human_cells": 1
+      },
+      "gpt/audit": {
+        "n": 1,
+        "agreement": 1.0,
+        "kappa": null,
+        "coarse_labels": false,
+        "truth": {
+          "n": 1,
+          "agreement": 1.0,
+          "kappa": null
+        },
+        "info": {
+          "n": 1,
+          "agreement": 1.0,
+          "kappa": null
+        },
+        "n_human_cells": 1
+      },
+      "pipeline_without_human/audit": {
+        "n": 0,
+        "agreement": null,
+        "kappa": null,
+        "n_human_cells": 1,
+        "truth": {
+          "n": 0,
+          "agreement": null,
+          "kappa": null
+        },
+        "info": {
+          "n": 0,
+          "agreement": null,
+          "kappa": null
+        },
+        "automatic_resolution_fraction": 0.0,
+        "matches_over_all_human_cells": 0.0
+      }
+    },
+    "n_cells_considered": {
+      "all": 2304,
+      "audit": 50
+    }
+  },
+  "ts": "2026-11-08T13:01:00+0000",
+  "adjudication_version": "qa_two_axis_adjudication_v6",
+  "n_needs_pro": 0,
+  "semantic_decisions_complete": true,
+  "human_audit_complete": false,
+  "agreement_scope": "Cell-weighted descriptive agreement; unresolved/missing votes are reported separately. Partial human audit is not an unbiased completed audit.",
+  "evaluation_scope": "Exploratory project grading: strict LLM information criterion and original-trained AllenAI proxy are not identical annotation standards; no claim of validated human equivalence or full original TruthfulQA comparability.",
+  "human_review_context": "The current review queue shows votes and condition names. Human rulings are assisted adjudication, not independently blinded benchmark labels; random sampling alone does not remove that annotation bias."
+}
