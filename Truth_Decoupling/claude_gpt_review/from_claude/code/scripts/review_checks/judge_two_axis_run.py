@@ -215,6 +215,47 @@ def _cache_dir(out, cfg):
     return os.environ.get('TD_JUDGE2_CACHE') or (cfg or {}).get('shared_cache_dir') or os.path.join(out, 'cache')
 
 
+def judge_request_keys(cell, judge_name, cfg):
+    """The two API request keys (truth question, info question) this cell produces for an LLM judge, computed exactly as
+    TwoAxisLLMJudge / LLMJudge.cache_key do, without constructing a client (no API key needed)."""
+    from core.judge import request_cache_key
+    from core.judge_two_axis import TRUTH_SYSTEM, INFO_SYSTEM, truth_user, info_user
+    from core.judge_two_axis_contract import judge_contract, request_identity
+    jcfg = cfg[judge_name]
+    tag = {'judge_contract_sha': canonical_sha(request_identity(judge_contract(judge_name, cfg)))}
+    users = (truth_user(cell['question'], cell['gold_refs'], cell['prediction'], cell['incorrect'] or None),
+             info_user(cell['question'], cell['prediction']))
+    return [request_cache_key(jcfg['model'], system, user, config=jcfg, key_extra=tag)
+            for system, user in zip((TRUTH_SYSTEM, INFO_SYSTEM), users)]
+
+
+def _inconsistent_cells(cells, cfg, cache_dir):
+    """cell_id -> set of judge names whose shared reply cache holds different replies to that cell's request
+    (judge2_cache_merge.py writes cache_dir/conflicts.json). Such cells are not decided by any rule but by 赵磊."""
+    path = os.path.join(cache_dir, 'conflicts.json')
+    if not os.path.exists(path):
+        return {}
+    conflicts = _read_json(path).get('keys', {})          # {judge model file -> [keys]} or flat list
+    keys = set()
+    if isinstance(conflicts, dict):
+        for v in conflicts.values():
+            keys.update(v)
+    else:
+        keys.update(conflicts)
+    if not keys:
+        return {}
+    out = {}
+    for name in ('pro', 'gpt'):
+        if name not in cfg:
+            continue
+        for c in cells:
+            if c['gold_is_abstention'] or not c['prediction'].strip():
+                continue
+            if any(k in keys for k in judge_request_keys(c, name, cfg)):
+                out.setdefault(c['cell_id'], set()).add(name)
+    return out
+
+
 def _active(cells):
     """Cells that are graded and counted: substantive gold only (abstention-only gold is excluded from every
     denominator, as e32 / e42_analysis do, so it is not sent to the LLM judges either)."""
@@ -562,6 +603,7 @@ def adjudicate(run_dir, cfg):
     judges, vstats = _load_judges(run_dir, cells,cfg)
     humans = _human_verdicts(run_dir,cells)
     thr = cfg["allenai"]["threshold"]
+    inconsistent = _inconsistent_cells(cells, cfg, _cache_dir(out, cfg))
     finals, queue = [], []
     for c in cells:
         cid = c["cell_id"]
@@ -575,7 +617,7 @@ def adjudicate(run_dir, cfg):
         if cid not in judges["allenai"] or cid not in judges["pro"]:
             raise SystemExit("cell %s lacks an AllenAI or Pro grade; run `allenai` / `llm --judge pro` first" % cid)
         rec = adjudicate_cell(c, allenai=judges["allenai"].get(cid), pro=judges["pro"].get(cid), gpt=judges["gpt"].get(cid),
-                              human=humans.get(cid), threshold=thr)
+                              human=humans.get(cid), threshold=thr, inconsistent_judges=inconsistent.get(cid, ()))
         rec.update(pair_id=c["pair_id"], condition=c["condition"], audit=c["audit"], gold_is_abstention=False,
                    input_sha=c['input_sha'])
         finals.append(rec)

@@ -451,4 +451,32 @@ with tempfile.TemporaryDirectory() as tmp:
     final = F.run._rows(str(run/'judge2/final.jsonl'))
     ok(d['n_pro_no_verdict']==2 and final['q2|baseline']['status']=='needs_pro',
        'allow-unresolved-Pro exports other work but never substitutes GPT for Pro')
+# ---------------------------------------------------------------- inconsistent cached replies -> human; request keys reproducible (GPT round 23)
+r = T.adjudicate_cell(cell, allenai=al(0.9, 0.9), pro=llm("T", "S"), inconsistent_judges={"pro"})
+ok(r["status"] == "needs_human" and r["review_reason"] == "inconsistent_replies:pro" and r["label"] is None,
+   "a judge with two different cached replies to the same request does not decide the cell (tqa:479 case)")
+r = T.adjudicate_cell(dict(cell, prediction="I don't know."), allenai=al(0.9, 0.9), pro=llm("T", "S"), inconsistent_judges={"pro"})
+ok(r["label"] == "C" and r["source"] == "refusal_guard", "the rule-based C still comes first")
+with tempfile.TemporaryDirectory() as tmp:
+    j = T.TwoAxisLLMJudge(PRO, cache_dir=tmp)
+    c0 = {"cell_id": "x|y", "question": "Q?", "gold_refs": ["Paris"], "prediction": "Paris.", "incorrect": ["Lyon"], "gold_is_abstention": False}
+    keys = R.judge_request_keys(c0, "pro", CFG)
+    ok(keys[0] == j.llm.cache_key(T.TRUTH_SYSTEM, T.truth_user("Q?", ["Paris"], "Paris.", ["Lyon"]))
+       and keys[1] == j.llm.cache_key(T.INFO_SYSTEM, T.info_user("Q?", "Paris.")), "request keys recomputed without a client equal the judge's cache keys")
+    src1, src2 = os.path.join(tmp, "s1"), os.path.join(tmp, "s2"); os.makedirs(src1); os.makedirs(src2)
+    rows1 = [{"key": keys[0], "model": "deepseek-v4-pro", "answer": "T"}, {"key": keys[1], "model": "deepseek-v4-pro", "answer": "S"}]
+    rows2 = [{"key": keys[0], "model": "deepseek-v4-pro", "answer": "F"}, {"key": keys[1], "model": "deepseek-v4-pro", "answer": "S"}]
+    for d, rows in ((src1, rows1), (src2, rows2)):
+        with open(os.path.join(d, "judge2_cache_deepseek-v4-pro.jsonl"), "w") as f:
+            for r0 in rows:
+                f.write(json.dumps(r0) + "\n")
+    from scripts.review_checks import judge2_cache_merge as M
+    shared = os.path.join(tmp, "shared")
+    rep = M.merge(shared, [src1, src2])
+    ok(rep["files"]["judge2_cache_deepseek-v4-pro.jsonl"]["rows"] == 3 and rep["keys"]["judge2_cache_deepseek-v4-pro.jsonl"] == [keys[0]],
+       "merge: exact duplicate dropped, the key with two different replies listed")
+    inc = R._inconsistent_cells([c0], CFG, shared)
+    ok(inc == {"x|y": {"pro"}}, "the conflicting request maps back to its cell: %r" % inc)
+    ok(R._inconsistent_cells([c0], CFG, os.path.join(tmp, "nowhere")) == {}, "no conflicts file -> nothing flagged")
+
 print('chk_judge_two_axis: %d assertions plus %d bound v6 pipeline tests passed; no API/GPU requests' % (N,result.testsRun))

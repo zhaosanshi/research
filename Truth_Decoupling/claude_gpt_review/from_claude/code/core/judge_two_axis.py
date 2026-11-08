@@ -357,7 +357,7 @@ def normalize_human_verdict(human):
     return result
 
 
-def adjudicate_cell(cell, allenai=None, pro=None, gpt=None, human=None, threshold=0.5):
+def adjudicate_cell(cell, allenai=None, pro=None, gpt=None, human=None, threshold=0.5, inconsistent_judges=()):
     """Combine the available votes for one cell.
 
     Returns a record with the per-axis votes and resolution, the final `label` (A/B/C/H or None), its `source`, and
@@ -404,6 +404,11 @@ def adjudicate_cell(cell, allenai=None, pro=None, gpt=None, human=None, threshol
         return rec
     if guard["apply"]:
         rec.update(label="C", truth="T", info="N", info_subtype="R", source="refusal_guard", status="final")
+        return rec
+    if inconsistent_judges:
+        # the shared reply cache holds two different replies of this judge to this very request (a non-deterministic
+        # judge): neither reply is chosen by any rule - the cell goes to the human (GPT round 23, finding on tqa:479)
+        rec.update(status="needs_human", review_reason="inconsistent_replies:" + ",".join(sorted(inconsistent_judges)))
         return rec
     if pro is not None and (pro.get("truth") == "D" or pro.get("info") == "D"):
         rec.update(status="needs_human", review_reason="pro_cannot_determine")     # 赵磊's rule: Pro abstains -> human
