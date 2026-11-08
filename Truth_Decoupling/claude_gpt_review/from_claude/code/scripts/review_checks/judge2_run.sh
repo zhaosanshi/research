@@ -2,7 +2,7 @@
 # Two-axis grading steps inside the truth_dec container (host side; see judge_two_axis_run.py for the flow).
 # usage: judge2_run.sh RUN_DIR STEP [args]
 #   RUN_DIR  container path of the run, e.g. /workspace/Truth_Decoupling/results_e42_20261108/llama3.1-8b/select-tune
-#   STEP     cells | allenai (GPU) | dev-check (GPU) | pro | disputes | gpt | adjudicate | human
+#   STEP     cells | allenai (GPU) | dev-check (GPU; RUN_DIR is not used, pass "-") | pro | disputes | gpt | adjudicate | human
 # env: GPU (default 0). Keys: logs/.deepseek_key, logs/.xiaoai_key (chmod 600) are passed as *_FILE, never on a command line.
 set -euo pipefail
 ROOT=/workspace/Truth_Decoupling

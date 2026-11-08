@@ -29,11 +29,12 @@ CODE_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
 sys.path.insert(0, CODE_ROOT)
 from core.io_utils import read_jsonl, write_jsonl, append_jsonl, atomic_json_dump  # noqa: E402
 from core.judge_two_axis import (TWO_AXIS_VERSION, LABELS, LABEL_NAMES, TRUTH_VALUES, INFO_VALUES, TwoAxisLLMJudge,  # noqa: E402
-                                 adjudicate_cell, allenai_votes, info_binary, judge_own_label, coarse)
+                                 adjudicate_cell, allenai_votes, info_binary, judge_own_label, coarse, qa_sha, cell_axes)
 from core.qa_scoring import reference_answers  # noqa: E402
 
 J2 = "judge2"
 JUDGES = ("allenai", "pro", "gpt")
+VALID_T, VALID_I = ("T", "F", "D"), ("S", "H", "R", "D")
 
 
 def _now():
@@ -77,6 +78,34 @@ def _human_verdicts(run_dir):
         for r in read_jsonl(path):
             out[r["cell_id"]] = r
     return out
+
+
+def _verify_rows(rows, cells):
+    """Judge rows against the current cells (red team finding 4): a row whose cell id is gone is dropped; a row without
+    qa_sha (graded before the sha existed) is backfilled and accepted; a row whose qa_sha differs from the current
+    (question, answer) is stale and returned separately - the caller re-grades or refuses to proceed."""
+    by_id = {c["cell_id"]: c for c in cells}
+    out, stale, legacy, orphans = OrderedDict(), [], 0, 0
+    for cid, r in rows.items():
+        c = by_id.get(cid)
+        if c is None:
+            orphans += 1
+            continue
+        expected = qa_sha(c["question"], c["prediction"])
+        if r.get("qa_sha") is None:
+            r = dict(r, qa_sha=expected, qa_sha_backfilled=True)
+            legacy += 1
+        elif r["qa_sha"] != expected:
+            stale.append(cid)
+            continue
+        out[cid] = r
+    return out, {"stale": stale, "legacy_backfilled": legacy, "orphans_dropped": orphans}
+
+
+def _active(cells):
+    """Cells that are graded and counted: substantive gold only (abstention-only gold is excluded from every
+    denominator, as e32 / e42_analysis do, so it is not sent to the LLM judges either)."""
+    return [c for c in cells if not c["gold_is_abstention"]]
 
 
 # ----------------------------------------------------------------------------- cells
@@ -135,21 +164,27 @@ def run_llm(run_dir, judge_name, cfg, only=None, judge=None, log_every=50):
         disp = {r["cell_id"] for r in read_jsonl(dpath)}
         target = [c for c in cells if c["cell_id"] in disp or c["audit"]]
     path = os.path.join(out, judge_name + ".jsonl")
-    done = _rows(path)
-    n_new, t0 = 0, time.time()
+    done, vstats = _verify_rows(_rows(path), cells)      # stale rows are dropped here and re-graded below
+    n_new, n_skipped, t0 = 0, 0, time.time()
     for i, c in enumerate(target):
-        prev = done.get(c["cell_id"])
-        if (prev and prev.get("rubric") == TWO_AXIS_VERSION and prev.get("truth") in ("T", "F", "D")
-                and prev.get("info") in ("S", "H", "R", "D")):
+        cid = c["cell_id"]
+        sha = qa_sha(c["question"], c["prediction"])
+        if c["gold_is_abstention"]:
+            done[cid] = {"cell_id": cid, "judge": judge_name, "model": jcfg["model"], "rubric": TWO_AXIS_VERSION, "qa_sha": sha,
+                         "skipped_abstention_gold": True, "truth_raw": "<skipped>", "truth": None, "info_raw": "<skipped>", "info": None}
+            n_skipped += 1
+            continue
+        prev = done.get(cid)
+        if (prev and prev.get("rubric") == TWO_AXIS_VERSION and prev.get("qa_sha") == sha
+                and prev.get("truth") in VALID_T and prev.get("info") in VALID_I):
             continue
         if not c["prediction"].strip():
-            done[c["cell_id"]] = {"cell_id": c["cell_id"], "judge": judge_name, "model": jcfg["model"], "rubric": TWO_AXIS_VERSION,
-                                  "truth_raw": "<empty_output>", "truth": "T", "info_raw": "<empty_output>", "info": "R",
-                                  "empty_output": True}
+            done[cid] = {"cell_id": cid, "judge": judge_name, "model": jcfg["model"], "rubric": TWO_AXIS_VERSION, "qa_sha": sha,
+                         "truth_raw": "<empty_output>", "truth": "T", "info_raw": "<empty_output>", "info": "R", "empty_output": True}
             continue
         g = judge.grade(c["question"], c["gold_refs"], c["prediction"], c["incorrect"] or None)
-        g["cell_id"] = c["cell_id"]
-        done[c["cell_id"]] = g
+        g["cell_id"] = cid
+        done[cid] = g
         n_new += 1
         if n_new % log_every == 0:
             write_jsonl(list(done.values()), path)
@@ -157,35 +192,52 @@ def run_llm(run_dir, judge_name, cfg, only=None, judge=None, log_every=50):
                 time.strftime("%H:%M:%S"), judge_name, i + 1, len(target), judge.llm.n_calls, judge.llm.n_cache_hits,
                 time.time() - t0), flush=True)
     write_jsonl(list(done.values()), path)
-    tr = Counter(done[c["cell_id"]].get("truth") for c in target if c["cell_id"] in done)
-    ir = Counter(done[c["cell_id"]].get("info") for c in target if c["cell_id"] in done)
-    summary = {"judge": judge_name, "model": jcfg["model"], "n_target": len(target), "n_graded": sum(c["cell_id"] in done for c in target),
+    graded = [done[c["cell_id"]] for c in target if c["cell_id"] in done and not done[c["cell_id"]].get("skipped_abstention_gold")]
+    tr = Counter(r.get("truth") for r in graded)
+    ir = Counter(r.get("info") for r in graded)
+    summary = {"judge": judge_name, "model": jcfg["model"], "n_target": len(target), "n_graded": len(graded),
+               "n_skipped_abstention_gold": n_skipped, "n_no_verdict": sum(r.get("truth") not in VALID_T or r.get("info") not in VALID_I for r in graded),
                "truth_letters": dict(tr), "info_letters": dict(ir), "api_calls": judge.llm.n_calls,
-               "cache_hits": judge.llm.n_cache_hits, "seconds": round(time.time() - t0, 1)}
+               "cache_hits": judge.llm.n_cache_hits, "stale_regraded": len(vstats["stale"]), "legacy_rows_backfilled": vstats["legacy_backfilled"],
+               "seconds": round(time.time() - t0, 1)}
     return summary
 
 
 # ----------------------------------------------------------------------------- disputes / adjudication
-def _require(run_dir, names):
+def _load_judges(run_dir, cells, required=("allenai", "pro")):
+    """All judge files, verified against the current cells. A stale row (graded on another answer) is fatal here:
+    these steps cannot re-grade, the user must re-run that judge's step."""
     out = j2dir(run_dir)
-    got = {}
-    for n in names:
-        rows = _rows(os.path.join(out, n + ".jsonl"))
-        if not rows:
+    judges, stats = {}, {}
+    for n in JUDGES:
+        rows, st = _verify_rows(_rows(os.path.join(out, n + ".jsonl")), cells)
+        if st["stale"]:
+            raise SystemExit("%s.jsonl: %d rows were graded on a different answer than the current cells (e.g. %s); "
+                             "re-run the `%s` step" % (n, len(st["stale"]), st["stale"][:3], n))
+        judges[n], stats[n] = rows, st
+    for n in required:
+        if not judges[n]:
             raise SystemExit("missing or empty %s.jsonl" % n)
-        got[n] = rows
-    return got
+    return judges, stats
 
 
-def compute_disputes(run_dir, cfg):
+def compute_disputes(run_dir, cfg, allow_unresolved_pro=False):
     cells = _cells(run_dir)
-    j = _require(run_dir, ("allenai", "pro"))
+    active = _active(cells)
+    j, _ = _load_judges(run_dir, cells)
     thr = cfg["allenai"]["threshold"]
-    missing = [c["cell_id"] for c in cells if c["cell_id"] not in j["allenai"] or c["cell_id"] not in j["pro"]]
+    missing = [c["cell_id"] for c in active if c["cell_id"] not in j["allenai"] or c["cell_id"] not in j["pro"]]
     if missing:
         raise SystemExit("%d cells lack an AllenAI or Pro grade, e.g. %s" % (len(missing), missing[:3]))
+    # a Pro row without a verdict is a transient failure, not a disagreement: GPT is the third vote only when
+    # AllenAI and Pro disagree (red team finding 8)
+    no_verdict = [c["cell_id"] for c in active if c["prediction"].strip()
+                  and (j["pro"][c["cell_id"]].get("truth") not in VALID_T or j["pro"][c["cell_id"]].get("info") not in VALID_I)]
+    if no_verdict and not allow_unresolved_pro:
+        raise SystemExit("%d Pro rows have no verdict (e.g. %s): re-run `llm --judge pro` (it retries), or pass "
+                         "--allow-unresolved-pro to let GPT fill in" % (len(no_verdict), no_verdict[:3]))
     disputes, stats = [], Counter()
-    for c in cells:
+    for c in active:
         rec = adjudicate_cell(c, allenai=j["allenai"][c["cell_id"]], pro=j["pro"][c["cell_id"]], gpt=None, threshold=thr)
         stats["truth_" + rec["truth_basis"]] += 1
         stats["info_" + rec["info_basis"]] += 1
@@ -195,7 +247,8 @@ def compute_disputes(run_dir, cfg):
                              "audit": c["audit"], "votes_truth": rec["votes_truth"], "votes_info": rec["votes_info"],
                              "info_subtypes": rec["info_subtypes"]})
     write_jsonl(disputes, os.path.join(j2dir(run_dir), "disputes.jsonl"))
-    summary = {"n_cells": len(cells), "n_to_gpt": len(disputes),
+    summary = {"n_cells": len(cells), "n_active": len(active), "n_excluded_abstention_gold": len(cells) - len(active),
+               "n_pro_no_verdict": len(no_verdict), "n_to_gpt": len(disputes),
                "n_disagreement": sum(d["reason"] == "disagreement" for d in disputes),
                "n_audit_only": sum(d["reason"] == "audit" for d in disputes), **dict(stats)}
     return summary
@@ -212,54 +265,61 @@ def _kappa(pairs):
     return None if pe == 1 else (po - pe) / (1 - pe)
 
 
+def _rate(pairs):
+    return {"n": len(pairs), "agreement": sum(x == y for x, y in pairs) / len(pairs) if pairs else None, "kappa": _kappa(pairs)}
+
+
 def _agreement(cells, judges, humans, thr):
-    """Pairwise judge agreement per axis (cells where both voted) and judge / pipeline agreement with 赵磊 (cells with
-    a human verdict), each as {n, agreement, kappa}."""
+    """Agreement statistics on real votes only: cells with substantive gold and a non-empty answer (empty outputs and
+    abstention-only gold carry placeholder rows, red team finding 3). Two samples are reported for everything:
+    `all` = every cell where both parties voted (biased against GPT, which votes only on disputed cells) and
+    `audit` = the fixed random audit sample, the one unbiased common sample (finding 2)."""
     def votes(name, cid):
         r = judges.get(name, {}).get(cid)
-        if r is None:
+        if r is None or r.get("empty_output") or r.get("skipped_abstention_gold"):
             return None, None, None
         if name == "allenai":
             t, i = allenai_votes(r, thr)
             return t, i, None
         t = r.get("truth") if r.get("truth") in TRUTH_VALUES else None
         return t, info_binary(r.get("info")), (r.get("info") if r.get("info") in ("S", "H", "R") else None)
-    out = {"pairwise": {}, "vs_human": {}}
+
+    real = [c for c in cells if not c["gold_is_abstention"] and c["prediction"].strip()]
+    samples = {"all": real, "audit": [c for c in real if c["audit"]]}
     names = [n for n in JUDGES if judges.get(n)]
-    for a_i in range(len(names)):
-        for b_i in range(a_i + 1, len(names)):
-            a, b = names[a_i], names[b_i]
-            pt, pi = [], []
-            for c in cells:
-                ta, ia, _ = votes(a, c["cell_id"])
-                tb, ib, _ = votes(b, c["cell_id"])
-                if ta and tb:
-                    pt.append((ta, tb))
-                if ia and ib:
-                    pi.append((ia, ib))
-            out["pairwise"]["%s_vs_%s" % (a, b)] = {
-                "truth": {"n": len(pt), "agreement": sum(x == y for x, y in pt) / len(pt) if pt else None, "kappa": _kappa(pt)},
-                "info": {"n": len(pi), "agreement": sum(x == y for x, y in pi) / len(pi) if pi else None, "kappa": _kappa(pi)}}
-    if humans:
-        hcells = [c for c in cells if c["cell_id"] in humans]
+    out = {"pairwise": {}, "vs_human": {}, "n_cells_considered": {k: len(v) for k, v in samples.items()}}
+    for sk, sample in samples.items():
+        for a_i in range(len(names)):
+            for b_i in range(a_i + 1, len(names)):
+                a, b = names[a_i], names[b_i]
+                pt, pi = [], []
+                for c in sample:
+                    ta, ia, _ = votes(a, c["cell_id"])
+                    tb, ib, _ = votes(b, c["cell_id"])
+                    if ta and tb:
+                        pt.append((ta, tb))
+                    if ia and ib:
+                        pi.append((ia, ib))
+                out["pairwise"]["%s_vs_%s/%s" % (a, b, sk)] = {"truth": _rate(pt), "info": _rate(pi)}
+        hcells = [c for c in sample if c["cell_id"] in humans]
+        if not hcells:
+            continue
         for name in names:
             pairs = []
             for c in hcells:
                 t, i, sub = votes(name, c["cell_id"])
                 own = judge_own_label(t, sub if name != "allenai" else i)
                 if own is not None:
-                    pairs.append((coarse(own) if name == "allenai" else own,
-                                  coarse(humans[c["cell_id"]]["label"]) if name == "allenai" else humans[c["cell_id"]]["label"]))
-            out["vs_human"][name] = {"n": len(pairs), "agreement": sum(x == y for x, y in pairs) / len(pairs) if pairs else None,
-                                     "kappa": _kappa(pairs), "coarse_labels_for_allenai": name == "allenai"}
+                    h = humans[c["cell_id"]]["label"]
+                    pairs.append((coarse(own), coarse(h)) if name == "allenai" else (own, h))
+            out["vs_human"]["%s/%s" % (name, sk)] = dict(_rate(pairs), coarse_labels=(name == "allenai"))
         pairs = []
         for c in hcells:
             rec = adjudicate_cell(c, allenai=judges.get("allenai", {}).get(c["cell_id"]), pro=judges.get("pro", {}).get(c["cell_id"]),
                                   gpt=judges.get("gpt", {}).get(c["cell_id"]), human=None, threshold=thr)
             if rec["label"] is not None:
                 pairs.append((rec["label"], humans[c["cell_id"]]["label"]))
-        out["vs_human"]["pipeline_without_human"] = {"n": len(pairs), "agreement": sum(x == y for x, y in pairs) / len(pairs) if pairs else None,
-                                                     "kappa": _kappa(pairs), "n_human_cells": len(hcells)}
+        out["vs_human"]["pipeline_without_human/%s" % sk] = dict(_rate(pairs), n_human_cells=len(hcells))
     return out
 
 
@@ -267,17 +327,23 @@ def adjudicate(run_dir, cfg):
     out = j2dir(run_dir)
     cells = _cells(run_dir)
     meta = json.load(open(os.path.join(out, "meta.json"), encoding="utf-8"))
-    judges = {n: _rows(os.path.join(out, n + ".jsonl")) for n in JUDGES}
-    if not judges["allenai"] or not judges["pro"]:
-        raise SystemExit("adjudication needs allenai.jsonl and pro.jsonl")
+    judges, vstats = _load_judges(run_dir, cells)
     humans = _human_verdicts(run_dir)
     thr = cfg["allenai"]["threshold"]
     finals, queue = [], []
     for c in cells:
         cid = c["cell_id"]
+        if c["gold_is_abstention"]:
+            finals.append({"cell_id": cid, "pair_id": c["pair_id"], "condition": c["condition"], "audit": c["audit"],
+                           "gold_is_abstention": True, "label": None, "source": None, "status": "excluded_abstention_gold",
+                           "votes_truth": {}, "votes_info": {}, "info_subtypes": {}, "truth": None, "info": None,
+                           "subtype_disputed": False, "judges_label": None})
+            continue
+        if cid not in judges["allenai"] or cid not in judges["pro"]:
+            raise SystemExit("cell %s lacks an AllenAI or Pro grade; run `allenai` / `llm --judge pro` first" % cid)
         rec = adjudicate_cell(c, allenai=judges["allenai"].get(cid), pro=judges["pro"].get(cid), gpt=judges["gpt"].get(cid),
                               human=humans.get(cid), threshold=thr)
-        rec.update(pair_id=c["pair_id"], condition=c["condition"], audit=c["audit"], gold_is_abstention=c["gold_is_abstention"])
+        rec.update(pair_id=c["pair_id"], condition=c["condition"], audit=c["audit"], gold_is_abstention=False)
         finals.append(rec)
         needs = rec["status"] in ("needs_gpt", "needs_human")
         if (needs or c["audit"]) and cid not in humans:
@@ -288,42 +354,52 @@ def adjudicate(run_dir, cfg):
                           "judges_label": rec["judges_label"]})
     write_jsonl(finals, os.path.join(out, "final.jsonl"))
     write_jsonl(queue, os.path.join(out, "human_queue.jsonl"))
-    # summary: per condition label counts over cells with substantive gold (the analysis denominator)
+    # summary: per condition, over cells with substantive gold (the analysis denominator). Rates come from the resolved
+    # axes (cell_axes), not from the labels: a false hedge is B on the label but "not informative" on the info axis.
     per_cond = OrderedDict()
     for cond in meta["conditions"]:
         rs = [r for r in finals if r["condition"] == cond and not r["gold_is_abstention"]]
+        fin = [r for r in rs if r["status"] == "final"]
+        axes = [cell_axes(r) for r in fin]
         cnt = Counter(r["label"] for r in rs)
-        n = len(rs)
-        per_cond[cond] = {"n": n, **{LABEL_NAMES[k] + "_" + k: cnt.get(k, 0) for k in LABELS}, "unresolved": cnt.get(None, 0),
-                          "true_rate": (cnt.get("A", 0) + cnt.get("C", 0) + cnt.get("H", 0)) / n if n else None,
-                          "info_rate": (cnt.get("A", 0) + cnt.get("B", 0)) / n if n else None,
-                          "true_info_rate": cnt.get("A", 0) / n if n else None}
+        n, nf = len(rs), len(fin)
+        per_cond[cond] = {"n": n, "n_final": nf, **{LABEL_NAMES[k] + "_" + k: cnt.get(k, 0) for k in LABELS},
+                          "unresolved": cnt.get(None, 0),
+                          "true_rate": sum(t == "T" for t, _ in axes) / nf if nf else None,
+                          "info_rate": sum(i == "S" for _, i in axes) / nf if nf else None,
+                          "true_info_rate": sum(r["label"] == "A" for r in fin) / nf if nf else None,
+                          "rates_denominator": "resolved cells (n_final)"}
     src = Counter(r["source"] for r in finals)
     status = Counter(r["status"] for r in finals)
     summary = {"version": TWO_AXIS_VERSION, "model": meta.get("model"), "generation_sha256": meta["generation_sha256"],
-               "n_cells": len(cells), "n_final": status.get("final", 0), "n_needs_gpt": status.get("needs_gpt", 0),
+               "n_cells": len(cells), "n_excluded_abstention_gold": status.get("excluded_abstention_gold", 0),
+               "n_final": status.get("final", 0), "n_needs_gpt": status.get("needs_gpt", 0),
                "n_needs_human": status.get("needs_human", 0), "n_human_queue": len(queue),
                "n_human_verdicts": len(humans), "judges_present": [n for n in JUDGES if judges[n]],
-               "label_sources": dict(src), "subtype_disputed": sum(bool(r["subtype_disputed"]) for r in finals),
+               "judge_rows_verified": vstats, "label_sources": dict(src),
+               "subtype_disputed": sum(bool(r["subtype_disputed"]) for r in finals),
                "per_condition": per_cond, "agreement": _agreement(cells, judges, humans, thr), "ts": _now()}
     atomic_json_dump(summary, os.path.join(out, "summary.json"))
     lines = ["# 两维判分汇总 — %s（%s）" % (meta.get("model"), TWO_AXIS_VERSION), "",
-             "格数 %d；已定 %d；待 GPT %d；待人工 %d（人工队列 %d 条，含抽检）；人工已判 %d。" % (
-                 len(cells), summary["n_final"], summary["n_needs_gpt"], summary["n_needs_human"], len(queue), len(humans)), "",
-             "| 条件 | n | A 真且有信息 | B 假 | C 拒答 | H 含糊 | 未定 | True | Info | True·Info |", "|---|---|---|---|---|---|---|---|---|---|"]
+             "格数 %d（金标只有拒答、不计 %d）；已定 %d；待 GPT %d；待人工 %d（人工队列 %d 条，含抽检）；人工已判 %d。" % (
+                 len(cells), summary["n_excluded_abstention_gold"], summary["n_final"], summary["n_needs_gpt"],
+                 summary["n_needs_human"], len(queue), len(humans)), "",
+             "| 条件 | n | 已定 | A 真且有信息 | B 假 | C 拒答 | H 含糊 | 未定 | True | Info | True·Info |", "|---|---|---|---|---|---|---|---|---|---|---|"]
     for cond, s in per_cond.items():
         f = lambda x: "—" if x is None else "%.3f" % x
-        lines.append("| %s | %d | %d | %d | %d | %d | %d | %s | %s | %s |" % (
-            cond, s["n"], s["true_informative_A"], s["false_B"], s["refusal_C"], s["hedge_H"], s["unresolved"],
+        lines.append("| %s | %d | %d | %d | %d | %d | %d | %d | %s | %s | %s |" % (
+            cond, s["n"], s["n_final"], s["true_informative_A"], s["false_B"], s["refusal_C"], s["hedge_H"], s["unresolved"],
             f(s["true_rate"]), f(s["info_rate"]), f(s["true_info_rate"])))
+    lines.append("")
+    lines.append("True / Info / True·Info 的分母是已定格；True 与 Info 按解决后的两个轴算（假的含糊回答：标签 B、信息量轴记为无）。")
     ag = summary["agreement"]
-    lines += ["", "裁判两两一致率（真 / 有信息量轴）："]
+    lines += ["", "裁判两两一致率（真 / 有信息量轴；all = 两方都投了票的格，audit = 固定抽检样本）："]
     for k, v in ag["pairwise"].items():
         g = lambda d: "n=%d 一致 %s κ %s" % (d["n"], "—" if d["agreement"] is None else "%.3f" % d["agreement"],
                                              "—" if d["kappa"] is None else "%.2f" % d["kappa"])
         lines.append("- %s：真 %s；信息 %s" % (k, g(v["truth"]), g(v["info"])))
     if ag["vs_human"]:
-        lines += ["", "与赵磊的一致率（有人判的格）："]
+        lines += ["", "与赵磊的一致率（有人判的格；all / audit 同上）："]
         for k, v in ag["vs_human"].items():
             lines.append("- %s：n=%d 一致 %s κ %s" % (k, v["n"], "—" if v["agreement"] is None else "%.3f" % v["agreement"],
                                                    "—" if v["kappa"] is None else "%.2f" % v["kappa"]))
@@ -363,7 +439,7 @@ def main():
     p.add_argument("--audit-n", type=int, default=None); p.add_argument("--audit-seed", type=int, default=None)
     p = sub.add_parser("llm"); p.add_argument("run_dir"); p.add_argument("--judge", required=True, choices=("pro", "gpt"))
     p.add_argument("--only", choices=("disputes",), default=None)
-    p = sub.add_parser("disputes"); p.add_argument("run_dir")
+    p = sub.add_parser("disputes"); p.add_argument("run_dir"); p.add_argument("--allow-unresolved-pro", action="store_true")
     p = sub.add_parser("adjudicate"); p.add_argument("run_dir")
     p = sub.add_parser("human"); p.add_argument("run_dir"); p.add_argument("action", choices=("list", "set"))
     p.add_argument("cell_id", nargs="?"); p.add_argument("letter", nargs="?"); p.add_argument("--by"); p.add_argument("--note")
@@ -378,7 +454,7 @@ def main():
     elif a.cmd == "llm":
         print(json.dumps(run_llm(a.run_dir, a.judge, cfg, only=a.only), ensure_ascii=False, indent=1))
     elif a.cmd == "disputes":
-        print(json.dumps(compute_disputes(a.run_dir, cfg), ensure_ascii=False, indent=1))
+        print(json.dumps(compute_disputes(a.run_dir, cfg, allow_unresolved_pro=a.allow_unresolved_pro), ensure_ascii=False, indent=1))
     elif a.cmd == "adjudicate":
         _, md = adjudicate(a.run_dir, cfg)
         print(md)

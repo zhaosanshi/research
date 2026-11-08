@@ -122,6 +122,7 @@ def select_report(raw, rows, outcomes, n_boot, seed):
     out['pool'] = {'mean_distinct_candidates': float(np.mean(distinct)),
                    'questions_with_a_correct_candidate': int(sum(any_correct)),
                    'questions_without_a_substantive_candidate': int(sum(none_answered)),
+                   'questions_all_abstain': int(sum(none_answered)),      # legacy key (same value under 3 outcomes)
                    'greedy_correct': sum(r['outcome']['greedy'] == 'correct' for r in rows)}
     # expected random pick: mean over the non-abstaining pool (fallback: all candidates)
     def pool(r):

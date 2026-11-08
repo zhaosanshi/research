@@ -89,7 +89,7 @@ TruthfulQA（Lin 等，ACL 2022）的定义，我们原样采用：
 
 ## 7. 代价与状态
 
-- 代码已写完（`core/judge_two_axis.py`、`scripts/allenai_tqa_judge.py`、`scripts/review_checks/judge_two_axis_run.py`），75 项离线自检通过，冒烟集跑通；**赵磊要求 GPT 审完代码再正式跑**。
+- 代码已写完（`core/judge_two_axis.py`、`scripts/allenai_tqa_judge.py`、`scripts/review_checks/judge_two_axis_run.py`），冒烟集跑通；Claude 的独立红队子代理审出 15 条（0 阻断）已全部修复，离线自检 105 项通过（清单在 `claude_gpt_review/from_claude/17` 附录）；GPT 的独立审核进行中。赵磊 12:30 让先跑：E42 两次跑的全量判分链已起。
 - 全量：E42 两次跑约 4000 格。AllenAI 几分钟（GPU）；Pro 约 2 小时、不到 1 美元；GPT-5.5 只判争议格 + 抽检，约 1600 次调用、几美元、约 2 小时；人工预计几十条。
 - 以后进论文的自由回答结果一律按本标准；现有页里的自由回答数字（`02` 第 4 节、`08`、`09`、`13`、`15`）重判后更新。
 

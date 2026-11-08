@@ -115,9 +115,17 @@ def qa_cache_key(model, question, gold, prediction, incorrect=None):
 
 class LLMJudge:
     qa_rubric_id = QA_GRADER_VERSION
-    # Legacy test doubles/subclasses may intentionally bypass __init__.
+    # Legacy test doubles/subclasses may intentionally bypass __init__: every attribute read outside __init__ has a
+    # class-level default equal to the legacy behaviour.
     full_personal_refusal_guard = False
     outcome_policy = OUTCOME_POLICY
+    key_extra = None
+    max_completion_tokens = None
+    reasoning_effort = None
+    send_temperature = True
+    extra_body = None
+    max_tokens = 8
+    temperature = 0.0
 
     def __init__(self, model, base_url=None, api_key=None, api_key_env="DEEPSEEK_API_KEY", cache_path=None,
                  temperature=0.0, max_tokens=8, sleep=0.3, max_retries=5, name=None, extra_body=None,
