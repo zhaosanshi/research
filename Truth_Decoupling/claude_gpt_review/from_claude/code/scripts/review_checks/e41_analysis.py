@@ -120,6 +120,10 @@ def main():
         ec = "%s+%s" % (E, c)
         sec["additivity %s minus E" % ec] = delta(ec, E); sec["additivity %s minus %s" % (ec, c)] = delta(ec, c)
         sec["%s vs baseline@gate" % ec] = contrast(ec, "baseline", "gate"); sec["%s vs baseline@conf" % ec] = contrast(ec, "baseline", "conf")
+        # P5 (added 2026-11-08 at GPT round 24's request, supplementary - not in the pre-declared primary family): the
+        # other half of "beats ANY single direction" - E+C natural vs C ALONE thresholded on its gate / confidence to the
+        # same K. P1/P2 compare against E alone; without P5 the sentence cannot be claimed even if P2 were positive.
+        sec["P5 %s vs %s@gate" % (ec, c)] = contrast(ec, c, "gate"); sec["P5b %s vs %s@conf" % (ec, c)] = contrast(ec, c, "conf")
     sec["summaries"] = {c: summary(c, test_idx) for c in ["baseline", E, c_abst, c_ans, "%s+%s" % (E, c_abst), "%s+%s" % (E, c_ans)]}
     R["secondary"] = sec
     # ---- exploratory: every layer / alpha (point estimates on test; tuning-selected best reported on test) ------------ #
