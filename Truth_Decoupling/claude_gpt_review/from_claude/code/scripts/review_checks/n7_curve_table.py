@@ -7,9 +7,9 @@ Per strength and per C sign the table reports, on the test half: C alone's self-
 knob moved), E+C's correct answers among its own self-selected K, and the pre-declared contrasts of e41_analysis.py:
   P1 = E+C natural minus E thresholded on its gate margin to the same K
   P2 = E+C natural minus E thresholded on its True/False confidence to the same K   (primary)
-with the pair-bootstrap 95% CI and the Holm-corrected bootstrap p (Holm within model and strength, 4 contrasts).
-Criterion (pre-declared in the notepad): the Dr.'s sentence "at the same answer rate the combination beats any single
-direction" holds only if P2 > 0 with Holm p < 0.05 at >= 1 strength on >= 2 models. Everything else is the curve.
+with pair-bootstrap 95% CIs and Holm correction across ALL predeclared strengths and both P1/P2/signs within model.
+The resulting criterion concerns E thresholding only; it cannot establish superiority to C alone or the paper's full
+claim. Missing strengths/models are incomplete evidence, not a negative result.
 """
 import argparse
 import glob
@@ -17,19 +17,27 @@ import json
 import os
 import re
 
+DEFAULT_ALPHAS = (.25, .5, .75, 1., 1.5, 2.)
+
 ALPHA = re.compile(r"e41_n7_a([0-9.]+)_analysis\.json$")
 
 
 def load_model(e41_dir, model):
-    rows = []
+    rows = []; seen = set()
     for path in sorted(glob.glob(os.path.join(e41_dir, model, "e41_n7_a*_analysis.json"))):
         m = ALPHA.search(path)
         if not m:
             continue
+        alpha = float(m.group(1))
+        if alpha in seen: raise ValueError("duplicate alpha files for " + model)
+        seen.add(alpha)
         A = json.load(open(path, encoding="utf-8"))
+        if A.get("model") != model: raise ValueError("analysis belongs to another model")
         c_names = list(A["fixed_C"].keys())
         c_abst = [c for c in c_names if A["fixed_C"][c]["sign"] == -1][0]
         c_ans = [c for c in c_names if A["fixed_C"][c]["sign"] == 1][0]
+        if any(float(A["fixed_C"][c]["alpha"]) != alpha for c in (c_abst, c_ans)):
+            raise ValueError("filename strength differs from the actual C metadata")
         E = A["chosen_E"]
         summ = A["secondary"]["summaries"]
         row = {"alpha": float(m.group(1)), "E": E, "n_test": A["n_test"],
@@ -41,8 +49,8 @@ def load_model(e41_dir, model):
             p2 = A["primary"]["P2 %s vs E@conf" % ec]
             row[tag] = {"C": c, "C_K": summ[c]["K"], "C_correct": summ[c]["correct_natural"], "EC_K": summ[ec]["K"],
                         "EC_correct": summ[ec]["correct_natural"], "EC_J": summ[ec]["J"],
-                        "P1": p1["diff"], "P1_ci": p1["ci95"], "P1_holm": p1["holm_p"],
-                        "P2": p2["diff"], "P2_ci": p2["ci95"], "P2_holm": p2["holm_p"]}
+                        "P1": p1["diff"], "P1_ci": p1["ci95"], "P1_raw_p": p1["boot_p"], "P1_holm_per_strength_historical": p1["holm_p"],
+                        "P2": p2["diff"], "P2_ci": p2["ci95"], "P2_raw_p": p2["boot_p"], "P2_holm_per_strength_historical": p2["holm_p"]}
         rows.append(row)
     return sorted(rows, key=lambda r: r["alpha"])
 
@@ -63,29 +71,64 @@ def table(model, rows):
     return "\n".join(L)
 
 
-def verdict(all_rows):
-    hits = []
+def verdict(all_rows, expected_alphas=DEFAULT_ALPHAS):
+    """Correct the complete prespecified strength family; never select a per-strength winner uncorrected."""
+    import math
+    expected = tuple(float(a) for a in expected_alphas)
+    if not expected or len(expected) != len(set(expected)) or any(not math.isfinite(a) or a <= 0 for a in expected):
+        raise ValueError('expected strengths must be distinct, positive, finite values')
+    hits, missing = [], {}
     for model, rows in all_rows.items():
-        for r in rows:
-            for tag in ("abst", "ans"):
-                d = r[tag]
-                if d["P2"] > 0 and d["P2_holm"] < 0.05:
-                    hits.append((model, r["alpha"], tag, d["P2"], d["P2_holm"]))
+        by_alpha = {r['alpha']: r for r in rows}
+        if len(by_alpha) != len(rows) or set(by_alpha) - set(expected):
+            raise ValueError('duplicate or undeclared strength in ' + model)
+        missing[model] = sorted(set(expected) - set(by_alpha))
+        if rows and (len({r['E'] for r in rows}) != 1 or len({r['n_test'] for r in rows}) != 1
+                     or any(r['baseline'] != rows[0]['baseline'] or r['E_only'] != rows[0]['E_only'] for r in rows)):
+            raise ValueError('E, cohort size, baseline or E-only result changed across strengths')
+        entries = []
+        for alpha in expected:
+            for tag in ('abst', 'ans'):
+                for contrast in ('P1', 'P2'):
+                    row = by_alpha.get(alpha)
+                    # Missing tests count in the declared family but cannot give a completed decision.
+                    value = row[tag][contrast + '_raw_p'] if row is not None else 1.
+                    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or not 0 <= value <= 1:
+                        raise ValueError('invalid raw bootstrap p')
+                    entries.append((value, row, tag, contrast))
+        ordered = sorted(range(len(entries)), key=lambda i: entries[i][0])
+        running = 0.
+        for rank, index in enumerate(ordered):
+            value, row, tag, contrast = entries[index]
+            running = max(running, min(1., (len(entries) - rank) * value))
+            if row is not None: row[tag][contrast + '_holm'] = running
+        for row in rows:
+            for tag in ('abst', 'ans'):
+                d = row[tag]
+                if d['P2'] > 0 and d['P2_holm'] < .05:
+                    hits.append((model, row['alpha'], tag, d['P2'], d['P2_holm']))
+    complete = bool(all_rows) and not any(missing.values())
     models_with_hit = {h[0] for h in hits}
-    return {"significant_P2_positive": hits, "models_with_a_hit": sorted(models_with_hit),
-            "criterion_met": len(models_with_hit) >= 2}
+    return {'significant_P2_positive': hits, 'models_with_a_hit': sorted(models_with_hit),
+            'criterion_met': len(models_with_hit) >= 2 if complete else None,
+            'status': 'complete' if complete else 'incomplete', 'missing_strengths': missing,
+            'expected_strengths': list(expected), 'holm_tests_per_model': 4 * len(expected),
+            'claim_scope': 'E+C versus E confidence-thresholded to the same K; C-only at that K was not tested here',
+            'full_any_single_direction_claim_established': False}
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("e41_dir"); ap.add_argument("--models", nargs="+", default=["llama3.1-8b", "qwen3-8b", "gemma3-4b"])
     ap.add_argument("--out", default=None)
+    ap.add_argument("--alphas", nargs="+", type=float, default=list(DEFAULT_ALPHAS), help="complete prespecified strength family")
     a = ap.parse_args()
     all_rows = {m: load_model(a.e41_dir, m) for m in a.models}
-    v = verdict(all_rows)
-    md = ["# N7 第一步：C 中间力度曲线（博士原句的最后一次检验）", "",
-          "事先标准：至少一个力度、至少两个模型上，E+C 自答的答对数显著多于 E 按置信度卡到同样多题（P2，Holm 校正）。**结论：%s**（有显著正 P2 的模型：%s）。" % (
-              "成立" if v["criterion_met"] else "不成立", ", ".join(v["models_with_a_hit"]) or "无"), ""]
+    v = verdict(all_rows, a.alphas)
+    label = "未完成" if v["criterion_met"] is None else ("支持该有限比较" if v["criterion_met"] else "未见该有限比较的显著支持")
+    md = ["# N7 第一步：C 中间力度曲线", "",
+          "有限比较：E+C与单E置信筛题在同K下比较；Holm按每模型全部预声明力度×两方向×P1/P2统一校正。结果：**%s**（显著正P2模型：%s）。" % (label, ", ".join(v["models_with_a_hit"]) or "无"),
+          "尚未在此检验同K的单C，因此不能据此宣布组合胜过任一单方向；未完成的数据也不能写成负结果。", ""]
     for m, rows in all_rows.items():
         md.append(table(m, rows) if rows else "## %s：无结果" % m)
         md.append("")

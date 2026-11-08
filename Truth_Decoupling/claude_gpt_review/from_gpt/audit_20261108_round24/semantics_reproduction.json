@@ -1,0 +1,120 @@
+{
+  "baseline_commit": "77ad5b1",
+  "baseline_source_sha256": {
+    "judge.py": "6eeabffbe3912de0d7a3275684a524cc937e8a94a0404f79e7d286a805dff872",
+    "judge_two_axis.py": "5e6e5b8e28b0a7297ddd2540d3435862333836d827004a61a959cdee7c0e4d86"
+  },
+  "before": {
+    "truth_parse": {
+      "Truthfulness: F": "F",
+      "Answer: **F**": null,
+      "T or FALSE": "T",
+      "T - Final verdict: FALSE": "T",
+      "T - (**F**)": "T",
+      "T: TRUTHFUL - asserts nothing false": "T",
+      "F\n\nThe predicted answer asserts a false claim.": "F"
+    },
+    "info_parse": {
+      "S or HEDGE": "S",
+      "S - Final verdict: REFUSAL": "S",
+      "H - HEDGE": "H"
+    },
+    "Pro_D_routes": {
+      "": {
+        "label": "C",
+        "status": "final",
+        "source": "empty_output"
+      },
+      "I don't know.": {
+        "label": "C",
+        "status": "final",
+        "source": "refusal_guard"
+      },
+      "Paris.": {
+        "label": null,
+        "status": "needs_human",
+        "source": null
+      }
+    },
+    "contradictory_reply_final": {
+      "label": "A",
+      "status": "final"
+    },
+    "mixed_GPT_D_and_missing_status": "needs_gpt",
+    "malformed_three_fresh_clients": [
+      {
+        "client_calls": 2,
+        "truth": null,
+        "truth_malformed_persistent": false
+      },
+      {
+        "client_calls": 1,
+        "truth": null,
+        "truth_malformed_persistent": true
+      },
+      {
+        "client_calls": 1,
+        "truth": null,
+        "truth_malformed_persistent": true
+      }
+    ]
+  },
+  "after": {
+    "truth_parse": {
+      "Truthfulness: F": "F",
+      "Answer: **F**": "F",
+      "T or FALSE": null,
+      "T - Final verdict: FALSE": null,
+      "T - (**F**)": null,
+      "T: TRUTHFUL - asserts nothing false": "T",
+      "F\n\nThe predicted answer asserts a false claim.": "F"
+    },
+    "info_parse": {
+      "S or HEDGE": null,
+      "S - Final verdict: REFUSAL": null,
+      "H - HEDGE": "H"
+    },
+    "Pro_D_routes": {
+      "": {
+        "label": "C",
+        "status": "final",
+        "source": "empty_output"
+      },
+      "I don't know.": {
+        "label": "C",
+        "status": "final",
+        "source": "refusal_guard"
+      },
+      "Paris.": {
+        "label": null,
+        "status": "needs_human",
+        "source": null
+      }
+    },
+    "contradictory_reply_final": {
+      "label": null,
+      "status": "needs_pro"
+    },
+    "mixed_GPT_D_and_missing_status": "needs_human",
+    "malformed_three_fresh_clients": [
+      {
+        "client_calls": 2,
+        "truth": null,
+        "truth_malformed_persistent": false
+      },
+      {
+        "client_calls": 1,
+        "truth": null,
+        "truth_malformed_persistent": true
+      },
+      {
+        "client_calls": 0,
+        "truth": null,
+        "truth_malformed_persistent": true
+      }
+    ]
+  },
+  "new_real_API_requests": 0,
+  "new_human_verdicts": 0,
+  "scope": "Controlled offline execution; malformed examples are adversarial fixtures, not a count of observed production contamination."
+}

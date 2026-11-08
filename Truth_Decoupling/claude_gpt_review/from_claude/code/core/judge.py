@@ -7,8 +7,9 @@ Two judgments:
 
 API key, base URL and model name come from the config / environment, never from code.
 Unresolved calls after retries are recorded as "unresolved" (never silently coerced).
-New calls use a versioned SHA256 key over the effective request and complete prompts.
-Historical SHA1 keys remain available only through explicit read-only key helpers.
+The two-axis path uses a versioned SHA256 key over effective requests and full prompts.
+The legacy single-letter path retains its historical key for frozen-run compatibility;
+recorded parameter mismatches are rejected and unknown historical fields stay unknown.
 
 2026-11-08 (赵磊's rule): the primary DeepSeek judge is explicitly deepseek-v4-pro.
 Historical `deepseek-chat` cache rows recorded only the requested alias: do not
@@ -29,9 +30,13 @@ legacy cache rows are not silently promoted to the new key protocol.
 import os
 import re
 import time
+import uuid
+from contextlib import nullcontext
 
 from .io_utils import append_jsonl, read_jsonl, stable_hash
 from .judge_two_axis_contract import canonical_sha,request_contract,resolve_base_url
+from .judge_cache_store import (cache_lock, request_lock, read_rows_unlocked, read_cache_rows,
+                                record_conflicts_unlocked)
 from .qa_scoring import (OUTCOME_POLICY, FULL_PERSONAL_REFUSAL_POLICY,
                          full_personal_refusal_decision, apply_full_personal_refusal_policy)
 
@@ -204,8 +209,10 @@ class LLMJudge:
         self.cache_path = cache_path
         self._cache = {}
         self._cache_meta = {}
+        self._cache_rows = []
         if cache_path and os.path.exists(cache_path):
-            for row in read_jsonl(cache_path):
+            self._cache_rows = read_cache_rows(cache_path)
+            for row in self._cache_rows:
                 self._cache[row["key"]] = row["answer"]   # last row per key wins: a human verdict supersedes a D
                 self._cache_meta[row['key']] = row
         # human review queue lives next to the cache; keys already queued are not queued twice
@@ -264,11 +271,68 @@ class LLMJudge:
         return {**effective,'key_extra':self.key_extra,'cache_key_version':self.cache_key_version(),
                 'request_contract_sha256':canonical_sha(effective)}
 
-    def complete(self, system, user):
+    def _check_legacy_cache_binding(self, key):
+        """Keep history readable, but never ignore a known request mismatch.
+
+        Old rows without these fields remain an explicitly limited historical
+        compatibility path, not evidence that their unknown parameters match.
+        """
+        if self.key_extra is not None:
+            return
+        effective = self.effective_request()
+        records = [r for r in getattr(self, '_cache_rows', []) if r['key'] == key]
+        if not records:
+            records = [getattr(self, '_cache_meta', {}).get(key, {})]
+        for record in records:
+            params = record.get('params') or {}
+            if not isinstance(params, dict):
+                raise ValueError('legacy cache has invalid recorded request parameters')
+            for name, value in effective.items():
+                if name in params and params[name] != value:
+                    raise ValueError('legacy cache request parameter mismatch: ' + name + '; use a separate verified cache')
+
+    def _refresh_shared_cache(self):
+        rows = read_rows_unlocked(self.cache_path)
+        self._cache = {row['key']: row['answer'] for row in rows}
+        self._cache_meta = {row['key']: row for row in rows}
+        self._cache_rows = rows
+        return rows
+
+    def cached_replies(self, system, user):
+        """All stored attempts for this request, preserving duplicate observations."""
         key = self.cache_key(system, user)
-        if key in self._cache:
-            self.n_cache_hits += 1
-            return self._cache[key]
+        if getattr(self, 'cache_path', None):
+            rows = read_cache_rows(self.cache_path)
+        else:
+            rows = getattr(self, '_cache_rows', [])
+        return [row['answer'] for row in rows if row['key'] == key]
+
+    def complete(self, system, user, *, retry_cached_if=None, max_cached_attempts=2):
+        """Serialize identical shared requests and refresh disk before deciding to call.
+
+        A parser may request a bounded retry of an invalid cached reply. This is
+        done under the same request lock, not by deleting an in-memory entry.
+        """
+        if type(max_cached_attempts) is not int or max_cached_attempts < 1:
+            raise ValueError('max_cached_attempts must be a positive integer')
+        key = self.cache_key(system, user)
+        shared = self.key_extra is not None and getattr(self, 'cache_path', None)
+        lock = request_lock(self.cache_path, key) if shared else nullcontext()
+        with lock:
+            if shared:
+                with cache_lock(self.cache_path):
+                    self._refresh_shared_cache()
+            self._check_legacy_cache_binding(key)
+            attempts = [r for r in getattr(self, '_cache_rows', []) if r['key'] == key]
+            retry = (key in self._cache and retry_cached_if is not None
+                     and retry_cached_if(self._cache[key]) and len(attempts) < max_cached_attempts)
+            if key in self._cache and not retry:
+                self.n_cache_hits += 1
+                return self._cache[key]
+            return self._complete_request(system, user, key, shared=bool(shared))
+
+    def _complete_request(self, system, user, key, shared=False):
+        """Called while holding the shared request lock, if one is configured."""
         client = self._get_client()
         answer = None
         resolved = None
@@ -294,11 +358,25 @@ class LLMJudge:
         self._cache[key] = answer
         record={"key":key,"model":self.model,"answer":answer,"source":"api",
                 "resolved_model":resolved,"params":self.params_record(),"cache_key_version":self.cache_key_version(),
-                'system_sha256':canonical_sha(system),'user_sha256':canonical_sha(user),"ts":_now()}
+                'system_sha256':canonical_sha(system),'user_sha256':canonical_sha(user),"ts":_now(),
+                'observation_id':uuid.uuid4().hex}
         if not hasattr(self,'_cache_meta'):self._cache_meta={}
         self._cache_meta[key]=record
-        if self.cache_path:
-            append_jsonl(record,self.cache_path)
+        if shared:
+            with cache_lock(self.cache_path):
+                rows = self._refresh_shared_cache()
+                append_jsonl(record, self.cache_path)
+                rows.append(record)
+                self._cache[key] = answer
+                self._cache_meta[key] = record
+                record_conflicts_unlocked(self.cache_path, rows)
+        elif getattr(self, 'cache_path', None):
+            append_jsonl(record, self.cache_path)
+            if not hasattr(self, '_cache_rows'):self._cache_rows=[]
+            self._cache_rows.append(record)
+        else:
+            if not hasattr(self, '_cache_rows'):self._cache_rows=[]
+            self._cache_rows.append(record)
         return answer
 
     # ---- judgments ------------------------------------------------------- #
@@ -310,6 +388,8 @@ class LLMJudge:
         return apply_full_personal_refusal_policy(grade, question, prediction)
 
     def qa_grade(self, question, gold, prediction, incorrect=None):
+        if len((prediction or '').strip()) > 4000:
+            raise ValueError('legacy grading only saw a 4000-character prefix; use full-text two-axis grading or explicit historical audit')
         user = qa_grade_user(question, gold, prediction, incorrect)
         key = self.cache_key(QA_GRADER_SYSTEM, user)
         decision = full_personal_refusal_decision(question, prediction)

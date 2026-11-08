@@ -233,15 +233,27 @@ def _inconsistent_cells(cells, cfg, cache_dir):
     """cell_id -> set of judge names whose shared reply cache holds different replies to that cell's request
     (judge2_cache_merge.py writes cache_dir/conflicts.json). Such cells are not decided by any rule but by 赵磊."""
     path = os.path.join(cache_dir, 'conflicts.json')
-    if not os.path.exists(path):
-        return {}
-    conflicts = _read_json(path).get('keys', {})          # {judge model file -> [keys]} or flat list
+    conflicts = _read_json(path).get('keys', {}) if os.path.exists(path) else {}
     keys = set()
     if isinstance(conflicts, dict):
         for v in conflicts.values():
             keys.update(v)
     else:
         keys.update(conflicts)
+    # A merge report is a snapshot, not the authoritative current cache. New
+    # replies can have arrived since it was written, including from another run.
+    from core.judge import cache_filename
+    from core.judge_two_axis import CACHE_PREFIX
+    for name in ('pro', 'gpt'):
+        if name not in cfg:
+            continue
+        cache_path = os.path.join(cache_dir, cache_filename(cfg[name]['model'], prefix=CACHE_PREFIX))
+        if not os.path.exists(cache_path):
+            continue
+        replies = {}
+        for row in read_jsonl(cache_path):
+            replies.setdefault(row['key'], set()).add(row['answer'])
+        keys.update(key for key, values in replies.items() if len(values) > 1)
     if not keys:
         return {}
     out = {}
@@ -481,7 +493,7 @@ def _rate(pairs):
     return {"n": len(pairs), "agreement": sum(x == y for x, y in pairs) / len(pairs) if pairs else None, "kappa": _kappa(pairs)}
 
 
-def _agreement(cells, judges, humans, thr):
+def _agreement(cells, judges, humans, thr, inconsistent=None):
     """Agreement statistics on real votes only: cells with substantive gold and a non-empty answer (empty outputs and
     abstention-only gold carry placeholder rows, red team finding 3). Two samples are reported for everything:
     `all` = every cell where both parties voted (biased against GPT, which votes only on disputed cells) and
@@ -532,7 +544,8 @@ def _agreement(cells, judges, humans, thr):
         pairs = [];pipeline_truth=[];pipeline_info=[]
         for c in hcells:
             rec = adjudicate_cell(c, allenai=judges.get("allenai", {}).get(c["cell_id"]), pro=judges.get("pro", {}).get(c["cell_id"]),
-                                  gpt=judges.get("gpt", {}).get(c["cell_id"]), human=None, threshold=thr)
+                                  gpt=judges.get("gpt", {}).get(c["cell_id"]), human=None, threshold=thr,
+                                  inconsistent_judges=(inconsistent or {}).get(c['cell_id'], ()))
             if rec["label"] is not None:
                 pairs.append((rec["label"], humans[c["cell_id"]]["label"]))
                 t,i=cell_axes(rec);hr=normalize_human_verdict(humans[c['cell_id']])
@@ -544,16 +557,44 @@ def _agreement(cells, judges, humans, thr):
     return out
 
 
-def _final_sources(run_dir):
+def _external_context(run_dir, cfg=None, recorded=None):
+    """Keep actual shared dependencies readable without relying on shell state."""
+    if recorded is not None:
+        if not isinstance(recorded, dict) or set(recorded) != {'cache_dir', 'cache_files', 'human_file'}:
+            raise ValueError('missing or invalid external adjudication source context')
+        for env, field in (('TD_JUDGE2_CACHE', 'cache_dir'), ('TD_JUDGE2_HUMAN', 'human_file')):
+            value = os.environ.get(env)
+            if value and os.path.realpath(value) != recorded[field]:
+                raise ValueError('shared adjudication context changed; adjudicate again')
+        return recorded
+    from core.judge import cache_filename
+    from core.judge_two_axis import CACHE_PREFIX
+    cfg = load_cfg() if cfg is None else cfg
+    cache_dir = os.path.realpath(_cache_dir(j2dir(run_dir), cfg))
+    human = os.environ.get('TD_JUDGE2_HUMAN') or None
+    return {'cache_dir': cache_dir,
+            'cache_files': [os.path.join(cache_dir, cache_filename(cfg[n]['model'], prefix=CACHE_PREFIX))
+                            for n in ('pro', 'gpt') if n in cfg],
+            'human_file': os.path.realpath(human) if human else None}
+
+
+def _final_sources(run_dir, external_context=None):
     out=j2dir(run_dir)
     names=('meta.json','cells.jsonl','allenai.jsonl','allenai_meta.json','pro.jsonl','pro_meta.json',
            'gpt.jsonl','gpt_meta.json','human_verdicts.jsonl')
-    return {n:file_sha(os.path.join(out,n)) if os.path.exists(os.path.join(out,n)) else None for n in names}
+    result = {n:file_sha(os.path.join(out,n)) if os.path.exists(os.path.join(out,n)) else None for n in names}
+    context = external_context or _external_context(run_dir)
+    paths = list(context['cache_files']) + [os.path.join(context['cache_dir'], 'conflicts.json')]
+    if context['human_file']:
+        paths.append(context['human_file'])
+    result['external'] = {p: file_sha(p) if os.path.exists(p) else None for p in sorted(set(paths))}
+    return result
 
 
 def _aggregation_code():
     paths={'scripts/review_checks/judge_two_axis_run.py':__file__}
-    for rel in ('core/judge_two_axis.py','core/judge.py','core/judge_two_axis_contract.py','core/qa_scoring.py','core/io_utils.py'):
+    for rel in ('core/judge_two_axis.py','core/judge.py','core/judge_two_axis_contract.py','core/qa_scoring.py','core/io_utils.py',
+                'core/judge_cache_store.py'):
         paths[rel]=os.path.join(CODE_ROOT,rel)
     return {rel:file_sha(path) for rel,path in paths.items()}
 
@@ -569,8 +610,11 @@ def load_verified_final(run_dir,generation_path,require_complete=True):
     mp=os.path.join(out,'final_manifest.json');fp=os.path.join(out,'final.jsonl')
     if not os.path.exists(mp):raise ValueError('no verified final manifest; adjudicate current votes first')
     manifest=_read_json(mp)
+    context = _external_context(run_dir, recorded=manifest.get('external_context'))
+    if 'external_context' not in manifest:
+        raise ValueError('final manifest does not bind shared inputs; adjudicate current votes again')
     if (manifest.get('version')!=ADJUDICATION_VERSION or manifest.get('rubric')!=TWO_AXIS_VERSION
-            or manifest.get('sources')!=_final_sources(run_dir) or manifest.get('final_sha256')!=file_sha(fp)
+            or manifest.get('sources')!=_final_sources(run_dir, context) or manifest.get('final_sha256')!=file_sha(fp)
             or manifest.get('generation_sha256')!=meta['generation_sha256']
             or manifest.get('aggregation_code')!=_aggregation_code()):
         raise ValueError('final decisions or any of their source files changed; adjudicate again')
@@ -598,7 +642,8 @@ def load_verified_final(run_dir,generation_path,require_complete=True):
 def adjudicate(run_dir, cfg):
     out = j2dir(run_dir)
     cells = _cells(run_dir)
-    sources_before=_final_sources(run_dir);code_before=_aggregation_code()
+    context = _external_context(run_dir, cfg)
+    sources_before=_final_sources(run_dir, context);code_before=_aggregation_code()
     meta = _read_json(os.path.join(out,'meta.json'))
     judges, vstats = _load_judges(run_dir, cells,cfg)
     humans = _human_verdicts(run_dir,cells)
@@ -639,7 +684,8 @@ def adjudicate(run_dir, cfg):
             if rec['input_sha'] in seen and seen[rec['input_sha']]!=value:
                 raise ValueError('identical full semantic inputs received conflicting final decisions')
             seen[rec['input_sha']]=value
-    if _final_sources(run_dir)!=sources_before or _aggregation_code()!=code_before:
+    if (_external_context(run_dir, cfg) != context or _final_sources(run_dir, context)!=sources_before
+            or _aggregation_code()!=code_before):
         raise RuntimeError('votes, human decisions, or code changed during adjudication; rerun on a stable snapshot')
     write_jsonl(finals, os.path.join(out, "final.jsonl"))
     write_jsonl(queue, os.path.join(out, "human_queue.jsonl"))
@@ -682,7 +728,7 @@ def adjudicate(run_dir, cfg):
                "n_human_verdicts": len(humans), "judges_present": [n for n in JUDGES if judges[n]],
                "judge_rows_verified": vstats, "label_sources": dict(src),
                "subtype_disputed": sum(bool(r["subtype_disputed"]) for r in finals),
-               "per_condition": per_cond, "agreement": _agreement(cells, judges, humans, thr), "ts": _now()}
+               "per_condition": per_cond, "agreement": _agreement(cells, judges, humans, thr, inconsistent), "ts": _now()}
     summary.update(adjudication_version=ADJUDICATION_VERSION,
                    n_needs_pro=status.get('needs_pro',0),
                    semantic_decisions_complete=all(r['status'] in ('final','excluded_abstention_gold') for r in finals),
@@ -716,9 +762,11 @@ def adjudicate(run_dir, cfg):
                                                    "—" if v["kappa"] is None else "%.2f" % v["kappa"]))
     md = "\n".join(lines) + "\n"
     Path(out,'summary.md').write_text(md,encoding='utf-8')
-    if _final_sources(run_dir)!=sources_before or _aggregation_code()!=code_before:
+    if (_external_context(run_dir, cfg) != context or _final_sources(run_dir, context)!=sources_before
+            or _aggregation_code()!=code_before):
         raise RuntimeError('adjudication source changed while summarizing; final manifest not published')
     atomic_json_dump({'version':ADJUDICATION_VERSION,'rubric':TWO_AXIS_VERSION,'sources':sources_before,
+                     'external_context':context,
                      'generation_sha256':meta['generation_sha256'],'final_sha256':file_sha(os.path.join(out,'final.jsonl')),
                      'judge_contracts':{n:judge_contract(n,cfg) for n in JUDGES},'aggregation_code':_aggregation_code(),
                      'semantic_decisions_complete':summary['semantic_decisions_complete'],
@@ -736,7 +784,7 @@ def human_list(run_dir):
     return [r for r in rows if r["cell_id"] not in humans]
 
 
-def human_set(run_dir, cell_id, letter, by, note=None, truth=None, info_subtype=None):
+def human_set(run_dir, cell_id, letter, by, note=None, truth=None, info_subtype=None, expected_input_sha=None):
     if letter not in LABELS:
         raise SystemExit("a human verdict is one of %s, got %r" % ("/".join(LABELS), letter))
     if not by or not str(by).strip():
@@ -745,6 +793,8 @@ def human_set(run_dir, cell_id, letter, by, note=None, truth=None, info_subtype=
     if cell_id not in cells:
         raise SystemExit("unknown cell id %r" % cell_id)
     cell=cells[cell_id]
+    if expected_input_sha is not None and expected_input_sha != cell_sha(cell):
+        raise ValueError('reviewed content changed before recording the human verdict')
     if cell['gold_is_abstention']:raise ValueError('excluded reference-only-refusal cell is not part of this grading cohort')
     row = normalize_human_verdict({"cell_id": cell_id, "label": letter, "by": by, "note": note or "", "ts": _now(),
            'truth':truth,'info_subtype':info_subtype,'input_sha':cell_sha(cell),'version':ADJUDICATION_VERSION,

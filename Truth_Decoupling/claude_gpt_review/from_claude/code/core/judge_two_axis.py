@@ -167,6 +167,18 @@ def _parse(raw, regex, words):
             break
     up = re.sub(r"\s+", " ", up.upper())
     up = _HEADER.sub("", up, count=1).strip()
+    # A header may precede the same harmless decoration as a bare verdict.
+    # Unmatched wrappers remain invalid; do not strip arbitrary punctuation.
+    for _ in range(4):
+        previous = up
+        up = up.rstrip('.。').strip()
+        for left, right in (("**", "**"), ("`", "`"), ('"', '"'), ("'", "'"),
+                            ("(", ")"), ("[", "]"), ("<", ">")):
+            if up.startswith(left) and up.endswith(right) and len(up) > len(left) + len(right):
+                up = up[len(left):-len(right)].strip()
+                break
+        if up == previous:
+            break
     labels = dict(words)
     if up in labels:
         return labels[up]
@@ -181,11 +193,21 @@ def _parse(raw, regex, words):
         first, rest = up[0], up[1:]
     if first is None:
         return None
-    tokens = [t for t in _SEP.split(rest) if t]
-    if tokens and tokens[0] in labels and labels[tokens[0]] != first:
-        return None                                   # "T: FALSE"
-    if any(len(t) == 1 and regex.fullmatch(t) and t != first for t in tokens):
+    verdict_rest = rest.replace('**', '').replace('__', '')
+    letters = re.findall(r'(?<!\w)[A-Z](?!\w)', verdict_rest)
+    if any(regex.fullmatch(t) and t != first for t in letters):
         return None                                   # "T or F", "F - actually T"
+    # Check spelled-out verdicts throughout the explanation, not just its first
+    # token: "T or FALSE" / "S - final verdict: REFUSAL" must not become T/S.
+    # This is a conservative syntax check, not an English inference engine.
+    # A short direct negation permits ordinary consistent rubric explanations
+    # such as "asserts nothing false"; ambiguous prose remains unparseable.
+    names = '|'.join(re.escape(w) for w in sorted(labels, key=len, reverse=True))
+    for match in re.finditer(r'(?<!\w)(?:' + names + r')(?!\w)', verdict_rest):
+        letter = labels[match.group()]
+        negated = bool(re.search(r'\b(?:NOT|NO|NOTHING|WITHOUT|NEVER)\s+$', verdict_rest[:match.start()]))
+        if (letter != first and not negated) or (letter == first and negated):
+            return None
     return first
 
 
@@ -222,19 +244,18 @@ class TwoAxisLLMJudge:
                             send_temperature=cfg.get("send_temperature", True), key_extra=tag)
 
     def _ask(self, system, user, parse):
-        """Returns (raw, verdict, persistent): a malformed cached reply is asked once more; if the judge returns the
-        same unparseable text again (deterministic judges do), `persistent` is True and the cell goes to the human
-        instead of being re-asked on every run."""
-        key = self.llm.cache_key(system, user)
-        cached = self.llm._cache.get(key)
-        malformed_before = None
-        if cached is not None and parse(cached) is None:
-            malformed_before = cached
-            del self.llm._cache[key]       # malformed cached reply: ask again (the disk row stays for audit)
-        raw = self.llm.complete(system, user)
+        """One retry for malformed replies, counted in the persisted request history.
+
+        The request lock and disk refresh belong to LLMJudge.complete. Never
+        delete just the in-memory entry: another process may already have
+        retried, and a new process must not reset the malformed-attempt budget.
+        Network failures are not cached and remain retryable.
+        """
+        raw = self.llm.complete(system, user, retry_cached_if=lambda value: parse(value) is None,
+                                max_cached_attempts=2)
         verdict = parse(raw)
-        persistent = (verdict is None and raw != "<unresolved>" and malformed_before is not None
-                      and raw.strip() == malformed_before.strip())
+        persistent = (verdict is None and raw != "<unresolved>"
+                      and len(self.llm.cached_replies(system, user)) >= 2)
         return raw, verdict, persistent
 
     def grade(self, question, gold, prediction, incorrect=None):
@@ -431,6 +452,13 @@ def adjudicate_cell(cell, allenai=None, pro=None, gpt=None, human=None, threshol
         return rec
     # GPT has a row but no usable vote on an unresolved axis: a lost reply is retried; a D or a persistently
     # unparseable reply is final for GPT and the cell goes to the human
+    truth_review = truth is None and (gpt.get('truth') == 'D' or gpt.get('truth_malformed_persistent'))
+    info_review = info is None and (gpt.get('info') == 'D' or gpt.get('info_malformed_persistent'))
+    if truth_review or info_review:
+        cannot_determine = ((truth_review and gpt.get('truth') == 'D')
+                            or (info_review and gpt.get('info') == 'D'))
+        rec.update(status='needs_human', review_reason='gpt_cannot_determine' if cannot_determine else 'malformed_judge_reply')
+        return rec
     truth_lost = truth is None and gpt.get("truth") not in TRUTH_VALUES and gpt.get("truth") != "D" and not gpt.get("truth_malformed_persistent")
     info_lost = info is None and info_binary(gpt.get("info")) is None and gpt.get("info") != "D" and not gpt.get("info_malformed_persistent")
     if truth_lost or info_lost:

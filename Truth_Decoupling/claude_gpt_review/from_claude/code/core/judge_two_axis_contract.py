@@ -11,6 +11,7 @@ import inspect
 import json
 import math
 import os
+import re
 from pathlib import Path
 
 
@@ -123,6 +124,9 @@ def judge_contract(name,cfg):
         'request':request_contract(sub),'prompts':{'truth_system':module.TRUTH_SYSTEM,'truth_template':module.TRUTH_TEMPLATE,
             'info_system':module.INFO_SYSTEM,'info_template':module.INFO_TEMPLATE},
         'prompt_builder_sha256':source_hashes(('truth_user','info_user','_clip')),
-        'parser_sha256':source_hashes(('_parse','parse_truth','parse_info'))}
+        'parser_sha256':source_hashes(('_parse','parse_truth','parse_info')),
+        'parser_constants':{name:({'pattern':value.pattern,'flags':value.flags} if isinstance(value,re.Pattern) else value)
+            for name in ('_TRUTH_LETTER','_INFO_LETTER','_WORDS_TRUTH','_WORDS_INFO','_WRAPPERS','_HEADER','_SEP')
+            for value in (getattr(module,name),)}}
     canonical_sha(result)
     return result

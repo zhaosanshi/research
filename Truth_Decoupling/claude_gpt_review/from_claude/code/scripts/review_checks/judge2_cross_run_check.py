@@ -4,9 +4,10 @@ the same verdict in every run. GPT round 22 found 5 of 332 shared inputs with di
 runs; round 23 asked for an explicit check on the new runs rather than an assumption.
 
 usage: judge2_cross_run_check.py RUN_DIR RUN_DIR [RUN_DIR ...] [--out FILE]
-Reads each run's judge2/cells.jsonl and judge2/final.jsonl, groups cells by input_sha, and reports shared inputs,
-inputs whose final (label, truth, info, info_subtype) differ between runs (with the sources of each verdict), and
-inputs unresolved in one run but final in another. Exit code 1 if any conflict exists.
+Verifies each run's complete provenance before comparing its full semantic inputs.
+Exit 0 means complete, verified and consistent shared decisions; 1 is a conflict;
+2 means invalid/incomplete/no shared inputs. --allow-unresolved reports a partial
+snapshot but never makes that snapshot pass.
 """
 import argparse
 import json
@@ -16,17 +17,18 @@ from collections import defaultdict
 
 CODE_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
 sys.path.insert(0, CODE_ROOT)
-from core.io_utils import read_jsonl  # noqa: E402
+from scripts.review_checks import judge_two_axis_run as R  # noqa: E402
 
 
-def load(run_dir):
+def load(run_dir, require_complete=True):
     j2 = os.path.join(run_dir, "judge2")
-    cells = {c["cell_id"]: c for c in read_jsonl(os.path.join(j2, "cells.jsonl"))}
-    finals = {r["cell_id"]: r for r in read_jsonl(os.path.join(j2, "final.jsonl"))}
+    meta = R._read_json(os.path.join(j2, 'meta.json'))
+    _, cells, finals = R.load_verified_final(run_dir, os.path.join(run_dir, meta['generation']),
+                                            require_complete=require_complete)
     by_input = defaultdict(list)
     for cid, c in cells.items():
-        f = finals.get(cid)
-        if f is None or c["gold_is_abstention"]:
+        f = finals[cid]     # The verified loader rejects missing or duplicate rows.
+        if c["gold_is_abstention"]:
             continue
         by_input[c["input_sha"]].append({"run": run_dir, "cell_id": cid, "label": f.get("label"), "truth": f.get("truth"),
                                          "info": f.get("info"), "info_subtype": f.get("info_subtype"), "source": f.get("source"),
@@ -34,11 +36,11 @@ def load(run_dir):
     return by_input
 
 
-def main():
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("run_dirs", nargs="+"); ap.add_argument("--out", default=None)
-    a = ap.parse_args()
-    per_run = [load(r) for r in a.run_dirs]
+def check(run_dirs, allow_unresolved=False):
+    run_dirs = [os.path.realpath(r) for r in run_dirs]
+    if len(run_dirs) < 2 or len(set(run_dirs)) != len(run_dirs):
+        raise ValueError('at least two distinct runs are required')
+    per_run = [load(r, require_complete=not allow_unresolved) for r in run_dirs]
     all_inputs = defaultdict(list)
     for m in per_run:
         for sha, rows in m.items():
@@ -54,16 +56,35 @@ def main():
         elif finals and len(finals) < len(rows):
             partial.append({"input_sha": sha, "resolved_in": sorted({r["run"] for r in finals}),
                             "unresolved_in": sorted({r["run"] for r in rows if r["status"] != "final"})})
-    report = {"runs": a.run_dirs, "n_inputs_total": len(all_inputs), "n_inputs_shared": len(shared),
+    unresolved = [r for rows in all_inputs.values() for r in rows if r['status'] != 'final']
+    complete = not unresolved
+    verified_consistent = complete and bool(shared) and not conflicts
+    report = {"runs": run_dirs, "n_inputs_total": len(all_inputs), "n_inputs_shared": len(shared),
               "n_conflicting_finals": len(conflicts), "n_partially_resolved": len(partial),
+              "n_unresolved_cells": len(unresolved), "semantic_decisions_complete": complete,
+              "verified_consistent": verified_consistent,
               "conflicts": conflicts, "partially_resolved": partial}
+    return report
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("run_dirs", nargs="+"); ap.add_argument("--out", default=None)
+    ap.add_argument('--allow-unresolved', action='store_true')
+    a = ap.parse_args()
+    try:
+        report = check(a.run_dirs, allow_unresolved=a.allow_unresolved)
+        status = 1 if report['n_conflicting_finals'] else (0 if report['verified_consistent'] else 2)
+    except (ValueError, OSError, KeyError) as exc:
+        report = {'runs': a.run_dirs, 'verified_consistent': False, 'error': str(exc)}
+        status = 2
     text = json.dumps(report, ensure_ascii=False, indent=1)
     if a.out:
         open(a.out, "w", encoding="utf-8").write(text)
     print(json.dumps({k: v for k, v in report.items() if k not in ("conflicts", "partially_resolved")}, ensure_ascii=False))
-    for c in conflicts[:20]:
+    for c in report.get('conflicts', [])[:20]:
         print("CONFLICT", c["question"][:60], "|", c["prediction"][:60], "|", [(v["run"].rsplit("/", 1)[-1], v["label"], v["source"]) for v in c["verdicts"]])
-    sys.exit(1 if conflicts else 0)
+    sys.exit(status)
 
 
 if __name__ == "__main__":

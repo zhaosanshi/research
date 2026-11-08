@@ -7,7 +7,7 @@ be picked by convenience).
 
 usage: judge2_cache_merge.py SHARED_CACHE_DIR SRC_DIR [SRC_DIR ...]
 Every judge2_cache_<model>.jsonl under the sources (and the shared dir itself) is read; rows are appended to the shared
-file in source order with exact duplicates (same key, same answer) dropped; conflicts.json lists, per cache file, the
+file in source order with duplicate observation records dropped; conflicts.json lists, per cache file, the
 keys with more than one distinct answer and the answers seen. Idempotent.
 """
 import argparse
@@ -15,11 +15,11 @@ import glob
 import json
 import os
 import sys
-from collections import OrderedDict
 
 CODE_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
 sys.path.insert(0, CODE_ROOT)
-from core.io_utils import read_jsonl, atomic_json_dump  # noqa: E402
+from core.judge_cache_store import (cache_lock, read_cache_rows, read_rows_unlocked,
+                                    replace_rows_unlocked, record_conflicts_unlocked)  # noqa: E402
 
 
 def merge(shared_dir, src_dirs):
@@ -30,29 +30,23 @@ def merge(shared_dir, src_dirs):
             files.setdefault(os.path.basename(p), []).append(p)
     report = {"keys": {}, "detail": {}, "files": {}}
     for name, paths in files.items():
-        rows, seen = [], set()
-        answers = OrderedDict()
+        out = os.path.join(shared_dir, name)
+        source_rows = []
         for p in paths:
-            for r in read_jsonl(p):
-                sig = (r["key"], r["answer"])
-                answers.setdefault(r["key"], [])
-                if r["answer"] not in answers[r["key"]]:
-                    answers[r["key"]].append(r["answer"])
+            if os.path.realpath(p) != os.path.realpath(out):
+                source_rows.extend(read_cache_rows(p))
+        # Reload the destination inside its lock: a live writer may have appended
+        # while source snapshots were read. Never replace those newer rows.
+        with cache_lock(out):
+            rows, seen = [], set()
+            for r in read_rows_unlocked(out) + source_rows:
+                sig = json.dumps(r, sort_keys=True, ensure_ascii=False, separators=(',', ':'))
                 if sig in seen:
                     continue
                 seen.add(sig)
                 rows.append(r)
-        out = os.path.join(shared_dir, name)
-        tmp = out + ".tmp"
-        with open(tmp, "w", encoding="utf-8") as f:
-            for r in rows:
-                f.write(json.dumps(r, ensure_ascii=False) + "\n")
-        os.replace(tmp, out)
-        conflicts = {k: v for k, v in answers.items() if len(v) > 1}
-        report["keys"][name] = sorted(conflicts)
-        report["detail"][name] = conflicts
-        report["files"][name] = {"sources": paths, "rows": len(rows), "unique_keys": len(answers), "conflicting_keys": len(conflicts)}
-    atomic_json_dump(report, os.path.join(shared_dir, "conflicts.json"))
+            replace_rows_unlocked(out, rows)
+            report = record_conflicts_unlocked(out, rows, sources=paths)
     return report
 
 
