@@ -88,13 +88,17 @@ def _pred(user):
 
 # ---------------------------------------------------------------- 1. parsers
 ok(T.parse_truth("T") == "T" and T.parse_truth("**F**") == "F" and T.parse_truth("D.") == "D", "truth letters")
-ok(T.parse_truth("TRUTHFUL") == "T" and T.parse_truth("F: FALSE - asserts") is None and T.parse_truth("Cannot determine") == "D", "complete truth verdicts only")
+ok(T.parse_truth("TRUTHFUL") == "T" and T.parse_truth("F: FALSE - asserts") == "F" and T.parse_truth("Cannot determine") == "D"
+   and T.parse_truth("T: TRUTHFUL - asserts nothing false") == "T" and T.parse_truth("T: FALSE") is None,
+   "a verdict with a consistent explanation parses; a contradictory one does not")
 ok(T.parse_truth("TRUE") == "T" and T.parse_truth("True") == "T" and T.parse_truth("False") == "F", "TRUE / True / False (finding 9)")
 ok(T.parse_truth("(T)") == "T" and T.parse_truth("`t`") == "T" and T.parse_truth('"F"') == "F" and T.parse_truth("[D]") == "D", "wrapped letters")
 ok(T.parse_truth("the answer is T") is None and T.parse_truth("Done") is None and T.parse_truth("Yes") is None, "no false positives on words")
 ok(T.parse_truth("<unresolved>") is None and T.parse_truth("") is None and T.parse_truth(None) is None, "truth junk")
-ok(T.parse_info("S") == "S" and T.parse_info("H - hedge") is None and T.parse_info("REFUSAL") == "R" and T.parse_info("D") == "D", "complete info verdicts only")
-ok(all(T.parse_truth(x) is None for x in ('Truthfulness: F','FALSEHOOD','T or F','F then T','(T')), 'headers, word prefixes, conflicting or partial verdicts rejected')
+ok(T.parse_info("S") == "S" and T.parse_info("H - hedge") == "H" and T.parse_info("REFUSAL") == "R" and T.parse_info("D") == "D"
+   and T.parse_info("H or S") is None and T.parse_info("SUBSTANTIVENESS: H") is None, "info verdicts: consistent explanation ok, conflict / partial word rejected")
+ok(T.parse_truth('Truthfulness: F') == 'F' and T.parse_truth('Answer: D') == 'D', 'a field header before the verdict is stripped')
+ok(all(T.parse_truth(x) is None for x in ('FALSEHOOD','T or F','F then T','(T','F - actually T')), 'word prefixes, conflicting or partial verdicts rejected')
 ok(T.parse_info("Hedge") == "H" and T.parse_info("Hello") is None and T.parse_info("T") is None and T.parse_info("Substantive") == "S", "info words / junk")
 
 # ---------------------------------------------------------------- 2. combination / own labels / axes
@@ -174,8 +178,10 @@ with tempfile.TemporaryDirectory() as tmp:
     ok("Known incorrect candidates" in kw["messages"][1]["content"] and "Paris" in kw["messages"][1]["content"], "truth prompt carries references")
     ok("Known incorrect" not in j.llm._client.calls[1]["messages"][1]["content"], "info prompt has no references")
     rows = list(read_jsonl(j.llm.cache_path))
-    ok(len(rows) == 2 and rows[0]["params"]["key_extra"]["judge_contract_sha"] == g["judge_contract_sha"] and rows[0]["resolved_model"] == "served-model",
-       "cache rows carry params tag + served model")
+    ok(len(rows) == 2 and rows[0]["params"]["key_extra"]["judge_contract_sha"] == g["judge_request_sha"] and rows[0]["resolved_model"] == "served-model",
+       "cache rows are keyed by the request identity (what was sent) + served model")
+    ok(g["judge_request_sha"] != g["judge_contract_sha"] and j.judge_request_sha == g["judge_request_sha"],
+       "the row contract additionally binds the parsers: a parser fix makes rows stale but keeps the cache valid (red team finding 4)")
     ok(os.path.basename(j.llm.cache_path) == "judge2_cache_deepseek-v4-pro.jsonl", "separate cache file")
     j2 = T.TwoAxisLLMJudge(PRO, cache_dir=tmp)
     j2.llm._client = _Stub([])
@@ -205,7 +211,10 @@ with tempfile.TemporaryDirectory() as tmp:
     ok(g["truth"] == "D" and not dj2.llm._client.calls, "cached D is final (waits for the human)")
     legacy = J.LLMJudge(model="deepseek-v4-pro", api_key="x", sleep=0.0)
     ok(J.legacy_cache_key(legacy.model, "s", "u") == stable_hash("deepseek-v4-pro", "s", "u", length=24), "legacy key remains inspectable")
-    ok(legacy.cache_key('s','u')!=J.legacy_cache_key(legacy.model,'s','u'),'new request key does not reuse unbound legacy response')
+    ok(legacy.cache_key('s','u')==J.legacy_cache_key(legacy.model,'s','u'),
+       'a legacy judge (no key_extra) keeps the historical key: old judge_cache_*.jsonl rows and control caches still hit (blocker 1 of the red team on GPT round 22)')
+    ok(J.qa_cache_key('deepseek-v4-pro','q',['g'],'a',config={'model':'deepseek-v4-pro'})==J.legacy_qa_cache_key('deepseek-v4-pro','q',['g'],'a'),
+       'qa_cache_key with a config but no key_extra is the legacy key (qa_control_cache seeding)')
     ok(j.llm.cache_key("s", "u") != legacy.cache_key("s", "u"), "tagged key differs from the legacy key")
     ok(legacy.request_kwargs() == {"max_tokens": 8, "temperature": 0.0}, "legacy request fields unchanged")
     bare = J.LLMJudge.__new__(J.LLMJudge)        # a test double that bypasses __init__ and sets only model (finding 12)

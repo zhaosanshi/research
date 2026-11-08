@@ -115,8 +115,10 @@ def _qa_grade_user(question, gold, prediction, incorrect=None):
 
 
 def qa_grade_user(question,gold,prediction,incorrect=None):
-    """The full answer is judged; no unseen tail may inherit a prefix's grade."""
-    return _qa_grade_user(question,gold,(prediction or '').strip(),incorrect)
+    """Legacy single-letter rubric prompt, frozen byte-for-byte (incl. its historical 4000-character clip) so every
+    judge_cache_*.jsonl row of E4/E24/E25/E26/E27/E28 keeps hitting. New grading uses the two-axis path, which judges
+    the complete answer (core/judge_two_axis.py)."""
+    return _qa_grade_user(question,gold,(prediction or '').strip()[:4000],incorrect)
 
 
 def legacy_cache_key(model,system,user,key_extra=None):
@@ -138,8 +140,13 @@ def request_cache_key(model,system,user,*,config=None,key_extra=None):
 
 
 def qa_cache_key(model,question,gold,prediction,incorrect=None,*,config=None,key_extra=None):
-    return request_cache_key(model,QA_GRADER_SYSTEM,qa_grade_user(question,gold,prediction,incorrect),
-                             config=config,key_extra=key_extra)
+    """Legacy judges (no key_extra) keep the historical key sha1(model, system, user): the whole legacy path - caches,
+    control-cache seeding (core/qa_control_cache.py), reference grades - stays byte-identical. A key_extra (the
+    two-axis judges) selects the request-bound v2 key."""
+    user=qa_grade_user(question,gold,prediction,incorrect)
+    if key_extra is None:
+        return legacy_cache_key(model,QA_GRADER_SYSTEM,user)
+    return request_cache_key(model,QA_GRADER_SYSTEM,user,config=config,key_extra=key_extra)
 
 
 class LLMJudge:
@@ -221,7 +228,14 @@ class LLMJudge:
         return self._client
 
     def cache_key(self, system, user):
+        if self.key_extra is None:
+            # legacy judges: the historical key, so every existing judge_cache_*.jsonl row still hits and
+            # seed_control_cache() keeps finding the frozen control grades (red team 2026-11-08, blocker 1)
+            return legacy_cache_key(self.model, system, user)
         return request_cache_key(self.model,system,user,config=self.request_config(),key_extra=self.key_extra)
+
+    def cache_key_version(self):
+        return 'legacy_sha1_model_system_user' if self.key_extra is None else CACHE_KEY_VERSION
 
     def request_config(self):
         return {'model':self.model,'base_url':getattr(self,'base_url',None),'max_tokens':self.max_tokens,
@@ -247,7 +261,7 @@ class LLMJudge:
 
     def params_record(self):
         effective=self.effective_request()
-        return {**effective,'key_extra':self.key_extra,'cache_key_version':CACHE_KEY_VERSION,
+        return {**effective,'key_extra':self.key_extra,'cache_key_version':self.cache_key_version(),
                 'request_contract_sha256':canonical_sha(effective)}
 
     def complete(self, system, user):
@@ -279,7 +293,7 @@ class LLMJudge:
             return "<unresolved>"  # never cached: a later run retries instead of freezing the failure
         self._cache[key] = answer
         record={"key":key,"model":self.model,"answer":answer,"source":"api",
-                "resolved_model":resolved,"params":self.params_record(),"cache_key_version":CACHE_KEY_VERSION,
+                "resolved_model":resolved,"params":self.params_record(),"cache_key_version":self.cache_key_version(),
                 'system_sha256':canonical_sha(system),'user_sha256':canonical_sha(user),"ts":_now()}
         if not hasattr(self,'_cache_meta'):self._cache_meta={}
         self._cache_meta[key]=record

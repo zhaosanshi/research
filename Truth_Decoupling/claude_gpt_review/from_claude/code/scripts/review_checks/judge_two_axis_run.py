@@ -153,12 +153,19 @@ def _human_verdicts(run_dir,cells=None):
     """Explicit content-bound human decisions apply to every identical request."""
     cells=_cells(run_dir) if cells is None else cells
     by_id={c['cell_id']:c for c in cells};by_content={};out={}
-    path = os.path.join(j2dir(run_dir), "human_verdicts.jsonl")
-    if os.path.exists(path):
+    own = os.path.join(j2dir(run_dir), "human_verdicts.jsonl")
+    # TD_JUDGE2_HUMAN: a verdict file shared by several runs. Its rows are bound to their reviewed content (input_sha
+    # == cell_sha(reviewed_input)), so a verdict given in one run applies to the identical (question, answer,
+    # references) in another run; cell ids of other runs are expected there (red team finding 3: same input, same verdict).
+    shared = os.environ.get('TD_JUDGE2_HUMAN') or None
+    for path in [own] + ([shared] if shared and shared != own else []):
+        if not os.path.exists(path):
+            continue
         for r in read_jsonl(path):
             c=by_id.get(r.get('cell_id'))
-            if (c is None or r.get('input_sha')!=cell_sha(c)
-                    or r.get('version')!=ADJUDICATION_VERSION
+            if path == own and (c is None or r.get('input_sha')!=cell_sha(c)):
+                raise ValueError('unbound/stale human decision; re-review its original content, do not backfill')
+            if (r.get('version')!=ADJUDICATION_VERSION
                     or not isinstance(r.get('reviewed_input'),dict)
                     or cell_sha(r['reviewed_input'])!=r.get('input_sha')
                     or not isinstance(r.get('by'),str) or not r['by'].strip()):
@@ -194,11 +201,18 @@ def _verify_rows(rows, cells, judge_name=None, cfg=None):
                         (r.get('skipped_abstention_gold') and c['gold_is_abstention'])):
                     raise ValueError('placeholder vote applied to real answer')
             elif r.get('truth')!=parse_truth(r.get('truth_raw')) or r.get('info')!=parse_info(r.get('info_raw')):
-                raise ValueError('stored vote differs from its raw verdict')
+                stale.append(cid);continue      # the reply would be read differently now: re-read it (cache hit), do not crash
         elif judge_name=='allenai' and not r.get('unscorable'):
             allenai_votes(r,cfg['allenai']['threshold'])
         out[cid] = r
     return out, {"stale": stale, "legacy_backfilled": legacy, "orphans_dropped": orphans}
+
+
+def _cache_dir(out, cfg):
+    """API reply cache. TD_JUDGE2_CACHE (or cfg['shared_cache_dir']) points several runs at one cache so an identical
+    request (same model, contract, prompt, text) gets the same reply everywhere - GPT-5.5 is not deterministic, and
+    per-run caches gave 5 of 332 shared inputs different verdicts across the two E42 runs (GPT round 22, finding 5)."""
+    return os.environ.get('TD_JUDGE2_CACHE') or (cfg or {}).get('shared_cache_dir') or os.path.join(out, 'cache')
 
 
 def _active(cells):
@@ -286,7 +300,7 @@ def run_llm(run_dir, judge_name, cfg, only=None, judge=None, log_every=50):
                          "truth_raw": "<empty_output>", "truth": "T", "info_raw": "<empty_output>", "info": "R", "empty_output": True},c,True)
             continue
         if judge is None:
-            judge=TwoAxisLLMJudge(jcfg,cache_dir=os.path.join(out,'cache'),name=judge_name)
+            judge=TwoAxisLLMJudge(jcfg,cache_dir=_cache_dir(out,cfg),name=judge_name)
         if getattr(judge,'judge_contract_sha',None)!=signature:
             raise ValueError('supplied judge client does not match the declared request contract')
         g = judge.grade(c["question"], c["gold_refs"], c["prediction"], c["incorrect"] or None)
@@ -302,7 +316,8 @@ def run_llm(run_dir, judge_name, cfg, only=None, judge=None, log_every=50):
     write_jsonl(list(done.values()), path)
     judge_meta={'version':ADJUDICATION_VERSION,'judge':judge_name,'judge_contract':contract,
                      'judge_contract_sha':signature,'cells_sha256':file_sha(os.path.join(out,'cells.jsonl')),
-                     'generation_sha256':meta['generation_sha256'],'rows_sha256':file_sha(path)}
+                     'generation_sha256':meta['generation_sha256'],'rows_sha256':file_sha(path),
+                     'cache_dir':_cache_dir(out,cfg)}
     mp=os.path.join(out,judge_name+'_meta.json')
     previous_meta=_read_json(mp) if os.path.exists(mp) else {}
     if {k:v for k,v in previous_meta.items() if k!='ts'}!=judge_meta:
@@ -377,8 +392,11 @@ def compute_disputes(run_dir, cfg, allow_unresolved_pro=False):
         raise SystemExit("%d cells lack an AllenAI or Pro grade, e.g. %s" % (len(missing), missing[:3]))
     # a Pro row without a verdict is a transient failure, not a disagreement: GPT is the third vote only when
     # AllenAI and Pro disagree (red team finding 8)
-    no_verdict = [c["cell_id"] for c in active if c["prediction"].strip()
-                  and (j["pro"][c["cell_id"]].get("truth") not in VALID_T or j["pro"][c["cell_id"]].get("info") not in VALID_I)]
+    def _no_verdict(row):
+        if row.get("truth_malformed_persistent") or row.get("info_malformed_persistent"):
+            return False            # Pro keeps answering unparseably: adjudicate_cell routes the cell to the human
+        return row.get("truth") not in VALID_T or row.get("info") not in VALID_I
+    no_verdict = [c["cell_id"] for c in active if c["prediction"].strip() and _no_verdict(j["pro"][c["cell_id"]])]
     if no_verdict and not allow_unresolved_pro:
         raise SystemExit("%d Pro rows have no verdict (e.g. %s): re-run `llm --judge pro` (it retries), or pass "
                          "--allow-unresolved-pro to export only the other valid disputes; GPT cannot replace the missing Pro vote" % (len(no_verdict), no_verdict[:3]))
@@ -690,6 +708,9 @@ def human_set(run_dir, cell_id, letter, by, note=None, truth=None, info_subtype=
            'truth':truth,'info_subtype':info_subtype,'input_sha':cell_sha(cell),'version':ADJUDICATION_VERSION,
            'reviewed_input':{k:cell[k] for k in ('question','prediction','gold','gold_refs','incorrect','best_answer','gold_is_abstention')}})
     append_jsonl(row, os.path.join(j2dir(run_dir), "human_verdicts.jsonl"))
+    shared = os.environ.get('TD_JUDGE2_HUMAN') or None
+    if shared and os.path.abspath(shared) != os.path.abspath(os.path.join(j2dir(run_dir), "human_verdicts.jsonl")):
+        append_jsonl(row, shared)          # content-bound: the other runs apply it to the identical input
     return row
 
 

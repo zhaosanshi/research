@@ -4,6 +4,8 @@
 # script's actual host directory from TD_HOST_ROOT to TD_CONTAINER_ROOT.
 # Optional roots: TD_RESULTS_DIR, TD_HOST_RESULTS_ROOT, TD_MODEL_ROOT,
 # TD_DATA_DIR, TD_SOURCE_ROOT, TD_HF_HOME, TD_CONTAINER, TD_CONTAINER_USER.
+# E42_TAG names the run directory under TD_RESULTS_DIR/MODEL (default: the phase name; a complete run there is never
+# overwritten - set E42_TAG for a re-run). SOURCE_RUN overrides the E25 v1u source run.
 # Existing live launchers/results are not changed by this wrapper.
 set -euo pipefail
 MODEL=${1:?model}; GPU=${2:?gpu}; PHASE=${3:?phase}; shift 3
@@ -31,6 +33,7 @@ else
 fi
 mkdir -p "$HOST_RESULTS/$MODEL/$TAG"
 exec docker exec -u "${TD_CONTAINER_USER:-1000:1001}" \
+  -e "HOME=${TD_HF_HOME:-$TASK_CONTAINER_ROOT/hf_cache}" \
   -e "HF_HOME=${TD_HF_HOME:-$TASK_CONTAINER_ROOT/hf_cache}" -e "TD_RESULTS_DIR=$RES" \
   -e "TD_DATA_DIR=${TD_DATA_DIR:-$TASK_CONTAINER_ROOT/code/data/processed}" \
   -e "TD_MODEL_ROOT=${TD_MODEL_ROOT:-$TASK_CONTAINER_ROOT/models}" \

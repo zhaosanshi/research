@@ -49,12 +49,14 @@ class ContractTests(unittest.TestCase):
 
     def test_environment_endpoint_changes_key_and_initialization_freezes_client(self):
         first='https://endpoint-a.example.invalid/v1';second='https://endpoint-b.example.invalid/v1'
+        # request-bound (v2) keys are the two-axis judges' (key_extra set); a legacy judge keeps the historical key
+        tag={'judge_contract_sha':'test'}
         with patch.dict(os.environ,{'OPENAI_BASE_URL':first}):
-            a=J.LLMJudge('m',api_key='offline-only')
+            a=J.LLMJudge('m',api_key='offline-only',key_extra=tag)
             key=a.cache_key('system','user')
             self.assertEqual(request_contract({'model':'m'})['base_url'],first)
         with patch.dict(os.environ,{'OPENAI_BASE_URL':second}):
-            b=J.LLMJudge('m',api_key='offline-only')
+            b=J.LLMJudge('m',api_key='offline-only',key_extra=tag)
             self.assertNotEqual(key,b.cache_key('system','user'))
             self.assertEqual(key,a.cache_key('system','user'))
             with patch('openai.OpenAI',return_value=object()) as factory:
@@ -76,12 +78,12 @@ class ContractTests(unittest.TestCase):
 
     def test_new_cache_separates_effective_budget_and_thinking(self):
         with tempfile.TemporaryDirectory() as td:
-            path=Path(td)/'cache.jsonl'
+            path=Path(td)/'cache.jsonl';tag={'judge_contract_sha':'test'}   # request-bound keys: judges with key_extra (two-axis)
             a=J.LLMJudge('m',api_key='offline-only',cache_path=str(path),sleep=0,max_tokens=8,
-                         extra_body={'thinking':{'type':'disabled'}})
+                         extra_body={'thinking':{'type':'disabled'}},key_extra=tag)
             a._client=Stub('A');self.assertEqual(a.qa_grade('q',['g'],'a')['label'],'correct')
             b=J.LLMJudge('m',api_key='offline-only',cache_path=str(path),sleep=0,max_tokens=1024,
-                         extra_body={'thinking':{'type':'enabled'}})
+                         extra_body={'thinking':{'type':'enabled'}},key_extra=tag)
             b._client=Stub('B');self.assertEqual(b.qa_grade('q',['g'],'a')['label'],'wrong')
             self.assertEqual(len(b._client.calls),1)
             records=[json.loads(s) for s in path.read_text().splitlines()]
@@ -90,22 +92,29 @@ class ContractTests(unittest.TestCase):
             self.assertEqual(records[1]['params']['extra_body'],{'thinking':{'type':'enabled'}})
             self.assertEqual(records[1]['cache_key_version'],J.CACHE_KEY_VERSION)
             c=J.LLMJudge('m',api_key='offline-only',cache_path=str(path),sleep=0,max_tokens=1024,
-                         extra_body={'thinking':{'type':'enabled'}})
+                         extra_body={'thinking':{'type':'enabled'}},key_extra=tag)
             c._client=Stub('A');self.assertEqual(c.qa_grade('q',['g'],'a')['label'],'wrong');self.assertEqual(c._client.calls,[])
 
-    def test_legacy_cache_is_not_silently_a_new_request(self):
+    def test_legacy_cache_rows_still_hit_for_legacy_judges(self):
+        # Claude, after the red team of GPT round 22 (blocker 1): the legacy single-letter judge keeps the historical
+        # key sha1(model, system, user), so the E4/E24/E25/E26/E27/E28 caches and seed_control_cache() stay valid;
+        # only a judge with key_extra (the two-axis judges) uses the request-bound v2 key.
         with tempfile.TemporaryDirectory() as td:
             path=Path(td)/'cache.jsonl';key=J.legacy_qa_cache_key('m','q',['g'],'a')
             old={'key':key,'model':'m','answer':'A'};path.write_text(json.dumps(old)+'\n')
             j=J.LLMJudge('m',api_key='offline-only',cache_path=str(path),sleep=0);j._client=Stub('B')
-            self.assertEqual(j.qa_grade('q',['g'],'a')['label'],'wrong');self.assertEqual(len(j._client.calls),1)
-            records=[json.loads(s) for s in path.read_text().splitlines()]
-            self.assertEqual(records[0],old);self.assertNotEqual(records[0]['key'],records[1]['key'])
+            self.assertEqual(j.qa_grade('q',['g'],'a')['label'],'correct');self.assertEqual(j._client.calls,[])
+            self.assertEqual(j.cache_key(J.QA_GRADER_SYSTEM,J.qa_grade_user('q',['g'],'a')),key)
+            self.assertEqual(J.qa_cache_key('m','q',['g'],'a',config={'model':'m'}),key)
+            tagged=J.LLMJudge('m',api_key='offline-only',cache_path=str(path),sleep=0,key_extra={'judge_contract_sha':'x'})
+            self.assertNotEqual(tagged.cache_key(J.QA_GRADER_SYSTEM,J.qa_grade_user('q',['g'],'a')),key)
+            self.assertEqual(tagged.cache_key_version(),J.CACHE_KEY_VERSION);self.assertNotEqual(j.cache_key_version(),J.CACHE_KEY_VERSION)
 
     def test_long_tails_change_prompt_api_key_and_reference_key(self):
         a='x'*4000+' correct tail';b='x'*4000+' false tail'
-        self.assertNotEqual(J.qa_grade_user('q',['g'],a),J.qa_grade_user('q',['g'],b))
-        self.assertNotEqual(J.qa_cache_key('m','q',['g'],a),J.qa_cache_key('m','q',['g'],b))
+        # the legacy rubric prompt is frozen byte-for-byte, including its historical 4000-character clip
+        self.assertEqual(J.qa_grade_user('q',['g'],a),J.qa_grade_user('q',['g'],b))
+        self.assertEqual(J.qa_cache_key('m','q',['g'],a),J.qa_cache_key('m','q',['g'],b))
         self.assertEqual(J.legacy_qa_cache_key('m','q',['g'],a),J.legacy_qa_cache_key('m','q',['g'],b))
         row={'question':'q','judge_reference_answers':['g'],'incorrect':['b']}
         self.assertNotEqual(semantic_key({'model':'m'},row,a),semantic_key({'model':'m'},row,b))

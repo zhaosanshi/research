@@ -17,6 +17,14 @@ from pathlib import Path
 CONTRACT_VERSION = 'qa_judge_contract_v1'
 CELL_FIELDS = ('question','prediction','gold','gold_refs','incorrect','best_answer','gold_is_abstention')
 DEFAULT_OPENAI_BASE_URL = 'https://api.openai.com/v1'
+# The part of an LLM judge contract that determines the API request (what was sent): the cache identity.
+# The full contract additionally hashes the reply parsers (how replies were read): the row identity. A parser fix
+# therefore makes stored rows stale (re-read from the same cached replies) without invalidating the cache.
+REQUEST_FIELDS = ('protocol','kind','judge','rubric','request','prompts','prompt_builder_sha256')
+
+
+def request_identity(contract):
+    return {k: contract[k] for k in REQUEST_FIELDS if k in contract}
 
 
 def canonical_sha(data):
@@ -102,16 +110,19 @@ def judge_contract(name,cfg):
         canonical_sha(result)
         return result
     # Lazy import avoids judge -> contract -> two_axis -> judge import cycles.
-    builders={}
-    for function in ('truth_user','info_user','_clip'):
-        value=getattr(module,function,None)
-        if value is not None:
-            try:source=inspect.getsource(value)
-            except (OSError,TypeError) as exc:raise ValueError('prompt-builder source is unavailable: '+function) from exc
-            builders[function]=hashlib.sha256(source.encode('utf-8')).hexdigest()
+    def source_hashes(functions):
+        hashes={}
+        for function in functions:
+            value=getattr(module,function,None)
+            if value is not None:
+                try:source=inspect.getsource(value)
+                except (OSError,TypeError) as exc:raise ValueError('judge source is unavailable: '+function) from exc
+                hashes[function]=hashlib.sha256(source.encode('utf-8')).hexdigest()
+        return hashes
     result={'protocol':CONTRACT_VERSION,'kind':'llm','judge':name,'rubric':module.TWO_AXIS_VERSION,
         'request':request_contract(sub),'prompts':{'truth_system':module.TRUTH_SYSTEM,'truth_template':module.TRUTH_TEMPLATE,
             'info_system':module.INFO_SYSTEM,'info_template':module.INFO_TEMPLATE},
-        'prompt_builder_sha256':builders}
+        'prompt_builder_sha256':source_hashes(('truth_user','info_user','_clip')),
+        'parser_sha256':source_hashes(('_parse','parse_truth','parse_info'))}
     canonical_sha(result)
     return result

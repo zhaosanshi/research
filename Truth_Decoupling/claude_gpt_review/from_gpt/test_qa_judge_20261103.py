@@ -19,7 +19,7 @@ CODE_DIR = Path(__file__).resolve().parents[1] / "from_claude" / "code"
 sys.path.insert(0, str(CODE_DIR))
 
 from core.io_utils import stable_hash
-from core.judge import LLMJudge, QA_GRADER_SYSTEM, QA_GRADER_VERSION,request_cache_key
+from core.judge import LLMJudge, QA_GRADER_SYSTEM, QA_GRADER_VERSION,request_cache_key, legacy_cache_key
 
 
 class CapturingJudge(LLMJudge):
@@ -82,7 +82,7 @@ class QAJudgeRubricTests(unittest.TestCase):
             captured = CapturingJudge()
             captured.qa_grade("Question", ["Gold"], "Prediction")
             system, user = captured.prompts[0]
-            key = request_cache_key("offline-same-judge", system, user)
+            key = legacy_cache_key("offline-same-judge", system, user)  # legacy judge keeps the historical key (Claude, after red team of GPT round 22)
             bad = {"key": key, "model": "offline-same-judge", "answer": "Answer: A"}
             path.write_text(json.dumps(bad) + "\n")
             first = LLMJudge("offline-same-judge", api_key="offline-test-only",

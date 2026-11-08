@@ -139,12 +139,17 @@ def info_user(question, prediction):
     return INFO_TEMPLATE.format(question=question, prediction=_clip(prediction))
 
 
-def _parse(raw, regex, words):
-    """One complete verdict, optionally wrapped or followed by a period.
+_HEADER = re.compile(r"^(?:ANSWER|VERDICT|LABEL|GRADE|DECISION|RESULT|REPLY|TRUTHFULNESS|TRUTH|INFORMATIVENESS|INFO)\s*[:：\-–—]\s*")
+_SEP = re.compile(r"[\s:：\-–—.,;)\]/]+")
 
-    Explanations, field headers, partial words and contradictory/multiple
-    verdicts are not reduced to their first letter. They remain unresolved.
-    """
+
+def _parse(raw, regex, words):
+    """One verdict: a single letter or its spelled-out word, optionally wrapped ("**T**", "(D)."), optionally after a
+    field header ("Truthfulness: F", "Answer: S") or followed by an explanation that names no other verdict
+    ("T: TRUTHFUL - asserts nothing false", "F\\n\\nThe answer asserts a false claim"). Contradictory or multiple
+    verdicts ("T or F", "F - actually T", "T: FALSE") and partial words ("FALSEHOOD", "the answer is T") stay
+    unresolved (None): they are never reduced to a first letter (GPT round 22); and a verdict that keeps coming
+    back unparseable is routed to the human instead of being re-asked forever (red team, finding 2)."""
     if not isinstance(raw, str):
         return None
     up = raw.strip()
@@ -161,10 +166,27 @@ def _parse(raw, regex, words):
         if up == previous:
             break
     up = re.sub(r"\s+", " ", up.upper())
+    up = _HEADER.sub("", up, count=1).strip()
     labels = dict(words)
     if up in labels:
         return labels[up]
-    return up if len(up) == 1 and regex.fullmatch(up) else None
+    if len(up) == 1 and regex.fullmatch(up):
+        return up
+    first, rest = None, ""
+    for word, letter in sorted(labels.items(), key=lambda kv: -len(kv[0])):     # a full verdict word, then a separator
+        if up.startswith(word) and (len(up) == len(word) or _SEP.match(up[len(word):])):
+            first, rest = letter, up[len(word):]
+            break
+    if first is None and len(up) >= 2 and regex.fullmatch(up[0]) and _SEP.match(up[1:]):   # a letter, then a separator
+        first, rest = up[0], up[1:]
+    if first is None:
+        return None
+    tokens = [t for t in _SEP.split(rest) if t]
+    if tokens and tokens[0] in labels and labels[tokens[0]] != first:
+        return None                                   # "T: FALSE"
+    if any(len(t) == 1 and regex.fullmatch(t) and t != first for t in tokens):
+        return None                                   # "T or F", "F - actually T"
+    return first
 
 
 def parse_truth(raw):
@@ -183,11 +205,12 @@ class TwoAxisLLMJudge:
     def __init__(self, cfg, cache_dir, name=None):
         self.cfg = cfg
         self.name = name or cfg.get("name") or cfg["model"]
-        from .judge_two_axis_contract import judge_contract, canonical_sha
+        from .judge_two_axis_contract import judge_contract, canonical_sha, request_identity
         contract = judge_contract(self.name, cfg)
         self.contract = contract
-        self.judge_contract_sha = canonical_sha(contract)
-        tag = {"judge_contract_sha": self.judge_contract_sha}
+        self.judge_contract_sha = canonical_sha(contract)                      # row identity: request + parsers
+        self.judge_request_sha = canonical_sha(request_identity(contract))     # cache identity: what was sent
+        tag = {"judge_contract_sha": self.judge_request_sha}
         os.makedirs(cache_dir, exist_ok=True)
         self.llm = LLMJudge(model=cfg["model"], base_url=cfg.get("base_url"), api_key=cfg.get("api_key"),
                             api_key_env=cfg.get("api_key_env", "DEEPSEEK_API_KEY"),
@@ -199,24 +222,35 @@ class TwoAxisLLMJudge:
                             send_temperature=cfg.get("send_temperature", True), key_extra=tag)
 
     def _ask(self, system, user, parse):
+        """Returns (raw, verdict, persistent): a malformed cached reply is asked once more; if the judge returns the
+        same unparseable text again (deterministic judges do), `persistent` is True and the cell goes to the human
+        instead of being re-asked on every run."""
         key = self.llm.cache_key(system, user)
         cached = self.llm._cache.get(key)
+        malformed_before = None
         if cached is not None and parse(cached) is None:
+            malformed_before = cached
             del self.llm._cache[key]       # malformed cached reply: ask again (the disk row stays for audit)
         raw = self.llm.complete(system, user)
-        return raw, parse(raw)
+        verdict = parse(raw)
+        persistent = (verdict is None and raw != "<unresolved>" and malformed_before is not None
+                      and raw.strip() == malformed_before.strip())
+        return raw, verdict, persistent
 
     def grade(self, question, gold, prediction, incorrect=None):
-        from .judge_two_axis_contract import judge_contract, canonical_sha
-        if (canonical_sha(judge_contract(self.name,self.cfg)) != self.judge_contract_sha
+        from .judge_two_axis_contract import judge_contract, canonical_sha, request_identity
+        contract = judge_contract(self.name, self.cfg)
+        if (canonical_sha(contract) != self.judge_contract_sha
+                or canonical_sha(request_identity(contract)) != self.judge_request_sha
                 or self.llm.effective_request() != self.contract['request']
-                or self.llm.key_extra != {'judge_contract_sha':self.judge_contract_sha}):
+                or self.llm.key_extra != {'judge_contract_sha': self.judge_request_sha}):
             raise RuntimeError('judge configuration, prompt, or effective request changed after initialization')
-        t_raw, t = self._ask(TRUTH_SYSTEM, truth_user(question, gold, prediction, incorrect), parse_truth)
-        i_raw, i = self._ask(INFO_SYSTEM, info_user(question, prediction), parse_info)
+        t_raw, t, t_persistent = self._ask(TRUTH_SYSTEM, truth_user(question, gold, prediction, incorrect), parse_truth)
+        i_raw, i, i_persistent = self._ask(INFO_SYSTEM, info_user(question, prediction), parse_info)
         return {"judge": self.name, "model": self.llm.model, "rubric": TWO_AXIS_VERSION, "qa_sha": qa_sha(question, prediction),
-                "judge_contract_sha": self.judge_contract_sha,
-                "truth_raw": t_raw, "truth": t, "info_raw": i_raw, "info": i}
+                "judge_contract_sha": self.judge_contract_sha, "judge_request_sha": self.judge_request_sha,
+                "truth_raw": t_raw, "truth": t, "info_raw": i_raw, "info": i,
+                "truth_malformed_persistent": t_persistent, "info_malformed_persistent": i_persistent}
 
 
 # ----------------------------------------------------------------------------- votes -> label
@@ -327,8 +361,11 @@ def adjudicate_cell(cell, allenai=None, pro=None, gpt=None, human=None, threshol
     """Combine the available votes for one cell.
 
     Returns a record with the per-axis votes and resolution, the final `label` (A/B/C/H or None), its `source`, and
-    `status`: 'final', 'needs_gpt' (AllenAI and Pro did not settle it; GPT has not voted) or 'needs_human'.
-    Priority: explicit human axes > Pro D/manual triage > empty/refusal guard > votes.
+    `status`: 'final', 'needs_gpt' (AllenAI and Pro did not settle it and GPT has not voted, or GPT's reply was lost),
+    'needs_pro' (Pro has no valid vote yet) or 'needs_human' (Pro said D, a persistently unparseable reply, a false
+    refusal, or no majority after GPT).
+    Priority: explicit human axes > empty output (C) > complete refusal phrase (C) > Pro D > Pro missing > votes.
+    The two deterministic rules come before Pro's D: a literal "I don't know." is C by rule and needs nobody's vote.
     """
     pred = cell.get("prediction") or ""
     guard = full_personal_refusal_decision(cell.get("question", ""), pred)
@@ -362,17 +399,20 @@ def adjudicate_cell(cell, allenai=None, pro=None, gpt=None, human=None, threshol
         rec.update(label=human["label"], truth=human["truth"], info=human["info"], info_subtype=human["info_subtype"],
                    source="human", status="final", human=human)
         return rec
-    if pro is not None and (pro.get("truth") == "D" or pro.get("info") == "D"):
-        rec.update(status="needs_human", review_reason="pro_cannot_determine")
-        return rec
     if not pred.strip():
         rec.update(label="C", truth="T", info="N", info_subtype="R", source="empty_output", status="final")
         return rec
     if guard["apply"]:
         rec.update(label="C", truth="T", info="N", info_subtype="R", source="refusal_guard", status="final")
         return rec
+    if pro is not None and (pro.get("truth") == "D" or pro.get("info") == "D"):
+        rec.update(status="needs_human", review_reason="pro_cannot_determine")     # 赵磊's rule: Pro abstains -> human
+        return rec
     if (pro is None or pro.get('empty_output') or pro.get('skipped_abstention_gold')
             or pro.get('truth') not in TRUTH_VALUES or pro.get('info') not in INFO_SUBTYPES):
+        if pro is not None and (pro.get('truth_malformed_persistent') or pro.get('info_malformed_persistent')):
+            rec.update(status='needs_human', review_reason='malformed_judge_reply')   # re-asking would loop forever
+            return rec
         rec.update(status='needs_pro', review_reason='pro_missing_valid_axis')
         return rec
     if truth == 'F' and sub == 'R':
@@ -381,7 +421,18 @@ def adjudicate_cell(cell, allenai=None, pro=None, gpt=None, human=None, threshol
     if rec["judges_label"] is not None:
         rec.update(label=rec["judges_label"], source="judges:" + ",".join(votes_t.keys()), status="final")
         return rec
-    rec.update(status="needs_human" if gpt is not None else "needs_gpt")
+    if gpt is None:
+        rec.update(status="needs_gpt")
+        return rec
+    # GPT has a row but no usable vote on an unresolved axis: a lost reply is retried; a D or a persistently
+    # unparseable reply is final for GPT and the cell goes to the human
+    truth_lost = truth is None and gpt.get("truth") not in TRUTH_VALUES and gpt.get("truth") != "D" and not gpt.get("truth_malformed_persistent")
+    info_lost = info is None and info_binary(gpt.get("info")) is None and gpt.get("info") != "D" and not gpt.get("info_malformed_persistent")
+    if truth_lost or info_lost:
+        rec.update(status="needs_gpt", review_reason="gpt_vote_missing")
+        return rec
+    rec.update(status="needs_human", review_reason=("gpt_cannot_determine" if "D" in (gpt.get("truth"), gpt.get("info"))
+                                                    else "no_majority"))
     return rec
 
 

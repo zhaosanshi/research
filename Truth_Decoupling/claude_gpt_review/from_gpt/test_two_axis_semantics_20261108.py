@@ -42,8 +42,11 @@ class ToyModel:
 class SemanticTests(unittest.TestCase):
     def setUp(self):self.cell={'cell_id':'q|m','question':'Capital of France?','prediction':'Paris.'}
     def test_complete_verdict_parser(self):
-        for raw,value in [('T','T'),('**F**','F'),('(D).','D'),('`true`','T'),('Cannot determine','D')]:self.assertEqual(T.parse_truth(raw),value)
-        for raw in ('FALSEHOOD','Truthfulness: F','T or F','F then T','T: FALSE','(T','F - actually T'):
+        for raw,value in [('T','T'),('**F**','F'),('(D).','D'),('`true`','T'),('Cannot determine','D'),
+                          ('Truthfulness: F','F'),('T: TRUTHFUL - asserts nothing false','T'),('Answer: D','D'),
+                          ('F\n\nThe predicted answer asserts a false claim.','F')]:   # header / consistent explanation (Claude, red team finding 2)
+            self.assertEqual(T.parse_truth(raw),value)
+        for raw in ('FALSEHOOD','T or F','F then T','T: FALSE','(T','F - actually T','the answer is T'):
             self.assertIsNone(T.parse_truth(raw))
         self.assertIsNone(T.parse_info('SUBSTANTIVENESS: H'));self.assertEqual(T.parse_info('[H]'),'H')
     def test_pro_D_cannot_be_overridden_by_other_votes(self):

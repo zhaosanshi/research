@@ -22,7 +22,7 @@ class WrapperTests(unittest.TestCase):
   p=argv.index('scripts/review_checks/judge_two_axis_run.py')
   self.assertEqual(argv[p+1:p+6],['--config','/config with space.json','llm','/results with space','--judge'])
   self.assertIn('HF_HOME=/workspace/Truth_Decoupling/hf_cache',argv)
-  self.assertFalse(any(x.startswith('HOME=') for x in argv));self.assertIn('CUDA_VISIBLE_DEVICES=',argv)
+  self.assertIn('HOME=/workspace/Truth_Decoupling/hf_cache',argv);self.assertIn('CUDA_VISIBLE_DEVICES=',argv)   # HOME writable for uid 1000 (Claude red team, finding 6)
  def test_empty_extra_args_work_under_mac_bash_and_child_failure_propagates(self):
   p,argv=self.run_wrapper(['/r','adjudicate'],19);self.assertEqual(p.returncode,19,p.stderr);self.assertIsNotNone(argv)
  def test_e42_wrapper_uses_requested_snapshot_and_propagates_failure(self):
@@ -34,7 +34,7 @@ class WrapperTests(unittest.TestCase):
    p=subprocess.run(['/bin/bash',str(script),'llama3.1-8b','3','select-check','--n-check','3'],env=env,capture_output=True,text=True)
    self.assertEqual(p.returncode,23,p.stderr);args=json.loads(out.read_text())
    self.assertEqual(args[args.index('-w')+1],'/new immutable code')
-   self.assertFalse(any(v.startswith('HOME=') for v in args))
+   self.assertTrue(any(v.startswith('HOME=') for v in args))
    self.assertEqual(args[-2:],['--n-check','3'])
    self.assertTrue((d/'results/llama3.1-8b/select-check').is_dir())
  def test_invalid_step_never_launches_docker(self):

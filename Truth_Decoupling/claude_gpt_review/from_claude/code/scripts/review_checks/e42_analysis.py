@@ -330,7 +330,8 @@ def main():
                judgment_provenance=raw.get('_analysis_judgment_provenance'),
                selection_rule_version=(raw['identity'].get('selection_rule_version', 'legacy_raw_coordinate_mean_v1') if phase == 'select' else None),
                same_actual_answer_rate_comparison=False, oracle_is_deployable=False,
-               grading=('two_axis_v5: judge2/final.jsonl' if a.two_axis else 'legacy single-letter judge: tune_scored_items.json'),
+               grading=('two_axis %s: judge2/final.jsonl' % __import__('core.judge_two_axis', fromlist=['TWO_AXIS_VERSION']).TWO_AXIS_VERSION
+                        if a.two_axis else 'legacy single-letter judge: tune_scored_items.json'),
                excluded_abstention_only_gold=len(raw['evaluations']) - len(rows))
     suffix = '_two_axis' if a.two_axis else ''
     json.dump(out, open(os.path.join(a.run_dir, 'e42_%s_analysis%s.json' % (phase, suffix)), 'w'), indent=1, ensure_ascii=False)
