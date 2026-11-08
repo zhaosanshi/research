@@ -16,6 +16,12 @@ The judge may abstain (grade D) instead of guessing; a D, or a cached reply with
 routed to a human review queue (`judge_human_review_queue.jsonl`), 赵磊 decides, and his verdict
 is appended to the semantic cache as a superseding row (`record_human_verdict`), so every
 downstream reader sees an ordinary A / B / C.
+
+2026-11-08 (later): the single-letter rubric above is the legacy grader. New free-answer grading is the two-axis
+TruthfulQA standard (truthful x informative, labels A / B / C / H, three judges + 赵磊) in core/judge_two_axis.py;
+it reuses this class only for the cached, retried API call (`complete`). For that, LLMJudge learned reasoning-model
+request fields (max_completion_tokens / reasoning_effort / no temperature, needed by GPT-5.5) and an optional
+`key_extra` folded into the cache key; both default off, so every legacy cache key is unchanged.
 """
 import os
 import re
@@ -33,8 +39,8 @@ _LETTER = re.compile(r"\s*\**\s*([ABCD])\b")
 _LABELS = {"A": "correct", "B": "wrong", "C": "abstain", "D": "unresolved"}
 
 
-def cache_filename(model):
-    return "judge_cache_%s.jsonl" % re.sub(r"[^A-Za-z0-9_.-]", "_", model)
+def cache_filename(model, prefix="judge_cache"):
+    return "%s_%s.jsonl" % (prefix, re.sub(r"[^A-Za-z0-9_.-]", "_", model))
 
 
 def _now():
@@ -115,7 +121,8 @@ class LLMJudge:
 
     def __init__(self, model, base_url=None, api_key=None, api_key_env="DEEPSEEK_API_KEY", cache_path=None,
                  temperature=0.0, max_tokens=8, sleep=0.3, max_retries=5, name=None, extra_body=None,
-                 full_personal_refusal_guard=False, outcome_policy=None):
+                 full_personal_refusal_guard=False, outcome_policy=None,
+                 max_completion_tokens=None, reasoning_effort=None, send_temperature=True, key_extra=None):
         if type(full_personal_refusal_guard) is not bool:
             raise ValueError('full_personal_refusal_guard must be boolean')
         expected_policy = FULL_PERSONAL_REFUSAL_POLICY if full_personal_refusal_guard else OUTCOME_POLICY
@@ -137,6 +144,16 @@ class LLMJudge:
             raise SystemExit("judge: API key missing (env %s or %s_FILE)" % (api_key_env, api_key_env))
         self.temperature = temperature
         self.max_tokens = max_tokens
+        # Reasoning models (GPT-5.5 on xiaoai, served through the OpenAI Responses route) need a different request:
+        # the budget field is `max_completion_tokens` and must cover ~80 hidden reasoning tokens before the one-letter
+        # verdict (128 returns ""; 1024 works), `reasoning_effort` must be "low" ("minimal" has no channel there), and
+        # `temperature` is rejected -> send_temperature=False. All three default to the legacy chat request.
+        self.max_completion_tokens = max_completion_tokens
+        self.reasoning_effort = reasoning_effort
+        self.send_temperature = bool(send_temperature)
+        # key_extra (a rubric / params tag) is folded into the cache key when given; None keeps the legacy key
+        # sha1(model, system, user), so existing caches and qa_cache_key() stay valid.
+        self.key_extra = key_extra
         self.sleep = sleep
         self.max_retries = max_retries
         self.name = name or model
@@ -165,8 +182,31 @@ class LLMJudge:
             self._client = OpenAI(**kw)
         return self._client
 
+    def cache_key(self, system, user):
+        if self.key_extra is None:
+            return stable_hash(self.model, system, user, length=24)        # legacy key (== qa_cache_key)
+        return stable_hash(self.model, self.key_extra, system, user, length=24)
+
+    def request_kwargs(self):
+        """The provider request fields beyond model/messages; see __init__ for the reasoning-model case."""
+        kw = {"extra_body": self.extra_body} if self.extra_body else {}
+        if self.max_completion_tokens:
+            kw["max_completion_tokens"] = int(self.max_completion_tokens)
+        else:
+            kw["max_tokens"] = int(self.max_tokens)
+        if self.reasoning_effort:
+            kw["reasoning_effort"] = self.reasoning_effort
+        if self.send_temperature:
+            kw["temperature"] = self.temperature
+        return kw
+
+    def params_record(self):
+        return {"max_tokens": None if self.max_completion_tokens else self.max_tokens,
+                "max_completion_tokens": self.max_completion_tokens, "reasoning_effort": self.reasoning_effort,
+                "temperature": self.temperature if self.send_temperature else None, "key_extra": self.key_extra}
+
     def complete(self, system, user):
-        key = stable_hash(self.model, system, user, length=24)
+        key = self.cache_key(system, user)
         if key in self._cache:
             self.n_cache_hits += 1
             return self._cache[key]
@@ -175,11 +215,10 @@ class LLMJudge:
         resolved = None
         for attempt in range(self.max_retries):
             try:
-                kw = {"extra_body": self.extra_body} if self.extra_body else {}
                 resp = client.chat.completions.create(
                     model=self.model,
                     messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
-                    max_tokens=self.max_tokens, temperature=self.temperature, **kw,
+                    **self.request_kwargs(),
                 )
                 self.n_calls += 1
                 time.sleep(self.sleep)
@@ -196,7 +235,7 @@ class LLMJudge:
         self._cache[key] = answer
         if self.cache_path:
             append_jsonl({"key": key, "model": self.model, "answer": answer,
-                          "resolved_model": resolved, "ts": _now()}, self.cache_path)
+                          "resolved_model": resolved, "params": self.params_record(), "ts": _now()}, self.cache_path)
         return answer
 
     # ---- judgments ------------------------------------------------------- #
@@ -209,7 +248,7 @@ class LLMJudge:
 
     def qa_grade(self, question, gold, prediction, incorrect=None):
         user = qa_grade_user(question, gold, prediction, incorrect)
-        key = qa_cache_key(self.model, question, gold, prediction, incorrect)
+        key = self.cache_key(QA_GRADER_SYSTEM, user)    # == qa_cache_key(...) unless key_extra is set
         decision = full_personal_refusal_decision(question, prediction)
         if self.full_personal_refusal_guard and decision['apply']:
             # Decision uses only question/prediction. Preserve any cached raw A/B/C/D
@@ -283,14 +322,17 @@ def record_human_verdict(cache_path, key, model, letter, by, note=None):
     return row
 
 
-def judge_from_config(cfg, cache_dir):
-    """cfg: {"model":..., "base_url":..., "api_key_env":..., "name":...}."""
-    cache_path = os.path.join(cache_dir, cache_filename(cfg["model"]))
+def judge_from_config(cfg, cache_dir, cache_prefix="judge_cache", key_extra=None):
+    """cfg: {"model":..., "base_url":..., "api_key_env":..., "name":..., optional max_completion_tokens /
+    reasoning_effort / send_temperature for reasoning models}."""
+    cache_path = os.path.join(cache_dir, cache_filename(cfg["model"], prefix=cache_prefix))
     return LLMJudge(model=cfg["model"], base_url=cfg.get("base_url"), api_key_env=cfg.get("api_key_env", "DEEPSEEK_API_KEY"),
                     cache_path=cache_path, temperature=cfg.get("temperature", 0.0), max_tokens=cfg.get("max_tokens", 8),
                     sleep=cfg.get("sleep", 0.3), name=cfg.get("name"), extra_body=cfg.get("extra_body"),
                     full_personal_refusal_guard=cfg.get('full_personal_refusal_guard', False),
-                    outcome_policy=cfg.get('outcome_policy'))
+                    outcome_policy=cfg.get('outcome_policy'),
+                    max_completion_tokens=cfg.get("max_completion_tokens"), reasoning_effort=cfg.get("reasoning_effort"),
+                    send_temperature=cfg.get("send_temperature", True), key_extra=key_extra)
 
 
 def combine_outcome(judge_label, rule_abstain):
