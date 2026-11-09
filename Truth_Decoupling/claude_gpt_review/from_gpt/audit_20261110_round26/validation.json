@@ -1,0 +1,90 @@
+{
+  "reviewed_commit": "4f8700b9d2d79410983c5ae0b012268381634d91",
+  "parent_commit": "22dfafaea6af432d64ece001aead714bf461d4b0",
+  "reviewed_commit_changed_files": 3,
+  "production_code_changed_by_commit": false,
+  "production_code_changed_by_review": false,
+  "original_papers_read_before_decision": true,
+  "root_local_paper_readings": {
+    "r25_cdas.pdf": {
+      "sha256": "0d2181d1e269232234e19f5e9b6a52455baa5c5dd11655bb0259b434870a2aa8",
+      "root_reading": "PDF pages 3-8: method, equation 3, causal-localization remark, experiments and factor selection"
+    },
+    "r25_axbench.pdf": {
+      "sha256": "9c29e0582371fac08b21d171bfad16a3a612cf686923b5a1a6f1a46f12115ee3",
+      "root_reading": "PDF pages 3-4: dataset, concept evaluation, model steering and half-split selection"
+    },
+    "iti.pdf": {
+      "sha256": "19e55fa96a0b688044c6f75b41a7b39ca672b5a5193054f22302f6bfb5684834",
+      "root_reading": "PDF pages 3-5: dataset, head probing, direction selection and intervention"
+    },
+    "lofit.pdf": {
+      "sha256": "7e4f60afb4807e3f5ccb0245e1ece9cf15823b7e0cece01de62dde590e18def8",
+      "root_reading": "PDF page 5: training setup and SFT citation"
+    },
+    "truthx.pdf": {
+      "sha256": "45ad9c5ba03f03067c5eb9a4721a442632991c3da4130aa5bbb7f06bb23a49b0",
+      "root_reading": "PDF pages 3-4: matched-token extraction, latent spaces and editing loss"
+    }
+  },
+  "additional_original_DAS_reading": "Official arXiv v4 HTML sections 3.1-3.7 and 5.3; independent full reading scopes in source indexes",
+  "independent_reviews": 3,
+  "root_reran_protocol_examples": true,
+  "protocol_example_results": {
+    "scope": "CPU constructive counterexamples and one original helper execution; no actual Llama or paid calls",
+    "one_scalar_content_channel": {
+      "rank": 1,
+      "all_examples_truth_label": "truthful",
+      "source_scalars": [
+        1.0,
+        2.0,
+        3.0
+      ],
+      "source_conditioned_predictions": [
+        "Paris",
+        "Rome",
+        "Lima"
+      ],
+      "mean_source_prediction_for_all_examples": "Rome",
+      "interpretation": "One scalar is not one bit; successful donor-conditioned reconstruction does not identify a content-free truth variable."
+    },
+    "last_layer_gradient": {
+      "earlier_token_only": 0.0,
+      "actual_predictor": 1.0419578877845403
+    },
+    "prefix_detector": {
+      "executed": true,
+      "author_file_sha256": "a474530b8ef709e63419c30dd8aa94408a307fafd253fadf2bfd146635635c2e",
+      "user_only_detected_prefix": 2,
+      "with_system_user_content_start": 6,
+      "interpretation": "Synthetic tokenizer demonstrates the helper assumes its user-only template; not a measurement of actual Llama token IDs."
+    },
+    "c_target_mismatch_example": {
+      "question": "What is 2+2?",
+      "confident_response": "4",
+      "cautious_response": "4",
+      "forced_target": "I don't know.",
+      "interpretation": "The conditional cautious instruction does not imply refusal on every training question. The forced target is added supervision."
+    },
+    "termination_example": {
+      "original_answer_tokens": 30,
+      "limit": 24,
+      "complete": false,
+      "append_natural_eot_after_clipped_prefix": false,
+      "interpretation": "Include the actual chat turn terminator for a complete target; do not label an artificial truncation as a natural completed answer."
+    },
+    "new_scientific_model_runs": 0,
+    "new_paid_requests": 0
+  },
+  "source_sha256": {
+    "from_claude/21_问答DAS重配置方案_E与C_CDAS式_请GPT审.md": "b8e54e4e37405d69961d5fb72095775344623f3230c4aa00fd9a23afee778f7c",
+    "from_claude/22_回复GPT第25轮_核验与修订.md": "88de5837d861000020ece96af9b5745bbec3cc74d901b4f0f9911f07602b3fbb",
+    "from_claude/code/core/qa_context.py": "721751e00320420898ad3795043f85bc465a0a8fe032c894031b45bfbb6f53dd",
+    "from_claude/code/core/qa_das.py": "4d7773425a184fa37431e123aea5c91f3acfe63e1f7945ccf321c21c983fe6f6",
+    "from_claude/code/core/intervene.py": "c462947f5d13b7ed2578d705ba517f2d03e614c81fd2f79e89faec4bc38ff8f2"
+  },
+  "scientific_model_runs": 0,
+  "paid_requests": 0,
+  "human_verdicts_entered": 0,
+  "decision_scope": "Engineering priority recommendation, not empirical evidence that either A or B achieves E/C or localizes native causal variables."
+}
