@@ -231,7 +231,29 @@ def load_source(args):
         raise ValueError('training/tuning cohorts overlap or E training is foreign')
     if any(e_train[k]['question'] != train[k]['question'] for k in e_train):
         raise ValueError('E training question identity differs from the training split')
+    override = getattr(args, 'model_config_override', None)
+    if override:
+        meta['model_config'] = apply_placement_override(meta['model_config'], override)
     return meta, prepared
+
+
+PLACEMENT_KEYS = ('device_map', 'attn_implementation')
+
+
+def apply_placement_override(model_config, override_path):
+    """Placement-only override: which GPUs hold which blocks and the attention kernel.
+
+    The shared GPUs may leave only the leftover memory of several cards, so the 8B model has to be split
+    (GPT's round-27 acceptance did this by copying bank.json with a modified model_config). The merged
+    model_config is part of the identity, so artifacts made under one placement are never mixed with another.
+    Path, name, dtype and every other weight-defining key stay exactly as the source run recorded them.
+    """
+    override = read(override_path)
+    if not isinstance(override, dict) or not override or set(override) - set(PLACEMENT_KEYS):
+        raise ValueError('model config override may set only %s' % (PLACEMENT_KEYS,))
+    merged = dict(model_config)
+    merged.update(override)
+    return merged
 
 
 def prompt_systems(meta, prompts_path):
@@ -930,6 +952,8 @@ def main():
     p.add_argument("--pair-ids", nargs="+", help="pilot: explicit question IDs (writes *.pilot.* files)")
     p.add_argument("--overwrite", action="store_true")
     p.add_argument("--include-pilot", action="store_true", help="summarize: include pilot files")
+    p.add_argument("--model-config-override", type=Path, default=None,
+                   help="JSON with device_map / attn_implementation only (shared GPUs); recorded in the identity")
     args = p.parse_args()
     if args.n_check < 0 or args.batch_size < 1 or args.epochs < 1 or args.max_new_tokens < 1 or args.max_target_tokens < 1:
         raise SystemExit('counts/caps must be positive and --n-check nonnegative')
