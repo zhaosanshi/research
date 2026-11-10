@@ -82,9 +82,3 @@ KEY family=C judge=allenai layer=14 A=not_met B=not_met A_effect_only=TWO-WAY T=
 - C toward confident (x.w.m1): dAns +18 (9.4%), dX -22 | A: beyond the tolerance, abstentions move the same way: True | B: and both intervals on that side: True
     retention on the 160 questions answered both times (need at least 81): right-rate change -0.6 pp [-4.5, +3.6], W>R 5 / R>W 6, answered -> hedge 2 | A: point inside: True | B: whole interval inside: False
 KEY family=C judge=pro layer=14 A=ONE-WAY(x.w.m1) B=not_met A_effect_only=TWO-WAY T=+18 Aplus=+88 Aminus=+18
-03:53:22
-proB_C_L19: === 2026-11-10 19:51:51 [proB_C_L19] proB_C_L19 done ===
-proB_C_L31: === 2026-11-10 19:49:57 [proB_C_L31] proB_C_L31 done ===
-proB_E_L8: 
-proB_E_L10: 
-=== 2026-11-10 19:51:50 extra generation done ===

@@ -326,8 +326,8 @@ def cells(a):
             fb, fc = "baseline_x_F", cond(fam, l, "x_F.w.p" + st)
             aF = bF = None; dRF = dAF = None
             if bn != "x":
-                aF = bF = True                           # no complete-sentence variant of this prompt was frozen: not applicable
-                print("- F, complete-sentence background: not applicable for base %s (reported for base x only)" % bn)
+                # no complete-sentence variant of this prompt was frozen: condition F is NOT TESTED (never counted as met)
+                print("- F, complete-sentence background: NOT TESTED for base %s (no such prompt was frozen); the column status stays incomplete" % bn)
             elif have(state, ids, fb) and have(state, ids, fc):
                 vF, nF = per_question(state, words, ids, fb, fc)
                 sF, loF, _ = ci(vF["dR"]); dRF, dAF = sum(vF["dR"]), sum(vF["dAns"])
@@ -344,17 +344,20 @@ def cells(a):
             aK = abs(k["dAns"]) / N <= TOL
             bK = rK[1] >= -TOL and rK[2] <= TOL
             A, B = status([a1, a3, aF, aK]), status([b1, b3, bF, bK])
+            tested = status([c for c in (a1, a3, aK) if c is not None]) if bn != "x" else None   # the conditions that were tested, F excluded
             print("- main effect: dR %+d (%.1f%% of the questions) | A: beyond the tolerance: %s | B: and interval above 0: %s" % (k["dR"], 100 * k["dR"] / N, a1, b1))
             print("- random controls: %s%s | A: above each (point): %s | B: each interval above 0: %s" % (
                 "; ".join("vs %s %s" % (r, s) for r, s, _, _ in vs) or "none judged", ("; MISSING " + ", ".join(missing)) if missing else "", a3, b3))
-            print("- F | A: dR on x_F positive and its answered-rate change inside the tolerance: %s | B: dR interval above 0 and answered-rate interval inside: %s" % (aF, bF))
+            print("- F | A: dR on x_F positive and its answered-rate change inside the tolerance: %s | B: dR interval above 0 and answered-rate interval inside: %s" % (
+                "not tested" if aF is None else aF, "not tested" if bF is None else bF))
             print("- retention on %s: answered-rate change %s; moved out / in %d / %d | A: point inside: %s | B: whole interval inside: %s" % (bn, pp(rK), k["n"]["out"], k["n"]["in"], aK, bK))
             print("- diagnostic: G_same %+d on %d questions; mean words %.1f -> %.1f" % (
                 sum(k["v"]["same"]), k["n"]["same"], sum(words[(i, base)] for i in ids) / N, sum(words[(i, cond(fam, l, main_arm))] for i in ids) / N))
             margin = "NA" if missing else "%+d" % min(k["dR"] - K[r]["dR"] for r in rands)
             print("KEY family=E judge=%s layer=%d A=%s B=%s dR=%+d dR_F=%s dAns=%+d dAns_F=%s rand_margin=%s%s\n" % (
                 a.judge, l, A, B, k["dR"], "NA" if dRF is None else "%+d" % dRF, k["dAns"], "NA" if dAF is None else "%+d" % dAF, margin,
-                "" if (bn == "x" and main_arm == "x.w.p1" and st == "1") else " EXPLORATORY base=%s main=%s strength=%s" % (bn, main_arm, st)))
+                "" if (bn == "x" and main_arm == "x.w.p1" and st == "1") else " EXPLORATORY base=%s main=%s strength=%s%s" % (
+                    bn, main_arm, st, "" if tested is None else " tested_A_without_F=%s" % tested)))
         if fam == "C" and bn == "x" and (c_plus in K or c_minus in K):
             base_ans = rb + wb
             qa, qb, ea = {}, {}, {}

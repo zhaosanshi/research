@@ -23,14 +23,14 @@ def mutate(moves, seed=0):
 
 
 def write(tmp, family, table, judge="allenai", tag=""):
-    conds = ["baseline_x", "baseline_x_F"]
+    conds = ["baseline_x", "baseline_x_F"] + sorted({"baseline_" + arm.split(".")[0] for l in table for arm in table[l]} - {"baseline_x", "baseline_x_F"})
     specs = [{"name": c, "base_condition": c, "kind": "prompt_control"} for c in conds]
     st = {c: base for c in conds}; tx = {c: {q: SHORT for q in ids} for c in conds}
     for l in sorted(table):
         for arm, (s, t) in table[l].items():
             name = "%s_L%d_%s" % (family, l, arm.replace(".", "-"))
             conds.append(name)
-            specs.append({"name": name, "base_condition": "baseline_x_F" if arm.startswith("x_F.") else "baseline_x", "family": family, "layer": l, "arm": arm})
+            specs.append({"name": name, "base_condition": "baseline_" + arm.split(".")[0], "family": family, "layer": l, "arm": arm})
             st[name] = s; tx[name] = t
     work = Path(tmp) / ("work_%s_%s%s" % (family, judge, tag)); (work / "judge2").mkdir(parents=True)
     (work / "judge_input.json").write_text(json.dumps({
@@ -109,6 +109,10 @@ for l in (0, 1):
 wE2 = write(tmp, "E", E2, tag="_r31")
 # everything refused under the caution arm: nothing is answered both times, so retention is undefined (never 0)
 wC4 = write(tmp, "C", c_table({0: ([("W", "X", 88, False), ("R", "X", 78, False)], [])}), tag="_empty")
+# GPT round 33: on another base prompt the complete-sentence condition is not tested, so the status must stay incomplete
+wE3 = write(tmp, "E", {0: {"conf.w.p1": mutate([("W", "R", 25, False), ("R", "W", 5, False)], seed=1),
+                          "conf.rand.p1": mutate([("W", "R", 3, False), ("R", "W", 4, False)], seed=71),
+                          "conf.rand.m1": mutate([("W", "R", 4, False), ("R", "W", 3, False)], seed=81)}}, tag="_otherbase")
 S = str(Path(__file__).with_name("e44_round1_tables.py"))
 
 
@@ -162,5 +166,7 @@ assert "one-way layers below" in o and "layers to be qualified: 1 0" in o, "one-
 o = go("cells", str(run), "C", str(wC4), "--layers", "0"); print(o)
 assert "right-rate change undefined" in o and "A=not_met" in line(o, "KEY") and "A_effect_only=ONE-WAY(x.w.p1)" in line(o, "KEY")
 o = go("screen", str(run), "C", str(wC4)); assert "undefined" in o
+o = go("cells", str(run), "E", str(wE3), "--layers", "0", "--base", "conf"); print(o)
+assert "A=incomplete" in line(o, "KEY") and "tested_A_without_F=met" in line(o, "KEY") and "NOT TESTED" in o
 go("cross", str(run), "E", str(wE), "--layers", "1")
 print("synthetic checks passed")

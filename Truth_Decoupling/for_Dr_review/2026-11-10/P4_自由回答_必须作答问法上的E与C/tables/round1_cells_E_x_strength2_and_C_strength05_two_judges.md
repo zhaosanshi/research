@@ -37,8 +37,3 @@ KEY family=C judge=allenai layer=31 A=incomplete B=incomplete A_effect_only=inco
     retention on the 162 questions answered both times (need at least 81): right-rate change +0.6 pp [-1.3, +2.9], W>R 2 / R>W 1, answered -> hedge 0 | A: point inside: True | B: whole interval inside: True
     reported, not a condition: right-rate among ALL answered 39.5% -> 39.9% (answers dropped: 0 right, 0 wrong; added: 2 right, 4 wrong)
 KEY family=C judge=pro layer=31 A=incomplete B=incomplete A_effect_only=incomplete T=+6 Aplus=+15 Aminus=+6 EXPLORATORY strength=0.5
-run_M_a: 12/16 layers
-run_M_b: 13/16 layers
-run_E2_a: 11/16 layers
-run_E2_b: 12/16 layers
-04:49:55

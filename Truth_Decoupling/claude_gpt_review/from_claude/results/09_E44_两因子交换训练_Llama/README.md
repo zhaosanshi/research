@@ -46,6 +46,9 @@
 | `round1_layer_profile_E_allenai.md`、`round1_cross_E_allenai_L3_8_9_10_12_16_20.md` | E 各臂的 32 层剖面（AllenAI） |
 | `round1_cells_E_allenai_L8_9_10_20_before_extra_arms.md` | 补对照臂之前的 E 表（留档） |
 | `round1_training_losses.md` | 64 条方向的训练损失：训练题与留出题、不写入 / 训练出的方向 / 均值差方向（脚本 `e44_train_table.py`） |
+| `round1_write_sizes_learned_vs_mean_difference.md` | 64 条方向：训练方向臂与均值差臂每单位力度各写多少（均值差臂 = 训练方向臂那一份 + 与它垂直的一份，量是 1.4–1.65 倍），以及按题交换写入的坐标逐题的散布（脚本 `e44_write_sizes.py`，只读方向文件） |
+| `round1_flips_E_L10_conf_strength2_pro.md` | 必须作答问法、第 10 层力度 2：Pro 下标签变了的 58 道题的两版回答，附 AllenAI 的判法（脚本 `e44_flips.py`） |
+| `round1_direction_cosines.md` | 64 条方向相邻层之间、同层 E 与 C 之间的夹角余弦（脚本 `e44_w_adjacent.py` 的完整输出） |
 
 ## `scripts/`（运行脚本，只按参数调用审过的入口）
 
@@ -66,7 +69,7 @@
 | `e44_round1_extra_gen.sh` | 入围层补生成：随机对照的另一个符号 `x.rand.m1`、防句式对照 `x_F.w.p1`（同一条 E 写入打在已要求完整句子的提示上）。还没运行 |
 | `e44_judge_allenai_subset.sh` | 探索臂的 AllenAI 判分（任意臂的子集） |
 | `e44_arms_table.py` | 只读：任意导出里每条臂对各自基线的一行表（力度扫描用） |
-| `e44_w_shape.py`、`e44_w_init_share.py`、`e44_w_adjacent.py` | 只读（CPU）：已训练方向的形状——与初始向量的夹角（约 0）、与均值差方向的夹角（各层都约 0.70）、相邻层之间的夹角（0.81–0.91）、E 与 C 同层的夹角 |
+| `e44_w_shape.py`、`e44_w_init_share.py`、`e44_w_adjacent.py` | 只读（CPU）：已训练方向的形状——与初始向量的夹角（约 0）、与均值差方向的夹角（各层都约 0.70）、相邻层之间的夹角（E 0.55–0.93、C 0.41–0.94，越往后越高；此前写的 0.81–0.91 只是后段层，全表见 `tables/round1_direction_cosines.md`）、E 与 C 同层的夹角 |
 
 这些脚本是 Claude 写的、没经 GPT 审。五个运行脚本没有新的计算逻辑，请抽查参数（臂名、层、`--e-on / --e-off`、批大小 8、最大生成 48 词元、目标 24 词元）；**`e44_round1_tables.py` 有新逻辑（四类映射、配对自举、入围名额、过 / 不过的判定），请 GPT 重点看**，它只读存盘产物、不加载模型。起跑前三题试跑抓到并修掉的两处问题记在 `27` 第 4.5 节。
 
