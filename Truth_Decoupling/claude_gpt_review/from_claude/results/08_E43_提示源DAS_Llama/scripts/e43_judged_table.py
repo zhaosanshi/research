@@ -25,7 +25,9 @@ for r in rows:
     else:
         s = r["label"]               # A / B / N among answered
     state[(r["pair_id"], r["condition"])] = s
-ids = gen["question_ids"]
+first = gen["conditions"][0]
+ids = [i for i in gen["question_ids"] if (i, first) in state]      # questions whose gold is only a refusal are not judged
+excluded = len(gen["question_ids"]) - len(ids)
 
 
 def counts(cond):
@@ -39,7 +41,8 @@ def line(cond):
     return "%d / %d / %d / %d (%.0f%%)" % (c["A"], c["B"], c["N"], c["R"], 100.0 * c["A"] / max(1, ans))
 
 
-print("cell = answered&A / answered&B / answered&N / abstained (precision among answered)")
+print("cell = answered&A / answered&B / answered&N / abstained (precision among answered); %d questions judged%s" % (
+    len(ids), (", %d excluded (gold is only a refusal)" % excluded) if excluded else ""))
 print("\n| prompt control | cells |")
 print("|---|---|")
 for name, s in specs.items():

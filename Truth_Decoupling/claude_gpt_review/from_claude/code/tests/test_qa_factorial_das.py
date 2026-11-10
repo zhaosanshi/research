@@ -298,6 +298,15 @@ def test_family_rows_and_arms():
     assert all(target == base for base, _, target in e["isolate"]) and len(e["isolate"]) == 4
     assert {(b, s) for b, s, _ in e["isolate"]} == {("conf", "caut"), ("caut", "conf"), ("conf_E1", "caut_E1"), ("caut_E1", "conf_E1")}
     assert e["plus_minus"] == [("conf_E1", "conf")] and e["prompts"] == ["caut", "caut_E1", "conf", "conf_E1"]
+    two_pole = drv.family_spec("E", "E1", "M")
+    assert two_pole["cause"] == [("conf_M", "conf_E1", "conf_E1"), ("conf_E1", "conf_M", "conf_M")]
+    assert two_pole["plus_minus"] == [("conf_E1", "conf_M")] and two_pole["e_off"] == "M"
+    assert two_pole["prompts"] == ["caut_E1", "caut_M", "conf_E1", "conf_M"] and e["e_off"] is None
+    assert drv.family_spec("E", "E1", "none") == e
+    with pytest.raises(ValueError):
+        drv.family_spec("E", "M", "M")
+    assert drv.arm_target_prompt("E", "E1", "conf_M", "w", 1.0, "M") == "conf_E1"
+    assert drv.arm_target_prompt("C", "E1", "caut_M", "wq", -1.0, "M") == "conf_M"
     c = drv.family_spec("C", "E2")
     assert all(target == source for _, source, target in c["cause"]) and len(c["cause"]) == 4
     assert {(b, s) for b, s, _ in c["isolate"]} == {("conf", "conf_E2"), ("conf_E2", "conf"), ("caut", "caut_E2"), ("caut_E2", "caut")}
@@ -345,7 +354,8 @@ def test_prompts_file_and_question_rows(bundle):
     assert set(sum(cfg["step0_pairs"], [])) <= set(systems)
     for fam in ("E", "C"):
         for e_on in ("E1", "E2"):
-            assert set(drv.family_spec(fam, e_on)["prompts"]) <= set(systems)
+            for e_off in (None, "M"):
+                assert set(drv.family_spec(fam, e_on, e_off)["prompts"]) <= set(systems)
     eot = pd.turn_terminator_ids(bundle)
 
     def ans(text, stop=128009):
@@ -437,6 +447,12 @@ def test_driver_end_to_end_on_the_toy_model(bundle, tmp_path, monkeypatch, capsy
         assert "skip L1" in call("train", "--family", family, "--layers", "1", "--epochs", "2", "--val-n", "2")
     with pytest.raises(ValueError):                                         # another seed is another training contract
         call("train", "--family", "E", "--layers", "1", "--epochs", "2", "--val-n", "2", "--seed", "7")
+    with pytest.raises(ValueError):                                         # so is another pair of truth levels
+        call("train", "--family", "E", "--layers", "1", "--epochs", "2", "--val-n", "2", "--e-off", "M")
+    assert "truth levels M / E1" in call("train", "--family", "E", "--layers", "0", "--epochs", "1", "--val-n", "2", "--e-off", "M")
+    assert torch.load(run / "dirs" / "E_L0.pt", map_location="cpu", weights_only=False)["training_contract"]["e_off"] == "M"
+    out0 = call("generate", "--family", "E", "--layers", "0", "--split", "tune", "--arms", "conf_M.wq.p1", "x.w.p2")
+    assert "should behave like conf_E1" in out0
     arms = ["conf.w.p1", "conf.wq.p1", "conf.dq.p1", "conf_E1.w.m1", "x.md.p2", "x.rand.p1"]
     out = call("generate", "--family", "E", "--layers", "1", "--split", "tune", "--arms", *arms)
     assert "should behave like conf_E1" in out and "should behave like conf" in out
@@ -457,10 +473,11 @@ def test_driver_end_to_end_on_the_toy_model(bundle, tmp_path, monkeypatch, capsy
         call("mc", "--split", "tune", "--bases", "nope")
     table = call("summarize")
     assert "| E | 1 |" in table and "conf.wq.p1" in table and "no write, conf" in table and (run / "summary.md").exists()
-    info = exp.export(src, run, "tune", None, ["x", "conf", "caut", "conf_E1"], "judge_input")
+    info = exp.export(src, run, "tune", None, ["x", "conf", "caut", "conf_E1", "conf_M"], "judge_input")
     assert info["n_questions"] == 4 and "E_L1_conf-wq-p1" in info["conditions"] and "baseline_conf" in info["conditions"]
     payload = json.loads((run / "judge_tune" / "judge_input.json").read_text())
-    assert set(payload["evaluations"][0]["outputs"]) == set(payload["conditions"]) and len(payload["conditions"]) == 4 + 9
+    assert set(payload["evaluations"][0]["outputs"]) == set(payload["conditions"])
+    assert len(payload["conditions"]) == 5 + 6 + 3 + 2                      # prompts + E L1 arms + C L1 arms + E L0 arms
     with pytest.raises(ValueError):                                         # an arm's base prompt must be exported too
         exp.export(src, run, "tune", None, ["x"], "too_few_prompts")
 

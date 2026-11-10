@@ -4,8 +4,11 @@
 Two instruction factors, each on / off, give four system prompts for the same question:
 
                      abstaining forbidden (conf)      abstaining allowed (caut)
-  truth sentence off        conf                            caut
-  truth sentence on         conf_<E>                        caut_<E>          (<E> = E1 or E2, see --e-on)
+  truth level low           conf                            caut              (or conf_M / caut_M with --e-off M)
+  truth level high          conf_<E>                        caut_<E>          (<E> = E1 or E2, see --e-on)
+
+--e-off none (default): the low level is the prompt without any truth sentence. --e-off M: the low level adds the
+sentence asking for the popular belief even when it is a misconception, so the E factor has two explicit poles.
 
 E candidate   cause rows: conf <-> conf_<E> (only the truth factor differs; abstaining is forbidden on both sides).
               isolate rows: conf <-> caut, conf_<E> <-> caut_<E> (only the OTHER factor differs).
@@ -85,10 +88,14 @@ def load_prompts(meta, base_prompts_path, e44_path):
     return cfg, systems
 
 
-def family_spec(family, e_on):
+def family_spec(family, e_on, e_off=None):
     """Rows of one family. cause / isolate entries are (base, source, target) prompt names;
-    plus_minus lists the (plus, minus) prompt pairs whose mean difference defines the inference shift."""
-    conf, caut, conf_e, caut_e = "conf", "caut", "conf_" + e_on, "caut_" + e_on
+    plus_minus lists the (plus, minus) prompt pairs whose mean difference defines the inference shift.
+    e_off None: the low truth level is the bare conf / caut prompt; otherwise conf_<e_off> / caut_<e_off>."""
+    if e_off == e_on:
+        raise ValueError("the two truth levels must differ")
+    low = "" if e_off in (None, "", "none") else "_" + e_off
+    conf, caut, conf_e, caut_e = "conf" + low, "caut" + low, "conf_" + e_on, "caut_" + e_on
     both = lambda a, b: [(a, b), (b, a)]  # noqa: E731
     if family == "E":
         cause = [(b, s, s) for b, s in both(conf, conf_e)]
@@ -101,14 +108,15 @@ def family_spec(family, e_on):
     else:
         raise ValueError("family must be E or C")
     names = sorted({n for row in cause + isolate for n in row})
-    return {"family": family, "e_on": e_on, "cause": cause, "isolate": isolate, "plus_minus": plus_minus, "prompts": names}
+    return {"family": family, "e_on": e_on, "e_off": low[1:] or None, "cause": cause, "isolate": isolate,
+            "plus_minus": plus_minus, "prompts": names}
 
 
-def arm_target_prompt(family, e_on, base, direction, beta):
+def arm_target_prompt(family, e_on, base, direction, beta, e_off=None):
     """The prompt whose behaviour an in-distribution unit-strength arm should reproduce (None otherwise)."""
     if direction == "rand" or abs(abs(beta) - 1.0) > 1e-9:
         return None
-    for plus, minus in family_spec(family, e_on)["plus_minus"]:
+    for plus, minus in family_spec(family, e_on, e_off)["plus_minus"]:
         if base == minus and beta > 0:
             return plus
         if base == plus and beta < 0:
@@ -333,7 +341,7 @@ def dir_path(args, family, layer):
 
 
 def training_contract(args, spec, layer, train_q, val_q, frozen, frozen_file):
-    return {"family": spec["family"], "e_on": spec["e_on"], "layer": layer, "seed": args.seed, "epochs": args.epochs,
+    return {"family": spec["family"], "e_on": spec["e_on"], "e_off": spec["e_off"], "layer": layer, "seed": args.seed, "epochs": args.epochs,
             "lr": args.lr, "clip": args.clip, "loss": args.loss, "positions": args.positions, "init": args.init,
             "val_n": args.val_n, "pilot": is_pilot(args),
             "rows": {k: [list(r) for r in spec[k]] for k in ("cause", "isolate", "plus_minus")},
@@ -363,7 +371,7 @@ def validate_direction(record, family, layer, identity_sha, pilot, contract=None
 
 def run_train(args, meta, prepared, bundle, cfg, systems, ident, ident_sha):
     user_template = meta["config"]["qa_user"]
-    spec = family_spec(args.family, args.e_on)
+    spec = family_spec(args.family, args.e_on, args.e_off)
     missing = [n for n in spec["prompts"] if n not in systems]
     if missing:
         raise SystemExit("prompts file lacks %s" % missing)
@@ -371,8 +379,8 @@ def run_train(args, meta, prepared, bundle, cfg, systems, ident, ident_sha):
     questions = e43.pick_questions(prepared, "train", args)
     built, skipped = build_questions(bundle, spec, questions, frozen, systems, user_template, args.max_target_tokens)
     train_q, val_q = split_train_val(built, args.val_n, args.seed)
-    log("%s (%s): %d questions usable (%d train, %d held out), skipped %s" % (
-        args.family, args.e_on, len(built), len(train_q), len(val_q), skipped))
+    log("%s (truth levels %s / %s): %d questions usable (%d train, %d held out), skipped %s" % (
+        args.family, spec["e_off"] or "none", args.e_on, len(built), len(train_q), len(val_q), skipped))
     if not train_q:
         raise SystemExit("no training questions")
     ref_logp = {}
@@ -412,7 +420,7 @@ def run_train(args, meta, prepared, bundle, cfg, systems, ident, ident_sha):
         for kind in ("cause", "isolate"):                # how much of each row type's read difference lies along w
             vals = [abs(float(torch.dot(r["difference"], w))) for q in train_q for r in q["rows"] if r["kind"] == kind]
             leak[kind] = sum(vals) / max(1, len(vals))
-        record = {"protocol": fd.PROTOCOL, "family": args.family, "e_on": args.e_on, "layer": layer, "model": meta["model"],
+        record = {"protocol": fd.PROTOCOL, "family": args.family, "e_on": args.e_on, "e_off": spec["e_off"], "layer": layer, "model": meta["model"],
                   "w": w, "w_md": w_md, "gap": stats["mean"], "md_norm": md_norm, "cosine_w_md": float(torch.dot(w, w_md)),
                   "difference_along_w": stats, "difference_along_md": fd.difference_stats(plus, minus, w_md),
                   "read_difference_abs_along_w": leak, "losses": losses, "training": info, "skipped": skipped,
@@ -518,11 +526,11 @@ def run_generate(args, meta, prepared, bundle, cfg, systems, ident, ident_sha):
     for layer in args.layers:
         record, path = load_direction(args, args.family, layer, ident_sha)
         positions = record["training_contract"]["positions"]
-        e_on = record["e_on"]
+        e_on, e_off = record["e_on"], record["e_off"]
         direction_sha = file_sha(path)
         D = None
         if per_question:
-            spec = family_spec(args.family, e_on)
+            spec = family_spec(args.family, e_on, e_off)
             render(sorted({n for pair in spec["plus_minus"] for n in pair}))
             D = question_differences(bundle, spec, rendered, layer, args.batch_size)
         for arm, base, direction, beta in arms:
@@ -538,7 +546,7 @@ def run_generate(args, meta, prepared, bundle, cfg, systems, ident, ident_sha):
                 continue
             verified_base(args, bundle, rendered, look, questions, base, cache)
             write = arm_write(record, direction, beta, bundle.hidden_size, args.seed, layer, D)
-            target_prompt = arm_target_prompt(args.family, e_on, base, direction, beta)
+            target_prompt = arm_target_prompt(args.family, e_on, base, direction, beta, e_off)
             log("L%d %s: base %s, %s: %s%s" % (layer, arm, base, direction, write_note(write),
                                               (" (should behave like %s)" % target_prompt) if target_prompt else ""))
             recs = fd.generate_shift(bundle, rendered[base], max_new_tokens=args.max_new_tokens, batch_size=args.batch_size,
@@ -572,7 +580,7 @@ def run_generate(args, meta, prepared, bundle, cfg, systems, ident, ident_sha):
             require_current(ident, args)
             if file_sha(path) != direction_sha or file_sha(args.run_dir / frozen_name) != frozen_sha:
                 raise RuntimeError("direction or frozen source changed during generation")
-            save(out_path, seal({"protocol": fd.PROTOCOL, "phase": "generate", "family": args.family, "e_on": e_on, "layer": layer,
+            save(out_path, seal({"protocol": fd.PROTOCOL, "phase": "generate", "family": args.family, "e_on": e_on, "e_off": e_off, "layer": layer,
                                  "arm": arm, "split": args.split, "base_prompt": base, "direction": direction, "beta": beta,
                                  "positions": positions, "target_prompt": target_prompt,
                                  "identity": ident, "identity_sha256": ident_sha, "direction_file": path.name,
@@ -678,7 +686,7 @@ def run_mc(args, meta, prepared, bundle, cfg, systems, ident, ident_sha):
         direction_sha = file_sha(dpath)
         D = None
         if per_question:
-            spec = family_spec(args.family, record["e_on"])
+            spec = family_spec(args.family, record["e_on"], record["e_off"])
             for n in sorted({n for pair in spec["plus_minus"] for n in pair}):
                 if n not in rendered:
                     rendered[n] = [pd.render_prompt(bundle, systems[n], user_template, q["question"]) for q in questions]
@@ -699,7 +707,7 @@ def run_mc(args, meta, prepared, bundle, cfg, systems, ident, ident_sha):
             require_current(ident, args)
             if file_sha(dpath) != direction_sha:
                 raise RuntimeError("direction changed during scoring")
-            save(path, seal({"protocol": fd.PROTOCOL, "phase": "mc", "kind": "arm", "family": args.family, "e_on": record["e_on"],
+            save(path, seal({"protocol": fd.PROTOCOL, "phase": "mc", "kind": "arm", "family": args.family, "e_on": record["e_on"], "e_off": record["e_off"],
                              "layer": layer, "arm": arm, "split": args.split, "base_prompt": base, "direction": direction,
                              "beta": beta, "write": write_note(write), "positions": positions, "identity": ident,
                              "identity_sha256": ident_sha, "direction_file": dpath.name, "direction_file_sha256": direction_sha,
@@ -769,7 +777,8 @@ def main():
     p.add_argument("--prompts", type=Path, default=Path(EXP_ROOT) / "configs" / "prompts" / "default_v1.json")
     p.add_argument("--prompts-e44", type=Path, default=Path(EXP_ROOT) / "configs" / "prompts" / "e44_factorial_v1.json")
     p.add_argument("--family", choices=FAMILIES)
-    p.add_argument("--e-on", default="E1", help="which truth sentence defines the E factor (a key of the prompts file)")
+    p.add_argument("--e-on", default="E1", help="sentence of the high truth level (a key of the prompts file)")
+    p.add_argument("--e-off", default="none", help="sentence of the low truth level: none (no sentence) or a key such as M")
     p.add_argument("--layers", nargs="+", type=int, default=[])
     p.add_argument("--arms", nargs="+", default=[])
     p.add_argument("--bases", nargs="+", default=[], help="mc: also (or only) score these prompts without any write")
@@ -816,8 +825,8 @@ def main():
     if any(l < 0 or l >= meta["num_layers"] for l in args.layers):
         raise SystemExit("layer index outside the source model")
     cfg, systems = load_prompts(meta, args.prompts, args.prompts_e44)
-    if args.e_on not in cfg["sentences"]:
-        raise SystemExit("--e-on %s is not a sentence of the prompts file" % args.e_on)
+    if args.e_on not in cfg["sentences"] or (args.e_off != "none" and args.e_off not in cfg["sentences"]) or args.e_off == args.e_on:
+        raise SystemExit("--e-on / --e-off must be two different sentences of the prompts file (or --e-off none)")
     for arm in args.arms:
         parse_arm(arm, systems)
     torch.manual_seed(args.seed)
