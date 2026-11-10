@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Synthetic check of e44_round1_tables.py (criteria v3: plan 28 as amended by plan 29). Known effects must come out with the
-right slot and verdict; the constructed false positives of the red team and of GPT round 30 must not pass.
+"""Synthetic check of e44_round1_tables.py (criteria v4: plans 28 + 29 + 30). Known effects must come out with the
+right slot and status; the constructed false positives of the red team and of GPT rounds 30 and 31 must not pass.
 Standard library only."""
 import json, random, subprocess, sys, tempfile
 from pathlib import Path
@@ -99,6 +99,16 @@ wC2 = write(tmp, "C", c_table({0: ([("W", "X", 9, False)], [])}, rand=(("X", "W"
 # two-way layer whose caution arm damages content (20 right -> wrong among the kept answers) + a clean one-way layer (GPT round 30)
 wC3 = write(tmp, "C", c_table({0: ([("W", "X", 20, False), ("R", "W", 20, False)], [("X", "W", 15, False)]),
                                1: ([("W", "X", 30, False)], [])}), tag="_fallback")
+# GPT round 31: (0) the learned arm gains +20 but one random sign gains +25; (1) on the complete-sentence background the "gain" is only abstentions answered
+E2 = {}
+for l in (0, 1):
+    E2[l] = {"x.w.p1": mutate([("W", "R", 25, False), ("R", "W", 5, False)], seed=l),
+             "x.rand.p1": mutate([("W", "R", 30, False), ("R", "W", 5, False)] if l == 0 else [("W", "R", 3, False), ("R", "W", 4, False)], seed=70 + l),
+             "x.rand.m1": mutate([("W", "R", 4, False), ("R", "W", 3, False)], seed=80 + l),
+             "x_F.w.p1": mutate([("W", "R", 15, False), ("R", "W", 3, False)] if l == 0 else [("X", "R", 10, False)], seed=90 + l)}
+wE2 = write(tmp, "E", E2, tag="_r31")
+# everything refused under the caution arm: nothing is answered both times, so retention is undefined (never 0)
+wC4 = write(tmp, "C", c_table({0: ([("W", "X", 88, False), ("R", "X", 78, False)], [])}), tag="_empty")
 S = str(Path(__file__).with_name("e44_round1_tables.py"))
 
 
@@ -118,35 +128,39 @@ def line(text, start):
 
 
 o = go("screen", str(run), "E", str(wE)); print(o)
-# dR among |dAns| <= 6: L5 +25, L1 +20 (tie with L7 broken by layer) -> slots 1-2; slot 3 = largest G_same among the rest (L3, +8);
-# slot 4 = reference margin (L4); slot 5 = largest raw dR left (L2, +30, coverage changed): diagnostic only
-assert "shortlist layers: 5 1 3 4 2" in o and "candidate layers: 5 1 3 4" in o, "E shortlist"
+# dR among layers with an answered-rate change inside the tolerance: L5 +25, L1 +20 (tie with L7 broken by layer) -> slots 1-2;
+# slot 3 = largest G_same among the rest (L3, +8); slot 4 = reference margin (L4); slot 5 = largest raw dR left (L2, +30): diagnostic only
+assert "shortlist layers: 5 1 3 4 2" in o and "layers to be qualified: 5 1 3 4" in o, "E shortlist"
 assert "not a gate" in o
 o = go("cells", str(run), "E", str(wE), "--layers", "1", "2", "5", "7", "0"); print(o)
 s = {l: section(o, l) for l in (1, 2, 5, 7, 0)}
-assert line(s[1], "- E effect").endswith("=>  PASS") and line(s[1], "- E against the format control").endswith("=>  PASS")
-assert "point inside +-3 pp: True" in line(s[1], "- E retention") and "effect=PASS format=PASS" in line(s[1], "KEY")
-assert "INCOMPLETE" in line(s[2], "- E effect") and "effect=INCOMPLETE" in line(s[2], "KEY")           # one random sign only: no verdict
-assert "point inside +-3 pp: False" in line(s[2], "- E retention")                                       # coverage changed
-assert line(s[5], "- E effect").endswith("=>  PASS") and line(s[5], "- E against the format control").endswith("=>  not met")   # format-like gain
-assert "format=INCOMPLETE" in line(s[7], "KEY") and "moved out / in: 8 / 8" in line(s[7], "- E retention")  # churn reported, no format verdict
-assert "(equivalence, needed for a stage-B claim): False" in line(s[7], "- E retention")
-assert line(s[0], "- E effect").endswith("=>  not met")
-o = go("cells", str(run), "E", str(wEp), "--judge", "pro", "--layers", "1"); assert line(o, "- E effect").endswith("=>  PASS")
+assert "A=met B=met" in line(s[1], "KEY")
+assert "MISSING x.rand.m1" in s[2] and "A=not_met" in line(s[2], "KEY")                 # one random sign missing AND coverage changed
+assert "A=not_met" in line(s[5], "KEY") and "inside the tolerance: False" in line(s[5], "- F |")   # format-like gain: nothing on the x_F background
+assert "A=incomplete B=not_met" in line(s[7], "KEY") and "moved out / in 8 / 8" in line(s[7], "- retention on x")   # churn: no B retention, F not judged
+assert "A=not_met" in line(s[0], "KEY")
+o = go("cells", str(run), "E", str(wEp), "--judge", "pro", "--layers", "1"); assert "A=met B=met" in line(o, "KEY")
+o = go("cells", str(run), "E", str(wE2), "--layers", "0", "1"); print(o)
+s = {l: section(o, l) for l in (0, 1)}
+assert "A=not_met" in line(s[0], "KEY") and "above each (point): False" in line(s[0], "- random controls")       # a random sign does better
+assert "A=not_met" in line(s[1], "KEY") and "inside the tolerance: False" in line(s[1], "- F |")                # x_F gain is only more answering
 o = go("screen", str(run), "C", str(wC)); print(o)
-assert "shortlist layers: 1 7 3" in o and "candidate layers: 1 7" in o, "C shortlist"
+assert "shortlist layers: 1 7 3" in o and "layers to be qualified: 1 7" in o, "C shortlist"
 o = go("cells", str(run), "C", str(wC), "--layers", "1", "2", "4", "5", "6", "7", "0"); print(o)
 s = {l: section(o, l) for l in (1, 2, 4, 5, 6, 7, 0)}
-assert "effect=TWO-WAY retention=equivalent" in line(s[1], "KEY")
-assert "effect=ONE-WAY(x.w.p1)" in line(s[2], "KEY")
-assert "effect=ONE-WAY(x.w.p1) retention=not_met" in line(s[4], "KEY")        # 30 answers turned into hedges
-assert "effect=not_met" in line(s[5], "KEY")                                  # abstained -> hedge is not answering
-assert "effect=not_met" in line(s[6], "KEY")                                  # 4 questions each way stays inside tau
-assert "effect=TWO-WAY retention=point_inside" in line(s[7], "KEY") and "W>R 13 / R>W 13" in s[7]   # offsetting flips: not equivalent, shown
-assert "effect=not_met" in line(s[0], "KEY")
+assert "A=TWO-WAY B=TWO-WAY" in line(s[1], "KEY")
+assert "A=ONE-WAY(x.w.p1) B=ONE-WAY(x.w.p1)" in line(s[2], "KEY")
+assert "A=not_met" in line(s[4], "KEY") and "A_effect_only=ONE-WAY(x.w.p1)" in line(s[4], "KEY")    # 30 answers turned into hedges
+assert "A=not_met" in line(s[5], "KEY")                                         # abstained -> hedge is not answering
+assert "A=not_met" in line(s[6], "KEY")                                         # 4 questions each way stays inside the tolerance
+assert "A=TWO-WAY B=ONE-WAY(x.w.m1)" in line(s[7], "KEY") and "W>R 13 / R>W 13" in s[7]   # offsetting flips: point inside, interval not
+assert "A=not_met" in line(s[0], "KEY")
 o = go("cells", str(run), "C", str(wC2), "--layers", "0"); print(o)
-assert "effect=not_met" in line(o, "KEY")                                     # -9 does not beat the random arm's own -12
+assert "A=not_met" in line(o, "KEY")                                            # -9 does not beat the random arm's own -12
 o = go("screen", str(run), "C", str(wC3)); print(o)
-assert "one-way candidates below" in o and "candidate layers: 1 0" in o, "one-way fallback"
+assert "one-way layers below" in o and "layers to be qualified: 1 0" in o, "one-way fallback"
+o = go("cells", str(run), "C", str(wC4), "--layers", "0"); print(o)
+assert "right-rate change undefined" in o and "A=not_met" in line(o, "KEY") and "A_effect_only=ONE-WAY(x.w.p1)" in line(o, "KEY")
+o = go("screen", str(run), "C", str(wC4)); assert "undefined" in o
 go("cross", str(run), "E", str(wE), "--layers", "1")
 print("synthetic checks passed")

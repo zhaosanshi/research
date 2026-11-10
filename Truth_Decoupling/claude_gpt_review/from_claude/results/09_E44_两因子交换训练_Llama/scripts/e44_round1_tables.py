@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Read-only tables for the E44 first round, criteria v3 (plan 28 as amended by plan 29 after GPT round 30).
+"""Read-only tables for the E44 first round, criteria v4 (plans 28 + 29 + 30; GPT rounds 30 and 31).
 CPU only, standard library only, nothing is written.
 
   e44_round1_tables.py screen  RUN_DIR FAMILY WORK_DIR            all layers, AllenAI + rule refusals, shortlist by the frozen rule
   e44_round1_tables.py cells   RUN_DIR FAMILY WORK_DIR --judge J --layers L [L ...]
-                                                                  the two cells of this family for one judge (bootstrap intervals)
+                                                                  the conditions of this family for one judge, in two columns:
+                                                                  A = stage-A screen (point estimates only), B = stage-B confirmation (intervals)
   e44_round1_tables.py cross   RUN_DIR FAMILY WORK_DIR --judge J --layers L [L ...]
                                                                   the other arms against their own base prompt
 
@@ -18,24 +19,22 @@ the script (re-judge first; nothing is imputed).
 Per-question quantities for an arm c against its base b:
   dR   right(c) - right(b)          dAns  answered(c) - answered(b)          dX  abstained(c) - abstained(b)
   keep answered under both          out / in  answered -> not answered / not answered -> answered          toH  answered -> hedge
-  G_same  dR restricted to keep-questions whose answer has at most LEN_TOL more words: a DIAGNOSTIC only (it conditions on
-          what happened after the write, so it neither proves nor refutes a length effect; GPT round 30, point 2)
-Tolerance: 3 percentage points. tau(n) = round(0.03 n) questions (6 of 192, 16 of 529).
-Intervals: paired bootstrap over questions, 10,000 resamples, random.Random(20261111), percentile 2.5 / 97.5. An interval of zero
-width (no change observed at all) is replaced by +-3/n for the equivalence check (rule of three).
-"Equivalent" = the whole interval lies inside +-3 points; "point inside" = only the point estimate does (screening wording).
+  G_same  dR restricted to keep-questions whose answer has at most LEN_TOL more words: a diagnostic only.
+Tolerance TOL = 0.03 as a RATE everywhere (of all questions; of the keep-questions for the keep right-rate). Counts are shown
+for reading only: on 192 questions 5 is inside (2.6%), 6 is beyond (3.1%).
+Intervals: paired bootstrap over questions, 10,000 resamples, random.Random(20261111), percentile 2.5 / 97.5. When not a single
+question changed, the interval used is +-u with u = 1 - 0.05 ** (1 / n) (exact bound for zero events), and that is what is printed.
+A rate whose denominator is zero is UNDEFINED (never 0).
+Status of a column: not_met if any condition is false; otherwise incomplete if a required arm is missing; otherwise met.
 """
 import argparse, collections, json, random
 from pathlib import Path
 
-TAU_PP = 0.03
+TOL = 0.03
 LEN_TOL = 1
 BOOT, SEED = 10000, 20261111
+RANDS = ("x.rand.p1", "x.rand.m1")          # both signs of one random axis; one judged export per axis
 _IDX = {}
-
-
-def tau(n):
-    return int(TAU_PP * n + 0.5)
 
 
 def load(work, judge):
@@ -109,14 +108,31 @@ def boot(diffs):
     return sums[int(0.025 * BOOT)], sums[int(0.975 * BOOT) - 1]
 
 
-def boot_ratio(num, den):
-    """Percentile 95% interval of sum(num) / sum(den), numerator and denominator resampled together."""
+def rate_interval(diffs, n):
+    """(rate, lo, hi) of sum(diffs) / n. If no question changed at all, the exact zero-event bound replaces the zero-width interval."""
+    if not any(diffs):
+        u = 1.0 - 0.05 ** (1.0 / n)
+        return 0.0, -u, u
+    lo, hi = boot(diffs)
+    return sum(diffs) / n, lo / n, hi / n
+
+
+def keep_interval(v, n):
+    """(rate, lo, hi) of the right-rate change on the questions answered under both conditions; None when undefined.
+    Numerator and denominator are resampled together; a resample without any such question makes the interval undefined."""
+    if n["keep"] == 0:
+        return None
+    if not any(v["keep"]):
+        u = 1.0 - 0.05 ** (1.0 / n["keep"])
+        return 0.0, -u, u
     vals = []
-    for row in _idx(len(num)):
-        d = sum(den[j] for j in row)
-        vals.append((sum(num[j] for j in row) / d) if d else 0.0)
+    for row in _idx(len(v["keep"])):
+        d = sum(v["both"][j] for j in row)
+        if d == 0:
+            return None
+        vals.append(sum(v["keep"][j] for j in row) / d)
     vals.sort()
-    return vals[int(0.025 * BOOT)], vals[int(0.975 * BOOT) - 1]
+    return sum(v["keep"]) / n["keep"], vals[int(0.025 * BOOT)], vals[int(0.975 * BOOT) - 1]
 
 
 def ci(d):
@@ -124,12 +140,17 @@ def ci(d):
     return "%+d [%+d, %+d]" % (sum(d), lo, hi), lo, hi
 
 
-def equivalent(lo, hi, n, changed):
-    """The whole interval of a rate difference inside +-TAU_PP. lo / hi are in rate units; a zero-width interval with no
-    observed change is widened to +-3/n (rule of three)."""
-    if not changed:
-        lo, hi = -3.0 / n, 3.0 / n
-    return lo >= -TAU_PP and hi <= TAU_PP
+def pp(t):
+    return "undefined" if t is None else "%+.1f pp [%+.1f, %+.1f]" % (100 * t[0], 100 * t[1], 100 * t[2])
+
+
+def status(conditions):
+    """conditions: values True / False / None (None = a required arm is missing)."""
+    if any(c is False for c in conditions):
+        return "not_met"
+    if any(c is None for c in conditions):
+        return "incomplete"
+    return "met"
 
 
 def minus(a, b):
@@ -151,22 +172,13 @@ def have(state, ids, c):
     return (ids[0], c) in state
 
 
-def _token(verdict):
-    return "INCOMPLETE" if verdict.startswith("INCOMPLETE") else verdict.replace(" ", "_")
-
-
-def keep_rate(v, n):
-    """Change of the right-rate on the questions answered under both conditions (points of that intersection)."""
-    return (sum(v["keep"]) / n["keep"]) if n["keep"] else 0.0
-
-
 # ----------------------------------------------------------------------------- screen (AllenAI + rule refusals, all layers)
 def screen(a):
     gen, specs, ids, state, rule, words = load(a.work, "allenai")
-    fam, base, T, N = a.family, "baseline_x", tau(len(ids)), len(ids)
+    fam, base, N = a.family, "baseline_x", len(ids)
     L = layers_of(specs, fam)
     rb, wb, hb, xb = counts(state, ids, base)
-    print("# %s first-round screen: AllenAI + rule refusals, tune %d questions, against %s (no write); tau = %d questions\n" % (fam, N, base, T))
+    print("# %s first-round screen: AllenAI + rule refusals, tune %d questions, against %s (no write); tolerance %.0f%% of the questions\n" % (fam, N, base, 100 * TOL))
     print("baseline x: right / wrong / uninformative / abstained = %d / %d / %d / %d; answered %d; mean words %.1f\n" % (
         rb, wb, hb, xb, rb + wb, sum(words[(i, base)] for i in ids) / N))
     arms = ["x.w.p1", "x.w.m1", "x.md.p1", "x.rand.p1"] if fam == "E" else ["x.w.p1", "x.w.m1", "x.md.p1", "x.md.m1", "x.rand.p1", "x.rand.m1"]
@@ -176,8 +188,10 @@ def screen(a):
             c = cond(fam, l, arm)
             v, n = per_question(state, words, ids, base, c)
             S[(l, arm)] = {"cnt": counts(state, ids, c), "dR": sum(v["dR"]), "dAns": sum(v["dAns"]), "dX": sum(v["dX"]),
-                           "keep_dR": sum(v["keep"]), "keep_rate": keep_rate(v, n), "G": sum(v["same"]), "n": n,
-                           "words": sum(words[(i, c)] for i in ids) / N}
+                           "keep_dR": sum(v["keep"]), "keep_rate": (sum(v["keep"]) / n["keep"]) if n["keep"] else None,
+                           "G": sum(v["same"]), "n": n, "words": sum(words[(i, c)] for i in ids) / N}
+    inside = lambda x: abs(x) / N <= TOL  # noqa: E731
+    beyond = lambda x: x / N > TOL  # noqa: E731
     if fam == "E":
         print("| layer | x.w.p1 R/W/H/X | dR | dAns | dX | out / in | keep: n, dR (W>R / R>W) | G_same (n) [diagnostic] | mean words | rand.p1: dR, dAns | md.p1: dR, dAns | w.m1: dR | max-true margin change |")
         print("|---|---|---|---|---|---|---|---|---|---|---|---|---|")
@@ -190,78 +204,82 @@ def screen(a):
                                    "—" if mg is None else "%+.4f" % mg)))
         rr = [S[(l, "x.rand.p1")]["dR"] for l in L]
         print("\nreference only (not a gate): the random direction's dR over the %d layers ranges from %+d to %+d" % (len(L), min(rr), max(rr)))
-        print("\n## shortlist (plan 29, section 3)\n")
-        ok = lambda l: abs(S[(l, "x.w.p1")]["dAns"]) <= T  # noqa: E731
+        print("\n## shortlist (plan 29 section 5, as amended by plan 30)\n")
+        ok = lambda l: inside(S[(l, "x.w.p1")]["dAns"])  # noqa: E731
         by_r = sorted(L, key=lambda l: (-S[(l, "x.w.p1")]["dR"], l))
-        short = [(l, "candidate", "slot %d: dR %+d among layers with |dAns| <= %d" % (k + 1, S[(l, "x.w.p1")]["dR"], T))
+        short = [(l, "to be qualified", "slot %d: dR %+d among layers whose answered-rate change is inside the tolerance" % (k + 1, S[(l, "x.w.p1")]["dR"]))
                  for k, l in enumerate([l for l in by_r if ok(l) and S[(l, "x.w.p1")]["dR"] > 0][:2])]
         if not short:
-            print("no layer with |dAns| <= %d has a positive dR under AllenAI: nothing qualifies for Pro (resource screen, not a finding of no effect)." % T)
+            print("no layer with an answered-rate change inside the tolerance has a positive dR under AllenAI: nothing is sent to Pro (a resource screen, not a finding of no effect).")
         chosen = {l for l, _, _ in short}
         cand = sorted([(-S[(l, "x.w.p1")]["G"], l) for l in L if l not in chosen and ok(l) and S[(l, "x.w.p1")]["G"] > 0])
         if cand:
-            short.append((cand[0][1], "candidate", "slot 3 (discovery): largest G_same %+d among the other layers with |dAns| <= %d" % (-cand[0][0], T)))
+            short.append((cand[0][1], "to be qualified", "slot 3 (discovery): largest G_same %+d among the other such layers" % -cand[0][0]))
             chosen.add(cand[0][1])
         cand = [(mc_margin(a.run, fam, l, "x.w.p1"), l) for l in L if l not in chosen and ok(l)]
         cand = sorted([(-m, l) for m, l in cand if m is not None])
         if cand:
-            short.append((cand[0][1], "candidate", "slot 4 (discovery, judge-free): largest max-true margin change %+.4f among the other layers with |dAns| <= %d" % (-cand[0][0], T)))
+            short.append((cand[0][1], "to be qualified", "slot 4 (discovery, judge-free): largest max-true margin change %+.4f among the other such layers" % -cand[0][0]))
             chosen.add(cand[0][1])
         rest = sorted([l for l in L if l not in chosen], key=lambda l: (-S[(l, "x.w.p1")]["dR"], l))
         if rest:
             short.append((rest[0], "diagnostic", "slot 5 (diagnostic only, cannot be promoted): largest raw dR %+d among the layers not chosen" % S[(rest[0], "x.w.p1")]["dR"]))
         for l, role, why in short:
             s = S[(l, "x.w.p1")]
-            print("- layer %d [%s] — %s; dR %+d, dAns %+d, out / in %d / %d, G_same %+d (n %d)" % (l, role, why, s["dR"], s["dAns"], s["n"]["out"], s["n"]["in"], s["G"], s["n"]["same"]))
+            print("- layer %d [%s] — %s; dR %+d, dAns %+d (%.1f%%), out / in %d / %d, G_same %+d (n %d)" % (
+                l, role, why, s["dR"], s["dAns"], 100 * s["dAns"] / N, s["n"]["out"], s["n"]["in"], s["G"], s["n"]["same"]))
         print("\nshortlist layers:", " ".join(str(l) for l, _, _ in short))
-        print("candidate layers:", " ".join(str(l) for l, role, _ in short if role == "candidate"))
+        print("layers to be qualified:", " ".join(str(l) for l, role, _ in short if role != "diagnostic"))
     else:
         base_ans = rb + wb
         print("| layer | x.w.p1 R/W/H/X | A+ = -dAns | dX | keep: n, right-rate change, W>R / R>W | toH | x.w.m1 R/W/H/X | A- = +dAns | dX | keep: n, right-rate change, W>R / R>W | toH | T = min | rand dAns: p1, m1 | md dAns: p1, m1 |")
         print("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
         Tm, ret = {}, {}
+        rate_txt = lambda s: "undefined" if s["keep_rate"] is None else "%+.1f pp" % (100 * s["keep_rate"])  # noqa: E731
         for l in L:
             p, m = S[(l, "x.w.p1")], S[(l, "x.w.m1")]
             ap, am = -p["dAns"], m["dAns"]
             Tm[l] = (min(ap, am), ap, am)
             for arm, s in (("p1", p), ("m1", m)):
-                ret[(l, arm)] = abs(s["keep_rate"]) <= TAU_PP and 2 * s["n"]["keep"] >= base_ans and s["n"]["toH"] <= T
-            print("| %d | %d / %d / %d / %d | %+d | %+d | %d, %+.1f pp, %d / %d | %d | %d / %d / %d / %d | %+d | %+d | %d, %+.1f pp, %d / %d | %d | %+d | %+d, %+d | %+d, %+d |" % (
-                (l,) + p["cnt"] + (ap, p["dX"], p["n"]["keep"], 100 * p["keep_rate"], p["n"]["up"], p["n"]["down"], p["n"]["toH"]) + m["cnt"] + (
-                    am, m["dX"], m["n"]["keep"], 100 * m["keep_rate"], m["n"]["up"], m["n"]["down"], m["n"]["toH"], Tm[l][0],
+                ret[(l, arm)] = (s["keep_rate"] is not None and abs(s["keep_rate"]) <= TOL and 2 * s["n"]["keep"] >= base_ans
+                                 and s["n"]["toH"] / N <= TOL)
+            print("| %d | %d / %d / %d / %d | %+d | %+d | %d, %s, %d / %d | %d | %d / %d / %d / %d | %+d | %+d | %d, %s, %d / %d | %d | %+d | %+d, %+d | %+d, %+d |" % (
+                (l,) + p["cnt"] + (ap, p["dX"], p["n"]["keep"], rate_txt(p), p["n"]["up"], p["n"]["down"], p["n"]["toH"]) + m["cnt"] + (
+                    am, m["dX"], m["n"]["keep"], rate_txt(m), m["n"]["up"], m["n"]["down"], m["n"]["toH"], Tm[l][0],
                     S[(l, "x.rand.p1")]["dAns"], S[(l, "x.rand.m1")]["dAns"], S[(l, "x.md.p1")]["dAns"], S[(l, "x.md.m1")]["dAns"])))
         rr = [S[(l, arm)]["dAns"] for l in L for arm in ("x.rand.p1", "x.rand.m1")]
         print("\nreference only (not a gate): the random direction's dAns over the %d layers and both signs ranges from %+d to %+d" % (len(L), min(rr), max(rr)))
-        print("\n## shortlist (plan 29, section 3)\n")
+        print("\n## shortlist (plan 29 section 5, as amended by plan 30)\n")
         order = sorted(L, key=lambda l: (-Tm[l][0], l))
-        two_ok = [l for l in order if Tm[l][0] > T and ret[(l, "p1")] and ret[(l, "m1")]]
-        short = [(l, "candidate", "slot %d: two-way, T = %+d, retention screen met on both arms" % (k + 1, Tm[l][0])) for k, l in enumerate(two_ok[:2])]
+        two_ok = [l for l in order if beyond(Tm[l][0]) and ret[(l, "p1")] and ret[(l, "m1")]]
+        short = [(l, "to be qualified", "slot %d: two-way, T = %+d, retention screen met on both arms" % (k + 1, Tm[l][0])) for k, l in enumerate(two_ok[:2])]
         if not short:                                    # fall back to qualified one-way layers (GPT round 30, point 3)
-            one = sorted([(-Tm[l][k], l, name) for l in L for k, name in ((1, "p1"), (2, "m1")) if Tm[l][k] > T and ret[(l, name)]])
+            one = sorted([(-Tm[l][k], l, name) for l in L for k, name in ((1, "p1"), (2, "m1")) if beyond(Tm[l][k]) and ret[(l, name)]])
             for neg, l, name in one:
                 if l not in [x[0] for x in short]:
-                    short.append((l, "candidate", "ONE-WAY slot %d: %s only, change %+d, retention screen met on that arm" % (
+                    short.append((l, "to be qualified", "ONE-WAY slot %d: %s only, change %+d, retention screen met on that arm" % (
                         len(short) + 1, "toward caution" if name == "p1" else "toward confident", -neg)))
                 if len(short) == 2:
                     break
-            print("no layer is two-way with the retention screen met on both arms: %s" % ("one-way candidates below" if short else "no qualified layer"))
+            print("no layer is two-way with the retention screen met on both arms: %s" % ("one-way layers below" if short else "no layer passes the screen"))
         chosen = {l for l, _, _ in short}
         rest = sorted([l for l in L if l not in chosen], key=lambda l: (-max(Tm[l][0], 0), -max(Tm[l][1], Tm[l][2]), l))
-        if rest and max(Tm[rest[0]][1], Tm[rest[0]][2]) > T:
+        if rest and beyond(max(Tm[rest[0]][1], Tm[rest[0]][2])):
             short.append((rest[0], "diagnostic", "slot 3 (diagnostic only, cannot be promoted): largest change among the layers not chosen (T %+d)" % Tm[rest[0]][0]))
         for l, role, why in short:
             print("- layer %d [%s] — %s; A+ %+d, A- %+d" % (l, role, why, Tm[l][1], Tm[l][2]))
         print("\nshortlist layers:", " ".join(str(l) for l, _, _ in short))
-        print("candidate layers:", " ".join(str(l) for l, role, _ in short if role == "candidate"))
+        print("layers to be qualified:", " ".join(str(l) for l, role, _ in short if role != "diagnostic"))
 
 
-# ----------------------------------------------------------------------------- the two cells of one family, one judge
+# ----------------------------------------------------------------------------- the conditions of one family, one judge
 def cells(a):
     gen, specs, ids, state, rule, words = load(a.work, a.judge)
-    fam, base, T, N = a.family, "baseline_x", tau(len(ids)), len(ids)
+    fam, base, N = a.family, "baseline_x", len(ids)
     rb, wb, hb, xb = counts(state, ids, base)
-    print("# %s cells under judge %s (%d questions; tau = %d; paired bootstrap %d resamples, seed %d; against %s)\n" % (
-        fam, a.judge, N, T, BOOT, SEED, base))
+    print("# %s conditions under judge %s (%d questions; tolerance %.0f%%; paired bootstrap %d resamples, seed %d; against %s)" % (
+        fam, a.judge, N, 100 * TOL, BOOT, SEED, base))
+    print("A = stage-A screen: point estimates only. B = stage-B confirmation: intervals; on the tuning questions column B is descriptive.\n")
     print("baseline x: right / wrong / hedge-or-uninformative / abstained = %d / %d / %d / %d; rule abstentions %d; mean words %.1f\n" % (
         rb, wb, hb, xb, sum(rule[(i, base)] for i in ids), sum(words[(i, base)] for i in ids) / N))
     all_arms = ["x.w.p1", "x.w.m1", "x.md.p1", "x.md.m1", "x.rand.p1", "x.rand.m1"]
@@ -275,89 +293,91 @@ def cells(a):
             if not have(state, ids, c):
                 continue
             v, n = per_question(state, words, ids, base, c)
-            sR, loR, hiR = ci(v["dR"]); sA, loA, hiA = ci(v["dAns"]); sX, loX, hiX = ci(v["dX"]); sK, loK, hiK = ci(v["keep"])
+            sR, loR, hiR = ci(v["dR"]); sA, loA, hiA = ci(v["dAns"]); sX, loX, hiX = ci(v["dX"]); sK, _, _ = ci(v["keep"])
             K[arm] = {"v": v, "n": n, "dR": sum(v["dR"]), "dAns": sum(v["dAns"]), "dX": sum(v["dX"]),
                       "loR": loR, "loA": loA, "hiA": hiA, "loX": loX, "hiX": hiX}
             print("| %s | %s | %.1f | %s | %s | %s | %d, %s, %d / %d | %d / %d / %d | %d / %d / %d / %d | %+d (%d) |" % (
                 arm, fmt_counts(state, ids, c), sum(words[(i, c)] for i in ids) / N, sR, sA, sX, n["keep"], sK, n["up"], n["down"],
                 n["out"], n["in"], n["toH"], n["lost_right"], n["lost_wrong"], n["gain_right"], n["gain_wrong"], sum(v["same"]), n["same"]))
         print()
-        rands = [r for r in ("x.rand.p1", "x.rand.m1") if r in K]
+        missing = [r for r in RANDS if r not in K]
         if fam == "E" and "x.w.p1" in K:
             k = K["x.w.p1"]
-            e1 = k["loR"] > 0 and k["dR"] > T
-            vs = [(r,) + ci(minus(k["v"]["dR"], K[r]["v"]["dR"])) for r in rands]
-            if len(rands) < 2:
-                e3 = None
-            else:
-                e3 = all(lo > 0 for _, _, lo, _ in vs)
-            vs_txt = "; ".join("vs %s %s" % (r, s) for r, s, _, _ in vs) or "no random arm judged"
-            eff = "INCOMPLETE (both signs of the random control are required)" if e3 is None else ("PASS" if (e1 and e3) else "not met")
-            print("- E effect: (e1) dR %+d beyond tau and interval above 0: %s; (e3) above every random control — %s: %s  =>  %s" % (
-                k["dR"], e1, vs_txt, "missing sign" if e3 is None else e3, eff))
-            # format control: the same direction on the prompt that already asks for one complete sentence
+            # main effect on the plain prompt
+            a1 = k["dR"] / N > TOL
+            b1 = a1 and k["loR"] > 0
+            # every random control (both signs of the axis are required)
+            vs = [(r,) + ci(minus(k["v"]["dR"], K[r]["v"]["dR"])) for r in RANDS if r in K]
+            a3 = None if missing else all(k["dR"] - K[r]["dR"] > 0 for r in RANDS)
+            b3 = None if missing else all(lo > 0 for _, _, lo, _ in vs)
+            # the same write on the prompt that already asks for one complete sentence, with its own answered-rate retention
             fb, fc = "baseline_x_F", cond(fam, l, "x_F.w.p1")
-            fmt, dRF = "INCOMPLETE (arm x_F.w.p1 not judged)", None
+            aF = bF = None; dRF = dAF = None
             if have(state, ids, fb) and have(state, ids, fc):
                 vF, nF = per_question(state, words, ids, fb, fc)
-                sF, loF, hiF = ci(vF["dR"]); dRF = sum(vF["dR"])
-                fmt = "PASS" if loF > 0 else "not met"
-                print("- E against the format control (base x_F, which already asks for one complete sentence): x_F %s -> with the E write %s; dR %s, dAns %+d, mean words %.1f -> %.1f  =>  %s" % (
-                    fmt_counts(state, ids, fb), fmt_counts(state, ids, fc), sF, sum(vF["dAns"]),
-                    sum(words[(i, fb)] for i in ids) / N, sum(words[(i, fc)] for i in ids) / N, fmt))
+                sF, loF, _ = ci(vF["dR"]); dRF, dAF = sum(vF["dR"]), sum(vF["dAns"])
+                rF = rate_interval(vF["dAns"], N)
+                aF = dRF > 0 and abs(dAF) / N <= TOL
+                bF = aF and loF > 0 and rF[1] >= -TOL and rF[2] <= TOL
+                print("- F, complete-sentence background (base x_F): x_F %s -> with the E write %s; dR %s; answered-rate change %s; out / in %d / %d; mean words %.1f -> %.1f" % (
+                    fmt_counts(state, ids, fb), fmt_counts(state, ids, fc), sF, pp(rF), nF["out"], nF["in"],
+                    sum(words[(i, fb)] for i in ids) / N, sum(words[(i, fc)] for i in ids) / N))
             else:
-                print("- E against the format control: %s" % fmt)
-            lo, hi = boot(k["v"]["dAns"])
-            point = abs(k["dAns"]) <= T
-            eq = equivalent(lo / N, hi / N, N, any(k["v"]["dAns"]))
-            print("- E retention: answered-rate change %+.1f pp [%+.1f, %+.1f]; point inside +-3 pp: %s; whole interval inside (equivalence, needed for a stage-B claim): %s; moved out / in: %d / %d" % (
-                100 * k["dAns"] / N, 100 * lo / N, 100 * hi / N, point, eq, k["n"]["out"], k["n"]["in"]))
+                print("- F, complete-sentence background: arm x_F.w.p1 not judged")
+            # answered-rate retention on the plain prompt
+            rK = rate_interval(k["v"]["dAns"], N)
+            aK = abs(k["dAns"]) / N <= TOL
+            bK = rK[1] >= -TOL and rK[2] <= TOL
+            A, B = status([a1, a3, aF, aK]), status([b1, b3, bF, bK])
+            print("- main effect: dR %+d (%.1f%% of the questions) | A: beyond the tolerance: %s | B: and interval above 0: %s" % (k["dR"], 100 * k["dR"] / N, a1, b1))
+            print("- random controls: %s%s | A: above each (point): %s | B: each interval above 0: %s" % (
+                "; ".join("vs %s %s" % (r, s) for r, s, _, _ in vs) or "none judged", ("; MISSING " + ", ".join(missing)) if missing else "", a3, b3))
+            print("- F | A: dR on x_F positive and its answered-rate change inside the tolerance: %s | B: dR interval above 0 and answered-rate interval inside: %s" % (aF, bF))
+            print("- retention on x: answered-rate change %s; moved out / in %d / %d | A: point inside: %s | B: whole interval inside: %s" % (pp(rK), k["n"]["out"], k["n"]["in"], aK, bK))
             print("- diagnostic: G_same %+d on %d questions; mean words %.1f -> %.1f" % (
                 sum(k["v"]["same"]), k["n"]["same"], sum(words[(i, base)] for i in ids) / N, sum(words[(i, cond(fam, l, "x.w.p1"))] for i in ids) / N))
-            print("KEY family=E judge=%s layer=%d dR=%+d dR_F=%s dAns=%+d point_retention=%s equivalence=%s effect=%s format=%s\n" % (
-                a.judge, l, k["dR"], "NA" if dRF is None else "%+d" % dRF, k["dAns"], point, eq, _token(eff), _token(fmt)))
+            margin = "NA" if missing else "%+d" % min(k["dR"] - K[r]["dR"] for r in RANDS)
+            print("KEY family=E judge=%s layer=%d A=%s B=%s dR=%+d dR_F=%s dAns=%+d dAns_F=%s rand_margin=%s\n" % (
+                a.judge, l, A, B, k["dR"], "NA" if dRF is None else "%+d" % dRF, k["dAns"], "NA" if dAF is None else "%+d" % dAF, margin))
         if fam == "C" and ("x.w.p1" in K or "x.w.m1" in K):
-            res = {}
             base_ans = rb + wb
+            qa, qb, ea = {}, {}, {}
             for arm, sign, name in (("x.w.p1", -1, "toward caution"), ("x.w.m1", +1, "toward confident")):
                 if arm not in K:
                     continue
                 k = K[arm]; v, n = k["v"], k["n"]
-                vs = [(r,) + ci(minus(v["dAns"], K[r]["v"]["dAns"])) for r in rands]
-                if sign < 0:
-                    own = k["hiA"] < 0 and k["loX"] > 0 and -k["dAns"] > T
-                    beat = all(hi < 0 for _, _, _, hi in vs)
-                else:
-                    own = k["loA"] > 0 and k["hiX"] < 0 and k["dAns"] > T
-                    beat = all(lo > 0 for _, _, lo, _ in vs)
-                eff = None if len(rands) < 2 else (own and beat)
-                rate = keep_rate(v, n)
-                lo, hi = boot_ratio(v["keep"], v["both"])
-                enough = 2 * n["keep"] >= base_ans
-                point = enough and abs(rate) <= TAU_PP and n["toH"] <= T
-                eq = enough and n["toH"] <= T and equivalent(lo, hi, max(1, n["keep"]), any(v["keep"]))
-                res[arm] = (eff, point, eq)
-                acc_b = n["right_b"] / n["ans_b"] if n["ans_b"] else 0.0
-                acc_c = n["right_c"] / n["ans_c"] if n["ans_c"] else 0.0
-                print("- C %s (%s): dAns %+d, dX %+d; own conditions (both intervals on the intended side, change beyond tau): %s; against every random control — %s: %s  =>  %s" % (
-                    name, arm, k["dAns"], k["dX"], own, "; ".join("vs %s %s" % (r, s) for r, s, _, _ in vs) or "none judged",
-                    "missing sign" if len(rands) < 2 else beat, "INCOMPLETE (both signs of the random control are required)" if eff is None else ("effect" if eff else "no effect")))
-                print("    retention on the %d questions answered both times (need >= %d): right-rate change %+.1f pp [%+.1f, %+.1f], W>R %d / R>W %d, answered -> hedge %d; point inside: %s; equivalence: %s" % (
-                    n["keep"], (base_ans + 1) // 2, 100 * rate, 100 * lo, 100 * hi, n["up"], n["down"], n["toH"], point, eq))
-                print("    reported, not a condition: right-rate among ALL answered %.1f%% -> %.1f%% (answers dropped: %d right, %d wrong; added: %d right, %d wrong)" % (
-                    100 * acc_b, 100 * acc_c, n["lost_right"], n["lost_wrong"], n["gain_right"], n["gain_wrong"]))
-            if any(r[0] is None for r in res.values()):
-                eff_txt, ret_txt = "INCOMPLETE", "n/a"
-            else:
-                ok = [arm for arm in res if res[arm][0]]
-                eff_txt = "TWO-WAY" if len(ok) == 2 else ("ONE-WAY(%s)" % ok[0] if ok else "not_met")
-                ret_txt = ("point_inside" if all(res[arm][1] for arm in ok) else "not_met") if ok else "n/a"
-                if ok and all(res[arm][2] for arm in ok):
-                    ret_txt = "equivalent"
+                moved = sign * k["dAns"]                 # answers removed (caution) or added (confident)
+                vs = [(r,) + ci(minus(v["dAns"], K[r]["v"]["dAns"])) for r in RANDS if r in K]
+                own_a = moved / N > TOL and sign * k["dX"] < 0
+                own_b = own_a and ((k["hiA"] < 0 and k["loX"] > 0) if sign < 0 else (k["loA"] > 0 and k["hiX"] < 0))
+                beat_a = None if missing else all(sign * (k["dAns"] - K[r]["dAns"]) > 0 for r in RANDS)
+                beat_b = None if missing else all((hi < 0) if sign < 0 else (lo > 0) for _, _, lo, hi in vs)
+                kr = keep_interval(v, n)
+                enough = n["keep"] > 0 and 2 * n["keep"] >= base_ans
+                hedge = n["toH"] / N <= TOL
+                keep_a = enough and hedge and kr is not None and abs(kr[0]) <= TOL
+                keep_b = keep_a and kr[1] >= -TOL and kr[2] <= TOL
+                ea[arm] = status([own_a, beat_a])
+                qa[arm] = status([own_a, beat_a, keep_a]); qb[arm] = status([own_b, beat_b, keep_b])
+                acc = lambda r, d: ("%.1f%%" % (100.0 * r / d)) if d else "undefined"  # noqa: E731
+                print("- C %s (%s): dAns %+d (%.1f%%), dX %+d | A: beyond the tolerance, abstentions move the same way: %s | B: and both intervals on that side: %s" % (
+                    name, arm, k["dAns"], 100 * k["dAns"] / N, k["dX"], own_a, own_b))
+                print("    random controls: %s%s | A: larger than each (point): %s | B: each interval on that side: %s" % (
+                    "; ".join("vs %s %s" % (r, s) for r, s, _, _ in vs) or "none judged", ("; MISSING " + ", ".join(missing)) if missing else "", beat_a, beat_b))
+                print("    retention on the %d questions answered both times (need at least %d): right-rate change %s, W>R %d / R>W %d, answered -> hedge %d | A: point inside: %s | B: whole interval inside: %s" % (
+                    n["keep"], (base_ans + 1) // 2, pp(kr), n["up"], n["down"], n["toH"], keep_a, keep_b))
+                print("    reported, not a condition: right-rate among ALL answered %s -> %s (answers dropped: %d right, %d wrong; added: %d right, %d wrong)" % (
+                    acc(n["right_b"], n["ans_b"]), acc(n["right_c"], n["ans_c"]), n["lost_right"], n["lost_wrong"], n["gain_right"], n["gain_wrong"]))
+
+            def summary(q):
+                if any(s == "incomplete" for s in q.values()) and not any(s == "met" for s in q.values()):
+                    return "incomplete"
+                ok = [arm for arm in q if q[arm] == "met"]
+                return "TWO-WAY" if len(ok) == 2 else ("ONE-WAY(%s)" % ok[0] if ok else "not_met")
             ap = -K["x.w.p1"]["dAns"] if "x.w.p1" in K else 0
             am = K["x.w.m1"]["dAns"] if "x.w.m1" in K else 0
-            print("- C effect: %s; C retention on the arm(s) that count: %s" % (eff_txt, ret_txt))
-            print("KEY family=C judge=%s layer=%d T=%+d Aplus=%+d Aminus=%+d effect=%s retention=%s\n" % (a.judge, l, min(ap, am), ap, am, eff_txt, ret_txt))
+            print("KEY family=C judge=%s layer=%d A=%s B=%s A_effect_only=%s T=%+d Aplus=%+d Aminus=%+d\n" % (
+                a.judge, l, summary(qa), summary(qb), summary(ea), min(ap, am), ap, am))
 
 
 # ----------------------------------------------------------------------------- the other arms
