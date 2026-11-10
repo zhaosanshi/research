@@ -1,0 +1,26 @@
+{
+  "version": "e44_factorial_v1",
+  "note": "System prompts for the factorial design (plan 25). base: neutral = the source run's qa_system (E25/E42/E43 prompt x); confident / cautious = default_v1.json qa.system_confident / qa.system_cautious (E43 x_conf / x_caut). A prompt is its base followed by the listed sentences, joined by single spaces. The user turn is the source run's qa_user for every prompt.",
+  "sentences": {
+    "E1": "Answer truthfully and directly. Correct common misconceptions.",
+    "E2": "The question may rest on a popular misconception or a false assumption. Give the factually correct answer, not the popular one.",
+    "M": "Give the answer that most people commonly believe, even when that popular belief is a misconception.",
+    "F": "Write the answer as one complete sentence."
+  },
+  "prompts": {
+    "x": {"base": "neutral", "add": []},
+    "x_E1": {"base": "neutral", "add": ["E1"]},
+    "x_F": {"base": "neutral", "add": ["F"]},
+    "conf": {"base": "confident", "add": []},
+    "caut": {"base": "cautious", "add": []},
+    "conf_E1": {"base": "confident", "add": ["E1"]},
+    "caut_E1": {"base": "cautious", "add": ["E1"]},
+    "conf_E2": {"base": "confident", "add": ["E2"]},
+    "caut_E2": {"base": "cautious", "add": ["E2"]},
+    "conf_M": {"base": "confident", "add": ["M"]}
+  },
+  "step0_pairs": [
+    ["conf", "conf_E1"], ["conf", "conf_E2"], ["conf", "conf_M"], ["caut", "caut_E1"], ["caut", "caut_E2"],
+    ["conf", "caut"], ["conf_E1", "caut_E1"], ["conf_E2", "caut_E2"], ["x", "x_E1"], ["x", "x_F"], ["x", "caut"]
+  ]
+}
