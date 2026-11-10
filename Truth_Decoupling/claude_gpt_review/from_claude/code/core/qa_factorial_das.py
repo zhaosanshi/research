@@ -30,7 +30,7 @@ import torch.nn.functional as F
 from . import qa_prompt_das as pd
 from .model_io import forward_logits, greedy_generate
 
-PROTOCOL = "qa_factorial_shift_v1"
+PROTOCOL = "qa_factorial_shift_v2"
 LOSSES = ("jsd", "ce")
 POSITIONS = ("content", "gen", "prompt")
 
@@ -43,7 +43,7 @@ class ShiftHook:
       amounts     [B] (or scalar) fixed coordinates c_b: the write is c_b * v          (inference)
       difference  [B, hidden] detached read-position differences d_b = h_src - h_base:
                   c_b = d_b . u, the write is c_b * v; gradients reach `direction`      (training)
-      vectors     [B, hidden] vectors written as they are (reference: the whole difference)
+      vectors     [B, hidden] vectors written as they are (whole-difference diagnostic, not an effect upper bound)
     with u = direction / |direction| and v = u unless `write_direction` (a fixed unit vector for the
     random control: same coordinate, other axis) is given.
 
@@ -51,20 +51,28 @@ class ShiftHook:
                  None selects every position.
     decode_all   when a later call has T == 1 (a decode step), write every still-active row; False = decode
                  steps are left alone (prompt-only writes).
+    reference_direction  optional trained axis for an inference-only random-axis control: match its actual
+                 stored write norm at the same current state, preserving quantization limits explicitly.
     """
 
     def __init__(self, direction=None, *, amounts=None, difference=None, vectors=None, mask=None,
-                 decode_all=True, write_direction=None, record=True):
+                 decode_all=True, write_direction=None, reference_direction=None, record=True):
         if sum(x is not None for x in (amounts, difference, vectors)) != 1:
             raise ValueError("give exactly one of amounts, difference or vectors")
         if vectors is None and direction is None:
             raise ValueError("amounts / difference need a direction")
         if vectors is not None and write_direction is not None:
             raise ValueError("vectors are written as they are; no write_direction")
+        if reference_direction is not None and (vectors is not None or write_direction is not None):
+            raise ValueError("reference_direction matches a direction/amount random control only")
         self.direction = direction
         self.amounts = None if amounts is None else torch.as_tensor(amounts).float().reshape(-1)
         self.difference = None if difference is None else torch.as_tensor(difference).detach().float()
         self.vectors = None if vectors is None else torch.as_tensor(vectors).detach().float()
+        for name in ('difference', 'vectors'):
+            value = getattr(self, name)
+            if value is not None and value.ndim != 2:
+                raise ValueError('%s must be [batch, hidden]' % name)
         for name in ("amounts", "difference", "vectors"):
             value = getattr(self, name)
             if value is not None and not bool(torch.isfinite(value).all()):
@@ -72,6 +80,7 @@ class ShiftHook:
         self.mask = None if mask is None else torch.as_tensor(mask).bool()
         self.decode_all = bool(decode_all)
         self.write_direction = None if write_direction is None else pd.unit(write_direction)
+        self.reference_direction = None if reference_direction is None else pd.unit(reference_direction).detach()
         self.record = record
         self.active_rows = None      # generation updates this before each decode forward
         self.calls = 0
@@ -79,6 +88,7 @@ class ShiftHook:
         self.prefill = None
         self.decode_rel = []
         self.decode_stored_norm = []
+        self.decode_reference_norm = []
         self.last_amounts = None     # [B] coordinates actually used (detached), for the record
 
     def _unit(self, device):
@@ -95,9 +105,11 @@ class ShiftHook:
 
     def _select(self, h):
         B, T, _ = h.shape
-        if self.mask is not None and T == self.mask.shape[1] and B == self.mask.shape[0]:
+        if self.mask is not None and self.calls == 1 and T == self.mask.shape[1] and B == self.mask.shape[0]:
             return self.mask.to(h.device), "masked"
-        if self.mask is not None and T == 1:                          # a decode step of cached generation
+        if self.mask is not None and self.calls > 1 and T == 1:       # stage, not shape alone, identifies decode
+            if B != self.mask.shape[0]:
+                raise ValueError("decode batch changed from the prefill batch")
             if not self.decode_all:
                 return torch.zeros((B, 1), dtype=torch.bool, device=h.device), "decode"
             sel = torch.ones((B, 1), dtype=torch.bool, device=h.device)
@@ -138,6 +150,22 @@ class ShiftHook:
         hf = h.float()
         shifted = (hf + write[:, None, :]).to(h.dtype)
         h_new = torch.where(sel[..., None], shifted, h)
+        reference_norm = None
+        if self.reference_direction is not None:
+            if h.requires_grad or (torch.is_tensor(self.direction) and self.direction.requires_grad):
+                raise ValueError("stored-norm-matched random control is inference-only")
+            reference_write = amounts[:, None] * self.reference_direction.to(h.device)
+            reference = (hf + reference_write[:, None, :]).to(h.dtype)
+            # Use the existing, declared stored-norm matching tolerance. The
+            # sign of a negative random arm belongs to its axis, not its norm.
+            signs = amounts.sign()[:, None].expand_as(sel)
+            h_new = h.clone()
+            axis = self._unit(h.device)
+            for sign in (-1, 1):
+                selected = sel & (signs == sign)
+                if bool(selected.any()):
+                    h_new[selected] = pd._stored_norm_matched_random(h[selected], reference[selected], sign * axis)
+            reference_norm = (reference.float() - hf).norm(dim=-1)
         self.applied += 1
         self.last_amounts = amounts.detach().float().cpu()
         if self.record:
@@ -149,9 +177,13 @@ class ShiftHook:
                 if stage in ("masked", "all") and self.prefill is None:
                     self.prefill = {"rel": rel.cpu(), "stored_norm": stored_mean.cpu(), "positions": sel.sum(1).cpu(),
                                     "amount": amounts.detach().float().cpu(), "sequence_width": h.shape[1]}
+                    if reference_norm is not None:
+                        self.prefill['reference_stored_norm'] = torch.where(sel, reference_norm, 0).sum(1).div(n_sel).cpu()
                 elif stage == "decode":
                     self.decode_rel.append(rel.cpu())
                     self.decode_stored_norm.append(stored_mean.cpu())
+                    if reference_norm is not None:
+                        self.decode_reference_norm.append(torch.where(sel, reference_norm, 0).sum(1).div(n_sel).cpu())
         if isinstance(out, tuple):
             return (h_new,) + tuple(out[1:])
         return h_new
@@ -159,12 +191,18 @@ class ShiftHook:
     def stats(self):
         result = {"calls": self.calls, "applied": self.applied,
                   "write_measurement": "stored_delta_after_residual_dtype_roundtrip"}
+        if self.reference_direction is not None:
+            result.update(random_match_scope="trained-axis shift at the same current state; trajectories may differ",
+                          random_match_tolerance="1% reference norm + 1e-4 state norm",
+                          fully_information_free_random_control=False)
         if self.prefill is not None:
             result["prefill"] = {k: (v.tolist() if torch.is_tensor(v) else v) for k, v in self.prefill.items()}
         if self.decode_rel:
             result["decode_steps"] = len(self.decode_rel)
             result["decode_rel_steps"] = torch.stack(self.decode_rel).tolist()               # [steps][B]
             result["decode_stored_norm_steps"] = torch.stack(self.decode_stored_norm).tolist()
+        if self.decode_reference_norm:
+            result['decode_reference_norm_steps'] = torch.stack(self.decode_reference_norm).tolist()
         return result
 
 
@@ -207,12 +245,21 @@ def answer_token_logprobs(logits, packed):
 
 def jsd(logp, logq):
     """Jensen-Shannon divergence per row of two [N, V] log-probability tensors (nats; 0 .. ln 2)."""
-    if logp.shape != logq.shape:
+    if logp.shape != logq.shape or logp.ndim != 2:
         raise ValueError("distributions to compare must have the same shape")
-    logm = torch.logsumexp(torch.stack([logp, logq]), dim=0) - math.log(2.0)
-    kl_p = (logp.exp() * (logp - logm)).sum(-1)
-    kl_q = (logq.exp() * (logq - logm)).sum(-1)
-    return 0.5 * (kl_p + kl_q)
+    if any(bool((torch.isnan(x) | torch.isposinf(x)).any()) for x in (logp, logq)):
+        raise ValueError("log probabilities may contain -inf for zero mass, not NaN or +inf")
+    p, q = logp.exp(), logq.exp()
+    if (not bool(torch.isfinite(p).all()) or not bool(torch.isfinite(q).all())
+            or not torch.allclose(p.sum(-1), torch.ones_like(p.sum(-1)), atol=1e-4, rtol=1e-4)
+            or not torch.allclose(q.sum(-1), torch.ones_like(q.sum(-1)), atol=1e-4, rtol=1e-4)):
+        raise ValueError('inputs must be normalized log-probability distributions')
+    logm = ((p + q) * 0.5).clamp_min(torch.finfo(p.dtype).tiny).log()
+    safe_p = torch.where(torch.isfinite(logp), logp, 0)
+    safe_q = torch.where(torch.isfinite(logq), logq, 0)
+    kl_p = (p * (safe_p - logm)).sum(-1)
+    kl_q = (q * (safe_q - logm)).sum(-1)
+    return (0.5 * (kl_p + kl_q)).clamp_min(0)
 
 
 @torch.no_grad()
@@ -244,7 +291,7 @@ def rows_loss(bundle, layer, rows, *, w=None, mode="direction", loss="jsd", posi
     rows  list of {"encoded": base prompt + the target prompt's answer, "difference": [hidden] h_src - h_base
           at the read position (detached), "ref_logp": [answer_length, V] target-prompt distribution (jsd only)}.
     mode  "direction": write (difference . w) w        (the trained operator)
-          "vectors":   write the whole difference      (reference: how much any direction could transfer)
+          "vectors":   write the whole difference      (diagnostic; not a bound on predictive performance)
           "none":      no write                        (reference: the gap to close; 0 for isolate rows)
     Returns (per_row [B] tensor, hook stats or None).
     """
@@ -271,7 +318,16 @@ def rows_loss(bundle, layer, rows, *, w=None, mode="direction", loss="jsd", posi
             raise RuntimeError("shift hook must fire exactly once per teacher-forced forward")
     logp, row_index, target_ids = answer_token_logprobs(logits, packed)
     if loss == "jsd":
-        ref = torch.cat([r["ref_logp"] for r in rows], dim=0).to(logp.device)
+        references = []
+        for row in rows:
+            reference = row['ref_logp']
+            if (reference.ndim != 2 or reference.shape != (row['encoded']['answer_length'], logp.shape[1])
+                    or not bool(torch.isfinite(reference).all())):
+                raise RuntimeError('reference distribution length/vocabulary/finiteness differs from its own target')
+            if ('ref_target_ids' in row and list(row['ref_target_ids']) != list(row['encoded']['answer_ids'])):
+                raise RuntimeError('reference distributions belong to different target tokens')
+            references.append(reference.detach())
+        ref = torch.cat(references, dim=0).to(logp.device)
         if ref.shape != logp.shape:
             raise RuntimeError("reference distributions do not align with the answer tokens")
         per_token = jsd(logp, ref)
@@ -284,6 +340,8 @@ def rows_loss(bundle, layer, rows, *, w=None, mode="direction", loss="jsd", posi
 
 def question_loss(per_row, kinds):
     """Equal weight for the cause part and the isolate part of one question's rows."""
+    if per_row.ndim != 1 or len(kinds) != per_row.numel() or any(k not in ('cause', 'isolate') for k in kinds):
+        raise ValueError('each loss row needs an explicit cause/isolate kind')
     cause = [i for i, k in enumerate(kinds) if k == "cause"]
     isolate = [i for i, k in enumerate(kinds) if k == "isolate"]
     if not cause:
@@ -427,7 +485,7 @@ def _row_amounts(amount, n):
 
 @torch.no_grad()
 def generate_shift(bundle, prompts, *, max_new_tokens, batch_size=8, layer=None, direction=None, amount=None,
-                   vectors=None, positions="content"):
+                   vectors=None, positions="content", reference_direction=None):
     """Greedy generation for rendered prompts, optionally with a write at the write positions of the prefill and
     at every decode step of a still-active row:
       amount   a number (same for all prompts) or one number per prompt: add amount * direction
@@ -435,6 +493,8 @@ def generate_shift(bundle, prompts, *, max_new_tokens, batch_size=8, layer=None,
     Neither = no write. Same record layout as pd.generate_prompts (text, token_ids, finished, stop_id, n_tokens, write)."""
     if amount is not None and vectors is not None:
         raise ValueError("give amount or vectors, not both")
+    if reference_direction is not None and (amount is None or vectors is not None):
+        raise ValueError('random norm matching needs amount and direction, not a whole vector/no-write arm')
     amounts = _row_amounts(amount, len(prompts))
     if vectors is not None:
         vectors = torch.as_tensor(vectors).float()
@@ -460,7 +520,8 @@ def generate_shift(bundle, prompts, *, max_new_tokens, batch_size=8, layer=None,
             if vectors is not None:
                 hook = ShiftHook(vectors=vectors[i:i + len(chunk)], mask=mask, decode_all=decode)
             else:
-                hook = ShiftHook(direction, amounts=torch.tensor(amounts[i:i + len(chunk)]), mask=mask, decode_all=decode)
+                hook = ShiftHook(direction, amounts=torch.tensor(amounts[i:i + len(chunk)]), mask=mask, decode_all=decode,
+                                 reference_direction=reference_direction)
             active = torch.ones(len(chunk), dtype=torch.bool, device=bundle.device)
 
             def track_active_rows(model, args, kwargs, hook=hook, active=active, n=len(chunk)):
@@ -498,6 +559,15 @@ def generate_shift(bundle, prompts, *, max_new_tokens, batch_size=8, layer=None,
                                 "decode_steps_total": stats.get("decode_steps", 0), "decode_steps_own": len(rels),
                                 "decode_rel_mean": (sum(rels) / len(rels)) if rels else None,
                                 "write_measurement": stats["write_measurement"]}
+                if reference_direction is not None:
+                    stored = [v[b] for v in stats.get('decode_stored_norm_steps', [])][:own]
+                    reference = [v[b] for v in stats.get('decode_reference_norm_steps', [])][:own]
+                    rec['write'].update(reference_stored_norm=stats['prefill']['reference_stored_norm'][b],
+                        decode_stored_norm_mean=sum(stored) / len(stored) if stored else None,
+                        decode_reference_norm_mean=sum(reference) / len(reference) if reference else None,
+                        random_match_scope=stats['random_match_scope'],
+                        random_match_tolerance=stats['random_match_tolerance'],
+                        fully_information_free_random_control=False)
             results.append(rec)
     return results
 
@@ -505,22 +575,30 @@ def generate_shift(bundle, prompts, *, max_new_tokens, batch_size=8, layer=None,
 # ----------------------------------------------------------------------------- candidate scoring (judge-free)
 @torch.no_grad()
 def score_answers(bundle, prompt, answers, *, eot_ids, max_target_tokens=48, batch_size=16, layer=None,
-                  direction=None, amount=None, vector=None, positions="content"):
+                  direction=None, amount=None, vector=None, positions="content", reference_direction=None):
     """Teacher-forced log-probability of each candidate answer text after `prompt`, optionally with the shift
     (amount * direction, or one whole `vector` [hidden] for this question).
 
     The end-of-turn token is appended to complete candidates (so the hidden states see the same layout as
-    training) but is NOT scored. Returns one record per candidate:
+    training) but is NOT scored. Over-cap candidates are explicitly unscorable, never prefix scores.
+    Returns one record per candidate:
     {"sum_logp", "n_tokens", "truncated", "skipped"}; skipped holds the reason when a candidate cannot be encoded.
     """
+    if reference_direction is not None and (amount is None or vector is not None):
+        raise ValueError('random norm matching needs amount and direction, not a whole vector/no-write arm')
     records = [None] * len(answers)
     items, index = [], []
     for i, text in enumerate(answers):
         try:
             if not isinstance(text, str) or not text.strip():
                 raise ValueError("empty candidate")
-            items.append(pd.build_target(bundle, prompt, answer_text=text.strip(), max_target_tokens=max_target_tokens,
-                                         eot_ids=eot_ids))
+            encoded = pd.build_target(bundle, prompt, answer_text=text.strip(), max_target_tokens=max_target_tokens,
+                                      eot_ids=eot_ids)
+            if encoded['truncated']:
+                records[i] = {'sum_logp': None, 'n_tokens': encoded['answer_body_tokens'],
+                              'truncated': True, 'skipped': 'truncated_reference'}
+                continue
+            items.append(encoded)
             index.append(i)
         except ValueError as exc:
             records[i] = {"sum_logp": None, "n_tokens": 0, "truncated": False, "skipped": str(exc)}
@@ -539,7 +617,8 @@ def score_answers(bundle, prompt, answers, *, eot_ids, max_target_tokens=48, bat
                 hook = ShiftHook(vectors=torch.as_tensor(vector).float().reshape(1, -1).expand(len(chunk), -1), mask=mask,
                                  decode_all=False)
             else:
-                hook = ShiftHook(direction, amounts=torch.full((len(chunk),), float(amount)), mask=mask, decode_all=False)
+                hook = ShiftHook(direction, amounts=torch.full((len(chunk),), float(amount)), mask=mask, decode_all=False,
+                                 reference_direction=reference_direction)
             with pd.clamp(bundle, layer, hook):
                 logits = forward_logits(bundle, packed["inputs"], grad=False)
             if hook.applied != 1:
@@ -556,19 +635,28 @@ def score_answers(bundle, prompt, answers, *, eot_ids, max_target_tokens=48, bat
     return records
 
 
-def choice_metrics(true_scores, false_scores):
-    """MC-style readouts from candidate log-probabilities (lists of floats; None entries are ignored).
+def choice_metrics(true_scores, false_scores, *, best_true_index=None):
+    """Complete-candidate readouts; missing candidates never silently change the task.
 
-    margin  best true minus best false (sum of token log-probs, the standard MC1 comparison)
-    mc1     1 if margin > 0
+    margin  best true minus best false (custom any-true comparison; not standard MC1)
+    any_true_top1 1 if margin > 0; the legacy mc1 alias is NOT standard TruthfulQA MC1.
+    standard_mc1 compares the explicitly designated best_true_index with every false answer.
     mc2     normalised probability mass on the true candidates
     """
-    t = [s for s in true_scores if s is not None]
-    f = [s for s in false_scores if s is not None]
-    if not t or not f:
+    t, f = list(true_scores), list(false_scores)
+    if not t or not f or any(s is None for s in t + f):
         return None
+    if any(isinstance(s, bool) or not isinstance(s, (int, float)) or not math.isfinite(s) for s in t + f):
+        raise ValueError('candidate log probabilities must be finite numbers')
+    if best_true_index is not None and (type(best_true_index) is not int or not 0 <= best_true_index < len(t)):
+        raise ValueError('best_true_index must designate a complete true candidate')
     margin = max(t) - max(f)
     top = max(t + f)
     mass_t = sum(math.exp(s - top) for s in t)
     mass_f = sum(math.exp(s - top) for s in f)
-    return {"margin": margin, "mc1": 1 if margin > 0 else 0, "mc2": mass_t / (mass_t + mass_f)}
+    return {"margin": margin, "mc1": 1 if margin > 0 else 0, "mc2": mass_t / (mass_t + mass_f),
+            'max_true_margin': margin, 'any_true_top1': 1 if margin > 0 else 0,
+            'readout_protocol': 'e44_complete_candidates_max_true_v2',
+            'mc1_definition': 'legacy_any_true_top1_alias_not_standard_truthfulqa_mc1',
+            'best_answer_margin': t[best_true_index] - max(f) if best_true_index is not None else None,
+            'standard_mc1': int(t[best_true_index] > max(f)) if best_true_index is not None else None}

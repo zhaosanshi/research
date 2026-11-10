@@ -5,14 +5,13 @@ Two instruction factors, each on / off, give four system prompts for the same qu
 
                      abstaining forbidden (conf)      abstaining allowed (caut)
   truth level low           conf                            caut              (or conf_M / caut_M with --e-off M)
-  truth level high          conf_<E>                        caut_<E>          (<E> = E1 or E2, see --e-on)
-
---e-off none (default): the low level is the prompt without any truth sentence. --e-off M: the low level adds the
-sentence asking for the popular belief even when it is a misconception, so the E factor has two explicit poles.
+  truth sentence on         conf_<E>                        caut_<E>          (<E> = E1 or E2, see --e-on)
 
 E candidate   cause rows: conf <-> conf_<E> (only the truth factor differs; abstaining is forbidden on both sides).
               isolate rows: conf <-> caut, conf_<E> <-> caut_<E> (only the OTHER factor differs).
 C candidate   cause rows: conf <-> caut and conf_<E> <-> caut_<E>.  isolate rows: conf <-> conf_<E>, caut <-> caut_<E>.
+              The low-level names above are replaced by conf_M/caut_M only when explicitly requested.
+              No score threshold automatically changes the factor to M.
 Row           base prompt + the target prompt's own frozen answer, with the write
                   h' = h + ((h_source - h_base) . w) w        (both states read at the last prompt token)
               at the base's write positions. cause: target = the source prompt (behave like it).
@@ -36,7 +35,7 @@ Phases
   summarize  judge-free tables.
 
 Arms are written  <base prompt>.<w|md|rand|wq|dq>.<p|m><strength>   e.g.  x.w.p1  conf.wq.p1  conf_E1.w.m1  x.md.p2  x.rand.p1
-Pilot runs (--n-check / --pair-ids) write *.pilot.* files and are never read by full runs. The test split is
+Pilot runs (--n-check / --pair-ids) write t.* files and are never read by full runs. The test split is
 never read here. Judging is a separate step (e44_export_judge.py -> judge_two_axis_run.py cells / allenai / single).
 """
 import argparse
@@ -59,13 +58,18 @@ from core.readout import rule_abstains
 
 ARTIFACT_PROTOCOL = "e44_factorial_v1"
 FAMILIES = ("E", "C")
-ARM_RE = re.compile(r"^(?P<base>[A-Za-z0-9_]+)\.(?P<dir>w|md|rand|wq|dq)\.(?P<sign>[pm])(?P<beta>\d+(?:\.\d+)?)$")
-PER_QUESTION = ("wq", "dq")
+ARM_RE = re.compile(r"^(?P<base>[A-Za-z0-9_]+)\.(?P<dir>w|md|rand|wq|dq|iso)\.(?P<sign>[pm])(?P<beta>\d+(?:\.\d+)?)$")
+PER_QUESTION = ("wq", "dq", "iso")
 ABSTAIN_TEXT = "I don't know."      # scored under every write: a continuous abstention readout
 
 read, save, log, seal, file_sha = e43.read, e43.save, e43.log, e43.seal, e43.file_sha
 normalize_text, negation_count = e43.normalize_text, e43.negation_count
-is_pilot, suffix = e43.is_pilot, e43.suffix
+is_pilot = e43.is_pilot
+
+
+def artifact_name(stem, pilot=False):
+    """Pilot files are explicitly t.* and never collide with full artifacts."""
+    return ("t." if pilot else "") + stem
 
 
 # ----------------------------------------------------------------------------- prompts and families
@@ -88,13 +92,21 @@ def load_prompts(meta, base_prompts_path, e44_path):
     return cfg, systems
 
 
+def normalize_e_off(value):
+    if value in (None, "", "none"):
+        return None
+    if value != "M":
+        raise ValueError("E44 low truth level must be none or explicit M")
+    return value
+
+
 def family_spec(family, e_on, e_off=None):
     """Rows of one family. cause / isolate entries are (base, source, target) prompt names;
-    plus_minus lists the (plus, minus) prompt pairs whose mean difference defines the inference shift.
-    e_off None: the low truth level is the bare conf / caut prompt; otherwise conf_<e_off> / caut_<e_off>."""
-    if e_off == e_on:
-        raise ValueError("the two truth levels must differ")
-    low = "" if e_off in (None, "", "none") else "_" + e_off
+    plus_minus lists the (plus, minus) prompt pairs whose mean difference defines the inference shift."""
+    if e_on not in ("E1", "E2"):
+        raise ValueError("E44 high truth level supports E1/E2; M is only an explicit low-level hypothesis")
+    e_off = normalize_e_off(e_off)
+    low = "" if e_off is None else "_" + e_off
     conf, caut, conf_e, caut_e = "conf" + low, "caut" + low, "conf_" + e_on, "caut_" + e_on
     both = lambda a, b: [(a, b), (b, a)]  # noqa: E731
     if family == "E":
@@ -108,12 +120,16 @@ def family_spec(family, e_on, e_off=None):
     else:
         raise ValueError("family must be E or C")
     names = sorted({n for row in cause + isolate for n in row})
-    return {"family": family, "e_on": e_on, "e_off": low[1:] or None, "cause": cause, "isolate": isolate,
-            "plus_minus": plus_minus, "prompts": names}
+    return {"family": family, "e_on": e_on, "e_off": e_off, "cause": cause, "isolate": isolate,
+            "plus_minus": plus_minus, "prompts": names,
+            "factor_pairs": {"E": [(conf_e, conf), (caut_e, caut)], "C": [(caut, conf), (caut_e, conf_e)]}}
 
 
 def arm_target_prompt(family, e_on, base, direction, beta, e_off=None):
     """The prompt whose behaviour an in-distribution unit-strength arm should reproduce (None otherwise)."""
+    if direction == "iso":
+        question_pair(family_spec(family, e_on, e_off), base)
+        return base if beta == 1.0 else None
     if direction == "rand" or abs(abs(beta) - 1.0) > 1e-9:
         return None
     for plus, minus in family_spec(family, e_on, e_off)["plus_minus"]:
@@ -131,6 +147,8 @@ def parse_arm(arm, systems):
     if m["base"] not in systems:
         raise SystemExit("arm %r: unknown base prompt %s" % (arm, m["base"]))
     beta = float(m["beta"]) * (1.0 if m["sign"] == "p" else -1.0)
+    if m["dir"] == "iso" and beta != 1.0:
+        raise SystemExit("isolate diagnostics require p1 (actual other-factor source minus base)")
     if beta == 0:
         raise SystemExit("arm %r: zero strength is the no-write control (use the frozen answers)" % arm)
     return m["base"], m["dir"], beta
@@ -141,6 +159,35 @@ def arm_file_token(arm):
 
 
 # ----------------------------------------------------------------------------- identity
+def load_source(args):
+    """E44 uses train/tune, not E43's gold-filtered e_train.
+
+    Explicit pilots may omit an unrequested tune split, avoiding any need to
+    carry test records into a three-question execution check.
+    """
+    meta = read(args.source_run / 'bank.json')
+    prepared = read(args.source_run / 'questions.json')
+    if 'qa_system' not in meta.get('config', {}) or 'qa_user' not in meta.get('config', {}):
+        raise ValueError('source bank lacks QA prompt configuration')
+    splits = prepared.get('splits', {})
+    train = e43._unique_questions(splits.get('train'))
+    tune_rows = splits.get('tune', [])
+    if not isinstance(tune_rows, list):
+        raise ValueError('tuning cohort must be a list')
+    phase = getattr(args, 'phase', None)
+    requested = set(getattr(args, 'splits', [])) if phase == 'freeze' else (
+        {getattr(args, 'split', None)} if phase in ('generate', 'mc') else set())
+    if not tune_rows:
+        if not is_pilot(args) or 'tune' in requested:
+            raise ValueError('tuning cohort is empty; only an unrequested pilot split may be omitted')
+        tune = {}
+    else:
+        tune = e43._unique_questions(tune_rows)
+    if set(train).intersection(tune):
+        raise ValueError('training and tuning question IDs overlap')
+    return meta, prepared
+
+
 def run_identity(meta, systems, cfg, args, eot, bundle):
     """E43's identity (source data, model files, tokenizer, runtime) with this experiment's code and prompts."""
     ident, _ = e43.run_identity(meta, systems, args, eot, bundle=bundle)
@@ -164,7 +211,7 @@ def require_current(ident, args):
 
 # ----------------------------------------------------------------------------- frozen answers
 def frozen_path(args, split, pilot):
-    return args.run_dir / ("frozen_%s%s.json" % (split, ".pilot" if pilot else ""))
+    return args.run_dir / artifact_name("frozen_%s.json" % split, pilot)
 
 
 def validate_frozen(d, questions, systems, identity_sha=None, require_full=False):
@@ -173,6 +220,8 @@ def validate_frozen(d, questions, systems, identity_sha=None, require_full=False
         e43.require_identity(d["identity_sha256"], identity_sha, "frozen answers")
     if d.get("phase") != "freeze" or d.get("split") not in ("train", "tune"):
         raise ValueError("invalid frozen phase or split")
+    if not d.get('execution_complete'):
+        raise ValueError('frozen generation is incomplete')
     if require_full and (d.get("pilot") or not d.get("completed")):
         raise ValueError("a pilot/incomplete freeze cannot stand for a full cohort")
     expected = e43._unique_questions(questions)
@@ -181,6 +230,9 @@ def validate_frozen(d, questions, systems, identity_sha=None, require_full=False
         raise ValueError("frozen question cohort/order/text differs from the requested cohort")
     if d.get("prompt_systems") != systems:
         raise ValueError("frozen prompts differ from the prompts file")
+    if (d.get('prompt_systems') != d['identity'].get('prompt_systems')
+            or d.get('eot_ids') != d['identity'].get('eot_ids')):
+        raise ValueError('frozen prompt/termination fields differ from their identity')
     for pid, row in rows.items():
         if row["question"] != expected[pid]["question"] or set(row.get("answers", {})) != set(systems):
             raise ValueError("frozen answers belong to a different question or prompt set")
@@ -195,6 +247,8 @@ def load_frozen(args, split, systems, identity_sha, prepared, allow_pilot):
     full = frozen_path(args, split, False)
     if full.exists():
         d = read(full)
+        if d.get('split') != split:
+            raise ValueError('frozen file declares a different split')
         if not d.get("completed"):
             raise ValueError("full freeze exists but is incomplete; do not silently substitute a pilot")
         return validate_frozen(d, prepared["splits"][split], systems, identity_sha, require_full=True), full.name
@@ -202,7 +256,7 @@ def load_frozen(args, split, systems, identity_sha, prepared, allow_pilot):
         pilot = frozen_path(args, split, True)
         if pilot.exists():
             d = validate_frozen(read(pilot), e43.pick_questions(prepared, split, args), systems, identity_sha)
-            if not d.get("pilot"):
+            if not d.get("pilot") or d.get('split') != split:
                 raise ValueError("pilot filename lacks pilot identity")
             return d, pilot.name
     raise FileNotFoundError("no usable frozen_%s.json (run the freeze phase%s)" % (split, " or a pilot freeze" if allow_pilot else ""))
@@ -323,12 +377,17 @@ def attach_layer(bundle, built, spec, layer, batch_size, ref_logp):
         for row in q["rows"]:
             row["difference"] = (H[row["source"]][i] - H[row["base"]][i]).float().cpu()
             row["ref_logp"] = ref_logp[(q["pair_id"], row["target"])]
+            row["ref_target_ids"] = list(q["refs"][row["target"]]["answer_ids"])
     return H
 
 
 def split_train_val(built, val_n, seed):
-    if val_n <= 0 or len(built) <= val_n + 1:
+    if type(val_n) is not int or val_n < 0:
+        raise ValueError("held-out count must be a nonnegative integer")
+    if val_n == 0:
         return list(built), []
+    if len(built) <= val_n:
+        raise ValueError("requested held-out questions leave no training data; explicitly choose a smaller --val-n for a pilot")
     g = torch.Generator(device="cpu").manual_seed(int(seed) * 7919 + 13)
     order = torch.randperm(len(built), generator=g).tolist()
     val = set(order[:val_n])
@@ -337,13 +396,13 @@ def split_train_val(built, val_n, seed):
 
 # ----------------------------------------------------------------------------- train
 def dir_path(args, family, layer):
-    return args.run_dir / "dirs" / ("%s_L%d%s.pt" % (family, layer, suffix(args)))
+    return args.run_dir / "dirs" / artifact_name("%s_L%d.pt" % (family, layer), is_pilot(args))
 
 
 def training_contract(args, spec, layer, train_q, val_q, frozen, frozen_file):
     return {"family": spec["family"], "e_on": spec["e_on"], "e_off": spec["e_off"], "layer": layer, "seed": args.seed, "epochs": args.epochs,
             "lr": args.lr, "clip": args.clip, "loss": args.loss, "positions": args.positions, "init": args.init,
-            "val_n": args.val_n, "pilot": is_pilot(args),
+            "val_n": args.val_n, 'split_seed': getattr(args, 'split_seed', 42), "pilot": is_pilot(args),
             "rows": {k: [list(r) for r in spec[k]] for k in ("cause", "isolate", "plus_minus")},
             "train_ids": [q["pair_id"] for q in train_q], "val_ids": [q["pair_id"] for q in val_q],
             "targets_sha256": pd.fingerprint([[r["encoded"] for r in q["rows"]] for q in train_q + val_q]),
@@ -357,6 +416,18 @@ def validate_direction(record, family, layer, identity_sha, pilot, contract=None
         raise ValueError("direction family/layer/pilot mismatch")
     if not isinstance(record.get("training_contract"), dict):
         raise ValueError("direction lacks a training contract")
+    tc = record['training_contract']
+    if (tc.get('family') != family or tc.get('layer') != layer or tc.get('e_on') != record.get('e_on') or normalize_e_off(tc.get('e_off')) != normalize_e_off(record.get('e_off'))
+            or bool(tc.get('pilot')) != pilot or tc.get('positions') not in fd.POSITIONS):
+        raise ValueError('direction metadata differs from its training contract')
+    spec = family_spec(family, record['e_on'], record.get('e_off'))
+    expected_rows = {k: [list(row) for row in spec[k]] for k in ('cause', 'isolate', 'plus_minus')}
+    if tc.get('rows') != expected_rows:
+        raise ValueError('direction was trained under a different factorial row definition')
+    train_ids, val_ids = tc.get('train_ids', []), tc.get('val_ids', [])
+    if (not train_ids or len(train_ids) != len(set(train_ids)) or len(val_ids) != len(set(val_ids))
+            or set(train_ids).intersection(val_ids)):
+        raise ValueError('invalid or overlapping direction training/held-out IDs')
     if contract is not None and record["training_contract"] != contract:
         raise ValueError("direction trained with different seed, parameters, rows, targets or frozen inputs")
     for name in ("w", "w_md"):
@@ -369,16 +440,50 @@ def validate_direction(record, family, layer, identity_sha, pilot, contract=None
     return record
 
 
+def _source_path(run_dir, subdir, name):
+    if not isinstance(name, str) or not name or Path(name).name != name or name in ('.', '..'):
+        raise ValueError('invalid source artifact filename')
+    root = (Path(run_dir) / subdir).resolve()
+    path = root / name
+    if path.resolve().parent != root:
+        raise ValueError('source artifact escapes its run directory')
+    return path
+
+
+def validate_direction_sources(record, run_dir):
+    path = _source_path(run_dir, '', record.get('frozen_source'))
+    contract = record['training_contract']
+    if file_sha(path) != contract.get('frozen_file_sha256'):
+        raise ValueError('direction training freeze changed')
+    frozen = e43.validate_artifact(read(path), 'direction training freeze')
+    if (frozen.get('phase') != 'freeze' or frozen.get('split') != 'train'
+            or frozen.get('identity_sha256') != record['identity_sha256']
+            or frozen.get('artifact_sha256') != contract.get('frozen_record_sha256')):
+        raise ValueError('direction training freeze content identity differs')
+    ids = set(frozen.get('question_ids', []))
+    if not set(contract['train_ids'] + contract['val_ids']) <= ids:
+        raise ValueError('direction train/held-out ID is foreign to its freeze')
+    return frozen
+
+
 def run_train(args, meta, prepared, bundle, cfg, systems, ident, ident_sha):
     user_template = meta["config"]["qa_user"]
-    spec = family_spec(args.family, args.e_on, args.e_off)
+    spec = family_spec(args.family, args.e_on, getattr(args, 'e_off', None))
     missing = [n for n in spec["prompts"] if n not in systems]
     if missing:
         raise SystemExit("prompts file lacks %s" % missing)
     frozen, frozen_name = load_frozen(args, "train", systems, ident_sha, prepared, allow_pilot=is_pilot(args))
     questions = e43.pick_questions(prepared, "train", args)
+    # Freeze the split before target eligibility filtering; a skipped held-out
+    # row must never be replaced with a previously training question or vice versa.
+    planned_train, planned_val = split_train_val(questions, args.val_n, getattr(args, 'split_seed', 42))
+    train_ids = {q["pair_id"] for q in planned_train}
+    val_ids = {q["pair_id"] for q in planned_val}
     built, skipped = build_questions(bundle, spec, questions, frozen, systems, user_template, args.max_target_tokens)
-    train_q, val_q = split_train_val(built, args.val_n, args.seed)
+    train_q = [q for q in built if q["pair_id"] in train_ids]
+    val_q = [q for q in built if q["pair_id"] in val_ids]
+    if args.val_n and not val_q:
+        raise ValueError("all preselected held-out questions were unusable; do not silently train without validation")
     log("%s (truth levels %s / %s): %d questions usable (%d train, %d held out), skipped %s" % (
         args.family, spec["e_off"] or "none", args.e_on, len(built), len(train_q), len(val_q), skipped))
     if not train_q:
@@ -402,7 +507,20 @@ def run_train(args, meta, prepared, bundle, cfg, systems, ident, ident_sha):
         train_index = [i for i, q in enumerate(built) if q["pair_id"] in train_ids]
         plus = torch.cat([H[p][train_index] for p, _ in spec["plus_minus"]])
         minus = torch.cat([H[m][train_index] for _, m in spec["plus_minus"]])
-        w_md, md_norm = fd.mean_difference(plus, minus)
+        mean_vector = (plus - minus).mean(0)
+        if not bool(torch.isfinite(mean_vector).all()):
+            raise ValueError('nonfinite mean-difference reference')
+        md_defined = bool(float(mean_vector.norm()) > 0)
+        if md_defined:
+            w_md, md_norm = fd.mean_difference(plus, minus)
+        else:
+            # A zero mean does not imply zero per-question differences. Keep
+            # random-init DAS evaluable; the fixed mean-vector control is zero.
+            # The unit placeholder only makes zero-shift storage well-defined.
+            w_md = torch.zeros_like(mean_vector); w_md[0] = 1.
+            md_norm = 0.0
+            if args.init == 'md':
+                raise ValueError('mean-difference initialization is undefined at this layer (zero mean)')
         w, info = fd.train_direction(bundle, layer, train_q, epochs=args.epochs, lr=args.lr, clip=args.clip, seed=args.seed,
                                      init=(w_md if args.init == "md" else None), val_questions=val_q, log=log, **kw)
         stats = fd.difference_stats(plus, minus, w)
@@ -414,18 +532,22 @@ def run_train(args, meta, prepared, bundle, cfg, systems, ident, ident_sha):
             if qs:
                 losses[part] = {"no_write": fd.mean_losses(bundle, layer, qs, mode="none", **kw),
                                 "whole_difference": fd.mean_losses(bundle, layer, qs, mode="vectors", **kw),
-                                "mean_difference_direction": fd.mean_losses(bundle, layer, qs, w=w_md.to(bundle.device), **kw),
+                                "mean_difference_direction": fd.mean_losses(bundle, layer, qs, w=w_md.to(bundle.device), **kw) if md_defined else
+                                    {**fd.mean_losses(bundle, layer, qs, mode='none', **kw), 'reference_status': 'zero_mean_no_write_not_a_direction'},
                                 "trained": fd.mean_losses(bundle, layer, qs, w=w.to(bundle.device), **kw)}
         leak = {}
         for kind in ("cause", "isolate"):                # how much of each row type's read difference lies along w
             vals = [abs(float(torch.dot(r["difference"], w))) for q in train_q for r in q["rows"] if r["kind"] == kind]
             leak[kind] = sum(vals) / max(1, len(vals))
         record = {"protocol": fd.PROTOCOL, "family": args.family, "e_on": args.e_on, "e_off": spec["e_off"], "layer": layer, "model": meta["model"],
-                  "w": w, "w_md": w_md, "gap": stats["mean"], "md_norm": md_norm, "cosine_w_md": float(torch.dot(w, w_md)),
-                  "difference_along_w": stats, "difference_along_md": fd.difference_stats(plus, minus, w_md),
+                  "w": w, "w_md": w_md, "gap": stats["mean"], "md_norm": md_norm,
+                  "mean_difference_defined": md_defined, "cosine_w_md": float(torch.dot(w, w_md)) if md_defined else None,
+                  "difference_along_w": stats, "difference_along_md": fd.difference_stats(plus, minus, w_md) if md_defined else
+                      {"defined": False, "reason": "zero_mean_difference", "values": []},
                   "read_difference_abs_along_w": leak, "losses": losses, "training": info, "skipped": skipped,
                   "identity": ident, "identity_sha256": ident_sha, "pilot": is_pilot(args), "frozen_source": frozen_name,
-                  "training_contract": contract, "seconds": time.time() - t0}
+                  "training_contract": contract, "planned_train_ids": [q["pair_id"] for q in planned_train],
+                  "planned_val_ids": [q["pair_id"] for q in planned_val], "seconds": time.time() - t0}
         require_current(ident, args)
         if file_sha(args.run_dir / frozen_name) != contract["frozen_file_sha256"]:
             raise RuntimeError("frozen training inputs changed during training")
@@ -438,11 +560,11 @@ def run_train(args, meta, prepared, bundle, cfg, systems, ident, ident_sha):
         for key in ("difference_along_w", "difference_along_md"):
             light[key] = {k: v for k, v in record[key].items() if k != "values"}
         light.update({"direction_file": out.name, "direction_file_sha256": file_sha(out)})
-        save(args.run_dir / "train_logs" / ("%s_L%d%s.json" % (args.family, layer, suffix(args))), seal(light))
+        save(args.run_dir / "train_logs" / artifact_name("%s_L%d.json" % (args.family, layer), is_pilot(args)), seal(light))
         tr = losses["train"]
-        log("L%d done in %.0fs: gap %.3f (md norm %.3f, cos %.2f) | cause loss no-write %.4f whole-diff %.4f md %.4f trained %.4f"
+        log("L%d done in %.0fs: gap %.3f (md norm %.3f, cos %s) | cause loss no-write %.4f whole-diff %.4f md %.4f trained %.4f"
             " | isolate trained %.4f | held-out cause %s isolate %s" % (
-                layer, record["seconds"], record["gap"], md_norm, record["cosine_w_md"], tr["no_write"]["cause"],
+                layer, record["seconds"], record["gap"], md_norm, _fmt(record["cosine_w_md"]), tr["no_write"]["cause"],
                 tr["whole_difference"]["cause"], tr["mean_difference_direction"]["cause"], tr["trained"]["cause"],
                 tr["trained"]["isolate"] or 0.0,
                 ("%.4f" % losses["val"]["trained"]["cause"]) if val_q else "-",
@@ -456,16 +578,125 @@ def load_direction(args, family, layer, ident_sha):
         raise SystemExit("missing direction %s (train it first; pilot and full runs do not share files)" % path.name)
     record = torch.load(path, map_location="cpu", weights_only=False)
     validate_direction(record, family, layer, ident_sha, is_pilot(args))
-    if file_sha(args.run_dir / record["frozen_source"]) != record["training_contract"]["frozen_file_sha256"]:
-        raise ValueError("direction training freeze changed")
+    if record['e_on'] != args.e_on or normalize_e_off(record.get('e_off')) != normalize_e_off(getattr(args, 'e_off', None)):
+        raise ValueError('requested E factor differs from the trained direction; use the matching --e-on')
+    validate_direction_sources(record, args.run_dir)
     return record, path
 
 
-def question_differences(bundle, spec, rendered, layer, batch_size):
-    """[N, hidden]: each question's own h_plus - h_minus at the last prompt token (mean over the family's level pairs)."""
-    H = {n: pd.capture_prompt_end(bundle, [p["prefix_text"] for p in rendered[n]], layer, batch_size)
-         for n in sorted({n for pair in spec["plus_minus"] for n in pair})}
-    return torch.stack([H[plus] - H[minus] for plus, minus in spec["plus_minus"]]).mean(0).float().cpu()
+def _validate_rows(d, questions, what):
+    expected = e43._unique_questions(questions)
+    rows = e43._unique_questions(d.get('rows', []))
+    if (list(rows) != list(expected) or d.get('question_ids') != list(expected)
+            or d.get('cohort_sha256') != pd.fingerprint(questions)):
+        raise ValueError(what + ' cohort/order/references differ')
+    if any(rows[pid]['question'] != expected[pid]['question'] for pid in expected):
+        raise ValueError(what + ' row belongs to a different question')
+    return rows
+
+
+def validate_generation(d, frozen, questions, run_dir):
+    """One verified generation and all actual parents, shared by resume/export/summary."""
+    e43.validate_artifact(d, 'generation')
+    if d.get('phase') != 'generate' or d.get('split') != frozen.get('split'):
+        raise ValueError('generation split/phase differs from freeze')
+    if not d.get('execution_complete') or not d.get('baseline_reproduction_verified'):
+        raise ValueError('generation execution/baseline verification is incomplete')
+    e43.require_identity(d['identity_sha256'], frozen['identity_sha256'], 'generation')
+    if d.get('frozen_record_sha256') != frozen['artifact_sha256']:
+        raise ValueError('generation frozen content identity differs')
+    rows = _validate_rows(d, questions, 'generation')
+    base, direction, beta = parse_arm(d['arm'], frozen['prompt_systems'])
+    if (d.get('base_prompt') != base or d.get('direction') != direction or d.get('beta') != beta):
+        raise ValueError('generation metadata differs from its arm')
+    frozen_file = _source_path(run_dir, '', d.get('frozen_source'))
+    path = _source_path(run_dir, 'dirs', d.get('direction_file'))
+    if file_sha(frozen_file) != d.get('frozen_file_sha256') or file_sha(path) != d.get('direction_file_sha256'):
+        raise ValueError('generation source file changed')
+    record = torch.load(path, map_location='cpu', weights_only=True)
+    validate_direction(record, d['family'], d['layer'], d['identity_sha256'], bool(d['pilot']))
+    validate_direction_sources(record, run_dir)
+    if (record['artifact_sha256'] != d.get('direction_record_sha256') or record['e_on'] != d.get('e_on') or normalize_e_off(record.get('e_off')) != normalize_e_off(d.get('e_off'))
+            or record['training_contract']['positions'] != d.get('positions')):
+        raise ValueError('generation direction/positions/E factor changed')
+    fc = e43.frozen_lookup(frozen)
+    for pid, row in rows.items():
+        if (not isinstance(row.get('text'), str) or not isinstance(row.get('token_ids'), list)
+                or type(row.get('finished')) is not bool or row.get('n_tokens') != len(row['token_ids'])):
+            raise ValueError('malformed generation answer')
+        if row.get('baseline_text') != fc[pid]['answers'][base]['text']:
+            raise ValueError('generation comparison baseline differs')
+    contract = d.get('generation_contract', {})
+    if any(contract.get(k) != d.get(k) for k in ('family', 'layer', 'arm', 'split', 'pilot', 'e_on', 'e_off', 'positions',
+                                               'identity_sha256', 'cohort_sha256', 'direction_file_sha256', 'frozen_file_sha256')):
+        raise ValueError('generation contract differs from its actual record')
+    return d
+
+
+def validate_mc(d, questions, run_dir):
+    e43.validate_artifact(d, 'reference scoring')
+    if d.get('phase') != 'mc' or d.get('kind') not in ('baseline', 'arm') or not d.get('execution_complete'):
+        raise ValueError('reference scoring phase/incomplete artifact')
+    _validate_rows(d, questions, 'reference scoring')
+    contract = d.get('mc_contract', {})
+    if any(contract.get(k) != d.get(k) for k in ('split', 'pilot', 'cohort_sha256', 'identity_sha256')):
+        raise ValueError('reference scoring contract differs')
+    if d['kind'] == 'baseline':
+        if contract.get('prompt') != d.get('prompt') or d.get('prompt') not in d['identity']['prompt_systems']:
+            raise ValueError('reference baseline prompt differs')
+        base_rows = None
+    else:
+        for k in ('family', 'layer', 'arm', 'e_on', 'e_off', 'positions', 'direction_file_sha256', 'baseline_file_sha256'):
+            if contract.get(k) != d.get(k):
+                raise ValueError('reference arm contract differs: ' + k)
+        path = _source_path(run_dir, 'dirs', d.get('direction_file'))
+        if file_sha(path) != d['direction_file_sha256']:
+            raise ValueError('reference scoring direction source changed')
+        record = torch.load(path, map_location='cpu', weights_only=True)
+        validate_direction(record, d['family'], d['layer'], d['identity_sha256'], bool(d['pilot']))
+        validate_direction_sources(record, run_dir)
+        if record['e_on'] != d['e_on'] or normalize_e_off(record.get('e_off')) != normalize_e_off(d.get('e_off')) or record['training_contract']['positions'] != d['positions']:
+            raise ValueError('reference scoring E factor/positions differ from training')
+        base, direction, beta = parse_arm(d['arm'], d['identity']['prompt_systems'])
+        if (d.get('base_prompt') != base or d.get('direction') != direction or d.get('beta') != beta):
+            raise ValueError('reference scoring arm metadata differs')
+        base_path = _source_path(run_dir, 'mc', d.get('baseline_file'))
+        if file_sha(base_path) != d['baseline_file_sha256']:
+            raise ValueError('reference scoring baseline source changed')
+        baseline = read(base_path)
+        if baseline.get('kind') != 'baseline' or baseline.get('prompt') != base or baseline.get('identity_sha256') != d['identity_sha256']:
+            raise ValueError('reference scoring baseline comes from another prompt or identity')
+        validate_mc(baseline, questions, run_dir)
+        base_rows = baseline['rows']
+    if d.get('summary') != mc_summary(d['rows'], base_rows):
+        raise ValueError('reference scoring summary differs from complete rows')
+    return d
+
+
+def question_pair(spec, base):
+    """The actual factor edge for this base, preserving the other factor level."""
+    canonical = family_spec(spec['family'], spec['e_on'], spec.get('e_off'))
+    pairs = canonical['factor_pairs'][spec['family']]
+    for plus, minus in pairs:
+        if base in (plus, minus):
+            return plus, minus
+    raise ValueError('per-question arms require a factorial base; neutral x has no declared interchange edge')
+
+
+def read_pair(spec, base, kind="effect"):
+    if kind != "iso":
+        return question_pair(spec, base)
+    other = {"family": "C" if spec["family"] == "E" else "E", "e_on": spec["e_on"], 'e_off': spec.get('e_off')}
+    plus, minus = question_pair(other, base)
+    return (plus if base == minus else minus), base
+
+
+def question_differences(bundle, spec, rendered, layer, batch_size, base, kind="effect"):
+    """[N, hidden] from the actual edge at this base's other-factor level, never an average of distinct edges."""
+    plus, minus = read_pair(spec, base, kind)
+    H = {n: pd.capture_prompt_end(bundle, [p['prefix_text'] for p in rendered[n]], layer, batch_size)
+         for n in (plus, minus)}
+    return (H[plus] - H[minus]).float().cpu()
 
 
 def arm_write(record, direction, beta, hidden_size, seed, layer, D=None):
@@ -476,10 +707,11 @@ def arm_write(record, direction, beta, hidden_size, seed, layer, D=None):
     if direction == "md":
         return {"direction": record["w_md"], "amount": beta * record["md_norm"]}
     if direction == "rand":
-        return {"direction": fd.fixed_random_direction(hidden_size, seed, layer), "amount": beta * record["gap"]}
+        return {"direction": fd.fixed_random_direction(hidden_size, seed, layer), "amount": beta * record["gap"],
+                'reference_direction': record['w']}
     if D is None:
         raise ValueError("per-question arms need the question differences")
-    if direction == "wq":
+    if direction in ("wq", "iso"):
         return {"direction": record["w"], "amount": (beta * (D @ record["w"])).tolist()}
     if direction == "dq":
         return {"vectors": beta * D}
@@ -526,26 +758,27 @@ def run_generate(args, meta, prepared, bundle, cfg, systems, ident, ident_sha):
     for layer in args.layers:
         record, path = load_direction(args, args.family, layer, ident_sha)
         positions = record["training_contract"]["positions"]
-        e_on, e_off = record["e_on"], record["e_off"]
+        e_on, e_off = record["e_on"], record.get("e_off")
         direction_sha = file_sha(path)
-        D = None
+        D = {}
         if per_question:
             spec = family_spec(args.family, e_on, e_off)
-            render(sorted({n for pair in spec["plus_minus"] for n in pair}))
-            D = question_differences(bundle, spec, rendered, layer, args.batch_size)
+            for base, kind in sorted({(a[1], 'iso' if a[2] == 'iso' else 'effect') for a in arms if a[2] in PER_QUESTION}):
+                render(read_pair(spec, base, kind))
+                D[(base, kind)] = question_differences(bundle, spec, rendered, layer, args.batch_size, base, kind)
         for arm, base, direction, beta in arms:
-            out_path = args.run_dir / "gen" / ("%s_L%d_%s_%s%s.json" % (args.family, layer, arm_file_token(arm), args.split, suffix(args)))
+            out_path = args.run_dir / "gen" / artifact_name("%s_L%d_%s_%s.json" % (args.family, layer, arm_file_token(arm), args.split), is_pilot(args))
             contract = {"family": args.family, "layer": layer, "arm": arm, "split": args.split, "pilot": is_pilot(args),
-                        "seed": args.seed, "cohort_sha256": pd.fingerprint(questions), "direction_file_sha256": direction_sha,
+                        "seed": args.seed, "e_on": record["e_on"], "e_off": record.get("e_off"), "positions": positions, "cohort_sha256": pd.fingerprint(questions), "direction_file_sha256": direction_sha,
                         "frozen_file_sha256": frozen_sha, "identity_sha256": ident_sha}
             if out_path.exists() and not args.overwrite:
-                previous = e43.validate_artifact(read(out_path), "generation")
+                previous = validate_generation(read(out_path), frozen, questions, args.run_dir)
                 if previous.get("generation_contract") != contract:
                     raise ValueError("generation was made with a different seed, arm, subset or direction")
                 log("skip %s (verified)" % out_path.name)
                 continue
             verified_base(args, bundle, rendered, look, questions, base, cache)
-            write = arm_write(record, direction, beta, bundle.hidden_size, args.seed, layer, D)
+            write = arm_write(record, direction, beta, bundle.hidden_size, args.seed, layer, D.get((base, "iso" if direction == "iso" else "effect")))
             target_prompt = arm_target_prompt(args.family, e_on, base, direction, beta, e_off)
             log("L%d %s: base %s, %s: %s%s" % (layer, arm, base, direction, write_note(write),
                                               (" (should behave like %s)" % target_prompt) if target_prompt else ""))
@@ -583,6 +816,7 @@ def run_generate(args, meta, prepared, bundle, cfg, systems, ident, ident_sha):
             save(out_path, seal({"protocol": fd.PROTOCOL, "phase": "generate", "family": args.family, "e_on": e_on, "e_off": e_off, "layer": layer,
                                  "arm": arm, "split": args.split, "base_prompt": base, "direction": direction, "beta": beta,
                                  "positions": positions, "target_prompt": target_prompt,
+                                 "read_pair": list(read_pair(family_spec(args.family, e_on, e_off), base, "iso" if direction == "iso" else "effect")) if direction in PER_QUESTION else None,
                                  "identity": ident, "identity_sha256": ident_sha, "direction_file": path.name,
                                  "direction_file_sha256": direction_sha, "direction_record_sha256": record["artifact_sha256"],
                                  "frozen_source": frozen_name, "frozen_file_sha256": frozen_sha,
@@ -608,7 +842,9 @@ def candidate_lists(q):
 
 
 def score_split(args, bundle, prompts, questions, eot, layer=None, write=None, positions="content"):
-    """write: None (no write) or arm_write()'s dict; per-question amounts / vectors are indexed by question."""
+    """Score complete reference sets. Missing/truncated candidates never change the task silently."""
+    if len(prompts) != len(questions):
+        raise ValueError('scoring prompts and questions must have identical lengths')
     rows = []
     for i, (q, prompt) in enumerate(zip(questions, prompts)):
         cands = candidate_lists(q)
@@ -619,35 +855,77 @@ def score_split(args, bundle, prompts, questions, eot, layer=None, write=None, p
         elif write is not None:
             a = write["amount"]
             kw = {"direction": write["direction"], "amount": a[i] if isinstance(a, list) else a}
-        recs = fd.score_answers(bundle, prompt, [ABSTAIN_TEXT] + true + false, eot_ids=eot, max_target_tokens=args.max_ref_tokens,
+            if 'reference_direction' in write:
+                kw['reference_direction'] = write['reference_direction']
+        texts = [ABSTAIN_TEXT] + true + false
+        recs = fd.score_answers(bundle, prompt, texts, eot_ids=eot, max_target_tokens=args.max_ref_tokens,
                                 batch_size=args.mc_batch_size, layer=layer, positions=positions, **kw)
+        if len(recs) != len(texts):
+            raise ValueError('candidate scorer returned a different number of candidates')
+        recs = [dict(rec, text=text) for text, rec in zip(texts, recs)]
         t, f = recs[1:1 + len(true)], recs[1 + len(true):]
-        metrics = fd.choice_metrics([r["sum_logp"] for r in t], [r["sum_logp"] for r in f]) if cands is not None else None
-        rows.append({"pair_id": q["pair_id"], "scored": metrics is not None, "abstain_logp": recs[0]["sum_logp"],
-                     "true": t, "false": f, **(metrics or {})})
+        complete = bool(cands) and all(_complete_candidate(rec) for rec in t + f)
+        best = q.get('best_answer')
+        best = best.strip() if isinstance(best, str) else None
+        best_index = true.index(best) if best in true else None
+        metrics = fd.choice_metrics([r['sum_logp'] for r in t], [r['sum_logp'] for r in f],
+                                    best_true_index=best_index) if complete else None
+        abstain = recs[0]['sum_logp'] if _complete_candidate(recs[0]) else None
+        rows.append({'pair_id': q['pair_id'], 'question': q['question'], 'scored': metrics is not None,
+                     'unscorable_reason': None if metrics is not None else ('no_complete_reference_set' if cands else 'no_substantive_true_or_false_candidates'),
+                     'abstain_logp': abstain, 'abstain_scored': abstain is not None,
+                     'abstain_record': recs[0], 'true': t, 'false': f, 'best_answer': best,
+                     **(metrics or {})})
     return rows
 
 
+def _finite_number(value):
+    return not isinstance(value, bool) and isinstance(value, (int, float)) and math.isfinite(value)
+
+
+def _complete_candidate(rec):
+    return not rec.get('truncated') and not rec.get('skipped') and _finite_number(rec.get('sum_logp'))
+
+
+def _mean(values):
+    return sum(values) / len(values) if values else None
+
+
+def _fmt(value):
+    return '—' if value is None else '%.4f' % value
+
+
 def mc_summary(rows, base_rows=None):
-    scored = [r for r in rows if r["scored"]]
-    n = max(1, len(scored))
-    s = {"n_scored": len(scored), "n_unscored": len(rows) - len(scored),
-         "abstain_logp_mean": sum(r["abstain_logp"] for r in rows) / max(1, len(rows)),
-         "mc1": sum(r["mc1"] for r in scored) / n,
-         "mc2": sum(r["mc2"] for r in scored) / n, "margin_mean": sum(r["margin"] for r in scored) / n,
-         "truncated_candidates": sum(1 for r in scored for c in r["true"] + r["false"] if c["truncated"]),
-         "skipped_candidates": sum(1 for r in scored for c in r["true"] + r["false"] if c["skipped"])}
+    lookup = e43._unique_questions([dict(r, question=r.get('question', r['pair_id'])) for r in rows])
+    scored = [r for r in rows if r['scored']]
+    abstain = [r['abstain_logp'] for r in rows if _finite_number(r.get('abstain_logp'))]
+    standard = [r['standard_mc1'] for r in scored if r.get('standard_mc1') is not None]
+    s = {'readout_protocol': 'e44_complete_candidates_max_true_v2',
+         'mc1_definition': 'legacy_any_true_top1_alias_not_standard_truthfulqa_mc1',
+         'n_scored': len(scored), 'n_unscored': len(rows) - len(scored),
+         'n_abstain_scored': len(abstain), 'n_abstain_unscored': len(rows) - len(abstain),
+         'abstain_logp_mean': _mean(abstain),
+         'any_true_top1': _mean([r.get('any_true_top1', r['mc1']) for r in scored]),
+         'mc1': _mean([r['mc1'] for r in scored]), 'mc2': _mean([r['mc2'] for r in scored]),
+         'max_true_margin_mean': _mean([r['margin'] for r in scored]),
+         'margin_mean': _mean([r['margin'] for r in scored]),
+         'standard_mc1': _mean(standard), 'n_standard_mc1': len(standard),
+         'truncated_candidates': sum(bool(c.get('truncated')) for r in rows for c in r.get('true', []) + r.get('false', [])),
+         'skipped_candidates': sum(bool(c.get('skipped')) for r in rows for c in r.get('true', []) + r.get('false', []))}
     if base_rows is not None:
-        every = {r["pair_id"]: r for r in base_rows}
-        s["abstain_logp_change_mean"] = sum(r["abstain_logp"] - every[r["pair_id"]]["abstain_logp"] for r in rows) / max(1, len(rows))
-        base = {r["pair_id"]: r for r in base_rows if r["scored"]}
-        both = [(base[r["pair_id"]], r) for r in scored if r["pair_id"] in base]
-        m = max(1, len(both))
-        s.update({"n_paired": len(both), "margin_change_mean": sum(a["margin"] - b["margin"] for b, a in both) / m,
-                  "margin_up": sum(1 for b, a in both if a["margin"] > b["margin"]),
-                  "to_correct": sum(1 for b, a in both if not b["mc1"] and a["mc1"]),
-                  "to_wrong": sum(1 for b, a in both if b["mc1"] and not a["mc1"]),
-                  "mc2_change_mean": sum(a["mc2"] - b["mc2"] for b, a in both) / m})
+        every = e43._unique_questions([dict(r, question=r.get('question', r['pair_id'])) for r in base_rows])
+        if list(lookup) != list(every):
+            raise ValueError('MC comparison cohorts/order differ')
+        abstain_pairs = [(every[r['pair_id']]['abstain_logp'], r['abstain_logp']) for r in rows
+                         if _finite_number(every[r['pair_id']].get('abstain_logp')) and _finite_number(r.get('abstain_logp'))]
+        both = [(every[r['pair_id']], r) for r in scored if every[r['pair_id']]['scored']]
+        s.update({'n_abstain_paired': len(abstain_pairs),
+                  'abstain_logp_change_mean': _mean([a - b for b, a in abstain_pairs]),
+                  'n_paired': len(both), 'margin_change_mean': _mean([a['margin'] - b['margin'] for b, a in both]),
+                  'margin_up': sum(a['margin'] > b['margin'] for b, a in both),
+                  'to_correct': sum(not b['mc1'] and a['mc1'] for b, a in both),
+                  'to_wrong': sum(b['mc1'] and not a['mc1'] for b, a in both),
+                  'mc2_change_mean': _mean([a['mc2'] - b['mc2'] for b, a in both])})
     return s
 
 
@@ -664,11 +942,11 @@ def run_mc(args, meta, prepared, bundle, cfg, systems, ident, ident_sha):
     rendered = {n: [pd.render_prompt(bundle, systems[n], user_template, q["question"]) for q in questions] for n in bases}
     base_rows = {}
     for name in bases:                                   # no-write reference of every base prompt, once per split
-        path = args.run_dir / "mc" / ("base_%s_%s%s.json" % (name, args.split, suffix(args)))
+        path = args.run_dir / "mc" / artifact_name("base_%s_%s.json" % (name, args.split), is_pilot(args))
         contract = {"prompt": name, "split": args.split, "pilot": is_pilot(args), "cohort_sha256": pd.fingerprint(questions),
-                    "identity_sha256": ident_sha}
+                    "identity_sha256": ident_sha, "mc_batch_size": args.mc_batch_size}
         if path.exists() and not args.overwrite:
-            d = e43.validate_artifact(read(path), "mc baseline")
+            d = validate_mc(read(path), questions, args.run_dir)
             if d.get("mc_contract") != contract:
                 raise ValueError("mc baseline was made for a different prompt, subset or identity")
         else:
@@ -676,7 +954,8 @@ def run_mc(args, meta, prepared, bundle, cfg, systems, ident, ident_sha):
             require_current(ident, args)
             d = seal({"protocol": fd.PROTOCOL, "phase": "mc", "kind": "baseline", "prompt": name, "split": args.split,
                       "identity": ident, "identity_sha256": ident_sha, "mc_contract": contract, "pilot": is_pilot(args),
-                      "summary": mc_summary(rows), "rows": rows, "completed": not is_pilot(args)})
+                      "summary": mc_summary(rows), "rows": rows, "completed": not is_pilot(args), "execution_complete": True,
+                      "question_ids": [q["pair_id"] for q in questions], "cohort_sha256": pd.fingerprint(questions)})
             save(path, d)
             log("mc base %s: %s" % (name, {k: (round(v, 4) if isinstance(v, float) else v) for k, v in d["summary"].items()}))
         base_rows[name] = d["rows"]
@@ -684,38 +963,43 @@ def run_mc(args, meta, prepared, bundle, cfg, systems, ident, ident_sha):
         record, dpath = load_direction(args, args.family, layer, ident_sha)
         positions = record["training_contract"]["positions"]
         direction_sha = file_sha(dpath)
-        D = None
+        D = {}
         if per_question:
-            spec = family_spec(args.family, record["e_on"], record["e_off"])
-            for n in sorted({n for pair in spec["plus_minus"] for n in pair}):
-                if n not in rendered:
-                    rendered[n] = [pd.render_prompt(bundle, systems[n], user_template, q["question"]) for q in questions]
-            D = question_differences(bundle, spec, rendered, layer, args.batch_size)
+            spec = family_spec(args.family, record["e_on"], record.get("e_off"))
+            for base, kind in sorted({(a[1], 'iso' if a[2] == 'iso' else 'effect') for a in arms if a[2] in PER_QUESTION}):
+                for n in read_pair(spec, base, kind):
+                    if n not in rendered:
+                        rendered[n] = [pd.render_prompt(bundle, systems[n], user_template, q["question"]) for q in questions]
+                D[(base, kind)] = question_differences(bundle, spec, rendered, layer, args.batch_size, base, kind)
         for arm, base, direction, beta in arms:
-            path = args.run_dir / "mc" / ("%s_L%d_%s_%s%s.json" % (args.family, layer, arm_file_token(arm), args.split, suffix(args)))
+            path = args.run_dir / "mc" / artifact_name("%s_L%d_%s_%s.json" % (args.family, layer, arm_file_token(arm), args.split), is_pilot(args))
             contract = {"family": args.family, "layer": layer, "arm": arm, "split": args.split, "pilot": is_pilot(args),
-                        "seed": args.seed, "cohort_sha256": pd.fingerprint(questions), "direction_file_sha256": direction_sha,
-                        "identity_sha256": ident_sha}
+                        "seed": args.seed, "e_on": record["e_on"], "e_off": record.get("e_off"), "positions": positions, "cohort_sha256": pd.fingerprint(questions), "direction_file_sha256": direction_sha,
+                        "identity_sha256": ident_sha, "mc_batch_size": args.mc_batch_size,
+                        "baseline_file_sha256": file_sha(args.run_dir / "mc" / artifact_name("base_%s_%s.json" % (base, args.split), is_pilot(args)))}
             if path.exists() and not args.overwrite:
-                if e43.validate_artifact(read(path), "mc arm").get("mc_contract") != contract:
+                if validate_mc(read(path), questions, args.run_dir).get("mc_contract") != contract:
                     raise ValueError("mc arm was made with a different seed, arm, subset or direction")
                 log("skip %s (verified)" % path.name)
                 continue
-            write = arm_write(record, direction, beta, bundle.hidden_size, args.seed, layer, D)
+            write = arm_write(record, direction, beta, bundle.hidden_size, args.seed, layer, D.get((base, "iso" if direction == "iso" else "effect")))
             rows = score_split(args, bundle, rendered[base], questions, eot, layer=layer, write=write, positions=positions)
             summary = mc_summary(rows, base_rows[base])
             require_current(ident, args)
-            if file_sha(dpath) != direction_sha:
-                raise RuntimeError("direction changed during scoring")
-            save(path, seal({"protocol": fd.PROTOCOL, "phase": "mc", "kind": "arm", "family": args.family, "e_on": record["e_on"], "e_off": record["e_off"],
+            if (file_sha(dpath) != direction_sha or file_sha(args.run_dir / "mc" / artifact_name("base_%s_%s.json" % (base, args.split), is_pilot(args))) != contract["baseline_file_sha256"]):
+                raise RuntimeError("direction or reference baseline changed during scoring")
+            save(path, seal({"protocol": fd.PROTOCOL, "phase": "mc", "kind": "arm", "family": args.family, "e_on": record["e_on"], "e_off": record.get("e_off"),
                              "layer": layer, "arm": arm, "split": args.split, "base_prompt": base, "direction": direction,
                              "beta": beta, "write": write_note(write), "positions": positions, "identity": ident,
-                             "identity_sha256": ident_sha, "direction_file": dpath.name, "direction_file_sha256": direction_sha,
+                             "identity_sha256": ident_sha, "direction_file": dpath.name,
+                             "baseline_file": artifact_name("base_%s_%s.json" % (base, args.split), is_pilot(args)),
+                             "baseline_file_sha256": contract["baseline_file_sha256"], "direction_file_sha256": direction_sha,
                              "mc_contract": contract, "pilot": is_pilot(args), "summary": summary, "rows": rows,
-                             "completed": not is_pilot(args)}))
-            log("L%d %s mc: MC1 %.3f MC2 %.3f | margin change %+.3f | to correct %d, to wrong %d (n %d) | log p(%s) change %+.3f" % (
-                layer, arm, summary["mc1"], summary["mc2"], summary["margin_change_mean"], summary["to_correct"],
-                summary["to_wrong"], summary["n_paired"], ABSTAIN_TEXT, summary["abstain_logp_change_mean"]))
+                             "question_ids": [q["pair_id"] for q in questions], "cohort_sha256": pd.fingerprint(questions),
+                             "completed": not is_pilot(args), "execution_complete": True}))
+            log("L%d %s reference readout: any-true top1 %s MC2 %s | max-true margin change %s | flips %d/%d (n %d) | log p(%s) change %s" % (
+                layer, arm, _fmt(summary["any_true_top1"]), _fmt(summary["mc2"]), _fmt(summary["margin_change_mean"]), summary["to_correct"],
+                summary["to_wrong"], summary["n_paired"], ABSTAIN_TEXT, _fmt(summary["abstain_logp_change_mean"])))
 
 
 # ----------------------------------------------------------------------------- summarize
@@ -725,18 +1009,50 @@ def run_summarize(args):
     logs = [d for d in (read(p) for p in sorted((args.run_dir / "train_logs").glob("*.json"))) if keep(d)]
     gens = [d for d in (read(p) for p in sorted((args.run_dir / "gen").glob("*.json"))) if keep(d)]
     mcs = [d for d in (read(p) for p in sorted((args.run_dir / "mc").glob("*.json"))) if keep(d)]
+    source = read(args.source_run / 'questions.json')
     for d in logs + gens + mcs:
         e43.validate_artifact(d, "summary input")
+        require_current(d['identity'], args)
+        if not d.get('pilot') and d.get('phase') in ('generate', 'mc') and not d.get('completed'):
+            raise ValueError('incomplete full artifact cannot enter a summary')
+    for d in logs:
+        path = _source_path(args.run_dir, 'dirs', d.get('direction_file'))
+        if file_sha(path) != d.get('direction_file_sha256'):
+            raise ValueError('training log direction source changed')
+        record = torch.load(path, map_location='cpu', weights_only=True)
+        validate_direction(record, d['family'], d['layer'], d['identity_sha256'], bool(d['pilot']))
+        validate_direction_sources(record, args.run_dir)
+        for key in ('family', 'layer', 'e_on', 'e_off', 'training_contract', 'losses', 'training'):
+            if d.get(key) != record.get(key):
+                raise ValueError('training log differs from its direction: ' + key)
+    for d in gens:
+        frozen_path_ = _source_path(args.run_dir, '', d.get('frozen_source'))
+        frozen = read(frozen_path_)
+        cohort = {q['pair_id']: q for q in source['splits'][d['split']]}
+        questions = [cohort[pid] for pid in d['question_ids']]
+        parent_questions = [cohort[pid] for pid in frozen['question_ids']]
+        validate_frozen(frozen, parent_questions, frozen['prompt_systems'])
+        validate_generation(d, frozen, questions, args.run_dir)
+    for d in mcs:
+        cohort = {q['pair_id']: q for q in source['splits'][d['split']]}
+        validate_mc(d, [cohort[pid] for pid in d['question_ids']], args.run_dir)
     if len({d["identity_sha256"] for d in logs + gens + mcs}) > 1:
         raise ValueError("cannot summarize artifacts from different identities")
+    assignments = sorted({(d['family'], d['layer'], d.get('e_off') or 'none', d['e_on'])
+                          for d in logs + gens + mcs if 'family' in d})
+    lines += ['## Explicit factor assignments (different pairs are different hypotheses)', '',
+              '| family | layer | low truth level | high truth level |', '|---|---|---|---|']
+    for family, layer, low, high in assignments:
+        lines.append('| %s | %d | %s | %s |' % (family, layer, low, high))
+    lines.append('')
     f = lambda v: "—" if v is None else "%.4f" % v  # noqa: E731
     lines += ["## training (loss per answer token; held-out questions never received a gradient)", "",
               "| family | layer | gap | md norm | cos(w, md) | cause: no write / whole diff / md / trained | isolate: md / trained | held-out cause: no write / md / trained | held-out isolate: md / trained |",
               "|---|---|---|---|---|---|---|---|---|"]
     for d in sorted(logs, key=lambda d: (d["family"], d["layer"])):
         tr, va = d["losses"]["train"], d["losses"].get("val")
-        lines.append("| %s | %d | %.3f | %.3f | %+.2f | %s / %s / %s / %s | %s / %s | %s | %s |" % (
-            d["family"], d["layer"], d["gap"], d["md_norm"], d["cosine_w_md"], f(tr["no_write"]["cause"]),
+        lines.append("| %s | %d | %.3f | %.3f | %s | %s / %s / %s / %s | %s / %s | %s | %s |" % (
+            d["family"], d["layer"], d["gap"], d["md_norm"], _fmt(d["cosine_w_md"]), f(tr["no_write"]["cause"]),
             f(tr["whole_difference"]["cause"]), f(tr["mean_difference_direction"]["cause"]), f(tr["trained"]["cause"]),
             f(tr["mean_difference_direction"]["isolate"]), f(tr["trained"]["isolate"]),
             ("%s / %s / %s" % (f(va["no_write"]["cause"]), f(va["mean_difference_direction"]["cause"]), f(va["trained"]["cause"]))) if va else "—",
@@ -752,19 +1068,19 @@ def run_summarize(args):
             s["before"]["mean_words"], s["after"]["mean_words"],
             ("%d (%d)" % (s["matches_target_prompt"], s["baseline_matches_target_prompt"])) if "matches_target_prompt" in s else "—",
             s["prefill_rel_mean"]))
-    lines += ["", "## true vs false references (MC1 = best true beats best false; margin in nats) and log p(\"%s\")" % ABSTAIN_TEXT, "",
-              "| family | layer | arm | split | scored | MC1 | MC2 | margin change | to correct / to wrong | log p(abstain) change |",
+    lines += ["", "## reference ranking (max-true margin / any-true top1 are not standard MC1) and log p(\"%s\")" % ABSTAIN_TEXT, "",
+              "| family | layer | arm | split | scored | any-true top1 | MC2 | max-true margin change | to correct / to wrong | log p(abstain) change |",
               "|---|---|---|---|---|---|---|---|---|---|"]
     for d in sorted(mcs, key=lambda d: (d.get("family", ""), d.get("arm", d.get("prompt", "")), d["split"], d.get("layer", -1))):
         s = d["summary"]
         if d["kind"] == "baseline":
-            lines.append("| — | — | no write, %s | %s | %d | %.3f | %.3f | — | — | (level %.2f) |" % (
-                d["prompt"], d["split"], s["n_scored"], s["mc1"], s["mc2"], s["abstain_logp_mean"]))
+            lines.append("| — | — | no write, %s | %s | %d | %s | %s | — | — | (level %s) |" % (
+                d["prompt"], d["split"], s["n_scored"], _fmt(s["any_true_top1"]), _fmt(s["mc2"]), _fmt(s["abstain_logp_mean"])))
         else:
-            lines.append("| %s | %d | %s | %s | %d | %.3f | %.3f | %+.3f | %d / %d | %+.3f |" % (
-                d["family"], d["layer"], d["arm"], d["split"], s["n_scored"], s["mc1"], s["mc2"], s["margin_change_mean"],
-                s["to_correct"], s["to_wrong"], s["abstain_logp_change_mean"]))
-    (args.run_dir / "summary.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+            lines.append("| %s | %d | %s | %s | %d | %s | %s | %s | %d / %d | %s |" % (
+                d["family"], d["layer"], d["arm"], d["split"], s["n_scored"], _fmt(s["any_true_top1"]), _fmt(s["mc2"]), _fmt(s["margin_change_mean"]),
+                s["to_correct"], s["to_wrong"], _fmt(s["abstain_logp_change_mean"])))
+    (args.run_dir / artifact_name('summary.md', args.include_pilot)).write_text("\n".join(lines) + "\n", encoding="utf-8")
     print("\n".join(lines))
 
 
@@ -777,8 +1093,8 @@ def main():
     p.add_argument("--prompts", type=Path, default=Path(EXP_ROOT) / "configs" / "prompts" / "default_v1.json")
     p.add_argument("--prompts-e44", type=Path, default=Path(EXP_ROOT) / "configs" / "prompts" / "e44_factorial_v1.json")
     p.add_argument("--family", choices=FAMILIES)
-    p.add_argument("--e-on", default="E1", help="sentence of the high truth level (a key of the prompts file)")
-    p.add_argument("--e-off", default="none", help="sentence of the low truth level: none (no sentence) or a key such as M")
+    p.add_argument("--e-on", default="E1", help="high truth-level sentence (E1/E2)")
+    p.add_argument("--e-off", default="none", choices=("none", "M"), help="explicit low truth level; M is a separate hypothesis, never an automatic fallback")
     p.add_argument("--layers", nargs="+", type=int, default=[])
     p.add_argument("--arms", nargs="+", default=[])
     p.add_argument("--bases", nargs="+", default=[], help="mc: also (or only) score these prompts without any write")
@@ -792,14 +1108,15 @@ def main():
     p.add_argument("--lr", type=float, default=1e-3)
     p.add_argument("--clip", type=float, default=1.0)
     p.add_argument("--seed", type=int, default=42)
+    p.add_argument('--split-seed', type=int, default=42, help='fixed holdout partition seed, independent of optimization seed')
     p.add_argument("--batch-size", type=int, default=8)
     p.add_argument("--mc-batch-size", type=int, default=16)
     p.add_argument("--max-new-tokens", type=int, default=48)
     p.add_argument("--max-target-tokens", type=int, default=24)
     p.add_argument("--max-ref-tokens", type=int, default=48, help="mc: cap on a reference answer's tokens")
     p.add_argument("--output-projection", default="float32", choices=("float32", "native"))
-    p.add_argument("--n-check", type=int, default=0, help="pilot: the first K questions (writes *.pilot.* files)")
-    p.add_argument("--pair-ids", nargs="+", help="pilot: explicit question IDs (writes *.pilot.* files)")
+    p.add_argument("--n-check", type=int, default=0, help="pilot: the first K questions (writes t.* files)")
+    p.add_argument("--pair-ids", nargs="+", help="pilot: explicit question IDs (writes t.* files)")
     p.add_argument("--overwrite", action="store_true")
     p.add_argument("--include-pilot", action="store_true", help="summarize: include pilot files")
     args = p.parse_args()
@@ -821,12 +1138,15 @@ def main():
         raise SystemExit("generate needs --arms")
     if args.phase == "mc" and not ((args.family and args.layers and args.arms) or (args.bases and not args.arms)):
         raise SystemExit("mc needs --family, --layers and --arms, or --bases alone (prompt-only readout)")
-    meta, prepared = e43.load_source(args)
+    meta, prepared = load_source(args)
     if any(l < 0 or l >= meta["num_layers"] for l in args.layers):
         raise SystemExit("layer index outside the source model")
     cfg, systems = load_prompts(meta, args.prompts, args.prompts_e44)
-    if args.e_on not in cfg["sentences"] or (args.e_off != "none" and args.e_off not in cfg["sentences"]) or args.e_off == args.e_on:
-        raise SystemExit("--e-on / --e-off must be two different sentences of the prompts file (or --e-off none)")
+    if args.e_on not in ("E1", "E2") or args.e_on not in cfg["sentences"]:
+        raise SystemExit("--e-on must be E1/E2")
+    e_off = normalize_e_off(args.e_off)
+    if e_off is not None and e_off not in cfg["sentences"]:
+        raise SystemExit("unknown explicit --e-off sentence")
     for arm in args.arms:
         parse_arm(arm, systems)
     torch.manual_seed(args.seed)

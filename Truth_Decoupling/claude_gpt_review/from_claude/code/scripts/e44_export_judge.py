@@ -27,38 +27,44 @@ def export(source_run, run_dir, split="tune", gen_names=None, prompt_names=None,
     source_run, run_dir = Path(source_run).resolve(), Path(run_dir).resolve()
     gen_dir = (run_dir / "gen").resolve()
     if gen_names is None:
-        files = [p for p in sorted(gen_dir.glob("*_%s.json" % split)) if ".pilot." not in p.name]
+        files = [p for p in sorted(gen_dir.glob("*_%s.json" % split)) if ".pilot." not in p.name and not p.name.startswith('t.')]
     else:
         files = []
         for value in gen_names:
             if not isinstance(value, str) or Path(value).name != value:
                 raise ValueError("generation names must be files inside this run's gen directory")
             files.append(gen_dir / value)
-    if len(set(files)) != len(files) or any(not p.is_file() for p in files):
+    if (len(set(files)) != len(files) or any(not p.is_file() for p in files)
+            or any(p.resolve().parent != gen_dir for p in files)):
         raise ValueError("generation files must exist and be selected once")
     frozen_path = run_dir / ("frozen_%s.json" % split)
     before = {str(p): e43.file_sha(p) for p in [source_run / "bank.json", source_run / "questions.json", frozen_path, *files]}
     questions = e43.read(source_run / "questions.json")["splits"][split]
     frozen = e43.read(frozen_path)
     E.validate_frozen(frozen, questions, frozen["prompt_systems"], require_full=True)
+    if frozen['split'] != split:
+        raise ValueError('frozen artifact declares a different split')
     if frozen["identity"].get("source_files_sha256") != {k: before[str(source_run / k)] for k in ("bank.json", "questions.json")}:
         raise ValueError("frozen answers use different source questions or bank")
     prompts = list(frozen["prompt_systems"]) if prompt_names is None else list(prompt_names)
-    if len(set(prompts)) != len(prompts) or any(p not in frozen["prompt_systems"] for p in prompts):
+    if not prompts or len(set(prompts)) != len(prompts) or any(p not in frozen["prompt_systems"] for p in prompts):
         raise ValueError("unknown or repeated prompt name")
     generations = []
     for path in files:
         d = e43.validate_artifact(e43.read(path), "generation")
         if d.get("completed") is not True or d.get("pilot") is not False or d.get("phase") != "generate" or d.get("split") != split:
             raise ValueError("pilot/incomplete/foreign generations cannot enter a judge export: " + path.name)
-        if d["identity_sha256"] != frozen["identity_sha256"] or d.get("frozen_record_sha256") != frozen["artifact_sha256"]:
-            raise ValueError("generation and frozen answers come from different identities: " + path.name)
-        if d.get("question_ids") != [q["pair_id"] for q in questions]:
-            raise ValueError("generation cohort/order differs: " + path.name)
-        direction = run_dir / "dirs" / d["direction_file"]
+        E.validate_generation(d, frozen, questions, run_dir)
+        direction = E._source_path(run_dir, 'dirs', d['direction_file'])
         before[str(direction)] = e43.file_sha(direction)
         if before[str(direction)] != d["direction_file_sha256"]:
             raise ValueError("direction file changed after generation: " + path.name)
+        import torch
+        record = torch.load(direction, map_location='cpu', weights_only=True)
+        training_freeze = E._source_path(run_dir, '', record['frozen_source'])
+        before[str(training_freeze)] = e43.file_sha(training_freeze)
+        if before[str(training_freeze)] != record['training_contract']['frozen_file_sha256']:
+            raise ValueError('direction training freeze changed before export')
         generations.append(d)
     conditions = ["baseline_" + p for p in prompts]
     specs = [{"name": "baseline_" + p, "base_condition": "baseline_" + p, "kind": "prompt_control",
@@ -71,8 +77,9 @@ def export(source_run, run_dir, split="tune", gen_names=None, prompt_names=None,
         conditions.append(condition)
         specs.append({"name": condition, "base_condition": "baseline_" + d["base_prompt"], "family": d["family"],
                       "layer": d["layer"], "arm": d["arm"], "direction": d["direction"], "beta": d["beta"],
+                      "e_on": d["e_on"], "e_off": d.get("e_off"),
                       "kind": "intervention", "uses_reference_answer": False})
-        lookups.append((condition, d["base_prompt"], {row["pair_id"]: row for row in d["rows"]}))
+        lookups.append((condition, d["base_prompt"], e43._unique_questions(d['rows'])))
     if len(set(conditions)) != len(conditions):
         raise ValueError("duplicate conditions")
     rows = []

@@ -69,6 +69,18 @@
       ]
     }
   },
+  "step0_selection_policy": {
+    "version": "r28_prespecified_prompt_policy_v1",
+    "primary_e_on": "E1",
+    "E2_role": "prespecified_sensitivity_control; separate explicitly identified run if later pursued",
+    "M_role": "diagnostic by default; explicit --e-off M is a separate exploratory hypothesis, never an automatic fallback",
+    "selection_data_if_policy_is_revised": "gradient_training_partition_only; freeze the change before fitting directions",
+    "validation_roles": "training holdout is not used to choose wording; tune is reserved for subsequent method/layer evaluation",
+    "rejected_rule": "do not choose wording by non-lengthening-only flips on train+tune or by the previous +6/9 thresholds",
+    "implementation": "the CLI defaults to E1 and records e_on; this file does not perform automatic prompt selection",
+    "reviewed_baseline_prompt_count": 10,
+    "upstream_added_prompt": "caut_M is the 11th prompt added by f234a98; distinguish the new freeze from the original 10-prompt freeze"
+  },
   "step0_pairs": [
     [
       "conf",

@@ -126,7 +126,9 @@ def test_jsd_properties():
 
 
 def test_choice_metrics():
-    m = fd.choice_metrics([-3.0, -1.0, None], [-2.0, -5.0])
+    # A missing candidate changes the scoring problem; do not silently drop it.
+    assert fd.choice_metrics([-3.0, -1.0, None], [-2.0, -5.0]) is None
+    m = fd.choice_metrics([-3.0, -1.0], [-2.0, -5.0])
     assert m["mc1"] == 1 and abs(m["margin"] - 1.0) < 1e-9
     mass_t, mass_f = math.exp(-3) + math.exp(-1), math.exp(-2) + math.exp(-5)
     assert abs(m["mc2"] - mass_t / (mass_t + mass_f)) < 1e-9
@@ -391,7 +393,9 @@ def test_prompts_file_and_question_rows(bundle):
     many = [{"pair_id": "q%d" % i} for i in range(20)]
     tr, va = drv.split_train_val(many, 4, 42)
     assert len(tr) == 16 and len(va) == 4 and not {q["pair_id"] for q in tr} & {q["pair_id"] for q in va}
-    assert drv.split_train_val(many, 4, 42) == (tr, va) and drv.split_train_val(many[:3], 4, 42) == (many[:3], [])
+    assert drv.split_train_val(many, 4, 42) == (tr, va)
+    with pytest.raises(ValueError):
+        drv.split_train_val(many[:3], 4, 42)  # impossible holdout cannot silently become all training
     assert drv.text_stats(["I don't know.", "Yes", "No it is not"]) == {"refusal_rule": 1, "ends_with_period": 1,
                                                                        "mean_words": 8 / 3, "negation_words": 2}
 
@@ -451,7 +455,13 @@ def test_driver_end_to_end_on_the_toy_model(bundle, tmp_path, monkeypatch, capsy
         call("train", "--family", "E", "--layers", "1", "--epochs", "2", "--val-n", "2", "--e-off", "M")
     assert "truth levels M / E1" in call("train", "--family", "E", "--layers", "0", "--epochs", "1", "--val-n", "2", "--e-off", "M")
     assert torch.load(run / "dirs" / "E_L0.pt", map_location="cpu", weights_only=False)["training_contract"]["e_off"] == "M"
-    out0 = call("generate", "--family", "E", "--layers", "0", "--split", "tune", "--arms", "conf_M.wq.p1", "x.w.p2")
+    with pytest.raises(ValueError):                                         # M checkpoint cannot be silently used as none/E1
+        call("generate", "--family", "E", "--layers", "0", "--split", "tune", "--arms", "conf_M.wq.p1")
+    out0 = call("generate", "--family", "E", "--layers", "0", "--split", "tune", "--e-off", "M", "--arms", "conf_M.wq.p1", "x.w.p2", "conf_M.iso.p1")
+    iso0 = json.loads((run / "gen/E_L0_conf_M-iso-p1_tune.json").read_text())
+    assert iso0["e_off"] == "M" and iso0["target_prompt"] == "conf_M" and iso0["read_pair"] == ["caut_M", "conf_M"]
+    call("mc", "--family", "E", "--layers", "0", "--split", "tune", "--e-off", "M", "--arms", "conf_M.wq.p1", "conf_M.iso.p1")
+    assert json.loads((run / "mc/E_L0_conf_M-iso-p1_tune.json").read_text())["mc_contract"]["e_off"] == "M"
     assert "should behave like conf_E1" in out0
     arms = ["conf.w.p1", "conf.wq.p1", "conf.dq.p1", "conf_E1.w.m1", "x.md.p2", "x.rand.p1"]
     out = call("generate", "--family", "E", "--layers", "1", "--split", "tune", "--arms", *arms)
@@ -477,7 +487,7 @@ def test_driver_end_to_end_on_the_toy_model(bundle, tmp_path, monkeypatch, capsy
     assert info["n_questions"] == 4 and "E_L1_conf-wq-p1" in info["conditions"] and "baseline_conf" in info["conditions"]
     payload = json.loads((run / "judge_tune" / "judge_input.json").read_text())
     assert set(payload["evaluations"][0]["outputs"]) == set(payload["conditions"])
-    assert len(payload["conditions"]) == 5 + 6 + 3 + 2                      # prompts + E L1 arms + C L1 arms + E L0 arms
+    assert len(payload["conditions"]) == 5 + 6 + 3 + 3                      # prompts + E L1 arms + C L1 arms + E L0 arms
     with pytest.raises(ValueError):                                         # an arm's base prompt must be exported too
         exp.export(src, run, "tune", None, ["x"], "too_few_prompts")
 
