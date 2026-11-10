@@ -78,8 +78,24 @@ def load(path, device):
     # the judges were trained with the slow SentencePiece tokenizer (finetune_judge.sh --use_slow_tokenizer); use it
     from transformers import AutoModelForCausalLM, AutoTokenizer
     tok = AutoTokenizer.from_pretrained(path, use_fast=False)
-    model = AutoModelForCausalLM.from_pretrained(path, torch_dtype=torch.bfloat16).to(device).eval()
+    if device == "auto":
+        # Shared GPUs (11-10: another service holds ~66 GB of every card): spread the bf16 weights over the leftover
+        # memory of all visible cards. Placement only - same dtype, same per-layer math, batch 1 without padding -
+        # so the judging contract is unchanged; the placement is recorded in the runtime identity.
+        model = AutoModelForCausalLM.from_pretrained(path, torch_dtype=torch.bfloat16, device_map="auto").eval()
+    else:
+        model = AutoModelForCausalLM.from_pretrained(path, torch_dtype=torch.bfloat16).to(device).eval()
     return tok, model
+
+
+def input_device(model, device=None):
+    """Where the prompt tokens must live: the embedding device of a dispatched model, else the requested device."""
+    embeddings = getattr(model, "get_input_embeddings", None)
+    if device != "auto" and device is not None:
+        return device
+    if embeddings is None:
+        raise ValueError("device 'auto' needs a model that exposes its input embeddings")
+    return embeddings().weight.device
 
 
 @torch.no_grad()
@@ -92,7 +108,7 @@ def score(model, tok, prompt, yes_id, no_id, device, max_prompt_tokens=MAX_PROMP
     limit = min(max_prompt_tokens, model_limit) if type(model_limit) is int and model_limit > 0 else max_prompt_tokens
     if n > limit:
         raise UnscorablePrompt("context_token_limit", n, limit)
-    logits = model(**enc.to(device)).logits[0, -1].float()
+    logits = model(**enc.to(input_device(model, device))).logits[0, -1].float()
     if not bool(torch.isfinite(logits).all()):
         raise RuntimeError("AllenAI judge produced nonfinite logits; no vote can be recorded")
     if yes_id == no_id or any(type(i) is not int or not 0 <= i < logits.numel() for i in (yes_id, no_id)):
@@ -148,6 +164,8 @@ def run_judge(kind, model_dir, prompts, device, threshold, log_every=200, max_pr
     info = {"model_dir": model_dir, "fingerprint": model_identity, "tokenizer": type(tok).__name__,
             "yes_id": yes_id, "no_id": no_id, "yes_text": tok.decode([yes_id]), "no_text": tok.decode([no_id]),
             "dtype": "bfloat16", "softmax_dtype": "float32", "use_fast": False,
+            "placement": {str(k): str(v) for k, v in getattr(model, "hf_device_map", {}).items()} or str(device),
+            "attn_implementation": getattr(model.config, "_attn_implementation", None),
             "max_prompt_tokens": max_prompt_tokens, "model_context_limit": getattr(model.config, "max_position_embeddings", None),
             "n_prompts": len(prompts), "n_unscorable": sum(r['status']=='unscorable' for r in out), "seconds": round(time.time() - t0, 1)}
     del model
