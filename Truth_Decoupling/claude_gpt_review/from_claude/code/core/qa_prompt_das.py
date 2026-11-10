@@ -446,11 +446,6 @@ def train_direction(bundle, layer, pairs, *, epochs=10, lr=1e-3, clip=1.0, seed=
     w0 = unit(torch.randn(bundle.hidden_size, generator=g))
     w = torch.nn.Parameter(w0.to(bundle.device))
     opt = torch.optim.Adam([w], lr=lr)
-    if torch.cuda.is_available():
-        # On shared GPUs with little free memory, blocks the caching allocator kept from the source capture
-        # (batched prefill logits) can starve cuBLAS handle creation in autograd's backward threads
-        # (CUBLAS_STATUS_ALLOC_FAILED, 11-10 13:08 first full run). Return them before the first backward.
-        torch.cuda.empty_cache()
     history = []
     t0 = time.time()
     for epoch in range(epochs):
