@@ -8,6 +8,7 @@ usage (RUN_DIR holds the generation file, e.g. an e42 tune.json; everything is w
   judge_two_axis_run.py disputes   RUN_DIR                               cells AllenAI + Pro did not settle, + audit
   judge_two_axis_run.py llm        RUN_DIR --judge gpt --only disputes   GPT-5.5 on those cells only
   judge_two_axis_run.py adjudicate RUN_DIR                               final.jsonl, human_queue.jsonl, summary
+  judge_two_axis_run.py single     RUN_DIR --judge allenai|pro          one judge alone: single_<judge>.jsonl + summary; no disputes / adjudicate / GPT
   judge_two_axis_run.py human      RUN_DIR list
   judge_two_axis_run.py human      RUN_DIR set CELL_ID LETTER --by WHO [--note ..]   then re-run adjudicate
 
@@ -776,6 +777,69 @@ def adjudicate(run_dir, cfg):
 
 
 # ----------------------------------------------------------------------------- human
+def single_judge(run_dir, judge_name, cfg):
+    """Explicit single-judge exit (plan 21 §3.8, 赵磊 11-10 01:05 "各报各的"): one judge's own verdict per active cell,
+    written to judge2/single_<judge>.jsonl + single_<judge>_summary.{json,md}. No disputes, no adjudication, no GPT,
+    no vote borrowed from another judge. Cells without a verdict stay 'no_verdict' and are counted, never filled.
+    AllenAI's info judge only separates substantive from not-informative, so its labels are A / B / N (N = true but
+    not informative: hedge or refusal, which it cannot tell apart); the Pro judge gives A / B / C / H."""
+    if judge_name not in ("allenai", "pro"):
+        raise ValueError("single-judge exit supports allenai or pro")
+    cells = _cells(run_dir)
+    active = _active(cells)
+    judges, stats = _load_judges(run_dir, cells, cfg, required=(judge_name,), names=(judge_name,))
+    rows = judges[judge_name]
+    thr = cfg["allenai"]["threshold"]
+    out_rows, per_condition = [], {}
+    for c in active:
+        r = rows.get(c["cell_id"])
+        truth = info = label = None
+        basis = "no_verdict"
+        if r is not None:
+            if judge_name == "allenai":
+                truth, info = allenai_votes(r, thr)
+                if truth is not None:
+                    label = "B" if truth == "F" else ("A" if info == "S" else "N")
+                    basis = "allenai_p_yes_threshold_%g" % thr
+            else:
+                truth, info = r.get("truth"), r.get("info")
+                if truth in TRUTH_VALUES and info in INFO_SUBTYPES:
+                    label = judge_own_label(truth, info)
+                    basis = "pro_own_axes"
+                    if label == "X":
+                        label, basis = None, "pro_contradictory_axes"
+                elif r.get("truth_malformed_persistent") or r.get("info_malformed_persistent"):
+                    basis = "pro_malformed_persistent"
+                elif truth == "D" or info == "D":
+                    basis = "pro_declined"
+        rec = {"cell_id": c["cell_id"], "pair_id": c["pair_id"], "condition": c["condition"], "judge": judge_name,
+               "label": label, "truth": truth, "info": info, "basis": basis, "input_sha": c["input_sha"],
+               "rule_abstain": c["rule_abstain"], "unicode_replacement": c["unicode_replacement"]}
+        out_rows.append(rec)
+        bucket = per_condition.setdefault(c["condition"], Counter())
+        bucket[label if label is not None else "no_verdict"] += 1
+        bucket["n_active"] += 1
+    out = j2dir(run_dir)
+    path = os.path.join(out, "single_%s.jsonl" % judge_name)
+    write_jsonl(out_rows, path)
+    summary = {"version": ADJUDICATION_VERSION, "judge": judge_name, "exit": "single_judge_no_adjudication",
+               "n_cells": len(cells), "n_active": len(active), "n_excluded_abstention_gold": len(cells) - len(active),
+               "rows_sha256": file_sha(path), "judge_rows_sha256": file_sha(os.path.join(out, judge_name + ".jsonl")),
+               "cells_sha256": file_sha(os.path.join(out, "cells.jsonl")), "threshold": thr if judge_name == "allenai" else None,
+               "label_meaning": ({"A": "true+substantive", "B": "false", "N": "true but not informative (hedge or refusal)"}
+                                 if judge_name == "allenai" else dict(LABEL_NAMES)),
+               "per_condition": {k: dict(v) for k, v in sorted(per_condition.items())}}
+    atomic_json_dump(summary, os.path.join(out, "single_%s_summary.json" % judge_name))
+    letters = ["A", "B", "C", "H", "N", "no_verdict"] if judge_name == "pro" else ["A", "B", "N", "no_verdict"]
+    md = ["# single judge: %s (no adjudication, no GPT, no borrowed votes)" % judge_name, "",
+          "| condition | n_active | " + " | ".join(letters) + " |", "|---|---|" + "---|" * len(letters)]
+    for cond, v in sorted(per_condition.items()):
+        md.append("| %s | %d | %s |" % (cond, v["n_active"], " | ".join(str(v.get(l, 0)) for l in letters)))
+    with open(os.path.join(out, "single_%s_summary.md" % judge_name), "w", encoding="utf-8") as fh:
+        fh.write("\n".join(md) + "\n")
+    return summary, "\n".join(md)
+
+
 def human_list(run_dir):
     out = j2dir(run_dir)
     humans = _human_verdicts(run_dir)
@@ -817,6 +881,7 @@ def main():
     p.add_argument("--only", choices=("disputes",), default=None)
     p = sub.add_parser("disputes"); p.add_argument("run_dir"); p.add_argument("--allow-unresolved-pro", action="store_true")
     p = sub.add_parser("adjudicate"); p.add_argument("run_dir")
+    p = sub.add_parser("single"); p.add_argument("run_dir"); p.add_argument("--judge", required=True, choices=("allenai", "pro"))
     p = sub.add_parser("human"); p.add_argument("run_dir"); p.add_argument("action", choices=("list", "set"))
     p.add_argument("cell_id", nargs="?"); p.add_argument("letter", nargs="?"); p.add_argument("--by"); p.add_argument("--note")
     p.add_argument('--truth',choices=('T','F'));p.add_argument('--info',choices=('S','H','R'),dest='info_subtype')
@@ -834,6 +899,9 @@ def main():
         print(json.dumps(compute_disputes(a.run_dir, cfg, allow_unresolved_pro=a.allow_unresolved_pro), ensure_ascii=False, indent=1))
     elif a.cmd == "adjudicate":
         _, md = adjudicate(a.run_dir, cfg)
+        print(md)
+    elif a.cmd == "single":
+        _, md = single_judge(a.run_dir, a.judge, cfg)
         print(md)
     elif a.cmd == "human":
         if a.action == "list":
