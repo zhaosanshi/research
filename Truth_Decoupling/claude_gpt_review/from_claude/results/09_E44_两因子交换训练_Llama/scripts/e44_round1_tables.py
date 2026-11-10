@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Read-only tables for the E44 first round (plan 27, sections 3 and 4.3, with amendment 1). CPU only, no model, nothing is written.
+"""Read-only tables for the E44 first round, criteria v2 (plan 28). CPU only, standard library only, nothing is written.
 
   e44_round1_tables.py screen  RUN_DIR FAMILY WORK_DIR            all layers, AllenAI + rule refusals, shortlist by the frozen rule
   e44_round1_tables.py cells   RUN_DIR FAMILY WORK_DIR --judge J --layers L [L ...]
@@ -8,22 +8,31 @@
   e44_round1_tables.py cross   RUN_DIR FAMILY WORK_DIR --judge J --layers L [L ...]
                                                                   per-question interchange / isolate arms against their own base prompt
 
-States per judge (plan 27, 3.1):   R right, W wrong, H hedge or uninformative, X abstained.
+States per judge:   R right, W wrong, H hedge or uninformative, X abstained.
   allenai: rule abstention -> X whatever the judge said; otherwise A -> R, B -> W, N -> H.
   pro:     A -> R, B -> W, H -> H, C -> X (the rule abstention count is printed next to it).
-"Answered" means R or W. All comparisons are paired on the same questions and judged by the same judge.
+"Answered" = R or W. Every comparison is paired on the same questions and judged by the same judge; the reference is the plain
+prompt x without a write. An unscored cell stops the script (it must be re-judged first; nothing is imputed).
 
-Amendment 1 (2026-11-11, before any intervention arm was judged): the length guard. A prompt that only asks for one complete
-sentence gains +16 (Pro) / +24 (AllenAI) right answers, all of it in answers that became longer; the truth-sentence prompt gains
-in answers that did not. "Not longer" = the arm's answer has at most LEN_TOL more whitespace-separated words than the base answer.
+Per-question quantities for an arm c against its base b:
+  dR      right(c) - right(b)                       dAns   answered(c) - answered(b)             dX   abstained(c) - abstained(b)
+  keep    answered under both b and c               same   keep AND the answer under c has at most LEN_TOL more words than under b
+  G_same  dR restricted to `same`  (a gain that is neither a coverage change nor a longer answer)
+  out / in   answered -> not answered / not answered -> answered          toH   answered -> hedge
+tau(n) = round(0.03 n): the tolerance of 3 percentage points (6 questions of 192, 16 of 529).
+Intervals: paired bootstrap over questions, 10,000 resamples, random.Random(20261111), percentile 2.5 / 97.5 (one implementation only).
 """
 import argparse, collections, json, random
 from pathlib import Path
 
-TOL = 6            # +-6 questions of 192 = the +-3 percentage point tolerance declared in plan 21
-BAND = 3           # "no conclusion within +-3 questions"
-LEN_TOL = 1        # an answer with at most one more word than the base answer counts as "not longer"
+TAU_PP = 0.03
+LEN_TOL = 1
 BOOT, SEED = 10000, 20261111
+_IDX = {}
+
+
+def tau(n):
+    return int(TAU_PP * n + 0.5)
 
 
 def load(work, judge):
@@ -45,7 +54,7 @@ def load(work, judge):
     ids = list(gen["question_ids"])
     bad = [(i, c) for c in gen["conditions"] for i in ids if state.get((i, c), "?") == "?"]
     if bad:
-        raise SystemExit("unscored cells: %d (first %s)" % (len(bad), bad[:3]))
+        raise SystemExit("unscored cells: %d (first %s); re-judge them before any table" % (len(bad), bad[:3]))
     words = {(r["pair_id"], c): len((t or "").split()) for r in gen["evaluations"] for c, t in r["outputs"].items()}
     return gen, specs, ids, state, rule, words
 
@@ -63,70 +72,43 @@ def fmt_counts(state, ids, c):
     return "%d / %d / %d / %d" % counts(state, ids, c)
 
 
-def vec(state, ids, c, what):
-    """Per-question 0/1 indicator: 'R' right, 'X' abstained, 'ans' answered."""
-    if what == "ans":
-        return [1 if state[(i, c)] in "RW" else 0 for i in ids]
-    return [1 if state[(i, c)] == what else 0 for i in ids]
-
-
-def common_right(state, ids, b, c):
-    """On the questions answered under both b and c: (n, right under b, right under c, W->R, R->W)."""
-    both = [i for i in ids if state[(i, b)] in "RW" and state[(i, c)] in "RW"]
-    rb = sum(state[(i, b)] == "R" for i in both); rc = sum(state[(i, c)] == "R" for i in both)
-    up = sum(state[(i, b)] == "W" and state[(i, c)] == "R" for i in both)
-    down = sum(state[(i, b)] == "R" and state[(i, c)] == "W" for i in both)
-    return len(both), rb, rc, up, down
-
-
-def moves(state, ids, b, c):
+def per_question(state, words, ids, b, c):
+    """Per-question difference vectors and transition counts of arm c against base b."""
     ans = lambda s: s in "RW"  # noqa: E731
-    out = collections.Counter()
+    v = {k: [] for k in ("dR", "dAns", "dX", "keep", "same")}
+    n = collections.Counter()
     for i in ids:
         x, y = state[(i, b)], state[(i, c)]
-        if ans(x) and y == "X": out["ans>X"] += 1
-        if x == "X" and ans(y): out["X>ans"] += 1
-        if ans(x) and y == "H": out["ans>H"] += 1
-        if x == "H" and ans(y): out["H>ans"] += 1
-    return out
+        dr = (y == "R") - (x == "R")
+        both = ans(x) and ans(y)
+        short = both and (words[(i, c)] - words[(i, b)]) <= LEN_TOL
+        v["dR"].append(dr); v["dAns"].append(ans(y) - ans(x)); v["dX"].append((y == "X") - (x == "X"))
+        v["keep"].append(dr if both else 0); v["same"].append(dr if short else 0)
+        n["keep"] += both; n["same"] += short
+        n["out"] += ans(x) and not ans(y); n["in"] += (not ans(x)) and ans(y); n["toH"] += ans(x) and y == "H"
+        n["up"] += both and x == "W" and y == "R"; n["down"] += both and x == "R" and y == "W"
+        n["x_ans_lost_right"] += x == "R" and y == "X"; n["x_ans_lost_wrong"] += x == "W" and y == "X"
+        n["x_gain_right"] += x == "X" and y == "R"; n["x_gain_wrong"] += x == "X" and y == "W"
+    return v, n
 
 
-def boot(diffs, n_boot=BOOT, seed=SEED):
-    """Percentile 95% interval of the SUM of per-question differences, paired bootstrap over questions."""
+def boot(diffs):
+    """Percentile 95% interval of the SUM of per-question differences (paired bootstrap; common resamples for every statistic)."""
     n = len(diffs)
-    try:
-        import numpy as np
-        rng = np.random.default_rng(seed)
-        d = np.asarray(diffs, dtype=float)
-        sums = d[rng.integers(0, n, size=(n_boot, n))].sum(axis=1)
-        lo, hi = np.percentile(sums, [2.5, 97.5])
-        return float(lo), float(hi)
-    except ImportError:
-        rng = random.Random(seed)
-        sums = sorted(sum(diffs[rng.randrange(n)] for _ in range(n)) for _ in range(n_boot))
-        return sums[int(0.025 * n_boot)], sums[int(0.975 * n_boot) - 1]
-
-
-def diff(a, b):
-    return [x - y for x, y in zip(a, b)]
+    if n not in _IDX:
+        rng = random.Random(SEED)
+        _IDX[n] = [[rng.randrange(n) for _ in range(n)] for _ in range(BOOT)]
+    sums = sorted(sum(diffs[j] for j in row) for row in _IDX[n])
+    return sums[int(0.025 * BOOT)], sums[int(0.975 * BOOT) - 1]
 
 
 def ci(d):
     lo, hi = boot(d)
-    return "%+d [%+.0f, %+.0f]" % (sum(d), lo, hi), lo, hi
+    return "%+d [%+d, %+d]" % (sum(d), lo, hi), lo, hi
 
 
-def common_diff(state, ids, b, c):
-    """Per-question contribution to (right under c - right under b) restricted to questions answered under both."""
-    return [((state[(i, c)] == "R") - (state[(i, b)] == "R")) if (state[(i, b)] in "RW" and state[(i, c)] in "RW") else 0 for i in ids]
-
-
-def length_split(state, words, ids, b, c):
-    """(n not longer, per-question dR restricted to 'not longer', n longer, per-question dR restricted to 'longer').
-    Questions outside a stratum contribute 0, so the bootstrap resamples all questions."""
-    keep = [(words[(i, c)] - words[(i, b)]) <= LEN_TOL for i in ids]
-    d = [(state[(i, c)] == "R") - (state[(i, b)] == "R") for i in ids]
-    return (sum(keep), [x if k else 0 for x, k in zip(d, keep)], len(ids) - sum(keep), [0 if k else x for x, k in zip(d, keep)])
+def minus(a, b):
+    return [x - y for x, y in zip(a, b)]
 
 
 def mc_margin(run, family, layer, arm):
@@ -140,187 +122,204 @@ def layers_of(specs, family):
     return sorted({s["layer"] for s in specs.values() if s.get("family") == family})
 
 
-# ----------------------------------------------------------------------------- screen
+def have(state, ids, c):
+    return (ids[0], c) in state
+
+
+# ----------------------------------------------------------------------------- screen (AllenAI + rule refusals, all layers)
 def screen(a):
     gen, specs, ids, state, rule, words = load(a.work, "allenai")
-    fam, base = a.family, "baseline_x"
+    fam, base, T = a.family, "baseline_x", tau(len(ids))
     L = layers_of(specs, fam)
     rb, wb, hb, xb = counts(state, ids, base)
-    print("# %s first-round screen: AllenAI + rule refusals, tune %d questions, all comparisons against %s (no write)\n" % (fam, len(ids), base))
-    print("baseline x: right / wrong / uninformative / abstained = %d / %d / %d / %d; mean words %.1f\n" % (
-        rb, wb, hb, xb, sum(words[(i, base)] for i in ids) / len(ids)))
+    print("# %s first-round screen: AllenAI + rule refusals, tune %d questions, against %s (no write); tau = %d questions\n" % (fam, len(ids), base, T))
+    print("baseline x: right / wrong / uninformative / abstained = %d / %d / %d / %d; answered %d; mean words %.1f\n" % (
+        rb, wb, hb, xb, rb + wb, sum(words[(i, base)] for i in ids) / len(ids)))
     arms = ["x.w.p1", "x.w.m1", "x.md.p1", "x.rand.p1"] if fam == "E" else ["x.w.p1", "x.w.m1", "x.md.p1", "x.md.m1", "x.rand.p1", "x.rand.m1"]
-    stat = {}
+    S = {}
     for l in L:
         for arm in arms:
             c = cond(fam, l, arm)
-            r, w, h, x = counts(state, ids, c)
-            n, r0, r1, up, down = common_right(state, ids, base, c)
-            n_nl, d_nl, n_lg, d_lg = length_split(state, words, ids, base, c)
-            stat[(l, arm)] = {"R": r, "W": w, "H": h, "X": x, "dR": r - rb, "dX": x - xb, "dAns": (r + w) - (rb + wb),
-                              "common_n": n, "common_dR": r1 - r0, "up": up, "down": down,
-                              "nl_n": n_nl, "nl_dR": sum(d_nl), "lg_n": n_lg, "lg_dR": sum(d_lg),
-                              "words": sum(words[(i, c)] for i in ids) / len(ids)}
+            v, n = per_question(state, words, ids, base, c)
+            S[(l, arm)] = {"cnt": counts(state, ids, c), "dR": sum(v["dR"]), "dAns": sum(v["dAns"]), "dX": sum(v["dX"]),
+                           "keep_dR": sum(v["keep"]), "G": sum(v["same"]), "n": n,
+                           "words": sum(words[(i, c)] for i in ids) / len(ids)}
     if fam == "E":
-        print("| layer | x.w.p1 R/W/H/X | dR | dX | d answered | answered-both n, dR (W>R / R>W) | not longer: n, dR | longer: n, dR | mean words | x.w.m1 dR, dX | x.md.p1 dR, dX | x.rand.p1 dR, dX | max-true margin change (w.p1) |")
+        print("| layer | x.w.p1 R/W/H/X | dR | dAns | dX | G_same (n same) | keep: n, dR (W>R / R>W) | out / in | mean words | rand.p1: dR, G_same, dAns | md.p1: dR, G_same | w.m1: dR, G_same | max-true margin change |")
         print("|---|---|---|---|---|---|---|---|---|---|---|---|---|")
         for l in L:
-            s = stat[(l, "x.w.p1")]
-            m = mc_margin(a.run, fam, l, "x.w.p1")
-            print("| %d | %d / %d / %d / %d | %+d | %+d | %+d | %d, %+d (%d / %d) | %d, %+d | %d, %+d | %.1f | %+d, %+d | %+d, %+d | %+d, %+d | %s |" % (
-                l, s["R"], s["W"], s["H"], s["X"], s["dR"], s["dX"], s["dAns"], s["common_n"], s["common_dR"], s["up"], s["down"],
-                s["nl_n"], s["nl_dR"], s["lg_n"], s["lg_dR"], s["words"],
-                stat[(l, "x.w.m1")]["dR"], stat[(l, "x.w.m1")]["dX"], stat[(l, "x.md.p1")]["dR"], stat[(l, "x.md.p1")]["dX"],
-                stat[(l, "x.rand.p1")]["dR"], stat[(l, "x.rand.p1")]["dX"], "—" if m is None else "%+.4f" % m))
-        order = sorted(L, key=lambda l: (-stat[(l, "x.w.p1")]["dR"], l))
-        best = stat[(order[0], "x.w.p1")]["dR"]
-        print("\n## shortlist (plan 27, 4.3, with amendment 1)\n")
-        if best <= BAND:
-            print("largest dR over all layers is %+d (<= +%d): nothing is sent to Pro; the main hypothesis shows no gain under AllenAI." % (best, BAND))
+            s, r, m, neg = S[(l, "x.w.p1")], S[(l, "x.rand.p1")], S[(l, "x.md.p1")], S[(l, "x.w.m1")]
+            mg = mc_margin(a.run, fam, l, "x.w.p1")
+            print("| %d | %d / %d / %d / %d | %+d | %+d | %+d | %+d (%d) | %d, %+d (%d / %d) | %d / %d | %.1f | %+d, %+d, %+d | %+d, %+d | %+d, %+d | %s |" % (
+                (l,) + s["cnt"] + (s["dR"], s["dAns"], s["dX"], s["G"], s["n"]["same"], s["n"]["keep"], s["keep_dR"], s["n"]["up"], s["n"]["down"],
+                                   s["n"]["out"], s["n"]["in"], s["words"], r["dR"], r["G"], r["dAns"], m["dR"], m["G"], neg["dR"], neg["G"],
+                                   "—" if mg is None else "%+.4f" % mg)))
+        g_main = max(S[(l, "x.w.p1")]["G"] for l in L); g_rand = max(S[(l, "x.rand.p1")]["G"] for l in L)
+        print("\n## shortlist (plan 28, section 3)\n")
+        print("gate: largest G_same over the %d layers — learned direction %+d, random direction %+d" % (len(L), g_main, g_rand))
+        if g_main <= g_rand:
+            print("=> NO GAIN beyond the random direction's best layer: nothing is sent to Pro.")
             return
-        short = [(order[0], "slot 1: largest dR"), (order[1], "slot 2: second largest dR")]
-        chosen = {order[0], order[1]}
-        ok = lambda l: abs(stat[(l, "x.w.p1")]["dX"]) <= TOL  # noqa: E731
-        keep = [l for l in order if l not in chosen and ok(l)]
-        if keep:
-            short.append((keep[0], "slot 3: largest dR among layers with |dX| <= %d" % TOL))
-        else:
-            rest = [l for l in order if l not in chosen]
-            short.append((rest[0], "slot 3: third largest dR (no layer with |dX| <= %d; retention condition NOT met)" % TOL))
-        chosen.add(short[-1][0])
+        ok = lambda l: abs(S[(l, "x.w.p1")]["dAns"]) <= T  # noqa: E731
+        by_g = sorted(L, key=lambda l: (-S[(l, "x.w.p1")]["G"], l))
+        short = [(l, "slot %d: G_same %+d among layers with |dAns| <= %d" % (k + 1, S[(l, "x.w.p1")]["G"], T)) for k, l in enumerate([l for l in by_g if ok(l)][:3])]
+        if len(short) < 3:
+            for l in [l for l in by_g if not ok(l)][:3 - len(short)]:
+                short.append((l, "slot %d: G_same %+d (retention condition NOT met: dAns %+d)" % (len(short) + 1, S[(l, "x.w.p1")]["G"], S[(l, "x.w.p1")]["dAns"])))
+        chosen = {l for l, _ in short}
         cand = [(mc_margin(a.run, fam, l, "x.w.p1"), l) for l in L if l not in chosen and ok(l)]
-        cand = [(m, l) for m, l in cand if m is not None]
+        cand = sorted([(-m, l) for m, l in cand if m is not None])
         if cand:
-            m, l = sorted(cand, key=lambda t: (-t[0], t[1]))[0]
-            short.append((l, "slot 4: largest max-true margin change (%+.4f) among layers with |dX| <= %d" % (m, TOL)))
-            chosen.add(l)
+            short.append((cand[0][1], "slot 4: largest max-true margin change (%+.4f) among the other layers with |dAns| <= %d (judge-free)" % (-cand[0][0], T)))
+            chosen.add(cand[0][1])
         else:
-            print("slot 4: no eligible layer (reference readout missing or no layer with |dX| <= %d)" % TOL)
-        cand = sorted([(-stat[(l, "x.w.p1")]["nl_dR"], l) for l in L if l not in chosen and ok(l) and stat[(l, "x.w.p1")]["nl_dR"] > 0])
-        if cand:
-            l = cand[0][1]
-            short.append((l, "slot 5 (amendment 1): largest dR on the not-longer answers (%+d) among layers with |dX| <= %d" % (stat[(l, "x.w.p1")]["nl_dR"], TOL)))
-        else:
-            print("slot 5: no further layer with a positive dR on the not-longer answers and |dX| <= %d" % TOL)
+            print("slot 4: no eligible layer (reference readout missing or no other layer with |dAns| <= %d)" % T)
+        rest = sorted([l for l in L if l not in chosen], key=lambda l: (-S[(l, "x.w.p1")]["dR"], l))
+        if rest:
+            short.append((rest[0], "slot 5 (contrast): largest raw dR (%+d) among the layers not chosen" % S[(rest[0], "x.w.p1")]["dR"]))
         for l, why in short:
-            s = stat[(l, "x.w.p1")]
-            print("- layer %d — %s; dR %+d, dX %+d, d answered %+d, not-longer dR %+d (n %d)" % (l, why, s["dR"], s["dX"], s["dAns"], s["nl_dR"], s["nl_n"]))
+            s = S[(l, "x.w.p1")]
+            print("- layer %d — %s; dR %+d, dAns %+d, G_same %+d (n %d), out / in %d / %d" % (l, why, s["dR"], s["dAns"], s["G"], s["n"]["same"], s["n"]["out"], s["n"]["in"]))
         print("\nshortlist layers:", " ".join(str(l) for l, _ in short))
     else:
-        print("| layer | x.w.p1 R/W/H/X | A+ (dX toward caution) | x.w.m1 R/W/H/X | A- (-dX toward confident) | T = min | answered-both dR: p1, m1 | md: A+, A- | rand: A+, A- |")
-        print("|---|---|---|---|---|---|---|---|---|")
-        T = {}
+        base_ans = rb + wb
+        print("| layer | x.w.p1 R/W/H/X | A+ = -dAns | dX | keep: n, dR (W>R / R>W) | toH | x.w.m1 R/W/H/X | A- = +dAns | dX | keep: n, dR (W>R / R>W) | toH | T = min | rand dAns: p1, m1 | md dAns: p1, m1 |")
+        print("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
+        Tm, ret = {}, {}
         for l in L:
-            p, m = stat[(l, "x.w.p1")], stat[(l, "x.w.m1")]
-            ap, am = p["dX"], -m["dX"]
-            T[l] = (min(ap, am), ap, am)
-            print("| %d | %d / %d / %d / %d | %+d | %d / %d / %d / %d | %+d | %+d | %+d (n %d), %+d (n %d) | %+d, %+d | %+d, %+d |" % (
-                l, p["R"], p["W"], p["H"], p["X"], ap, m["R"], m["W"], m["H"], m["X"], am, T[l][0],
-                p["common_dR"], p["common_n"], m["common_dR"], m["common_n"],
-                stat[(l, "x.md.p1")]["dX"], -stat[(l, "x.md.m1")]["dX"], stat[(l, "x.rand.p1")]["dX"], -stat[(l, "x.rand.m1")]["dX"]))
-        print("\n## shortlist (plan 27, 4.3)\n")
-        order = sorted(L, key=lambda l: (-T[l][0], l))
-        two_way = [l for l in order if T[l][0] > BAND]
+            p, m = S[(l, "x.w.p1")], S[(l, "x.w.m1")]
+            ap, am = -p["dAns"], m["dAns"]
+            Tm[l] = (min(ap, am), ap, am)
+            for arm, s in (("p1", p), ("m1", m)):
+                ret[(l, arm)] = abs(s["keep_dR"]) <= T and 2 * s["n"]["keep"] >= base_ans and s["n"]["toH"] <= T
+            print("| %d | %d / %d / %d / %d | %+d | %+d | %d, %+d (%d / %d) | %d | %d / %d / %d / %d | %+d | %+d | %d, %+d (%d / %d) | %d | %+d | %+d, %+d | %+d, %+d |" % (
+                (l,) + p["cnt"] + (ap, p["dX"], p["n"]["keep"], p["keep_dR"], p["n"]["up"], p["n"]["down"], p["n"]["toH"]) + m["cnt"] + (
+                    am, m["dX"], m["n"]["keep"], m["keep_dR"], m["n"]["up"], m["n"]["down"], m["n"]["toH"], Tm[l][0],
+                    S[(l, "x.rand.p1")]["dAns"], S[(l, "x.rand.m1")]["dAns"], S[(l, "x.md.p1")]["dAns"], S[(l, "x.md.m1")]["dAns"])))
+        r_max = max(abs(S[(l, arm)]["dAns"]) for l in L for arm in ("x.rand.p1", "x.rand.m1"))
+        m_max = max(max(Tm[l][1], Tm[l][2]) for l in L)
+        print("\n## shortlist (plan 28, section 3)\n")
+        print("gate: largest answered-count change over the %d layers — learned direction %+d (intended side), random direction %d (either sign)" % (len(L), m_max, r_max))
+        if m_max <= r_max:
+            print("=> NO CHANGE beyond the random direction's largest: nothing is sent to Pro.")
+            return
+        order = sorted(L, key=lambda l: (-Tm[l][0], l))
+        two = [l for l in order if Tm[l][0] > T]
         short = []
-        if two_way:
-            short = [(l, "slot %d: T = %+d" % (k + 1, T[l][0])) for k, l in enumerate(two_way[:2])]
+        if two:
+            good = [l for l in two if ret[(l, "p1")] and ret[(l, "m1")]]
+            short = [(l, "slot %d: two-way, T = %+d, retention conditions met on both arms" % (k + 1, Tm[l][0])) for k, l in enumerate(good[:2])]
             chosen = {l for l, _ in short}
-            keep = [l for l in order if l not in chosen and T[l][0] > BAND
-                    and abs(stat[(l, "x.w.p1")]["common_dR"]) <= TOL and abs(stat[(l, "x.w.m1")]["common_dR"]) <= TOL]
-            if keep:
-                short.append((keep[0], "slot 3: largest T (%+d) among the remaining layers whose answered-both dR is within +-%d for both arms" % (T[keep[0]][0], TOL)))
-            else:
-                print("slot 3: no remaining layer with T > %d and answered-both dR within +-%d for both arms" % (BAND, TOL))
+            rest = [l for l in two if l not in chosen]
+            if rest:
+                short.append((rest[0], "slot 3 (contrast): next largest two-way T = %+d%s" % (
+                    Tm[rest[0]][0], "" if (ret[(rest[0], "p1")] and ret[(rest[0], "m1")]) else " (retention conditions NOT met)")))
         else:
-            order1 = sorted(L, key=lambda l: (-max(T[l][1], T[l][2]), l))
-            short = [(l, "ONE-WAY slot %d: max(A+, A-) = %+d (A+ %+d, A- %+d)" % (k + 1, max(T[l][1], T[l][2]), T[l][1], T[l][2])) for k, l in enumerate(order1[:3])]
-            print("no layer with T > %d: one-way shortlist" % BAND)
+            one = sorted([(-Tm[l][k], l, name) for l in L for k, name in ((1, "p1"), (2, "m1")) if Tm[l][k] > T and ret[(l, name)]])
+            seen = []
+            for neg, l, name in one:
+                if l not in [x[0] for x in seen]:
+                    seen.append((l, "ONE-WAY slot %d: %s only, change %+d, retention conditions met" % (len(seen) + 1, "toward caution" if name == "p1" else "toward confident", -neg)))
+                if len(seen) == 3:
+                    break
+            short = seen
+            print("no layer with T > %d: one-way shortlist" % T)
+        if not short:
+            print("=> no layer passes the screen.")
+            return
         for l, why in short:
-            print("- layer %d — %s; A+ %+d, A- %+d" % (l, why, T[l][1], T[l][2]))
+            print("- layer %d — %s; A+ %+d, A- %+d" % (l, why, Tm[l][1], Tm[l][2]))
         print("\nshortlist layers:", " ".join(str(l) for l, _ in short))
 
 
 # ----------------------------------------------------------------------------- the two cells of one family, one judge
 def cells(a):
     gen, specs, ids, state, rule, words = load(a.work, a.judge)
-    fam, base = a.family, "baseline_x"
-    print("# %s cells under judge %s (tune %d questions; paired bootstrap %d resamples, seed %d; all against %s)\n" % (
-        fam, a.judge, len(ids), BOOT, SEED, base))
-    print("baseline x: right / wrong / hedge-or-uninformative / abstained = %s; rule abstentions %d; mean words %.1f\n" % (
-        fmt_counts(state, ids, base), sum(rule[(i, base)] for i in ids), sum(words[(i, base)] for i in ids) / len(ids)))
+    fam, base, T = a.family, "baseline_x", tau(len(ids))
+    rb, wb, hb, xb = counts(state, ids, base)
+    print("# %s cells under judge %s (%d questions; tau = %d; paired bootstrap %d resamples, seed %d; against %s)\n" % (
+        fam, a.judge, len(ids), T, BOOT, SEED, base))
+    print("baseline x: right / wrong / hedge-or-uninformative / abstained = %d / %d / %d / %d; rule abstentions %d; mean words %.1f\n" % (
+        rb, wb, hb, xb, sum(rule[(i, base)] for i in ids), sum(words[(i, base)] for i in ids) / len(ids)))
+    all_arms = ["x.w.p1", "x.w.m1", "x.md.p1", "x.md.m1", "x.rand.p1", "x.rand.m1"]
     for l in a.layers:
         print("## layer %d\n" % l)
-        arms = ["x.w.p1", "x.w.m1", "x.md.p1", "x.rand.p1"] if fam == "E" else ["x.w.p1", "x.w.m1", "x.md.p1", "x.md.m1", "x.rand.p1", "x.rand.m1"]
-        print("| arm | R / W / H / X | rule abstentions | mean words | dR [95%] | d answered [95%] | dX [95%] | answered-both: n, dR [95%], W>R / R>W | not longer: n, dR [95%] | longer: n, dR [95%] | ans>X / X>ans / ans>H / H>ans |")
+        print("| arm | R / W / H / X | rule abst. | words | dR [95%] | dAns [95%] | dX [95%] | keep: n, dR [95%], W>R / R>W | same: n, G_same [95%] | out / in / toH | X>R / X>W / R>X / W>X |")
         print("|---|---|---|---|---|---|---|---|---|---|---|")
-        keep = {}
-        for arm in arms:
+        K = {}
+        for arm in all_arms:
             c = cond(fam, l, arm)
-            if (ids[0], c) not in state:
-                print("| %s | not judged |" % arm); continue
-            dR, loR, hiR = ci(diff(vec(state, ids, c, "R"), vec(state, ids, base, "R")))
-            dA, loA, hiA = ci(diff(vec(state, ids, c, "ans"), vec(state, ids, base, "ans")))
-            dX, loX, hiX = ci(diff(vec(state, ids, c, "X"), vec(state, ids, base, "X")))
-            n, r0, r1, up, down = common_right(state, ids, base, c)
-            dC, loC, hiC = ci(common_diff(state, ids, base, c))
-            n_nl, d_nl, n_lg, d_lg = length_split(state, words, ids, base, c)
-            sNL, loNL, hiNL = ci(d_nl); sLG, loLG, hiLG = ci(d_lg)
-            mv = moves(state, ids, base, c)
-            keep[arm] = {"loR": loR, "hiR": hiR, "loC": loC, "hiC": hiC, "loX": loX, "hiX": hiX, "loNL": loNL,
-                         "dAns": sum(diff(vec(state, ids, c, "ans"), vec(state, ids, base, "ans"))), "dC": r1 - r0, "n": n}
-            print("| %s | %s | %d | %.1f | %s | %s | %s | %d, %s, %d / %d | %d, %s | %d, %s | %d / %d / %d / %d |" % (
-                arm, fmt_counts(state, ids, c), sum(rule[(i, c)] for i in ids), sum(words[(i, c)] for i in ids) / len(ids),
-                dR, dA, dX, n, dC, up, down, n_nl, sNL, n_lg, sLG, mv["ans>X"], mv["X>ans"], mv["ans>H"], mv["H>ans"]))
+            if not have(state, ids, c):
+                continue
+            v, n = per_question(state, words, ids, base, c)
+            sR, loR, hiR = ci(v["dR"]); sA, loA, hiA = ci(v["dAns"]); sX, loX, hiX = ci(v["dX"])
+            sK, loK, hiK = ci(v["keep"]); sG, loG, hiG = ci(v["same"])
+            K[arm] = {"v": v, "n": n, "dR": sum(v["dR"]), "dAns": sum(v["dAns"]), "dX": sum(v["dX"]), "keep_dR": sum(v["keep"]), "G": sum(v["same"]),
+                      "loR": loR, "loA": loA, "hiA": hiA, "loX": loX, "hiX": hiX, "loK": loK, "hiK": hiK, "loG": loG}
+            print("| %s | %s | %d | %.1f | %s | %s | %s | %d, %s, %d / %d | %d, %s | %d / %d / %d | %d / %d / %d / %d |" % (
+                arm, fmt_counts(state, ids, c), sum(rule[(i, c)] for i in ids), sum(words[(i, c)] for i in ids) / len(ids), sR, sA, sX,
+                n["keep"], sK, n["up"], n["down"], n["same"], sG, n["out"], n["in"], n["toH"],
+                n["x_gain_right"], n["x_gain_wrong"], n["x_ans_lost_right"], n["x_ans_lost_wrong"]))
         print()
-        if fam == "E" and "x.w.p1" in keep and "x.rand.p1" in keep:
-            c, r = cond(fam, l, "x.w.p1"), cond(fam, l, "x.rand.p1")
-            vs, lo, hi = ci(diff(vec(state, ids, c, "R"), vec(state, ids, r, "R")))
-            k = keep["x.w.p1"]
-            e1, e2, e3, e4 = k["loR"] > 0, k["loC"] > 0, lo > 0, k["loNL"] > 0
-            pres = abs(k["dAns"]) <= TOL
-            print("- E effect: (1) dR interval above 0: %s; (2) answered-both dR interval above 0: %s; (3) right count vs random arm %s, above 0: %s; (4) not-longer dR interval above 0: %s  =>  %s" % (
-                e1, e2, vs, e3, e4, "PASS" if (e1 and e2 and e3 and e4) else "not met"))
-            print("- E retention: d answered = %+d, within +-%d: %s  =>  %s\n" % (k["dAns"], TOL, pres, "PASS" if pres else "not met"))
-        if fam == "C" and all(x in keep for x in ("x.w.p1", "x.w.m1", "x.rand.p1", "x.rand.m1")):
+        rands = [r for r in ("x.rand.p1", "x.rand.m1") if r in K]
+        if fam == "E" and "x.w.p1" in K and rands:
+            k = K["x.w.p1"]
+            worst = max(rands, key=lambda r: K[r]["dR"])
+            vs, lo, hi = ci(minus(k["v"]["dR"], K[worst]["v"]["dR"]))
+            e1, e2, e3 = (k["loR"] > 0 and k["dR"] > T), k["loG"] > 0, lo > 0
+            ret = abs(k["dAns"]) <= T
+            strong = k["n"]["out"] <= T and k["n"]["in"] <= T
+            print("- E effect: (e1) dR %+d above tau and interval above 0: %s; (e2) G_same %+d interval above 0: %s; (e3) right count vs the less favourable random arm (%s%s) %s above 0: %s  =>  %s" % (
+                k["dR"], e1, k["G"], e2, worst, "" if len(rands) == 2 else "; only one sign generated", vs, e3, "PASS" if (e1 and e2 and e3) else "not met"))
+            print("- E retention: dAns %+d within +-%d: %s  =>  %s%s" % (k["dAns"], T, ret, "PASS" if ret else "not met",
+                  (" (question by question as well: out %d, in %d)" % (k["n"]["out"], k["n"]["in"]) if strong else
+                   " — rate only: %d answered questions stopped being answered and %d started; do not say the commitment is untouched" % (k["n"]["out"], k["n"]["in"])) if ret else ""))
+            print("KEY family=E judge=%s layer=%d G_same=%+d dR=%+d dAns=%+d eligible=%s effect=%s\n" % (a.judge, l, k["G"], k["dR"], k["dAns"], ret, e1 and e2 and e3))
+        if fam == "C" and rands and ("x.w.p1" in K or "x.w.m1" in K):
             res = {}
-            for arm, rand, sign in (("x.w.p1", "x.rand.p1", +1), ("x.w.m1", "x.rand.m1", -1)):
-                c, r = cond(fam, l, arm), cond(fam, l, rand)
-                vs, lo, hi = ci(diff(vec(state, ids, c, "X"), vec(state, ids, r, "X")))
-                k = keep[arm]
-                eff = (k["loX"] > 0 and lo > 0) if sign > 0 else (k["hiX"] < 0 and hi < 0)
-                pres = abs(k["dC"]) <= TOL and k["loC"] <= 0 <= k["hiC"]
-                res[arm] = (eff, pres)
-                print("- C %s: abstentions vs no write interval on the intended side: %s; vs random arm %s on the intended side: %s; answered-both dR %+d (n %d), within +-%d and interval contains 0: %s" % (
-                    "toward caution (p1)" if sign > 0 else "toward confident (m1)", (k["loX"] > 0) if sign > 0 else (k["hiX"] < 0), vs,
-                    (lo > 0) if sign > 0 else (hi < 0), k["dC"], k["n"], TOL, pres))
-            both = res["x.w.p1"][0] and res["x.w.m1"][0]
-            one = res["x.w.p1"][0] or res["x.w.m1"][0]
-            ok_arms = [arm for arm in res if res[arm][0]]
-            print("- C effect: %s; C retention on the arm(s) that count: %s\n" % (
-                "TWO-WAY PASS" if both else ("ONE-WAY (%s)" % ok_arms[0] if one else "not met"),
-                ("PASS" if all(res[arm][1] for arm in ok_arms) else "not met") if ok_arms else "n/a"))
+            base_ans = rb + wb
+            for arm, sign, name in (("x.w.p1", -1, "toward caution"), ("x.w.m1", +1, "toward confident")):
+                if arm not in K:
+                    continue
+                k = K[arm]
+                worst = (min if sign < 0 else max)(rands, key=lambda r: K[r]["dAns"])
+                vs, lo, hi = ci(minus(k["v"]["dAns"], K[worst]["v"]["dAns"]))
+                if sign < 0:
+                    eff = k["hiA"] < 0 and k["loX"] > 0 and -k["dAns"] > T and hi < 0
+                else:
+                    eff = k["loA"] > 0 and k["hiX"] < 0 and k["dAns"] > T and lo > 0
+                ret = (2 * k["n"]["keep"] >= base_ans) and abs(k["keep_dR"]) <= T and k["loK"] <= 0 <= k["hiK"] and k["n"]["toH"] <= T
+                strong = (k["n"]["up"] + k["n"]["down"]) <= T
+                res[arm] = (eff, ret, strong)
+                print("- C %s (%s): dAns %+d, dX %+d, beyond tau and both intervals on the intended side, and vs the less favourable random arm (%s) %s on the intended side: %s | retention: keep n %d (need >= %d), keep dR %+d within +-%d and interval contains 0, toH %d <= %d: %s%s" % (
+                    name, arm, k["dAns"], k["dX"], worst, vs, eff, k["n"]["keep"], (base_ans + 1) // 2, k["keep_dR"], T, k["n"]["toH"], T, ret,
+                    "" if strong else " (flips W>R %d + R>W %d exceed tau: content changed question by question)" % (k["n"]["up"], k["n"]["down"])))
+            ok = [arm for arm in res if res[arm][0]]
+            eff_txt = "TWO-WAY PASS" if len(ok) == 2 else ("ONE-WAY (%s)" % ok[0] if ok else "not met")
+            ret_txt = ("PASS" if all(res[arm][1] for arm in ok) else "not met") if ok else "n/a"
+            print("- C effect: %s; C retention on the arm(s) that count: %s" % (eff_txt, ret_txt))
+            ap = -K["x.w.p1"]["dAns"] if "x.w.p1" in K else 0
+            am = K["x.w.m1"]["dAns"] if "x.w.m1" in K else 0
+            print("KEY family=C judge=%s layer=%d T=%+d Aplus=%+d Aminus=%+d effect=%s retention=%s\n" % (a.judge, l, min(ap, am), ap, am, eff_txt.replace(" ", "_"), ret_txt))
 
 
 # ----------------------------------------------------------------------------- cross-level arms
 def cross(a):
     gen, specs, ids, state, rule, words = load(a.work, a.judge)
     fam = a.family
-    print("# %s per-question interchange / isolate arms under judge %s (each arm against its own base prompt, no write)\n" % (fam, a.judge))
+    print("# %s per-question interchange / isolate / fixed-shift arms on other prompts, judge %s (each arm against its own base prompt, no write)\n" % (fam, a.judge))
     for l in a.layers:
         print("## layer %d\n" % l)
-        print("| arm | base R / W / H / X | arm R / W / H / X | dR [95%] | dX [95%] | answered-both: n, dR, W>R / R>W | not longer: n, dR | ans>X / X>ans |")
-        print("|---|---|---|---|---|---|---|---|")
+        print("| arm | base R / W / H / X | arm R / W / H / X | dR [95%] | dAns [95%] | dX [95%] | keep: n, dR, W>R / R>W | same: n, G_same | out / in / toH |")
+        print("|---|---|---|---|---|---|---|---|---|")
         for name, s in sorted(specs.items()):
             if s.get("family") != fam or s.get("layer") != l or s["arm"].startswith("x."):
                 continue
             b = s["base_condition"]
-            dR, _, _ = ci(diff(vec(state, ids, name, "R"), vec(state, ids, b, "R")))
-            dX, _, _ = ci(diff(vec(state, ids, name, "X"), vec(state, ids, b, "X")))
-            n, r0, r1, up, down = common_right(state, ids, b, name)
-            n_nl, d_nl, _, _ = length_split(state, words, ids, b, name)
-            mv = moves(state, ids, b, name)
-            print("| %s | %s | %s | %s | %s | %d, %+d, %d / %d | %d, %+d | %d / %d |" % (
-                s["arm"], fmt_counts(state, ids, b), fmt_counts(state, ids, name), dR, dX, n, r1 - r0, up, down, n_nl, sum(d_nl), mv["ans>X"], mv["X>ans"]))
+            v, n = per_question(state, words, ids, b, name)
+            print("| %s | %s | %s | %s | %s | %s | %d, %+d, %d / %d | %d, %+d | %d / %d / %d |" % (
+                s["arm"], fmt_counts(state, ids, b), fmt_counts(state, ids, name), ci(v["dR"])[0], ci(v["dAns"])[0], ci(v["dX"])[0],
+                n["keep"], sum(v["keep"]), n["up"], n["down"], n["same"], sum(v["same"]), n["out"], n["in"], n["toH"]))
         print()
 
 
