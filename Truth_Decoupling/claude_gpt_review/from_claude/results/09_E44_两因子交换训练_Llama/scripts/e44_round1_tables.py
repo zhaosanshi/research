@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Read-only tables for the E44 first round, criteria v4 (plans 28 + 29 + 30; GPT rounds 30 and 31).
+Added after the criteria were frozen (2026-11-11 03:30, labelled EXPLORATORY in the output, default behaviour unchanged):
+`cells --base <prompt> [--main <arm>]` applies the same E conditions to arms on another base prompt.
 CPU only, standard library only, nothing is written.
 
   e44_round1_tables.py screen  RUN_DIR FAMILY WORK_DIR            all layers, AllenAI + rule refusals, shortlist by the frozen rule
@@ -275,14 +277,24 @@ def screen(a):
 # ----------------------------------------------------------------------------- the conditions of one family, one judge
 def cells(a):
     gen, specs, ids, state, rule, words = load(a.work, a.judge)
-    fam, base, N = a.family, "baseline_x", len(ids)
+    fam, N = a.family, len(ids)
+    bn = a.base                                        # "x" = the frozen criteria; any other base prompt is exploratory
+    base = "baseline_" + bn
+    st = a.strength                                   # "1" = the frozen criteria; any other strength is exploratory
+    main_arm = a.main or (bn + ".w.p" + st)
+    rands = (bn + ".rand.p" + st, bn + ".rand.m" + st)
+    c_plus, c_minus = "x.w.p" + st, "x.w.m" + st
     rb, wb, hb, xb = counts(state, ids, base)
     print("# %s conditions under judge %s (%d questions; tolerance %.0f%%; paired bootstrap %d resamples, seed %d; against %s)" % (
         fam, a.judge, N, 100 * TOL, BOOT, SEED, base))
+    if bn != "x" or main_arm != "x.w.p1" or st != "1":
+        print("EXPLORATORY: base prompt %s, main arm %s, strength %s — outside the frozen criteria (which use base x, arm x.w.p1, strength 1)." % (bn, main_arm, st))
     print("A = stage-A screen: point estimates only. B = stage-B confirmation: intervals; on the tuning questions column B is descriptive.\n")
-    print("baseline x: right / wrong / hedge-or-uninformative / abstained = %d / %d / %d / %d; rule abstentions %d; mean words %.1f\n" % (
-        rb, wb, hb, xb, sum(rule[(i, base)] for i in ids), sum(words[(i, base)] for i in ids) / N))
-    all_arms = ["x.w.p1", "x.w.m1", "x.md.p1", "x.md.m1", "x.rand.p1", "x.rand.m1"]
+    print("baseline %s: right / wrong / hedge-or-uninformative / abstained = %d / %d / %d / %d; rule abstentions %d; mean words %.1f\n" % (
+        bn, rb, wb, hb, xb, sum(rule[(i, base)] for i in ids), sum(words[(i, base)] for i in ids) / N))
+    all_arms = [bn + t + st for t in (".w.p", ".w.m", ".md.p", ".md.m", ".rand.p", ".rand.m")]
+    if main_arm not in all_arms:
+        all_arms.insert(0, main_arm)
     for l in a.layers:
         print("## layer %d\n" % l)
         print("| arm | R / W / H / X | words | dR [95%] | dAns [95%] | dX [95%] | keep: n, dR [95%], W>R / R>W | out / in / toH | lost R / lost W / gained R / gained W | G_same (n) [diagnostic] |")
@@ -300,20 +312,23 @@ def cells(a):
                 arm, fmt_counts(state, ids, c), sum(words[(i, c)] for i in ids) / N, sR, sA, sX, n["keep"], sK, n["up"], n["down"],
                 n["out"], n["in"], n["toH"], n["lost_right"], n["lost_wrong"], n["gain_right"], n["gain_wrong"], sum(v["same"]), n["same"]))
         print()
-        missing = [r for r in RANDS if r not in K]
-        if fam == "E" and "x.w.p1" in K:
-            k = K["x.w.p1"]
+        missing = [r for r in rands if r not in K]
+        if fam == "E" and main_arm in K:
+            k = K[main_arm]
             # main effect on the plain prompt
             a1 = k["dR"] / N > TOL
             b1 = a1 and k["loR"] > 0
             # every random control (both signs of the axis are required)
-            vs = [(r,) + ci(minus(k["v"]["dR"], K[r]["v"]["dR"])) for r in RANDS if r in K]
-            a3 = None if missing else all(k["dR"] - K[r]["dR"] > 0 for r in RANDS)
+            vs = [(r,) + ci(minus(k["v"]["dR"], K[r]["v"]["dR"])) for r in rands if r in K]
+            a3 = None if missing else all(k["dR"] - K[r]["dR"] > 0 for r in rands)
             b3 = None if missing else all(lo > 0 for _, _, lo, _ in vs)
             # the same write on the prompt that already asks for one complete sentence, with its own answered-rate retention
-            fb, fc = "baseline_x_F", cond(fam, l, "x_F.w.p1")
+            fb, fc = "baseline_x_F", cond(fam, l, "x_F.w.p" + st)
             aF = bF = None; dRF = dAF = None
-            if have(state, ids, fb) and have(state, ids, fc):
+            if bn != "x":
+                aF = bF = True                           # no complete-sentence variant of this prompt was frozen: not applicable
+                print("- F, complete-sentence background: not applicable for base %s (reported for base x only)" % bn)
+            elif have(state, ids, fb) and have(state, ids, fc):
                 vF, nF = per_question(state, words, ids, fb, fc)
                 sF, loF, _ = ci(vF["dR"]); dRF, dAF = sum(vF["dR"]), sum(vF["dAns"])
                 rF = rate_interval(vF["dAns"], N)
@@ -333,24 +348,25 @@ def cells(a):
             print("- random controls: %s%s | A: above each (point): %s | B: each interval above 0: %s" % (
                 "; ".join("vs %s %s" % (r, s) for r, s, _, _ in vs) or "none judged", ("; MISSING " + ", ".join(missing)) if missing else "", a3, b3))
             print("- F | A: dR on x_F positive and its answered-rate change inside the tolerance: %s | B: dR interval above 0 and answered-rate interval inside: %s" % (aF, bF))
-            print("- retention on x: answered-rate change %s; moved out / in %d / %d | A: point inside: %s | B: whole interval inside: %s" % (pp(rK), k["n"]["out"], k["n"]["in"], aK, bK))
+            print("- retention on %s: answered-rate change %s; moved out / in %d / %d | A: point inside: %s | B: whole interval inside: %s" % (bn, pp(rK), k["n"]["out"], k["n"]["in"], aK, bK))
             print("- diagnostic: G_same %+d on %d questions; mean words %.1f -> %.1f" % (
-                sum(k["v"]["same"]), k["n"]["same"], sum(words[(i, base)] for i in ids) / N, sum(words[(i, cond(fam, l, "x.w.p1"))] for i in ids) / N))
-            margin = "NA" if missing else "%+d" % min(k["dR"] - K[r]["dR"] for r in RANDS)
-            print("KEY family=E judge=%s layer=%d A=%s B=%s dR=%+d dR_F=%s dAns=%+d dAns_F=%s rand_margin=%s\n" % (
-                a.judge, l, A, B, k["dR"], "NA" if dRF is None else "%+d" % dRF, k["dAns"], "NA" if dAF is None else "%+d" % dAF, margin))
-        if fam == "C" and ("x.w.p1" in K or "x.w.m1" in K):
+                sum(k["v"]["same"]), k["n"]["same"], sum(words[(i, base)] for i in ids) / N, sum(words[(i, cond(fam, l, main_arm))] for i in ids) / N))
+            margin = "NA" if missing else "%+d" % min(k["dR"] - K[r]["dR"] for r in rands)
+            print("KEY family=E judge=%s layer=%d A=%s B=%s dR=%+d dR_F=%s dAns=%+d dAns_F=%s rand_margin=%s%s\n" % (
+                a.judge, l, A, B, k["dR"], "NA" if dRF is None else "%+d" % dRF, k["dAns"], "NA" if dAF is None else "%+d" % dAF, margin,
+                "" if (bn == "x" and main_arm == "x.w.p1" and st == "1") else " EXPLORATORY base=%s main=%s strength=%s" % (bn, main_arm, st)))
+        if fam == "C" and bn == "x" and (c_plus in K or c_minus in K):
             base_ans = rb + wb
             qa, qb, ea = {}, {}, {}
-            for arm, sign, name in (("x.w.p1", -1, "toward caution"), ("x.w.m1", +1, "toward confident")):
+            for arm, sign, name in ((c_plus, -1, "toward caution"), (c_minus, +1, "toward confident")):
                 if arm not in K:
                     continue
                 k = K[arm]; v, n = k["v"], k["n"]
                 moved = sign * k["dAns"]                 # answers removed (caution) or added (confident)
-                vs = [(r,) + ci(minus(v["dAns"], K[r]["v"]["dAns"])) for r in RANDS if r in K]
+                vs = [(r,) + ci(minus(v["dAns"], K[r]["v"]["dAns"])) for r in rands if r in K]
                 own_a = moved / N > TOL and sign * k["dX"] < 0
                 own_b = own_a and ((k["hiA"] < 0 and k["loX"] > 0) if sign < 0 else (k["loA"] > 0 and k["hiX"] < 0))
-                beat_a = None if missing else all(sign * (k["dAns"] - K[r]["dAns"]) > 0 for r in RANDS)
+                beat_a = None if missing else all(sign * (k["dAns"] - K[r]["dAns"]) > 0 for r in rands)
                 beat_b = None if missing else all((hi < 0) if sign < 0 else (lo > 0) for _, _, lo, hi in vs)
                 kr = keep_interval(v, n)
                 enough = n["keep"] > 0 and 2 * n["keep"] >= base_ans
@@ -374,10 +390,10 @@ def cells(a):
                     return "incomplete"
                 ok = [arm for arm in q if q[arm] == "met"]
                 return "TWO-WAY" if len(ok) == 2 else ("ONE-WAY(%s)" % ok[0] if ok else "not_met")
-            ap = -K["x.w.p1"]["dAns"] if "x.w.p1" in K else 0
-            am = K["x.w.m1"]["dAns"] if "x.w.m1" in K else 0
-            print("KEY family=C judge=%s layer=%d A=%s B=%s A_effect_only=%s T=%+d Aplus=%+d Aminus=%+d\n" % (
-                a.judge, l, summary(qa), summary(qb), summary(ea), min(ap, am), ap, am))
+            ap = -K[c_plus]["dAns"] if c_plus in K else 0
+            am = K[c_minus]["dAns"] if c_minus in K else 0
+            print("KEY family=C judge=%s layer=%d A=%s B=%s A_effect_only=%s T=%+d Aplus=%+d Aminus=%+d%s\n" % (
+                a.judge, l, summary(qa), summary(qb), summary(ea), min(ap, am), ap, am, "" if st == "1" else " EXPLORATORY strength=%s" % st))
 
 
 # ----------------------------------------------------------------------------- the other arms
@@ -406,6 +422,9 @@ def main():
     ap.add_argument("run"); ap.add_argument("family", choices=("E", "C")); ap.add_argument("work")
     ap.add_argument("--judge", choices=("allenai", "pro"), default="allenai")
     ap.add_argument("--layers", nargs="+", type=int, default=[])
+    ap.add_argument("--base", default="x", help="cells, E only: base prompt of the arms (default x = the frozen criteria; anything else is exploratory)")
+    ap.add_argument("--main", default=None, help="cells, E only: main arm (default <base>.w.p<strength>; e.g. conf.wq.p1 for the per-question interchange)")
+    ap.add_argument("--strength", default="1", help="cells: strength suffix of the arms, as written in the arm names (default 1 = the frozen criteria; e.g. 0.5 is exploratory)")
     a = ap.parse_args()
     if a.mode != "screen" and not a.layers:
         raise SystemExit("cells / cross need --layers")
