@@ -30,7 +30,7 @@ import torch
 from .model_io import capture_hooks, forward_logits, greedy_generate
 from .qa_context import answer_logprobs, pack_answers
 
-PROTOCOL = "qa_prompt_source_clamp_wholeanswer_ce_v1"
+PROTOCOL = "qa_prompt_source_clamp_wholeanswer_ce_v2"
 
 
 # ----------------------------------------------------------------------------- small helpers
@@ -219,6 +219,51 @@ def capture_prompt_end(bundle, texts, layer, batch_size=8):
 
 
 # ----------------------------------------------------------------------------- the clamp hook
+@torch.no_grad()
+def _stored_norm_matched_random(before, reference, random_direction):
+    """Match a fixed random axis to the reference's *stored* norm at this state.
+
+    This borrows only the learned edit's scalar size, not its orientation. In
+    reduced precision, equal intended magnitudes need not survive casting
+    equally. Use the existing project's declared cast tolerance; a discrete
+    rounding grid that cannot realize that tolerance is an explicit failure.
+    """
+    b = before.float()
+    r = unit(random_direction).to(b.device)
+    wanted = (reference.float() - b).norm(dim=-1)
+
+    def candidate(amplitude):
+        stored = (b + amplitude[:, None] * r).to(before.dtype)
+        return stored, (stored.float() - b).norm(dim=-1)
+
+    low = torch.zeros_like(wanted)
+    high = 2 * wanted
+    _, upper_norm = candidate(high)
+    for _ in range(12):
+        grow = upper_norm < wanted
+        if not bool(grow.any()):
+            break
+        high = torch.where(grow, high * 2, high)
+        _, upper_norm = candidate(high)
+    if bool((upper_norm < wanted).any()):
+        raise RuntimeError("could not bracket stored random write magnitude")
+    for _ in range(28):
+        mid = (low + high) / 2
+        _, actual = candidate(mid)
+        below = actual < wanted
+        low = torch.where(below, mid, low)
+        high = torch.where(below, high, mid)
+    lv, ln = candidate(low)
+    hv, hn = candidate(high)
+    use_low = (ln - wanted).abs() <= (hn - wanted).abs()
+    stored = torch.where(use_low[:, None], lv, hv)
+    actual = (stored.float() - b).norm(dim=-1)
+    tolerance = .01 * wanted + .0001 * b.norm(dim=-1)
+    if not bool(torch.isfinite(stored).all()) or bool(((actual - wanted).abs() > tolerance + 1e-7).any()):
+        raise RuntimeError("stored random write norm cannot match the reference within declared cast tolerance")
+    return stored
+
+
 class ClampHook:
     """Forward hook: pin the coordinate along `direction` to a target at selected positions.
 
@@ -228,8 +273,8 @@ class ClampHook:
     mask            [B, T] bool for a forward whose sequence width is T (training, or the
                     prefill of generation). None selects every position.
     decode_all      when a later call has T == 1 (decode step), write every row.
-    random_direction  if given, the write has the SAME magnitude |target - z| but points
-                    along this fixed unit vector (norm-matched random control).
+    random_direction  if given, match the actual stored clamp magnitude at the same
+                    current state along this fixed unit vector (within cast tolerance).
     """
 
     def __init__(self, direction, *, targets=None, source_hidden=None, mask=None, decode_all=True,
@@ -238,16 +283,19 @@ class ClampHook:
             raise ValueError("give exactly one of targets or source_hidden")
         self.direction = direction
         self.targets = None if targets is None else torch.as_tensor(targets).float().reshape(-1)
-        self.source_hidden = None if source_hidden is None else torch.as_tensor(source_hidden).float()
+        self.source_hidden = None if source_hidden is None else torch.as_tensor(source_hidden).detach().float()
         self.mask = None if mask is None else torch.as_tensor(mask).bool()
         self.decode_all = bool(decode_all)
         self.random_direction = None if random_direction is None else unit(random_direction)
         self.record = record
+        self.active_rows = None     # generation updates this before each decode forward
         self.calls = 0
         self.applied = 0
         self.prefill = None          # per-row stats of the first (masked) call
         self.decode_gap_abs = []     # per decode step: [B] |target - z|
         self.decode_rel = []         # per decode step: [B] |delta| / |h|
+        self.decode_stored_norm = []
+        self.decode_reference_norm = []
 
     def _u(self, device):
         d = self.direction
@@ -256,7 +304,10 @@ class ClampHook:
         d = d.to(device)
         if d.dtype != torch.float32:
             d = d.float()
-        return d / d.norm()
+        n = d.norm()
+        if d.ndim != 1 or not bool(torch.isfinite(d).all()) or not bool(torch.isfinite(n)) or float(n.detach()) <= 0:
+            raise ValueError("clamp direction must be a finite nonzero vector")
+        return d / n
 
     def __call__(self, module, inp, out):
         h = out[0] if isinstance(out, tuple) else out
@@ -275,6 +326,11 @@ class ClampHook:
             stage = "all"
         else:
             raise RuntimeError("clamp hook saw sequence width %d; mask width %d" % (T, self.mask.shape[1]))
+        if stage == "decode" and self.active_rows is not None:
+            active = torch.as_tensor(self.active_rows, device=h.device, dtype=torch.bool)
+            if active.shape != (B,):
+                raise ValueError("active generation rows do not match the hidden batch")
+            sel = sel & active[:, None]
         if not bool(sel.any()):
             return out
         u = self._u(h.device)
@@ -288,36 +344,56 @@ class ClampHook:
             zt = zt.expand(B)
         if zt.numel() != B:
             raise ValueError("need one clamp target per batch row")
-        gap = (zt[:, None] - z) * sel                           # zero outside the selection
-        if self.random_direction is None:
-            delta = gap[..., None] * u
-        else:
-            delta = gap.abs()[..., None] * self.random_direction.to(h.device)
-        h_new = (hf + delta).to(h.dtype)
+        if not bool(torch.isfinite(zt).all()) or not bool(torch.isfinite(h[sel]).all()):
+            raise ValueError("clamp target and selected states must be finite")
+        gap = torch.where(sel, zt[:, None] - z, torch.zeros_like(z))
+        delta = gap[..., None] * u
+        reference = torch.where(sel[..., None], (hf + delta).to(h.dtype), h)
+        h_new = reference
+        if self.random_direction is not None:
+            if torch.is_grad_enabled() and (u.requires_grad or h.requires_grad):
+                raise ValueError("norm-matched random control is for evaluation, not direction training")
+            selected = _stored_norm_matched_random(h[sel], reference[sel], self.random_direction)
+            h_new = h.clone()
+            h_new[sel] = selected
         self.applied += 1
         if self.record:
             with torch.no_grad():
                 n_sel = sel.sum(1).clamp_min(1).float()
                 gap_abs = (gap.abs() * sel).sum(1) / n_sel
-                rel = ((delta.norm(dim=-1) / hf.norm(dim=-1).clamp_min(1e-12)) * sel).sum(1) / n_sel
+                stored_norm = (h_new.float() - hf).norm(dim=-1)
+                reference_norm = (reference.float() - hf).norm(dim=-1)
+                rel = torch.where(sel, stored_norm / hf.norm(dim=-1).clamp_min(1e-12), 0).sum(1) / n_sel
+                stored_mean = torch.where(sel, stored_norm, 0).sum(1) / n_sel
+                reference_mean = torch.where(sel, reference_norm, 0).sum(1) / n_sel
                 if stage in ("masked", "all") and self.prefill is None:
                     self.prefill = {"gap_abs": gap_abs.cpu(), "rel": rel.cpu(),
+                                    "stored_norm": stored_mean.cpu(), "reference_stored_norm": reference_mean.cpu(),
                                     "positions": sel.sum(1).cpu(), "sequence_width": T}
                 elif stage == "decode":
                     self.decode_gap_abs.append(gap_abs.cpu())
                     self.decode_rel.append(rel.cpu())
+                    self.decode_stored_norm.append(stored_mean.cpu())
+                    self.decode_reference_norm.append(reference_mean.cpu())
         if isinstance(out, tuple):
             return (h_new,) + tuple(out[1:])
         return h_new
 
     def stats(self):
-        result = {"calls": self.calls, "applied": self.applied}
+        result = {"calls": self.calls, "applied": self.applied,
+                  "write_measurement": "stored_delta_after_residual_dtype_roundtrip"}
+        if self.random_direction is not None:
+            result.update(random_match_scope="reference clamp at the same current state; trajectories may differ",
+                          learned_direction_used_for_size_only=True,
+                          fully_information_free_random_control=False)
         if self.prefill is not None:
             result["prefill"] = {k: (v.tolist() if torch.is_tensor(v) else v) for k, v in self.prefill.items()}
         if self.decode_gap_abs:
             result["decode_steps"] = len(self.decode_gap_abs)
             result["decode_gap_abs_steps"] = torch.stack(self.decode_gap_abs).tolist()   # [steps][B]
             result["decode_rel_steps"] = torch.stack(self.decode_rel).tolist()
+            result["decode_stored_norm_steps"] = torch.stack(self.decode_stored_norm).tolist()
+            result["decode_reference_stored_norm_steps"] = torch.stack(self.decode_reference_norm).tolist()
         return result
 
 
@@ -361,6 +437,11 @@ def train_direction(bundle, layer, pairs, *, epochs=10, lr=1e-3, clip=1.0, seed=
         raise ValueError("training needs at least one pair")
     if type(epochs) is not int or epochs < 1:
         raise ValueError("epochs must be a positive integer")
+    if any(isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v) or v <= 0
+           for v in (lr, clip)):
+        raise ValueError("learning rate and clipping norm must be finite and positive")
+    if bundle.model.training or any(p.requires_grad for p in bundle.model.parameters()):
+        raise ValueError("DAS direction training requires an eval-mode frozen model")
     g = torch.Generator(device="cpu").manual_seed(int(seed) * 1000 + int(layer))
     w0 = unit(torch.randn(bundle.hidden_size, generator=g))
     w = torch.nn.Parameter(w0.to(bundle.device))
@@ -475,8 +556,25 @@ def generate_prompts(bundle, prompts, *, max_new_tokens, batch_size=8, layer=Non
             texts, out = greedy_generate(bundle, inputs, max_new_tokens)
             stats = None
         else:
-            with clamp(bundle, layer, hook):
-                texts, out = greedy_generate(bundle, inputs, max_new_tokens)
+            active = torch.ones(len(chunk), dtype=torch.bool, device=bundle.device)
+            def track_active_rows(model, args, kwargs):
+                # The actual previous generated token (after generation's logits
+                # processors), not raw argmax logits, tells us which rows ended.
+                ids = kwargs.get("input_ids", args[0] if args else None)
+                if hook.calls and ids is not None:
+                    if ids.ndim != 2 or ids.shape[0] != len(chunk):
+                        raise ValueError("clamped generation requires an unexpanded greedy batch")
+                    stopped = torch.zeros(len(chunk), dtype=torch.bool, device=ids.device)
+                    for token in stops:
+                        stopped |= ids[:, -1] == token
+                    active.logical_and_(~stopped.to(active.device))
+                    hook.active_rows = active
+            pre = bundle.model.register_forward_pre_hook(track_active_rows, with_kwargs=True)
+            try:
+                with clamp(bundle, layer, hook):
+                    texts, out = greedy_generate(bundle, inputs, max_new_tokens)
+            finally:
+                pre.remove()
             if hook.prefill is None or hook.prefill["sequence_width"] != inputs["input_ids"].shape[1]:
                 raise RuntimeError("the clamp did not fire on the prefill")
             stats = hook.stats()
@@ -491,12 +589,23 @@ def generate_prompts(bundle, prompts, *, max_new_tokens, batch_size=8, layer=Non
                 own = len(ids) if finished else max(len(ids) - 1, 0)
                 gaps = [step[b] for step in stats.get("decode_gap_abs_steps", [])][:own]
                 rels = [step[b] for step in stats.get("decode_rel_steps", [])][:own]
+                stored = [step[b] for step in stats.get("decode_stored_norm_steps", [])][:own]
+                references = [step[b] for step in stats.get("decode_reference_stored_norm_steps", [])][:own]
                 rec["write"] = {"prefill_gap_abs": stats["prefill"]["gap_abs"][b],
                                 "prefill_rel": stats["prefill"]["rel"][b],
+                                "prefill_stored_norm": stats["prefill"]["stored_norm"][b],
+                                "prefill_reference_stored_norm": stats["prefill"]["reference_stored_norm"][b],
                                 "prefill_positions": stats["prefill"]["positions"][b],
                                 "decode_steps_total": stats.get("decode_steps", 0), "decode_steps_own": len(gaps),
                                 "decode_gap_abs_mean": (sum(gaps) / len(gaps)) if gaps else None,
-                                "decode_rel_mean": (sum(rels) / len(rels)) if rels else None}
+                                "decode_rel_mean": (sum(rels) / len(rels)) if rels else None,
+                                "decode_stored_norm_mean": (sum(stored) / len(stored)) if stored else None,
+                                "decode_reference_stored_norm_mean": (sum(references) / len(references)) if references else None,
+                                "write_measurement": stats["write_measurement"]}
+                if random_direction is not None:
+                    rec["write"].update(random_match_scope=stats["random_match_scope"],
+                                        learned_direction_used_for_size_only=True,
+                                        fully_information_free_random_control=False)
             results.append(rec)
     return results
 
@@ -509,12 +618,14 @@ class CoordinateProbe:
         self.u = unit(direction)
         self.z = []
         self.norms = []
+        self.states = []
 
     def __call__(self, module, inp, out):
         h = out[0] if isinstance(out, tuple) else out
         hf = h.float()
         self.z.append((hf @ self.u.to(h.device)).detach().cpu())
         self.norms.append(hf.norm(dim=-1).detach().cpu())
+        self.states.append(h.detach().cpu().clone())
         return None
 
 
@@ -551,12 +662,14 @@ def verify_clamp(bundle, layer, items, source_hidden, w):
     # unit vector keeps that order), or within 5% of the gap it had to close; untouched positions are bit-exact.
     rounding = (2.0 ** -7) * norms[sel] + 1e-3 if next(bundle.model.parameters()).dtype != torch.float32 else 1e-4 * (1 + norms[sel])
     tolerance = torch.maximum(rounding, 0.05 * gap0)
-    untouched = (z1 - z0).abs()[att & ~sel]
-    passed = bool((masked_err <= tolerance).all()) and (untouched.numel() == 0 or float(untouched.max()) == 0.0)
+    untouched = (after.states[0].float() - before.states[0].float()).abs()[att & ~sel]
+    untouched_exact = torch.equal(after.states[0][att & ~sel], before.states[0][att & ~sel])
+    passed = bool((masked_err <= tolerance).all()) and untouched_exact
     return {"passed": passed, "masked_positions": int(sel.sum()), "masked_abs_error_max": float(masked_err.max()),
             "masked_abs_error_mean": float(masked_err.mean()), "tolerance_max": float(tolerance.max()),
             "state_norm_mean_at_masked": float(norms[sel].mean()), "gap_closed_mean": float(gap0.mean()),
             "untouched_positions": int((att & ~sel).sum()),
+            "untouched_full_state_equal": untouched_exact,
             "untouched_abs_change_max": float(untouched.max()) if untouched.numel() else 0.0,
             "target_values": zt.tolist(), "base_coordinate_mean_at_masked": float((z0 * sel).sum() / sel.sum()),
             "residual_dtype": str(next(bundle.model.parameters()).dtype)}

@@ -1,85 +1,149 @@
 #!/usr/bin/env python3
-"""Export E43 generations (frozen prompt controls + clamped arms) into the judge2 generation format.
+"""Export verified E43 artifacts as one immutable, self-contained judge input.
 
-Output: RUN_DIR/judge_<split>/<name>.json with
-  completed, model, conditions, evaluations[{pair_id, question, gold, incorrect, best_answer,
-  outputs{condition: text}, finished{condition: bool}, rule_abstain{condition: bool}}]
-so that scripts/review_checks/judge_two_axis_run.py cells / allenai / llm --judge pro / single can run on it.
-Conditions: baseline_<prompt> for every frozen prompt in frozen_<split>.json, and <family>_L<layer>_<arm> for every
-selected gen file. Gold/incorrect reference lists come from the source run's questions.json (judge references
-only; they never enter any prompt here). Identical (question, answer) pairs are judged once by the judge cache.
+The export contains the exact frozen cohort and every selected generation arm.
+It validates source, model/prompt identity, frozen answers and direction files;
+references never enter generation here. Default selection excludes pilot files,
+while explicitly selecting a pilot or incomplete generation is an error. An
+existing output is reusable only when its full content is identical.
 """
 import argparse
 import json
 from pathlib import Path
 
-import common  # noqa: F401  (puts the code root on sys.path)
-from core.readout import rule_abstains  # noqa: E402
+import common  # noqa: F401
+import e43_qa_prompt_das as E
+from core.readout import rule_abstains
+from core.io_utils import atomic_json_dump
+
+EXPORT_PROTOCOL = 'e43_judge_generation_export_v2'
 
 
 def read(path):
-    return json.loads(Path(path).read_text(encoding="utf-8"))
+    def unique(items):
+        out = {}
+        for key, value in items:
+            if key in out:
+                raise ValueError('duplicate JSON key in ' + str(path))
+            out[key] = value
+        return out
+    def invalid(value):
+        raise ValueError('nonfinite JSON value: ' + value)
+    return json.loads(Path(path).read_text(encoding='utf-8'), object_pairs_hook=unique, parse_constant=invalid)
+
+
+def _record(rec, description):
+    if not isinstance(rec.get('text'), str) or type(rec.get('finished')) is not bool:
+        raise ValueError('invalid answer text/completion flag: ' + description)
+    return rec['text'], rec['finished'], bool(rule_abstains(rec['text']))
+
+
+def export(source_run, run_dir, split='tune', gen_names=None, name='judge_input'):
+    if split not in ('train', 'tune'):
+        raise ValueError('only train/tune splits may be exported')
+    if not isinstance(name, str) or not name or Path(name).name != name or name in ('.', '..'):
+        raise ValueError('output name must be a simple file stem')
+    source_run, run_dir = Path(source_run).resolve(), Path(run_dir).resolve()
+    gen_dir = (run_dir / 'gen').resolve()
+    if gen_names is None:
+        files = [path for path in sorted(gen_dir.glob('*_%s.json' % split)) if '.pilot.' not in path.name]
+    else:
+        files = []
+        for value in gen_names:
+            if not isinstance(value, str) or Path(value).name != value:
+                raise ValueError('generation names must be files inside this run/gen directory')
+            files.append(gen_dir / value)
+    if len(set(files)) != len(files):
+        raise ValueError('generation file selected more than once')
+    for path in files:
+        path.resolve().relative_to(gen_dir)
+        if not path.is_file():
+            raise ValueError('selected generation is not a file: ' + str(path))
+    frozen_path = run_dir / ('frozen_%s.json' % split)
+    source_paths = [source_run / 'bank.json', source_run / 'questions.json', frozen_path, *files]
+    before = {str(path): E.file_sha(path) for path in source_paths}
+    prepared = read(source_run / 'questions.json')
+    questions = prepared['splits'][split]
+    frozen = read(frozen_path)
+    E.validate_frozen(frozen, questions, require_full=True)
+    if frozen.get('completed') is not True or frozen.get('pilot') is not False or frozen['split'] != split:
+        raise ValueError('only an explicitly complete non-pilot freeze can be exported')
+    expected_sources = {key: before[str(source_run / key)] for key in ('bank.json', 'questions.json')}
+    if frozen['identity'].get('source_files_sha256') != expected_sources:
+        raise ValueError('frozen answers use different source questions or bank')
+    if frozen.get('model') != frozen['identity'].get('model') or frozen.get('model') != read(source_run / 'bank.json').get('model'):
+        raise ValueError('frozen model identity differs from the source run')
+    generations = []
+    for path in files:
+        data = read(path)
+        if data.get('completed') is not True or data.get('pilot') is not False:
+            raise ValueError('pilot/incomplete generations cannot enter a full judge export: ' + path.name)
+        direction = data.get('direction_file')
+        if not isinstance(direction, str) or Path(direction).name != direction:
+            raise ValueError('invalid generation direction path')
+        dp = run_dir / 'dirs' / direction
+        before[str(dp)] = E.file_sha(dp)
+        E.validate_generation(data, frozen, questions, run_dir=run_dir)
+        generations.append(data)
+    conditions = ['baseline_' + prompt for prompt in E.PROMPT_NAMES]
+    specs = [{'name': 'baseline_' + prompt, 'base_condition': 'baseline_' + prompt,
+              'kind': 'prompt_control', 'uses_reference_answer': False} for prompt in E.PROMPT_NAMES]
+    by_generation = []
+    for data in generations:
+        condition = '%s_L%d_%s' % (data['family'], data['layer'], data['arm'])
+        conditions.append(condition)
+        specs.append({'name': condition, 'base_condition': 'baseline_' + data['base_prompt'],
+                      'family': data['family'], 'layer': data['layer'], 'arm': data['arm'],
+                      'kind': 'none' if data['arm'] == 'none' else 'intervention', 'uses_reference_answer': False})
+        by_generation.append({row['pair_id']: row for row in data['rows']})
+    if len(set(conditions)) != len(conditions):
+        raise ValueError('duplicate generation conditions')
+    rows = []
+    for question, fq in zip(questions, frozen['questions']):
+        pid = question['pair_id']
+        outputs, finished, rule = {}, {}, {}
+        for prompt in E.PROMPT_NAMES:
+            condition = 'baseline_' + prompt
+            outputs[condition], finished[condition], rule[condition] = _record(fq['answers'][prompt], condition)
+        for data, lookup in zip(generations, by_generation):
+            condition = '%s_L%d_%s' % (data['family'], data['layer'], data['arm'])
+            row = lookup[pid]
+            if row.get('baseline_text') != fq['answers'][data['base_prompt']]['text']:
+                raise ValueError('generation comparison baseline differs from frozen answer: ' + condition)
+            outputs[condition], finished[condition], rule[condition] = _record(row, condition)
+        rows.append({'pair_id': pid, 'question': question['question'], 'gold': list(question['gold']),
+                     'incorrect': list(question.get('incorrect') or []), 'best_answer': question.get('best_answer'),
+                     'outputs': outputs, 'finished': finished, 'rule_abstain': rule})
+    payload = {'completed': True, 'model': frozen['model'], 'protocol': frozen['protocol'], 'export_protocol': EXPORT_PROTOCOL,
+               'split': split, 'identity': frozen['identity'], 'identity_sha256': frozen['identity_sha256'],
+               'conditions': conditions, 'condition_specs': specs, 'question_ids': [q['pair_id'] for q in questions],
+               'sources': {'frozen': frozen_path.name, 'gen': [path.name for path in files], 'sha256': before},
+               'evaluations': rows}
+    # Validate the exact downstream schema before committing an export.
+    from scripts.review_checks.judge_two_axis_run import _derive_cells
+    _derive_cells(payload)
+    for path, digest in before.items():
+        if E.file_sha(path) != digest:
+            raise RuntimeError('source artifact changed during judge export: ' + path)
+    path = run_dir / ('judge_%s' % split) / (name + '.json')
+    if path.exists():
+        if read(path) != payload:
+            raise ValueError('existing judge input differs; use a new --name or run directory, never overwrite judged inputs')
+    else:
+        atomic_json_dump(payload, str(path))
+    return {'path': str(path), 'n_questions': len(rows), 'conditions': conditions, 'export_protocol': EXPORT_PROTOCOL}
 
 
 def main():
-    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--source-run", type=Path, required=True)
-    p.add_argument("--run-dir", type=Path, required=True)
-    p.add_argument("--split", default="tune", choices=("train", "tune"))
-    p.add_argument("--gen", nargs="*", default=None, help="gen file names to include (default: all complete files of the split)")
-    p.add_argument("--name", default="judge_input")
-    a = p.parse_args()
-    prepared = read(a.source_run / "questions.json")
-    refs = {q["pair_id"]: q for q in prepared["splits"][a.split]}
-    frozen = read(a.run_dir / ("frozen_%s.json" % a.split))
-    if not frozen.get("completed"):
-        raise SystemExit("frozen_%s.json is not complete" % a.split)
-    if frozen.get("pilot"):
-        raise SystemExit("pilot freezes are never judged")
-    gen_dir = a.run_dir / "gen"
-    files = [gen_dir / n for n in a.gen] if a.gen is not None else sorted(gen_dir.glob("*_%s.json" % a.split))
-    gens = []
-    for f in files:
-        d = read(f)
-        if d["split"] != a.split:
-            raise SystemExit("%s is not a %s generation" % (f.name, a.split))
-        if not d.get("completed") or d.get("pilot"):
-            raise SystemExit("%s is a pilot / incomplete generation; exclude it" % f.name)
-        if d.get("identity_sha256") != frozen.get("identity_sha256"):
-            raise SystemExit("%s was generated under a different identity than frozen_%s.json" % (f.name, a.split))
-        gens.append(d)
-    conditions = ["baseline_%s" % n for n in frozen["questions"][0]["answers"]]
-    for d in gens:
-        conditions.append("%s_L%d_%s" % (d["family"], d["layer"], d["arm"]))
-    if len(set(conditions)) != len(conditions):
-        raise SystemExit("duplicate conditions")
-    rows = []
-    for fq in frozen["questions"]:
-        pid = fq["pair_id"]
-        q = refs[pid]
-        outputs, finished, rule = {}, {}, {}
-        for name, rec in fq["answers"].items():
-            cond = "baseline_%s" % name
-            outputs[cond], finished[cond], rule[cond] = rec["text"], bool(rec["finished"]), bool(rule_abstains(rec["text"]))
-        for d in gens:
-            cond = "%s_L%d_%s" % (d["family"], d["layer"], d["arm"])
-            match = [r for r in d["rows"] if r["pair_id"] == pid]
-            if len(match) != 1:
-                raise SystemExit("%s has %d rows for %s" % (cond, len(match), pid))
-            r = match[0]
-            outputs[cond], finished[cond], rule[cond] = r["text"], bool(r["finished"]), bool(rule_abstains(r["text"]))
-        rows.append({"pair_id": pid, "question": q["question"], "gold": list(q["gold"]), "incorrect": list(q.get("incorrect") or []),
-                     "best_answer": q.get("best_answer"), "outputs": outputs, "finished": finished, "rule_abstain": rule})
-    out = {"completed": True, "model": frozen["model"], "protocol": frozen["protocol"], "split": a.split,
-           "identity_sha256": frozen.get("identity_sha256"),
-           "conditions": conditions, "sources": {"frozen": "frozen_%s.json" % a.split, "gen": [f.name for f in files]},
-           "evaluations": rows}
-    out_dir = a.run_dir / ("judge_%s" % a.split)
-    out_dir.mkdir(parents=True, exist_ok=True)
-    path = out_dir / (a.name + ".json")
-    path.write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
-    print(json.dumps({"path": str(path), "n_questions": len(rows), "conditions": conditions}, ensure_ascii=False, indent=1))
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--source-run', type=Path, required=True)
+    p.add_argument('--run-dir', type=Path, required=True)
+    p.add_argument('--split', default='tune', choices=('train', 'tune'))
+    p.add_argument('--gen', nargs='*', default=None)
+    p.add_argument('--name', default='judge_input')
+    args = p.parse_args()
+    print(json.dumps(export(args.source_run, args.run_dir, args.split, args.gen, args.name), ensure_ascii=False, indent=1))
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

@@ -30,7 +30,7 @@ from collections import Counter, OrderedDict
 CODE_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
 sys.path.insert(0, CODE_ROOT)
 from core.io_utils import read_jsonl, write_jsonl, append_jsonl, atomic_json_dump  # noqa: E402
-from core.judge_two_axis import (TWO_AXIS_VERSION, LABELS, LABEL_NAMES, TRUTH_VALUES, INFO_VALUES, TwoAxisLLMJudge,  # noqa: E402
+from core.judge_two_axis import (TWO_AXIS_VERSION, LABELS, LABEL_NAMES, TRUTH_VALUES, INFO_VALUES, INFO_SUBTYPES, TwoAxisLLMJudge,  # noqa: E402
                                  adjudicate_cell, allenai_votes, info_binary, judge_own_label, coarse, qa_sha, cell_axes,
                                  ADJUDICATION_VERSION, normalize_human_verdict, parse_truth, parse_info)
 from core.qa_scoring import reference_answers  # noqa: E402
@@ -777,67 +777,242 @@ def adjudicate(run_dir, cfg):
 
 
 # ----------------------------------------------------------------------------- human
-def single_judge(run_dir, judge_name, cfg):
-    """Explicit single-judge exit (plan 21 §3.8, 赵磊 11-10 01:05 "各报各的"): one judge's own verdict per active cell,
-    written to judge2/single_<judge>.jsonl + single_<judge>_summary.{json,md}. No disputes, no adjudication, no GPT,
-    no vote borrowed from another judge. Cells without a verdict stay 'no_verdict' and are counted, never filled.
-    AllenAI's info judge only separates substantive from not-informative, so its labels are A / B / N (N = true but
-    not informative: hedge or refusal, which it cannot tell apart); the Pro judge gives A / B / C / H."""
-    if judge_name not in ("allenai", "pro"):
-        raise ValueError("single-judge exit supports allenai or pro")
-    cells = _cells(run_dir)
-    active = _active(cells)
-    judges, stats = _load_judges(run_dir, cells, cfg, required=(judge_name,), names=(judge_name,))
-    rows = judges[judge_name]
-    thr = cfg["allenai"]["threshold"]
-    out_rows, per_condition = [], {}
-    for c in active:
-        r = rows.get(c["cell_id"])
-        truth = info = label = None
-        basis = "no_verdict"
-        if r is not None:
-            if judge_name == "allenai":
-                truth, info = allenai_votes(r, thr)
-                if truth is not None:
-                    label = "B" if truth == "F" else ("A" if info == "S" else "N")
-                    basis = "allenai_p_yes_threshold_%g" % thr
-            else:
-                truth, info = r.get("truth"), r.get("info")
-                if truth in TRUTH_VALUES and info in INFO_SUBTYPES:
-                    label = judge_own_label(truth, info)
-                    basis = "pro_own_axes"
-                    if label == "X":
-                        label, basis = None, "pro_contradictory_axes"
-                elif r.get("truth_malformed_persistent") or r.get("info_malformed_persistent"):
-                    basis = "pro_malformed_persistent"
-                elif truth == "D" or info == "D":
-                    basis = "pro_declined"
-        rec = {"cell_id": c["cell_id"], "pair_id": c["pair_id"], "condition": c["condition"], "judge": judge_name,
-               "label": label, "truth": truth, "info": info, "basis": basis, "input_sha": c["input_sha"],
-               "rule_abstain": c["rule_abstain"], "unicode_replacement": c["unicode_replacement"]}
-        out_rows.append(rec)
-        bucket = per_condition.setdefault(c["condition"], Counter())
-        bucket[label if label is not None else "no_verdict"] += 1
-        bucket["n_active"] += 1
+SINGLE_VERSION = "qa_single_judge_export_v1"
+
+
+def _single_context(run_dir, judge_name, cfg=None, recorded=None):
+    """Only this judge's external replies are dependencies; human/GPT votes are not."""
+    if recorded is not None:
+        if set(recorded) != {'cache_dir', 'cache_file', 'conflict_file'}:
+            raise ValueError('invalid single-judge external context')
+        override = os.environ.get('TD_JUDGE2_CACHE')
+        if judge_name == 'pro' and override and os.path.realpath(override) != recorded['cache_dir']:
+            raise ValueError('single-judge cache context changed; export again')
+        return recorded
+    if judge_name == 'allenai':
+        return dict(cache_dir=None, cache_file=None, conflict_file=None)
+    from core.judge import cache_filename
+    from core.judge_two_axis import CACHE_PREFIX
+    cache = os.path.realpath(_cache_dir(j2dir(run_dir), cfg))
+    return {'cache_dir': cache,
+            'cache_file': os.path.join(cache, cache_filename(cfg[judge_name]['model'], prefix=CACHE_PREFIX)),
+            'conflict_file': os.path.join(cache, 'conflicts.json')}
+
+
+def _single_conflict_keys(context):
+    path = context['conflict_file']
+    if not path or not os.path.exists(path):
+        return []
+    index = _read_json(path).get('keys', {})
+    if not isinstance(index, dict):
+        raise ValueError('single-judge conflict index must identify its cache file')
+    keys = index.get(os.path.basename(context['cache_file']), [])
+    if not isinstance(keys, list) or any(not isinstance(key, str) for key in keys):
+        raise ValueError('invalid request keys in single-judge conflict index')
+    return sorted(set(keys))
+
+
+def _single_sources(run_dir, judge_name, context):
     out = j2dir(run_dir)
-    path = os.path.join(out, "single_%s.jsonl" % judge_name)
-    write_jsonl(out_rows, path)
-    summary = {"version": ADJUDICATION_VERSION, "judge": judge_name, "exit": "single_judge_no_adjudication",
-               "n_cells": len(cells), "n_active": len(active), "n_excluded_abstention_gold": len(cells) - len(active),
-               "rows_sha256": file_sha(path), "judge_rows_sha256": file_sha(os.path.join(out, judge_name + ".jsonl")),
-               "cells_sha256": file_sha(os.path.join(out, "cells.jsonl")), "threshold": thr if judge_name == "allenai" else None,
-               "label_meaning": ({"A": "true+substantive", "B": "false", "N": "true but not informative (hedge or refusal)"}
-                                 if judge_name == "allenai" else dict(LABEL_NAMES)),
-               "per_condition": {k: dict(v) for k, v in sorted(per_condition.items())}}
-    atomic_json_dump(summary, os.path.join(out, "single_%s_summary.json" % judge_name))
-    letters = ["A", "B", "C", "H", "N", "no_verdict"] if judge_name == "pro" else ["A", "B", "N", "no_verdict"]
-    md = ["# single judge: %s (no adjudication, no GPT, no borrowed votes)" % judge_name, "",
-          "| condition | n_active | " + " | ".join(letters) + " |", "|---|---|" + "---|" * len(letters)]
-    for cond, v in sorted(per_condition.items()):
-        md.append("| %s | %d | %s |" % (cond, v["n_active"], " | ".join(str(v.get(l, 0)) for l in letters)))
-    with open(os.path.join(out, "single_%s_summary.md" % judge_name), "w", encoding="utf-8") as fh:
-        fh.write("\n".join(md) + "\n")
-    return summary, "\n".join(md)
+    names = ('meta.json', 'cells.jsonl', judge_name + '.jsonl', judge_name + '_meta.json')
+    result = {name: file_sha(os.path.join(out, name)) if os.path.exists(os.path.join(out, name)) else None
+              for name in names}
+    path = context['cache_file']
+    result['external'] = {path: file_sha(path) if os.path.exists(path) else None} if path else {}
+    # Only keys for this model affect this single-judge export. A different
+    # judge's later conflict entry must not invalidate this judge's result.
+    result['own_conflict_keys'] = {'path': context['conflict_file'], 'keys': _single_conflict_keys(context)}
+    return result
+
+
+def _single_conflicts(cells, judge_name, cfg, context):
+    if judge_name != 'pro':
+        return set()
+    from core.judge_cache_store import read_cache_rows
+    keys = set(_single_conflict_keys(context))
+    replies = {}
+    for row in read_cache_rows(context['cache_file']):
+        replies.setdefault(row['key'], set()).add(row['answer'])
+    keys.update(key for key, values in replies.items() if len(values) > 1)
+    return {cell['cell_id'] for cell in cells if cell['prediction'].strip()
+            and any(key in keys for key in judge_request_keys(cell, judge_name, cfg))}
+
+
+def _single_summary(rows, cells, judge_name):
+    per_condition = {}
+    for condition in dict.fromkeys(cell['condition'] for cell in cells):
+        selected = [row for row in rows if row['condition'] == condition]
+        n = len(selected)
+        labels = Counter(row['label'] if row['label'] is not None else 'no_verdict' for row in selected)
+        known = {'true': sum(row['truth'] == 'T' for row in selected),
+                 'info': sum(row['info'] == 'S' for row in selected),
+                 'true_info': sum(row['label'] == 'A' for row in selected)}
+        missing = {'true': sum(row['truth'] not in TRUTH_VALUES for row in selected),
+                   'info': sum(row['info'] not in INFO_VALUES for row in selected),
+                   'true_info': labels.get('no_verdict', 0)}
+        per_condition[condition] = {
+            **dict(labels), 'n_active': n, 'n_scored': n - labels.get('no_verdict', 0),
+            **{key + '_count': count for key, count in known.items()},
+            **{key + '_rate': count / n if n and not missing[key] else None for key, count in known.items()},
+            'axis_no_verdict': missing,
+            'fixed_cohort_bounds': {key: [count / n, (count + missing[key]) / n] if n else None
+                                    for key, count in known.items()},
+            'false_noninformative_count': sum(row['truth'] == 'F' and row['info'] == 'N' for row in selected),
+            'empty_outputs': sum(row['empty_output'] for row in selected),
+            'rule_abstain_count_diagnostic': sum(row['rule_abstain'] for row in selected),
+            'unfinished_outputs': sum(row['finished'] is False for row in selected),
+            'unfinished_A': sum(row['finished'] is False and row['label'] == 'A' for row in selected),
+        }
+        if judge_name == 'pro':
+            per_condition[condition]['refusal_behavior_count'] = sum(row['info_subtype'] == 'R' for row in selected)
+            per_condition[condition]['hedge_behavior_count'] = sum(row['info_subtype'] == 'H' for row in selected)
+    return per_condition
+
+
+def single_judge(run_dir, judge_name, cfg):
+    """Export one judge's verified votes, never rule placeholders or borrowed votes.
+
+    Pro retains its subtype; the common info axis is S/N for both judges. Empty
+    answers were never sent to either judge and are explicit no-vote rows here.
+    Different replies to this judge's same request remain unresolved, not chosen
+    by file order. Point metrics use a fixed cohort and are withheld per unknown
+    axis. A separate manifest binds sources and the resulting rows/summary.
+    """
+    if judge_name not in ('allenai', 'pro'):
+        raise ValueError('single-judge exit supports allenai or pro')
+    meta, cells, _ = _workspace(run_dir)
+    active = _active(cells)
+    context = _single_context(run_dir, judge_name, cfg)
+    before = _single_sources(run_dir, judge_name, context)
+    code_before = _aggregation_code()
+    judges, stats = _load_judges(run_dir, cells, cfg, required=(judge_name,), names=(judge_name,))
+    own = judges[judge_name]
+    conflicts = _single_conflicts(active, judge_name, cfg, context)
+    thr = cfg['allenai']['threshold']
+    rows = []
+    for cell in active:
+        vote = own.get(cell['cell_id'])
+        truth = info = subtype = label = None
+        basis = 'missing_vote'
+        if not cell['prediction'].strip() or (vote and vote.get('empty_output')):
+            basis = 'empty_output_no_judge_vote'
+        elif cell['cell_id'] in conflicts:
+            basis = 'inconsistent_replies'
+        elif vote is not None:
+            if judge_name == 'allenai':
+                truth, info = allenai_votes(vote, thr)
+                label = judge_own_label(truth, info)
+                basis = 'allenai_p_yes_threshold_%g' % thr if label is not None else 'allenai_unscorable'
+                subtype = 'S' if info == 'S' else None
+            else:
+                truth = vote.get('truth') if vote.get('truth') in TRUTH_VALUES else None
+                subtype = vote.get('info') if vote.get('info') in INFO_SUBTYPES else None
+                info = info_binary(subtype)
+                label = judge_own_label(truth, subtype)
+                if label is not None:
+                    basis = 'pro_own_axes'
+                elif vote.get('truth_malformed_persistent') or vote.get('info_malformed_persistent'):
+                    basis = 'pro_malformed_persistent'
+                elif vote.get('truth') == 'D' or vote.get('info') == 'D':
+                    basis = 'pro_declined'
+                else:
+                    basis = 'pro_no_verdict'
+        rows.append({'cell_id': cell['cell_id'], 'pair_id': cell['pair_id'], 'condition': cell['condition'],
+                     'judge': judge_name, 'single_version': SINGLE_VERSION, 'label': label,
+                     'truth': truth, 'info': info, 'info_subtype': subtype, 'basis': basis,
+                     'status': 'scored' if label is not None else 'no_verdict', 'input_sha': cell['input_sha'],
+                     'empty_output': not cell['prediction'].strip(), 'finished': cell['finished'],
+                     'rule_abstain': cell['rule_abstain'], 'unicode_replacement': cell['unicode_replacement']})
+    # The same semantic request cannot have two different results depending on
+    # its condition name. Do not arbitrarily select a winning observation.
+    grouped = {}
+    for row in rows:
+        if row['label'] is not None:
+            grouped.setdefault(row['input_sha'], set()).add((row['truth'], row['info'], row['info_subtype'], row['label']))
+    inconsistent_inputs = {key for key, values in grouped.items() if len(values) > 1}
+    for row in rows:
+        if row['input_sha'] in inconsistent_inputs:
+            row.update(label=None, truth=None, info=None, info_subtype=None,
+                       status='no_verdict', basis='inconsistent_same_input')
+    summary = {'version': ADJUDICATION_VERSION, 'single_version': SINGLE_VERSION,
+               'rubric': TWO_AXIS_VERSION, 'judge': judge_name, 'exit': 'single_judge_no_adjudication',
+               'model': meta['model'], 'generation_sha256': meta['generation_sha256'],
+               'n_cells': len(cells), 'n_active': len(active), 'n_excluded_abstention_gold': len(cells) - len(active),
+               'n_scored': sum(row['label'] is not None for row in rows),
+               'n_no_verdict': sum(row['label'] is None for row in rows),
+               'decisions_complete': bool(rows) and all(row['label'] is not None for row in rows),
+               'judge_rows_verified': stats[judge_name], 'threshold': thr if judge_name == 'allenai' else None,
+               'label_meaning': ({'A': 'true+substantive', 'B': 'false', 'N': 'true but not informative; subtype unavailable'}
+                                  if judge_name == 'allenai' else dict(LABEL_NAMES)),
+               'per_condition': _single_summary(rows, active, judge_name),
+               'interpretation': 'This judge alone. Rule placeholders, missing votes and conflicting replies remain no_verdict; no human or other judge fills them.'}
+    def assert_stable():
+        current_meta, current_cells, _ = _workspace(run_dir)
+        if (current_meta != meta or current_cells != cells or _single_context(run_dir, judge_name, cfg) != context
+                or _single_sources(run_dir, judge_name, context) != before or _aggregation_code() != code_before):
+            raise RuntimeError('single-judge inputs, replies or code changed during export; repeat on a stable snapshot')
+    assert_stable()
+    out = j2dir(run_dir)
+    path = os.path.join(out, 'single_%s.jsonl' % judge_name)
+    write_jsonl(rows, path)
+    summary_path = os.path.join(out, 'single_%s_summary.json' % judge_name)
+    atomic_json_dump(summary, summary_path)
+    letters = ['A', 'B', 'C', 'H', 'no_verdict'] if judge_name == 'pro' else ['A', 'B', 'N', 'no_verdict']
+    md = ['# single judge: %s (no adjudication, no borrowed votes)' % judge_name, '',
+          '| condition | n_active | ' + ' | '.join(letters) + ' |', '|---|---|' + '---|' * len(letters)]
+    for cond, values in summary['per_condition'].items():
+        md.append('| %s | %d | %s |' % (cond, values['n_active'], ' | '.join(str(values.get(label, 0)) for label in letters)))
+    md += ['', '真假与信息量按显式轴分别统计；B不等于有信息。空答规则占位不冒充裁判投票，未决保留固定分母上下界。']
+    Path(out, 'single_%s_summary.md' % judge_name).write_text('\n'.join(md) + '\n', encoding='utf-8')
+    assert_stable()
+    atomic_json_dump({'single_version': SINGLE_VERSION, 'rubric': TWO_AXIS_VERSION, 'judge': judge_name,
+                     'sources': before, 'external_context': context, 'generation_sha256': meta['generation_sha256'],
+                     'judge_contract': judge_contract(judge_name, cfg), 'aggregation_code': code_before,
+                     'rows_sha256': file_sha(path), 'summary_sha256': file_sha(summary_path),
+                     'decisions_complete': summary['decisions_complete'], 'ts': _now()},
+                    os.path.join(out, 'single_%s_manifest.json' % judge_name))
+    return summary, '\n'.join(md)
+
+
+def load_verified_single(run_dir, judge_name, generation_path=None, require_complete=True):
+    """Read a single-judge artifact only if all of its actual sources still match."""
+    if judge_name not in ('allenai', 'pro'):
+        raise ValueError('single-judge reader supports allenai or pro')
+    meta, cells, _ = _workspace(run_dir)
+    if generation_path is not None and file_sha(generation_path) != meta['generation_sha256']:
+        raise ValueError('single-judge analysis generation differs from the scored generation')
+    out = j2dir(run_dir)
+    manifest = _read_json(os.path.join(out, 'single_%s_manifest.json' % judge_name))
+    if not isinstance(manifest.get('external_context'), dict):
+        raise ValueError('single-judge manifest does not bind external sources')
+    context = _single_context(run_dir, judge_name, recorded=manifest['external_context'])
+    path = os.path.join(out, 'single_%s.jsonl' % judge_name)
+    summary_path = os.path.join(out, 'single_%s_summary.json' % judge_name)
+    if (manifest.get('single_version') != SINGLE_VERSION or manifest.get('rubric') != TWO_AXIS_VERSION
+            or manifest.get('judge') != judge_name or manifest.get('sources') != _single_sources(run_dir, judge_name, context)
+            or manifest.get('generation_sha256') != meta['generation_sha256'] or manifest.get('aggregation_code') != _aggregation_code()
+            or manifest.get('rows_sha256') != file_sha(path) or manifest.get('summary_sha256') != file_sha(summary_path)):
+        raise ValueError('single-judge result or sources changed; export this judge again')
+    rows = _rows(path)
+    active = _active(cells)
+    if require_complete and not active:
+        raise ValueError('single judge has no active evaluation cells')
+    if list(rows) != [cell['cell_id'] for cell in active]:
+        raise ValueError('single-judge output has missing, duplicate, reordered or foreign cells')
+    for cell in active:
+        row = rows[cell['cell_id']]
+        if (row.get('input_sha') != cell_sha(cell) or row.get('pair_id') != cell['pair_id']
+                or row.get('condition') != cell['condition'] or row.get('judge') != judge_name
+                or row.get('single_version') != SINGLE_VERSION):
+            raise ValueError('single-judge row is bound to different content')
+        expected = judge_own_label(row.get('truth'), row.get('info_subtype') if judge_name == 'pro' else row.get('info'))
+        if row.get('label') is not None and row['label'] != expected:
+            raise ValueError('single-judge label disagrees with its explicit axes')
+        if (row.get('status') == 'scored') != (row.get('label') is not None):
+            raise ValueError('single-judge status disagrees with its label')
+        if require_complete and row.get('label') is None:
+            raise ValueError('single judge has unresolved votes; do not call this a complete comparison')
+    return {**meta, 'single_verification': manifest}, {cell['cell_id']: cell for cell in active}, rows
 
 
 def human_list(run_dir):

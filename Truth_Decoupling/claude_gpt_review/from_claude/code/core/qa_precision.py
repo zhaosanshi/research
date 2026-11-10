@@ -60,6 +60,7 @@ def output_projection_metadata(bundle, enabled=True):
             "head_module": name, "head_type": type(head).__name__,
             "parameter_dtype": str(head.weight.dtype), "parameter_device": str(head.weight.device),
             "projection_dtype": "torch.float32", "projection_autocast": False,
+            "input_device_policy": "align_to_materialized_output_weight_preserving_gradient",
             "matmul_precision": "highest", "allow_tf32": False,
             "weight_policy": "detached_fp32_copy_per_outer_context",
             "model_postprocessing": "preserved"}
@@ -104,8 +105,13 @@ def fp32_output_projection(bundle, enabled=True):
 
                 def project(input):
                     # Casting logits after a BF16 matmul cannot undo rounding.
-                    with torch.autocast(device_type=input.device.type, enabled=False):
-                        return F.linear(input.float(), state["weight"], state["bias"])
+                    # Replacing Linear.forward also replaces an Accelerate
+                    # dispatch wrapper. The preceding block and this head can
+                    # live on different GPUs, so align explicitly to the cached
+                    # weight. Tensor.to preserves gradients back to the edit.
+                    projected_input = input.to(device=state["weight"].device, dtype=torch.float32)
+                    with torch.autocast(device_type=projected_input.device.type, enabled=False):
+                        return F.linear(projected_input, state["weight"], state["bias"])
 
                 head.forward = project
                 _ACTIVE[head] = state
@@ -184,10 +190,10 @@ def projection_diagnostic(bundle, inputs, token_ids=None, *, return_hidden=False
             raise RuntimeError("projection diagnostic expected one output-head call, got %d" % len(captured))
         hidden = captured[0]
         state = _ACTIVE[head]
-        with torch.autocast(device_type=hidden.device.type, enabled=False):
-            native = F.linear(hidden.to(dtype=head.weight.dtype), head.weight.detach(),
+        with torch.autocast(device_type=head.weight.device.type, enabled=False):
+            native = F.linear(hidden.to(device=head.weight.device, dtype=head.weight.dtype), head.weight.detach(),
                               head.bias.detach() if head.bias is not None else None)
-            fp32 = F.linear(hidden.float(), state["weight"], state["bias"])
+            fp32 = F.linear(hidden.to(device=state["weight"].device, dtype=torch.float32), state["weight"], state["bias"])
         if not (torch.isfinite(hidden).all() and torch.isfinite(native).all() and torch.isfinite(fp32).all()):
             raise ValueError("non-finite hidden states or scores in projection diagnostic")
         difference = (native.float() - fp32).abs().double()
