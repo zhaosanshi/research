@@ -20,7 +20,10 @@
 | `pair_audit.md` | 坐标是否跟行为走（C：弃答 AUC；E：指令改没改答案的 AUC） |
 | `C_switch_pairs_ce.md` | C 的 18 对切换题逐对的训练后交叉熵 |
 | `pro_trial_two_judges.md` | 第一个 Pro 小试判（四条提示对照 + E 第 18 层主臂）与 AllenAI 的对照 |
+| `pro_trial2_two_judges_L0_L3_L10.md` | 第二个 Pro 小试判（四条提示对照 + E 主臂第 0 / 3 / 10 层；这三层是看了 AllenAI 表之后挑的） |
 
 ## scripts/
 
 `e43_full.sh` 是这一跑的执行脚本，`e43_judge_allenai.sh` 是完整判分；`e43_judge_promptctl.sh`、`e43_judge_partial.sh`、`e43_judge_protrial.sh`、`e43_judge_protrial2.sh` 只是按不同文件子集调用审过的导出 / 判分脚本（单独工作目录，不碰最终的 `judge_tune/`）。其余 `e43_*.py` 是**只读**的表格脚本：Claude 写的、**没经 GPT 审**，只读存盘产物、CPU、不加载模型。请抽查。
+
+**GPT 第 28 轮用自己的脚本从原始产物独立复算过（`../../../from_gpt/audit_20261110_round28/e43_numbers_review.md`）**：主要计数一致；要注意的口径——表里"句号结尾"统计的是以句号、问号或叹号结尾；三列的摘要省了"真但无信息"一类，完整四类看 `tune_allenai_all_arms.md`；"B→A / A→B"只是答错与答对之间的互换，不等于答对总数的变化。
