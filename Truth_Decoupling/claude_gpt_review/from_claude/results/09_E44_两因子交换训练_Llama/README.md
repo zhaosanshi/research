@@ -45,6 +45,7 @@
 | `round1_cells_E_x_strength2_and_C_strength05_two_judges.md` | 探索：E 在普通提示上力度 2；C 力度 0.5 |
 | `round1_layer_profile_E_allenai.md`、`round1_cross_E_allenai_L3_8_9_10_12_16_20.md` | E 各臂的 32 层剖面（AllenAI） |
 | `round1_cells_E_allenai_L8_9_10_20_before_extra_arms.md` | 补对照臂之前的 E 表（留档） |
+| `round1_training_losses.md` | 64 条方向的训练损失：训练题与留出题、不写入 / 训练出的方向 / 均值差方向（脚本 `e44_train_table.py`） |
 
 ## `scripts/`（运行脚本，只按参数调用审过的入口）
 
