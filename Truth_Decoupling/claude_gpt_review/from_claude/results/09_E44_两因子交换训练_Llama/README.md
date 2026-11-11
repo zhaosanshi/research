@@ -52,6 +52,10 @@
 | `side_M_layer_profile_E_allenai.md`、`side_E2_layer_profile_E_allenai.md`、`side_initmd_layer_profile_E_allenai.md` | 三组旁支的 32 层（MD 为 3 层）剖面：各臂对自己基线的答对数变化（实质作答数变化），AllenAI（脚本 `e44_layer_profile.py`） |
 | `side_M_screen_E_allenai.md` | M 旁支按冻结的筛选程序（`e44_round1_tables.py screen` 原样）得到的 32 层表与入围层 |
 | `side_branch_direction_cosines.md` | 主实验与三组旁支的 E 方向逐层夹角余弦、各自的写入量（脚本 `e44_branch_cosines.py`，只读方向文件） |
+| `side_M_cells_E_two_judges_L11_12_13_17_10.md` | 旁支 M 入围层的冻结判据（两家裁判，`cells` 原样） |
+| `side_M_seeds_cells_E_two_judges_L11_L13.md`、`side_M_axes_E_two_judges_L11_L13.md` | 旁支 M 第 11、13 层：再两个训练种子的冻结判据；再两条随机轴 |
+| `side_M_dose_E_two_judges_L11_12_13.md`、`side_M_cells_E_x_strength2_two_judges_L11_12_13.md` | 旁支 M 探索臂（力度 0.5 / 2、必须作答问法）两家裁判 |
+| `side_M_flips_E_L11_x_strength1_pro.md`、`side_M_flips_E_L11_x_strength2_pro.md` | 旁支 M 第 11 层：Pro 标签变了的题，写入前后两版回答 |
 
 ## `scripts/`（运行脚本，只按参数调用审过的入口）
 
