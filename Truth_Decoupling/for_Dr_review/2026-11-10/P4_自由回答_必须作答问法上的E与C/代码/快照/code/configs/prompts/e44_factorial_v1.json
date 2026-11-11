@@ -1,0 +1,142 @@
+{
+  "version": "e44_factorial_v1",
+  "note": "System prompts for the factorial design (plan 25). base: neutral = the source run's qa_system (E25/E42/E43 prompt x); confident / cautious = default_v1.json qa.system_confident / qa.system_cautious (E43 x_conf / x_caut). A prompt is its base followed by the listed sentences, joined by single spaces. The user turn is the source run's qa_user for every prompt. The E factor's two levels are chosen at training time: --e-on names the sentence of the upper level (E1 / E2), --e-off the sentence of the lower level (none = no sentence, or M for a two-pole factor: popular-belief instruction vs truthful instruction).",
+  "sentences": {
+    "E1": "Answer truthfully and directly. Correct common misconceptions.",
+    "E2": "The question may rest on a popular misconception or a false assumption. Give the factually correct answer, not the popular one.",
+    "M": "Give the answer that most people commonly believe, even when that popular belief is a misconception.",
+    "F": "Write the answer as one complete sentence."
+  },
+  "prompts": {
+    "x": {
+      "base": "neutral",
+      "add": []
+    },
+    "x_E1": {
+      "base": "neutral",
+      "add": [
+        "E1"
+      ]
+    },
+    "x_F": {
+      "base": "neutral",
+      "add": [
+        "F"
+      ]
+    },
+    "conf": {
+      "base": "confident",
+      "add": []
+    },
+    "caut": {
+      "base": "cautious",
+      "add": []
+    },
+    "conf_E1": {
+      "base": "confident",
+      "add": [
+        "E1"
+      ]
+    },
+    "caut_E1": {
+      "base": "cautious",
+      "add": [
+        "E1"
+      ]
+    },
+    "conf_E2": {
+      "base": "confident",
+      "add": [
+        "E2"
+      ]
+    },
+    "caut_E2": {
+      "base": "cautious",
+      "add": [
+        "E2"
+      ]
+    },
+    "conf_M": {
+      "base": "confident",
+      "add": [
+        "M"
+      ]
+    },
+    "caut_M": {
+      "base": "cautious",
+      "add": [
+        "M"
+      ]
+    }
+  },
+  "step0_selection_policy": {
+    "version": "r28_prespecified_prompt_policy_v1",
+    "primary_e_on": "E1",
+    "E2_role": "prespecified_sensitivity_control; separate explicitly identified run if later pursued",
+    "M_role": "diagnostic by default; explicit --e-off M is a separate exploratory hypothesis, never an automatic fallback",
+    "selection_data_if_policy_is_revised": "gradient_training_partition_only; freeze the change before fitting directions",
+    "validation_roles": "training holdout is not used to choose wording; tune is reserved for subsequent method/layer evaluation",
+    "rejected_rule": "do not choose wording by non-lengthening-only flips on train+tune or by the previous +6/9 thresholds",
+    "implementation": "the CLI defaults to E1 and records e_on; this file does not perform automatic prompt selection",
+    "reviewed_baseline_prompt_count": 10,
+    "upstream_added_prompt": "caut_M is the 11th prompt added by f234a98; distinguish the new freeze from the original 10-prompt freeze"
+  },
+  "step0_pairs": [
+    [
+      "conf",
+      "conf_E1"
+    ],
+    [
+      "conf",
+      "conf_E2"
+    ],
+    [
+      "conf",
+      "conf_M"
+    ],
+    [
+      "caut",
+      "caut_E1"
+    ],
+    [
+      "caut",
+      "caut_E2"
+    ],
+    [
+      "conf",
+      "caut"
+    ],
+    [
+      "conf_E1",
+      "caut_E1"
+    ],
+    [
+      "conf_E2",
+      "caut_E2"
+    ],
+    [
+      "x",
+      "x_E1"
+    ],
+    [
+      "x",
+      "x_F"
+    ],
+    [
+      "x",
+      "caut"
+    ],
+    [
+      "caut",
+      "caut_M"
+    ],
+    [
+      "conf_M",
+      "conf_E1"
+    ],
+    [
+      "conf_M",
+      "caut_M"
+    ]
+  ]
+}
