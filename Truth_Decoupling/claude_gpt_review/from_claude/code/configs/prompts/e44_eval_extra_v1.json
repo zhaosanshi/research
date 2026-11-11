@@ -1,0 +1,8 @@
+{
+ "version": "e44_eval_extra_v1",
+ "note": "Evaluation-only prompts for scripts/e44_eval_extra.py. They are built with the same rule as configs/prompts/e44_factorial_v1.json (base system + sentences of that file, joined by one space) and never enter training, the frozen answers of the E44 run, or its identity. conf_F is the complete-sentence background of the must-answer prompt (condition F of the criteria, which the first round could only test on the plain prompt x_F); conf_E1_F is the prompt-only reference for it.",
+ "prompts": {
+  "conf_F": {"base": "confident", "add": ["F"]},
+  "conf_E1_F": {"base": "confident", "add": ["E1", "F"]}
+ }
+}

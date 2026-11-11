@@ -49,6 +49,9 @@
 | `round1_write_sizes_learned_vs_mean_difference.md` | 64 条方向：训练方向臂与均值差臂每单位力度各写多少（均值差臂 = 训练方向臂那一份 + 与它垂直的一份，量是 1.4–1.65 倍），以及按题交换写入的坐标逐题的散布（脚本 `e44_write_sizes.py`，只读方向文件） |
 | `round1_flips_E_L10_conf_strength2_pro.md` | 必须作答问法、第 10 层力度 2：Pro 下标签变了的 58 道题的两版回答，附 AllenAI 的判法（脚本 `e44_flips.py`） |
 | `round1_direction_cosines.md` | 64 条方向相邻层之间、同层 E 与 C 之间的夹角余弦（脚本 `e44_w_adjacent.py` 的完整输出） |
+| `side_M_layer_profile_E_allenai.md`、`side_E2_layer_profile_E_allenai.md`、`side_initmd_layer_profile_E_allenai.md` | 三组旁支的 32 层（MD 为 3 层）剖面：各臂对自己基线的答对数变化（实质作答数变化），AllenAI（脚本 `e44_layer_profile.py`） |
+| `side_M_screen_E_allenai.md` | M 旁支按冻结的筛选程序（`e44_round1_tables.py screen` 原样）得到的 32 层表与入围层 |
+| `side_branch_direction_cosines.md` | 主实验与三组旁支的 E 方向逐层夹角余弦、各自的写入量（脚本 `e44_branch_cosines.py`，只读方向文件） |
 
 ## `scripts/`（运行脚本，只按参数调用审过的入口）
 
