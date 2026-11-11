@@ -2,7 +2,8 @@
 """Evaluation-only additions to a finished E44 run (reply 32, sections 2.4 and 3; GPT round 33, sections 3-4).
 
 Nothing here trains and no reviewed file changes: scripts/e44_factorial_das.py and core/ are imported as they are,
-so the identity of the run (frozen answers, directions) stays the one it was made with, and every parent file is
+so the parent TRAINING identity stays the one it was made with. This is a new evaluation protocol, bound by
+own_sha256, generation_contract and verified parent hashes; it is not the same complete execution identity. Every parent file is
 read through the driver's own verified loaders. This script only
   - generates with writes the driver has no arm for (parts of the learned write; two writes at two layers),
   - generates on evaluation-only prompts (configs/prompts/e44_eval_extra_v1.json, e.g. conf_F),
@@ -22,7 +23,7 @@ Arm grammar (a base prompt, then one or two writes; two writes act at two differ
   F = E or C (which trained direction of that layer); kind =
     w      learned direction,          amount = strength * gap             (the driver's fixed-shift arm)
     md     mean-difference direction,  amount = strength * md_norm         (the driver's md arm: the mean difference itself)
-    mdg    mean-difference direction,  amount = strength * gap             (same norm as the w arm)
+    mdg    mean-difference direction,  amount = strength * gap             (same nominal norm; stored dtype norm may differ)
     wpar   mean-difference direction,  amount = strength * gap * cos       (the part of the w write parallel to the mean difference)
     wperp  unit(w - cos * w_md),       amount = strength * gap * |w - cos * w_md|   (the part orthogonal to it)
     rand   random direction, amount = strength * gap, stored norm matched to the w arm (the driver's random arm)
@@ -109,9 +110,11 @@ def part_write(record, kind, beta, hidden_size, seed, layer):
     """Keyword arguments of one write for fd.generate_shift / generate_two."""
     if kind in ("w", "md", "rand"):
         return E.arm_write(record, kind, beta, hidden_size, seed, layer)            # the driver's own definition
-    s = split_learned_write(record)
     if kind == "mdg":
-        return {"direction": s["w_md"].float(), "amount": beta * float(record["gap"])}
+        if record.get("mean_difference_defined") is False:
+            raise ValueError("this direction has no defined mean difference")
+        return {"direction": pd.unit(torch.as_tensor(record["w_md"]).float()), "amount": beta * float(record["gap"])}
+    s = split_learned_write(record)
     if kind == "wpar":
         return {"direction": s["w_md"].float(), "amount": beta * s["par_amount"]}
     if kind == "wperp":
@@ -320,6 +323,7 @@ class Context:
             rows = keep(pd.generate_prompts(self.bundle, self.render(name), max_new_tokens=a.max_new_tokens, batch_size=a.batch_size))
             path = self.out_dir / self.name("base_%s_%s.json" % (name, a.split))
             payload = seal({"protocol": PROTOCOL, "phase": "base", "prompt": name, "system": self.all_systems[name],
+                            "script_sha256": self.own_sha["script"],
                             "split": a.split, "partial": self.partial, "identity": self.ident, "identity_sha256": self.ident_sha,
                             "frozen_file_sha256": self.frozen_sha, "cohort_sha256": pd.fingerprint(self.questions),
                             "max_new_tokens": a.max_new_tokens, "question_ids": [q["pair_id"] for q in self.questions],
@@ -366,14 +370,24 @@ class Context:
         return self.out_dir / ("selfcheck_%s.json" % "_".join(
             "%s%d-%s" % (d["family"], d["layer"], d["direction_file_sha256"][:10]) for d in descs))
 
-    def require_selfcheck(self, descs):
+    def require_selfcheck(self, descs, base=None, positions=None):
         path = self.selfcheck_path(descs)
         if not path.exists():
             raise SystemExit("two-write generation needs a passed selfcheck for these two directions first (%s is missing)" % path.name)
         d = e43.validate_artifact(read(path), "selfcheck")
-        if d.get("passed") is not True or d.get("own_sha256", {}).get("script") != self.own_sha["script"] or \
+        if d.get("passed") is not True or d.get("own_sha256") != self.own_sha or \
                 d.get("identity_sha256") != self.ident_sha or d.get("questions", 0) < self.args.batch_size:
             raise SystemExit("%s was made by another version of this script, another run, or on less than one batch; run selfcheck again" % path.name)
+        # This is an engine acceptance for these parents/base/position semantics. Strength and
+        # w/rand variants may vary afterwards; the short hashes in the filename are not validation.
+        keys = ("family", "layer", "direction_run", "direction_file", "direction_file_sha256",
+                "direction_record_sha256", "training_frozen_file_sha256", "e_on", "e_off")
+        if (len(d.get("parts", [])) != len(descs) or
+                any(any(old.get(k) != new.get(k) for k in keys) for old, new in zip(d["parts"], descs)) or
+                d.get("positions") != positions or d.get("base_prompt") != base or
+                d.get("split") != self.args.split or d.get("frozen_file_sha256") != self.frozen_sha or
+                d.get("max_new_tokens") != self.args.max_new_tokens or d.get("batch_size") != self.args.batch_size):
+            raise SystemExit("selfcheck parents, prompt, positions or generation settings differ; run selfcheck again")
 
     def generate(self, base, parts):
         ws, positions = self.writes(parts)
@@ -396,6 +410,8 @@ class Context:
         for _, path, sha in self.records.values():
             if file_sha(path) != sha:
                 raise RuntimeError("a direction file changed during execution")
+        for rec, path, _ in self.records.values():
+            E.validate_direction_sources(rec, path.parent.parent)
         if self.own_sha != {"script": file_sha(Path(__file__).resolve()), "prompts_extra": file_sha(self.args.prompts_extra)}:
             raise RuntimeError("this script or its prompts file changed during execution")
 
@@ -423,7 +439,7 @@ def run_generate(ctx):
             log("skip %s (verified)" % out_path.name)
             continue
         if len(parts) == 2:
-            ctx.require_selfcheck(descs)
+            ctx.require_selfcheck(descs, base, positions)
         base_rows, source = ctx.base_answers(base)
         recs, descs2, _ = ctx.generate(base, parts)
         if descs2 != descs:
@@ -542,10 +558,13 @@ def natural_rows(bundle, layer, prompts_plus, prompts_minus, answers, eot, max_t
     """Per question: the state difference (plus prompt minus minus prompt) at every content position, the two
     prompts carrying the SAME question and the SAME teacher-forced answer tokens. The content span (first
     user-content token .. end) is right-aligned in both batches.
-    Returns [(D [K, hidden] float32, n_prompt, n_template, n_terminator) or None] and the reasons for skipping:
+    Returns [(D [K, hidden] float32, n_prompt, n_template, n_terminator, n_unfed) or None] and skip reasons:
       n_prompt      content positions inside the prompt (the last one is the read position = last prompt token)
       n_template    of those, the chat-template tokens between the end of the user text and the read position
-      n_terminator  trailing end-of-turn positions of a complete answer (never fed back, so never written, at inference)"""
+      n_terminator  trailing end-of-turn positions of a complete answer (never fed back at inference)
+      n_unfed       last answer token of an unfinished capped generation, also never fed back at inference"""
+    if not (len(prompts_plus) == len(prompts_minus) == len(answers)):
+        raise ValueError("natural input lists must have the same length")
     out, skipped = [], {}
     items, ends = [], set(eot)
     for pp, pm, ans in zip(prompts_plus, prompts_minus, answers):
@@ -561,9 +580,10 @@ def natural_rows(bundle, layer, prompts_plus, prompts_minus, answers, eot, max_t
             last_end = max((i for i in range(ep["content_start"], ep["prompt_length"] - 1) if ep["prefix_ids"][i] in ends), default=None)
             n_template = 0 if last_end is None else ep["prompt_length"] - 1 - last_end
             n_term = len(eot) if ep["terminator_appended"] else 0
+            n_unfed = int(not ans["finished"] and len(ans["token_ids"]) <= max_target_tokens)
             if len(tail_p) != n_prompt + ep["answer_body_tokens"] + n_term:
                 raise RuntimeError("content span length does not add up")
-            items.append((ep, em, len(tail_p), n_prompt, n_template, n_term))
+            items.append((ep, em, len(tail_p), n_prompt, n_template, n_term, n_unfed))
         except ValueError as e:
             skipped[str(e)] = skipped.get(str(e), 0) + 1
             items.append(None)
@@ -575,7 +595,7 @@ def natural_rows(bundle, layer, prompts_plus, prompts_minus, answers, eot, max_t
             hm, _ = layer_states(bundle, layer, [it[1] for _, it in chunk])
             for row, (j, it) in enumerate(chunk):
                 k = it[2]
-                res[j] = (hp[row, hp.shape[1] - k:, :] - hm[row, hm.shape[1] - k:, :], it[3], it[4], it[5])
+                res[j] = (hp[row, hp.shape[1] - k:, :] - hm[row, hm.shape[1] - k:, :], it[3], it[4], it[5], it[6])
         out.extend(res.get(j) for j in range(i, min(i + batch_size, len(items))))
     return out, skipped
 
@@ -601,8 +621,10 @@ def segment_stats(rows, vectors):
         for item in rows:
             if item is None:
                 continue
-            D, n, t, e = item
+            D, n, t, e, unfed = item
             part = D[cut(n, t, e, D.shape[0])]
+            if name == "answer" and unfed:
+                part = part[:-unfed]
             if part.shape[0] == 0:
                 continue
             for v, u in vectors.items():
@@ -654,9 +676,22 @@ def run_natural(ctx):
         train_ids = set(rec["training_contract"].get("train_ids") or rec.get("planned_train_ids") or [])
         entry = {"gap": float(rec["gap"]), "md_norm": float(rec["md_norm"]), "cosine_w_md": s["cos"],
                  "write_parallel_amount": s["par_amount"], "write_orthogonal_amount": s["perp_amount"],
-                 "direction_file_sha256": sha, "pairs": {}}
+                 "direction_file_sha256": sha, "pairs": {},
+                 "read_position_check": {"status": "not_run", "reason": "requires full training split and all training pairs"}}
         sanity = {}
         for plus, minus in pairs:
+            reference = None
+            if (plus, minus) in spec["plus_minus"] and a.split == "train" and not ctx.partial and train_ids:
+                indices = [i for i, q in enumerate(ctx.questions) if q["pair_id"] in train_ids]
+                if len(indices) != len(train_ids):
+                    raise ValueError("natural calibration is missing trained questions")
+                # Reproduce the original complete training cohort independently of which frozen
+                # answers are usable for teacher forcing. Never compare a filtered subset to gap.
+                hp = pd.capture_prompt_end(ctx.bundle, [ctx.render(plus)[i]["prefix_text"] for i in indices], layer, a.batch_size)
+                hm = pd.capture_prompt_end(ctx.bundle, [ctx.render(minus)[i]["prefix_text"] for i in indices], layer, a.batch_size)
+                coords = (hp - hm).float() @ vectors["w"]
+                reference = {ctx.questions[i]["pair_id"]: float(v) for i, v in zip(indices, coords)}
+                sanity[(plus, minus)] = sum(reference.values()) / len(reference)
             for source in a.answers:
                 name = plus if source == "plus" else minus
                 answers = []
@@ -666,10 +701,22 @@ def run_natural(ctx):
                 rows, skipped = natural_rows(ctx.bundle, layer, ctx.render(plus), ctx.render(minus), answers, ctx.eot,
                                              a.max_target_tokens, a.batch_size)
                 stats = segment_stats(rows, vectors)
-                entry["pairs"]["%s:%s|answer=%s" % (plus, minus, source)] = {"skipped": skipped, "segments": stats}
-                if (plus, minus) in spec["plus_minus"] and a.split == "train" and not ctx.partial and train_ids:
-                    kept = [r for q, r in zip(ctx.questions, rows) if q["pair_id"] in train_ids and r is not None]
-                    sanity[(plus, minus, source)] = segment_stats(kept, {"w": vectors["w"]})["read"]["w"]["mean"]
+                alignment = {"status": "not_run"}
+                if reference is not None:
+                    errors = []
+                    for q, row in zip(ctx.questions, rows):
+                        if q["pair_id"] not in reference or row is None:
+                            continue
+                        want_coordinate = reference[q["pair_id"]]
+                        got_coordinate = float(row[0][row[1] - 1] @ vectors["w"])
+                        err = abs(got_coordinate - want_coordinate)
+                        if err > 0.02 * abs(want_coordinate) + 1e-3:
+                            raise RuntimeError("natural read position is misaligned for " + q["pair_id"])
+                        errors.append(err)
+                    alignment = {"status": "passed" if errors else "no_usable_answers", "questions_checked": len(errors),
+                                 "training_questions": len(reference), "max_coordinate_error": max(errors) if errors else None}
+                entry["pairs"]["%s:%s|answer=%s" % (plus, minus, source)] = {"skipped": skipped, "segments": stats,
+                                                                                        "read_alignment_check": alignment}
                 for seg in WRITTEN_SEGMENTS:
                     e = stats[seg]
                     if e["questions"]:
@@ -677,10 +724,12 @@ def run_natural(ctx):
                             layer, plus, minus, source, seg, e["questions"], e["w"]["mean"], e["w"]["sd"], e["w"]["share_positive"],
                             e["w"]["mean"] / entry["gap"] if entry["gap"] else float("nan"), e["w_md"]["mean"], e["perp"]["mean"],
                             e["perp"]["mean"] / s["perp_amount"], e["difference_norm_mean"], e.get("cosine_of_pooled_mean", {}).get("w", float("nan"))))
-        want = {(p, m, src) for p, m in spec["plus_minus"] for src in a.answers}
+        want = set(spec["plus_minus"])
         if want and want <= set(sanity):
             got = sum(sanity[k] for k in want) / len(want)
-            entry["read_position_check"] = {"mean_coordinate": got, "gap": entry["gap"]}
+            entry["read_position_check"] = {"status": "passed", "mean_coordinate": got, "gap": entry["gap"],
+                                           "training_questions_per_pair": len(train_ids),
+                                           "cohort": "all original training IDs, independent of answer usability"}
             if abs(got - entry["gap"]) > 0.02 * abs(entry["gap"]) + 1e-3:
                 raise RuntimeError("L%d: the read-position coordinate %.4f does not reproduce the stored gap %.4f" % (layer, got, entry["gap"]))
             log("L%d read-position check: mean coordinate %.4f = stored gap %.4f" % (layer, got, entry["gap"]))
@@ -726,7 +775,10 @@ def run_export(args):
     questions = prepared["splits"][args.split]
     frozen_path = run_dir / ("frozen_%s.json" % args.split)
     frozen = read(frozen_path)
-    E.validate_frozen(frozen, questions, frozen["prompt_systems"], require_full=True)
+    E.validate_frozen(frozen, questions, systems, require_full=True)
+    if frozen["identity"].get("prompts_config") != cfg:
+        raise ValueError("parent prompt configuration differs from the requested configuration")
+    E.require_current(frozen["identity"], args)
     if frozen["split"] != args.split:
         raise SystemExit("frozen artifact declares a different split")
     if frozen["identity"].get("source_files_sha256") != {n: file_sha(args.source_run / n) for n in ("bank.json", "questions.json")}:
@@ -739,7 +791,26 @@ def run_export(args):
         files = [out_dir / "gen" / n for n in args.gen]
     if any(not p.is_file() for p in files) or any(PARTIAL_RE.match(p.name) for p in files):
         raise SystemExit("a named generation file is missing or partial")
-    before = {str(p): file_sha(p) for p in [frozen_path, *files]}
+    before = {str(p): file_sha(p) for p in [frozen_path, *files, args.source_run / "bank.json",
+                                         args.source_run / "questions.json", args.prompts, args.prompts_e44,
+                                         args.prompts_extra, Path(__file__).resolve()]}
+    expected_ids = [q["pair_id"] for q in questions]
+    cohort_sha = pd.fingerprint(questions)
+
+    def exact_rows(rows, label, with_question=False):
+        if not isinstance(rows, list):
+            raise ValueError(label + " rows must be a list")
+        lookup = {}
+        for row in rows:
+            pid = row.get("pair_id")
+            if not isinstance(pid, str) or not pid or pid in lookup:
+                raise ValueError(label + " has duplicate or invalid question IDs")
+            lookup[pid] = row
+        if list(lookup) != expected_ids:
+            raise ValueError(label + " has extra, missing or reordered rows")
+        if with_question and any(lookup[q["pair_id"]].get("question") != q["question"] for q in questions):
+            raise ValueError(label + " has a changed question")
+        return lookup
 
     def base_rows(name):
         if name not in extra:
@@ -749,27 +820,60 @@ def run_export(args):
             raise SystemExit("no saved no-write answers for prompt %s (generate --bases %s)" % (name, name))
         b = e43.validate_artifact(read(bpath), "extra base")
         if b.get("completed") is not True or b["identity_sha256"] != frozen["identity_sha256"] or b["system"] != extra[name] \
-                or b["question_ids"] != [q["pair_id"] for q in questions] or b["frozen_file_sha256"] != before[str(frozen_path)]:
+                or b["question_ids"] != expected_ids or b["frozen_file_sha256"] != before[str(frozen_path)] \
+                or b.get("phase") != "base" or b.get("split") != args.split or b.get("prompt") != name \
+                or b.get("partial") is not False or b.get("cohort_sha256") != cohort_sha \
+                or not b.get("script_sha256"):
             raise SystemExit("saved answers of prompt %s are partial, foreign, or were made with another prompt text" % name)
         before[str(bpath)] = file_sha(bpath)
-        return {r["pair_id"]: r for r in b["rows"]}
+        base_versions.add(b["script_sha256"])
+        return exact_rows(b["rows"], "extra baseline")
 
-    gens, bases, versions = [], {}, set()
+    gens, bases, versions, base_versions = [], {}, set(), set()
     for path in files:
         d = e43.validate_artifact(read(path), "extra generation")
         if d.get("completed") is not True or d.get("partial") is not False or d.get("phase") != "generate" or d.get("split") != args.split:
             raise SystemExit("partial / foreign file cannot enter a judge export: " + path.name)
         if d["identity_sha256"] != frozen["identity_sha256"] or d["frozen_file_sha256"] != before[str(frozen_path)]:
             raise SystemExit("generation and frozen answers belong to different runs: " + path.name)
-        if d["question_ids"] != [q["pair_id"] for q in questions]:
+        if d["question_ids"] != expected_ids or d.get("cohort_sha256") != cohort_sha:
             raise SystemExit("generation covers other questions: " + path.name)
+        exact_rows(d["rows"], "extra generation", with_question=True)
+        base, parsed = parse_arm(d["arm"], dict(systems, **extra))
+        if base != d.get("base_prompt") or len(parsed) != len(d.get("parts", [])):
+            raise ValueError("generation arm and parts differ")
+        contract = d.get("generation_contract", {})
+        for key in ("arm", "base_prompt", "parts", "split", "partial", "positions", "cohort_sha256",
+                    "frozen_file_sha256", "identity_sha256", "own_sha256", "max_new_tokens"):
+            if contract.get(key) != d.get(key):
+                raise ValueError("generation contract mismatch: " + key)
+        if d.get("base_kind") != ("extra" if base in extra else "frozen"):
+            raise ValueError("generation base kind differs from the prompt")
+        if d.get("identity") != frozen["identity"]:
+            raise ValueError("generation parent identity content differs")
+        for pp, part in zip(parsed, d["parts"]):
+            if any(pp[k] != part.get(k) for k in pp):
+                raise ValueError("generation part differs from its arm")
         for part in d["parts"]:
             if part["direction_run"] not in runs:
                 raise SystemExit("%s uses a direction of run %s; pass that run as --c-run-dir" % (path.name, part["direction_run"]))
-            dpath = runs[part["direction_run"]] / "dirs" / part["direction_file"]
+            dpath = E._source_path(runs[part["direction_run"]], "dirs", part["direction_file"])
             if file_sha(dpath) != part["direction_file_sha256"]:
                 raise SystemExit("direction file changed after generation: " + path.name)
             before[str(dpath)] = part["direction_file_sha256"]
+            rec = torch.load(dpath, map_location="cpu", weights_only=False)
+            E.validate_direction(rec, part["family"], part["layer"], frozen["identity_sha256"], False)
+            E.validate_direction_sources(rec, dpath.parent.parent)
+            tpath = E._source_path(dpath.parent.parent, "", rec["frozen_source"])
+            before[str(tpath)] = file_sha(tpath)
+            if (rec["artifact_sha256"] != part.get("direction_record_sha256") or
+                    rec["training_contract"]["frozen_file_sha256"] != part.get("training_frozen_file_sha256") or
+                    rec["training_contract"]["positions"] != d["positions"] or
+                    rec["e_on"] != part.get("e_on") or rec.get("e_off") != part.get("e_off")):
+                raise ValueError("generation direction metadata differs from its verified parent")
+            write = part_write(rec, part["kind"], part["beta"], len(rec["w"]), contract["seed"], part["layer"])
+            if not math.isclose(float(write["amount"]), part["amount"], rel_tol=1e-9, abs_tol=1e-9):
+                raise ValueError("generation amount differs from the direction and arm")
         versions.add(json.dumps(d["own_sha256"], sort_keys=True))
         gens.append(d)
         if d["base_kind"] == "extra" and d["base_prompt"] not in bases:
@@ -783,6 +887,9 @@ def run_export(args):
     for p in prompt_names:
         if p not in frozen["prompt_systems"] and p not in bases:
             bases[p] = base_rows(p)
+    allowed_script = json.loads(next(iter(versions)))["script"] if versions else file_sha(Path(__file__).resolve())
+    if any(v != allowed_script for v in base_versions):
+        raise ValueError("extra baseline and intervention were generated by different script versions")
     conditions = ["baseline_" + p for p in prompt_names]
     specs = [{"name": "baseline_" + p, "base_condition": "baseline_" + p, "kind": "prompt_control",
               "uses_reference_answer": False} for p in prompt_names]

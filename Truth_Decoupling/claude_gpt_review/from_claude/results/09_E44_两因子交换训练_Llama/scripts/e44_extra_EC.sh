@@ -86,6 +86,44 @@ case $STAGE in
     python scripts/review_checks/judge_two_axis_run.py llm "$WORK" --judge pro
     python scripts/review_checks/judge_two_axis_run.py single "$WORK" --judge pro > "$WORK/single_pro_stdout.md"
     ;;
+  # ---- 33 section 1.7 B and D as written there (GPT round 34 A2 / B1: four cells, real component amounts; natural is
+  #      a descriptive diagnostic only, never an identity verdict)
+  genS)    # the split of the learned write at layer 10 on conf; full w regenerated as a reproduction check of the driver
+    ARMS="conf:E10.wpar.p2 conf:E10.wperp.p2 conf:E10.mdg.p2 conf:E10.wpar.p1 conf:E10.wperp.p1 conf:E10.mdg.p1 conf:E10.w.p2 conf:E10.w.p1"
+    step "generate $ARMS"
+    python scripts/e44_eval_extra.py generate "${COMMON[@]}" --arms $ARMS
+    ;;
+  judgeS)
+    export DEEPSEEK_API_KEY_FILE=$ROOT/logs/.deepseek_key
+    NAME=split_tune
+    WORK=$MAIN/eval_extra/judge_tune_$NAME
+    GEN="conf--E10-wpar-p2_tune.json conf--E10-wperp-p2_tune.json conf--E10-mdg-p2_tune.json conf--E10-wpar-p1_tune.json"
+    GEN="$GEN conf--E10-wperp-p1_tune.json conf--E10-mdg-p1_tune.json conf--E10-w-p2_tune.json conf--E10-w-p1_tune.json"
+    step "export $GEN"
+    python scripts/e44_eval_extra.py export --source-run "$SRC" --run-dir "$MAIN" --split tune --gen $GEN --name "$NAME" --overwrite | tail -n 3
+    mkdir -p "$WORK/judge2/cache"
+    cp "$MAIN/eval_extra/judge_tune/$NAME.json" "$WORK/judge_input.json"
+    cp -n "$MAIN/eval_extra/judge_tune_ecF_tune/judge2/cache/judge2_cache_deepseek-v4-pro.jsonl" "$WORK/judge2/cache/" || true
+    step "cells"
+    python scripts/review_checks/judge_two_axis_run.py cells "$WORK" --generation judge_input.json | grep -E "n_cells|n_unique_question_answer"
+    step "allenai on card $GPU"
+    python scripts/allenai_tqa_judge.py --cells "$WORK/judge2/cells.jsonl" --out "$WORK/judge2/allenai.jsonl" \
+      --truth-model "$ROOT/models/allenai__truthfulqa-truth-judge-llama2-7B" --info-model "$ROOT/models/allenai__truthfulqa-info-judge-llama2-7B" | tail -n 1
+    python scripts/review_checks/judge_two_axis_run.py single "$WORK" --judge allenai > "$WORK/single_allenai_stdout.md"
+    step "pro (two questions per unique cell)"
+    python scripts/review_checks/judge_two_axis_run.py llm "$WORK" --judge pro
+    python scripts/review_checks/judge_two_axis_run.py single "$WORK" --judge pro > "$WORK/single_pro_stdout.md"
+    ;;
+  nat)     # read-only natural differences; the training split carries the alignment check, the tuning split is reported only
+    for sp in train tune; do
+      step "natural E layers 8 10, split $sp"
+      python scripts/e44_eval_extra.py natural --source-run "$SRC" --run-dir "$MAIN" --split $sp --batch-size 8 \
+        --max-new-tokens 48 --max-target-tokens 24 --family E --layers 8 10 --pairs conf_E1:conf caut_E1:caut x_E1:x
+      step "natural C layers 19 31, split $sp"
+      python scripts/e44_eval_extra.py natural --source-run "$SRC" --run-dir "$MAIN" --split $sp --batch-size 8 \
+        --max-new-tokens 48 --max-target-tokens 24 --family C --layers 19 31 --pairs caut:conf caut_E1:conf_E1
+    done
+    ;;
   *) echo "unknown STAGE $STAGE" >&2; exit 2 ;;
 esac
 step done
