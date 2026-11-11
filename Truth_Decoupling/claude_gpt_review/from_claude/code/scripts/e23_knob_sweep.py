@@ -27,7 +27,7 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import e22_two_stage as e22                                      # noqa: E402
-from common import RESULTS_DIR, load_split, tf_prompt            # noqa: E402
+from common import RESULTS_DIR, load_split, runtime_record, tf_prompt  # noqa: E402
 from core.config import load_experiment, load_model_config       # noqa: E402
 from core.directions import load_das_direction, mean_diff_direction  # noqa: E402
 from core.intervene import SteerSpec, next_token_logits          # noqa: E402
@@ -232,7 +232,7 @@ def main():
         lp = [label_logprobs_from_logits(x, lab_map, use_abstain=False) for x in lg]
         return e22.tf_scores(lg, lab_map), np.array([d["True"] - d["False"] for d in lp], dtype=np.float64)
 
-    res = {"model": mcfg["name"], "n": len(recs), "n_est": len(est), "layers": L, "conds": {},
+    res = {"model": mcfg["name"], "n": len(recs), "n_est": len(est), "layers": L, "conds": {}, "runtime": runtime_record(mcfg),
            "num_layers": bundle.num_layers, "all_layers_requested": args.all_layers,
            "tune_pairs": args.tune_pairs, "teacher_split": args.teacher_split,
            "est_extra_pairs": args.est_extra_pairs, "est_extra_ids": sorted(extra_ids),

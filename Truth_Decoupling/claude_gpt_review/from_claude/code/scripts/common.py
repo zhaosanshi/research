@@ -39,3 +39,11 @@ def commitment_prompts(bundle, prompts, statement_or_question, is_statement=True
 
 def to_numpy(t):
     return t.detach().float().cpu().numpy()
+
+
+def runtime_record(model_cfg):
+    """Interpreter, library versions and model path of this run (new and old models run on different transformers versions)."""
+    import torch
+    import transformers
+    return {"python": sys.executable, "transformers": transformers.__version__, "torch": torch.__version__,
+            "model_path": model_cfg.get("path"), "model_config_name": model_cfg.get("name")}

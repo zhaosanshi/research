@@ -2,7 +2,10 @@
 
 Everything model-specific comes from the model config (periphery):
   path, dtype, device / device_map, layers_attr ("model.layers"),
-  attn_attr ("self_attn"), chat.supports_system, chat.thinking_stub.
+  attn_attr ("self_attn", or a list of candidate names for hybrid stacks whose
+  layers carry different mixers, e.g. ["self_attn", "linear_attn"]),
+  chat.supports_system, chat.thinking_stub, chat.template_kwargs (extra keyword
+  arguments for the tokenizer's chat template, e.g. {"enable_thinking": false}).
 
 Activation convention (same as v12): the *block output* of decoder layer l,
 i.e. the residual stream after layer l (== hidden_states[l+1]), at the last
@@ -25,6 +28,14 @@ def _resolve_attr(obj, dotted):
     for part in dotted.split("."):
         obj = getattr(obj, part)
     return obj
+
+
+def chat_template_kwargs(cfg):
+    """Extra chat-template arguments from the model config (none for the older models: their call is unchanged)."""
+    kw = ((cfg or {}).get("chat", {}) or {}).get("template_kwargs") or {}
+    if not isinstance(kw, dict):
+        raise ValueError("chat.template_kwargs must be a JSON object")
+    return dict(kw)
 
 
 class ModelBundle:
@@ -52,7 +63,14 @@ class ModelBundle:
         return self.layers()[idx]
 
     def attn(self, idx):
-        return getattr(self.layer(idx), self.cfg.get("attn_attr", "self_attn"))
+        names = self.cfg.get("attn_attr", "self_attn")
+        layer = self.layer(idx)
+        if isinstance(names, str):
+            return getattr(layer, names)
+        for name in names:                      # hybrid stacks: the first mixer this layer has
+            if hasattr(layer, name):
+                return getattr(layer, name)
+        raise AttributeError("layer %d has none of the attention modules %s" % (idx, list(names)))
 
     # ---- prompts ---------------------------------------------------------- #
     def build_chat(self, system, user, add_generation_prompt=True):
@@ -62,7 +80,8 @@ class ModelBundle:
         else:
             merged = (system.strip() + "\n\n" + user) if system else user
             msgs = [{"role": "user", "content": merged}]
-        text = self.tokenizer.apply_chat_template(msgs, tokenize=False, add_generation_prompt=add_generation_prompt)
+        text = self.tokenizer.apply_chat_template(msgs, tokenize=False, add_generation_prompt=add_generation_prompt,
+                                                  **chat_template_kwargs(self.cfg))
         stub = chat.get("thinking_stub", "")
         if stub and add_generation_prompt:
             text += stub

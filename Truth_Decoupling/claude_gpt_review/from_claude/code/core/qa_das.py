@@ -51,7 +51,9 @@ def user_turn_suffix(bundle, system, user_text, selfcheck_user):
     else:
         msgs = [{"role": "user", "content": (system.strip() + "\n\n" + user_text) if system else user_text}]
     msgs += [{"role": "assistant", "content": _TURN_DUMMY}, {"role": "user", "content": selfcheck_user}]
-    text = bundle.tokenizer.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)
+    from .model_io import chat_template_kwargs
+    text = bundle.tokenizer.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True,
+                                                **chat_template_kwargs(getattr(bundle, "cfg", {})))
     if text.count(_TURN_DUMMY) != 1 or selfcheck_user not in text:
         raise ValueError("chat template did not render the user-turn self-check as expected")
     return text[text.index(_TURN_DUMMY) + len(_TURN_DUMMY):] + (chat.get("thinking_stub", "") or "")

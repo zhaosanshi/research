@@ -1,0 +1,15 @@
+{
+  "name": "qwen3.5-9b",
+  "family": "qwen3_5",
+  "path": "${TD_MODEL_ROOT:-/workspace/Truth_Decoupling/models}/Qwen3.5-9B",
+  "modelscope_repo": "Qwen/Qwen3.5-9B",
+  "hidden_size": 4096,
+  "num_layers": 32,
+  "dtype": "bfloat16",
+  "device": "cuda",
+  "layers_attr": "model.layers",
+  "attn_attr": ["self_attn", "linear_attn"],
+  "chat": {"supports_system": true, "thinking_stub": "", "template_kwargs": {"enable_thinking": false}},
+  "python": "/workspace/Truth_Decoupling/envs/tf519/bin/python",
+  "notes": "Hybrid stack: 24 linear-attention (Gated DeltaNet, module linear_attn) + 8 full-attention (self_attn) layers, every 4th full. Checkpoint is the vision-language Qwen3_5ForConditionalGeneration; AutoModelForCausalLM (transformers 5.19) loads the text model Qwen3_5ForCausalLM and skips the vision tower and the MTP head. Needs transformers >= 5 (container default is 4.57.1), hence the separate env in 'python'. Thinking off through the template's own enable_thinking=false (renders '<think>\\n\\n</think>\\n\\n' after the generation prompt; the default would open '<think>\\n')."
+}

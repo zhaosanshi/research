@@ -1,0 +1,15 @@
+{
+  "name": "qwen3.8-27b",
+  "family": "qwen3_5",
+  "path": "${TD_MODEL_ROOT:-/workspace/Truth_Decoupling/models}/Qwen3.8-27B",
+  "modelscope_repo": "Qwen/Qwen3.8-27B",
+  "hidden_size": 5120,
+  "num_layers": 64,
+  "dtype": "bfloat16",
+  "device": "cuda",
+  "layers_attr": "model.layers",
+  "attn_attr": ["self_attn", "linear_attn"],
+  "chat": {"supports_system": true, "thinking_stub": "", "template_kwargs": {"enable_thinking": false}},
+  "python": "/workspace/Truth_Decoupling/envs/tf519/bin/python",
+  "notes": "Same architecture class as Qwen3.5-9B (model_type qwen3_5): 48 linear-attention + 16 full-attention layers. bf16 weights about 52 GB: fits one 72 GB card for forward passes. Needs transformers >= 5 (separate env in 'python'). Thinking off through enable_thinking=false; with thinking on the template would also add a reasoning-effort instruction."
+}

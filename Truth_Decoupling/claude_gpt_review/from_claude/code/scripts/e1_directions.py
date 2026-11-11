@@ -17,7 +17,7 @@ import argparse
 import os
 import time
 
-from common import RESULTS_DIR, commitment_prompts, load_split, tf_prompt, to_numpy
+from common import RESULTS_DIR, commitment_prompts, load_split, runtime_record, tf_prompt, to_numpy
 
 import numpy as np
 import torch
@@ -220,7 +220,7 @@ def main():
     atomic_json_dump({"E": scores_E, "C": scores_C}, os.path.join(out_dir, "layer_scores.json"))
 
     summary = {
-        "experiment": exp_name("E1", model=mcfg["name"], s=seed), "model": mcfg["name"], "started": now_iso(),
+        "experiment": exp_name("E1", model=mcfg["name"], s=seed), "model": mcfg["name"], "started": now_iso(), "runtime": runtime_record(mcfg),
         "num_layers": bundle.num_layers, "direction_prompt_allow_idk": e_idk,
         "layer_roles": {"read": "probe separability on estimation data",
                         "score_proposed_write": "LA-Score proposal only; not measured intervention benefit",
