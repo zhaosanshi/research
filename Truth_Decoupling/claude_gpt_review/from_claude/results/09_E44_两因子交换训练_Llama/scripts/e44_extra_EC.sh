@@ -53,6 +53,39 @@ case $STAGE in
     python scripts/review_checks/judge_two_axis_run.py llm "$WORK" --judge pro
     python scripts/review_checks/judge_two_axis_run.py single "$WORK" --judge pro > "$WORK/single_pro_stdout.md"
     ;;
+  # ---- the complete-sentence background (from_claude/37 section 2, written before these runs)
+  genF)    # E+C and its two single writes on x_F; needs the selfcheck for base x_F (e44_extra_selfcheck.sh ARM=x_F:...)
+    ARMS="x_F:E10.w.p2+C31.w.m0.25 x_F:E10.w.p2 x_F:C31.w.m0.25"
+    step "generate $ARMS"
+    python scripts/e44_eval_extra.py generate "${COMMON[@]}" --arms $ARMS
+    ;;
+  genCF)   # must-answer E on the must-answer + complete-sentence prompt (33 section 1.7 A; GPT round 34 A2)
+    ARMS="conf_F:E10.w.p1 conf_F:E10.w.p2 conf_F:E10.rand.p2 conf_F:E10.rand.m2"
+    step "generate bases conf_F conf_E1_F; arms $ARMS"
+    python scripts/e44_eval_extra.py generate "${COMMON[@]}" --bases conf_F conf_E1_F --arms $ARMS
+    ;;
+  judgeF)
+    export DEEPSEEK_API_KEY_FILE=$ROOT/logs/.deepseek_key
+    NAME=ecF_tune
+    WORK=$MAIN/eval_extra/judge_tune_$NAME
+    GEN="x_F--E10-w-p2-and-C31-w-m0-25_tune.json x_F--E10-w-p2_tune.json x_F--C31-w-m0-25_tune.json"
+    GEN="$GEN conf_F--E10-w-p1_tune.json conf_F--E10-w-p2_tune.json conf_F--E10-rand-p2_tune.json conf_F--E10-rand-m2_tune.json"
+    step "export $GEN + prompt control conf_E1_F"
+    python scripts/e44_eval_extra.py export --source-run "$SRC" --run-dir "$MAIN" --split tune --gen $GEN --prompts-out conf_E1_F \
+      --name "$NAME" --overwrite | tail -n 3
+    mkdir -p "$WORK/judge2/cache"
+    cp "$MAIN/eval_extra/judge_tune/$NAME.json" "$WORK/judge_input.json"
+    cp -n "$MAIN/eval_extra/judge_tune_ec_tune/judge2/cache/judge2_cache_deepseek-v4-pro.jsonl" "$WORK/judge2/cache/" || true
+    step "cells"
+    python scripts/review_checks/judge_two_axis_run.py cells "$WORK" --generation judge_input.json | grep -E "n_cells|n_unique_question_answer"
+    step "allenai on card $GPU"
+    python scripts/allenai_tqa_judge.py --cells "$WORK/judge2/cells.jsonl" --out "$WORK/judge2/allenai.jsonl" \
+      --truth-model "$ROOT/models/allenai__truthfulqa-truth-judge-llama2-7B" --info-model "$ROOT/models/allenai__truthfulqa-info-judge-llama2-7B" | tail -n 1
+    python scripts/review_checks/judge_two_axis_run.py single "$WORK" --judge allenai > "$WORK/single_allenai_stdout.md"
+    step "pro (two questions per unique cell)"
+    python scripts/review_checks/judge_two_axis_run.py llm "$WORK" --judge pro
+    python scripts/review_checks/judge_two_axis_run.py single "$WORK" --judge pro > "$WORK/single_pro_stdout.md"
+    ;;
   *) echo "unknown STAGE $STAGE" >&2; exit 2 ;;
 esac
 step done
