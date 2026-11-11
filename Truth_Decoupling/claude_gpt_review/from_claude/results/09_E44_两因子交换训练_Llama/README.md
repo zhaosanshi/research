@@ -56,6 +56,7 @@
 | `side_M_seeds_cells_E_two_judges_L11_L13.md`、`side_M_axes_E_two_judges_L11_L13.md` | 旁支 M 第 11、13 层：再两个训练种子的冻结判据；再两条随机轴 |
 | `side_M_dose_E_two_judges_L11_12_13.md`、`side_M_cells_E_x_strength2_two_judges_L11_12_13.md` | 旁支 M 探索臂（力度 0.5 / 2、必须作答问法）两家裁判 |
 | `side_M_flips_E_L11_x_strength1_pro.md`、`side_M_flips_E_L11_x_strength2_pro.md` | 旁支 M 第 11 层：Pro 标签变了的题，写入前后两版回答 |
+| `mainE_seeds_cells_E_conf_strength2_two_judges_L10.md`、`mainE_seeds_arms_two_judges_L10.md`、`mainE_axes_two_judges_L10.md` | 主实验必须作答 E（第 10 层力度 2）：再两个训练种子、再两条随机轴，两家裁判 |
 
 ## `scripts/`（运行脚本，只按参数调用审过的入口）
 
