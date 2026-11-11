@@ -1,0 +1,26 @@
+{
+  "reviewed_commit": "6243820856e68604b84d2f7319cdfc13df2198c9",
+  "scope": "CPU execution and metadata/parent validation; no real Llama GPU runs, no paid judge, no 529 access",
+  "original_tests": 9,
+  "final_tests": 12,
+  "final_passed": 12,
+  "final_skipped": 0,
+  "old_revision_regressions": {
+    "passed": 8,
+    "failed": 3,
+    "export_accepted_invalid": [
+      "extra_generation_row",
+      "wrong_part_contract",
+      "duplicate_base_row",
+      "changed_training_parent"
+    ]
+  },
+  "source_sha256": {
+    "from_claude/code/scripts/e44_eval_extra.py": "4438a282d3e0c12c396e688e65daa2172297fc9a43fd407dd4b3e340869cab18",
+    "from_claude/code/tests/test_e44_eval_extra.py": "e0df90f24babc1d0baad026ed1fb6ace60fc0ea61b7366473cc7f71f7dd75c7a"
+  },
+  "warnings": [
+    "Existing Python3.9 LibreSSL urllib3 warning; tests passed"
+  ],
+  "remaining_acceptance": "Real-model acceptance on unchanged batch composition, two nonzero writes, early stopping/mixed lengths/tail batch; three algebraic degeneracies alone do not cover all paths."
+}

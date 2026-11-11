@@ -175,7 +175,7 @@ def test_natural_rows_are_aligned_and_identical_prompts_give_zero(bundle):
     read_plus = pd.capture_prompt_end(bundle, [plus[i]["prefix_text"] for i in keep], 1, 2)
     read_minus = pd.capture_prompt_end(bundle, [minus[i]["prefix_text"] for i in keep], 1, 2)
     for k, i in enumerate(keep):
-        D, n, t, e = rows[i]
+        D, n, t, e, unfed = rows[i]
         m = minus[i]
         assert n == m["prompt_length"] - m["content_start"]
         assert t == 4                                     # <|eot_id|> <|start_header_id|> assistant <|end_header_id|>
@@ -194,7 +194,7 @@ def test_natural_rows_are_aligned_and_identical_prompts_give_zero(bundle):
     assert st["read"]["questions"] == 3 and abs(st["read"]["u"]["mean"] - sum(want) / 3) < 1e-5
     assert st["question"]["positions"] == sum(rows[i][1] - 1 - rows[i][2] for i in keep)
     assert st["template"]["positions"] == 3 * 4 and st["read"]["positions"] == 3
-    assert st["answer"]["positions"] == sum(min(len(answers[i]["token_ids"]), cap) for i in keep)
+    assert st["answer"]["positions"] == sum(min(len(answers[i]["token_ids"]), cap) - rows[i][4] for i in keep)
     assert st["terminator"]["positions"] == len(eot) and st["terminator"]["written_at_inference"] is False
     assert all(st[k]["written_at_inference"] for k in ("question", "template", "read", "answer"))
     # a prompt pair whose content spans differ (another question) is refused, not silently misaligned
@@ -247,6 +247,13 @@ def test_script_end_to_end_on_the_toy_model(bundle, tmp_path, monkeypatch, capsy
     assert "selfcheck passed on 4 questions" in out
     checks = list((run / "eval_extra").glob("selfcheck_*.json"))
     assert len(checks) == 1 and json.loads(checks[0].read_text())["passed"] is True
+    original_check = checks[0].read_bytes()
+    check = json.loads(original_check)
+    check["parts"][0]["direction_file_sha256"] = "f" * 64
+    checks[0].write_text(json.dumps(e43.seal({k: v for k, v in check.items() if k != "artifact_sha256"})))
+    with pytest.raises(SystemExit, match="selfcheck parents"):
+        call("generate", "--arms", "x:E0.w.p2+C1.w.m0.5")
+    checks[0].write_bytes(original_check)
     with pytest.raises(SystemExit):
         call("selfcheck", "--arms", "x:E0.w.p2")                                # a single write has nothing to check
     arms = ["conf:E1.w.p2", "conf:E1.wpar.p2", "conf:E1.wperp.p2", "conf:E1.mdg.p1", "conf:E1.md.p1", "conf_F:E1.w.p2",
@@ -290,6 +297,15 @@ def test_script_end_to_end_on_the_toy_model(bundle, tmp_path, monkeypatch, capsy
     seg = layer["pairs"]["conf_E1:conf|answer=minus"]["segments"]
     assert seg["read"]["questions"] > 0 and set(seg["answer"]) >= {"w", "w_md", "perp", "difference_norm_mean"}
     assert set(seg) == {"question", "template", "read", "answer", "terminator"} and nat["segments"]["terminator"] is False
+    assert layer["read_position_check"]["status"] == "passed"
+    # The training read gap is calibrated on the original training cohort, even when no
+    # frozen answer is usable for the separate teacher-forced position diagnostics.
+    with monkeypatch.context() as patch:
+        patch.setattr(X, "natural_rows", lambda b, l, pp, pm, ans, eot, cap, bs: ([None] * len(ans), {"unusable answer": len(ans)}))
+        call("natural", "--family", "E", "--layers", "0", "--pairs", "conf_E1:conf", "--split", "train")
+    empty_nat = json.loads((run / "eval_extra" / "natural_E_L0_train.json").read_text())["layers"]["0"]
+    assert empty_nat["read_position_check"]["status"] == "passed"
+    assert all(v["read_alignment_check"]["status"] == "no_usable_answers" for v in empty_nat["pairs"].values())
     with pytest.raises(SystemExit):                                             # the same file is not silently replaced
         call("natural", "--family", "E", "--layers", "1", "--pairs", "conf_E1:conf", "caut_E1:caut", "--split", "train")
     with pytest.raises(SystemExit):                                             # duplicate pairs would bias the check
@@ -341,7 +357,7 @@ def test_script_end_to_end_on_the_toy_model(bundle, tmp_path, monkeypatch, capsy
     d = json.loads(original)
     d["own_sha256"] = dict(d["own_sha256"], script="0" * 64)
     victim.write_text(json.dumps(e43.seal({k: v for k, v in d.items() if k != "artifact_sha256"})))
-    with pytest.raises(SystemExit):
+    with pytest.raises((SystemExit, ValueError)):
         call("export", "--name", "mixed_versions", "--c-run-dir", str(run_c))
     victim.write_bytes(original)
     # --gen with no names: prompt controls only
@@ -349,9 +365,81 @@ def test_script_end_to_end_on_the_toy_model(bundle, tmp_path, monkeypatch, capsy
     controls = json.loads((run / "eval_extra" / "judge_tune" / "controls_only.json").read_text())
     assert controls["conditions"] == ["baseline_conf_E1_F", "baseline_conf_F"]
     call("export", "--name", "judge_input", "--c-run-dir", str(run_c), "--prompts-out", "conf_E1_F")   # identical content is reusable
+    # R34: sealed JSON is not sufficient evidence of a complete, matching cohort/parent chain.
+    accepted_bad = []
+    def rejects_changed(path, changed, tag):
+        original_bytes = path.read_bytes()
+        try:
+            path.write_bytes(changed)
+            try:
+                call("export", "--name", "bad_" + tag, "--c-run-dir", str(run_c), "--prompts-out", "conf_E1_F")
+            except (ValueError, SystemExit, RuntimeError):
+                return
+            accepted_bad.append(tag)
+        finally:
+            path.write_bytes(original_bytes)
+    def reseal(d):
+        return json.dumps(e43.seal({k: v for k, v in d.items() if k != "artifact_sha256"})).encode()
+    d = json.loads(victim.read_bytes())
+    d["rows"].append(dict(d["rows"][0], pair_id="foreign", question="another question"))
+    rejects_changed(victim, reseal(d), "extra_generation_row")
+    d = json.loads(victim.read_bytes()); d["parts"][0]["beta"] = 99.0
+    rejects_changed(victim, reseal(d), "wrong_part_contract")
+    bpath = run / "eval_extra" / "base_conf_F_tune.json"
+    d = json.loads(bpath.read_bytes()); d["rows"].append(dict(d["rows"][0]))
+    rejects_changed(bpath, reseal(d), "duplicate_base_row")
+    rejects_changed(run / "frozen_train.json", (run / "frozen_train.json").read_bytes() + b"\n", "changed_training_parent")
+    assert not accepted_bad, "export accepted invalid inputs: %s" % accepted_bad
     # the parent run's own files were only read
     assert before == {p.name: p.read_bytes() for p in list(run.glob("*.json")) + list((run / "dirs").glob("*.pt"))}
 
 
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-q"]))
+
+
+def test_mdg_control_is_defined_when_direction_equals_mean():
+    w = torch.tensor([1., 0.])
+    rec = {"w": w, "w_md": w, "gap": 2., "md_norm": 2., "mean_difference_defined": True}
+    got = X.part_write(rec, "mdg", 0.5, 2, 42, 0)
+    assert got["amount"] == 1. and torch.equal(got["direction"], w)
+
+
+def test_natural_requires_equal_length_input_lists(bundle):
+    pp = pd.render_prompt(bundle, CONF, USER, Q1)
+    with pytest.raises(ValueError, match="length"):
+        X.natural_rows(bundle, 1, [pp, pp], [pp], [None, None], pd.turn_terminator_ids(bundle), 24, 2)
+
+
+def test_two_hooks_stop_finished_rows_and_cleanup_on_exception(bundle, monkeypatch):
+    prompts, a, b = _two(bundle)
+    prompts = prompts[:2]
+    seen = []
+    original_hook = fd.ShiftHook
+    class RecordedHook(original_hook):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            seen.append(self)
+    monkeypatch.setattr(fd, "ShiftHook", RecordedHook)
+    stop = sorted(pd.stop_ids(bundle))[0]
+    token = bundle.tokenizer("hello", add_special_tokens=False)["input_ids"][0]
+    def forced_generate(bun, inputs, cap):
+        bun.model(**inputs)
+        for pair in ([stop, token], [bun.tokenizer.pad_token_id, token]):
+            ids = torch.tensor(pair).reshape(2, 1)
+            bun.model(input_ids=ids, attention_mask=torch.ones_like(ids))
+        new = torch.tensor([[stop, bun.tokenizer.pad_token_id, bun.tokenizer.pad_token_id], [token, token, stop]])
+        return None, torch.cat([inputs["input_ids"], new], dim=1)
+    monkeypatch.setattr(X, "greedy_generate", forced_generate)
+    X.generate_two(bundle, prompts, [(0, a), (1, b)], max_new_tokens=3, batch_size=2)
+    assert len(seen) == 2
+    for hook in seen:
+        assert len(hook.decode_stored_norm) == 2
+        assert all(float(step[0]) == 0 and float(step[1]) > 0 for step in hook.decode_stored_norm)
+    before = (len(bundle.model._forward_pre_hooks), [len(l._forward_hooks) for l in bundle.model.model.layers])
+    def broken(*args, **kwargs):
+        raise RuntimeError("injected failure")
+    monkeypatch.setattr(X, "greedy_generate", broken)
+    with pytest.raises(RuntimeError, match="injected failure"):
+        X.generate_two(bundle, prompts, [(0, a), (1, b)], max_new_tokens=3, batch_size=2)
+    assert before == (len(bundle.model._forward_pre_hooks), [len(l._forward_hooks) for l in bundle.model.model.layers])

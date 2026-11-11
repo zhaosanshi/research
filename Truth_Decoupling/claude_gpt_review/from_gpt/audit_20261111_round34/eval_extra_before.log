@@ -1,0 +1,239 @@
+........FFF                                                              [100%]
+=================================== FAILURES ===================================
+___________________ test_script_end_to_end_on_the_toy_model ____________________
+
+bundle = <core.model_io.ModelBundle object at 0x14f7a6670>
+tmp_path = PosixPath('/private/var/folders/g0/ldsg37997kdf5l_0chwywx500000gn/T/pytest-of-sanshizhao/pytest-17/test_script_end_to_end_on_the_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x14faa16a0>
+capsys = <_pytest.capture.CaptureFixture object at 0x14faa1310>
+
+    def test_script_end_to_end_on_the_toy_model(bundle, tmp_path, monkeypatch, capsys):
+        """Parent run made by the unchanged driver; then every phase of this script. Plumbing only."""
+        import e43_qa_prompt_das as e43
+        import e44_factorial_das as drv
+        src, run = tmp_path / "source", tmp_path / "run"
+        src.mkdir()
+        topics = ["the moon", "green tea", "old maps", "river stones", "night trains", "paper kites", "copper wire",
+                  "winter wheat", "glass beads", "sea salt", "mountain goats", "city bells", "red clay", "tin roofs",
+                  "salt marshes", "wool socks"]
+        qs = [{"pair_id": "t:%d" % i, "question": "What is true about %s?" % t, "gold": ["It is ordinary", "Nothing special"],
+               "incorrect": ["It is magic", "It grants wishes"], "best_answer": "It is ordinary"} for i, t in enumerate(topics)]
+        (src / "bank.json").write_text(json.dumps({
+            "model": "tiny-llama", "model_config": {"name": "tiny-llama", "path": str(src)}, "hidden_size": bundle.hidden_size,
+            "num_layers": bundle.num_layers, "config": {"qa_system": "You are a knowledgeable assistant.", "qa_user": USER}}))
+        (src / "questions.json").write_text(json.dumps({"splits": {"train": qs[:8], "tune": qs[8:]}, "e_train": qs[:8]}))
+        bundle._e43_model_files = {}
+        monkeypatch.setattr(e43, "open_model", lambda meta: bundle)
+        common = ["--source-run", str(src), "--run-dir", str(run), "--max-new-tokens", "5", "--batch-size", "4"]
+    
+        def parent(*argv, run_dir=None):
+            base = common if run_dir is None else ["--source-run", str(src), "--run-dir", str(run_dir), "--max-new-tokens", "5", "--batch-size", "4"]
+            monkeypatch.setattr(sys, "argv", ["e44_factorial_das.py", argv[0], *base, *argv[1:]])
+            drv.main()
+            return capsys.readouterr().out
+    
+        def call(*argv):
+            monkeypatch.setattr(sys, "argv", ["e44_eval_extra.py", argv[0], *common, *argv[1:]])
+            X.main()
+            return capsys.readouterr().out
+    
+        parent("freeze")
+        parent("train", "--family", "E", "--layers", "0", "1", "--epochs", "2", "--val-n", "2")
+        parent("train", "--family", "C", "--layers", "1", "--epochs", "2", "--val-n", "2")
+        before = {p.name: p.read_bytes() for p in list(run.glob("*.json")) + list((run / "dirs").glob("*.pt"))}
+    
+        with pytest.raises(SystemExit):                                             # no two-write generation before a selfcheck
+            call("generate", "--arms", "x:E0.w.p2+C1.w.m0.5")
+        with pytest.raises(SystemExit):                                             # a selfcheck needs at least one full batch
+            call("selfcheck", "--arms", "x:E0.w.p2+C1.w.m1", "--first-batches", "1", "--batch-size", "8")
+        capsys.readouterr()
+        out = call("selfcheck", "--arms", "x:E0.w.p2+C1.w.m1", "--first-batches", "1")
+        assert "selfcheck passed on 4 questions" in out
+        checks = list((run / "eval_extra").glob("selfcheck_*.json"))
+        assert len(checks) == 1 and json.loads(checks[0].read_text())["passed"] is True
+        with pytest.raises(SystemExit):
+            call("selfcheck", "--arms", "x:E0.w.p2")                                # a single write has nothing to check
+        arms = ["conf:E1.w.p2", "conf:E1.wpar.p2", "conf:E1.wperp.p2", "conf:E1.mdg.p1", "conf:E1.md.p1", "conf_F:E1.w.p2",
+                "x:E0.w.p2+C1.w.m0.5", "x:E0.rand.p1+C1.w.m0.5"]
+        out = call("generate", "--arms", *arms)
+        assert "base conf_F (evaluation-only prompt)" in out and "E0 w" in out and "C1 w" in out
+        g = json.loads((run / "eval_extra" / "gen" / "x--E0-w-p2-and-C1-w-m0-5_tune.json").read_text())
+        assert g["completed"] and len(g["rows"]) == 8 and [p["layer"] for p in g["parts"]] == [0, 1]
+        assert all(len(r["write"]) == 2 for r in g["rows"]) and g["parts"][1]["amount"] < 0 < g["parts"][0]["amount"]
+        frozen = json.loads((run / "frozen_tune.json").read_text())
+        assert all(r["baseline_text"] == f["answers"]["x"]["text"] for r, f in zip(g["rows"], frozen["questions"]))
+        one = json.loads((run / "eval_extra" / "gen" / "conf--E1-w-p2_tune.json").read_text())
+        rec = torch.load(run / "dirs" / "E_L1.pt", map_location="cpu", weights_only=False)
+        assert abs(one["parts"][0]["amount"] - 2 * rec["gap"]) < 1e-9
+        parent("generate", "--family", "E", "--layers", "1", "--split", "tune", "--arms", "conf.w.p2")
+        same = json.loads((run / "gen" / "E_L1_conf-w-p2_tune.json").read_text())
+        assert [r["token_ids"] for r in one["rows"]] == [r["token_ids"] for r in same["rows"]]   # kind w = the driver's arm
+        par = json.loads((run / "eval_extra" / "gen" / "conf--E1-wpar-p2_tune.json").read_text())["parts"][0]
+        perp = json.loads((run / "eval_extra" / "gen" / "conf--E1-wperp-p2_tune.json").read_text())["parts"][0]
+        assert abs(par["amount"] ** 2 + perp["amount"] ** 2 - (2 * rec["gap"]) ** 2) < 1e-6
+        f = json.loads((run / "eval_extra" / "gen" / "conf_F--E1-w-p2_tune.json").read_text())
+        base_f = json.loads((run / "eval_extra" / "base_conf_F_tune.json").read_text())
+        assert f["base_kind"] == "extra" and base_f["system"].endswith("Write the answer as one complete sentence.")
+        assert f["baseline_source"] == "extra_generated" and f["baseline_reproduction_verified"] is False
+        assert [r["baseline_text"] for r in f["rows"]] == [r["text"] for r in base_f["rows"]]
+        assert "skip conf--E1-w-p2_tune.json (verified)" in call("generate", "--arms", "conf:E1.w.p2")
+        with pytest.raises(ValueError):                                             # another seed is another contract
+            call("generate", "--arms", "x:E0.rand.p1+C1.w.m0.5", "--seed", "7")
+        with pytest.raises(SystemExit):                                             # another batch size is another parent identity
+            monkeypatch.setattr(sys, "argv", ["e44_eval_extra.py", "generate", "--source-run", str(src), "--run-dir", str(run),
+                                              "--max-new-tokens", "5", "--batch-size", "2", "--arms", "conf:E1.w.p2"])
+            X.main()
+        capsys.readouterr()
+    
+        out = call("natural", "--family", "E", "--layers", "1", "--pairs", "conf_E1:conf", "caut_E1:caut", "--split", "train")
+        assert "read-position check: mean coordinate" in out
+        nat = json.loads((run / "eval_extra" / "natural_E_L1_train.json").read_text())
+        layer = nat["layers"]["1"]
+        assert abs(layer["read_position_check"]["mean_coordinate"] - rec["gap"]) <= 0.02 * abs(rec["gap"]) + 1e-3
+        assert set(layer["pairs"]) == {"conf_E1:conf|answer=minus", "conf_E1:conf|answer=plus", "caut_E1:caut|answer=minus", "caut_E1:caut|answer=plus"}
+        seg = layer["pairs"]["conf_E1:conf|answer=minus"]["segments"]
+        assert seg["read"]["questions"] > 0 and set(seg["answer"]) >= {"w", "w_md", "perp", "difference_norm_mean"}
+        assert set(seg) == {"question", "template", "read", "answer", "terminator"} and nat["segments"]["terminator"] is False
+        with pytest.raises(SystemExit):                                             # the same file is not silently replaced
+            call("natural", "--family", "E", "--layers", "1", "--pairs", "conf_E1:conf", "caut_E1:caut", "--split", "train")
+        with pytest.raises(SystemExit):                                             # duplicate pairs would bias the check
+            call("natural", "--family", "E", "--layers", "0", "--pairs", "conf_E1:conf", "conf_E1:conf", "--split", "train")
+        out = call("natural", "--family", "C", "--layers", "1", "--pairs", "caut:conf", "--split", "train")
+        assert "read-position check not run" in out                                 # C needs both of its training pairs
+        out = call("natural", "--family", "C", "--layers", "1", "--pairs", "caut:conf", "caut_E1:conf_E1", "--split", "train", "--overwrite")
+        assert "read-position check: mean coordinate" in out                        # with both pairs the stored gap is reproduced
+    
+        # prompt controls without an arm, and a C direction taken from another finished run of the same identity
+        out = call("generate", "--bases", "conf_E1_F")
+        assert "base conf_E1_F (evaluation-only prompt)" in out and (run / "eval_extra" / "base_conf_E1_F_tune.json").exists()
+        with pytest.raises(SystemExit):
+            call("generate", "--bases", "nope")
+        run_c = tmp_path / "run_c"                                                   # a side run: the main run's frozen files, byte for byte
+        run_c.mkdir()
+        for name in ("frozen_train.json", "frozen_tune.json"):
+            (run_c / name).write_bytes((run / name).read_bytes())
+        parent("train", "--family", "C", "--layers", "1", "--epochs", "1", "--val-n", "2", "--e-off", "M", run_dir=run_c)
+        with pytest.raises(ValueError):                                             # that run's truth levels must be named
+            call("generate", "--arms", "caut:E0.w.p1+C1.w.m1", "--c-run-dir", str(run_c))
+        with pytest.raises(SystemExit):                                             # other C direction: its own selfcheck first
+            call("generate", "--arms", "caut:E0.w.p1+C1.w.m1", "--c-run-dir", str(run_c), "--c-e-off", "M")
+        call("selfcheck", "--arms", "caut:E0.w.p1+C1.w.m1", "--c-run-dir", str(run_c), "--c-e-off", "M", "--first-batches", "1")
+        call("generate", "--arms", "caut:E0.w.p1+C1.w.m1", "--c-run-dir", str(run_c), "--c-e-off", "M")
+        mixed = json.loads((run / "eval_extra" / "gen" / "caut--E0-w-p1-and-C1-w-m1_tune.json").read_text())
+        assert [p["direction_run"] for p in mixed["parts"]] == ["run", "run_c"] and mixed["parts"][1]["e_off"] == "M"
+        other = torch.load(run_c / "dirs" / "C_L1.pt", map_location="cpu", weights_only=False)
+        assert abs(mixed["parts"][1]["amount"] + other["gap"]) < 1e-9 and other["artifact_sha256"] == mixed["parts"][1]["direction_record_sha256"]
+        with pytest.raises(SystemExit):                                             # export must be told where that direction lives
+            call("export", "--name", "no_c_run")
+        arms = arms + ["caut:E0.w.p1+C1.w.m1"]
+    
+        call("export", "--name", "judge_input", "--c-run-dir", str(run_c), "--prompts-out", "conf_E1_F")
+        payload = json.loads((run / "eval_extra" / "judge_tune" / "judge_input.json").read_text())
+        assert {"baseline_x", "baseline_conf", "baseline_conf_F", "baseline_conf_E1_F", "baseline_caut", "X_x--E0-w-p2-and-C1-w-m0-5",
+                "E_L1_conf_F-w-p2", "E_L1_conf-wperp-p2", "X_caut--E0-w-p1-and-C1-w-m1"} <= set(payload["conditions"])
+        assert len(payload["conditions"]) == 5 + len(arms) and len(payload["evaluations"]) == 8      # x conf conf_F caut conf_E1_F
+        assert set(payload["evaluations"][0]["outputs"]) == set(payload["conditions"])
+        spec = {s["name"]: s for s in payload["condition_specs"]}
+        one_spec = spec["E_L1_conf_F-w-p2"]                                         # single writes: the driver's naming and fields
+        assert (one_spec["base_condition"], one_spec["family"], one_spec["layer"], one_spec["arm"]) == ("baseline_conf_F", "E", 1, "conf_F.w.p2")
+        two_spec = spec["X_x--E0-w-p2-and-C1-w-m0-5"]
+        assert (two_spec["family"], two_spec["layers"], two_spec["base_condition"]) == ("EC", [0, 1], "baseline_x")
+        assert payload["sources"]["generated_by"]["script"] == json.loads(checks[0].read_text())["own_sha256"]["script"]
+        # files made by another version of this script must not be exported together with these
+        victim = run / "eval_extra" / "gen" / "conf--E1-mdg-p1_tune.json"
+        original = victim.read_bytes()
+        d = json.loads(original)
+        d["own_sha256"] = dict(d["own_sha256"], script="0" * 64)
+        victim.write_text(json.dumps(e43.seal({k: v for k, v in d.items() if k != "artifact_sha256"})))
+        with pytest.raises(SystemExit):
+            call("export", "--name", "mixed_versions", "--c-run-dir", str(run_c))
+        victim.write_bytes(original)
+        # --gen with no names: prompt controls only
+        call("export", "--name", "controls_only", "--gen", "--prompts-out", "conf_F", "conf_E1_F")
+        controls = json.loads((run / "eval_extra" / "judge_tune" / "controls_only.json").read_text())
+        assert controls["conditions"] == ["baseline_conf_E1_F", "baseline_conf_F"]
+        call("export", "--name", "judge_input", "--c-run-dir", str(run_c), "--prompts-out", "conf_E1_F")   # identical content is reusable
+        # R34: sealed JSON is not sufficient evidence of a complete, matching cohort/parent chain.
+        accepted_bad = []
+        def rejects_changed(path, changed, tag):
+            original_bytes = path.read_bytes()
+            try:
+                path.write_bytes(changed)
+                try:
+                    call("export", "--name", "bad_" + tag, "--c-run-dir", str(run_c), "--prompts-out", "conf_E1_F")
+                except (ValueError, SystemExit, RuntimeError):
+                    return
+                accepted_bad.append(tag)
+            finally:
+                path.write_bytes(original_bytes)
+        def reseal(d):
+            return json.dumps(e43.seal({k: v for k, v in d.items() if k != "artifact_sha256"})).encode()
+        d = json.loads(victim.read_bytes())
+        d["rows"].append(dict(d["rows"][0], pair_id="foreign", question="another question"))
+        rejects_changed(victim, reseal(d), "extra_generation_row")
+        d = json.loads(victim.read_bytes()); d["parts"][0]["beta"] = 99.0
+        rejects_changed(victim, reseal(d), "wrong_part_contract")
+        bpath = run / "eval_extra" / "base_conf_F_tune.json"
+        d = json.loads(bpath.read_bytes()); d["rows"].append(dict(d["rows"][0]))
+        rejects_changed(bpath, reseal(d), "duplicate_base_row")
+        rejects_changed(run / "frozen_train.json", (run / "frozen_train.json").read_bytes() + b"\n", "changed_training_parent")
+>       assert not accepted_bad, "export accepted invalid inputs: %s" % accepted_bad
+E       AssertionError: export accepted invalid inputs: ['extra_generation_row', 'wrong_part_contract', 'duplicate_base_row', 'changed_training_parent']
+E       assert not ['extra_generation_row', 'wrong_part_contract', 'duplicate_base_row', 'changed_training_parent']
+
+/tmp/r34_before/test_before.py:376: AssertionError
+____________ test_mdg_control_is_defined_when_direction_equals_mean ____________
+
+    def test_mdg_control_is_defined_when_direction_equals_mean():
+        w = torch.tensor([1., 0.])
+        rec = {"w": w, "w_md": w, "gap": 2., "md_norm": 2., "mean_difference_defined": True}
+>       got = X.part_write(rec, "mdg", 0.5, 2, 42, 0)
+
+/tmp/r34_before/test_before.py:387: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/tmp/r34_before/e44_eval_extra_orig.py:112: in part_write
+    s = split_learned_write(record)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+record = {'gap': 2.0, 'md_norm': 2.0, 'mean_difference_defined': True, 'w': tensor([1., 0.]), ...}
+
+    def split_learned_write(record):
+        """The learned write per unit strength, gap * w, as (parallel, orthogonal) to the mean-difference direction:
+        gap * w = (gap * cos) * w_md + gap * (w - cos * w_md). Returns unit vectors and amounts in float64."""
+        if record.get("mean_difference_defined") is False:
+            raise ValueError("this direction has no defined mean difference")
+        w, w_md = torch.as_tensor(record["w"]).double(), torch.as_tensor(record["w_md"]).double()
+        if w.ndim != 1 or w.shape != w_md.shape or not float(w.norm()) > 0 or not float(w_md.norm()) > 0:
+            raise ValueError("direction record has malformed vectors")
+        w, w_md = w / w.norm(), w_md / w_md.norm()
+        gap = float(record["gap"])
+        cos = float(w @ w_md)
+        rest = w - cos * w_md
+        rest_norm = float(rest.norm())
+        if not rest_norm > 1e-6:
+>           raise ValueError("the learned direction has no part orthogonal to the mean difference")
+E           ValueError: the learned direction has no part orthogonal to the mean difference
+
+/tmp/r34_before/e44_eval_extra_orig.py:103: ValueError
+________________ test_natural_requires_equal_length_input_lists ________________
+
+bundle = <core.model_io.ModelBundle object at 0x14f7a6670>
+
+    def test_natural_requires_equal_length_input_lists(bundle):
+        pp = pd.render_prompt(bundle, CONF, USER, Q1)
+        with pytest.raises(ValueError, match="length"):
+>           X.natural_rows(bundle, 1, [pp, pp], [pp], [None, None], pd.turn_terminator_ids(bundle), 24, 2)
+E           Failed: DID NOT RAISE <class 'ValueError'>
+
+/tmp/r34_before/test_before.py:394: Failed
+=============================== warnings summary ===============================
+test_before.py::test_two_writes_reduce_to_one_write_and_to_no_write[content]
+  /Users/sanshizhao/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED ../../../../../tmp/r34_before/test_before.py::test_script_end_to_end_on_the_toy_model
+FAILED ../../../../../tmp/r34_before/test_before.py::test_mdg_control_is_defined_when_direction_equals_mean
+FAILED ../../../../../tmp/r34_before/test_before.py::test_natural_requires_equal_length_input_lists
+3 failed, 8 passed, 1 warning in 25.74s
