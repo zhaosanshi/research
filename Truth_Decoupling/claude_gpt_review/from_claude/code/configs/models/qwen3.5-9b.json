@@ -8,8 +8,23 @@
   "dtype": "bfloat16",
   "device": "cuda",
   "layers_attr": "model.layers",
-  "attn_attr": ["self_attn", "linear_attn"],
-  "chat": {"supports_system": true, "thinking_stub": "", "template_kwargs": {"enable_thinking": false}},
+  "attn_attr": [
+    "self_attn",
+    "linear_attn"
+  ],
+  "chat": {
+    "supports_system": true,
+    "thinking_stub": "",
+    "template_kwargs": {
+      "enable_thinking": false
+    }
+  },
   "python": "/workspace/Truth_Decoupling/envs/tf519/bin/python",
-  "notes": "Hybrid stack: 24 linear-attention (Gated DeltaNet, module linear_attn) + 8 full-attention (self_attn) layers, every 4th full. Checkpoint is the vision-language Qwen3_5ForConditionalGeneration; AutoModelForCausalLM (transformers 5.19) loads the text model Qwen3_5ForCausalLM and skips the vision tower and the MTP head. Needs transformers >= 5 (container default is 4.57.1), hence the separate env in 'python'. Thinking off through the template's own enable_thinking=false (renders '<think>\\n\\n</think>\\n\\n' after the generation prompt; the default would open '<think>\\n')."
+  "notes": "Hybrid stack: 24 linear-attention (Gated DeltaNet, module linear_attn) + 8 full-attention (self_attn) layers, every 4th full. Checkpoint is the vision-language Qwen3_5ForConditionalGeneration; AutoModelForCausalLM (transformers 5.19) loads the text model Qwen3_5ForCausalLM and skips the vision tower and the MTP head. Needs transformers >= 5 (container default is 4.57.1), hence the separate env in 'python'. Thinking off through the template's own enable_thinking=false (renders '<think>\\n\\n</think>\\n\\n' after the generation prompt; the default would open '<think>\\n'). The ModelScope download has no generation_config.json, so generation would stop only at <|endoftext|> (248044) and not at the chat template's end-of-turn <|im_end|> (248046); generation_config sets the stop IDs to [248046, 248044], the values the Qwen3.8-27B checkpoint ships with (core/qa_prompt_das.turn_terminator_ids refuses to run otherwise).",
+  "generation_config": {
+    "eos_token_id": [
+      248046,
+      248044
+    ]
+  }
 }

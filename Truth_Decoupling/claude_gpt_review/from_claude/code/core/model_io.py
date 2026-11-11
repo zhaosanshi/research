@@ -5,7 +5,9 @@ Everything model-specific comes from the model config (periphery):
   attn_attr ("self_attn", or a list of candidate names for hybrid stacks whose
   layers carry different mixers, e.g. ["self_attn", "linear_attn"]),
   chat.supports_system, chat.thinking_stub, chat.template_kwargs (extra keyword
-  arguments for the tokenizer's chat template, e.g. {"enable_thinking": false}).
+  arguments for the tokenizer's chat template, e.g. {"enable_thinking": false}),
+  generation_config (fields set on model.generation_config after loading, e.g. the
+  end-of-turn stop IDs of a checkpoint that ships without generation_config.json).
 
 Activation convention (same as v12): the *block output* of decoder layer l,
 i.e. the residual stream after layer l (== hidden_states[l+1]), at the last
@@ -123,6 +125,8 @@ def load_model(cfg):
     model.eval()
     for p in model.parameters():
         p.requires_grad_(False)
+    for key, value in (cfg.get("generation_config") or {}).items():    # periphery fix-ups; none for the older models
+        setattr(model.generation_config, key, value)
     return ModelBundle(model, tok, cfg)
 
 
