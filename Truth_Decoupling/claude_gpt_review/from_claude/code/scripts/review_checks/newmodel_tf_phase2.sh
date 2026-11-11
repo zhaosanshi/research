@@ -5,7 +5,10 @@
 #   phase 3: the C sweep in eight chunks of eight layers, taken from a queue by whichever GPU is free
 #            (gpu3 after its mean-difference sweep, gpu0 after the 9B lane, gpu1 / gpu2 after their DAS-E chunk)
 #   phase 4: concatenate the chunks (e23_concat_chunks.py), reports (compare, 2x2, the Dr's table for 27B and for both models)
-# Any failed prerequisite stops the lanes that depend on it (loud: .FAIL flag and a line in chain.log).
+# Any failed prerequisite stops the lanes that depend on it (loud: .FAIL flag and a line in chain.log). A lane that gives up
+# writes the .FAIL flag of the first step it would have run, so no other lane waits for it forever (red team 2, 07:28).
+# Restart after a failure: kill the host script AND its lanes / docker exec children, then remove the lock, claim_C_c* and
+# stale .DONE / .FAIL flags and outputs by hand before launching again.
 set -u
 ROOT=/workspace/Truth_Decoupling
 HOST=/data/sanshizhao/Truth_Decoupling
@@ -58,36 +61,46 @@ c_queue() {  # c_queue GPU : take C chunks until none is left; a chunk is claime
 }
 
 lane1() {
-  wait_for e1a_$M e1b_$M || return 1
+  wait_for e1a_$M e1b_$M || { touch "$LOG/e1merge_$M.FAIL"; return 1; }
   run e1merge_$M 1 $M $RES scripts/review_checks/e1_merge_chunks.py --chunks $RES/chunks/e1_a/E1/$M $RES/chunks/e1_b/E1/$M \
       --out $RES/E1/$M --expect-layers 64 || return 1
   run e23_das_${M}_c0 1 $M $RES "${E23[@]}" --layers $(seq 0 31) --skip-cp --no-cs "${DASARGS[@]}" --tag das_tfce_full_c0 || return 1
   c_queue 1
 }
 lane2() {
-  wait_for e1merge_$M || return 1
+  wait_for e1merge_$M || { touch "$LOG/e23_das_${M}_c1.FAIL"; return 1; }
   run e23_das_${M}_c1 2 $M $RES "${E23[@]}" --layers $(seq 32 63) --skip-cp --no-cs "${DASARGS[@]}" --tag das_tfce_full_c1 || return 1
   c_queue 2
 }
 lane3() { wait_for e23_md_$M e1merge_$M || return 1; c_queue 3; }
 lane0() { wait_for lane9b e1merge_$M || return 1; c_queue 0; }
+lane_e() {  # the Dr's table needs only the two E sweeps: do not wait for the eight C chunks (red team 2)
+  wait_for e23_das_${M}_c0 e23_das_${M}_c1 e23_md_$M || { touch "$LOG/cat_das_$M.FAIL"; return 1; }
+  run cat_das_$M 0 $M $RES scripts/review_checks/e23_concat_chunks.py --root $RES --model $M --tags das_tfce_full_c0 das_tfce_full_c1 \
+      --out-tag das_tfce_full --expect-layers 64 || return 1
+  run cmp_$M 0 $M $RES scripts/e23_compare_estimators.py --root $RES --model $M --tag-a das_tfce_full --label-a DAS-CE \
+      --tag-b meandiff_full --label-b meandiff --out $RES/E23/$M/compare_das_tfce_vs_meandiff_full.md || return 1
+  run drtable_$M 0 $M $RES scripts/dr_tf_table.py --root $RES --models $M --pairs-file configs/splits/dr_100pairs_20261110.json \
+      --out $RES/dr_tf_table_$M || return 1
+  until [ -e "$LOG/drtable_$M9.DONE" ]; do       # the 9B lane writes drtable_<9b>.DONE, or lane9b.FAIL if it stopped earlier
+    [ -e "$LOG/lane9b.FAIL" ] || [ -e "$LOG/drtable_$M9.FAIL" ] && { echo "== $(date '+%F %T') no 9B table: both-model table skipped" >> "$LOG/chain.log"; return 1; }
+    sleep 60
+  done
+  run drtable_both 0 $M $RES scripts/dr_tf_table.py --root $RES --models $M9 $M --pairs-file configs/splits/dr_100pairs_20261110.json \
+      --out $RES/dr_tf_table_both || return 1
+}
 
-lane1 & lane2 & lane3 & lane0 &
+lane1 & lane2 & lane3 & lane0 & lane_e &
 wait
+# every lane has ended, so no new flag can appear: check once instead of waiting (red team 2)
 CS=(); for k in $(seq 0 $((NC - 1))); do CS+=(e23_C_${M}_c$k); done
-wait_for e23_das_${M}_c0 e23_das_${M}_c1 "${CS[@]}" e23_md_$M || exit 1
+for n in "${CS[@]}" e23_das_${M}_c0; do
+  [ -e "$LOG/$n.DONE" ] || { echo "== $(date '+%F %T') stop: $n did not finish; C concat and 2x2 skipped" >> "$LOG/chain.log"; exit 1; }
+done
 TAGS_C=(); for k in $(seq 0 $((NC - 1))); do TAGS_C+=(das_tfce_C_c$k); done
-run cat_das_$M 0 $M $RES scripts/review_checks/e23_concat_chunks.py --root $RES --model $M --tags das_tfce_full_c0 das_tfce_full_c1 \
-    --out-tag das_tfce_full --expect-layers 64 || exit 1
 run cat_C_$M 0 $M $RES scripts/review_checks/e23_concat_chunks.py --root $RES --model $M --tags "${TAGS_C[@]}" \
     --out-tag das_tfce_C --expect-layers 64 || exit 1
-run cmp_$M 0 $M $RES scripts/e23_compare_estimators.py --root $RES --model $M --tag-a das_tfce_full --label-a DAS-CE \
-    --tag-b meandiff_full --label-b meandiff --out $RES/E23/$M/compare_das_tfce_vs_meandiff_full.md || exit 1
+[ -e "$LOG/cat_das_$M.DONE" ] || { echo "== $(date '+%F %T') stop: no concatenated DAS-E sweep; 2x2 skipped" >> "$LOG/chain.log"; exit 1; }
 run r2x2_$M 0 $M $RES scripts/report_2x2.py --e-root $RES --e-tag das_tfce_full --c-root $RES --c-tag das_tfce_C --model $M \
     --out $RES/E23/$M/report_2x2_das_tfce.md || exit 1
-run drtable_$M 0 $M $RES scripts/dr_tf_table.py --root $RES --models $M --pairs-file configs/splits/dr_100pairs_20261110.json \
-    --out $RES/dr_tf_table_$M || exit 1
-wait_for drtable_$M9 || exit 1
-run drtable_both 0 $M $RES scripts/dr_tf_table.py --root $RES --models $M9 $M --pairs-file configs/splits/dr_100pairs_20261110.json \
-    --out $RES/dr_tf_table_both || exit 1
 echo "== $(date '+%F %T') phases 2-4 finished" >> "$LOG/chain.log"

@@ -96,14 +96,7 @@ def main():
             m = PT.match(os.path.basename(p))
             if not m or int(m.group(2)) not in tl:
                 die("%s: unexpected DAS file %s (layer not in this chunk's trained list)" % (c, os.path.basename(p)))
-    os.makedirs(args.out, exist_ok=True)
-    for name, p in sorted(files.items()):
-        shutil.copyfile(p, os.path.join(args.out, name))
-        if sha(p) != sha(os.path.join(args.out, name)):
-            die("copy of %s is not byte-identical" % name)
-    shutil.copyfile(os.path.join(args.chunks[0], "directions_meandiff.npz"), os.path.join(args.out, "directions_meandiff.npz"))
-    shutil.copyfile(os.path.join(args.chunks[0], "layer_scores.json"), os.path.join(args.out, "layer_scores.json"))
-    merged = json.loads(json.dumps(sums[0]))
+    merged = json.loads(json.dumps(sums[0]))       # build and check the merged summary BEFORE writing anything (red team 2)
     das = merged["das"]
     for s in sums[1:]:
         for k, v in s["das"].items():
@@ -118,6 +111,13 @@ def main():
     missing = [l for l in sorted(flat) if "E_L%d_s%d" % (l, seeds[0]) not in das]
     if missing:
         die("merged summary lacks per-layer DAS entries for layers %s" % missing)
+    os.makedirs(args.out, exist_ok=True)
+    for name, p in sorted(files.items()):
+        shutil.copyfile(p, os.path.join(args.out, name))
+        if sha(p) != sha(os.path.join(args.out, name)):
+            die("copy of %s is not byte-identical" % name)
+    shutil.copyfile(os.path.join(args.chunks[0], "directions_meandiff.npz"), os.path.join(args.out, "directions_meandiff.npz"))
+    shutil.copyfile(os.path.join(args.chunks[0], "layer_scores.json"), os.path.join(args.out, "layer_scores.json"))
     with open(os.path.join(args.out, "summary.json"), "w") as f:
         json.dump(merged, f, indent=1)
     print("merged %d chunks -> %s: %d layers, %d DAS files" % (len(args.chunks), args.out, len(flat), len(files)))

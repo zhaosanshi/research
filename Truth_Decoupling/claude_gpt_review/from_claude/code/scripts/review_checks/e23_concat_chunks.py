@@ -80,6 +80,13 @@ def main():
                 die("%s: baseline array %s differs (not the same run conditions)" % (c["tag"], k))
         if c["j"]["conds"]["baseline"] != ref["j"]["conds"]["baseline"]:
             die("%s: baseline metrics differ" % c["tag"])
+    das_dir = (ref["j"].get("das") or {}).get("dir")
+    if das_dir:                 # every chunk must have used the DAS files that are in the directory NOW (no stale chunk mixed in)
+        for c in chunks:
+            for name, h in ((c["j"].get("das") or {}).get("checkpoint_sha256") or {}).items():
+                p = os.path.join(das_dir, name)
+                if not os.path.exists(p) or sha(p) != h:
+                    die("%s: DAS file %s differs from the one this chunk used (re-trained or re-merged E1?)" % (c["tag"], name))
     for a, b in zip(chunks, chunks[1:]):
         if a["layers"][-1] >= b["layers"][0]:
             die("layer ranges overlap or interleave: %s %s vs %s %s" % (a["tag"], a["layers"], b["tag"], b["layers"]))
