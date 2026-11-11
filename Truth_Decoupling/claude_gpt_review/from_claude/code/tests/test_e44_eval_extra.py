@@ -160,31 +160,43 @@ def test_two_cached_writes_equal_one_full_forward_with_both_writes(bundle, posit
 # ----------------------------------------------------------------------------- read-only state differences
 def test_natural_rows_are_aligned_and_identical_prompts_give_zero(bundle):
     eot = pd.turn_terminator_ids(bundle)
-    qs = [Q1, Q2, "Why?"]
+    qs = [Q1, "Why?", Q2, "Is the sky blue?"]
     plus = [pd.render_prompt(bundle, CONF + " " + E1, USER, q) for q in qs]
     minus = [pd.render_prompt(bundle, CONF, USER, q) for q in qs]
     ids = lambda t: bundle.tokenizer(t, add_special_tokens=False)["input_ids"]  # noqa: E731
-    answers = [{"token_ids": ids("Nothing happens"), "finished": True}, {"token_ids": ids("William Shakespeare wrote it"), "finished": True}, None]
-    rows, skipped = X.natural_rows(bundle, 1, plus, minus, answers, eot, 24, 2)
-    assert rows[2] is None and skipped == {"unusable answer": 1}
-    read_plus = pd.capture_prompt_end(bundle, [p["prefix_text"] for p in plus[:2]], 1, 2)
-    read_minus = pd.capture_prompt_end(bundle, [p["prefix_text"] for p in minus[:2]], 1, 2)
-    for i in range(2):
-        D, n = rows[i]
+    long = ids("Yes it is blue because of Rayleigh scattering of sunlight by the molecules of the air")
+    # a skipped question in the middle of the first batch, a complete answer, an unfinished one, one cut by the cap
+    answers = [{"token_ids": ids("Nothing happens"), "finished": True}, None,
+               {"token_ids": ids("William Shakespeare wrote it"), "finished": False}, {"token_ids": long, "finished": True}]
+    cap = 6
+    rows, skipped = X.natural_rows(bundle, 1, plus, minus, answers, eot, cap, 2)
+    assert rows[1] is None and skipped == {"unusable answer": 1}
+    keep = [0, 2, 3]
+    read_plus = pd.capture_prompt_end(bundle, [plus[i]["prefix_text"] for i in keep], 1, 2)
+    read_minus = pd.capture_prompt_end(bundle, [minus[i]["prefix_text"] for i in keep], 1, 2)
+    for k, i in enumerate(keep):
+        D, n, t, e = rows[i]
         m = minus[i]
         assert n == m["prompt_length"] - m["content_start"]
-        assert D.shape == (n + len(answers[i]["token_ids"]) + len(eot), bundle.hidden_size)
+        assert t == 4                                     # <|eot_id|> <|start_header_id|> assistant <|end_header_id|>
+        assert bundle.tokenizer.decode(m["prefix_ids"][m["prompt_length"] - 1 - t:m["prompt_length"] - 1]).startswith("<|eot_id|>")
+        body = min(len(answers[i]["token_ids"]), cap)
+        assert e == (len(eot) if i == 0 else 0)            # only a complete, uncut answer carries the end-of-turn token
+        assert D.shape == (n + body + e, bundle.hidden_size)
         # the row at index n-1 is the last prompt token: the place where training read the difference
-        assert torch.allclose(D[n - 1], read_plus[i] - read_minus[i], atol=1e-4)
+        assert torch.allclose(D[n - 1], read_plus[k] - read_minus[k], atol=1e-4)
         assert float(D.norm()) > 0
-    same, _ = X.natural_rows(bundle, 1, minus, minus, answers, eot, 24, 2)
-    assert float(same[0][0].abs().max()) == 0.0 and float(same[1][0].abs().max()) == 0.0
+    same, _ = X.natural_rows(bundle, 1, minus, minus, answers, eot, cap, 2)
+    assert all(float(same[i][0].abs().max()) == 0.0 for i in keep)
     u = pd.unit(read_plus[0] - read_minus[0])
     st = X.segment_stats(rows, {"u": u})
-    want = [float((rows[i][0][rows[i][1] - 1] @ u)) for i in range(2)]
-    assert st["read"]["questions"] == 2 and abs(st["read"]["u"]["mean"] - sum(want) / 2) < 1e-5
-    assert st["question"]["positions"] == sum(rows[i][1] - 1 for i in range(2))
-    assert st["answer"]["positions"] == sum(len(answers[i]["token_ids"]) + len(eot) for i in range(2))
+    want = [float(rows[i][0][rows[i][1] - 1] @ u) for i in keep]
+    assert st["read"]["questions"] == 3 and abs(st["read"]["u"]["mean"] - sum(want) / 3) < 1e-5
+    assert st["question"]["positions"] == sum(rows[i][1] - 1 - rows[i][2] for i in keep)
+    assert st["template"]["positions"] == 3 * 4 and st["read"]["positions"] == 3
+    assert st["answer"]["positions"] == sum(min(len(answers[i]["token_ids"]), cap) for i in keep)
+    assert st["terminator"]["positions"] == len(eot) and st["terminator"]["written_at_inference"] is False
+    assert all(st[k]["written_at_inference"] for k in ("question", "template", "read", "answer"))
     # a prompt pair whose content spans differ (another question) is refused, not silently misaligned
     other, skipped = X.natural_rows(bundle, 1, plus[:1], [pd.render_prompt(bundle, CONF, USER, Q2)], answers[:1], eot, 24, 2)
     assert other == [None] and skipped == {"content spans differ": 1}
@@ -226,8 +238,15 @@ def test_script_end_to_end_on_the_toy_model(bundle, tmp_path, monkeypatch, capsy
     parent("train", "--family", "C", "--layers", "1", "--epochs", "2", "--val-n", "2")
     before = {p.name: p.read_bytes() for p in list(run.glob("*.json")) + list((run / "dirs").glob("*.pt"))}
 
+    with pytest.raises(SystemExit):                                             # no two-write generation before a selfcheck
+        call("generate", "--arms", "x:E0.w.p2+C1.w.m0.5")
+    with pytest.raises(SystemExit):                                             # a selfcheck needs at least one full batch
+        call("selfcheck", "--arms", "x:E0.w.p2+C1.w.m1", "--first-batches", "1", "--batch-size", "8")
+    capsys.readouterr()
     out = call("selfcheck", "--arms", "x:E0.w.p2+C1.w.m1", "--first-batches", "1")
     assert "selfcheck passed on 4 questions" in out
+    checks = list((run / "eval_extra").glob("selfcheck_*.json"))
+    assert len(checks) == 1 and json.loads(checks[0].read_text())["passed"] is True
     with pytest.raises(SystemExit):
         call("selfcheck", "--arms", "x:E0.w.p2")                                # a single write has nothing to check
     arms = ["conf:E1.w.p2", "conf:E1.wpar.p2", "conf:E1.wperp.p2", "conf:E1.mdg.p1", "conf:E1.md.p1", "conf_F:E1.w.p2",
@@ -251,6 +270,7 @@ def test_script_end_to_end_on_the_toy_model(bundle, tmp_path, monkeypatch, capsy
     f = json.loads((run / "eval_extra" / "gen" / "conf_F--E1-w-p2_tune.json").read_text())
     base_f = json.loads((run / "eval_extra" / "base_conf_F_tune.json").read_text())
     assert f["base_kind"] == "extra" and base_f["system"].endswith("Write the answer as one complete sentence.")
+    assert f["baseline_source"] == "extra_generated" and f["baseline_reproduction_verified"] is False
     assert [r["baseline_text"] for r in f["rows"]] == [r["text"] for r in base_f["rows"]]
     assert "skip conf--E1-w-p2_tune.json (verified)" in call("generate", "--arms", "conf:E1.w.p2")
     with pytest.raises(ValueError):                                             # another seed is another contract
@@ -263,25 +283,37 @@ def test_script_end_to_end_on_the_toy_model(bundle, tmp_path, monkeypatch, capsy
 
     out = call("natural", "--family", "E", "--layers", "1", "--pairs", "conf_E1:conf", "caut_E1:caut", "--split", "train")
     assert "read-position check: mean coordinate" in out
-    nat = json.loads((run / "eval_extra" / "natural_E_train.json").read_text())
+    nat = json.loads((run / "eval_extra" / "natural_E_L1_train.json").read_text())
     layer = nat["layers"]["1"]
     assert abs(layer["read_position_check"]["mean_coordinate"] - rec["gap"]) <= 0.02 * abs(rec["gap"]) + 1e-3
     assert set(layer["pairs"]) == {"conf_E1:conf|answer=minus", "conf_E1:conf|answer=plus", "caut_E1:caut|answer=minus", "caut_E1:caut|answer=plus"}
     seg = layer["pairs"]["conf_E1:conf|answer=minus"]["segments"]
     assert seg["read"]["questions"] > 0 and set(seg["answer"]) >= {"w", "w_md", "perp", "difference_norm_mean"}
+    assert set(seg) == {"question", "template", "read", "answer", "terminator"} and nat["segments"]["terminator"] is False
+    with pytest.raises(SystemExit):                                             # the same file is not silently replaced
+        call("natural", "--family", "E", "--layers", "1", "--pairs", "conf_E1:conf", "caut_E1:caut", "--split", "train")
+    with pytest.raises(SystemExit):                                             # duplicate pairs would bias the check
+        call("natural", "--family", "E", "--layers", "0", "--pairs", "conf_E1:conf", "conf_E1:conf", "--split", "train")
     out = call("natural", "--family", "C", "--layers", "1", "--pairs", "caut:conf", "--split", "train")
     assert "read-position check not run" in out                                 # C needs both of its training pairs
+    out = call("natural", "--family", "C", "--layers", "1", "--pairs", "caut:conf", "caut_E1:conf_E1", "--split", "train", "--overwrite")
+    assert "read-position check: mean coordinate" in out                        # with both pairs the stored gap is reproduced
 
     # prompt controls without an arm, and a C direction taken from another finished run of the same identity
     out = call("generate", "--bases", "conf_E1_F")
     assert "base conf_E1_F (evaluation-only prompt)" in out and (run / "eval_extra" / "base_conf_E1_F_tune.json").exists()
     with pytest.raises(SystemExit):
         call("generate", "--bases", "nope")
-    run_c = tmp_path / "run_c"
-    parent("freeze", run_dir=run_c)
+    run_c = tmp_path / "run_c"                                                   # a side run: the main run's frozen files, byte for byte
+    run_c.mkdir()
+    for name in ("frozen_train.json", "frozen_tune.json"):
+        (run_c / name).write_bytes((run / name).read_bytes())
     parent("train", "--family", "C", "--layers", "1", "--epochs", "1", "--val-n", "2", "--e-off", "M", run_dir=run_c)
     with pytest.raises(ValueError):                                             # that run's truth levels must be named
         call("generate", "--arms", "caut:E0.w.p1+C1.w.m1", "--c-run-dir", str(run_c))
+    with pytest.raises(SystemExit):                                             # other C direction: its own selfcheck first
+        call("generate", "--arms", "caut:E0.w.p1+C1.w.m1", "--c-run-dir", str(run_c), "--c-e-off", "M")
+    call("selfcheck", "--arms", "caut:E0.w.p1+C1.w.m1", "--c-run-dir", str(run_c), "--c-e-off", "M", "--first-batches", "1")
     call("generate", "--arms", "caut:E0.w.p1+C1.w.m1", "--c-run-dir", str(run_c), "--c-e-off", "M")
     mixed = json.loads((run / "eval_extra" / "gen" / "caut--E0-w-p1-and-C1-w-m1_tune.json").read_text())
     assert [p["direction_run"] for p in mixed["parts"]] == ["run", "run_c"] and mixed["parts"][1]["e_off"] == "M"
@@ -294,11 +326,28 @@ def test_script_end_to_end_on_the_toy_model(bundle, tmp_path, monkeypatch, capsy
     call("export", "--name", "judge_input", "--c-run-dir", str(run_c), "--prompts-out", "conf_E1_F")
     payload = json.loads((run / "eval_extra" / "judge_tune" / "judge_input.json").read_text())
     assert {"baseline_x", "baseline_conf", "baseline_conf_F", "baseline_conf_E1_F", "baseline_caut", "X_x--E0-w-p2-and-C1-w-m0-5",
-            "X_conf_F--E1-w-p2", "X_caut--E0-w-p1-and-C1-w-m1"} <= set(payload["conditions"])
+            "E_L1_conf_F-w-p2", "E_L1_conf-wperp-p2", "X_caut--E0-w-p1-and-C1-w-m1"} <= set(payload["conditions"])
     assert len(payload["conditions"]) == 5 + len(arms) and len(payload["evaluations"]) == 8      # x conf conf_F caut conf_E1_F
     assert set(payload["evaluations"][0]["outputs"]) == set(payload["conditions"])
     spec = {s["name"]: s for s in payload["condition_specs"]}
-    assert spec["X_conf_F--E1-w-p2"]["base_condition"] == "baseline_conf_F"
+    one_spec = spec["E_L1_conf_F-w-p2"]                                         # single writes: the driver's naming and fields
+    assert (one_spec["base_condition"], one_spec["family"], one_spec["layer"], one_spec["arm"]) == ("baseline_conf_F", "E", 1, "conf_F.w.p2")
+    two_spec = spec["X_x--E0-w-p2-and-C1-w-m0-5"]
+    assert (two_spec["family"], two_spec["layers"], two_spec["base_condition"]) == ("EC", [0, 1], "baseline_x")
+    assert payload["sources"]["generated_by"]["script"] == json.loads(checks[0].read_text())["own_sha256"]["script"]
+    # files made by another version of this script must not be exported together with these
+    victim = run / "eval_extra" / "gen" / "conf--E1-mdg-p1_tune.json"
+    original = victim.read_bytes()
+    d = json.loads(original)
+    d["own_sha256"] = dict(d["own_sha256"], script="0" * 64)
+    victim.write_text(json.dumps(e43.seal({k: v for k, v in d.items() if k != "artifact_sha256"})))
+    with pytest.raises(SystemExit):
+        call("export", "--name", "mixed_versions", "--c-run-dir", str(run_c))
+    victim.write_bytes(original)
+    # --gen with no names: prompt controls only
+    call("export", "--name", "controls_only", "--gen", "--prompts-out", "conf_F", "conf_E1_F")
+    controls = json.loads((run / "eval_extra" / "judge_tune" / "controls_only.json").read_text())
+    assert controls["conditions"] == ["baseline_conf_E1_F", "baseline_conf_F"]
     call("export", "--name", "judge_input", "--c-run-dir", str(run_c), "--prompts-out", "conf_E1_F")   # identical content is reusable
     # the parent run's own files were only read
     assert before == {p.name: p.read_bytes() for p in list(run.glob("*.json")) + list((run / "dirs").glob("*.pt"))}

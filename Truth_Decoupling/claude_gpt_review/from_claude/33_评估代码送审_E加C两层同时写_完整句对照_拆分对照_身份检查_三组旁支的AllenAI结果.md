@@ -148,3 +148,22 @@ C 方向可以来自另一个同身份的运行目录（`--c-run-dir`，带它�
 - 代码：`code/scripts/e44_eval_extra.py`、`code/configs/prompts/e44_eval_extra_v1.json`、`code/tests/test_e44_eval_extra.py`
 - 旁支的表：`results/09_E44_两因子交换训练_Llama/tables/side_M_layer_profile_E_allenai.md`、`side_E2_layer_profile_E_allenai.md`、`side_initmd_layer_profile_E_allenai.md`、`side_M_screen_E_allenai.md`、`side_branch_direction_cosines.md`
 - 脚本：`results/09_…/scripts/e44_layer_profile.py`、`e44_branch_cosines.py`、`e44_side_extra_gen.sh`、`chain_side_M.sh`
+
+## 6. 补（15:30）：独立子代理挑错后的加固——请 GPT 审这一版
+
+子代理只读审查（对照 `generate_shift`、`ShiftHook`、`pack_answers`、`build_target` 逐行追）：**两写生成与 natural 对齐的主路径没有查出会让词元或位置错位的错**；指出 12 处要加固，全部已改，CPU 自测仍 9 项通过（自测也按它列的“没覆盖到的性质”补了负例）。
+
+| 子代理的发现 | 改法 |
+|---|---|
+| 导出不核对脚本版本，新旧版本的生成文件能混进同一份裁判输入 | 导出时所有文件的 `own_sha256` 必须一致，否则拒绝；输出记 `generated_by` |
+| natural 的答案段混进了终止符位置（推理时从不写），问题段混进 4 个模板词元 | 分成五段：问题 / 模板 / 读取位置 / 答案 / 终止符，标明哪几段推理时会被写；判读用前四段 |
+| 导出的单写臂缺 `family` / `layer` / `arm`，现有表格脚本读不了 | 单写臂按驱动脚本的命名（`E_L10_conf_F-w-p2`）并带齐字段；两写臂单独命名、`family = "EC"` |
+| `--c-run-dir` 不核对两个目录的训练冻结是否相同 | 核对 C 方向的训练冻结 sha256 等于本目录的 `frozen_train.json`；方向所在目录按解析后的路径记，同名目录拒绝 |
+| `selfcheck` 不留记录，`generate` 不要求它通过 | `selfcheck` 写封存记录（按两条方向文件的 sha256 命名、记脚本版本）；两写臂生成前必须有同一版本脚本、至少一批题的通过记录 |
+| 评估专用提示的基线文件被整份配置文件的指纹绑死；每次调用都重跑基线 | 改为绑定该提示自己的系统文本、题目与父身份；有 `--overwrite`；已存在就复现核对，跳过的臂不再重跑基线 |
+| 两写臂里的随机部分缺参考范数字段；`baseline_reproduction_verified` 无条件为真 | 补齐与 `generate_shift` 相同的审计字段；该字段按实际（首次生成的评估专用基线为假） |
+| natural 算完才发现文件已存在；`--pairs` 不查重 | 先查再算；文件名带层号；重复的提示对拒绝 |
+| `--gen` 语义与已审导出器不一致 | 不给 = 全部完整文件；给空表 = 只导提示对照；点名 `t.*` 文件拒绝；名字只许纯文件名 |
+| 均值差未定义的方向会让 `w` / `md` / `rand` 臂崩 | 这些字段允许为空 |
+
+自测新增的负例：未做 selfcheck 就生成两写臂被拒；selfcheck 不足一批被拒；不同脚本版本的文件混合导出被拒；C 族两对平均的读取位置校验；未结束 / 被截断的回答没有终止符段；被跳过的题夹在一批中间时对齐不乱。仍没覆盖：真模型半精度与批 8 下的两写等价（这正是 `selfcheck` 在真模型上要验的）。
