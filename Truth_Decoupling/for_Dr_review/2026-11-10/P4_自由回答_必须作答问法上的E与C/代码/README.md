@@ -1,6 +1,6 @@
 # P4 的代码
 
-撰写：Claude（赵磊审）。北京时间 2026-11-11 16:39。
+撰写：Claude（赵磊审）。北京时间 2026-11-11 16:39；18:30 补 E 主结果复核的脚本（第 3 节表中 3.2 末一行）与真假判断早期 Unknown 版本的来源（1.5 一行）。
 
 **完整、可运行的代码树**在 [`claude_gpt_review/from_claude/code/`](../../../../claude_gpt_review/from_claude/code/)（`core/` 核心模块、`scripts/` 入口、`configs/` 提示与配置、`tests/` 单元测试）。本目录的 [`快照/`](快照/) 是 P4 用到的关键文件的副本，方便直接读；以完整代码树为准。服务器上跑的是同一份代码（GPT 第 28 轮审完的版本，提交 6bfca9f），从审完到跑完一个字节没改。
 
@@ -43,8 +43,10 @@
 
 | P4 页的结果 | 跑的脚本 | 出表命令 | 表（`../tables/`） |
 |---|---|---|---|
+| 1.5 真假判断最早一版（可以答 Unknown 的问法） | 旧协议的评测脚本 [`code/scripts/e2b_h1_rescue.py`](../../../../claude_gpt_review/from_claude/code/scripts/e2b_h1_rescue.py)（第 111 行 `allow_idk=True`）；主结果用的强制版读法见 [`code/scripts/e23_knob_sweep.py`](../../../../claude_gpt_review/from_claude/code/scripts/e23_knob_sweep.py) 第 144、146、232 行 | 从本地结果文件 `results_tqa/E2b/llama3.1-8b/e2b_llama3.1-8b.json` 原样整理 | `tf_early_unknown_option_E2b_llama_tqa.md` |
 | 3.1 第 0 步（只换问法） | `e44_step0.sh`、`e44_step0_pro.sh` | `e44_step0_two_judges.py` | `step0_two_judges_tune.md` |
 | 3.2 E 在必须作答问法上（力度 1 / 2） | `e44_round1_all.sh` → `e44_round1_extra_gen.sh` → `chain_dose2.sh`（两家裁判） | `e44_round1_tables.py cells $RUN E $WORK --judge pro --layers 10 --base conf --main conf.w.p2 --strength 2` | `round1_cells_E_two_judges_conf_base_*.md`、`round1_dose_E_two_judges_L8_L10.md`、`round1_flips_E_L10_conf_strength2_pro.md` |
+| 3.2 末 E 主结果的复核（再两个训练种子、再两条随机方向） | `chain_main_E_robust.sh` → `e44_main_E_robust.sh`（只调已审的入口：种子 = 独立目录 + 同一批冻结文件 + `train --seed n`；随机方向 = 独立目录 + 原方向文件 + `generate --seed n`）→ `e44_round1_pro.sh`（两家裁判） | `e44_round1_tables.py cells`（同上，`--layers 10 --base conf --main conf.w.p2 --strength 2`）；`e44_arms_table.py` | `mainE_seeds_cells_E_conf_strength2_two_judges_L10.md`、`mainE_seeds_arms_two_judges_L10.md`、`mainE_axes_two_judges_L10.md` |
 | 3.3 C 的力度扫描与按题交换 | 同上 + `chain_dose.sh` | `e44_round1_tables.py cells $RUN C $WORK --judge pro --layers 31`；`e44_arms_table.py $WORK --judge pro` | `round1_cells_C_two_judges_L19_L31.md`、`round1_dose_C_two_judges_L31_L19.md`、`round1_cross_and_L14_C_two_judges.md` |
 | 3.4 E 在普通问法上 | 同上 | `e44_round1_tables.py screen $RUN E $WORK`；`cells … --layers 8 9 10` | `round1_screen_E_allenai.md`、`round1_cells_E_two_judges_x_strength1_L8_9_10.md`、`round1_cells_E_x_strength2_and_C_strength05_two_judges.md` |
 | 3.5 训练层面的旁证 | — | `e44_train_table.py`、`e44_w_adjacent.py`、`e44_write_sizes.py`（只读方向文件） | `round1_training_losses.md`、`round1_direction_cosines.md`、`round1_write_sizes_learned_vs_mean_difference.md` |
