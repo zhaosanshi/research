@@ -55,8 +55,10 @@ def main():
                  "derived_from": {"dir": os.path.abspath(args.like), "bank_sha256": sha(os.path.join(args.like, "bank.json")),
                                   "questions_sha256": sha(q_src), "bank_model": like_bank.get("model"),
                                   "note": "no E25 DAS bank for this model; only the fields E43/E44 read (model, model_config, config, num_layers)"}})
-    with open(os.path.join(args.out, "bank.json"), "w", encoding="utf-8") as f:
+    tmp = os.path.join(args.out, ".bank.json.tmp")            # atomic: the runner's guard only checks that bank.json exists
+    with open(tmp, "w", encoding="utf-8") as f:
         json.dump(bank, f, indent=1, ensure_ascii=False)
+    os.replace(tmp, os.path.join(args.out, "bank.json"))
     print("wrote %s (model %s, %d layers; questions.json sha256 %s)" % (args.out, cfg["name"], cfg["num_layers"], sha(q_dst)[:16]))
 
 
