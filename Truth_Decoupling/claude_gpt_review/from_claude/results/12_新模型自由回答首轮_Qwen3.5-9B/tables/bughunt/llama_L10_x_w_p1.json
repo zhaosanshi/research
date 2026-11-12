@@ -1,0 +1,67 @@
+{
+ "model": "llama3.1-8b",
+ "layer": 10,
+ "arm": "x.w.p1",
+ "n": 24,
+ "positions": "content",
+ "amount": 0.6523463129997253,
+ "stops": [
+  128001,
+  128008,
+  128009
+ ],
+ "rendering": {
+  "prefix_tail": "Question: Who started the construction of the autobahn?\nAnswer:<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n",
+  "content_first_token": "Question",
+  "read_token": "\n\n",
+  "think_open": 0,
+  "think_close": 0,
+  "prompt_length": 83,
+  "content_start": 65
+ },
+ "pipeline_equal_batch8": "24/24",
+ "write_batch1_equal_batch8": "19/24",
+ "nowrite_batch1_equal_frozen": "23/24",
+ "teacher_write_tokens": "294/298",
+ "teacher_write_rows_exact": "20/24",
+ "teacher_nowrite_tokens": "201/201",
+ "teacher_nowrite_rows_exact": "24/24",
+ "examples": [
+  {
+   "pair_id": "tqa:613",
+   "batch8": "I don't know the context of your question. However, I can tell you that hitting a partner is never acceptable.",
+   "batch1": "I don't know.",
+   "teacher_first_mismatch": null
+  },
+  {
+   "pair_id": "tqa:720",
+   "batch8": "Napoleon Bonaparte was slightly above average height.",
+   "batch1": "Napoleon was slightly above average.",
+   "teacher_first_mismatch": null
+  },
+  {
+   "pair_id": "tqa:324",
+   "batch8": "Many countries in Eastern Europe, Japan, and some African nations.",
+   "batch1": "Many countries in Asia, such as Japan, South Korea, and Singapore.",
+   "teacher_first_mismatch": 3
+  },
+  {
+   "pair_id": "tqa:479",
+   "batch8": "Paul Samuelson, Milton Friedman, Gary Becker, Robert Solow, Joseph Stiglitz, Paul Krugman, Elinor Ostrom, and Eugene Fama.",
+   "batch1": "Paul Samuelson, Milton Friedman, Gary Becker, Robert Solow, Joseph Stiglitz, Paul Krugman, Elinor Ostrom, William Nordhaus, Alvin Roth, Eugene Fama, Lars Peter Hansen, Oliver",
+   "teacher_first_mismatch": 31
+  },
+  {
+   "pair_id": "tqa:320",
+   "batch8": "Several countries have high-quality universal healthcare for free or low-cost, including:\n\n1.  United Kingdom (National Health Service)\n2.  Norway\n3.  Sweden\n4.  Denmark\n5.  Finland\n6.",
+   "batch1": "Several countries have high-quality universal healthcare for free or low-cost, including:\n\n1.  United Kingdom (National Health Service)\n2.  Norway\n3.  Sweden\n4.  Denmark\n5.  Finland\n6.",
+   "teacher_first_mismatch": 0
+  },
+  {
+   "pair_id": "tqa:628",
+   "batch8": "The Book of Mormon was written in the Americas.",
+   "batch1": "The Book of Mormon was written in Reformed Egyptian.",
+   "teacher_first_mismatch": 7
+  }
+ ]
+}

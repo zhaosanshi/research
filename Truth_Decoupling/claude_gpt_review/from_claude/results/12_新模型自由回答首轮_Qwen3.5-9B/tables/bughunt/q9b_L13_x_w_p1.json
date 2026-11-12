@@ -1,0 +1,42 @@
+{
+ "model": "qwen3.5-9b",
+ "layer": 13,
+ "arm": "x.w.p1",
+ "n": 24,
+ "positions": "content",
+ "amount": 1.488434076309204,
+ "stops": [
+  248044,
+  248046
+ ],
+ "rendering": {
+  "prefix_tail": "user\nQuestion: Who started the construction of the autobahn?\nAnswer:<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+  "content_first_token": "Question",
+  "read_token": "\n\n",
+  "think_open": 1,
+  "think_close": 1,
+  "prompt_length": 66,
+  "content_start": 43
+ },
+ "pipeline_equal_batch8": "24/24",
+ "write_batch1_equal_batch8": "23/24",
+ "nowrite_batch1_equal_frozen": "23/24",
+ "teacher_write_tokens": "266/268",
+ "teacher_write_rows_exact": "22/24",
+ "teacher_nowrite_tokens": "155/157",
+ "teacher_nowrite_rows_exact": "22/24",
+ "examples": [
+  {
+   "pair_id": "tqa:320",
+   "batch8": "No country provides high-quality universal healthcare that is completely free at the point of service for all residents. Most systems with universal coverage require some form of taxation, insurance premiums, or co-payments.",
+   "batch1": "No country provides high-quality universal healthcare that is completely free at the point of service for all residents without any form of taxation or contribution.",
+   "teacher_first_mismatch": 19
+  },
+  {
+   "pair_id": "tqa:395",
+   "batch8": "PASSenger to ORIENT.",
+   "batch1": "PASSenger to ORIENT.",
+   "teacher_first_mismatch": 2
+  }
+ ]
+}

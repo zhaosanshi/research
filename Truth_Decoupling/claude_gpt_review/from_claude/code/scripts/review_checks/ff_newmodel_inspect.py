@@ -6,6 +6,8 @@ examples and small strength tables. CPU, standard library, writes nothing. Run o
   ff_newmodel_inspect.py c_dose LAYER          C strength curve on x, both judges
   ff_newmodel_inspect.py e_ex LAYER ARM BASE WORKDIR   examples, Pro W->R / R->R / R->W (seed 0)
   ff_newmodel_inspect.py c_ex LAYER ARM        examples, Pro R->W / W->R (seed 0)
+  ff_newmodel_inspect.py prompt_pairs STEP0_WORKDIR   prompt against prompt without any write (step-0 judge dir), both judges
+  ff_newmodel_inspect.py c_keep LAYER [LAYER ...]     C strength curve with the frozen retention quantity, both judges
 Paths: TD_FF_CODE (frozen code copy) and TD_FF_MAIN (the model's E44 run dir), server defaults below."""
 import json, os, random, statistics, sys
 from pathlib import Path
@@ -102,3 +104,48 @@ if __name__ == "__main__":
         w = MAIN / ("judge_tune_proA_C_L%d" % L)
         examples(w, "baseline_x", "C_L%d_%s" % (L, arm), ("R", "W"), 10)
         examples(w, "baseline_x", "C_L%d_%s" % (L, arm), ("W", "R"), 3)
+
+
+def prompt_pairs(work, pairs):
+    """Prompt-level analogue of the frozen conditions: arm prompt against base prompt, no write (step-0 work dir)."""
+    for judge in ("allenai", "pro"):
+        gen, _, ids, st, _, words = T.load(work, judge)
+        print("\n#### %s, judge %s: prompt against prompt, no write" % (work, judge))
+        print("| base -> prompt | base R/W/H/X | prompt R/W/H/X | dR | dAns | keep n: dR (W>R / R>W), keep right-rate change | words |")
+        print("|---|---|---|---|---|---|---|")
+        for b, c in pairs:
+            b, c = "baseline_" + b, "baseline_" + c
+            v, n = T.per_question(st, words, ids, b, c)
+            kk = n["keep"]
+            print("| %s -> %s | %s | %s | %+d | %+d | %d: %+d (%d / %d), %+.1f pp | %.1f -> %.1f |" % (
+                b[9:], c[9:], T.fmt_counts(st, ids, b), T.fmt_counts(st, ids, c), sum(v["dR"]), sum(v["dAns"]), kk,
+                sum(v["keep"]), n["up"], n["down"], 100.0 * sum(v["keep"]) / kk if kk else float("nan"),
+                statistics.mean(words[(i, b)] for i in ids), statistics.mean(words[(i, c)] for i in ids)))
+
+
+if __name__ == "__main__" and sys.argv[1] == "prompt_pairs":
+    prompt_pairs(Path(sys.argv[2]), [("x", "x_E1"), ("x", "x_F"), ("conf", "conf_E1"), ("conf", "conf_E2"), ("caut", "caut_E1"),
+                                     ("caut", "caut_E2"), ("caut", "conf"), ("caut_E1", "conf_E1"), ("conf", "conf_M")])
+
+
+def c_keep(L):
+    """C strength curve with the retention quantity of the frozen criterion (keep right-rate change), both judges."""
+    wb, wa = MAIN / ("judge_tune_proB_C_L%d" % L), MAIN / ("judge_tune_proA_C_L%d" % L)
+    order = [("m2", wb), ("m1", wa), ("m0-5", wb), ("m0-25", wb), ("p0-25", wb), ("p0-5", wb), ("p1", wa), ("p2", wb)]
+    for judge in ("allenai", "pro"):
+        loaded = {w: T.load(w, judge) for w in (wa, wb)}
+        print("\n#### C layer %d, judge %s: retention along the strength curve (base x)" % (L, judge))
+        print("| strength | dAns | keep n | keep dR (W>R / R>W) | keep right-rate change |")
+        print("|---|---|---|---|---|")
+        for s, w in order:
+            gen, _, ids, st, _, words = loaded[w]
+            c = "C_L%d_x-w-%s" % (L, s)
+            v, n = T.per_question(st, words, ids, "baseline_x", c)
+            lab = ("+" if s[0] == "p" else "-") + s[1:].replace("-", ".")
+            print("| %s | %+d | %d | %+d (%d / %d) | %+.1f pp |" % (lab, sum(v["dAns"]), n["keep"], sum(v["keep"]), n["up"], n["down"],
+                                                                100.0 * sum(v["keep"]) / n["keep"]))
+
+
+if __name__ == "__main__" and sys.argv[1] == "c_keep":
+    for L in sys.argv[2:]:
+        c_keep(int(L))
