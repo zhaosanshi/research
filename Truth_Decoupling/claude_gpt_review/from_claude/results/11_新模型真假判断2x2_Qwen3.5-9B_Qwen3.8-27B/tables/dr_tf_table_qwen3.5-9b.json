@@ -1,0 +1,418 @@
+{
+ "pairs_file": "configs/splits/dr_100pairs_20261110.json",
+ "pairs_file_sha256": "a115131dcd0554d35788f150e3ee77c3ad7b542efd383d716bbade697495b7f7",
+ "das_tag": "das_tfce_full",
+ "md_tag": "meandiff_full",
+ "n_boot": 2000,
+ "seed": 0,
+ "rule": "E: max dJ on the tuning pairs s.t. |d answer rate| <= 0.03; ties -> first in sweep order",
+ "models": {
+  "qwen3.5-9b": {
+   "files": {
+    "DAS": {
+     "json": "/workspace/Truth_Decoupling/results_newmodels_20261112/E23/qwen3.5-9b/knob_sweep_das_tfce_full.json",
+     "npz": "/workspace/Truth_Decoupling/results_newmodels_20261112/E23/qwen3.5-9b/knob_sweep_das_tfce_full.npz",
+     "json_sha256": "2fc11bb4ab99f21deeacf0395d9ad47219e76ef3b5c065677875a31c0fb0e1e1",
+     "npz_sha256": "4cbc00c029135f2a63e85602901e83231762ea8b6378e73372a0545c11a91292"
+    },
+    "meandiff": {
+     "json": "/workspace/Truth_Decoupling/results_newmodels_20261112/E23/qwen3.5-9b/knob_sweep_meandiff_full.json",
+     "npz": "/workspace/Truth_Decoupling/results_newmodels_20261112/E23/qwen3.5-9b/knob_sweep_meandiff_full.npz",
+     "json_sha256": "98b936f789ecd196d71f7257922ec2ce7262f447ef9b64bcc2f150638a6e1111",
+     "npz_sha256": "8e7dc6e7de0b55caeedab021e6f4347b7d8ec1fdc91dd1d0daa0c1e19a842060"
+    }
+   },
+   "chosen": {
+    "DAS": "E_L31_a3",
+    "meandiff": "E_L17_a3"
+   },
+   "margin_stored_in_both": true,
+   "model_config": {
+    "name": "qwen3.5-9b",
+    "path": "/workspace/Truth_Decoupling/models/Qwen3.5-9B",
+    "modelscope_repo": "Qwen/Qwen3.5-9B",
+    "hidden_size": 4096,
+    "num_layers": 32,
+    "dtype": "bfloat16",
+    "python": "/workspace/Truth_Decoupling/envs/tf519/bin/python"
+   },
+   "runtime": {
+    "DAS": {
+     "python": "/workspace/Truth_Decoupling/envs/tf519/bin/python",
+     "transformers": "5.19.0",
+     "torch": "2.13.0a0+8145d630e8.nv26.06",
+     "model_path": "/workspace/Truth_Decoupling/models/Qwen3.5-9B",
+     "model_config_name": "qwen3.5-9b"
+    },
+    "meandiff": {
+     "python": "/workspace/Truth_Decoupling/envs/tf519/bin/python",
+     "transformers": "5.19.0",
+     "torch": "2.13.0a0+8145d630e8.nv26.06",
+     "model_path": "/workspace/Truth_Decoupling/models/Qwen3.5-9B",
+     "model_config_name": "qwen3.5-9b"
+    }
+   },
+   "tune": {
+    "DAS": {
+     "J": 0.109375,
+     "ans": 0.0026041666666667407,
+     "AUROC": 0.05680338541666674,
+     "B": 0.0078125
+    },
+    "meandiff": {
+     "J": 0.02604166666666674,
+     "ans": -0.005208333333333259,
+     "AUROC": 0.00981987847222221,
+     "B": 0.0026041666666666297
+    }
+   },
+   "das_per_layer_chosen": {
+    "n_seeds": 1,
+    "seeds": [
+     42
+    ],
+    "final_losses": [
+     0.24412690076602908
+    ],
+    "n_pairs": [
+     96
+    ],
+    "mean_gap": 16.5757904353862,
+    "mean_gap_available": true,
+    "mean_gap_note": "single seed: the stored mean_gap",
+    "cos_seed_vs_mean": [
+     1.0000000000000002
+    ],
+    "cos_with_align_to": 0.5135343467257475,
+    "protocol": {
+     "anchor": "prompt",
+     "loss_kind": "ce",
+     "positions": "last",
+     "rank": 1,
+     "n_pairs": 96,
+     "T": 1,
+     "bidirectional": true,
+     "epochs": 10,
+     "lr": 0.001,
+     "trim": 0.0,
+     "weighted": false
+    },
+    "protocol_complete": true,
+    "merge": "seeds sign-aligned to the first seed, averaged, renormalised; align_to sets the final sign only; all non-per-seed checkpoint fields must agree; mean_gap: see mean_gap_note",
+    "files": [
+     "das_E_L31_r1_s42_tf-ce-bidir.pt"
+    ]
+   },
+   "sets": {
+    "100 pairs": {
+     "n_pairs": 100,
+     "point": {
+      "original": {
+       "AUROC": 0.782,
+       "AUROC_margin": 0.782,
+       "J": 0.42000000000000004,
+       "yes_rate": 0.66,
+       "B": 0.57
+      },
+      "DAS": {
+       "AUROC": 0.8402,
+       "AUROC_margin": 0.8402,
+       "J": 0.54,
+       "yes_rate": 0.645,
+       "B": 0.57
+      },
+      "meandiff": {
+       "AUROC": 0.793,
+       "AUROC_margin": 0.793,
+       "J": 0.45,
+       "yes_rate": 0.64,
+       "B": 0.565
+      }
+     },
+     "diffs": {
+      "DAS - original": {
+       "AUROC": {
+        "point": 0.05819999999999992,
+        "ci95": [
+         0.039295,
+         0.07800499999999994
+        ],
+        "p_gt0": 1.0
+       },
+       "AUROC_margin": {
+        "point": 0.05819999999999992,
+        "ci95": [
+         0.039295,
+         0.07800499999999994
+        ],
+        "p_gt0": 1.0
+       },
+       "J": {
+        "point": 0.12,
+        "ci95": [
+         0.050000000000000044,
+         0.19
+        ],
+        "p_gt0": 0.9995
+       },
+       "yes_rate": {
+        "point": -0.015000000000000013,
+        "ci95": [
+         -0.040000000000000036,
+         0.0
+        ],
+        "p_gt0": 0.0
+       },
+       "B": {
+        "point": 0.0,
+        "ci95": [
+         -0.040000000000000036,
+         0.040000000000000036
+        ],
+        "p_gt0": 0.4535
+       }
+      },
+      "meandiff - original": {
+       "AUROC": {
+        "point": 0.01100000000000001,
+        "ci95": [
+         0.005699999999999927,
+         0.017302499999999967
+        ],
+        "p_gt0": 1.0
+       },
+       "AUROC_margin": {
+        "point": 0.01100000000000001,
+        "ci95": [
+         0.005699999999999927,
+         0.017302499999999967
+        ],
+        "p_gt0": 1.0
+       },
+       "J": {
+        "point": 0.02999999999999997,
+        "ci95": [
+         -0.010000000000000009,
+         0.07999999999999996
+        ],
+        "p_gt0": 0.8865
+       },
+       "yes_rate": {
+        "point": -0.020000000000000018,
+        "ci95": [
+         -0.050000000000000044,
+         0.0
+        ],
+        "p_gt0": 0.0
+       },
+       "B": {
+        "point": -0.0050000000000000044,
+        "ci95": [
+         -0.025000000000000022,
+         0.015000000000000013
+        ],
+        "p_gt0": 0.2505
+       }
+      },
+      "DAS - meandiff": {
+       "AUROC": {
+        "point": 0.04719999999999991,
+        "ci95": [
+         0.02870000000000006,
+         0.06659999999999999
+        ],
+        "p_gt0": 1.0
+       },
+       "AUROC_margin": {
+        "point": 0.04719999999999991,
+        "ci95": [
+         0.02870000000000006,
+         0.06659999999999999
+        ],
+        "p_gt0": 1.0
+       },
+       "J": {
+        "point": 0.09000000000000002,
+        "ci95": [
+         0.030000000000000027,
+         0.15999999999999992
+        ],
+        "p_gt0": 0.9975
+       },
+       "yes_rate": {
+        "point": 0.0050000000000000044,
+        "ci95": [
+         -0.015000000000000013,
+         0.030000000000000027
+        ],
+        "p_gt0": 0.535
+       },
+       "B": {
+        "point": 0.0050000000000000044,
+        "ci95": [
+         -0.030000000000000027,
+         0.04499999999999993
+        ],
+        "p_gt0": 0.559
+       }
+      }
+     }
+    },
+    "529 pairs": {
+     "n_pairs": 529,
+     "point": {
+      "original": {
+       "AUROC": 0.8246432795766168,
+       "AUROC_margin": 0.8246432795766168,
+       "J": 0.48771266540642727,
+       "yes_rate": 0.6984877126654064,
+       "B": 0.5274102079395085
+      },
+      "DAS": {
+       "AUROC": 0.8758223419727631,
+       "AUROC_margin": 0.8758223419727631,
+       "J": 0.5746691871455577,
+       "yes_rate": 0.6937618147448015,
+       "B": 0.5311909262759924
+      },
+      "meandiff": {
+       "AUROC": 0.834380952040623,
+       "AUROC_margin": 0.834380952040623,
+       "J": 0.500945179584121,
+       "yes_rate": 0.6937618147448015,
+       "B": 0.5207939508506616
+      }
+     },
+     "diffs": {
+      "DAS - original": {
+       "AUROC": {
+        "point": 0.051179062396146335,
+        "ci95": [
+         0.04343841681526299,
+         0.05908158561468833
+        ],
+        "p_gt0": 1.0
+       },
+       "AUROC_margin": {
+        "point": 0.051179062396146335,
+        "ci95": [
+         0.04343841681526299,
+         0.05908158561468833
+        ],
+        "p_gt0": 1.0
+       },
+       "J": {
+        "point": 0.08695652173913043,
+        "ci95": [
+         0.05482041587901704,
+         0.12098298676748587
+        ],
+        "p_gt0": 1.0
+       },
+       "yes_rate": {
+        "point": -0.00472589792060496,
+        "ci95": [
+         -0.010396975425330801,
+         -0.000945179584120881
+        ],
+        "p_gt0": 0.0
+       },
+       "B": {
+        "point": 0.003780718336483857,
+        "ci95": [
+         -0.01417769376181477,
+         0.020793950850661606
+        ],
+        "p_gt0": 0.642
+       }
+      },
+      "meandiff - original": {
+       "AUROC": {
+        "point": 0.009737672464006253,
+        "ci95": [
+         0.0075221286373332585,
+         0.011964562019146535
+        ],
+        "p_gt0": 1.0
+       },
+       "AUROC_margin": {
+        "point": 0.009737672464006253,
+        "ci95": [
+         0.0075221286373332585,
+         0.011964562019146535
+        ],
+        "p_gt0": 1.0
+       },
+       "J": {
+        "point": 0.013232514177693722,
+        "ci95": [
+         5.412337245047646e-17,
+         0.028355387523629427
+        ],
+        "p_gt0": 0.975
+       },
+       "yes_rate": {
+        "point": -0.00472589792060496,
+        "ci95": [
+         -0.017013232514177638,
+         0.007561436672967825
+        ],
+        "p_gt0": 0.2085
+       },
+       "B": {
+        "point": -0.006616257088846944,
+        "ci95": [
+         -0.01417769376181477,
+         0.0
+        ],
+        "p_gt0": 0.0125
+       }
+      },
+      "DAS - meandiff": {
+       "AUROC": {
+        "point": 0.04144138993214008,
+        "ci95": [
+         0.03462287513266463,
+         0.048560075185551804
+        ],
+        "p_gt0": 1.0
+       },
+       "AUROC_margin": {
+        "point": 0.04144138993214008,
+        "ci95": [
+         0.03462287513266463,
+         0.048560075185551804
+        ],
+        "p_gt0": 1.0
+       },
+       "J": {
+        "point": 0.07372400756143671,
+        "ci95": [
+         0.04536862003780717,
+         0.10396975425330823
+        ],
+        "p_gt0": 1.0
+       },
+       "yes_rate": {
+        "point": 0.0,
+        "ci95": [
+         -0.011342155009451793,
+         0.011342155009451793
+        ],
+        "p_gt0": 0.463
+       },
+       "B": {
+        "point": 0.010396975425330801,
+        "ci95": [
+         -0.007561436672967825,
+         0.027410207939508435
+        ],
+        "p_gt0": 0.8875
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}
