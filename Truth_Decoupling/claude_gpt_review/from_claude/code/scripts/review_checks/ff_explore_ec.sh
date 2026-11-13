@@ -8,7 +8,10 @@
 # model's own interpreter (the model config's "python"), so that every phase of that script runs in the runtime the run was
 # made with; the judging steps run with the container's python3, as in newmodel_e44.sh.
 #   MODEL=qwen3.5-9b CODE_PATH=<code copy> E_RUN=<dir> C_RUN=<dir> E_ON=E2 C_E_ON=E1 EL=15 CL=16 ES="1 2" KS="0.25 0.5 1 2" \
-#     TAG=<name> STAGE=<stage> [GPU=k] [CACHE_FROM="<dir> [<dir> ...]"] ff_explore_ec.sh
+#     TAG=<name> STAGE=<stage> [GPU=k] [CACHE_FROM="<dir> [<dir> ...]"] [TABLE_CODE=<code copy>] ff_explore_ec.sh
+# TABLE_CODE (added 20:3x for Llama, whose run must use the 11-11 code copy code_e45_20261112): the code copy of the two
+# read-only helpers ff_explore_ec_check.py / ff_explore_ec_describe.py and of e44_round1_tables.py, which the old copy
+# lacks. Default CODE_PATH (the 9B: one copy for everything, as before). Model steps and judging always use CODE_PATH.
 # stages:
 #   selfcheck  real-model acceptance of the two-write engine for (E<EL>, C<CL>) on base x, whole tuning split (GPU)
 #   gen1       E fixed at each strength of ES, with C<CL> toward confident (sign m) at each strength of KS; the single writes
@@ -21,26 +24,38 @@
 #              DeepSeek Pro reply caches named in CACHE_FROM merged into the work dir's cache (judge2_cache_merge.py; a
 #              conflicting key stops the job); DeepSeek Pro (identical requests are not paid twice)
 #   describe   read-only description tables, both judges (ff_explore_ec_describe.py)
+# SPLIT (added 23:xx for stage B of from_claude/45; default tune = the same behaviour as before: every docker call is the
+# same except that gen1's check now passes --split tune, its default; chosen_k also checks the choice file's split, which
+# the tune choice files carry): SPLIT=test runs the
+# same stages on the 529 test questions through the evaluation-only entry scripts/review_checks/e44_split_test.py (it
+# runs e44_eval_extra.py unchanged and only widens the accepted split set by "test"); file and work-dir names carry the
+# split instead of "tune"; CACHE_FROM is optional there (no test answer was ever judged; with none, nothing is merged).
 set -euo pipefail
 : "${MODEL:?}" "${STAGE:?}" "${CODE_PATH:?}" "${E_RUN:?}" "${C_RUN:?}" "${EL:?}" "${CL:?}" "${TAG:?}"
 ROOT=/workspace/Truth_Decoupling
 HOST=/data/sanshizhao/Truth_Decoupling
 CODE=$CODE_PATH
+TCODE=${TABLE_CODE:-$CODE_PATH}
 FF=${FF_ROOT:-$ROOT/results_newmodels_ff_20261112}
 SRC=${SOURCE_DIR:-$FF/source/$MODEL}
 E_ON=${E_ON:-E1}; C_E_ON=${C_E_ON:-E1}
 ES=${ES:-2}; KS=${KS:-0.25 0.5 1}
+SPLIT=${SPLIT:-tune}
+case "$SPLIT" in tune) XE=(scripts/e44_eval_extra.py) ;; test) XE=(scripts/review_checks/e44_split_test.py extra) ;;
+  *) echo "SPLIT must be tune or test" >&2; exit 2 ;; esac
 MODELS=$ROOT/models
 case "$TAG" in ""|*[!A-Za-z0-9]*) echo "TAG must be alphanumeric" >&2; exit 2 ;; esac
 case "$EL$CL" in *[!0-9]*) echo "EL and CL must be layer numbers" >&2; exit 2 ;; esac
 [ "$EL" != "$CL" ] || { echo "the E and C writes must act at two different layers" >&2; exit 2; }
 for s in $ES $KS; do case "$s" in ""|*[!0-9.]*|.*|*.|*.*.*) echo "strength '$s' is not a number like 1 or 0.25" >&2; exit 2 ;; esac; done
 host() { case "$1" in "$ROOT"/*) echo "$HOST/${1#$ROOT/}" ;; *) echo "path $1 is outside $ROOT" >&2; exit 2 ;; esac; }
-for d in "$E_RUN" "$C_RUN"; do [ -f "$(host "$d")/frozen_tune.json" ] || { echo "$d is not a finished run (no frozen_tune.json)" >&2; exit 3; }; done
+for d in "$E_RUN" "$C_RUN"; do [ -f "$(host "$d")/frozen_$SPLIT.json" ] || { echo "$d has no frozen_$SPLIT.json (not a finished run, or the split is not frozen yet)" >&2; exit 3; }; done
 [ -f "$(host "$SRC")/bank.json" ] || { echo "no source directory $SRC" >&2; exit 3; }
-for f in scripts/e44_eval_extra.py scripts/review_checks/ff_explore_ec_check.py scripts/review_checks/ff_explore_ec_describe.py \
-         scripts/review_checks/e44_round1_tables.py scripts/review_checks/judge2_cache_merge.py; do
-  [ -f "$(host "$CODE")/$f" ] || { echo "code copy $CODE has no $f (copy it there before running)" >&2; exit 3; }
+for f in scripts/e44_eval_extra.py scripts/review_checks/judge2_cache_merge.py scripts/review_checks/judge_two_axis_run.py ${XE[0]}; do
+  [ -f "$(host "$CODE")/$f" ] || { echo "code copy $CODE has no $f" >&2; exit 3; }
+done
+for f in ff_explore_ec_check.py ff_explore_ec_describe.py e44_round1_tables.py; do
+  [ -f "$(host "$TCODE")/scripts/review_checks/$f" ] || { echo "table code copy $TCODE has no $f (copy it there before running)" >&2; exit 3; }
 done
 DX=(docker exec -u 1000:1001 -e HOME=$ROOT/hf_cache -e HF_HOME=$ROOT/hf_cache -e TD_MODEL_ROOT=$MODELS
     -e TD_DATA_DIR=$ROOT/code/data/processed -e CUDA_VISIBLE_DEVICES="${GPU:-}" -e HF_HUB_OFFLINE=1 -e TRANSFORMERS_OFFLINE=1
@@ -50,6 +65,8 @@ cfg() { "${DX[@]}" python3 -c "import json,sys; print(json.load(open(sys.argv[1]
 PYM=$(cfg python python3)                 # every phase of e44_eval_extra.py: the runtime the run was made with
 pym() { "${DX[@]}" "$PYM" "$@"; }
 pyj() { "${DX[@]}" python3 "$@"; }        # judging steps: the old models' runtime
+TX=(docker exec -u 1000:1001 -e PYTHONDONTWRITEBYTECODE=1 -e PYTHONPATH=$TCODE -w $TCODE truth_dec python3)
+pyt() { "${TX[@]}" "$@"; }                 # the read-only helpers (check, describe), from TABLE_CODE
 need_gpu() { [ -n "${GPU:-}" ] || { echo "STAGE=$STAGE needs GPU" >&2; exit 2; }; }
 step() { echo "=== $(date '+%F %T') [$MODEL E+C $TAG $STAGE gpu${GPU:-none} E$EL($E_ON) C$CL($C_E_ON)] $* ==="; }
 two() {  # two E_PART C_PART: the two-write arm on x, lower layer first (the grammar of e44_eval_extra.py)
@@ -60,11 +77,11 @@ verdicts_complete() {  # verdicts_complete WORK JUDGE: a cell without a verdict 
   n=$(pyj -c "import json,sys; print(json.load(open(sys.argv[1])).get('n_no_verdict', 'missing'))" "$1/judge2/single_$2_summary.json")
   [ "$n" = 0 ] || { echo "$2 left $n cells without a verdict in $1: re-judge them before any table" >&2; exit 3; }
 }
-COMMON=(--source-run "$SRC" --run-dir "$E_RUN" --e-on "$E_ON" --c-run-dir "$C_RUN" --c-e-on "$C_E_ON" --split tune
+COMMON=(--source-run "$SRC" --run-dir "$E_RUN" --e-on "$E_ON" --c-run-dir "$C_RUN" --c-e-on "$C_E_ON" --split "$SPLIT"
         --batch-size 8 --max-new-tokens 48 --max-target-tokens 24 --seed 42)
 CHOICE=$E_RUN/eval_extra/ec_choice_$TAG.json
-NAME=${TAG}_tune
-WORK=$E_RUN/eval_extra/judge_tune_$NAME
+NAME=${TAG}_$SPLIT
+WORK=$E_RUN/eval_extra/judge_${SPLIT}_$NAME
 LAST_ES=${ES##* }
 
 arms1() {  # the first generation stage: E+C grid, single E, single-E random controls, single C
@@ -75,14 +92,15 @@ arms1() {  # the first generation stage: E+C grid, single E, single-E random con
   echo $out
 }
 chosen_k() {  # chosen_k S: the k of E strength S from the choice file, after checking the file belongs to this run
+  # (and, since SPLIT, to this split: the tune choice files carry "split": "tune", written by ff_explore_ec_check.py)
   pyj -c "
 import json, sys
 c = json.load(open(sys.argv[1]))
-want = {'run_dir': sys.argv[2], 'c_run_dir': sys.argv[3], 'e_layer': int(sys.argv[4]), 'c_layer': int(sys.argv[5])}
+want = {'run_dir': sys.argv[2], 'c_run_dir': sys.argv[3], 'e_layer': int(sys.argv[4]), 'c_layer': int(sys.argv[5]), 'split': sys.argv[8]}
 got = {k: c.get(k) for k in want}
 if got != want or sorted(c['choice']) != sorted(sys.argv[6].split()):
-    sys.exit('choice file %s is for another run, other layers or other E strengths: %s vs %s' % (sys.argv[1], got, want))
-print(c['choice'][sys.argv[7]])" "$CHOICE" "$E_RUN" "$C_RUN" "$EL" "$CL" "$ES" "$1"
+    sys.exit('choice file %s is for another run, split, other layers or other E strengths: %s vs %s' % (sys.argv[1], got, want))
+print(c['choice'][sys.argv[7]])" "$CHOICE" "$E_RUN" "$C_RUN" "$EL" "$CL" "$ES" "$1" "$SPLIT"
 }
 arms2() {  # the second generation stage, for each E strength and its chosen k only
   local s k out="" seen=" "
@@ -101,43 +119,57 @@ case "$STAGE" in
 selfcheck)
   need_gpu
   ARM=$(two "E$EL.w.p$LAST_ES" "C$CL.w.m1")
-  step "selfcheck $ARM (whole tuning split)"
-  pym scripts/e44_eval_extra.py selfcheck "${COMMON[@]}" --arms "$ARM" ;;
+  step "selfcheck $ARM (whole $SPLIT split)"
+  pym "${XE[@]}" selfcheck "${COMMON[@]}" --arms "$ARM" ;;
 gen1)
   need_gpu
   ARMS=$(arms1)
   step "generate $ARMS"
-  pym scripts/e44_eval_extra.py generate "${COMMON[@]}" --arms $ARMS
+  pym "${XE[@]}" generate "${COMMON[@]}" --arms $ARMS
   step "checks and the choice of k"
-  pyj scripts/review_checks/ff_explore_ec_check.py --run-dir "$E_RUN" --c-run-dir "$C_RUN" --el "$EL" --cl "$CL" \
-    --es $ES --ks $KS --out "$CHOICE" ;;
+  pyt scripts/review_checks/ff_explore_ec_check.py --run-dir "$E_RUN" --c-run-dir "$C_RUN" --el "$EL" --cl "$CL" \
+    --es $ES --ks $KS --split "$SPLIT" --out "$CHOICE" ;;
 gen2)
   need_gpu
   ARMS=$(arms2)
   step "generate $ARMS"
-  pym scripts/e44_eval_extra.py generate "${COMMON[@]}" --arms $ARMS ;;
+  pym "${XE[@]}" generate "${COMMON[@]}" --arms $ARMS ;;
 judge)
-  need_gpu
-  : "${CACHE_FROM:?a Pro pass needs CACHE_FROM (reply caches that judged baseline x and the single writes of this model)}"
-  for d in $CACHE_FROM; do [ -f "$(host "$d")/judge2_cache_deepseek-v4-pro.jsonl" ] || { echo "no Pro reply cache in $d" >&2; exit 3; }; done
+  # JUDGES (added with SPLIT; default "allenai pro" = as before): allenai = export + AllenAI only (GPU); pro = the cache
+  # merge + DeepSeek Pro only (no GPU), on a work dir whose AllenAI pass is complete
+  JUDGES=${JUDGES:-allenai pro}
+  for j in $JUDGES; do case "$j" in allenai|pro) ;; *) echo "JUDGES: unknown judge '$j' (allenai / pro)" >&2; exit 2 ;; esac; done
+  [ -n "$JUDGES" ] || { echo "JUDGES is empty" >&2; exit 2; }
+  case " $JUDGES " in *" allenai "*) DO_A=1; need_gpu ;; *) DO_A=0 ;; esac
+  case " $JUDGES " in *" pro "*) DO_P=1 ;; *) DO_P=0 ;; esac
+  if [ "$SPLIT" = tune ] && [ $DO_P = 1 ]; then
+    : "${CACHE_FROM:?a Pro pass needs CACHE_FROM (reply caches that judged baseline x and the single writes of this model)}"
+  fi
+  for d in ${CACHE_FROM:-}; do [ -f "$(host "$d")/judge2_cache_deepseek-v4-pro.jsonl" ] || { echo "no Pro reply cache in $d" >&2; exit 3; }; done
+  if [ $DO_A = 1 ]; then
   A1=$(arms1); A2=$(arms2)
   GEN=""
   for a in $A1 $A2; do
-    f="$(token "$a")_tune.json"
+    f="$(token "$a")_$SPLIT.json"
     [ -f "$(host "$E_RUN")/eval_extra/gen/$f" ] || { echo "missing generation file eval_extra/gen/$f" >&2; exit 3; }
     GEN="$GEN $f"
   done
   step "export$GEN + baseline x"
-  pym scripts/e44_eval_extra.py export "${COMMON[@]}" --gen $GEN --name "$NAME"
+  pym "${XE[@]}" export "${COMMON[@]}" --gen $GEN --name "$NAME"
   mkdir -p "$(host "$WORK")/judge2/cache"
-  [ -f "$(host "$WORK")/judge_input.json" ] || cp "$(host "$E_RUN")/eval_extra/judge_tune/$NAME.json" "$(host "$WORK")/judge_input.json"
-  cmp "$(host "$E_RUN")/eval_extra/judge_tune/$NAME.json" "$(host "$WORK")/judge_input.json"
+  [ -f "$(host "$WORK")/judge_input.json" ] || cp "$(host "$E_RUN")/eval_extra/judge_$SPLIT/$NAME.json" "$(host "$WORK")/judge_input.json"
+  cmp "$(host "$E_RUN")/eval_extra/judge_$SPLIT/$NAME.json" "$(host "$WORK")/judge_input.json"
   step "cells + allenai + single"
   pyj scripts/review_checks/judge_two_axis_run.py cells "$WORK" --generation judge_input.json | grep -E "n_cells|n_unique_question_answer"
   "${DX[@]}" python3 scripts/allenai_tqa_judge.py --cells "$WORK/judge2/cells.jsonl" --out "$WORK/judge2/allenai.jsonl" \
     --truth-model "$MODELS/allenai__truthfulqa-truth-judge-llama2-7B" --info-model "$MODELS/allenai__truthfulqa-info-judge-llama2-7B" | tail -n 4
   pyj scripts/review_checks/judge_two_axis_run.py single "$WORK" --judge allenai > "$(host "$WORK")/single_allenai_stdout.md"
+  else
+    [ -f "$(host "$WORK")/judge2/single_allenai.jsonl" ] || { echo "no AllenAI pass in $WORK yet: run JUDGES=allenai first" >&2; exit 3; }
+  fi
   verdicts_complete "$WORK" allenai
+  if [ $DO_P = 0 ]; then step "pro skipped (JUDGES=$JUDGES)"; step "$STAGE done"; exit 0; fi
+  if [ -n "${CACHE_FROM:-}" ]; then
   step "merge the Pro reply caches $CACHE_FROM into the work dir's cache"
   pyj scripts/review_checks/judge2_cache_merge.py "$WORK/judge2/cache" $CACHE_FROM
   pyj -c "
@@ -146,6 +178,9 @@ k = json.load(open(sys.argv[1])).get('keys', {})
 n = sum(len(v) for v in k.values()) if isinstance(k, dict) else len(k)
 sys.exit('the merged caches give %d request keys different replies: stop (never pick one by convenience)' % n if n else 0)" \
     "$WORK/judge2/cache/conflicts.json"
+  else
+  step "no CACHE_FROM ($SPLIT split): the Pro pass starts from an empty reply cache"
+  fi
   step "pro"
   pyj scripts/review_checks/judge_two_axis_run.py llm "$WORK" --judge pro
   pyj scripts/review_checks/judge_two_axis_run.py single "$WORK" --judge pro > "$(host "$WORK")/single_pro_stdout.md"
@@ -153,7 +188,7 @@ sys.exit('the merged caches give %d request keys different replies: stop (never 
 describe)
   for J in allenai pro; do
     step "describe, judge $J"
-    pyj scripts/review_checks/ff_explore_ec_describe.py "$WORK" --judge "$J" --el "$EL" --cl "$CL" --choice "$CHOICE" \
+    pyt scripts/review_checks/ff_explore_ec_describe.py "$WORK" --judge "$J" --el "$EL" --cl "$CL" --choice "$CHOICE" \
       > "$(host "$WORK")/describe_$J.md"
     cat "$(host "$WORK")/describe_$J.md"
   done ;;
