@@ -118,9 +118,18 @@ check_judges() {  # JUDGES may only name allenai and pro (a typo must not skip b
   for j in $1; do case "$j" in allenai|pro) ;; *) echo "JUDGES: unknown judge '$j' (allenai / pro)" >&2; exit 2 ;; esac; done
 }
 verdicts_complete() {  # verdicts_complete WORK JUDGE: a cell without a verdict stops the job (plan 43 section 5: never imputed)
-  local n
-  n=$(pyj -c "import json,sys; print(json.load(open(sys.argv[1])).get('n_no_verdict', 'missing'))" "$1/judge2/single_$2_summary.json")
-  [ "$n" = 0 ] || { echo "$2 left $n cells without a verdict in $1: re-judge them before any table" >&2; exit 3; }
+  local out bad empty
+  # an EMPTY answer is never sent to a judge and counts as an abstention (two-axis standard of 2026-11-08: "空输出一律 C";
+  # first seen on the 27B, 2026-11-14): it is counted and reported, not blocking; every other missing verdict still stops
+  out=$(pyj -c "
+import json, sys
+rows = [json.loads(l) for l in open(sys.argv[1], encoding='utf-8')]
+empty = [r for r in rows if r['status'] != 'scored' and r.get('basis') == 'empty_output_no_judge_vote' and r.get('empty_output') is True]
+print(sum(r['status'] != 'scored' for r in rows) - len(empty), len(empty))" "$1/judge2/single_$2.jsonl") \
+    || { echo "cannot read the $2 verdicts of $1" >&2; exit 3; }
+  read -r bad empty <<< "$out"
+  [ "$empty" = 0 ] || echo "$2: $empty empty answer(s) in $1 count as abstentions (never judged; two-axis standard of 11-08)"
+  [ "$bad" = 0 ] || { echo "$2 left $bad cells without a verdict in $1: re-judge them before any table" >&2; exit 3; }
 }
 seed_variant() {  # a VARIANT run reuses the model's step 0, byte for byte
   [ -n "$VARIANT" ] || return 0

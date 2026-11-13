@@ -37,6 +37,9 @@ def load(work):
         for line in (work / "judge2" / ("single_%s.jsonl" % j)).open(encoding="utf-8"):
             r = json.loads(line)
             if r["status"] != "scored":
+                if r.get("basis") == "empty_output_no_judge_vote" and r.get("empty_output") is True:
+                    st[(j, r["pair_id"], r["condition"])] = "X"   # empty answer = abstention (two-axis standard of 11-08)
+                    continue
                 raise SystemExit("unscored cell %s in %s" % (r["cell_id"], work))
             st[(j, r["pair_id"], r["condition"])] = ("X" if r["rule_abstain"] else AMAP[r["label"]]) if j == "allenai" else PMAP[r["label"]]
     return g, st

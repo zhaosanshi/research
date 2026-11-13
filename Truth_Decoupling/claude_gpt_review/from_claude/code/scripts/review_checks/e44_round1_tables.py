@@ -16,7 +16,9 @@ States per judge:   R right, W wrong, H hedge or uninformative, X abstained.
   allenai: rule abstention -> X whatever the judge said; otherwise A -> R, B -> W, N -> H.
   pro:     A -> R, B -> W, H -> H, C -> X.
 "Answered" = R or W. Every comparison is paired on the same questions and judged by the same judge. An unscored cell stops
-the script (re-judge first; nothing is imputed).
+the script (re-judge first; nothing is imputed). One exception, by rule, not by imputation (2026-11-14, first seen on the
+27B): an EMPTY answer is never sent to a judge (judge_two_axis_run.py single: basis empty_output_no_judge_vote) and counts
+as X, abstained, under both judges -- the two-axis standard of 2026-11-08 ("完整拒答短语与空输出一律 C").
 
 Per-question quantities for an arm c against its base b:
   dR   right(c) - right(b)          dAns  answered(c) - answered(b)          dX  abstained(c) - abstained(b)
@@ -48,14 +50,28 @@ def load(work, judge):
         key = (r["pair_id"], r["condition"])
         rule[key] = bool(r["rule_abstain"])
         if r["status"] != "scored":
-            s = "?"
+            s = "X" if (r.get("basis") == "empty_output_no_judge_vote" and r.get("empty_output") is True) else "?"
         elif judge == "allenai":
             s = "X" if r["rule_abstain"] else {"A": "R", "B": "W", "N": "H"}[r["label"]]
         else:
             s = {"A": "R", "B": "W", "H": "H", "C": "X"}[r["label"]]
         state[key] = s
     specs = {s["name"]: s for s in gen["condition_specs"]}
-    ids = list(gen["question_ids"])
+    # Questions whose only gold answer is an abstention ("I have no comment") are excluded by the judging itself (no judge
+    # row for any of their cells, either judge); they leave every table the same way (2026-11-14: the test split has 6,
+    # the tune split none -- as the v1 test table of from_claude/10 put them aside)
+    per_q = collections.defaultdict(set)
+    cells_path = work / "judge2" / "cells.jsonl"
+    if cells_path.exists():
+        for l in cells_path.open(encoding="utf-8"):
+            c = json.loads(l)
+            per_q[c["pair_id"]].add(bool(c.get("gold_is_abstention")))
+    mixed = [q for q, v in per_q.items() if len(v) > 1]
+    if mixed:
+        raise SystemExit("gold_is_abstention differs between the cells of one question: %s" % mixed[:3])
+    excluded = sorted(q for q, v in per_q.items() if v == {True})
+    gen["_excluded_abstention_gold"] = excluded
+    ids = [i for i in gen["question_ids"] if i not in set(excluded)]
     bad = [(i, c) for c in gen["conditions"] for i in ids if state.get((i, c), "?") == "?"]
     if bad:
         raise SystemExit("unscored cells: %d (first %s); re-judge them before any table" % (len(bad), bad[:3]))
@@ -287,6 +303,9 @@ def cells(a):
     rb, wb, hb, xb = counts(state, ids, base)
     print("# %s conditions under judge %s (%d questions; tolerance %.0f%%; paired bootstrap %d resamples, seed %d; against %s)" % (
         fam, a.judge, N, 100 * TOL, BOOT, SEED, base))
+    if gen.get("_excluded_abstention_gold"):
+        print("Excluded, as in the judging: %d question(s) whose only gold answer is an abstention (%s).\n" % (
+            len(gen["_excluded_abstention_gold"]), " ".join(gen["_excluded_abstention_gold"])))
     if bn != "x" or main_arm != "x.w.p1" or st != "1":
         print("EXPLORATORY: base prompt %s, main arm %s, strength %s — outside the frozen criteria (which use base x, arm x.w.p1, strength 1)." % (bn, main_arm, st))
     print("A = stage-A screen: point estimates only. B = stage-B confirmation: intervals; on the tuning questions column B is descriptive.\n")
