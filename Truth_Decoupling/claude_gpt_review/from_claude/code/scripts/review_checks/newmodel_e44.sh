@@ -45,17 +45,39 @@
 #   STAGE=diag      prompt-only diagnostics in their own run dir promptdiag/<MODEL>: freeze DIAG_PROMPTS (a prompts file
 #                   under configs/prompts) on the tune questions, export, AllenAI (GPU). STAGE=diagpro: DeepSeek Pro on
 #                   them (no GPU), cache seeded from CACHE_FROM (default: the model's step-0 judge cache).
+# Added 2026-11-13 11:35 (from_claude/44 section 5.5: Llama's E2 directions of 11-11 are reused, not retrained):
+#   RUN_DIR=<dir>   an EXISTING run directory (absolute, under /workspace/Truth_Decoupling, with frozen answers) instead of
+#                   e44/<MODEL>[_<VARIANT>]; only for extra / pro / tables (judge and screen name round 1's own work dir),
+#                   never with VARIANT, always with SOURCE_DIR. The core checks its own identity against that run's frozen
+#                   answers and directions, so CODE_PATH must name the code copy the run was made with (e.g. Llama's 11-11
+#                   run: code_e45_20261112). A Pro pass on a RUN_DIR needs CACHE_FROM (no e44/<MODEL> step 0 to default to).
+#   SOURCE_DIR=<dir> an EXISTING source directory (with bank.json; never created here) instead of source/<MODEL>, e.g.
+#                   the one a RUN_DIR was made from (the export checks its bank / questions hashes against the run).
+# A reply-cache directory named by CACHE_FROM (or the default) that does not exist now stops the job instead of seeding
+# nothing. With none of RUN_DIR / SOURCE_DIR set, every command is the one of the 09:38 version (06ba4620...).
 set -euo pipefail
 : "${MODEL:?}" "${STAGE:?}"
 ROOT=/workspace/Truth_Decoupling
 HOST=/data/sanshizhao/Truth_Decoupling
 CODE=${CODE_PATH:-$ROOT/code_newmodels_ff_20261112}
 FF=${FF_ROOT:-$ROOT/results_newmodels_ff_20261112}
-SRC=$FF/source/$MODEL
+existing() {  # existing NAME DIR FILE: DIR is under ROOT and already holds FILE (RUN_DIR / SOURCE_DIR are never created)
+  case "$2" in "$ROOT"/*) ;; *) echo "$1 must be an absolute path under $ROOT" >&2; exit 2 ;; esac
+  [ -f "$HOST/${2#"$ROOT"/}/$3" ] || { echo "$1=$2 has no $3 (an existing directory only)" >&2; exit 3; }
+}
+SOURCE_DIR=${SOURCE_DIR:-}; RUN_DIR=${RUN_DIR:-}
+[ -z "$SOURCE_DIR" ] || existing SOURCE_DIR "$SOURCE_DIR" bank.json
+SRC=${SOURCE_DIR:-$FF/source/$MODEL}
 BASE_MAIN=$FF/e44/$MODEL
 VARIANT=${VARIANT:-}
 case "$VARIANT" in ""|*[!A-Za-z0-9]*) [ -z "$VARIANT" ] || { echo "VARIANT must be alphanumeric" >&2; exit 2; } ;; esac
-MAIN=$BASE_MAIN${VARIANT:+_$VARIANT}
+if [ -n "$RUN_DIR" ]; then
+  [ -z "$VARIANT" ] || { echo "RUN_DIR and VARIANT exclude each other" >&2; exit 2; }
+  [ -n "$SOURCE_DIR" ] || { echo "RUN_DIR needs SOURCE_DIR (the source directory that run was made from)" >&2; exit 2; }
+  case "$STAGE" in extra|pro|tables) ;; *) echo "STAGE=$STAGE does not take a RUN_DIR" >&2; exit 2 ;; esac
+  existing RUN_DIR "$RUN_DIR" frozen_tune.json
+fi
+MAIN=${RUN_DIR:-$BASE_MAIN${VARIANT:+_$VARIANT}}
 E_ON=${E_ON:-E1}
 case "$E_ON" in E1|E2) ;; *) echo "E_ON must be E1 or E2" >&2; exit 2 ;; esac
 CE=conf_$E_ON; KE=caut_$E_ON
@@ -81,9 +103,10 @@ NL=$(cfg num_layers 0)
 pym() { "${DX[@]}" "$PYM" "$@"; }
 pyj() { "${DX[@]}" python3 "$@"; }        # judging steps: the old models' runtime
 need_gpu() { [ -n "${GPU:-}" ] || { echo "STAGE=$STAGE needs GPU" >&2; exit 2; }; }
-step() { echo "=== $(date '+%F %T') [$MODEL${VARIANT:+_$VARIANT} ${BRANCH:-} ${STAGE} gpu${GPU:-none} e_on=$E_ON] $* ==="; }
+step() { echo "=== $(date '+%F %T') [$MODEL${VARIANT:+_$VARIANT}${RUN_DIR:+ run=${RUN_DIR##*/}} ${BRANCH:-} ${STAGE} gpu${GPU:-none} e_on=$E_ON] $* ==="; }
 host() { case "$1" in "$ROOT"/*) echo "$HOST/${1#$ROOT/}" ;; *) echo "path $1 is outside $ROOT" >&2; exit 2 ;; esac; }
 seed_cache() {  # seed_cache FROM_DIR WORK: copy reply-cache files (identical requests are not paid twice)
+  [ -d "$(host "$1")" ] || { echo "reply cache $1 does not exist (CACHE_FROM?)" >&2; exit 3; }
   mkdir -p "$(host "$2")/judge2/cache"
   for f in "$(host "$1")"/*; do
     [ -f "$f" ] || continue
@@ -242,6 +265,7 @@ pro)
     *" pro "*)
       # reply cache: the step-0 one by default (identical base answers are not paid twice); CACHE_FROM names a superset
       # (e.g. an earlier work dir of the same layer that judged some of the same answers). Seeded only before Pro, once.
+      [ -z "$RUN_DIR" ] || [ -n "${CACHE_FROM:-}" ] || { echo "a Pro pass on RUN_DIR needs CACHE_FROM (the step-0 reply cache of that run)" >&2; exit 2; }
       seed_cache "${CACHE_FROM:-$BASE_MAIN/judge_tune_step0/judge2/cache}" "$WORK"
       step "pro"; pyj scripts/review_checks/judge_two_axis_run.py llm "$WORK" --judge pro
       pyj scripts/review_checks/judge_two_axis_run.py single "$WORK" --judge pro > "$(host "$WORK")/single_pro_stdout.md"
