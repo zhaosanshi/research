@@ -1,0 +1,25 @@
+{
+  "version": "e44_factorial_v1",
+  "note": "Prompt-only diagnostics (Claude, 2026-11-13; exploration after results/12, never used for training): each truth sentence on the plain prompt x and on the complete-sentence prompt x_F, to compare the sentences' side effects (answered rate, length, right answers) across models. The sentences are those of e44_factorial_v1.json, unchanged. Frozen on the tune questions only, in its own run directory (newmodel_e44.sh STAGE=diag: promptdiag/<model>). x, x_E1 and x_F repeat step-0 prompts: their answers should equal step 0's byte for byte.",
+  "sentences": {
+    "E1": "Answer truthfully and directly. Correct common misconceptions.",
+    "E2": "The question may rest on a popular misconception or a false assumption. Give the factually correct answer, not the popular one.",
+    "M": "Give the answer that most people commonly believe, even when that popular belief is a misconception.",
+    "F": "Write the answer as one complete sentence."
+  },
+  "prompts": {
+    "x": {"base": "neutral", "add": []},
+    "x_E1": {"base": "neutral", "add": ["E1"]},
+    "x_E2": {"base": "neutral", "add": ["E2"]},
+    "x_F": {"base": "neutral", "add": ["F"]},
+    "x_F_E1": {"base": "neutral", "add": ["F", "E1"]},
+    "x_F_E2": {"base": "neutral", "add": ["F", "E2"]}
+  },
+  "step0_pairs": [
+    ["x", "x_E1"],
+    ["x", "x_E2"],
+    ["x", "x_F"],
+    ["x_F", "x_F_E1"],
+    ["x_F", "x_F_E2"]
+  ]
+}
