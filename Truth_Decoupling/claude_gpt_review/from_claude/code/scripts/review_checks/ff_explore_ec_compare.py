@@ -8,7 +8,8 @@ set of operating points per E strength (the primary C strength of each comes fro
 judging). Selection, statistics and the pre-registered reading (39 section 2.1) are unchanged.
 
 Answered / abstained is decided without any correctness label: an answer is abstained when the rule detector flags it
-(refusal_rule), and a selection system keeps the N non-abstained answers with the highest confidence (primary: mean
+(refusal_rule) or, since 2026-11-14 (from_claude/45 section 3.5), when it is empty (as both judges count it), and a
+selection system keeps the N non-abstained answers with the highest confidence (primary: mean
 log-probability of its own answer tokens under its own prompt and writes, from ff_explore_ec_confidence.py; ties by
 question order). Correctness comes from the judge labels already on disk (both judges, separately). The selection is
 fixed on the full question set; the paired bootstrap resamples questions for the difference in right (and wrong)
@@ -137,24 +138,41 @@ def run(conf_path, ec_work, conf_work, choice_path, n_boot, seed):
         if g.get("rate", 0) < 0.98 or (writes and (T.get("first_difference_check") or {}).get("share_toward_target", 0) < 0.9):
             raise SystemExit("confidence target %s did not pass its checks" % name)
     split = C.get("split")
-    excluded, ids = None, None
     out = {"confidence_file_sha256": hashlib.sha256(Path(conf_path).read_bytes()).hexdigest(), "identity_sha256": C["identity_sha256"],
            "spec": sp, "split": split, "primary": choice["choice"], "judges": {}, "verdicts": {}}
+    # Both work dirs, both judges, loaded first. Questions left out: the abstention-gold ones (identical in both work dirs;
+    # none on tune) and, 2026-11-14 (from_claude/45 section 3.5), those a work dir lists by hand because a judge could not
+    # score them there -- left out of BOTH systems, so the comparison stays paired on one question set.
+    loaded = {(judge, w): t.load(Path(path), judge) for judge in ("pro", "allenai")
+              for w, path in (("ec", ec_work), ("conf", conf_work))}
+    excluded, by_hand = None, {}
+    for (judge, w), (gen, _, wids, _, _, _) in loaded.items():
+        if gen.get("split") != split:
+            raise SystemExit("%s is an export of the %s split, the confidence file a %s run" % (w, gen.get("split"), split))
+        gold = list(gen["_excluded_abstention_gold"])
+        if excluded is None:
+            excluded = gold
+        elif gold != excluded:
+            raise SystemExit("%s leaves out other abstention-gold questions than the other work dir" % w)
+        hand = gen.get("_excluded_by_hand", {})
+        if wids != [q for q in C["question_ids"] if q not in set(gold) and q not in hand]:
+            raise SystemExit("%s covers other questions or another order than the confidence file" % w)
+        for q, why in hand.items():
+            by_hand.setdefault(q, "%s work dir: %s" % (w, why))
+    ids = [q for q in C["question_ids"] if q not in set(excluded) and q not in by_hand]
     for judge in ("pro", "allenai"):
         works = {}
-        for w, path in (("ec", ec_work), ("conf", conf_work)):
-            gen, specs, wids, state, rule, words = t.load(Path(path), judge)
-            if gen.get("split") != split:
-                raise SystemExit("%s is an export of the %s split, the confidence file a %s run" % (w, gen.get("split"), split))
-            if excluded is None:     # the abstention-gold questions that the table loader leaves out (none on tune)
-                excluded = list(gen["_excluded_abstention_gold"])
-                ids = [q for q in C["question_ids"] if q not in set(excluded)]
-            elif list(gen["_excluded_abstention_gold"]) != excluded:
-                raise SystemExit("%s leaves out other abstention-gold questions than the other work dir" % w)
-            if wids != ids:
-                raise SystemExit("%s covers other questions or another order than the confidence file" % w)
+        for w in ("ec", "conf"):
+            gen, specs, wids, state, rule, words = loaded[(judge, w)]
             texts = {(r["pair_id"], c): o for r in gen["evaluations"] for c, o in r["outputs"].items()}
             works[w] = (state, rule, texts, specs, words)
+
+        def abstained(w, q, cond):
+            # an answer is abstained when the rule detector flags it, or when it is EMPTY: both judges count an empty
+            # answer as an abstention (two-axis standard of 2026-11-08; the 27B sometimes stops at once), and the
+            # confidence file holds no score for it (ff_explore_ec_confidence.py, 2026-11-14)
+            _, ru, tx, _, _ = works[w]
+            return ru[(q, cond)] or not (tx[(q, cond)] or "").strip()
 
         def check_same(target, w, cond):
             st, ru, tx, specs, _ = works[w]
@@ -172,7 +190,7 @@ def run(conf_path, ec_work, conf_work, choice_path, n_boot, seed):
             DECISIVE = PER_S[s]["DECISIVE"]
             for k, c in EC.items():
                 check_same("x_E%sC%s" % (s, k), "ec", c)   # the E+C answers scored are the E+C answers judged
-                ec_set = set(q for q in ids if not ru[(q, c)])
+                ec_set = set(q for q in ids if not abstained("ec", q, c))
                 ec_label = {q: st[(q, c)] for q in ids}
                 n = len(ec_set)
                 k_ec = tally(ids, ec_set, ec_label)
@@ -184,7 +202,7 @@ def run(conf_path, ec_work, conf_work, choice_path, n_boot, seed):
                     tr = check_same(target, w, cond)
                     st2, ru2, _, _, wd2 = works[w]
                     label = {q: st2[(q, cond)] for q in ids}
-                    cands = [q for q in ids if not ru2[(q, cond)]]
+                    cands = [q for q in ids if not abstained(w, q, cond)]
                     r_all = sum(1 for q in cands if label[q] == "R")
                     for m in MEASURES:
                         if m != MEASURES[0] and sname not in DECISIVE:
@@ -216,6 +234,7 @@ def run(conf_path, ec_work, conf_work, choice_path, n_boot, seed):
                     out["verdicts"]["E +%s, C -%s%s | %s" % (s, k, " (primary)" if choice["choice"][s] == k else "", sname)] = verdict(per)
     out["n_questions"] = len(ids)
     out["excluded_abstention_gold"] = excluded
+    out["excluded_by_hand"] = by_hand
     return out
 
 
@@ -223,6 +242,8 @@ def fmt(out):
     L = ["\n%s split: %d questions (left out: %d whose only gold answer is an abstention%s)" % (
         out["split"], out["n_questions"], len(out["excluded_abstention_gold"]),
         ": " + ", ".join(out["excluded_abstention_gold"]) if out["excluded_abstention_gold"] else "")]
+    for q, why in sorted(out.get("excluded_by_hand", {}).items()):
+        L.append("also left out (a judge could not score it; from_claude/45 section 3.5): %s -- %s" % (q, why))
     for judge, res in out["judges"].items():
         L.append("\n## judge %s\n" % judge)
         for key, rows in res["operating_points"].items():

@@ -65,6 +65,8 @@ def main():
     sym, side = ("-", "toward confident") if cs == "m" else ("+", "toward caution")
     chosen = {combo(el, cl, "w", "p", s, "w", cs, k): s for s, k in choice["choice"].items()}
     print("# %s, judge %s, %d questions (DESCRIPTION only; each condition against its own base prompt)\n" % (Path(a.work).name, a.judge, n_q))
+    for q, why in sorted(gen.get("_excluded_by_hand", {}).items()):   # from_claude/45 section 3.5
+        print("Left out of this work dir's tables: %s (%s)\n" % (q, why))
     print("Choice of k fixed before judging (rule abstentions; baseline x = %d): %s\n" % (
         choice["baseline_rule_abstentions"], ", ".join("E +%s -> C %s%s" % (s, sym, k) for s, k in choice["choice"].items())))
     print("| condition | base | rule abstentions | R / W / H / X | answered | right among answered | dR [95%] | dAns | "

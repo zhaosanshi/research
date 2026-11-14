@@ -220,20 +220,37 @@ def main():
                     rf = list(ra["token_ids"]) + (eot if ra["finished"] else [])
                     j = next((k for k in range(min(len(tf), len(rf))) if tf[k] != rf[k]), None)
                     probes.append(None if j is None else (j, rf[j]))   # None: same answer, or one a capped prefix of the other
-            full = score(ctx, prompts, answers, writes, probes, batch=args.batch)
-            same = sum(sum(1 for x, y in zip(fa[:len(lp)], ft[:len(lp)]) if x == y) for lp, fa, ft, _ in full)
-            total = sum(len(lp) for lp, _, _, _ in full)
-            if same / total < GREEDY_MIN:
-                raise RuntimeError("%s: teacher-forced arg-max reproduces only %.3f of the generated tokens" % (name, same / total))
+            # An EMPTY answer (no generated token: the 27B sometimes stops at once) has nothing to score. It is recorded with
+            # no confidence ("empty_answer": true) and counts as an abstention in the comparison, as both judges count it
+            # (2026-11-14, from_claude/45 section 3.5). Answers with tokens are scored exactly as before.
+            # empty = no token, or a text that strips to nothing (the judges' definition; red team 17:58: an answer made of
+            # special tokens only would otherwise reach build_target and stop the run)
+            keep = [i for i, a in enumerate(answers) if list(a["token_ids"]) and a["text"].strip()]
+            if not keep:
+                raise RuntimeError("%s: every answer is empty, nothing to score" % name)
+            pick = lambda xs: [xs[i] for i in keep]  # noqa: E731
+
+            def spread(res):
+                out = [None] * len(answers)
+                for i, r in zip(keep, res):
+                    out[i] = r
+                return out
+            full = spread(score(ctx, pick(prompts), pick(answers), writes, None if probes is None else pick(probes), batch=args.batch))
+            scored = [f for f in full if f is not None]
+            same = sum(sum(1 for x, y in zip(fa[:len(lp)], ft[:len(lp)]) if x == y) for lp, fa, ft, _ in scored)
+            total = sum(len(lp) for lp, _, _, _ in scored)
+            if not total or same / total < GREEDY_MIN:
+                raise RuntimeError("%s: teacher-forced arg-max reproduces only %.3f of the generated tokens" % (name, same / total if total else 0.0))
             check = None
             if reference is not None:
                 abl_writes, _ = make_writes(ctx, base, ref_parts, ref_gen)
-                abl = score(ctx, prompts, answers, abl_writes, probes, batch=args.batch)
+                abl = spread(score(ctx, pick(prompts), pick(answers), abl_writes, pick(probes), batch=args.batch))
                 n = toward = arg_full = arg_abl = 0
                 shifts = []
-                for pr, (_, fa, ft, pf), (_, aa, _, pa) in zip(probes, full, abl):
-                    if pr is None:
+                for pr, f, ab in zip(probes, full, abl):
+                    if pr is None or f is None:
                         continue
+                    (_, fa, ft, pf), (_, aa, _, pa) = f, ab
                     j = pr[0]
                     n += 1
                     shift = (pf[0] - pf[1]) - (pa[0] - pa[1])   # how much the removed write moves the target-vs-reference margin
@@ -252,20 +269,26 @@ def main():
                 elif toward / n < FIRSTDIFF_MIN or check["mean_margin_shift"] <= 0:
                     raise RuntimeError("%s: first-difference check failed %s" % (name, check))
             rows = []
-            for pid, (lp, fa, ft, _), ans in zip(ids, full, answers):
-                rows.append({"pair_id": pid, "n_tokens": len(lp), "finished": bool(ans["finished"]),
-                             "refusal_rule": bool(X.rule_abstains(ans["text"])),
-                             "text_sha1": hashlib.sha1(ans["text"].strip().encode("utf-8")).hexdigest(),
-                             "sum_logp": float(lp.sum()), "mean_logp": float(lp.mean()),
-                             "first_logp": float(lp[0]), "min_logp": float(lp.min())})
+            for pid, f, ans in zip(ids, full, answers):
+                row = {"pair_id": pid, "finished": bool(ans["finished"]), "refusal_rule": bool(X.rule_abstains(ans["text"])),
+                       "text_sha1": hashlib.sha1(ans["text"].strip().encode("utf-8")).hexdigest()}
+                if f is None:
+                    row.update({"n_tokens": 0, "sum_logp": None, "mean_logp": None, "first_logp": None, "min_logp": None,
+                                "empty_answer": True})
+                else:
+                    lp = f[0]
+                    row.update({"n_tokens": len(lp), "sum_logp": float(lp.sum()), "mean_logp": float(lp.mean()),
+                                "first_logp": float(lp[0]), "min_logp": float(lp.min())})
+                rows.append(row)
             report["targets"][name] = {"base_prompt": base, "writes": parts, "write_descriptions": descs, "source": src,
                                        "rows": rows, "greedy_reproduction": {"tokens": total, "same": same, "rate": same / total},
-                                       "first_difference_check": check}
-            print("%s %-7s base %-4s writes %-24s | greedy %d / %d (%.4f) | first-diff %s | mean of mean_logp %.4f | %.0f s" % (
+                                       "first_difference_check": check, "empty_answers": len(answers) - len(keep)}
+            ml = [r["mean_logp"] for r in rows if r["mean_logp"] is not None]
+            print("%s %-7s base %-4s writes %-24s | greedy %d / %d (%.4f) | first-diff %s | mean of mean_logp %.4f | empty %d | %.0f s" % (
                 time.strftime("%H:%M:%S"), name, base, "+".join(parts) or "-", same, total, same / total,
                 "-" if check is None or not check["questions"] else "%d q, toward target %.3f, margin shift %+.3f, argmax full %.3f / ablated %.3f" % (
                     check["questions"], check["share_toward_target"], check["mean_margin_shift"], check["argmax_full_rate"], check["argmax_ablated_rate"]),
-                sum(r["mean_logp"] for r in rows) / len(rows), time.time() - t0), flush=True)
+                sum(ml) / len(ml), len(answers) - len(keep), time.time() - t0), flush=True)
     ctx.still_current()
     out_path.write_text(json.dumps(report, ensure_ascii=False) + "\n", encoding="utf-8")
     print("saved", out_path)

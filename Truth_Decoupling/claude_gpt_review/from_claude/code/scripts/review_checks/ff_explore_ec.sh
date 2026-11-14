@@ -89,13 +89,29 @@ verdicts_complete() {  # verdicts_complete WORK JUDGE: a cell without a verdict 
   local out bad empty
   # an EMPTY answer is never sent to a judge and counts as an abstention (two-axis standard of 2026-11-08: "空输出一律 C";
   # first seen on the 27B, 2026-11-14): it is counted and reported, not blocking; every other missing verdict still stops
+  # questions listed in judge2/excluded_questions.json (from_claude/45 section 3.5: a judge could not score them; written
+  # reason per question) leave every table of the work dir, so their cells are not counted here; e44_round1_tables.load
+  # checks that each listed question really holds an unscored cell
   out=$(pyj -c "
-import json, sys
+import json, os, sys
+xq_path = os.path.join(os.path.dirname(sys.argv[1]), 'excluded_questions.json')
+xq = json.load(open(xq_path, encoding='utf-8')) if os.path.exists(xq_path) else {}
+if not isinstance(xq, dict) or not all(isinstance(k, str) and isinstance(v, str) and v.strip() for k, v in xq.items()):
+    sys.exit('excluded_questions.json must map each pair_id to a written reason')
 rows = [json.loads(l) for l in open(sys.argv[1], encoding='utf-8')]
-empty = [r for r in rows if r['status'] != 'scored' and r.get('basis') == 'empty_output_no_judge_vote' and r.get('empty_output') is True]
-print(sum(r['status'] != 'scored' for r in rows) - len(empty), len(empty))" "$1/judge2/single_$2.jsonl") \
+# red team 17:58: the same test as e44_round1_tables.load -- a listed question's missing verdicts here must all be the
+# judge declining (pro_declined); anything else (an unfinished pass, a conflict, a malformed reply) is never hidden
+for q in xq:
+    b = set(r.get('basis') for r in rows if r['pair_id'] == q and r['status'] != 'scored'
+            and not (r.get('basis') == 'empty_output_no_judge_vote' and r.get('empty_output') is True))
+    if b - {'pro_declined'}:
+        sys.exit('excluded question %s holds missing verdicts of another kind here: %s' % (q, sorted(map(str, b))))
+kept = [r for r in rows if r['pair_id'] not in xq]
+empty = [r for r in kept if r['status'] != 'scored' and r.get('basis') == 'empty_output_no_judge_vote' and r.get('empty_output') is True]
+print(sum(r['status'] != 'scored' for r in kept) - len(empty), len(empty), len(xq), len(rows) - len(kept))" "$1/judge2/single_$2.jsonl") \
     || { echo "cannot read the $2 verdicts of $1" >&2; exit 3; }
-  read -r bad empty <<< "$out"
+  read -r bad empty nxq nxc <<< "$out"
+  [ "$nxq" = 0 ] || echo "$2: $nxq question(s) listed in judge2/excluded_questions.json of $1 ($nxc cells) leave its tables (written reasons there)"
   [ "$empty" = 0 ] || echo "$2: $empty empty answer(s) in $1 count as abstentions (never judged; two-axis standard of 11-08)"
   [ "$bad" = 0 ] || { echo "$2 left $bad cells without a verdict in $1: re-judge them before any table" >&2; exit 3; }
 }

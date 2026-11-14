@@ -19,6 +19,8 @@ States per judge:   R right, W wrong, H hedge or uninformative, X abstained.
 the script (re-judge first; nothing is imputed). One exception, by rule, not by imputation (2026-11-14, first seen on the
 27B): an EMPTY answer is never sent to a judge (judge_two_axis_run.py single: basis empty_output_no_judge_vote) and counts
 as X, abstained, under both judges -- the two-axis standard of 2026-11-08 ("完整拒答短语与空输出一律 C").
+Questions left out of every table of a work dir: those whose only gold answer is an abstention, and those listed in
+judge2/excluded_questions.json with a written reason (only questions holding an unscored cell; see load()).
 
 Per-question quantities for an arm c against its base b:
   dR   right(c) - right(b)          dAns  answered(c) - answered(b)          dX  abstained(c) - abstained(b)
@@ -71,7 +73,32 @@ def load(work, judge):
         raise SystemExit("gold_is_abstention differs between the cells of one question: %s" % mixed[:3])
     excluded = sorted(q for q, v in per_q.items() if v == {True})
     gen["_excluded_abstention_gold"] = excluded
-    ids = [i for i in gen["question_ids"] if i not in set(excluded)]
+    # Questions a judge could not score in this work dir (2026-11-14, from_claude/45 section 3.5; first case: DeepSeek Pro
+    # answered CANNOT_DETERMINE for one answer of the 27B): listed by hand in judge2/excluded_questions.json as
+    # {pair_id: reason}. They leave every table of this work dir, for both judges, the way the abstention-gold questions do;
+    # nothing is imputed. A listed question must hold at least one cell that a judge left without a verdict for a reason
+    # other than an empty answer (checked here), so the list can never drop a fully scored question.
+    xq_path = work / "judge2" / "excluded_questions.json"
+    xq = json.loads(xq_path.read_text(encoding="utf-8")) if xq_path.exists() else {}
+    if not isinstance(xq, dict) or not all(isinstance(k, str) and isinstance(v, str) and v.strip() for k, v in xq.items()):
+        raise SystemExit("%s must map each pair_id to a written reason" % xq_path)
+    if xq:
+        # red team 17:58: only the case section 3.5 covers -- the judge itself declined (basis pro_declined), and nothing
+        # else is missing for that question (an unfinished pass, a conflict or a malformed reply is never hidden this way)
+        bases = collections.defaultdict(set)
+        for jn in ("pro", "allenai"):
+            p = work / "judge2" / ("single_%s.jsonl" % jn)
+            if p.exists():
+                for l in p.open(encoding="utf-8"):
+                    r = json.loads(l)
+                    if r["status"] != "scored" and not (r.get("basis") == "empty_output_no_judge_vote" and r.get("empty_output") is True):
+                        bases[r["pair_id"]].add(r.get("basis"))
+        wrong = sorted(q for q in xq if q not in gen["question_ids"] or not bases[q] or bases[q] - {"pro_declined"})
+        if wrong:
+            raise SystemExit("%s lists questions that are not 'judge declined' cases here: %s" % (
+                xq_path, [(q, sorted(map(str, bases[q]))) for q in wrong[:5]]))
+    gen["_excluded_by_hand"] = dict(xq)
+    ids = [i for i in gen["question_ids"] if i not in set(excluded) and i not in xq]
     bad = [(i, c) for c in gen["conditions"] for i in ids if state.get((i, c), "?") == "?"]
     if bad:
         raise SystemExit("unscored cells: %d (first %s); re-judge them before any table" % (len(bad), bad[:3]))
@@ -306,6 +333,8 @@ def cells(a):
     if gen.get("_excluded_abstention_gold"):
         print("Excluded, as in the judging: %d question(s) whose only gold answer is an abstention (%s).\n" % (
             len(gen["_excluded_abstention_gold"]), " ".join(gen["_excluded_abstention_gold"])))
+    for q, why in sorted(gen.get("_excluded_by_hand", {}).items()):   # from_claude/45 section 3.5
+        print("Excluded from this work dir's tables (a judge declined to judge it): %s (%s).\n" % (q, why))
     if bn != "x" or main_arm != "x.w.p1" or st != "1":
         print("EXPLORATORY: base prompt %s, main arm %s, strength %s — outside the frozen criteria (which use base x, arm x.w.p1, strength 1)." % (bn, main_arm, st))
     print("A = stage-A screen: point estimates only. B = stage-B confirmation: intervals; on the tuning questions column B is descriptive.\n")
