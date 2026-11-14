@@ -59,10 +59,14 @@ def main():
         return (3, c)
 
     names = sorted(specs, key=rank)
-    chosen = {combo(el, cl, "w", "p", s, "w", "m", k): s for s, k in choice["choice"].items()}
+    cs = choice.get("c_sign", "m")       # rules v1.1 (from_claude/45 section 3.4): p = C toward caution; files without it are m
+    if cs not in ("m", "p"):
+        raise SystemExit("unknown c_sign %r in the choice file" % cs)
+    sym, side = ("-", "toward confident") if cs == "m" else ("+", "toward caution")
+    chosen = {combo(el, cl, "w", "p", s, "w", cs, k): s for s, k in choice["choice"].items()}
     print("# %s, judge %s, %d questions (DESCRIPTION only; each condition against its own base prompt)\n" % (Path(a.work).name, a.judge, n_q))
     print("Choice of k fixed before judging (rule abstentions; baseline x = %d): %s\n" % (
-        choice["baseline_rule_abstentions"], ", ".join("E +%s -> C -%s" % (s, k) for s, k in choice["choice"].items())))
+        choice["baseline_rule_abstentions"], ", ".join("E +%s -> C %s%s" % (s, sym, k) for s, k in choice["choice"].items())))
     print("| condition | base | rule abstentions | R / W / H / X | answered | right among answered | dR [95%] | dAns | "
           "keep: n, right-rate change, W>R / R>W | lost R / lost W / gained R / gained W | mean words |")
     print("|---|---|---|---|---|---|---|---|---|---|---|")
@@ -85,11 +89,27 @@ def main():
     print("\nR / W / H / X = right / wrong / hedge-or-uninformative / abstained; answered = R + W; dR = change in right answers; "
           "dAns = change in answered; keep = questions answered both times. Paired bootstrap as in e44_round1_tables.py.\n")
 
-    print("## The questions E alone turns into \"I don't know\" (rule abstention; answered without any write)\n")
     cnt = lambda qs, c: {k: sum(1 for q in qs if state[(q, c)] == k) for k in "RWHX"}  # noqa: E731
     pct = lambda d: "%.0f%%" % (100.0 * d["R"] / (d["R"] + d["W"])) if d["R"] + d["W"] else "undefined"  # noqa: E731
+    if cs == "p":   # rules v1.1: E alone answers MORE than baseline x here, and C toward caution takes answers back
+        print("## The questions E alone newly answers (rule abstention without the write, answered with E alone)\n")
+        for s, k in choice["choice"].items():
+            e_alone, ec = single("E", el, "w", "p", s), combo(el, cl, "w", "p", s, "w", cs, k)
+            if e_alone not in specs or ec not in specs:
+                print("- E +%s: condition missing from this export" % s)
+                continue
+            new = [q for q in ids if rule[(q, "baseline_x")] and not rule[(q, e_alone)]]
+            ne = cnt(new, e_alone)
+            back = [q for q in new if rule[(q, ec)]]
+            print("- E +%s: %d questions; with E alone they are R / W / H / X = %d / %d / %d / %d (right %s of R + W)." % (
+                s, len(new), ne["R"], ne["W"], ne["H"], ne["X"], pct(ne)))
+            nbk = cnt(back, e_alone)
+            print("  With E +%s and C %s%s (%s), %d of them are rule abstentions again; with E alone those were R / W / H / X = %d / %d / %d / %d." % (
+                s, sym, k, side, len(back), nbk["R"], nbk["W"], nbk["H"], nbk["X"]))
+        return
+    print("## The questions E alone turns into \"I don't know\" (rule abstention; answered without any write)\n")
     for s, k in choice["choice"].items():
-        e_alone, ec = single("E", el, "w", "p", s), combo(el, cl, "w", "p", s, "w", "m", k)
+        e_alone, ec = single("E", el, "w", "p", s), combo(el, cl, "w", "p", s, "w", cs, k)
         if e_alone not in specs or ec not in specs:
             print("- E +%s: condition missing from this export" % s)
             continue
@@ -101,8 +121,8 @@ def main():
         print("- E +%s: %d questions. Without the write they were R / W / H / X = %d / %d / %d / %d (right %s of R + W); "
               "the questions answered both times were %d / %d / %d / %d (right %s)." % (
                   s, len(new), nb["R"], nb["W"], nb["H"], nb["X"], pct(nb), kb["R"], kb["W"], kb["H"], kb["X"], pct(kb)))
-        print("  With E +%s and C -%s (toward confident), %d of them are no longer rule abstentions: R / W / H / X = %d / %d / %d / %d." % (
-            s, k, len(back), nbk["R"], nbk["W"], nbk["H"], nbk["X"]))
+        print("  With E +%s and C %s%s (%s), %d of them are no longer rule abstentions: R / W / H / X = %d / %d / %d / %d." % (
+            s, sym, k, side, len(back), nbk["R"], nbk["W"], nbk["H"], nbk["X"]))
 
 
 if __name__ == "__main__":

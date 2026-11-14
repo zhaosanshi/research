@@ -43,6 +43,19 @@ ES=${ES:-2}; KS=${KS:-0.25 0.5 1}
 SPLIT=${SPLIT:-tune}
 case "$SPLIT" in tune) XE=(scripts/e44_eval_extra.py) ;; test) XE=(scripts/review_checks/e44_split_test.py extra) ;;
   *) echo "SPLIT must be tune or test" >&2; exit 2 ;; esac
+# CSIGN and EXPORT (2026-11-14, rules v1.1 of from_claude/45 section 3.4; defaults m / all = exactly the behaviour before):
+#   CSIGN=p  the C write of the E+C arms and of the single C arms goes toward caution (for an E strength that alone answers
+#            MORE than the baseline); the choice file then carries "c_sign": "p", and gen2 / describe follow it
+#   EXPORT=chosen  the judge stage exports, of the gen1 grid, only the E+C arm and the single C arm at the chosen k of each E
+#            strength (plus every E single and E random arm and all of gen2); the other grid points served only the choice
+CSIGN=${CSIGN:-m}
+case "$CSIGN" in m|p) ;; *) echo "CSIGN must be m (toward confident) or p (toward caution)" >&2; exit 2 ;; esac
+EXPORT=${EXPORT:-all}
+case "$EXPORT" in all|chosen) ;; *) echo "EXPORT must be all or chosen" >&2; exit 2 ;; esac
+#   ABSTAIN_EMPTY=1 (rules v1.1, red team 10:49; default 0 = as before): the choice of k counts an empty answer as an
+#            abstention, as both judges do (ff_explore_ec_check.py --empty-abstains); the choice file records it
+ABSTAIN_EMPTY=${ABSTAIN_EMPTY:-0}
+case "$ABSTAIN_EMPTY" in 0) EA=() ;; 1) EA=(--empty-abstains) ;; *) echo "ABSTAIN_EMPTY must be 0 or 1" >&2; exit 2 ;; esac
 MODELS=$ROOT/models
 case "$TAG" in ""|*[!A-Za-z0-9]*) echo "TAG must be alphanumeric" >&2; exit 2 ;; esac
 case "$EL$CL" in *[!0-9]*) echo "EL and CL must be layer numbers" >&2; exit 2 ;; esac
@@ -95,28 +108,40 @@ LAST_ES=${ES##* }
 
 arms1() {  # the first generation stage: E+C grid, single E, single-E random controls, single C
   local s k out=""
-  for s in $ES; do for k in $KS; do out="$out $(two "E$EL.w.p$s" "C$CL.w.m$k")"; done; done
+  for s in $ES; do for k in $KS; do out="$out $(two "E$EL.w.p$s" "C$CL.w.$CSIGN$k")"; done; done
   for s in $ES; do out="$out x:E$EL.w.p$s x:E$EL.rand.p$s x:E$EL.rand.m$s"; done
-  for k in $KS; do out="$out x:C$CL.w.m$k"; done
+  for k in $KS; do out="$out x:C$CL.w.$CSIGN$k"; done
   echo $out
 }
 chosen_k() {  # chosen_k S: the k of E strength S from the choice file, after checking the file belongs to this run
-  # (and, since SPLIT, to this split: the tune choice files carry "split": "tune", written by ff_explore_ec_check.py)
+  # (and, since SPLIT, to this split: the tune choice files carry "split": "tune", written by ff_explore_ec_check.py;
+  # since CSIGN, to this sign: a file without "c_sign" is an m file)
   pyj -c "
 import json, sys
 c = json.load(open(sys.argv[1]))
 want = {'run_dir': sys.argv[2], 'c_run_dir': sys.argv[3], 'e_layer': int(sys.argv[4]), 'c_layer': int(sys.argv[5]), 'split': sys.argv[8]}
 got = {k: c.get(k) for k in want}
-if got != want or sorted(c['choice']) != sorted(sys.argv[6].split()):
-    sys.exit('choice file %s is for another run, split, other layers or other E strengths: %s vs %s' % (sys.argv[1], got, want))
-print(c['choice'][sys.argv[7]])" "$CHOICE" "$E_RUN" "$C_RUN" "$EL" "$CL" "$ES" "$1" "$SPLIT"
+if got != want or sorted(c['choice']) != sorted(sys.argv[6].split()) or c.get('c_sign', 'm') != sys.argv[9] or \
+        bool(c.get('empty_counts_as_abstention', False)) != (sys.argv[10] == '1'):
+    sys.exit('choice file %s is for another run, split, sign, empty-answer rule, other layers or other E strengths: %s vs %s' % (sys.argv[1], got, want))
+print(c['choice'][sys.argv[7]])" "$CHOICE" "$E_RUN" "$C_RUN" "$EL" "$CL" "$ES" "$1" "$SPLIT" "$CSIGN" "$ABSTAIN_EMPTY"
+}
+arms1_export() {  # the gen1 arms the judge stage exports: all of them (EXPORT=all), or only the chosen k's (EXPORT=chosen)
+  local s k out="" seen=" "
+  [ "$EXPORT" = all ] && { arms1; return 0; }
+  for s in $ES; do
+    k=$(chosen_k "$s") || return 3
+    out="$out $(two "E$EL.w.p$s" "C$CL.w.$CSIGN$k") x:E$EL.w.p$s x:E$EL.rand.p$s x:E$EL.rand.m$s"
+    case "$seen" in *" $k "*) ;; *) out="$out x:C$CL.w.$CSIGN$k"; seen="$seen$k " ;; esac
+  done
+  echo $out
 }
 arms2() {  # the second generation stage, for each E strength and its chosen k only
   local s k out="" seen=" "
   [ -f "$(host "$CHOICE")" ] || { echo "no choice file $CHOICE: run STAGE=gen1 to the end first" >&2; return 3; }
   for s in $ES; do
     k=$(chosen_k "$s") || return 3
-    out="$out $(two "E$EL.rand.p$s" "C$CL.w.m$k") $(two "E$EL.rand.m$s" "C$CL.w.m$k")"
+    out="$out $(two "E$EL.rand.p$s" "C$CL.w.$CSIGN$k") $(two "E$EL.rand.m$s" "C$CL.w.$CSIGN$k")"
     out="$out $(two "E$EL.w.p$s" "C$CL.rand.m$k") $(two "E$EL.w.p$s" "C$CL.rand.p$k")"
     case "$seen" in *" $k "*) ;; *) out="$out x:C$CL.rand.m$k x:C$CL.rand.p$k"; seen="$seen$k " ;; esac
   done
@@ -137,7 +162,7 @@ gen1)
   pym "${XE[@]}" generate "${COMMON[@]}" --arms $ARMS
   step "checks and the choice of k"
   pyt scripts/review_checks/ff_explore_ec_check.py --run-dir "$E_RUN" --c-run-dir "$C_RUN" --el "$EL" --cl "$CL" \
-    --es $ES --ks $KS --split "$SPLIT" --out "$CHOICE" ;;
+    --es $ES --ks $KS --split "$SPLIT" --c-sign "$CSIGN" ${EA[@]+"${EA[@]}"} --out "$CHOICE" ;;
 gen2)
   need_gpu
   ARMS=$(arms2)
@@ -156,7 +181,7 @@ judge)
   fi
   for d in ${CACHE_FROM:-}; do [ -f "$(host "$d")/judge2_cache_deepseek-v4-pro.jsonl" ] || { echo "no Pro reply cache in $d" >&2; exit 3; }; done
   if [ $DO_A = 1 ]; then
-  A1=$(arms1); A2=$(arms2)
+  A1=$(arms1_export); A2=$(arms2)
   GEN=""
   for a in $A1 $A2; do
     f="$(token "$a")_$SPLIT.json"

@@ -10,7 +10,19 @@ and strengths are parameters and the E and C directions may live in two runs. No
      strength k for each E strength s, fixed before any judging (from_claude/36 section 3, unchanged): the k whose
      E s + C toward confident k has |rule abstentions - rule abstentions of baseline x| smallest; ties -> smaller k.
 The choice is written to --out only when every check passed; exit code 1 otherwise.
-usage: ff_explore_ec_check.py --run-dir E_RUN --c-run-dir C_RUN --el 15 --cl 16 --es 1 2 --ks 0.25 0.5 1 2 --out FILE"""
+usage: ff_explore_ec_check.py --run-dir E_RUN --c-run-dir C_RUN --el 15 --cl 16 --es 1 2 --ks 0.25 0.5 1 2 --out FILE
+--c-sign (2026-11-14, rules v1.1 of from_claude/45 section 3.4): the sign of the C write in the E+C arms and the single C
+arms; m = toward confident (default: exactly as before, same choice file), p = toward caution (for an E strength that
+alone answers MORE than the baseline, so that C brings the answers back down). A p choice file carries "c_sign": "p".
+--empty-abstains (2026-11-14, rules v1.1, red team 10:49): an EMPTY answer counts as an abstention in every count of the
+choice (baseline x and the candidates), as both judges count it (two-axis standard of 2026-11-08); without the flag the
+counts are the rule detector's alone, exactly as before (the rule detector does not flag an empty answer). Such a choice
+file carries "empty_counts_as_abstention": true."""
+
+RULE_M = ("per E strength s: the C strength k (toward confident) whose E s + C k has |rule abstentions - baseline x| "
+          "smallest; ties -> smaller k (from_claude/36 section 3; from_claude/44 section 5.8)")
+RULE_P = ("per E strength s: the C strength k (toward caution; E s alone answers more than baseline x) whose E s + C k has "
+          "|rule abstentions - baseline x| smallest; ties -> smaller k (from_claude/45 section 3.4, rules v1.1)")
 import argparse
 import json
 import sys
@@ -42,9 +54,17 @@ def main():
     p.add_argument("--es", nargs="+", required=True, help="E strengths, as written in the arm names")
     p.add_argument("--ks", nargs="+", required=True, help="C strengths toward confident, as written in the arm names")
     p.add_argument("--split", default="tune")
+    p.add_argument("--c-sign", choices=("m", "p"), default="m",
+                   help="sign of the C write: m = toward confident (default, as before), p = toward caution (rules v1.1)")
+    p.add_argument("--empty-abstains", action="store_true",
+                   help="count an empty answer as an abstention in the choice (rules v1.1); default: rule detector only, as before")
     p.add_argument("--out", type=Path, required=True)
     a = p.parse_args()
-    run, crun, sp, el, cl = a.run_dir, a.c_run_dir, a.split, a.el, a.cl
+    if a.empty_abstains:
+        abst = lambda r: bool(r["refusal_rule"]) or not r["text"].strip()  # noqa: E731
+    else:
+        abst = lambda r: bool(r["refusal_rule"])  # noqa: E731
+    run, crun, sp, el, cl, cs = a.run_dir, a.c_run_dir, a.split, a.el, a.cl, a.c_sign
     if el == cl:
         raise SystemExit("the two writes must act at two different layers")
     extra = run / "eval_extra" / "gen"
@@ -57,7 +77,7 @@ def main():
                   ("x:E%d.rand.p%s" % (el, s), run / "gen" / ("E_L%d_x-rand-p%s_%s.json" % (el, st, sp))),
                   ("x:E%d.rand.m%s" % (el, s), run / "gen" / ("E_L%d_x-rand-m%s_%s.json" % (el, st, sp)))]
     for k in a.ks:
-        pairs.append(("x:C%d.w.m%s" % (cl, k), crun / "gen" / ("C_L%d_x-w-m%s_%s.json" % (cl, k.replace(".", "-"), sp))))
+        pairs.append(("x:C%d.w.%s%s" % (cl, cs, k), crun / "gen" / ("C_L%d_x-w-%s%s_%s.json" % (cl, cs, k.replace(".", "-"), sp))))
     for arm, fdrv in pairs:
         fe = extra / ("%s_%s.json" % (token(arm), sp))
         if not fe.exists():
@@ -77,39 +97,57 @@ def main():
         print("- %s vs %s/%s: %d / %d identical (token ids, finished, stop id, text)" % (arm, fdrv.parent.parent.name, fdrv.name, same, len(e)))
         bad += same != len(e)
     frozen = json.load(open(run / ("frozen_%s.json" % sp), encoding="utf-8"))
-    base = sum(1 for q in frozen["questions"] if q["answers"]["x"]["refusal_rule"])
+    base = sum(1 for q in frozen["questions"] if abst(q["answers"]["x"]))
     print("\n## 2. rule abstentions (judge-independent), baseline x = %d of %d\n" % (base, len(frozen["questions"])))
     for f in sorted(extra.glob("*_%s.json" % sp)):
         if f.name.startswith("t") and f.name[1:2].isdigit():
             continue
         r = rows(f)
         print("- %s: %d" % (f.name, sum(1 for v in r.values() if v["refusal_rule"])))
-    choice, cands = {}, {}
+    choice, cands, inelig = {}, {}, {}
+    tau = round(0.03 * len(frozen["questions"]))   # the tolerance of criterion v4: 3% of the questions (192 -> 6, 529 -> 16)
     for s in a.es:
-        cand = []
+        cand, missing = [], 0
         for k in a.ks:
-            arm = two("E%d.w.p%s" % (el, s), "C%d.w.m%s" % (cl, k), el, cl)
+            arm = two("E%d.w.p%s" % (el, s), "C%d.w.%s%s" % (cl, cs, k), el, cl)
             f = extra / ("%s_%s.json" % (token(arm), sp))
             if not f.exists():
                 print("- %s: MISSING" % f.name)
                 bad += 1
+                missing += 1
                 continue
-            n = sum(1 for v in rows(f).values() if v["refusal_rule"])
+            r = rows(f).values()
+            n = sum(1 for v in r if abst(v))
+            ne = sum(1 for v in r if not v["text"].strip())
+            if a.empty_abstains and ne > tau:
+                # rules v1.1 (red team 10:49): a candidate whose generation broke down (more empty answers than the
+                # tolerance) is never chosen, even if its abstention count happens to sit near the baseline
+                print("- %s: %d empty answers, more than the tolerance %d: not eligible" % (f.name, ne, tau))
+                inelig.setdefault(s, {})[k] = ne
+                continue
             cand.append((abs(n - base), float(k), k, n))
-        if len(cand) != len(a.ks):
+        if missing:
+            continue
+        if not cand:
+            print("- E strength %s: no eligible candidate" % s)
+            bad += 1
             continue
         cand.sort()
         choice[s] = cand[0][2]
         cands[s] = {c[2]: c[3] for c in sorted(cand, key=lambda c: c[1])}
         print("\n## choice of k for E strength %s: %s (rule abstentions %d vs baseline %d); candidates %s" % (
-            s, cand[0][2], cand[0][3], base, ", ".join("m%s: %d" % (k, n) for k, n in cands[s].items())))
+            s, cand[0][2], cand[0][3], base, ", ".join("%s%s: %d" % (cs, k, n) for k, n in cands[s].items())))
     if bad:
         print("\n%d check(s) failed: no choice file written" % bad)
         sys.exit(1)
-    payload = {"rule": "per E strength s: the C strength k (toward confident) whose E s + C k has |rule abstentions - baseline x| "
-                       "smallest; ties -> smaller k (from_claude/36 section 3; from_claude/44 section 5.8)",
+    payload = {"rule": RULE_M if cs == "m" else RULE_P,
                "run_dir": str(run), "c_run_dir": str(crun), "e_layer": el, "c_layer": cl, "split": sp,
                "baseline_rule_abstentions": base, "choice": choice, "candidates": cands}
+    if cs != "m":                         # m files stay byte-for-byte what they were before --c-sign existed
+        payload["c_sign"] = cs
+    if a.empty_abstains:                  # likewise: files made without the flag are unchanged
+        payload["empty_counts_as_abstention"] = True
+        payload["ineligible_empty_answers"] = inelig   # {s: {k: number of empty answers}} of the candidates left out
     if a.out.exists():
         if json.load(open(a.out, encoding="utf-8")) != payload:
             raise SystemExit("an existing choice file %s differs: the choice is never redone after the fact" % a.out)
