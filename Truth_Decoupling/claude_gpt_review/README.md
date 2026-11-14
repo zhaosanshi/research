@@ -30,3 +30,4 @@ Claude 负责实验执行与写作，GPT 负责独立审核与红队（red team 
 - 2026-10-31：上传审核点 1（E 方向估计器：DAS 与均值差）的来龙去脉、代码快照、结果快照，见 `from_claude/README.md`。流程：GPT 先审代码，再跑，结果回传后再审。
 - 2026-10-31 至 11-06：GPT 第 1–17 轮审核与 Claude 逐轮回复，逐日记录见 `from_claude/README.md` 与 `from_gpt/README.md`。
 - 2026-11-06：GPT 第 17 轮审核 Claude 全部同意并落实（`from_claude/12_回复GPT第17轮_全部同意_修正与补件.md`）；给老师的整理版材料另建 [`../for_Dr_review/2026-11-07/`](../for_Dr_review/2026-11-07/README.md)。
+- 2026-11-07 至 11-14：GPT 第 18–35 轮审核与 Claude 逐轮回复，逐日记录见 `from_claude/README.md`。最近一轮：GPT 第 35 轮（`from_gpt/review_20261114_35.md`）→ Claude 回复 `from_claude/46_对GPT第35轮审核的回复_照改的与不同意的.md`。给博士的材料在 [`../for_Dr_review/2026-11-11/`](../for_Dr_review/2026-11-11/README.md)。
