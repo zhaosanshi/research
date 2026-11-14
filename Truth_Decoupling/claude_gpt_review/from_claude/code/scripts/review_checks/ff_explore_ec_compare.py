@@ -17,7 +17,11 @@ could give (oracle).
 
 usage: ff_explore_ec_compare.py CONFIDENCE_JSON --ec-work DIR --conf-work DIR --choice CHOICE_JSON
                                 [--boot 10000] [--seed 20261112] [--json-out F]
-       ff_explore_ec_compare.py --selftest"""
+       ff_explore_ec_compare.py --selftest
+2026-11-14 (stage B of from_claude/45, the 529 test questions): the questions whose only gold answer is an abstention are
+left out exactly as e44_round1_tables.load leaves them out of every table (the test split has 6, the tune split none, so
+tune results are unchanged); both work dirs must leave out the same ones, and both must be exports of the confidence
+file's split."""
 import argparse, hashlib, json, sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -121,6 +125,9 @@ def run(conf_path, ec_work, conf_work, choice_path, n_boot, seed):
     if (choice["e_layer"], choice["c_layer"]) != (el, cl) or sorted(choice["choice"]) != sorted(es) or \
             any(k not in ks for k in choice["choice"].values()):
         raise SystemExit("the choice file is for other layers or strengths than the confidence file")
+    if choice.get("split", "tune") != C.get("split") or choice.get("run_dir") != sp.get("run_dir") or \
+            choice.get("c_sign", "m") != "m":   # red team 10:14 item 4; the selection names are built for C toward confident
+        raise SystemExit("the choice file is for another split, run or C sign than the confidence file")
     EXPECT, PER_S = plan(el, cl, es, ks)
     for name, (base, writes) in EXPECT.items():
         T = C["targets"].get(name)
@@ -129,13 +136,21 @@ def run(conf_path, ec_work, conf_work, choice_path, n_boot, seed):
         g = T.get("greedy_reproduction", {})
         if g.get("rate", 0) < 0.98 or (writes and (T.get("first_difference_check") or {}).get("share_toward_target", 0) < 0.9):
             raise SystemExit("confidence target %s did not pass its checks" % name)
-    ids = C["question_ids"]
+    split = C.get("split")
+    excluded, ids = None, None
     out = {"confidence_file_sha256": hashlib.sha256(Path(conf_path).read_bytes()).hexdigest(), "identity_sha256": C["identity_sha256"],
-           "spec": sp, "primary": choice["choice"], "judges": {}, "verdicts": {}}
+           "spec": sp, "split": split, "primary": choice["choice"], "judges": {}, "verdicts": {}}
     for judge in ("pro", "allenai"):
         works = {}
         for w, path in (("ec", ec_work), ("conf", conf_work)):
             gen, specs, wids, state, rule, words = t.load(Path(path), judge)
+            if gen.get("split") != split:
+                raise SystemExit("%s is an export of the %s split, the confidence file a %s run" % (w, gen.get("split"), split))
+            if excluded is None:     # the abstention-gold questions that the table loader leaves out (none on tune)
+                excluded = list(gen["_excluded_abstention_gold"])
+                ids = [q for q in C["question_ids"] if q not in set(excluded)]
+            elif list(gen["_excluded_abstention_gold"]) != excluded:
+                raise SystemExit("%s leaves out other abstention-gold questions than the other work dir" % w)
             if wids != ids:
                 raise SystemExit("%s covers other questions or another order than the confidence file" % w)
             texts = {(r["pair_id"], c): o for r in gen["evaluations"] for c, o in r["outputs"].items()}
@@ -199,11 +214,15 @@ def run(conf_path, ec_work, conf_work, choice_path, n_boot, seed):
                         per[judge] = (r["comparison"]["dR"], r["comparison"]["dR_lo"], r["comparison"]["dR_hi"])
                 if len(per) == 2:
                     out["verdicts"]["E +%s, C -%s%s | %s" % (s, k, " (primary)" if choice["choice"][s] == k else "", sname)] = verdict(per)
+    out["n_questions"] = len(ids)
+    out["excluded_abstention_gold"] = excluded
     return out
 
 
 def fmt(out):
-    L = []
+    L = ["\n%s split: %d questions (left out: %d whose only gold answer is an abstention%s)" % (
+        out["split"], out["n_questions"], len(out["excluded_abstention_gold"]),
+        ": " + ", ".join(out["excluded_abstention_gold"]) if out["excluded_abstention_gold"] else "")]
     for judge, res in out["judges"].items():
         L.append("\n## judge %s\n" % judge)
         for key, rows in res["operating_points"].items():

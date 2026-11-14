@@ -28,7 +28,11 @@ Targets (answers from eval_extra/gen of the E run, or the frozen no-write answer
   x_E<s>C<k> (E + C, every pair; reference = E alone, so check 2 tests the C write).
 Run with the model's own interpreter:
   ff_explore_ec_confidence.py OUT_NAME --source-run S --run-dir E_RUN --e-on E2 [--c-run-dir C_RUN --c-e-on E1]
-                              --el 15 --cl 16 --es 1 2 --ks 0.25 0.5 1 2 [--first-batches K]"""
+                              --el 15 --cl 16 --es 1 2 --ks 0.25 0.5 1 2 [--first-batches K] [--split tune|test]
+--split (2026-11-14, stage B of from_claude/45): default tune = exactly the behaviour before; test reads the _test
+generation files and the frozen test answers. The engine refuses the test split by design, so a test run must go through
+the evaluation-only entry ff_test_confidence.py (the in-memory widenings of e44_split_test.py); run directly with
+--split test it stops at the engine's own split check."""
 import argparse, contextlib, hashlib, json, sys, time
 from pathlib import Path
 CODE = Path(__file__).resolve().parents[2]          # <code copy>/scripts/review_checks/<this file>
@@ -48,22 +52,22 @@ def ordered(el, cl, e_part, c_part):
     return [e_part, c_part] if el < cl else [c_part, e_part]
 
 
-def build_targets(el, cl, es, ks):
+def build_targets(el, cl, es, ks, split="tune"):
     """(name, base prompt, writes, answers ("frozen" or an eval_extra generation file), reference for check 2)."""
     T = [("conf", "conf", [], "frozen", None), ("x", "x", [], "frozen", None)]
     for s in es:
         e = "E%d.w.p%s" % (el, s)
-        T.append(("conf_E%s" % s, "conf", [e], "conf--%s_tune.json" % part_token([e]), ("frozen", [])))
-        T.append(("x_E%s" % s, "x", [e], "x--%s_tune.json" % part_token([e]), ("frozen", [])))
+        T.append(("conf_E%s" % s, "conf", [e], "conf--%s_%s.json" % (part_token([e]), split), ("frozen", [])))
+        T.append(("x_E%s" % s, "x", [e], "x--%s_%s.json" % (part_token([e]), split), ("frozen", [])))
     for k in ks:
         c = "C%d.w.m%s" % (cl, k)
-        T.append(("x_C%s" % k, "x", [c], "x--%s_tune.json" % part_token([c]), ("frozen", [])))
+        T.append(("x_C%s" % k, "x", [c], "x--%s_%s.json" % (part_token([c]), split), ("frozen", [])))
     for s in es:
         e = "E%d.w.p%s" % (el, s)
         for k in ks:
             parts = ordered(el, cl, e, "C%d.w.m%s" % (cl, k))
-            T.append(("x_E%sC%s" % (s, k), "x", parts, "x--%s_tune.json" % part_token(parts),
-                      ("x--%s_tune.json" % part_token([e]), [e])))
+            T.append(("x_E%sC%s" % (s, k), "x", parts, "x--%s_%s.json" % (part_token(parts), split),
+                      ("x--%s_%s.json" % (part_token([e]), split), [e])))
     return T
 
 
@@ -77,13 +81,13 @@ def sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def load_answers(ctx, base, source, ids):
+def load_answers(ctx, base, source, ids, split="tune"):
     if source == "frozen":
         return [ctx.look[pid]["answers"][base] for pid in ids], {"kind": "frozen", "prompt": base}, None
     path = ctx.out_dir / "gen" / source
     g = X.e43.validate_artifact(json.loads(path.read_text(encoding="utf-8")), "extra generation")
-    if g.get("completed") is not True or g.get("partial") is not False or g.get("base_prompt") != base or g.get("split") != "tune":
-        raise SystemExit("%s is not a complete tune generation on %s" % (source, base))
+    if g.get("completed") is not True or g.get("partial") is not False or g.get("base_prompt") != base or g.get("split") != split:
+        raise SystemExit("%s is not a complete %s generation on %s" % (source, split, base))
     gen_ids = [r["pair_id"] for r in g["rows"]]
     if len(set(gen_ids)) != len(gen_ids) or gen_ids[:len(ids)] != ids or (not ctx.partial and len(gen_ids) != len(ids)):
         raise SystemExit("%s covers other questions (or repeats one)" % source)
@@ -166,10 +170,12 @@ def main():
     p.add_argument("--ks", nargs="+", required=True)
     p.add_argument("--first-batches", type=int, default=0)
     p.add_argument("--batch", type=int, default=BATCH, help="scoring batch size (default 8 = the generation's and Llama's); chain k: 1 only if a target misses the 98%% greedy check at 8, decided before any run")
+    p.add_argument("--split", choices=("tune", "test"), default="tune",
+                   help="tune (default, as before) or test (only through ff_test_confidence.py)")
     args = p.parse_args()
     if args.el == args.cl:
         raise SystemExit("the E and C writes act at two different layers")
-    TARGETS = build_targets(args.el, args.cl, args.es, args.ks)
+    TARGETS = build_targets(args.el, args.cl, args.es, args.ks, args.split)
     if len({t[0] for t in TARGETS}) != len(TARGETS):
         raise SystemExit("duplicate target names (repeated strengths?)")
     P = Path(X.EXP_ROOT) / "configs" / "prompts"
@@ -178,7 +184,7 @@ def main():
         run_dir=args.run_dir, prompts=P / "default_v1.json",
         prompts_e44=P / "e44_factorial_v1.json", prompts_extra=P / "e44_eval_extra_v1.json", e_on=args.e_on, e_off="none",
         c_run_dir=args.c_run_dir, c_e_on=args.c_e_on, c_e_off="none", arms=[], bases=[], family=None, layers=[], pairs=[],
-        answers=["minus", "plus"], split="tune", seed=42, batch_size=BATCH, max_new_tokens=MAX_TOKENS,
+        answers=["minus", "plus"], split=args.split, seed=42, batch_size=BATCH, max_new_tokens=MAX_TOKENS,
         max_target_tokens=24, max_ref_tokens=48, output_projection="float32", first_batches=args.first_batches,
         gen=None, prompts_out=None, name="judge_input", overwrite=False, n_check=0, pair_ids=None)
     ctx = X.Context(a)
@@ -187,7 +193,7 @@ def main():
         raise SystemExit("%s exists" % out_path)
     ids = [q["pair_id"] for q in ctx.questions]
     eot = list(ctx.eot)
-    report = {"protocol": "e44_confidence_v1", "split": "tune", "partial": ctx.partial, "question_ids": ids,
+    report = {"protocol": "e44_confidence_v1", "split": args.split, "partial": ctx.partial, "question_ids": ids,
               "identity_sha256": ctx.ident_sha, "frozen_file_sha256": ctx.frozen_sha,
               "script_sha256": sha(__file__), "eval_extra_sha256": sha(X.__file__),
               "max_target_tokens": MAX_TOKENS, "scoring_batch_size": args.batch,
@@ -199,7 +205,7 @@ def main():
         for name, base, parts, source, reference in TARGETS:
             t0 = time.time()
             prompts = ctx.render(base)
-            answers, src, gen = load_answers(ctx, base, source, ids)
+            answers, src, gen = load_answers(ctx, base, source, ids, args.split)
             if gen is not None and gen.get("identity_sha256") != ctx.ident_sha:
                 raise SystemExit("%s belongs to another run" % source)
             writes, descs = make_writes(ctx, base, parts, gen)
@@ -207,7 +213,7 @@ def main():
             if reference is not None:
                 # first token where the target answer and the reference system's own answer differ (both incl. end-of-turn)
                 ref_source, ref_parts = reference
-                ref_answers, _, ref_gen = load_answers(ctx, base, ref_source, ids)
+                ref_answers, _, ref_gen = load_answers(ctx, base, ref_source, ids, args.split)
                 probes = []
                 for ans, ra in zip(answers, ref_answers):
                     tf = list(ans["token_ids"]) + (eot if ans["finished"] else [])
