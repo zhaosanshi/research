@@ -68,7 +68,7 @@ def rows_right(key, M, el):
                                                       "X_x--E%d-rand-m2-and-C%d-w-m%s" % (el, cl, k)) for j in ("pro", "allenai")})]
 
 
-def panel(ax, groups, th, title, xlim):
+def panel(ax, groups, th, title, xlim, xlabel="答对题数的变化（相对不写入；523 题）"):
     y, ticks, labels, seps = 0, [], [], []
     for model, rows in groups:
         ax.annotate(model, xy=(0, y), xycoords=("axes fraction", "data"), xytext=(-8, 0), textcoords="offset points",
@@ -97,7 +97,7 @@ def panel(ax, groups, th, title, xlim):
     ax.tick_params(axis="y", length=0)
     for sp in ax.spines.values():
         sp.set_visible(False)
-    ax.set_xlabel("答对题数的变化（相对不写入；523 题）", color=th["muted"], fontsize=9)
+    ax.set_xlabel(xlabel, color=th["muted"], fontsize=9)
     ax.set_title(title, color=th["text"], fontsize=11.5, loc="left", pad=10)
     ax.set_facecolor(th["surface"])
 
@@ -113,7 +113,7 @@ def main():
         left = [(name, rows_left(d["models"][key], el)) for key, name, el in MODELS]
         right = [(name, rows_right(key, d["models"][key], el)) for key, name, el in MODELS]
         panel(axes[0], left, th, "必须作答问法：只推 E", (-40, 178))
-        panel(axes[1], right, th, "普通问法（允许说\"不知道\"）：E+C", (-40, 178))
+        panel(axes[1], right, th, "普通问法（允许说\"不知道\"）：E+C", (-40, 178), "答对题数的变化（相对不写入；523 题，27B 一栏 522 题）")
         handles = [plt.Line2D([0], [0], color=th["pro"], marker="o", lw=2, ms=6.5, mec=th["surface"], label="DeepSeek V4 Pro"),
                    plt.Line2D([0], [0], color=th["allenai"], marker="s", lw=2, ms=6.5, mec=th["surface"], label="AllenAI 判分模型")]
         leg = fig.legend(handles=handles, loc="upper right", ncol=2, frameon=False, fontsize=9.5, bbox_to_anchor=(0.985, 0.995))

@@ -116,6 +116,10 @@
 | 可以答 Unknown；判断和弃答在同一遍（10 月下旬的早期实验，脚本 `e11_dose_rates.py` 等） | 均值差方向（部分有当时的 DAS） | 13 个模型：Llama、Qwen3（0.6B–32B 与 30B-A3B）、Mistral-7B 与 Small-24B、Gemma-3（4B / 12B / 27B） | **不干净**：不写入时选 Unknown 多的模型上，推 E 会让模型**少**选 Unknown——Qwen3-8B（基线 34% 选 Unknown）作答率 +4.6 到 +11 个百分点，Mistral-7B（23%）+3.5 到 +16；Llama（1.1%）、Gemma-3-4B（2.4%）几乎没有余地，看不出来 | **成立**：13 个模型都是作答率大幅变化、AUROC 几乎不动（Llama 98.9% → 22.5%，AUROC 0.757 → 0.755；Qwen3-8B 65.9% → 2.1%，AUROC −0.021） |
 | 可以答 Unknown | 新 DAS | — | 没做过 | 没做过 |
 
+**【11-14 补】**上一行是 11-10 写这一页时的状态。这一格后来做了：11-12 的 [P5](../P5_两种任务的E加C_相同作答量下的对照/README.md)，四个模型，最终的 DAS 方向，同一遍里可以答 Unknown。
+- 结果：Qwen3-8B 上推 E 让实际作答多 19.2 个百分点（区间 +16.5 到 +21.8）。Llama、Gemma 本来几乎全答，Mistral 多 1.7 个百分点。
+- 所以"允许答 Unknown 时 E 不动作答"不成立。下面那句"最终用的 DAS 方向也从没在这种问法下测过"同样是当时的状态。
+
 - **结论**：三模型（加 Mistral 是四模型）都成立的 2×2，是在"只许答 True / False、作答率另一遍自报"下成立的。在"可以答 Unknown"的同一遍里，C 行成立，E 行会改变作答率（让模型更敢答），所以 2×2 不完全成立；最终用的 DAS 方向也从没在这种问法下测过。
 - **推 C 时"判 True 的比例升高"是选择效应**：作答里说 True 的比例会从 39% 升到 92%（Llama），但同一句的判断几乎不变（同题偏置只变 +0.003 到 +0.026）。升高是因为被推成 Unknown 的主要是原本判 False 的句子，不是改判。18:25 版写成"偏置挪得很大"，不对。
 - 表：Llama 那一组在 [`tables/tf_early_unknown_option_E2b_llama_tqa.md`](tables/tf_early_unknown_option_E2b_llama_tqa.md)；13 个模型的原始结果在本地 `results_tqa/E11/<模型>/dose_rates.json`，主结果见 11-07 首页第二节第 1 条与第 10、20 页。
