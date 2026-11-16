@@ -6,11 +6,14 @@
 #     method     E at s; on the questions E alone leaves blank (rule detector) C is raised 0.25 -> 0.5 -> 1 -> 2 until the
 #                model answers, up to a cap K (K = none is E alone), as policy_select.py
 #     prompt B   E at s; on the same blanks the question is asked again with the must-answer prompt (same E write at s)
+#     no write   baseline_x (added 11-16 23:3x, 赵磊: "方法…是有效的吗")
+#     single C   C toward answering alone at k in {0.25, 0.5, 1, 2} (the strengths the grid holds; added 11-16 23:3x)
 #   Must-answer prompt (no blanks):
 #     E write    E at s in {1, 2} on the must-answer prompt
 #     prompt A   the truth sentence (E2) in the must-answer prompt, nothing written (baseline_conf_E2); no setting to choose
 # Score = right - LAM * wrong, LAM in {0, 0.5, 1}; ties go to the weaker setting. Test differences: paired bootstrap
 # (4000 resamples, seed 20261116). States as policy_select.py / policy_offline.py.
+# A model with d=None has no must-answer test judging: prompt B and the must-answer row are left out.
 # usage (host, from /data/sanshizhao/Truth_Decoupling): python3 -B Iteration_01/diag/policy_select2.py [MODEL ...]
 import json
 import random
@@ -38,6 +41,8 @@ def load(work, judge):
 
 G = "Iteration_01/results/ff/gemma4/12b/e44/gemma4-12b"
 GX = "Iteration_01/results/ff_xu1/gemma4/12b/e44/gemma4-12b"
+G3 = "Iteration_01/results/ff/gemma3/12b/e44/gemma3-12b"
+G31 = "Iteration_01/results/ff/gemma4/31b/e44/gemma4-31b-dm"
 LR = "results_e44_factorial_das/llama3.1-8b_side_E2"
 NR = "results_newmodels_ff_20261112/e44/qwen3.5-9b_E2"
 QR = "results_newmodels_ff_20261112/e44/qwen3.8-27b-dm"
@@ -55,6 +60,12 @@ MODELS = {
     "Gemma-4-12B stronger caution": dict(ec=(GX + "/eval_extra/judge_tune_ec25_tune", GX + "/eval_extra/judge_test_t25_testdr100"),
                                          d=(GX + "/judge_tune_proD_E_L24", GX + "/judge_test_testD_E_L24dr100"), judge=("allenai", "pro"),
                                          e=24, c=25, order="EC"),
+    # Gemma-3-12B (2026-11-16 23:2x): same split of judges as Gemma 4
+    "Gemma-3-12B": dict(ec=(G3 + "/eval_extra/judge_tune_ec25_tune", G3 + "/eval_extra/judge_test_t25_testdr100"),
+                        d=(G3 + "/judge_tune_proD_E_L22", G3 + "/judge_test_testD_E_L22dr100"), judge=("allenai", "pro"), e=22, c=25, order="EC"),
+    # Gemma-4-31B (11-16 23:3x): no Pro pass of the must-answer test export on the Dr's 100 -> d=None
+    "Gemma-4-31B": dict(ec=(G31 + "/eval_extra/judge_tune_ec28_tune", G31 + "/eval_extra/judge_test_t28_testdr100"),
+                        d=None, judge=("allenai", "pro"), e=24, c=28, order="EC"),
 }
 
 
@@ -62,16 +73,24 @@ class Split:
     def __init__(self, m, i):
         self.m = m
         self.st, self.blank = load(m["ec"][i], m["judge"][i])
-        self.dst, _ = load(m["d"][i], m["judge"][i])
+        self.dst = load(m["d"][i], m["judge"][i])[0] if m.get("d") else None
+        have_c = {c for _, c in self.st}
+        self.cks = [k for k in LAD if self.cC(k) in have_c]       # the C-alone strengths this grid holds
         need = ["baseline_x"] + [self.cE(s) for s in "12"] + [self.cEC(s, k) for s in "12" for k in LAD]
-        dneed = ["baseline_conf", "baseline_conf_E2"] + [self.dE(s) for s in "12"]
-        for have, want, w in ((self.st, need, m["ec"][i]), (self.dst, dneed, m["d"][i])):
+        dneed = (["baseline_conf", "baseline_conf_E2"] + [self.dE(s) for s in "12"]) if self.dst is not None else []
+        for have, want, w in ((self.st, need, m["ec"][i]), (self.dst or {}, dneed, m["d"][i] if m.get("d") else "-")):
             miss = sorted(set(want) - {c for _, c in have})
             if miss:
                 raise SystemExit("%s lacks %s" % (w, miss))
         qs = sorted(p for p, c in self.st if c == "baseline_x")
         self.qs = [p for p in qs if all(self.st.get((p, c), "?") != "?" for c in need) and all(self.dst.get((p, c), "?") != "?" for c in dneed)]
         self.n_dropped = len(qs) - len(self.qs)
+        bad = [(p, k) for p in self.qs for k in self.cks if self.st.get((p, self.cC(k)), "?") == "?"]
+        if bad:                                                 # never imputed: stop rather than count a missing verdict
+            raise SystemExit("%s: C-alone cells without a verdict: %s" % (m["ec"][i], bad[:5]))
+
+    def cC(self, k):
+        return "C_L%d_x-w-m%s" % (self.m["c"], k)
 
     def cE(self, s):
         return "E_L%d_x-w-p%s" % (self.m["e"], s)
@@ -89,6 +108,8 @@ class Split:
             return [self.st[(p, "baseline_x")] for p in self.qs]
         if kind == "E":
             return [self.st[(p, self.cE(cfg[1]))] for p in self.qs]
+        if kind == "C":
+            return [self.st[(p, self.cC(cfg[1]))] for p in self.qs]
         if kind == "EC":
             s, cap = cfg[1], cfg[2]
             out = []
@@ -122,7 +143,7 @@ def score(states, lam):
 
 def describe(cfg):
     k = cfg[0]
-    return {"base": lambda: "no write", "E": lambda: "E %s" % cfg[1], "EC": lambda: "E %s, C up to %s on blanks" % (cfg[1], NAME[cfg[2]]),
+    return {"base": lambda: "no write", "E": lambda: "E %s" % cfg[1], "C": lambda: "C %s toward answering" % NAME[cfg[1]], "EC": lambda: "E %s, C up to %s on blanks" % (cfg[1], NAME[cfg[2]]),
             "B": lambda: "E %s, blanks re-asked must-answer" % cfg[1], "Dnone": lambda: "must-answer, no write",
             "DA": lambda: "must-answer + truth sentence", "DE": lambda: "must-answer + E %s" % cfg[1]}[k]()
 
@@ -143,27 +164,46 @@ FAM = {
     "E write": [("DE", "1"), ("DE", "2")],
     "prompt A": [("DA",)],
     "must none": [("Dnone",)],
+    "no write": [("base",)],
 }
-ROWS = (("plain prompt", ("single E", "method", "prompt B"), (("method", "prompt B"), ("method", "single E"))),
+ROWS = (("plain prompt", ("single E", "method", "prompt B", "no write", "single C"),
+         (("method", "prompt B"), ("method", "single E"), ("method", "single C"), ("method", "no write"))),
         ("must-answer prompt", ("must none", "prompt A", "E write"), (("E write", "prompt A"), ("prompt A", "must none"))))
 
-for name in (sys.argv[1:] or MODELS):
-    m = MODELS[name]
-    tune, test = Split(m, 0), Split(m, 1)
-    print("\n## %s (tune: %s, %d questions; test: %s, %d questions; dropped for a missing verdict: tune %d, test %d)" % (
-        name, m["judge"][0], len(tune.qs), m["judge"][1], len(test.qs), tune.n_dropped, test.n_dropped))
-    for lam in (0, 0.5, 1):
-        print("- score = right - %s x wrong" % lam)
-        pick = {f: max(c, key=lambda x: (score(tune.states(x), lam), -c.index(x))) for f, c in FAM.items()}
-        for title, fams, diffs in ROWS:
-            row = {}
-            for f in fams:
-                s = test.states(pick[f])
-                row[f] = s
-                print("    [%s] %-9s chosen on tune: %-34s | test: right %3d wrong %3d blank %3d | score %6.1f" % (
-                    title, f, describe(pick[f]), sum(x == "R" for x in s), sum(x == "W" for x in s), sum(x == "X" for x in s), score(s, lam)))
-            val = lambda s: [(1 if x == "R" else 0) - lam * (1 if x == "W" else 0) for x in s]
-            for a, b in diffs:
-                d = [x - y for x, y in zip(val(row[a]), val(row[b]))]
-                dr = [(x == "R") - (y == "R") for x, y in zip(row[a], row[b])]
-                print("    [%s] %s minus %s on test: score %s | right answers %s" % (title, a, b, ci(d), ci(dr)))
+def main():
+    for name in (sys.argv[1:] or MODELS):
+        m = MODELS[name]
+        tune, test = Split(m, 0), Split(m, 1)
+        fam = dict(FAM)
+        fam["single C"] = [("C", k) for k in LAD if k in tune.cks and k in test.cks]
+        if not fam["single C"]:
+            del fam["single C"]
+        if tune.dst is None or test.dst is None:
+            for f in ("prompt B", "E write", "prompt A", "must none"):
+                del fam[f]
+        print("\n## %s (tune: %s, %d questions; test: %s, %d questions; dropped for a missing verdict: tune %d, test %d)" % (
+            name, m["judge"][0], len(tune.qs), m["judge"][1], len(test.qs), tune.n_dropped, test.n_dropped))
+        for lam in (0, 0.5, 1):
+            print("- score = right - %s x wrong" % lam)
+            pick = {f: max(c, key=lambda x: (score(tune.states(x), lam), -c.index(x))) for f, c in fam.items()}
+            for title, fams, diffs in ROWS:
+                fams = [f for f in fams if f in fam]
+                diffs = [(a, b) for a, b in diffs if a in fam and b in fam]
+                if not fams:
+                    print("    [%s] not computed (no must-answer test judging)" % title)
+                    continue
+                row = {}
+                for f in fams:
+                    s = test.states(pick[f])
+                    row[f] = s
+                    print("    [%s] %-9s chosen on tune: %-34s | test: right %3d wrong %3d blank %3d | score %6.1f" % (
+                        title, f, describe(pick[f]), sum(x == "R" for x in s), sum(x == "W" for x in s), sum(x == "X" for x in s), score(s, lam)))
+                val = lambda s: [(1 if x == "R" else 0) - lam * (1 if x == "W" else 0) for x in s]
+                for a, b in diffs:
+                    d = [x - y for x, y in zip(val(row[a]), val(row[b]))]
+                    dr = [(x == "R") - (y == "R") for x, y in zip(row[a], row[b])]
+                    print("    [%s] %s minus %s on test: score %s | right answers %s" % (title, a, b, ci(d), ci(dr)))
+
+
+if __name__ == "__main__":
+    main()
