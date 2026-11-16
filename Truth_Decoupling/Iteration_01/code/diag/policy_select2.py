@@ -68,6 +68,13 @@ MODELS = {
                         d=None, judge=("allenai", "pro"), e=24, c=28, order="EC"),
 }
 
+# Step 0 of novelty/ours/2026-11-17_e_doubt_c_commit.md (2026-11-17, 赵磊: the tune split is judged by Pro too): the Gemma
+# tune grids now carry Pro verdicts, so the main Gemma rows choose their settings on Pro; the rows chosen on AllenAI stay,
+# named "<model> (tune AllenAI)".
+for _n in ("Gemma-4-12B", "Gemma-4-12B stronger caution", "Gemma-3-12B", "Gemma-4-31B"):
+    MODELS[_n + " (tune AllenAI)"] = MODELS[_n]
+    MODELS[_n] = dict(MODELS[_n], judge=("pro", "pro"))
+
 
 class Split:
     def __init__(self, m, i):
