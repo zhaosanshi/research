@@ -13,6 +13,6 @@
 |---|---|
 | [`for_Dr_review/`](for_Dr_review/) | 专门给博士审核的整理版材料，按日期分期；完整一期 [`2026-11-07`](for_Dr_review/2026-11-07/README.md)：当前全部结果、对博士建议的评估、相关顶会与文献、代码与结果文件、审核记录、建议与下一步；[`2026-11-10`](for_Dr_review/2026-11-10/README.md) 是在它之上逐条过的记事本（11-08 / 11-09 的新增与改口） |
 | [`claude_gpt_review/`](claude_gpt_review/) | Claude 与 GPT 的交叉审核目录：实验方案、规则、结果快照、代码，以及 GPT 的审核意见 |
-| [`Iteration_01/`](Iteration_01/) | 探索阶段之后的第一轮迭代。[`charter/`](Iteration_01/charter/) 为统一要求：文档规则、目标会议、文献、实验、代码与结果。上面两个目录是探索阶段的记录 |
+| [`Iteration_01/`](Iteration_01/) | 探索阶段之后的第一轮迭代，Fable/Opus 与 GPT 共同讨论、形成概念的地方。[`charter/`](Iteration_01/charter/) 为统一要求：文档规则、目标会议、文献、实验、代码与结果；目录规则见 [`00_04`](Iteration_01/charter/00_04_directory_structure.md)。上面两个目录是探索阶段的记录 |
 
 文件分批上传，以各子目录的 README 为准。
