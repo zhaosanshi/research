@@ -1,0 +1,45 @@
+--- a/newmodel_e44.sh	2026-11-16 02:28:58
++++ b/newmodel_e44.sh	2026-11-16 02:28:58
+@@ -55,6 +55,12 @@
+ #                   the one a RUN_DIR was made from (the export checks its bank / questions hashes against the run).
+ # A reply-cache directory named by CACHE_FROM (or the default) that does not exist now stops the job instead of seeding
+ # nothing. With none of RUN_DIR / SOURCE_DIR set, every command is the one of the 09:38 version (06ba4620...).
++# Added 2026-11-16 (plan item 5: Gemma-4-12B's C from conf vs caut + U1):
++#   PROMPTS_E44=<name>  the E44 prompts file of the run, a file name under configs/prompts, passed to every freeze / train /
++#                   generate / mc call as --prompts-e44 (default: none = the core's e44_factorial_v1.json, every command as
++#                   before). The prompts config is part of the core's identity: a run made with one file refuses every call
++#                   made with another, so give it to every stage of that run (the chains pass it on: neither CLEAN list
++#                   unsets it). STAGE=diag refuses it (DIAG_PROMPTS is that stage's prompts file).
+ set -euo pipefail
+ : "${MODEL:?}" "${STAGE:?}"
+ ROOT=/workspace/Truth_Decoupling
+@@ -80,6 +86,8 @@
+ MAIN=${RUN_DIR:-$BASE_MAIN${VARIANT:+_$VARIANT}}
+ E_ON=${E_ON:-E1}
+ case "$E_ON" in E1|E2) ;; *) echo "E_ON must be E1 or E2" >&2; exit 2 ;; esac
++PROMPTS_E44=${PROMPTS_E44:-}
++case "$PROMPTS_E44" in ""|*/*|.*|*[!A-Za-z0-9_.-]*) [ -z "$PROMPTS_E44" ] || { echo "PROMPTS_E44 must be a file name under configs/prompts" >&2; exit 2; } ;; esac
+ CE=conf_$E_ON; KE=caut_$E_ON
+ LIKE=$ROOT/results_qa_das_v1u/llama3.1-8b/full
+ MODELS=$ROOT/models
+@@ -103,7 +111,7 @@
+ pym() { "${DX[@]}" "$PYM" "$@"; }
+ pyj() { "${DX[@]}" python3 "$@"; }        # judging steps: the old models' runtime
+ need_gpu() { [ -n "${GPU:-}" ] || { echo "STAGE=$STAGE needs GPU" >&2; exit 2; }; }
+-step() { echo "=== $(date '+%F %T') [$MODEL${VARIANT:+_$VARIANT}${RUN_DIR:+ run=${RUN_DIR##*/}} ${BRANCH:-} ${STAGE} gpu${GPU:-none} e_on=$E_ON] $* ==="; }
++step() { echo "=== $(date '+%F %T') [$MODEL${VARIANT:+_$VARIANT}${RUN_DIR:+ run=${RUN_DIR##*/}} ${BRANCH:-} ${STAGE} gpu${GPU:-none} e_on=$E_ON${PROMPTS_E44:+ prompts=$PROMPTS_E44}] $* ==="; }
+ host() { case "$1" in "$ROOT"/*) echo "$HOST/${1#$ROOT/}" ;; *) echo "path $1 is outside $ROOT" >&2; exit 2 ;; esac; }
+ seed_cache() {  # seed_cache FROM_DIR WORK: copy reply-cache files (identical requests are not paid twice)
+   [ -d "$(host "$1")" ] || { echo "reply cache $1 does not exist (CACHE_FROM?)" >&2; exit 3; }
+@@ -148,6 +156,11 @@
+   pyj scripts/review_checks/make_e44_source.py --model "$MODEL" --like "$LIKE" --out "$SRC"
+ fi
+ COMMON=(--source-run "$SRC" --batch-size 8 --max-new-tokens 48 --max-target-tokens 24)
++if [ -n "$PROMPTS_E44" ]; then             # freeze / train / generate / mc all take COMMON; summarize reads the artifacts' identity
++  [ "$STAGE" != diag ] || { echo "STAGE=diag takes DIAG_PROMPTS, not PROMPTS_E44" >&2; exit 2; }
++  [ -f "$(host "$CODE")/configs/prompts/$PROMPTS_E44" ] || { echo "PROMPTS_E44: no configs/prompts/$PROMPTS_E44 in $CODE" >&2; exit 3; }
++  COMMON+=(--prompts-e44 "$CODE/configs/prompts/$PROMPTS_E44")
++fi
+ EON=(--e-on "$E_ON")
+ arms_of() {
+   if [ "$1" = E ]; then
