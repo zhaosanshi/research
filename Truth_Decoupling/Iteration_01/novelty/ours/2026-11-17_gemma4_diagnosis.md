@@ -132,6 +132,32 @@
 - 对话模板按其默认方式使用（关闭思考）；写入位置的规则与其他模型相同，从用户内容的第一个词元到序列末尾，因此也覆盖模板末尾的空思考段。两个 Qwen 的模板同样带空思考段，没有出现上述敏感现象。
 - 问法在 Gemma-4 上起作用（第 3.2 节）。
 
+### 3.7 Gemma-4-12B 的敏感是否属实，以及官方依据
+
+赵磊 2026-11-17 16 时："gemma4-12B这么敏感，不太对，随机怎么可能那么敏感呢，如果真是这样，找到官方的依据。"
+
+1. **随机方向对照的构造没有问题**。每一层用一个固定的随机单位向量（标准正态取样后归一，种子为 42 + 7919 × 层号），写入量与同层推 E 的写入量相等，写入位置与程序路径和其他模型相同。Gemma-3-12B 的隐状态宽度同为 3840，用的是数值上完全相同的随机向量，在它上面改变的回答很少。
+2. **不是数值噪声**。流水线自带零写入检查：挂上写入钩子而写入量为 0 时，生成必须逐字复现不写入的回答，否则报错退出。
+3. **敏感随写入量平滑增长，在各层、各随机向量上一致**。普通问法，调参集 192 题，取自已保存的 E 线、C 线与 E+C 网格的生成结果；写入量以占隐状态长度的比例计，箭头后为回答文字发生变化的题数：
+
+| 模型（层） | 写入量占比 → 回答变化的题数 |
+|---|---|
+| Gemma-4-12B（第 19 层） | 0.09% → 22 至 26；0.17% → 43 至 47；0.34% → 87 至 93 |
+| Gemma-4-12B（第 21 层） | 0.12% → 22 至 24；0.24% → 46 至 55；0.47% → 80 至 87；0.95% → 140 至 149 |
+| Gemma-4-12B（第 25 层） | 0.36% → 24 至 33；0.73% → 48 至 55；1.45% → 89 至 91 |
+| Gemma-4-31B（第 28 层） | 0.53% → 17 至 21；1.06% → 34 至 38；2.13% → 72 至 78 |
+| Gemma-3-12B（第 21 层） | 0.17% → 7 至 9；0.33% → 21；0.66% → 35 至 36 |
+
+   - 写入量占比相同时，Gemma-4-12B 改变的回答约为 Gemma-3-12B 与 Gemma-4-31B 的 4 至 8 倍。
+   - 按判分是否变化计（Pro）：Gemma-4-12B 在占比 0.12% 时为 6 至 8 题，0.24% 时为 16 题；Gemma-3-12B 在 0.47% 时为 6 至 8 题；Gemma-4-31B 在 0.53% 时为 0 至 2 题。
+4. **官方依据**：
+   - Gemma 官方文档"思考模式"一页："We've added an empty thinking token to the chat template for `gemma-4-12B-it`, `gemma-4-26B-A4B-it` and `gemma-4-31B-it`. This stabilizes model output by suppressing "ghost" thought channels that may appear even when thinking is deactivated."（<https://gemma.ai/get-started/capabilities/thinking/>）"提示词格式"一页另说明，较大的模型在明确关闭思考时仍可能生成思考通道，可在提示词中加入空的思考段以稳定模型的行为（<https://gemma.ai/get-started/prompt-formatting/>）。这与第 3.5 节以 "thought" 开头的回答是同一现象：官方承认关闭思考时输出在思考通道上不稳定，并为此修改了模板。
+   - 模型卡（随权重附带的 README，亦见 <https://ai.google.dev/gemma/docs/core/model_card_4>）：12B 是该系列中唯一的 Unified 结构。"Other Gemma 4 models use dedicated encoders to process multimodal data before passing it to the LLM. Gemma 4 12B eliminates these encoders entirely, projecting raw image patches and audio waveforms directly into the LLM's embedding space through lightweight linear layers." Gemma-4-31B 带独立的视觉编码器。两个模型结构不同有官方依据；这一不同是否就是敏感的原因，官方没有说。
+   - 模型卡"Best Practices"一节要求所有用途都用取样生成（temperature=1.0、top_p=0.95、top_k=64）。本项目各模型一律用贪心生成，不在官方建议的用法之内。
+   - **没有找到**官方关于"12B 对隐状态扰动更敏感"的直接说法。
+5. **非官方的旁证**（不作依据）：Ramp Labs 的研究记录称 "Gemma is significantly more sensitive to steering vector application than Qwen"，所用为 Gemma-3-27B 与 Qwen-2.5-7B（<https://labs.ramp.com/research/how-we-built-steer/>）；一篇 LessWrong 文章称 Gemma-4-31B 末层各方向的增益极不均匀，"There are directions that get squashed down ~30x times more than others"（<https://www.lesswrong.com/posts/iQDXuY5Mb5JzjA8xT/an-exploration-of-the-j-lens>）。
+6. **结论**：敏感属实，不是对照或程序的问题。官方依据支持到两点：关闭思考时输出不稳定；12B 的结构在系列中独一份。官方依据不支持到"12B 对扰动更敏感"这一步，这一点目前只有本项目自己的测量。
+
 ## 4. 目前的认识
 
 1. **Gemma-4 与五个模型的差别不在 E+C 的作用方式上**。差别有两点：它在普通问法下很少不答；它的不答可被单独使用 E 放出（两个 Gemma-4 模型都是），在 Gemma-4-12B 上甚至可被任何写入放出。
@@ -160,6 +186,7 @@
 
 - 脚本：`Iteration_01/code/diag/gemma4_diagnosis.py`（服务器 `Iteration_01/diag/`），五项统计。
 - 输出：服务器 `Iteration_01/diag/out/gemma4_diagnosis_20261117.txt`。
+- 第 3.7 节：`Iteration_01/code/diag/gemma4_random_dose.py`，输出为服务器 `Iteration_01/diag/out/gemma4_random_dose_20261117.txt`。
 - 第 2 节与第 3.1 节的数字出自 `method_split.py` 的输出。
 
 ## 变更记录
@@ -167,3 +194,4 @@
 | 日期（北京时间） | 修改内容 | 修改人 |
 |---|---|---|
 | 2026-11-17 | 建立本文件 | 赵磊（Fable 5.2 代笔） |
+| 2026-11-17 | 新增第 3.7 节：随机方向对照的核查、写入量与回答变化的关系、官方依据 | 赵磊（Fable 5.2 代笔） |
