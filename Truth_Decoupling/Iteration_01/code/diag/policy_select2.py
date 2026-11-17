@@ -66,6 +66,7 @@ MODELS = {
     # Gemma-4-31B (11-16 23:3x): no Pro pass of the must-answer test export on the Dr's 100 -> d=None
     "Gemma-4-31B": dict(ec=(G31 + "/eval_extra/judge_tune_ec28_tune", G31 + "/eval_extra/judge_test_t28_testdr100"),
                         d=None, judge=("allenai", "pro"), e=24, c=28, order="EC"),
+    "Gemma-3-27B": dict(ec=("Iteration_01/results/ff/gemma3/27b/e44/gemma3-27b/eval_extra/judge_tune_ec31_tune", "Iteration_01/results/ff/gemma3/27b/e44/gemma3-27b/eval_extra/judge_test_t31_testdr100"), d=("Iteration_01/results/ff/gemma3/27b/e44/gemma3-27b/judge_tune_proD_E_L26", "Iteration_01/results/ff/gemma3/27b/e44/gemma3-27b/judge_test_testD_E_L26dr100"), judge=("pro", "pro"), e=26, c=31, order="EC"),  # 2026-11-17, as c_first.py (Pro on both splits)
 }
 
 # Step 0 of novelty/ours/2026-11-17_e_doubt_c_commit.md (2026-11-17, 赵磊: the tune split is judged by Pro too): the Gemma
