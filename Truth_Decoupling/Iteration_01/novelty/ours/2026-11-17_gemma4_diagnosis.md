@@ -158,6 +158,22 @@
 5. **非官方的旁证**（不作依据）：Ramp Labs 的研究记录称 "Gemma is significantly more sensitive to steering vector application than Qwen"，所用为 Gemma-3-27B 与 Qwen-2.5-7B（<https://labs.ramp.com/research/how-we-built-steer/>）；一篇 LessWrong 文章称 Gemma-4-31B 末层各方向的增益极不均匀，"There are directions that get squashed down ~30x times more than others"（<https://www.lesswrong.com/posts/iQDXuY5Mb5JzjA8xT/an-exploration-of-the-j-lens>）。
 6. **结论**：敏感属实，不是对照或程序的问题。官方依据支持到两点：关闭思考时输出不稳定；12B 的结构在系列中独一份。官方依据不支持到"12B 对扰动更敏感"这一步，这一点目前只有本项目自己的测量。
 
+### 3.8 "Unified"是什么（官方说法）
+
+赵磊 2026-11-17 19 时："Unified（一体式）到底是什么，如果真的是特殊，这个Unified（一体式）不能用。这样模型中也就没有用gemma4的必要了。"
+
+1. **含义**：不带编码器的多模态结构。图像和音频不经过专门的编码器，直接进入语言模型本体。
+   - Google 官方博客（2026-06-03）："Novel unified architecture: No multimodal encoders. The vision and audio inputs flow directly into the LLM backbone."（<https://blog.google/innovation-and-ai/technology/developers-tools/introducing-gemma-4-12B/>）
+   - 图像：同一篇博客称，视觉编码器换成了一个轻量的嵌入模块，"a single matrix multiplication, positional embedding and normalizations"。Gemma 4 技术报告第 2.3 节称，以 "a single large matmul (35M parameters)" 取代 "the 550M vision encoder"。
+   - 音频：技术报告第 2.3 节称，音频编码器 "is entirely discarded"，原始音频切成 40 毫秒的小段后直接投影到语言模型的嵌入空间。
+2. **它是单独从头训练的**。技术报告第 2.3 节：12B 是 "trained from scratch based on a new, unified, and encoder-free model paradigm"（Gemma Team，Gemma 4 Technical Report，arXiv:2607.02770，<https://arxiv.org/abs/2607.02770>）。其预训练数据含音频。
+3. **系列中只有 12B 是这种结构**。模型卡与技术报告都写明，其余各型号（E2B、E4B、26B A4B、31B）保留专门的编码器。Gemma-4-31B 是带视觉编码器的常规结构。
+4. **官方没有就 12B 的稳定性或对扰动的反应作任何说明**。技术报告第 2 节对各型号文本部分的描述是统一的（归一化、注意力、位置编码），没有写 12B 的文本部分另有不同。
+5. **其他核对**：12B 的官方生成配置屏蔽 `<image|>`、`<audio|>` 两个词元；本项目的生成经由 `model.generate`，这一配置照常生效，只是把取样改成了贪心。
+6. **对模型取舍的建议**（待赵磊决定）：
+   - Gemma-4-12B：官方定性为新范式、单独从头训练，本项目又测得它对写入异常敏感（第 3.5、3.7 节）。建议不放入正文的模型组，理由写明以上两点；已有结果留作附录。
+   - Gemma-4-31B：常规结构，没有上述敏感现象。它的结果是"几乎不留空，所以 E+C 没有增益"，与第 3.1 至 3.3 节的规律一致。去留由赵磊决定；若去掉，需要一条事先说得清的理由，不能以结果不利为由。
+
 ## 4. 目前的认识
 
 1. **Gemma-4 与五个模型的差别不在 E+C 的作用方式上**。差别有两点：它在普通问法下很少不答；它的不答可被单独使用 E 放出（两个 Gemma-4 模型都是），在 Gemma-4-12B 上甚至可被任何写入放出。
@@ -195,3 +211,4 @@
 |---|---|---|
 | 2026-11-17 | 建立本文件 | 赵磊（Fable 5.2 代笔） |
 | 2026-11-17 | 新增第 3.7 节：随机方向对照的核查、写入量与回答变化的关系、官方依据 | 赵磊（Fable 5.2 代笔） |
+| 2026-11-17 | 新增第 3.8 节："Unified"的官方说法与对模型取舍的建议 | 赵磊（Fable 5.2 代笔） |

@@ -24,6 +24,8 @@
 | `diag/release_gate.py` | 放出的回答能否按"是否稳定"筛选（`novelty/ours/2026-11-17_silence_and_release.md` 第 4.8 节） | 新写（Opus 5.5 子代理），已知数核对通过，已运行 | 069d0ddba6a5c390 |
 | `diag/two_caps.py` | "两个上限"方案与现在的方法、单独使用 E、单独使用 C 的比较，含第二个裁判的辅助核对（同上第 4.9 节） | 新写（Fable 5.2），文件头有事先写下的预测，已运行 | 79cc5fc8db7287a1 |
 | `diag/two_caps_vs_prompt.py` | "两个上限"与两条提示词基线的比较（同上第 4.9 节第 7 点） | 新写（Fable 5.2），已运行 | 72f520e79fe2d543 |
+| `diag/release_origin.py` | 放出的回答按所需力度与"谁的答案"拆分，方案 N1，力度曲线（`novelty/ours/2026-11-17_silence_and_release.md` 第 4.10、4.11 节） | 新写（Fable 5.2），文件头有事先写下的预测，已运行 | c776978a6a6886a6 |
+| `diag/n1_vs_prompt.py` | 方案 N1 与现在的方法、单独使用 C、两条提示词基线的比较（同上） | 新写（Fable 5.2），已运行 | 14786f62d406f9fc |
 | `diag/gemma4_random_dose.py` | Gemma-4-12B 与 31B 的配置差别；随机方向写入量与回答变化的关系（`novelty/ours/2026-11-17_gemma4_diagnosis.md` 第 3.7 节） | 新写（Fable 5.2），已运行 | c8ce0a08b5e86985 |
 | `diag/g27_prediction_check.py` | Gemma-3-27B 起跑前预测的核对（`novelty/ours/2026-11-16_gemma3_27b_prediction.md` 第 4 节） | 新写（Fable 5.2），已运行 | 710a046ae2f46560 |
 | `scripts/e44_eval_extra.py` | 评估驱动，探测脚本复用其 Context、写入与读取状态的部分 | 现行代码，供对照 | 4438a282d3e0c12c |
@@ -53,3 +55,4 @@
 | 2026-11-17 | 迁入 `diag/gemma4_diagnosis.py` | 赵磊（Fable 5.2 代笔） |
 | 2026-11-17 | 迁入 `diag/gemma4_random_dose.py` | 赵磊（Fable 5.2 代笔） |
 | 2026-11-17 | 迁入 `diag/release_gate.py`、`diag/two_caps.py`、`diag/two_caps_vs_prompt.py` | 赵磊（Fable 5.2 代笔） |
+| 2026-11-17 | 迁入 `diag/release_origin.py`、`diag/n1_vs_prompt.py` | 赵磊（Fable 5.2 代笔） |
