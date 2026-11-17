@@ -20,6 +20,7 @@
 | `diag/law_lam1.py` | "0.45 倍"规律的复现与按答对 − 答错的重算（同上第 4.5 节） | 新写（Opus 5.5 子代理），原规律八个点复现无误，已运行 | 4bbfac586ec14f79 |
 | `diag/survey_cp.py` | 清点"只推 C 往谨慎"的判分目录 | 新写（Opus 5.5 子代理），已运行 | ce9e4ead34f44245 |
 | `diag/doubt_levels.py` | "I don't know."读数在不写入与推 E 后的水平（同上第 4.7 节） | 新写（Fable 5.2），已运行 | c0f3e045d09ab531 |
+| `diag/gemma4_diagnosis.py` | Gemma-4 与其他模型不一致之处的五项离线统计：各写入放出原本不答的题、E 线逐层的放出、随机方向下判分的变化、以 "thought" 开头的回答、问法普查（`novelty/ours/2026-11-17_gemma4_diagnosis.md`） | 新写（Fable 5.2），已运行 | 7f5c1653d290b424 |
 | `diag/g27_prediction_check.py` | Gemma-3-27B 起跑前预测的核对（`novelty/ours/2026-11-16_gemma3_27b_prediction.md` 第 4 节） | 新写（Fable 5.2），已运行 | 710a046ae2f46560 |
 | `scripts/e44_eval_extra.py` | 评估驱动，探测脚本复用其 Context、写入与读取状态的部分 | 现行代码，供对照 | 4438a282d3e0c12c |
 | `scripts/e44_factorial_das.py` | 方向训练与 gap 的定义 | 现行代码，供对照 | 9ef1759fe492337b |
@@ -45,3 +46,4 @@
 | 2026-11-17 | 更新 `ff_ec_probe.py`（按 GPT 审核意见修改）；迁入 `doubt_signal.py`、`doubt_policy.py`、`probe_vs_doubt.py`、`ff_tune_pro_20261117.sh` | 赵磊（Opus 5.5 代笔） |
 | 2026-11-17 | 更新 `diag/policy_select2.py`：Gemma 各行改由 Pro 判调参集选设置 | 赵磊（Opus 5.5 代笔） |
 | 2026-11-17 | 更新 `diag/policy_select2.py`（新增 Gemma-3-27B 一行）；迁入离线检验的八个脚本：`c_first.py`、`silence_table.py`、`e_gain_split.py`、`method_split.py`、`law_lam1.py`、`survey_cp.py`、`doubt_levels.py`、`g27_prediction_check.py` | 赵磊（Fable 5.2 代笔） |
+| 2026-11-17 | 迁入 `diag/gemma4_diagnosis.py` | 赵磊（Fable 5.2 代笔） |
