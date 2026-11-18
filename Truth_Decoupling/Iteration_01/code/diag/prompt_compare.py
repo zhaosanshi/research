@@ -34,6 +34,12 @@ PENDING = {"Gemma-4-31B": I1 + "/ff_xu1/gemma4/31b/e44/gemma4-31b-dm", "Gemma-3-
 # layers as its plain run; Pro on the tune E+C grid (192) and on the Dr's subset of the test grid (98); AllenAI on the full test grid
 CAUTION["Gemma-3-12B"] = entry(PENDING["Gemma-3-12B"], "xu1", 22, 25, "judge_tune_ec25_tune", "judge_test_t25_testdr100",
                                "judge_tune_proD_E_L22", "judge_test_testD_E_L22", "judge_test_t25_test")
+# filled in (Claude Opus 5.5, 2026-11-18 23:4x): the other two stronger-caution runs, layers from each run's selfcheck file
+# (eval_extra/selfcheck_E26-..._C29-... and selfcheck_E24-..._C30-...); Pro and AllenAI as for Gemma-3-12B
+CAUTION["Gemma-3-27B"] = entry(PENDING["Gemma-3-27B"], "xu1", 26, 29, "judge_tune_ec29_tune", "judge_test_t29_testdr100",
+                               "judge_tune_proD_E_L26", "judge_test_testD_E_L26", "judge_test_t29_test")
+CAUTION["Gemma-4-31B"] = entry(PENDING["Gemma-4-31B"], "xu1", 24, 30, "judge_tune_ec30_tune", "judge_test_t30_testdr100",
+                               "judge_tune_proD_E_L24", "judge_test_testD_E_L24", "judge_test_t30_test")
 
 
 def families(sp):
@@ -69,6 +75,10 @@ def show(label, a, b, names):
     print("  %s, %d shared questions" % (label, len(common)))
     print("     plain run:   " + " | ".join("%s %d" % (f, sc(a[f])) for f in a))
     print("     caution run: " + " | ".join("%s %d" % (f, sc(b[f])) for f in b))
+    # counts per final state (R right, W wrong, H hedge, X blank by the rule detector or empty, ? not judged), GPT 2026-11-18
+    cnt = lambda d: "/".join(str(sum(d[p] == s for p in common)) for s in ("R", "W", "H", "X", "?"))
+    print("     counts R/W/H/X/?, plain run:   " + " | ".join("%s %s" % (f, cnt(a[f])) for f in a))
+    print("     counts R/W/H/X/?, caution run: " + " | ".join("%s %s" % (f, cnt(b[f])) for f in b))
     for fb, fa in names:
         if fb in b and fa in a:
             d = [((b[fb][p] == "R") - (b[fb][p] == "W")) - ((a[fa][p] == "R") - (a[fa][p] == "W")) for p in common]

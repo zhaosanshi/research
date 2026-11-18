@@ -31,7 +31,7 @@
 | `diag/n1_vs_prompt.py` | 方案 N1 与现在的方法、单独使用 C、两条提示词基线的比较（同上） | 新写（Fable 5.2），已运行 | 14786f62d406f9fc |
 | `diag/n1_aux_allenai.py` | 方案 N1 用第二个裁判在测试集 523 题上的辅助核对（`novelty/ours/2026-11-17_silence_and_release.md` 第 8 节） | 新写（Fable 5.2），已运行 | 7b47a8dfaf881279 |
 | `diag/confirm_fresh.py` | 方案在未参与设计的测试题上的确认（同上第 8 节）；`--judge allenai` 为程序试跑 | 新写（Fable 5.2），文件头有事先写下的预测，已用 AllenAI 判分试跑，Pro 判分完成后运行 | 6d7e61c9ce92daa2 |
-| `diag/prompt_compare.py` | 加强谨慎问法的运行与普通问法的运行在相同题目上的配对比较；必须作答问法与普通问法的比较（`novelty/ours/2026-11-18_stronger_caution_prediction.md`） | 新写（Fable 5.2）；Opus 5.5 补入 Gemma-3-12B 的加强谨慎运行并运行（修改前为 4f5a68732dc05464）；另两个运行完成后补入 | 3f3d791e27553660 |
+| `diag/prompt_compare.py` | 加强谨慎问法的运行与普通问法的运行在相同题目上的配对比较；必须作答问法与普通问法的比较（`novelty/ours/2026-11-18_stronger_caution_prediction.md`） | 新写（Fable 5.2）；Opus 5.5 补入三个加强谨慎运行与对、错、含糊、不答的计数并运行（输出 `prompt_compare_20261118c.txt`；修改前依次为 4f5a68732dc05464、3f3d791e27553660） | 1b1b840b8969d511 |
 | `diag/provenance_ablation.py` | 打乱来历的对照、否决原答案单独的作用、原本不答的题上的交互项、文字比较写法的敏感性（`novelty/ours/2026-11-17_silence_and_release.md` 第 4.12 节） | 新写（Fable 5.2），文件头有事先写下的预测，已运行 | 633e2856ee892465 |
 | `diag/b_vs_n1.py` | N1 与提示词基线 B 的逐题拆分：按来历与 N1 的处理（放出、否决原答案、不放）分开（`novelty/ours/2026-11-17_silence_and_release.md` 第 8 节第 7 点） | 新写（Opus 5.5），已运行 | 323f1c45165770fe |
 | `diag/gemma4_random_dose.py` | Gemma-4-12B 与 31B 的配置差别；随机方向写入量与回答变化的关系（`novelty/ours/2026-11-17_gemma4_diagnosis.md` 第 3.7 节） | 新写（Fable 5.2），已运行 | c8ce0a08b5e86985 |
@@ -41,6 +41,8 @@
 | `promptladder/ladder_prompts_draft_20261118.json` | P1 至 P3 的文本 | 未改 | 6633a8d615fc91f2 |
 | `promptladder/selftest_cpu.sh` | 只用 CPU 的自测，含 GPT 列出的反例 | 84 项全过；修改前为 fa04208a9ba39c2c | 24ad9a71bd4c9562 |
 | `promptladder/selftest_fns.sh` | 启动程序中记账函数的单元测试 | 36 项全过；修改前为 46793e7357ac5101 | 34428fbc55f5d244 |
+| `promptladder/ops/smoke_r2_chain.sh` | 按 GPT 复核放行的一步：五个模型依次做一次 8 题试跑（新目录 `promptladder/smoke_r2_20261118/`，只用 1 号卡）；只调用上面的启动程序 | 新写（Opus 5.5），2026-11-18 23:33 起跑；辅助程序随后要改，这些目录只用来核对设备布局 | eb721d9f313ad58f |
+| `promptladder/ops/smoke_r2_check.py` | 试跑后的逐题核对：对照与三个新问法各 8 行、题号与顺序和父运行的前 8 行一致、对照文字与父运行相同（只读） | 新写（Opus 5.5） | 0029eaf0c25ef13e |
 | `scripts/e44_eval_extra.py` | 评估驱动，探测脚本复用其 Context、写入与读取状态的部分 | 现行代码，供对照 | 4438a282d3e0c12c |
 | `scripts/e44_factorial_das.py` | 方向训练与 gap 的定义 | 现行代码，供对照 | 9ef1759fe492337b |
 | `scripts/review_checks/ff_explore_ec_confidence.py` | 置信度脚本，探测脚本沿用其 Context 参数 | 现行代码，供对照 | 231052bd8c8a6b64 |
@@ -81,3 +83,4 @@
 | 2026-11-18 | 迁入 `promptladder/` 五个文件（待 GPT 审核）与 `scripts/review_checks/e44_split_test.py`、`ff_test_subset_judge.sh`（供对照） | 赵磊（Opus 5.5 代笔） |
 | 2026-11-18 | 迁入 `diag/b_vs_n1.py` | 赵磊（Opus 5.5 代笔） |
 | 2026-11-18 | `promptladder/` 四个文件按 GPT 第二轮意见修改后重新迁入 | 赵磊（Opus 5.5 代笔） |
+| 2026-11-18 | `diag/prompt_compare.py` 补入 Gemma-3-27B、Gemma-4-31B 与计数后重新迁入；迁入 `promptladder/ops/` 两个试跑文件 | 赵磊（Opus 5.5 代笔） |
