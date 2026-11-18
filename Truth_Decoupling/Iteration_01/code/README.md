@@ -34,6 +34,7 @@
 | `diag/prompt_compare.py` | 加强谨慎问法的运行与普通问法的运行在相同题目上的配对比较；必须作答问法与普通问法的比较（`novelty/ours/2026-11-18_stronger_caution_prediction.md`） | 新写（Fable 5.2）；Opus 5.5 补入三个加强谨慎运行与对、错、含糊、不答的计数并运行（输出 `prompt_compare_20261118c.txt`；修改前依次为 4f5a68732dc05464、3f3d791e27553660） | 1b1b840b8969d511 |
 | `diag/provenance_ablation.py` | 打乱来历的对照、否决原答案单独的作用、原本不答的题上的交互项、文字比较写法的敏感性（`novelty/ours/2026-11-17_silence_and_release.md` 第 4.12 节） | 新写（Fable 5.2），文件头有事先写下的预测，已运行 | 633e2856ee892465 |
 | `diag/b_vs_n1.py` | N1 与提示词基线 B 的逐题拆分：按来历与 N1 的处理（放出、否决原答案、不放）分开（`novelty/ours/2026-11-17_silence_and_release.md` 第 8 节第 7 点） | 新写（Opus 5.5），已运行 | 323f1c45165770fe |
+| `diag/main_table_same_n.py` | 相同作答数下的主表：N1 对"必须作答问法上只推 E、原模型、只推 C，各留最有把握的同样多条"，以及各系统在各自作答数上的净分、把握门槛由调参集选定的版本、五个模型合计（`novelty/ours/2026-11-19_same_answer_count_main_table.md`） | 新写（Fable 5.2），只读，已运行（输出 `main_table_same_n_20261119.txt`） | 79c65e75f0b70849 |
 | `diag/gemma4_random_dose.py` | Gemma-4-12B 与 31B 的配置差别；随机方向写入量与回答变化的关系（`novelty/ours/2026-11-17_gemma4_diagnosis.md` 第 3.7 节） | 新写（Fable 5.2），已运行 | c8ce0a08b5e86985 |
 | `diag/g27_prediction_check.py` | Gemma-3-27B 起跑前预测的核对（`novelty/ours/2026-11-16_gemma3_27b_prediction.md` 第 4 节） | 新写（Fable 5.2），已运行 | 710a046ae2f46560 |
 | `promptladder/ladder_extra.py` | 提示词分档对比的辅助程序：原样调用 `scripts/e44_eval_extra.py`，在内存中改三处（新提示逐字读入、输出目录、导出目录），使同一个 E 写入换用新的系统提示（`novelty/ours/2026-11-18_prompt_ladder_vs_c_ladder.md`） | 新写（Opus 5.5 子代理）；按 GPT 第二轮意见（B1、S2、S3）修改，CPU 自测通过，未上 GPU，待 GPT 复核（`discussion/prompt_ladder/2026-11-18_fix_report.md`）；修改前为 acb2ef6ee5817b28 | 23b0eea22f4f1cba |
@@ -84,3 +85,4 @@
 | 2026-11-18 | 迁入 `diag/b_vs_n1.py` | 赵磊（Opus 5.5 代笔） |
 | 2026-11-18 | `promptladder/` 四个文件按 GPT 第二轮意见修改后重新迁入 | 赵磊（Opus 5.5 代笔） |
 | 2026-11-18 | `diag/prompt_compare.py` 补入 Gemma-3-27B、Gemma-4-31B 与计数后重新迁入；迁入 `promptladder/ops/` 两个试跑文件 | 赵磊（Opus 5.5 代笔） |
+| 2026-11-19 | 迁入 `diag/main_table_same_n.py`；提示词分档比较按当晚的决定暂停，`promptladder/` 各文件停在 2026-11-18 的版本 | 赵磊（Fable 5.2 代笔） |
