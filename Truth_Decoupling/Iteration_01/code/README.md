@@ -36,11 +36,11 @@
 | `diag/b_vs_n1.py` | N1 与提示词基线 B 的逐题拆分：按来历与 N1 的处理（放出、否决原答案、不放）分开（`novelty/ours/2026-11-17_silence_and_release.md` 第 8 节第 7 点） | 新写（Opus 5.5），已运行 | 323f1c45165770fe |
 | `diag/gemma4_random_dose.py` | Gemma-4-12B 与 31B 的配置差别；随机方向写入量与回答变化的关系（`novelty/ours/2026-11-17_gemma4_diagnosis.md` 第 3.7 节） | 新写（Fable 5.2），已运行 | c8ce0a08b5e86985 |
 | `diag/g27_prediction_check.py` | Gemma-3-27B 起跑前预测的核对（`novelty/ours/2026-11-16_gemma3_27b_prediction.md` 第 4 节） | 新写（Fable 5.2），已运行 | 710a046ae2f46560 |
-| `promptladder/ladder_extra.py` | 提示词分档对比的辅助程序：原样调用 `scripts/e44_eval_extra.py`，在内存中改三处（新提示逐字读入、输出目录、导出目录），使同一个 E 写入换用新的系统提示（`novelty/ours/2026-11-18_prompt_ladder_vs_c_ladder.md`） | 新写（Opus 5.5 子代理），CPU 自测通过，未上 GPU，待 GPT 审核（`discussion/prompt_ladder/2026-11-18_code_review_request.md`） | acb2ef6ee5817b28 |
-| `promptladder/ladder_run.sh` | 提示词分档对比的启动程序：空跑检查、8 题试跑、正式生成、只判候选题 | 同上 | c8313e0a89c404ce |
-| `promptladder/ladder_prompts_draft_20261118.json` | P1 至 P3 的文本 | 同上 | 6633a8d615fc91f2 |
-| `promptladder/selftest_cpu.sh` | 只用 CPU 的自测 | 同上，34 项全过 | fa04208a9ba39c2c |
-| `promptladder/selftest_fns.sh` | 启动程序中记账函数的单元测试 | 同上，16 项全过 | 46793e7357ac5101 |
+| `promptladder/ladder_extra.py` | 提示词分档对比的辅助程序：原样调用 `scripts/e44_eval_extra.py`，在内存中改三处（新提示逐字读入、输出目录、导出目录），使同一个 E 写入换用新的系统提示（`novelty/ours/2026-11-18_prompt_ladder_vs_c_ladder.md`） | 新写（Opus 5.5 子代理）；按 GPT 第二轮意见（B1、S2、S3）修改，CPU 自测通过，未上 GPU，待 GPT 复核（`discussion/prompt_ladder/2026-11-18_fix_report.md`）；修改前为 acb2ef6ee5817b28 | 23b0eea22f4f1cba |
+| `promptladder/ladder_run.sh` | 提示词分档对比的启动程序：空跑检查、8 题试跑、正式生成、写出与核对候选题、判分 | 同上（B1、B2、S1、S2、S3）；修改前为 c8313e0a89c404ce | 21e92e0a4488e83e |
+| `promptladder/ladder_prompts_draft_20261118.json` | P1 至 P3 的文本 | 未改 | 6633a8d615fc91f2 |
+| `promptladder/selftest_cpu.sh` | 只用 CPU 的自测，含 GPT 列出的反例 | 84 项全过；修改前为 fa04208a9ba39c2c | 24ad9a71bd4c9562 |
+| `promptladder/selftest_fns.sh` | 启动程序中记账函数的单元测试 | 36 项全过；修改前为 46793e7357ac5101 | 34428fbc55f5d244 |
 | `scripts/e44_eval_extra.py` | 评估驱动，探测脚本复用其 Context、写入与读取状态的部分 | 现行代码，供对照 | 4438a282d3e0c12c |
 | `scripts/e44_factorial_das.py` | 方向训练与 gap 的定义 | 现行代码，供对照 | 9ef1759fe492337b |
 | `scripts/review_checks/ff_explore_ec_confidence.py` | 置信度脚本，探测脚本沿用其 Context 参数 | 现行代码，供对照 | 231052bd8c8a6b64 |
@@ -80,3 +80,4 @@
 | 2026-11-18 | `launchers/ff_xu1_stage1_after_20261118.sh` 改为第 2 版：只有 `sn_*` 步骤失败时照常判分（Gemma-4-12B 的两次运行都只在这一步失败过） | 赵磊（Fable 5.2 代笔） |
 | 2026-11-18 | 迁入 `promptladder/` 五个文件（待 GPT 审核）与 `scripts/review_checks/e44_split_test.py`、`ff_test_subset_judge.sh`（供对照） | 赵磊（Opus 5.5 代笔） |
 | 2026-11-18 | 迁入 `diag/b_vs_n1.py` | 赵磊（Opus 5.5 代笔） |
+| 2026-11-18 | `promptladder/` 四个文件按 GPT 第二轮意见修改后重新迁入 | 赵磊（Opus 5.5 代笔） |

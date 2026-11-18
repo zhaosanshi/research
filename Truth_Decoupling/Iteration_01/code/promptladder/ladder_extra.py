@@ -27,14 +27,21 @@ refused when it differs.
 usage (in the container, -w <code copy>, PYTHONPATH=<code copy>, PYTHONDONTWRITEBYTECODE=1, python -B):
   ladder_extra.py check --code C --out O --split tune|test        apply the changes, print hashes, run nothing
   ladder_extra.py extra --code C --out O generate|export <e44_eval_extra.py arguments, with --prompts-extra LADDER>
+                        (only the exact options the launcher uses are accepted; no abbreviations)
   ladder_extra.py dryrun --code C --source-run S --run-dir R --prompts-extra LADDER --layer L [--strengths 2]
                         CPU, tokenizer only, writes nothing: identity fields, rendering, written span, write amount
   ladder_extra.py reproduce MINE DRIVER                          a control file must equal the driver's file
+  ladder_extra.py bind --code C --run-dir R --source-run S --grid G --layer L --strength 2 --split tune|test
+                        [--subset F] [--write F]                 the candidate set of THIS run and split, rebuilt from the
+                        run's own E+C grid export (read-only); --subset: F must hold exactly that set; --write: write it
   ladder_extra.py subset EXPORT SUBSET WORK --split tune|test    the export restricted to SUBSET's pair_ids
-  ladder_extra.py candidates --work W --condition C --judge J --out F|-    blank questions of one judged condition
+  ladder_extra.py verdicts --work W --judge pro|allenai --subset F   every expected cell judged exactly once
   ladder_extra.py show [--n 8] GEN ...                           answers of generation files, side by side
+(2026-11-18, GPT review B1/S2/S3: 'candidates', which read one judged file and accepted a question twice or missing, is
+replaced by 'bind'; 'verdicts' checks the full expected cell set; options are an exact whitelist per phase.)
 """
 import argparse
+import collections
 import hashlib
 import importlib.util
 import inspect
@@ -51,8 +58,10 @@ CONTROL = "conf"                                     # the last rung: the run's 
 EXPORT_OLD = '    out_dir = run_dir / "eval_extra"\n'
 EXPORT_NEW = '    out_dir = _LADDER_OUT(run_dir)\n'
 SAME_FIELDS = ("token_ids", "finished", "stop_id", "text")     # as the genconf check of ff_explore_ec_select.sh
-FORBIDDEN = ("--overwrite", "--c-run-dir", "--c-e-on", "--c-e-off", "--bases", "--family", "--layers", "--pairs",
-             "--answers", "--prompts-out", "--splits")
+COMMON_OPTIONS = ("--source-run", "--run-dir", "--e-on", "--batch-size", "--max-new-tokens", "--max-target-tokens",
+                  "--seed", "--prompts-extra", "--split")
+ALLOWED = {"generate": COMMON_OPTIONS + ("--arms", "--first-batches"),     # exact names: the engine's parser would also
+           "export": COMMON_OPTIONS + ("--gen", "--name")}                  # take a unique abbreviation (--overw)
 
 
 def sha(path):
@@ -230,9 +239,9 @@ def run_extra(argv):
     if phase not in ("generate", "export"):
         raise SystemExit("extra: phase must be generate or export (got %s)" % phase)
     vals = option_values(rest)
-    bad = [o for o in FORBIDDEN if o in vals]
+    bad = sorted(o for o in vals if o not in ALLOWED[phase])
     if bad:
-        raise SystemExit("extra: %s not allowed here" % bad)
+        raise SystemExit("extra %s: %s not accepted (exact option names only: %s)" % (phase, bad, " ".join(ALLOWED[phase])))
     for opt in ("--source-run", "--run-dir", "--e-on"):
         one(vals, opt)
     split = one(vals, "--split")
@@ -240,8 +249,6 @@ def run_extra(argv):
     ladder = ladder_prompts(ladder_file)
     names = list(ladder)
     if phase == "generate":
-        if "--gen" in vals or "--name" in vals:
-            raise SystemExit("generate takes --arms, not --gen / --name")
         arms = vals.get("--arms") or []
         if not arms:
             raise SystemExit("generate needs --arms")
@@ -255,8 +262,6 @@ def run_extra(argv):
         if len(layers) != 1:
             raise SystemExit("all arms of one call write at one layer (got %s)" % sorted(layers))
     else:
-        if "--arms" in vals or "--first-batches" in vals:
-            raise SystemExit("export takes --gen and --name, not --arms / --first-batches")
         if not vals.get("--gen"):
             raise SystemExit("export needs the generation files named (--gen ...): it never collects files by itself")
         one(vals, "--name")
@@ -490,27 +495,196 @@ def run_subset(a):
         len(out["question_ids"]), len(d["question_ids"]), len(d["conditions"]), st), flush=True)
 
 
-def run_candidates(a):
-    """The questions blank under one judged condition: rule_abstain or empty_output (policy_select2.py's blank)."""
-    path = Path(a.work) / "judge2" / ("single_%s.jsonl" % a.judge)
-    picked, n = [], 0
-    for line in open(path, encoding="utf-8"):
-        r = json.loads(line)
-        if r["condition"] != a.condition:
+def read_jsonl(path):
+    with open(path, encoding="utf-8") as f:
+        return [json.loads(line) for line in f if line.strip()]
+
+
+def ids_sha(ids):
+    """sha256 of a question set: its sorted ids as compact JSON."""
+    return hashlib.sha256(json.dumps(sorted(ids), separators=(",", ":")).encode("utf-8")).hexdigest()
+
+
+def run_bind(a):
+    """B1: the candidate questions of THIS run and split (blank after E alone at the ladder strength on the plain prompt),
+    rebuilt from the run's own E+C grid export, read-only. No judge label and no gold answer is read: blank = the run's
+    rule detector on the raw answer text, or an empty answer. The population is the questions the judge has rows for;
+    the only questions allowed to be missing there are the special-gold ones (their only reference is a refusal)."""
+    if not STRENGTH_RE.match(a.strength):
+        raise SystemExit("strength %r is not a number like 2 or 0.5" % a.strength)
+    code = Path(a.code).resolve()
+    if str(code) not in sys.path:
+        sys.path.insert(0, str(code))
+    from core.readout import rule_abstains           # the run's own rule detector (the one that made the stored flags)
+    run, grid = Path(a.run_dir).resolve(), Path(a.grid).resolve()
+    if grid.parent != run / "eval_extra":
+        raise SystemExit("--grid %s is not a work dir in this run's eval_extra/ (%s)" % (grid, run))
+    cond = "E_L%d_x-w-p%s" % (a.layer, a.strength.replace(".", "-"))
+    bad = []
+
+    def need(ok, msg):
+        if not ok:
+            bad.append(msg)
+        return ok
+
+    def stop():
+        if bad:
+            raise SystemExit("bind %s %s: %d problem(s): %s" % (run.name, a.split, len(bad), "; ".join(bad[:8])))
+
+    export_path, frozen_path, cells_path = grid / "judge_input.json", run / ("frozen_%s.json" % a.split), grid / "judge2" / "cells.jsonl"
+    d, fz = read_json(export_path), read_json(frozen_path)
+    questions = read_json(Path(a.source_run) / "questions.json")["splits"][a.split]
+    order = [q["pair_id"] for q in questions]
+    text_of = {q["pair_id"]: q["question"] for q in questions}
+    # 1. the export is this run's, of this split, over all of its generated questions in order
+    frozen_sha = sha(frozen_path)
+    need(d.get("completed") is True and d.get("split") == a.split, "export is not a completed export of the %s split" % a.split)
+    need(d.get("identity_sha256") == fz.get("identity_sha256"), "export identity differs from the run's frozen answers")
+    need(d.get("question_ids") == order == fz.get("question_ids"), "export question ids differ from the split's (order included)")
+    need(d.get("sources", {}).get("frozen") == frozen_path.name and
+         d.get("sources", {}).get("sha256", {}).get(str(frozen_path)) == frozen_sha, "export was made from other frozen answers")
+    # 2. the condition is E alone on the plain prompt x at this strength, with this run's direction file
+    dfile = run / "dirs" / ("E_L%d.pt" % a.layer)
+    dsha = sha(dfile)
+    specs = [s for s in d.get("condition_specs", []) if s.get("name") == cond]
+    if need(cond in d.get("conditions", []) and len(specs) == 1, "export has no single condition %s" % cond):
+        s0 = specs[0]
+        parts = s0.get("parts") or [{}]
+        p0 = parts[0]
+        need(len(parts) == 1 and s0.get("base_condition") == "baseline_x" and s0.get("arm") == "x.w.p" + a.strength
+             and p0.get("family") == "E" and p0.get("layer") == a.layer and p0.get("kind") == "w"
+             and p0.get("beta") == float(a.strength) and p0.get("direction_file_sha256") == dsha
+             and p0.get("direction_run") == run.name, "%s is not E alone at %s with this run's direction file" % (cond, a.strength))
+    stop()
+    # 3. every generated question exactly once with its own question text; blank recomputed from the raw answer
+    evs = d["evaluations"]
+    need([e.get("pair_id") for e in evs] == order, "export rows are not every question of the split exactly once, in order")
+    stop()
+    blank, rule_of, empty_of = {}, {}, {}
+    for e in evs:
+        p, text = e["pair_id"], e.get("outputs", {}).get(cond)
+        if not need(isinstance(text, str), "%s: no answer text" % p):
             continue
-        n += 1
-        if bool(r.get("rule_abstain")) or bool(r.get("empty_output")):
-            picked.append(r["pair_id"])
-    if not n or len(set(picked)) != len(picked):
-        raise SystemExit("%s: no rows of condition %s, or a question twice" % (path, a.condition))
-    out = {"pair_ids": picked, "source": str(path), "source_sha256": sha(path), "condition": a.condition,
-           "rule": "rule_abstain or empty_output (the blank of Iteration_01/diag/policy_select2.py)",
-           "n": len(picked), "n_questions_seen": n}
-    text = json.dumps(out, ensure_ascii=False, indent=1) + "\n"
-    if a.out == "-":
-        print(text, end="")
-    else:
-        print("%s (%s): %d of %d questions blank under %s" % (a.out, write_new(a.out, text), len(picked), n, a.condition))
+        need(e.get("question") == text_of[p], "%s: question text differs from the source run" % p)
+        rule_of[p], empty_of[p] = bool(rule_abstains(text)), not text.strip()
+        need(e.get("rule_abstain", {}).get(cond) is rule_of[p], "%s: the export's stored rule flag differs from the rule detector" % p)
+        blank[p] = rule_of[p] or empty_of[p]
+    stop()
+    # 4. cells and judged rows of the condition
+    cells = [c for c in read_jsonl(cells_path) if c.get("condition") == cond]
+    cn = collections.Counter(c.get("pair_id") for c in cells)
+    need(set(cn) == set(order) and all(n == 1 for n in cn.values()), "cells.jsonl: not every question exactly once for %s" % cond)
+    stop()
+    cmap, ev = {c["pair_id"]: c for c in cells}, {e["pair_id"]: e for e in evs}
+    for p in order:
+        c = cmap[p]
+        need(c.get("question") == ev[p]["question"] and c.get("prediction") == ev[p]["outputs"][cond]
+             and c.get("rule_abstain") is rule_of[p], "%s: its cell differs from the export" % p)
+    special = [p for p in order if cmap[p].get("gold_is_abstention") is True]
+    population = [p for p in order if cmap[p].get("gold_is_abstention") is not True]
+    judged = {}
+    for j in ("pro", "allenai"):
+        f = grid / "judge2" / ("single_%s.jsonl" % j)
+        if not f.exists():
+            continue
+        rows = [r for r in read_jsonl(f) if r.get("condition") == cond]
+        seen = collections.Counter(r.get("pair_id") for r in rows)
+        dup = sorted(p for p, n in seen.items() if n > 1)
+        missing, extra = sorted(set(population) - set(seen)), sorted(set(seen) - set(population))
+        need(not (dup or missing or extra), "single_%s.jsonl, %s: questions twice %s, missing %s, outside the population %s" % (
+            j, cond, dup[:3], missing[:3], extra[:3]))
+        nv = []
+        for r in rows:
+            p = r.get("pair_id")
+            if p not in cmap:
+                continue
+            need(r.get("cell_id") == p + "|" + cond and r.get("input_sha") == cmap[p].get("input_sha"),
+                 "single_%s %s: the row is not this question's cell" % (j, p))
+            need(r.get("rule_abstain") is rule_of[p] and r.get("empty_output") is empty_of[p],
+                 "single_%s %s: the stored rule / empty flags differ from the raw answer" % (j, p))
+            if r.get("status") != "scored" and not (r.get("basis") == "empty_output_no_judge_vote" and r.get("empty_output") is True):
+                nv.append(p)
+        judged[j] = {"file": str(f), "sha256": sha(f), "rows": len(rows), "no_verdict_nonempty": nv}
+    need(bool(judged), "the grid has no judged rows (judge2/single_pro.jsonl or single_allenai.jsonl)")
+    stop()
+    cand = [p for p in population if blank[p]]
+    binding = {"protocol": "promptladder_candidates_v1", "run_dir": str(run), "split": a.split, "condition": cond,
+               "rule": "blank = core.readout.rule_abstains(raw answer) or an empty answer; no judge label or gold answer read",
+               "rule_code_sha256": sha(code / "core" / "readout.py"),
+               "source": {"grid": str(grid), "export_sha256": sha(export_path), "cells_sha256": sha(cells_path),
+                          "judged": {j: {k: v for k, v in x.items() if k != "no_verdict_nonempty"} for j, x in judged.items()},
+                          "identity_sha256": d["identity_sha256"], "frozen_sha256": frozen_sha, "direction_file_sha256": dsha},
+               "population": {"generated": len(order), "special_gold_removed": special, "n": len(population),
+                              "ids_sha256": ids_sha(population),
+                              "why_removed": "only reference answer is a refusal (cells.jsonl gold_is_abstention); the judge has no rows for them",
+                              "no_verdict_nonempty_kept": {j: x["no_verdict_nonempty"] for j, x in judged.items()}},
+               "candidates": {"n": len(cand), "ids_sha256": ids_sha(cand)}}
+    say("bind %s %s, %s: generated %d, special gold removed %d %s, population %d (sha256 %s), candidates %d (sha256 %s)" % (
+        run.name, a.split, cond, len(order), len(special), special, len(population), ids_sha(population)[:12], len(cand),
+        ids_sha(cand)[:12]))
+    for j, x in judged.items():
+        say("  %s rows: %d, every population question once, stored rule/empty flags = the raw answers; kept although "
+            "without a verdict (non-empty answer): %d %s" % (j, x["rows"], len(x["no_verdict_nonempty"]), x["no_verdict_nonempty"][:5]))
+    if not cand:
+        say("no question is blank after E alone: nothing needs re-asking on %s" % a.split)
+    if a.subset:
+        sub = read_json(a.subset)
+        ids = sub.get("pair_ids") if isinstance(sub, dict) else None
+        if not isinstance(ids, list) or not all(isinstance(i, str) for i in ids):
+            raise SystemExit("%s: no list of pair_ids" % a.subset)
+        rep = sorted({i for i in ids if ids.count(i) > 1})
+        extra, missing = sorted(set(ids) - set(cand)), sorted(set(cand) - set(ids))
+        if rep or extra or missing:
+            raise SystemExit("SUBSET %s is not this run's %s candidate set: %d ids given, %d rebuilt; repeated %s; not "
+                             "candidates %d %s; candidates missing %d %s" % (a.subset, a.split, len(ids), len(cand), rep[:3],
+                                                                            len(extra), extra[:3], len(missing), missing[:3]))
+        binding["subset"] = {"file": str(a.subset), "sha256": sha(a.subset)}
+        say("SUBSET equals the rebuilt candidate set exactly (%d questions)" % len(cand))
+    if a.write:
+        say("candidate file %s: %s" % (a.write, write_new(a.write, json.dumps({"pair_ids": cand, "binding": binding},
+                                                                              ensure_ascii=False, indent=1) + "\n")))
+    print("BINDING " + json.dumps(binding, ensure_ascii=False, sort_keys=True, separators=(",", ":")), flush=True)
+
+
+def run_verdicts(a):
+    """S2: every expected cell (the work dir's questions x its exported conditions) has exactly one judged row. Empty
+    answers (never judged) and judge-declined cells are listed; a missing, repeated, foreign or unverdicted row stops."""
+    work = Path(a.work)
+    d = read_json(work / "judge_input.json")
+    qids, conds = d["question_ids"], d["conditions"]
+    sub = read_json(a.subset)["pair_ids"]
+    if len(set(qids)) != len(qids) or [e["pair_id"] for e in d["evaluations"]] != qids:
+        raise SystemExit("%s/judge_input.json: question ids repeat or differ from its rows" % work)
+    if sorted(sub) != sorted(qids) or len(set(sub)) != len(sub):
+        raise SystemExit("%s holds other questions than the subset %s" % (work, a.subset))
+    exp = {"%s|%s" % (q, c) for q in qids for c in conds}
+    cells = read_jsonl(work / "judge2" / "cells.jsonl")
+    cc = collections.Counter(c.get("cell_id") for c in cells)
+    if set(cc) != exp or any(n != 1 for n in cc.values()):
+        raise SystemExit("%s/judge2/cells.jsonl is not the expected cell set (%d rows, %d expected)" % (work, len(cells), len(exp)))
+    special = [c["cell_id"] for c in cells if c.get("gold_is_abstention")]
+    if special:
+        raise SystemExit("special-gold cells in the subset (the binding excludes such questions): %s" % special[:3])
+    shas = {c["cell_id"]: c.get("input_sha") for c in cells}
+    rows = read_jsonl(work / "judge2" / ("single_%s.jsonl" % a.judge))
+    rc = collections.Counter(r.get("cell_id") for r in rows)
+    dup, missing, extra = sorted(k for k, n in rc.items() if n > 1), sorted(exp - set(rc)), sorted(set(rc) - exp)
+    wrong = sorted(r["cell_id"] for r in rows if r.get("cell_id") in shas and r.get("input_sha") != shas[r["cell_id"]])
+    empty = [r["cell_id"] for r in rows if r.get("status") != "scored" and r.get("basis") == "empty_output_no_judge_vote"
+             and r.get("empty_output") is True]
+    declined = [r["cell_id"] for r in rows if r.get("status") != "scored" and r.get("basis") == "pro_declined"]
+    listed = set(empty) | set(declined)
+    other = [r.get("cell_id") for r in rows if r.get("status") != "scored" and r.get("cell_id") not in listed]
+    print("verdicts %s (%s): %d expected cells (%d questions x %d conditions), %d rows; scored %d, empty answers %d "
+          "(abstentions, never judged), declined %d, other without verdict %d; missing %d, repeated %d, foreign %d, "
+          "other input %d" % (work.name, a.judge, len(exp), len(qids), len(conds), len(rows),
+                              sum(r.get("status") == "scored" for r in rows), len(empty), len(declined), len(other),
+                              len(missing), len(dup), len(extra), len(wrong)), flush=True)
+    if declined:
+        print("  declined (no table until judge2/excluded_questions.json names their questions with a reason): %s" % declined)
+    if missing or dup or extra or wrong or other:
+        raise SystemExit("%s (%s): missing %s, repeated %s, foreign %s, other input %s, without verdict %s" % (
+            work, a.judge, missing[:3], dup[:3], extra[:3], wrong[:3], other[:3]))
 
 
 def run_show(a):
@@ -531,13 +705,13 @@ def run_show(a):
 def main():
     if len(sys.argv) >= 2 and sys.argv[1] == "extra":
         return run_extra(sys.argv[2:])
-    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter, allow_abbrev=False)
     sub = p.add_subparsers(dest="cmd", required=True)
-    c = sub.add_parser("check")
+    c = sub.add_parser("check", allow_abbrev=False)                  # S3: no abbreviated options anywhere
     c.add_argument("--code", required=True)
     c.add_argument("--out", required=True)
     c.add_argument("--split", required=True, choices=("tune", "test"))
-    d = sub.add_parser("dryrun")
+    d = sub.add_parser("dryrun", allow_abbrev=False)
     d.add_argument("--code", required=True)
     d.add_argument("--source-run", required=True)
     d.add_argument("--run-dir", required=True)
@@ -546,25 +720,34 @@ def main():
     d.add_argument("--strengths", nargs="+", default=["2"])
     d.add_argument("--prompts")
     d.add_argument("--prompts-e44")
-    r = sub.add_parser("reproduce")
+    r = sub.add_parser("reproduce", allow_abbrev=False)
     r.add_argument("mine")
     r.add_argument("driver")
-    s = sub.add_parser("subset")
+    b = sub.add_parser("bind", allow_abbrev=False)
+    b.add_argument("--code", required=True)
+    b.add_argument("--run-dir", required=True)
+    b.add_argument("--source-run", required=True)
+    b.add_argument("--grid", required=True)
+    b.add_argument("--layer", required=True, type=int)
+    b.add_argument("--strength", required=True)
+    b.add_argument("--split", required=True, choices=("tune", "test"))
+    b.add_argument("--subset")
+    b.add_argument("--write")
+    s = sub.add_parser("subset", allow_abbrev=False)
     s.add_argument("export")
     s.add_argument("subset")
     s.add_argument("work")
     s.add_argument("--split", required=True, choices=("tune", "test"))
-    k = sub.add_parser("candidates")
-    k.add_argument("--work", required=True)
-    k.add_argument("--condition", required=True)
-    k.add_argument("--judge", required=True, choices=("pro", "allenai"))
-    k.add_argument("--out", required=True)
-    w = sub.add_parser("show")
+    v = sub.add_parser("verdicts", allow_abbrev=False)
+    v.add_argument("--work", required=True)
+    v.add_argument("--judge", required=True, choices=("pro", "allenai"))
+    v.add_argument("--subset", required=True)
+    w = sub.add_parser("show", allow_abbrev=False)
     w.add_argument("--n", type=int, default=8)
     w.add_argument("gen", nargs="+")
     a = p.parse_args()
-    {"check": run_check, "dryrun": run_dryrun, "reproduce": run_reproduce, "subset": run_subset,
-     "candidates": run_candidates, "show": run_show}[a.cmd](a)
+    {"check": run_check, "dryrun": run_dryrun, "reproduce": run_reproduce, "bind": run_bind, "subset": run_subset,
+     "verdicts": run_verdicts, "show": run_show}[a.cmd](a)
 
 
 if __name__ == "__main__":
