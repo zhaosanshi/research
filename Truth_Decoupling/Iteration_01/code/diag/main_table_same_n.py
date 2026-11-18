@@ -16,7 +16,10 @@
 #   Part 3  the two must-answer selection systems at their OWN operating point: the confidence threshold with the best
 #           net on tune (where the run has a tune confidence file), applied to test; and the best net any N could give on
 #           test (an upper bound: it is chosen with the test labels).
-# The confidence rows are checked to belong to the judged answers (sha1 of the answer text).
+#   Part 4  (2026-11-19) the arm the Dr named on 2026-11-15: plain prompt, E 2 and C 0.5 on every question, against the strong
+#           form with the same number of answers.
+# The confidence rows are checked to belong to the judged answers (sha1 of the answer text). Since 2026-11-19 every
+# system's states and answer flags come from the per-question records of final_records.py (the same numbers as before).
 # No prediction was written before this run; the earlier equal-N comparison (old E+C, counting right answers; for_Dr_review/
 # 2026-11-11, section B.4) found the strong form undecided on Llama / Qwen3.5-9B / Qwen3.8-27B.
 # usage (host, from /data/sanshizhao/Truth_Decoupling): python3 -B Iteration_01/diag/main_table_same_n.py
@@ -28,6 +31,7 @@ sys.path.insert(0, "Iteration_01/diag")
 import policy_select2 as ps
 import c_first as cf
 import release_origin as ro
+import final_records as fr
 
 LAD, CAPS = ps.LAD, ro.CAPS
 G3 = "Iteration_01/results/ff/gemma3/12b/e44/gemma3-12b"
@@ -51,6 +55,7 @@ class Data:
         self.m, self.i = m, i
         self.sp = ps.Split(m, i)
         self.tx = ro.texts(m["ec"][i])
+        self.texts = fr.Texts.of(m, i)                          # raw answers: what each scheme hands in (final_records.py)
         self.dblank = ps.load(m["d"][i], m["judge"][i])[1]
         self.conf = None
         if CONF[name][i]:
@@ -76,43 +81,26 @@ class Data:
         return rows
 
 
+def handed_in(D, cfg):
+    """(states, answered) of a system, both from the per-question records of what it hands in (final_records.py);
+    answered = the answer handed in is not blank for the rule detector (nor empty)."""
+    recs = fr.records(D.sp, cfg, D.texts)
+    return fr.states(recs), fr.answered(recs, D.sp, D.dblank)
+
+
 def plain(D, cfg):
-    """(states, answered) of a plain-prompt system; answered = the final answer is not blank for the rule detector."""
-    sp = D.sp
-    st = ro.states(sp, D.tx, cfg)
-    if cfg[0] == "base":
-        ans = [not sp.blank[(p, "baseline_x")] for p in sp.qs]
-    elif cfg[0] == "E":
-        ans = [not sp.blank[(p, sp.cE(cfg[1]))] for p in sp.qs]
-    elif cfg[0] == "C":
-        ans = [not sp.blank[(p, sp.cC(cfg[1]))] for p in sp.qs]
-    elif cfg[0] == "EC":
-        s, cap = cfg[1], cfg[2]
-        ans = [(not sp.blank[(p, sp.cE(s))]) or any(not sp.blank[(p, sp.cEC(s, k))] for k in LAD[:LAD.index(cap) + 1]) for p in sp.qs]
-    elif cfg[0] == "N1":
-        _, s, k1, k2 = cfg
-        rel = set()
-        for cap, origin in ((k1, "E's"), (k2, "own")):
-            if cap is None:
-                continue
-            for p, o, k, state, whose in ro.released(sp, D.tx, s, cap):
-                if o == origin and (whose == "new" or origin == "own"):
-                    rel.add(p)
-        ans = [(p in rel) or (not sp.blank[(p, sp.cE(s))]) for p in sp.qs]
-    else:
-        raise ValueError(cfg)
-    return st, ans
+    return handed_in(D, cfg)
 
 
 def must(D, cond):
-    sp = D.sp
-    return [sp.dst[(p, cond)] for p in sp.qs], [not D.dblank[(p, cond)] for p in sp.qs]
+    cfg = {"baseline_conf": ("Dnone",), "baseline_conf_E2": ("DA",)}.get(cond)
+    if cfg is None:
+        cfg = next(("DE", s) for s in "12" if D.sp.dE(s) == cond)
+    return handed_in(D, cfg)
 
 
 def prompt_b(D, s):
-    sp = D.sp
-    e = sp.cE(s)
-    return sp.states(("B", s)), [(not D.dblank[(p, sp.dE(s))]) if sp.blank[(p, e)] else True for p in sp.qs]
+    return handed_in(D, ("B", s))
 
 
 def ranked(D, ans, rows, measure="mean_logp"):
@@ -239,6 +227,21 @@ def report(name):
         ks, ka = keep(st, order, n_test)
         print(line("%s, threshold from tune (tune: top %d of %d, net %d; mean logp >= %.3f)" % (label, tn, len(torder), tv, tau), ks, ka))
         print("    N1 minus it: %s" % diff(n1, ks))
+    # Part 4 (added 2026-11-19): the arm the Dr named on 2026-11-15 for Qwen3.5-9B, printed for every model: plain prompt, E at
+    # 2 and C at 0.5 written on every question; against the strong form with the same number of answers
+    st4, ans4 = handed_in(test, ("ALL", "2", "0-5"))
+    n4 = sum(ans4)
+    st, ans = must(test, xsp.dE("2"))
+    order = ranked(test, ans, test.rows("conf_E2", test.m["d"][1], xsp.dE("2")))
+    print("  Part 4, the Dr's arm of 2026-11-15: plain prompt, E 2 and C 0.5 written on every question (N = %d)" % n4)
+    print(line("plain, E 2 + C 0.5 on every question", st4, ans4))
+    if len(order) >= n4:
+        ks, ka = keep(st, order, n4)
+        print(line("must-answer + E 2, top N", ks, ka))
+        print("    the Dr's arm minus it: %s" % diff(st4, ks))
+    else:
+        print("    must-answer + E 2 has only %d answers to choose from: not comparable" % len(order))
+    print("    N1 minus the Dr's arm (each at its own number of answers): %s" % diff(n1, st4))
     print("  confidence rows checked against the judged answers: test %s; tune %s" % (sorted(set(test.checked)), sorted(set(tune.checked))))
     other = {"N1 minus single E": out["single E"][0], "N1 minus old E+C": out["old E+C"][0], "N1 minus prompt B": out["prompt B"][0],
              "N1 minus must-answer + E (all answered)": out["must-answer + E"][0], "N1 minus strong form (same N)": strong}
@@ -246,14 +249,19 @@ def report(name):
 
 
 if __name__ == "__main__":
-    tot = {}
+    MAIN = ("Llama-3.1-8B", "Qwen3.5-9B", "Qwen3.8-27B")        # the Dr (2026-11-15): free-form main text; Gemma in the appendix
+    tot, tot3 = {}, {}
     for name in ro.FIVE:
         for k, d in report(name).items():
             for p, v in d.items():
                 tot.setdefault(k, {})
                 tot[k][p] = tot[k].get(p, 0) + v
-    # the five models together: per question the five differences are summed, and questions are resampled (one question
-    # carries all its models), as GPT asked for joint statements (discussion/prompt_ladder/2026-11-18_gpt_review.md)
-    print("\n## the five models together (net; per question the differences of the models are summed; questions resampled)")
-    for k, d in tot.items():
-        print("  %-42s %s (%d questions)" % (k, ps.ci([d[p] for p in sorted(d)]), len(d)))
+                if name in MAIN:
+                    tot3.setdefault(k, {})
+                    tot3[k][p] = tot3[k].get(p, 0) + v
+    # several models together: per question the differences are summed, and questions are resampled (one question carries
+    # all its models), as GPT asked for joint statements (discussion/prompt_ladder/2026-11-18_gpt_review.md)
+    for title, t in (("the five models together", tot), ("the three main-text models together (Llama-3.1-8B, Qwen3.5-9B, Qwen3.8-27B)", tot3)):
+        print("\n## %s (net; per question the differences of the models are summed; questions resampled)" % title)
+        for k, d in t.items():
+            print("  %-42s %s (%d questions)" % (k, ps.ci([d[p] for p in sorted(d)]), len(d)))
