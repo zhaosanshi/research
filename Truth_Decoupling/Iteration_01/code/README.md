@@ -13,6 +13,7 @@
 | `launchers/ff_tune_pro_20261117.sh` | 给已有 AllenAI 判分的调参集目录补 DeepSeek Pro 判分（同上第 0 步），只调用现有判分脚本 | 新写，已运行 | 8b1f3fb550af58b0 |
 | `launchers/ff_g3_fresh_pro_offpeak_20261118.sh` | 给两个 Gemma-3 模型测试集中 Pro 未判过的题补判，只在 DeepSeek 的空闲时段运行，到高峰时段前自动停止、之后续判；判完运行 `diag/confirm_fresh.py`。只调用 `ff_tune_pro_20261117.sh` | 新写（Opus 5.5 子代理），时间窗口与续判逻辑用假命令演练通过，2026-11-18 已启动 | 9d3e22a776afc518 |
 | `launchers/ff_xu1_stage1_20261118.sh` | 三个模型（Gemma-4-31B、Gemma-3-12B、Gemma-3-27B）的加强谨慎问法运行：用 `make_e44_source.py --append-sentence` 生成源目录，再按普通问法运行的层表调用现成的两条链（`novelty/ours/2026-11-18_stronger_caution_prediction.md`） | 新写（Opus 5.5 子代理），2026-11-18 09:37 已启动 | 3352eaab26e80767 |
+| `launchers/ff_xu1_stage1_after_20261118.sh` | 三个加强谨慎问法运行的链结束后，补 DeepSeek Pro 判分（调参集的 E+C 网格与测试集的博士 100 题），只在空闲时段运行；步骤照 `ff_gemma3_27b_after_v3.sh` | 新写（Opus 5.5 子代理），用假目录与假命令演练通过，2026-11-18 已启动 | b24eb4ba6b68993e |
 | `launchers/ff_ec_probe.sh` | 上一脚本的启动脚本 | 新写，待审，未运行 | 2c606c74ea6f06c1 |
 | `diag/policy_select2.py` | 方法与两条提示词基线的正式评估，只读已判分的回答；另有"不写入""单独使用 C"两个对照 | 已对八个运行运行；报告部分包在 main() 中，可被其他脚本导入；Gemma 各行改由 Pro 判调参集选设置，原按 AllenAI 选定的行保留为"（tune AllenAI）"；2026-11-17 新增 Gemma-3-27B 一行，其余模型输出逐字未变 | 4bbbf285d4e6f97a |
 | `diag/c_first.py` | "C 先放、E 后压"三种做法与现在的方法的比较；两类留空题上放出的结果（`novelty/ours/2026-11-17_silence_and_release.md` 第 4.3、4.4 节） | 新写（Fable 5.2），文件头有事先写下的预测，已运行 | aedd0968465a4925 |
@@ -67,3 +68,4 @@
 | 2026-11-18 | 迁入 `diag/prompt_compare.py` | 赵磊（Fable 5.2 代笔） |
 | 2026-11-18 | 迁入 `launchers/ff_xu1_stage1_20261118.sh` | 赵磊（Fable 5.2 代笔） |
 | 2026-11-18 | 迁入 `diag/provenance_ablation.py` | 赵磊（Fable 5.2 代笔） |
+| 2026-11-18 | 迁入 `launchers/ff_xu1_stage1_after_20261118.sh` | 赵磊（Fable 5.2 代笔） |
