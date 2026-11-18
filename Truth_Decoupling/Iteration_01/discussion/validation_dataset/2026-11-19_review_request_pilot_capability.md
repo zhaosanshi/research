@@ -24,6 +24,9 @@
 | `Iteration_01/code/scripts/capability/cap_sets.py`、`cap_prompts.py` | MMLU、GSM8K 的题号清单、问法与规则判分 |
 | `Iteration_01/code/configs/newsets/frozen_models_20261119.json` | 五个模型冻结的设置 |
 | `Iteration_01/code/launchers/newsets_c2c3_20261119.sh`、`capability_f1_20261119.sh` | 启动脚本 |
+| `Iteration_01/code/scripts/newsets/newsets_gap.py` | D2 的差值读出（只读状态） |
+| `Iteration_01/code/diag/newsets_score.py` | C2、C3 的计分与闸口 1 的读法；N1 等直接调用 `final_records.py` |
+| `Iteration_01/code/diag/cap_score.py` | 能力保持的规则计分；N1 同样直接调用 `final_records.py` |
 
 哈希见 `Iteration_01/code/README.md`。
 
@@ -32,6 +35,8 @@
 - 切分与题库：CPU 上完成，另写的核对程序从原始文件重算，三份之间共用的问句、答案、实体都是 0。
 - **复现检查**：五个模型各取 TruthfulQA 调参集第一批 8 题，外围程序重新生成不写入、推 E、E 加 C 0.25 三种回答，与存档逐词元比对，全部 8 / 8 相同。
 - **新题试跑**：Gemma-3-12B 在 TriviaQA、PopQA 调参集，以及 MMLU、GSM8K 上各 8 题，看了原始输出。把握分重新喂入后逐词元复现 26 / 26。
+- 差值读出：Gemma-3-12B 用 8 题跑通了读状态这一步。标签是临时用别名判分造的，数字不作数。
+- 两个计分程序：合成数据上的自测通过，N1 的结果与 `final_records.py` 的规则一致（否决、超上限、不是候选、放出）。
 - 没有调用 DeepSeek，没有跑任何整套条件。
 
 ## 4. 审过之后的顺序
@@ -48,3 +53,4 @@
 | 日期（北京时间） | 修改内容 | 修改人 |
 |---|---|---|
 | 2026-11-19 | 建立本文件 | 赵磊（Opus 5.5 代笔） |
+| 2026-11-19 | 补入差值读出与两个计分程序，一起审 | 赵磊（Opus 5.5 代笔） |

@@ -10,6 +10,7 @@
 #   c3test  test: x, E, E + C at the four strengths, single C, conf, conf + E                   GPU
 #   conf    mean log-prob of the own answers of conf + E, conf, single C (tune and test)        GPU
 #   export  judge inputs: tune = the five C2 prompts + conf:E (all 192); test = the nine arms (Pro 100)
+#   gap     D2: the gap on the tune split (scripts/newsets/newsets_gap.py), after the tune work dir is judged     GPU
 #   judge   cells + DeepSeek Pro + single over this model's four work dirs; refuses to start a work dir
 #           in, or less than 40 min before, a peak window (Mon-Fri 09-12 and 14-18 Beijing)          no GPU
 set -uo pipefail
@@ -64,6 +65,12 @@ case "$STAGE" in
           --gen-dir $NS/gen/$t/$MODEL/tune --only-arms $TUNE_PRO --out $NS/judge/$t/$MODEL/tune/judge_input.json || fail "export $t tune"
       "${DX[@]}" python3 -I $G export --task $t --items $NS/bank/${t}_bank_20261119.jsonl --split test --pro100 \
           --gen-dir $NS/gen/$t/$MODEL/test --only-arms $C3_TEST --out $NS/judge/$t/$MODEL/test_pro100/judge_input.json || fail "export $t test"
+    done ;;
+  gap)
+    for t in triviaqa popqa; do
+      "${DX[@]}" $PY -I $CODE/scripts/newsets/newsets_gap.py --models $M --model $MODEL --task $t \
+          --items $NS/bank/${t}_bank_20261119.jsonl --pro-work $NS/judge/$t/$MODEL/tune \
+          --conf-file $NS/conf/$t/$MODEL/tune/conf.json --out $NS/gap/$t/$MODEL/tune_gap.json || fail "gap $t"
     done ;;
   judge)
     allowed() {  # 0 if now is off-peak and the next peak is at least 40 min away (Beijing time)
