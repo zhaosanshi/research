@@ -30,6 +30,10 @@ def entry(root, tag, e, c, tune, test, dtune, dtest, aux):
 # runs started 2026-11-18 (filled in when their judged dirs exist; layers are read from the dir names at that time)
 PENDING = {"Gemma-4-31B": I1 + "/ff_xu1/gemma4/31b/e44/gemma4-31b-dm", "Gemma-3-12B": I1 + "/ff_xu1/gemma3/12b/e44/gemma3-12b",
            "Gemma-3-27B": I1 + "/ff_xu1/gemma3/27b/e44/gemma3-27b"}
+# filled in (Claude Opus 5.5, 2026-11-18 18:4x): Gemma-3-12B stronger caution, chain log "R3 E22 ... R6 v3 C25", the same
+# layers as its plain run; Pro on the tune E+C grid (192) and on the Dr's subset of the test grid (98); AllenAI on the full test grid
+CAUTION["Gemma-3-12B"] = entry(PENDING["Gemma-3-12B"], "xu1", 22, 25, "judge_tune_ec25_tune", "judge_test_t25_testdr100",
+                               "judge_tune_proD_E_L22", "judge_test_testD_E_L22", "judge_test_t25_test")
 
 
 def families(sp):
