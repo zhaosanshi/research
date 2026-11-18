@@ -8,7 +8,11 @@
 # Only these two kinds: no must-answer (judge_*_D_*, testD) and no C-alone (testS) work dir this time.
 # C is the run's own: the dirs are read from disk (exactly one judge_tune_ec<N>_tune and one judge_test_t<N>_test, the same
 # N, equal to the "R6 v3 C<N>" line of the chain log); anything else = that run fails and the log says what was seen.
-# A run whose v3 chain ends with any .FAIL ("chain end: .. N failed or not tried", N > 0) is not judged (run fails).
+# A run whose v3 chain ends with a failed or untried step is not judged (run fails), with one exception (v2, Claude Fable 5.2,
+# 2026-11-18): the steps sn_* (the model's confidence in its own answers) come after the two E+C grids and do not feed them;
+# they failed on Gemma-4-12B before ("answer span contains special token IDs") and that run was judged all the same. So when
+# every .FAIL file is an sn_* one and their number equals the "N failed or not tried" of the chain's last line, judging goes
+# on. In every case the eight steps of the two grids (ec<C>_g1 _g2 _a _d and t<C>_g1 _g2 _a _d) must have a .DONE marker.
 # DeepSeek only off-peak (赵磊: half price). Peak (Beijing): Mon-Fri 09:00-12:00, 14:00-18:00. Pro lanes run from 30 s after
 # a peak until 5 min before the next one (12:00:30-13:55, 18:00:30-08:55, weekends); still running at the stop time ->
 # stopped by their process group (host) and by their own work-dir command line (container), resumed in the next window.
@@ -142,10 +146,19 @@ worker() {  # worker INDEX: everything for one run; writes RUN.DONE / RUN.FAIL i
     stopped && rfail "global STOP before its chain ended: $(cat "$LH/STOP")"; sleep "$CHAIN_POLL"; done
   local END; END=$(tail -n 1 "$VLOG/chain_jobs.log"); say "[$NAME] v3 chain ended: $END"
   local NF; NF=$(sed -n 's/.*chain end: [0-9]* done, \([0-9]*\) failed or not tried.*/\1/p' <<< "$END")
-  [ "$NF" = 0 ] && [ -z "$(ls "$VLOG" | grep '\.FAIL$')" ] \
-    || rfail "the v3 chain ended with failed or untried steps (not judged): '$END'; FAIL files: $(ls "$VLOG" | grep '\.FAIL$' | tr '\n' ' ')"
+  local FF OTHER NS; FF=$(ls "$VLOG" | grep '\.FAIL$' | tr '\n' ' '); OTHER=$(ls "$VLOG" | grep '\.FAIL$' | grep -v '^sn_' | tr '\n' ' ')
+  [ -n "$NF" ] || rfail "cannot read the number of failed steps from the chain's last line (not judged): '$END'"
+  [ -z "$OTHER" ] || rfail "the v3 chain has failed steps outside the confidence branch (not judged): '$END'; FAIL files: $FF"
+  if [ "$NF" != 0 ] || [ -n "$FF" ]; then
+    NS=$(ls "$VLOG" | grep '\.FAIL$' | grep -c '^sn_')
+    [ "$NF" = "$NS" ] || rfail "the chain says $NF failed or not tried but $NS sn_* FAIL files are there (not judged): '$END'; FAIL files: $FF"
+    say "[$NAME] NOTE: only steps of the confidence branch failed ($FF); the two E+C grids do not depend on them, judging goes on"
+  fi
   local F; F=$(find_dirs "$RH" "$M" 2>&1) || rfail "grid dirs not found: $F"
   local CL TUNE TEST; read -r CL TUNE TEST <<< "$F"; local TN=${TEST#judge_test_}
+  local STEP MISS=""; for STEP in "ec${CL}_g1" "ec${CL}_g2" "ec${CL}_a" "ec${CL}_d" "t${CL}_g1" "t${CL}_g2" "t${CL}_a" "t${CL}_d"; do
+    [ -e "$VLOG/$STEP.DONE" ] || MISS+="$STEP "; done
+  [ -z "$MISS" ] || rfail "steps of the two E+C grids without a DONE marker in $VLOG (not judged): $MISS"
   local TUW=$EXC/$TUNE TUH=$EXH/$TUNE TRW=$EXC/${TEST}tr3 DRW=$EXC/${TEST}dr100 TRH=$EXH/${TEST}tr3 DRH=$EXH/${TEST}dr100
   say "[$NAME] C$CL: tune grid $TUH, test grid $EXH/$TEST -> Pro on $TUH and $DRH (trial $TRH)"
   [ -f "$TUH/judge2/cells.jsonl" ] && [ -f "$TUH/judge2/single_allenai.jsonl" ] || rfail "$TUH has no cells / AllenAI pass"
