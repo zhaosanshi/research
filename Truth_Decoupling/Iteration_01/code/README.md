@@ -35,6 +35,11 @@
 | `diag/provenance_ablation.py` | 打乱来历的对照、否决原答案单独的作用、原本不答的题上的交互项、文字比较写法的敏感性（`novelty/ours/2026-11-17_silence_and_release.md` 第 4.12 节） | 新写（Fable 5.2），文件头有事先写下的预测，已运行 | 633e2856ee892465 |
 | `diag/gemma4_random_dose.py` | Gemma-4-12B 与 31B 的配置差别；随机方向写入量与回答变化的关系（`novelty/ours/2026-11-17_gemma4_diagnosis.md` 第 3.7 节） | 新写（Fable 5.2），已运行 | c8ce0a08b5e86985 |
 | `diag/g27_prediction_check.py` | Gemma-3-27B 起跑前预测的核对（`novelty/ours/2026-11-16_gemma3_27b_prediction.md` 第 4 节） | 新写（Fable 5.2），已运行 | 710a046ae2f46560 |
+| `promptladder/ladder_extra.py` | 提示词分档对比的辅助程序：原样调用 `scripts/e44_eval_extra.py`，在内存中改三处（新提示逐字读入、输出目录、导出目录），使同一个 E 写入换用新的系统提示（`novelty/ours/2026-11-18_prompt_ladder_vs_c_ladder.md`） | 新写（Opus 5.5 子代理），CPU 自测通过，未上 GPU，待 GPT 审核（`discussion/prompt_ladder/2026-11-18_code_review_request.md`） | acb2ef6ee5817b28 |
+| `promptladder/ladder_run.sh` | 提示词分档对比的启动程序：空跑检查、8 题试跑、正式生成、只判候选题 | 同上 | c8313e0a89c404ce |
+| `promptladder/ladder_prompts_draft_20261118.json` | P1 至 P3 的文本 | 同上 | 6633a8d615fc91f2 |
+| `promptladder/selftest_cpu.sh` | 只用 CPU 的自测 | 同上，34 项全过 | fa04208a9ba39c2c |
+| `promptladder/selftest_fns.sh` | 启动程序中记账函数的单元测试 | 同上，16 项全过 | 46793e7357ac5101 |
 | `scripts/e44_eval_extra.py` | 评估驱动，探测脚本复用其 Context、写入与读取状态的部分 | 现行代码，供对照 | 4438a282d3e0c12c |
 | `scripts/e44_factorial_das.py` | 方向训练与 gap 的定义 | 现行代码，供对照 | 9ef1759fe492337b |
 | `scripts/review_checks/ff_explore_ec_confidence.py` | 置信度脚本，探测脚本沿用其 Context 参数 | 现行代码，供对照 | 231052bd8c8a6b64 |
@@ -43,6 +48,8 @@
 | `core/model_io.py` | 前向计算 forward_logits | 现行代码，供对照 | 69ebe708de33d8d2 |
 | `scripts/review_checks/newmodel_e44.sh` | 单模型运行脚本；重学 C 的改动草稿见 `discussion/relearn_c/` | 现行代码，供对照 | bcb375feb7044142 |
 | `scripts/review_checks/ff_test_eval.sh` | 测试集运行脚本 | 现行代码，供对照 | 92bdfb4996306ff1 |
+| `scripts/review_checks/e44_split_test.py` | 允许评估程序在测试集上运行的放宽 | 现行代码，供对照 | ac5ab93f17ae1f90 |
+| `scripts/review_checks/ff_test_subset_judge.sh` | 只判部分题目的判分程序 | 现行代码，供对照 | 6199d697ba94e4b6 |
 | `scripts/review_checks/ff_explore_ec.sh` | E+C 网格运行脚本 | 现行代码，供对照 | a8803d6102e01e4b |
 | `scripts/review_checks/ff_explore_ec_select.sh` | E+C 选择步骤运行脚本 | 现行代码，供对照 | 33aa833414317e88 |
 | `configs/prompts/e44_factorial_v1.json` | 两因子设计的问法 | 现行代码，供对照 | c39172b39b550fa8 |
@@ -70,3 +77,4 @@
 | 2026-11-18 | 迁入 `diag/provenance_ablation.py` | 赵磊（Fable 5.2 代笔） |
 | 2026-11-18 | 迁入 `launchers/ff_xu1_stage1_after_20261118.sh` | 赵磊（Fable 5.2 代笔） |
 | 2026-11-18 | `launchers/ff_xu1_stage1_after_20261118.sh` 改为第 2 版：只有 `sn_*` 步骤失败时照常判分（Gemma-4-12B 的两次运行都只在这一步失败过） | 赵磊（Fable 5.2 代笔） |
+| 2026-11-18 | 迁入 `promptladder/` 五个文件（待 GPT 审核）与 `scripts/review_checks/e44_split_test.py`、`ff_test_subset_judge.sh`（供对照） | 赵磊（Opus 5.5 代笔） |
