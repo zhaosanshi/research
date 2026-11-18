@@ -1,0 +1,27 @@
+{
+ "note": "Frozen TruthfulQA setup of method N1 for the five main-table models, used unchanged on new question lists (work queue C3, F1). Paths are relative to /workspace/Truth_Decoupling. Layers, runs and code copies from the runs' eval_extra gen files and launchers; caps and single-C strength from Iteration_01/diag/out/main_table_same_n_20261119.txt (chosen on the TruthfulQA tune split). caps.own_blank = cap for questions the model leaves blank without any write; caps.e_blank = cap for questions that become blank only after E (their released answer must differ from the no-write answer).",
+ "models": {
+  "llama3.1-8b": {"code": "code_e45_20261112", "python": "python3", "gpus": 1,
+                  "source_run": "results_qa_das_v1u/llama3.1-8b/full",
+                  "run_dir": "results_e44_factorial_das/llama3.1-8b_side_E2", "e_on": "E2",
+                  "c_run_dir": "results_e44_factorial_das/llama3.1-8b", "c_e_on": "E1",
+                  "el": 11, "cl": 19, "e_strength": 2, "single_c": 0.25, "caps": {"own_blank": 0.5, "e_blank": 0.25}},
+  "qwen3.5-9b": {"code": "code_ff_explore_20261113b", "python": "/workspace/Truth_Decoupling/envs/tf519/bin/python", "gpus": 1,
+                 "source_run": "results_newmodels_ff_20261112/source/qwen3.5-9b",
+                 "run_dir": "results_newmodels_ff_20261112/e44/qwen3.5-9b_E2", "e_on": "E2",
+                 "c_run_dir": "results_newmodels_ff_20261112/e44/qwen3.5-9b", "c_e_on": "E1",
+                 "el": 15, "cl": 16, "e_strength": 2, "single_c": 0.25, "caps": {"own_blank": 0.5, "e_blank": 0.25}},
+  "qwen3.8-27b": {"code": "code_ff_explore_20261113b", "python": "/workspace/Truth_Decoupling/envs/tf519/bin/python", "gpus": 2,
+                  "source_run": "results_newmodels_ff_20261112/source/qwen3.8-27b-dm",
+                  "run_dir": "results_newmodels_ff_20261112/e44/qwen3.8-27b-dm", "e_on": "E2",
+                  "el": 28, "cl": 33, "e_strength": 2, "single_c": 0.25, "caps": {"own_blank": 1, "e_blank": 0.5}},
+  "gemma3-12b": {"code": "Iteration_01/code", "python": "python3", "gpus": 1,
+                 "source_run": "Iteration_01/results/ff/gemma3/12b/source/gemma3-12b",
+                 "run_dir": "Iteration_01/results/ff/gemma3/12b/e44/gemma3-12b", "e_on": "E2",
+                 "el": 22, "cl": 25, "e_strength": 2, "single_c": 0.25, "caps": {"own_blank": 2, "e_blank": 2}},
+  "gemma3-27b": {"code": "Iteration_01/code", "python": "python3", "gpus": 1,
+                 "source_run": "Iteration_01/results/ff/gemma3/27b/source/gemma3-27b",
+                 "run_dir": "Iteration_01/results/ff/gemma3/27b/e44/gemma3-27b", "e_on": "E2",
+                 "el": 26, "cl": 31, "e_strength": 2, "single_c": 0.25, "caps": {"own_blank": 1, "e_blank": 0.5}}
+ }
+}
