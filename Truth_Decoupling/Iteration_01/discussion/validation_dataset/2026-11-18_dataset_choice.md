@@ -10,7 +10,8 @@
 
 1. **测试集整套用**。每套测试集或整套使用，或按事先定好的固定种子随机抽取、按规则切分训练 / 调参 / 测试；不按结果挑选子集，不把几套题集拼在一起。完整方法在每套上都跑，所有结论在每套上都报告。
 2. **适配只改训练一侧**。DAS 学 E 所用的如实句，可以按该题集的典型错误改写；在生成测试集回答之前定稿并提交。DAS 的做法、选层规则、C 的两种问法与方案 N1 的规则都不变。
-3. **先做第 0 步**。把候选句子直接加进必须作答问法，看调参集上答对 − 答错是否上升；不上升，说明这套题上 E 没有可学的内容，照实报告。
+3. **先做第 0 步**。把候选句子直接加进必须作答问法，看调参集上答对 − 答错是否上升；不上升，说明这句话在这种问法下没有效果，照实报告，不据此把题集从报告中删去。
+4. **赵磊的决定**（2026-11-18 18 时）：同意先 FalseQA、再 PopQA，并要求先讲清楚 FalseQA 的题从哪里来（见第 3.1 节）。
 
 ## 2. 题集需要满足的条件
 
@@ -36,6 +37,24 @@
 | AbstentionBench（NeurIPS 2025 数据集与基准赛道） | 20 个题集的汇编 | 其中 4 个子集 | 每题一个"该不该弃答"的标签 | — |
 
 - FalseQA 的 GitHub 仓库没有许可文件；做研究评估时常被使用（R-Tuning，NAACL 2024；AbstentionBench），题目不放入本仓库。
+
+### 3.1 FalseQA 的来历与格式（据原论文与官方文件核对）
+
+- **作者**：清华大学计算机系与人工智能研究院（Shengding Hu、Zhiyuan Liu、Maosong Sun 等），另有北京邮电大学、腾讯的作者。论文 *Won't Get Fooled Again: Answering Questions with False Premises*，ACL 2023；数据在 GitHub `thunlp/FalseQA`。
+- **怎么出的题**：人工撰写。标注员拿到一个取自 GenericsKB（艾伦人工智能研究所的常识陈述库，如"狗是哺乳动物"一类）的主语词，据此写一道前提不成立的题，再用最小的改动把它改成一道前提成立的题。论文首页的例子是 "How many eyes does the sun have?"。
+- **题目的样子**（测试集）：
+
+| 前提不成立 | 改成前提成立 |
+|---|---|
+| Why carbon dioxide is composed of oxygen? | Why carbon dioxide is composed of carbon dioxide molecules? |
+| If we want to make a bottle of canola oil, what kind of animals can we choose as materials | If we want to make a bottle of canola oil, what kind of plant can we choose as materials? |
+| Is the air's body very big? | Is the elephant's body very big? |
+| Why do carbon use people for heating | Why do people use carbon for heating |
+
+- **文件格式**：三个 CSV，只有 question、answer、label 三列（label 1 为前提不成立）。每个文件前一半全是前提不成立的题，后一半全是前提成立的题，第 i 行与第 i + 一半行是一对（两句的词重合度中位数 0.71 至 0.75）。参考答案：训练、验证集每题一条；测试集前提不成立的题每题三条反驳解释（写成列表），前提成立的题一条。
+- **与 TruthfulQA 的不同**：TruthfulQA 针对人们常有的误解，一部分题目是对着 GPT-3 筛选过的；FalseQA 的前提多为常识层面明显不成立（太阳有眼睛、用动物榨菜籽油），题目较短，有的语法不通；前提成立的一半是普通常识题。
+- **GPT 第二轮审阅提出、起跑前要处理的**（`Iteration_01/discussion/validation_dataset/2026-11-18_gpt_review.md`）：按题对显式编号并按题对抽样；测试集中有同一句问题分属两种标签的情况；判分要把有内容的反驳判为对；我们的规则弃答检测可能把"这个前提不成立"之类的反驳当成不答，要先核查。
+- 原论文测的是 2023 年以前的模型；新一代 8B 至 27B 指令模型在前提不成立的题上是顺着答还是已能反驳，要在调参集上先看。
 - 在顶会论文中作为评估集使用过的：PopQA（NeurIPS 2024 的 [IDK] 词元论文；EMNLP 2025；另有 CASAL，arXiv 2510.02324，会议未核实），TriviaQA 与 NQ-open（ITI、TruthX、LoFiT 等，多为选择题形式），FalseQA（R-Tuning、AbstentionBench）。SimpleQA、CREPE、HalluLens 未查到在顶会主会的转向或弃答论文中使用。
 
 ## 4. 逐项判断
@@ -87,3 +106,4 @@
 | 日期（北京时间） | 修改内容 | 修改人 |
 |---|---|---|
 | 2026-11-18 | 建立本文件 | 赵磊（Opus 5.5 代笔） |
+| 2026-11-18 | 第 1 节补入赵磊的决定，第 0 步的表述按 GPT 意见改；新增第 3.1 节 FalseQA 的来历与格式 | 赵磊（Opus 5.5 代笔） |
