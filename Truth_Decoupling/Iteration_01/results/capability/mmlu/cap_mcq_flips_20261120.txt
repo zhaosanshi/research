@@ -1,0 +1,85 @@
+
+== llama3.1-8b (1000 items); arms x, x:E11.w.p2, x:C19.w.m2
+    gold letters      A 253 B 265 C 224 D 258
+    x              picks A 240 B 294 C 218 D 248 | accuracy 0.640 | entropy 0.382, top share 0.847 | picks a negation option 0.146 (all options 0.150)
+    x:E11.w.p2     picks A 244 B 253 C 252 D 251 | accuracy 0.588 | entropy 0.954, top share 0.588 | picks a negation option 0.180 (all options 0.150)
+        pick transitions: R>R 518, R>W 122, W>R 70, W>W 207, W>W' 83 (W>W' = wrong to another wrong)
+        pick changed, by no-write margin tercile (low, mid, high): 173/333, 85/333, 17/334
+        mean change of each letter's share: A +0.004 B -0.039 C +0.029 D +0.006
+        mean change of the share of the no-write pick: when it was right -0.289 (n=640), when it was wrong -0.337 (n=360)
+        right -> wrong: 122; of these the new pick is a negation option and the gold is not: 21
+    x:C19.w.m2     picks A 243 B 314 C 217 D 226 | accuracy 0.634 | entropy 0.408, top share 0.834 | picks a negation option 0.144 (all options 0.150)
+        pick transitions: R>R 627, R>W 13, W>R 7, W>W 340, W>W' 13 (W>W' = wrong to another wrong)
+        pick changed, by no-write margin tercile (low, mid, high): 33/333, 0/333, 0/334
+        mean change of each letter's share: A +0.011 B +0.014 C -0.004 D -0.021
+        mean change of the share of the no-write pick: when it was right -0.013 (n=640), when it was wrong -0.019 (n=360)
+        right -> wrong: 13; of these the new pick is a negation option and the gold is not: 0
+
+== qwen3.5-9b (1000 items); arms x, x:E15.w.p2, x:C16.w.m2
+    gold letters      A 253 B 265 C 224 D 258
+    x              picks A 224 B 261 C 261 D 254 | accuracy 0.776 | entropy 0.410, top share 0.842 | picks a negation option 0.152 (all options 0.150)
+    x:E15.w.p2     picks A 215 B 256 C 263 D 266 | accuracy 0.774 | entropy 0.501, top share 0.807 | picks a negation option 0.161 (all options 0.150)
+        pick transitions: R>R 747, R>W 29, W>R 27, W>W 185, W>W' 12 (W>W' = wrong to another wrong)
+        pick changed, by no-write margin tercile (low, mid, high): 67/333, 1/333, 0/334
+        mean change of each letter's share: A -0.009 B -0.009 C +0.000 D +0.017
+        mean change of the share of the no-write pick: when it was right -0.039 (n=776), when it was wrong -0.060 (n=224)
+        right -> wrong: 29; of these the new pick is a negation option and the gold is not: 6
+    x:C16.w.m2     picks A 213 B 272 C 256 D 259 | accuracy 0.776 | entropy 0.356, top share 0.862 | picks a negation option 0.151 (all options 0.150)
+        pick transitions: R>R 766, R>W 10, W>R 10, W>W 210, W>W' 4 (W>W' = wrong to another wrong)
+        pick changed, by no-write margin tercile (low, mid, high): 24/333, 0/333, 0/334
+        mean change of each letter's share: A -0.008 B +0.011 C -0.006 D +0.003
+        mean change of the share of the no-write pick: when it was right +0.015 (n=776), when it was wrong +0.028 (n=224)
+        right -> wrong: 10; of these the new pick is a negation option and the gold is not: 0
+
+== qwen3.8-27b (1000 items); arms x, x:E28.w.p2, x:C33.w.m2
+    gold letters      A 253 B 265 C 224 D 258
+    x              picks A 222 B 249 C 264 D 265 | accuracy 0.821 | entropy 0.280, top share 0.889 | picks a negation option 0.148 (all options 0.150)
+    x:E28.w.p2     picks A 220 B 237 C 266 D 277 | accuracy 0.808 | entropy 0.296, top share 0.881 | picks a negation option 0.158 (all options 0.150)
+        pick transitions: R>R 792, R>W 29, W>R 16, W>W 150, W>W' 13 (W>W' = wrong to another wrong)
+        pick changed, by no-write margin tercile (low, mid, high): 56/333, 2/333, 0/334
+        mean change of each letter's share: A +0.003 B -0.007 C +0.002 D +0.002
+        mean change of the share of the no-write pick: when it was right -0.015 (n=821), when it was wrong -0.052 (n=179)
+        right -> wrong: 29; of these the new pick is a negation option and the gold is not: 8
+    x:C33.w.m2     picks A 220 B 269 C 258 D 253 | accuracy 0.818 | entropy 0.273, top share 0.893 | picks a negation option 0.144 (all options 0.150)
+        pick transitions: R>R 803, R>W 18, W>R 15, W>W 153, W>W' 11 (W>W' = wrong to another wrong)
+        pick changed, by no-write margin tercile (low, mid, high): 44/333, 0/333, 0/334
+        mean change of each letter's share: A +0.003 B +0.016 C +0.000 D -0.019
+        mean change of the share of the no-write pick: when it was right -0.003 (n=821), when it was wrong -0.027 (n=179)
+        right -> wrong: 18; of these the new pick is a negation option and the gold is not: 0
+
+== gemma3-12b (1000 items); arms x, x:E22.w.p2, x:C25.w.m2
+    gold letters      A 253 B 265 C 224 D 258
+    x              picks A 238 B 300 C 238 D 224 | accuracy 0.712 | entropy 0.041, top share 0.985 | picks a negation option 0.150 (all options 0.150)
+    x:E22.w.p2     picks A 234 B 278 C 229 D 259 | accuracy 0.687 | entropy 0.102, top share 0.959 | picks a negation option 0.175 (all options 0.150)
+        pick transitions: R>R 643, R>W 69, W>R 44, W>W 176, W>W' 68 (W>W' = wrong to another wrong)
+        pick changed, by no-write margin tercile (low, mid, high): 146/333, 34/333, 1/334
+        mean change of each letter's share: A -0.005 B -0.023 C -0.004 D +0.032
+        mean change of the share of the no-write pick: when it was right -0.096 (n=712), when it was wrong -0.350 (n=288)
+        right -> wrong: 69; of these the new pick is a negation option and the gold is not: 17
+    x:C25.w.m2     picks A 238 B 314 C 242 D 206 | accuracy 0.712 | entropy 0.050, top share 0.980 | picks a negation option 0.146 (all options 0.150)
+        pick transitions: R>R 694, R>W 18, W>R 18, W>W 264, W>W' 6 (W>W' = wrong to another wrong)
+        pick changed, by no-write margin tercile (low, mid, high): 42/333, 0/333, 0/334
+        mean change of each letter's share: A +0.001 B +0.013 C +0.005 D -0.019
+        mean change of the share of the no-write pick: when it was right -0.021 (n=712), when it was wrong -0.060 (n=288)
+        right -> wrong: 18; of these the new pick is a negation option and the gold is not: 0
+
+== gemma3-27b (1000 items); arms x, x:E26.w.p2, x:C31.w.m2
+    gold letters      A 253 B 265 C 224 D 258
+    x              picks A 239 B 276 C 251 D 234 | accuracy 0.771 | entropy 0.029, top share 0.987 | picks a negation option 0.138 (all options 0.150)
+    x:E26.w.p2     picks A 223 B 255 C 245 D 277 | accuracy 0.702 | entropy 0.035, top share 0.986 | picks a negation option 0.166 (all options 0.150)
+        pick transitions: R>R 647, R>W 124, W>R 55, W>W 113, W>W' 61 (W>W' = wrong to another wrong)
+        pick changed, by no-write margin tercile (low, mid, high): 182/333, 44/333, 14/334
+        mean change of each letter's share: A -0.015 B -0.023 C -0.005 D +0.042
+        mean change of the share of the no-write pick: when it was right -0.152 (n=771), when it was wrong -0.473 (n=229)
+        right -> wrong: 124; of these the new pick is a negation option and the gold is not: 23
+    x:C31.w.m2     picks A 248 B 271 C 252 D 229 | accuracy 0.757 | entropy 0.021, top share 0.991 | picks a negation option 0.139 (all options 0.150)
+        pick transitions: R>R 750, R>W 21, W>R 7, W>W 209, W>W' 13 (W>W' = wrong to another wrong)
+        pick changed, by no-write margin tercile (low, mid, high): 40/333, 1/333, 0/334
+        mean change of each letter's share: A +0.009 B -0.005 C +0.002 D -0.006
+        mean change of the share of the no-write pick: when it was right -0.020 (n=771), when it was wrong -0.069 (n=229)
+        right -> wrong: 21; of these the new pick is a negation option and the gold is not: 3
+
+== subjects, summed change of correct picks under E over the models (items x models)
+    worst: professional_law -18 (545); moral_disputes -13 (125); moral_scenarios -9 (320); professional_psychology -9 (220); high_school_macroeconomics -8 (140); security_studies -8 (85); conceptual_physics -7 (85); electrical_engineering -7 (50); high_school_us_history -7 (75); high_school_world_history -7 (85); high_school_european_history -6 (60); high_school_psychology -6 (195)
+    best:  clinical_knowledge +2 (95); college_chemistry +2 (35); high_school_biology +2 (110); machine_learning +3 (40); high_school_statistics +4 (75); formal_logic +5 (45)
+    total -161 over 5000
