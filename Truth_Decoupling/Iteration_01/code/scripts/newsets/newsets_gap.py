@@ -7,12 +7,14 @@ must be the one that writes).
                     wrong of the model's own no-write must-answer answer. Sign fixed in advance: larger projection = right.
   confidence AUROC  the mean log-probability of that same answer (newsets_gen.py conf output for arm conf), same labels.
   gap               readout AUROC - confidence AUROC.
-Labels: DeepSeek Pro verdicts of the tune work dir for condition baseline_conf; right (A) = 1, wrong (B) = 0; hedges,
-refusals and cells without a verdict are left out. Reads only (no write, no generation); one JSON file out.
+Labels: DeepSeek Pro verdicts of the tune work dir for condition baseline_conf, verified by newsets_votes.py (one vote
+per cell, bound to the current answer text; the confidence row must carry the sha1 of that same text); right (A) = 1,
+wrong (B) = 0; hedges, refusals, empty answers, excluded cells and non-finite values are counted and left out; with only
+one class the gap is recorded as not estimable. Reads only (no write, no generation); one JSON file out.
 AUROC = Mann-Whitney with average ranks for ties.
 
 usage: <model python> -I newsets_gap.py --models CFG --model NAME --task triviaqa|popqa --items BANK --pro-work WORK
-                                        --conf-file CONF_JSON --out OUT_JSON
+                                        --gen-dir TUNE_GEN_DIR --conf-file CONF_JSON --out OUT_JSON
        python3 -I newsets_gap.py --selftest
 """
 import argparse
@@ -44,22 +46,38 @@ def auroc(scores, labels):
     return (r - pos * (pos + 1) / 2.0) / (pos * neg)
 
 
-def labels_of(work, task):
-    out = {}
-    for line in open(Path(work) / "judge2" / "single_pro.jsonl", encoding="utf-8"):
-        r = json.loads(line)
-        if r["condition"] != "baseline_conf" or r["status"] != "scored":
+def labels_of(work, gen_dir, task, want_ids):
+    """Verified Pro labels of the no-write must-answer answers (newsets_votes.load_votes: one vote per cell, bound to the
+    current generation's text). Returns ({pair_id: 1 right / 0 wrong}, {pair_id: judged text}, category counts)."""
+    import math  # noqa: F401
+    import newsets_votes as NV
+    table, _, _ = NV.load_votes(work, gen_dir)
+    lab, text, cnt = {}, {}, {"right": 0, "wrong": 0, "hedge": 0, "refusal or empty": 0, "excluded": 0}
+    have = {p for p, c in table if c == "baseline_conf"}
+    want = {"%s:%s" % (task, i) for i in want_ids}
+    if have != want:
+        raise SystemExit("the work dir judges %d baseline_conf answers, the tune split has %d (or other questions)" % (len(have), len(want)))
+    for (p, c), v in table.items():
+        if c != "baseline_conf":
             continue
-        if r["label"] in ("A", "B"):
-            out[r["pair_id"]] = 1 if r["label"] == "A" else 0
-    if not out:
-        raise SystemExit("no right / wrong verdicts for baseline_conf in %s" % work)
-    if any(not p.startswith(task + ":") for p in out):
-        raise SystemExit("the work dir is not a %s work dir" % task)
-    return out
+        text[p] = v["text"]
+        if v["state"] == "R":
+            lab[p] = 1
+            cnt["right"] += 1
+        elif v["state"] == "W":
+            lab[p] = 0
+            cnt["wrong"] += 1
+        elif v["state"] == "H":
+            cnt["hedge"] += 1
+        elif v["state"] == "X":
+            cnt["refusal or empty"] += 1
+        else:
+            cnt["excluded"] += 1
+    return lab, text, cnt
 
 
 def run(args):
+    import math
     import torch
     m = NG.load_models(args.models, args.model)
     X = NG.engine(m)
@@ -67,11 +85,22 @@ def run(args):
     systems = NG.systems_of(ctx)
     args.split, args.ids, args.only_ids, args.first_batches = "tune", None, None, 0
     items, _ = NG.load_items(args)
-    lab = labels_of(args.pro_work, args.task)
+    want_ids = [i for i, _ in items]
+    lab, judged_text, cnt = labels_of(args.pro_work, args.gen_dir, args.task, want_ids)
+    judge_input = json.loads((Path(args.pro_work) / "judge_input.json").read_text(encoding="utf-8"))
     conf = json.loads(Path(args.conf_file).read_text(encoding="utf-8"))
-    if conf.get("arm") != "conf" or conf.get("task") != args.task or conf.get("split") != "tune" or conf.get("model") != args.model:
+    if (conf.get("arm"), conf.get("task"), conf.get("split"), conf.get("model")) != ("conf", args.task, "tune", args.model):
         raise SystemExit("--conf-file is not the tune confidence of arm conf for this model and task")
-    logp = {"%s:%s" % (args.task, r["id"]): r.get("mean_logp") for r in conf["rows"]}
+    if conf.get("generation_sha256") != judge_input["source_files"]["conf"]["sha256"]:
+        raise SystemExit("the confidence was computed on another generation than the one judged")
+    logp = {}
+    for r in conf["rows"]:
+        p = "%s:%s" % (args.task, r["id"])
+        if p not in judged_text:
+            raise SystemExit("confidence row %s is not a tune question" % p)
+        if r["text_sha1"] != hashlib.sha1(judged_text[p].strip().encode("utf-8")).hexdigest():
+            raise SystemExit("the confidence of %s belongs to another answer text" % p)
+        logp[p] = r.get("mean_logp")
     ws, positions = ctx.writes([{"family": "E", "layer": m["el"], "kind": "w", "beta": 1.0}])
     layer, w, desc = ws[0]
     d = w["direction"].float().cpu()
@@ -94,23 +123,31 @@ def run(args):
         h = cap.h[:, -1, :]
         for (iid, _), v in zip(items[i:i + NG.BATCH], (h @ d).tolist()):
             proj["%s:%s" % (args.task, iid)] = float(v)
-    ids = [p for p in sorted(lab) if p in proj and logp.get(p) is not None]
+    bad_logp = [p for p in lab if logp.get(p) is None or not math.isfinite(logp[p])]
+    bad_proj = [p for p in lab if not math.isfinite(proj[p])]
+    cnt.update({"no finite confidence": len(bad_logp), "no finite projection": len(bad_proj)})
+    ids = [p for p in sorted(lab) if p not in set(bad_logp) | set(bad_proj)]
     y = [lab[p] for p in ids]
-    ra = auroc([proj[p] for p in ids], y)
-    ca = auroc([logp[p] for p in ids], y)
-    out = {"protocol": "newsets_gap_v1", "model": args.model, "task": args.task, "split": "tune", "layer": layer,
+    if 0 < sum(y) < len(y):
+        ra, ca = auroc([proj[p] for p in ids], y), auroc([logp[p] for p in ids], y)
+        gap, note = ra - ca, None
+    else:
+        ra = ca = gap = None
+        note = "cannot be estimated: only one class among the labelled answers"
+    out = {"protocol": "newsets_gap_v2", "model": args.model, "task": args.task, "split": "tune", "layer": layer,
            "direction_file_sha256": desc["direction_file_sha256"], "identity_sha256": ctx.ident_sha,
-           "labels_from": str(args.pro_work), "conf_file_sha256": hashlib.sha256(Path(args.conf_file).read_bytes()).hexdigest(),
-           "script_sha256": NG.sha_file(__file__), "n": len(ids), "n_right": sum(y), "n_wrong": len(y) - sum(y),
-           "readout_auroc": ra, "confidence_auroc": ca, "gap": ra - ca,
+           "labels_from": str(args.pro_work), "judge_input_sha256": NG.sha_file(Path(args.pro_work) / "judge_input.json"),
+           "conf_file_sha256": hashlib.sha256(Path(args.conf_file).read_bytes()).hexdigest(),
+           "script_sha256": NG.sha_file(__file__), "counts": cnt, "n": len(ids), "n_right": sum(y), "n_wrong": len(y) - sum(y),
+           "readout_auroc": ra, "confidence_auroc": ca, "gap": gap, "note": note,
            "rows": [{"id": p, "projection": proj[p], "mean_logp": logp[p], "right": lab[p]} for p in ids]}
     o = Path(args.out)
     if o.exists():
         raise SystemExit("%s exists" % o)
     o.parent.mkdir(parents=True, exist_ok=True)
     o.write_text(json.dumps(out), encoding="utf-8")
-    print("%s %s: n %d (right %d) | readout AUROC %.3f | confidence AUROC %.3f | gap %+.3f" % (
-        args.task, args.model, len(ids), sum(y), ra, ca, ra - ca), flush=True)
+    print("%s %s: %s | n %d (right %d) | readout AUROC %s | confidence AUROC %s | gap %s" % (
+        args.task, args.model, json.dumps(cnt), len(ids), sum(y), ra, ca, gap if note is None else note), flush=True)
 
 
 def selftest():
@@ -129,14 +166,15 @@ def main():
     ap.add_argument("--task", choices=["triviaqa", "popqa"])
     ap.add_argument("--items", type=Path)
     ap.add_argument("--pro-work", type=Path)
+    ap.add_argument("--gen-dir", type=Path, help="the tune generation dir the work dir judged")
     ap.add_argument("--conf-file", type=Path)
     ap.add_argument("--out")
     a = ap.parse_args()
     if a.selftest:
         selftest()
         return
-    if not all((a.models, a.model, a.task, a.items, a.pro_work, a.conf_file, a.out)):
-        ap.error("all of --models --model --task --items --pro-work --conf-file --out are required")
+    if not all((a.models, a.model, a.task, a.items, a.pro_work, a.gen_dir, a.conf_file, a.out)):
+        ap.error("all of --models --model --task --items --pro-work --gen-dir --conf-file --out are required")
     run(a)
 
 

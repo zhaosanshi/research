@@ -63,19 +63,20 @@
 | `launchers/ff_ec_test_chain_v3.sh` | 测试集 E+C 的链（规则 v3） | 现行代码，供对照 | d02654b8c702134e |
 | `launchers/e45_newmodels_20261119.sh` | 两个新模型的真假判断、允许答 Unknown 时的 E+C（方案 `claude_gpt_review/from_claude/40` 原样）：从 `code_newmodels_20261112` 运行，方法程序与 11-12 逐字节相同（启动时核对），E、C 取新模型 2×2 的选择；`LIMIT=8` 为试跑（`novelty/ours/2026-11-19_tf_unknown_ec_new_models.md`） | 新写（Opus 5.5），只是启动参数；两个模型试跑通过，四次正式运行 2026-11-19 02:45 完成，结果表在 `Iteration_01/results/tf/` | 6efcf06450cb9098 |
 | `scripts/newsets/newsets_splits.py` | TriviaQA 与 PopQA 的固定种子切分：测试 500、调参 192、训练 300，测试中再抽 Pro 判的 100 题；只输出题号。PopQA 去掉同名不同实体的歧义题、合并同一实体的多值题（`novelty/ours/2026-11-19_new_datasets_pilot_design.md` 第 3 节） | 新写（Opus 5.5），自测与独立核对通过，已运行 | 94378c3e14d149dd |
-| `scripts/newsets/newsets_bank.py` | 由原始文件与题号清单生成中间题库（含题目原文，只存服务器 `Iteration_01/newsets/bank/`） | 新写，自测通过，已运行 | c90fbc57429314b8 |
+| `scripts/newsets/newsets_bank.py` | 由原始文件与题号清单生成中间题库（含题目原文，只存服务器 `Iteration_01/newsets/bank/`） | 新写，自测通过，已运行；按 GPT 审稿（`discussion/validation_dataset/2026-11-19_gpt_review_pilot_capability.md`）修改，自测含其反例（修改前为 c90fbc57429314b8） | 167d7dc28bd83a3f |
 | `scripts/newsets/alias_match.py` | 别名判分（辅助裁判），用 TriviaQA 官方的答案规范化 | 新写，自测通过；与数据自带的规范化别名在 9,960 题上逐条相同 | 803814f798bf49fa |
-| `scripts/newsets/newsets_gen.py` | 用冻结的 TruthfulQA 方向在新题上生成：repro（复现检查）、gen（生成）、conf（把握分，调用现有计分函数）、export（判分输入）。核心与引擎都不改 | 新写，待 GPT 审；复现检查五个模型都 8 / 8 相同，新题各 8 题试跑正常 | 0fb24e28b5dffa02 |
+| `scripts/newsets/newsets_gen.py` | 用冻结的 TruthfulQA 方向在新题上生成：repro（复现检查）、gen（生成）、conf（把握分，调用现有计分函数）、export（判分输入）。核心与引擎都不改 | 新写，待 GPT 审；复现检查五个模型都 8 / 8 相同，新题各 8 题试跑正常；按 GPT 审稿（`discussion/validation_dataset/2026-11-19_gpt_review_pilot_capability.md`）修改，自测含其反例（修改前为 0fb24e28b5dffa02） | 0b6540ac4c29ef72 |
 | `scripts/capability/cap_sets.py` | 能力保持的题号清单：MMLU 按学科分层 1,000 题，GSM8K 1,319 题（`novelty/ours/2026-11-19_capability_preservation_design.md`） | 新写，自测通过，已运行 | 0d427697b0c022f0 |
-| `scripts/capability/cap_prompts.py` | MMLU、GSM8K 的问法与规则判分 | 新写，待 GPT 审；自测通过，8 题试跑取得到答案 | 006b371dd7b6f749 |
+| `scripts/capability/cap_prompts.py` | MMLU、GSM8K 的问法与规则判分 | 新写，待 GPT 审；自测通过，8 题试跑取得到答案；按 GPT 审稿（`discussion/validation_dataset/2026-11-19_gpt_review_pilot_capability.md`）修改，自测含其反例（修改前为 006b371dd7b6f749） | b258e649a96f8a49 |
 | `configs/newsets/frozen_models_20261119.json` | 五个模型冻结的 N1 设置：代码副本、解释器、运行目录、层、上限、单 C 的力度 | 新写，待 GPT 审 | c7306fe165f6739a |
 | `configs/newsets/triviaqa_splits_20261119.json`、`popqa_splits_20261119.json` | 新题集切分的题号清单（服务器上在 `Iteration_01/newsets/splits/`） | 已生成 | 3fa2af2a0fb95e8b、992f2e1181eb50e2 |
 | `configs/capability/mmlu_1000_20261119.json`、`gsm8k_1319_20261119.json` | 能力保持的题号清单（服务器上在 `Iteration_01/capability/sets/`） | 已生成 | 13fcbb997dcbb383、f8158017f1fcbdde |
-| `launchers/newsets_c2c3_20261119.sh` | C2、C3 的启动脚本：生成、把握分、导出判分输入、DeepSeek Pro 判分（离高峰不足 40 分钟就不开始） | 新写，待 GPT 审；其中复现一步已跑通；补了 D2 的 gap 一步（修改前为 19c3b47c871e19e3） | 191ebdfd2d6f006f |
-| `launchers/capability_f1_20261119.sh` | F1 的启动脚本：三个整套条件，再对推 E 后留空的题做 N1 的逐档再问 | 新写，待 GPT 审，未运行 | 41471c6dd6eeef7a |
-| `scripts/newsets/newsets_gap.py` | D2 最小版的差值读出：E 所在层、提示最后一个词元处的状态投影到 E 的写入方向，区分对错的 AUROC 减把握分的 AUROC（调参集，Pro 标签）；只读状态，不写入 | 新写，待 GPT 审；自测通过；Gemma-3-12B 用 8 题临时标签跑通了读状态这一步（数字不作数） | 62e92df7602bd735 |
-| `diag/newsets_score.py` | 新题集的计分：C2（五种问法、第 0 步、别名与 Pro 一致率、D2 差值）、C3（各系统、强形式、只重选上限的一行、五模型合计与闸口 1 的读法）。N1 等各系统直接调用 `final_records.py`，不改 | 新写，待 GPT 审；合成自测通过（否决、超上限、不是候选、放出） | 9f43436d104312de |
-| `diag/cap_score.py` | 能力保持的规则计分：各条件的准确率、不答率、与不写入的差和区间；N1 直接调用 `final_records.py`（GSM8K 的条件名映射到 x） | 新写，待 GPT 审；合成自测通过 | df3bc84903463d7f |
+| `launchers/newsets_c2c3_20261119.sh` | C2、C3 的启动脚本：生成、把握分、导出判分输入、DeepSeek Pro 判分（离高峰不足 40 分钟就不开始） | 新写，待 GPT 审；其中复现一步已跑通；补了 D2 的 gap 一步（修改前为 19c3b47c871e19e3）；按 GPT 审稿（`discussion/validation_dataset/2026-11-19_gpt_review_pilot_capability.md`）修改，自测含其反例（修改前为 191ebdfd2d6f006f） | 5146358125e0b3c7 |
+| `launchers/capability_f1_20261119.sh` | F1 的启动脚本：三个整套条件，再对推 E 后留空的题做 N1 的逐档再问 | 新写，待 GPT 审，未运行；按 GPT 审稿（`discussion/validation_dataset/2026-11-19_gpt_review_pilot_capability.md`）修改，自测含其反例（修改前为 41471c6dd6eeef7a） | baabd580b4041eca |
+| `scripts/newsets/newsets_gap.py` | D2 最小版的差值读出：E 所在层、提示最后一个词元处的状态投影到 E 的写入方向，区分对错的 AUROC 减把握分的 AUROC（调参集，Pro 标签）；只读状态，不写入 | 新写，待 GPT 审；自测通过；Gemma-3-12B 用 8 题临时标签跑通了读状态这一步（数字不作数）；按 GPT 审稿（`discussion/validation_dataset/2026-11-19_gpt_review_pilot_capability.md`）修改，自测含其反例（修改前为 62e92df7602bd735） | c23bfd3d0da3ef30 |
+| `scripts/newsets/newsets_votes.py` | Pro 判票的核验：判分输入未被改动、一格一票、票绑定当前回答（input_sha 与生成文字），拒判、空答、参考答案只剩拒答的题分开计数；计分、D2 与启动脚本共用 | 新写（GPT 审稿后），自测通过（两票、错配、漏票、未判完、判分输入被改都报错） | d5d63ad36e6a734c |
+| `diag/newsets_score.py` | 新题集的计分：C2（五种问法、第 0 步、别名与 Pro 一致率、D2 差值）、C3（各系统、强形式、只重选上限的一行、五模型合计与闸口 1 的读法）。N1 等各系统直接调用 `final_records.py`，不改 | 新写，待 GPT 审；合成自测通过（否决、超上限、不是候选、放出）；按 GPT 审稿（`discussion/validation_dataset/2026-11-19_gpt_review_pilot_capability.md`）修改，自测含其反例（修改前为 9f43436d104312de） | 54c252130b5fcfa1 |
+| `diag/cap_score.py` | 能力保持的规则计分：各条件的准确率、不答率、与不写入的差和区间；N1 直接调用 `final_records.py`（GSM8K 的条件名映射到 x） | 新写，待 GPT 审；合成自测通过；按 GPT 审稿（`discussion/validation_dataset/2026-11-19_gpt_review_pilot_capability.md`）修改，自测含其反例（修改前为 df3bc84903463d7f） | b774cee195c6beec |
 
 ## 变更记录
 
@@ -109,3 +110,4 @@
 | 2026-11-19 | `launchers/e45_newmodels_20261119.sh` 的状态改为已运行完 | 赵磊（Opus 5.5 代笔） |
 | 2026-11-19 | 迁入新题集试做与能力保持的程序、配置与题号清单（排期 C0、C1、F0），待 GPT 审 | 赵磊（Opus 5.5 代笔） |
 | 2026-11-19 | 迁入 `scripts/newsets/newsets_gap.py`、`diag/newsets_score.py`、`diag/cap_score.py`（D2、C2、C3、F1 的读出与计分），待 GPT 审 | 赵磊（Opus 5.5 代笔） |
+| 2026-11-19 | 按 GPT 审稿修改新题集与能力保持的八个程序，新增 `scripts/newsets/newsets_votes.py`；答复见 `discussion/validation_dataset/2026-11-19_response_to_gpt_review.md` | 赵磊（Opus 5.5 代笔） |

@@ -5,8 +5,8 @@ Output (server only, it contains question text): one JSON object per line,
    "meta": {...}}
 TriviaQA: question = the question text of the first row of that question_id; gold = [answer.value] + answer.aliases
           (deduplicated, order kept); meta = {"type": answer.type}.
-PopQA:    question = the question text; gold = union of possible_answers over the merged rows (deduplicated, order
-          kept, the item's own row first); meta = {"prop", "subj_id", "s_pop", "merged_ids"}.
+PopQA:    question = the question text; gold = the first alias of every merged row (row order), then all their
+          possible_answers (deduplicated, order kept); meta = {"prop", "subj_id", "s_pop", "merged_ids"}.
 The conversion into the pipeline's own bank format is a separate step (C1).
 
 Usage: python3 -I newsets_bank.py {triviaqa|popqa} RAW_PATH SPLITS_JSON OUT_JSONL
@@ -52,9 +52,10 @@ def popqa_records(raw_path, splits):
         subjects = set(rows[i]["subj_id"] for i in ids)
         if len(texts) != 1 or len(subjects) != 1:
             raise SystemExit("merged rows of %s disagree on question or subject" % rid)
-        gold = []
-        for i in ids:
-            gold += json.loads(rows[i]["possible_answers"])
+        lists = [json.loads(rows[i]["possible_answers"]) for i in ids]
+        # every merged object first (its first alias, in row order), then the remaining aliases: the Pro judge sees the
+        # first 10 references, and each legal object must be among them (GPT review 2026-11-19, question 6)
+        gold = [l[0] for l in lists if l] + [a for l in lists for a in l]
         r = rows[rid]
         yield {"id": rid, "split": name, "question": r["question"].strip(), "gold": dedup(gold),
                "meta": {"prop": r["prop"], "subj_id": r["subj_id"], "s_pop": int(r["s_pop"]), "merged_ids": ids}}
