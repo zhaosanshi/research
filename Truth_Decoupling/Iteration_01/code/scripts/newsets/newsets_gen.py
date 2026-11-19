@@ -468,7 +468,7 @@ def run_export(args):
         raise SystemExit("the bank repeats an item")
     bank = {r["id"]: r for r in split_rows}
     keep = [i for i in want if bank[i]["pro100"]] if args.pro100 else want
-    if args.pro100 and (args.split != "test" or len(keep) != 100):
+    if args.pro100 and (args.split not in ("test", "test2") or len(keep) != 100):
         raise SystemExit("the Pro cohort is the 100 frozen test questions")
     if not args.only_arms or len(set(args.only_arms)) != len(args.only_arms):
         raise SystemExit("export needs the exact, distinct --only-arms to judge")
@@ -588,7 +588,7 @@ def main():
     ap.add_argument("--task", choices=["triviaqa", "popqa", "mmlu", "gsm8k"])
     ap.add_argument("--items", type=Path)
     ap.add_argument("--ids", type=Path)
-    ap.add_argument("--split", choices=["tune", "test", "all"], default="all")
+    ap.add_argument("--split", choices=["tune", "test", "test2", "all"], default="all")
     ap.add_argument("--arms", nargs="+", default=[])
     ap.add_argument("--max-new-tokens", type=int, default=ENGINE_MAX_NEW)
     ap.add_argument("--first-batches", type=int, default=0)
@@ -605,8 +605,8 @@ def main():
         return
     if args.phase == "export":
         if not (args.task in ("triviaqa", "popqa") and args.items and args.gen_dir and args.out and args.model
-                and args.split in ("tune", "test") and args.only_arms):
-            ap.error("export needs --task triviaqa|popqa --model --items --split tune|test --gen-dir --only-arms --out")
+                and args.split in ("tune", "test", "test2") and args.only_arms):
+            ap.error("export needs --task triviaqa|popqa --model --items --split tune|test|test2 --gen-dir --only-arms --out")
         run_export(args)
         return
     if not (args.models and args.model and args.out):
@@ -625,8 +625,8 @@ def main():
         return
     if not (args.task and args.items and args.arms):
         ap.error("gen needs --task, --items and --arms")
-    if args.task in ("triviaqa", "popqa") and args.split not in ("tune", "test"):
-        ap.error("newsets need --split tune|test")
+    if args.task in ("triviaqa", "popqa") and args.split not in ("tune", "test", "test2"):
+        ap.error("newsets need --split tune|test|test2")
     if args.task in ("mmlu", "gsm8k") and not args.ids:
         ap.error("mmlu / gsm8k need --ids")
     if args.task in ("triviaqa", "popqa") and args.batch_size != BATCH:

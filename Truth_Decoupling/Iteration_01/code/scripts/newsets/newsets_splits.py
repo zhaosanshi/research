@@ -17,6 +17,11 @@ PopQA (the single official test file, 14,267 rows):
 The Pro subset is the first PRO_N test IDs of a second fixed-seed shuffle of the test IDs.
 
 Usage: python3 -I newsets_splits.py {triviaqa|popqa} RAW_PATH OUT_JSON [--seed 20261119]
+       python3 -I newsets_splits.py extend {triviaqa|popqa} RAW_PATH BASE_SPLITS_JSON OUT_JSON [--name test2] [--n 500]
+                                   [--pro-n 100] [--seed 20261120]
+         a fresh split from the items no existing split uses, with the same rules: TriviaQA items whose normalised
+         answer value is in an existing split are skipped, PopQA items whose subject is in an existing split are
+         skipped and the relation quotas follow the cleaned pool; the Pro subset comes from a second shuffle (seed + 1)
        python3 -I newsets_splits.py --selftest
 """
 import argparse
@@ -179,6 +184,48 @@ def finish(name, path, seed, out, info, merged):
     return res
 
 
+def extend(dataset, raw, base, name, n, pro_n, seed):
+    """A fresh split disjoint from every split of base (IDs, and TriviaQA answers / PopQA subjects)."""
+    used = set(base["train"]) | set(base["tune"]) | set(base["test"])
+    if dataset == "triviaqa":
+        items, info = triviaqa_items(load_triviaqa(raw))
+        group = lambda it: it["na"]  # noqa: E731
+    else:
+        items, info = popqa_items(load_popqa(raw))
+        group = lambda it: it["subj"]  # noqa: E731
+    taken = {group(it) for it in items if it["id"] in used}
+    if len(taken) == 0 or not used <= {it["id"] for it in items}:
+        raise SystemExit("the base split file does not match this raw file")
+    pool = [it for it in items if it["id"] not in used and group(it) not in taken]
+    rng = random.Random(seed)
+    order = list(pool)
+    rng.shuffle(order)
+    if dataset == "popqa":
+        shares = collections.Counter(it["prop"] for it in items)
+        left = largest_remainder(shares, n)
+        out = []
+        for it in order:
+            if left.get(it["prop"], 0) > 0:
+                out.append(it["id"])
+                left[it["prop"]] -= 1
+            if len(out) == n:
+                break
+    else:
+        out = [it["id"] for it in order[:n]]
+    if len(out) != n:
+        raise SystemExit("could not fill %d items" % n)
+    pro = list(out)
+    random.Random(seed + 1).shuffle(pro)
+    res = {"dataset": dataset, "source_file_sha256": sha256(raw), "seed": seed, "name": name,
+           "base_splits_seed": base.get("seed"), "info": dict(info, pool_after_exclusion=len(pool), excluded_groups=len(taken)),
+           name: out, name + "_pro100": sorted(pro[:pro_n], key=str)}
+    if dataset == "popqa":
+        merged = {it["id"]: it["merged_ids"] for it in items if len(it["merged_ids"]) > 1 and it["id"] in set(out)}
+        if merged:
+            res["merged_row_ids"] = merged
+    return res
+
+
 def selftest():
     assert tqa_norm("The  Beatles!") == "beatles"
     assert tqa_norm("Rock_and_roll") == "rock and roll"
@@ -225,7 +272,33 @@ def selftest():
     print("selftest PASS")
 
 
+def main_extend(argv):
+    ap = argparse.ArgumentParser()
+    ap.add_argument("dataset", choices=["triviaqa", "popqa"])
+    ap.add_argument("raw")
+    ap.add_argument("base")
+    ap.add_argument("out")
+    ap.add_argument("--name", default="test2")
+    ap.add_argument("--n", type=int, default=500)
+    ap.add_argument("--pro-n", type=int, default=100)
+    ap.add_argument("--seed", type=int, default=20261120)
+    a = ap.parse_args(argv)
+    with open(a.base, encoding="utf-8") as f:
+        base = json.load(f)
+    if base.get("dataset") != a.dataset:
+        raise SystemExit("base split file is for %r" % base.get("dataset"))
+    res = extend(a.dataset, a.raw, base, a.name, a.n, a.pro_n, a.seed)
+    new = res[a.name]
+    assert len(set(new)) == len(new) and not set(new) & (set(base["train"]) | set(base["tune"]) | set(base["test"]))
+    with open(a.out, "w", encoding="utf-8") as f:
+        json.dump(res, f, indent=1, sort_keys=True)
+    print(json.dumps({k: res[k] for k in ("dataset", "seed", "name", "info")}, sort_keys=True))
+
+
 def main():
+    if sys.argv[1:2] == ["extend"]:
+        main_extend(sys.argv[2:])
+        return
     ap = argparse.ArgumentParser()
     ap.add_argument("dataset", nargs="?", choices=["triviaqa", "popqa"])
     ap.add_argument("raw", nargs="?")

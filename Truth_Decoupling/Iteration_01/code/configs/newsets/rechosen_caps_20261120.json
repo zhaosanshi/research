@@ -1,0 +1,11 @@
+{
+ "note": "N1 caps re-chosen on each new dataset's tune split (192 questions, alias judge, net = right - wrong; ties keep the earlier pair in final_records.CAPS order), frozen 2026-11-20 00:5x before any fresh-question generation. e_blank = cap for questions that become blank only after E; own_blank = cap for questions the model leaves blank without any write; null = not re-asked. E strength 2 and the directions are the frozen TruthfulQA ones (frozen_models_20261119.json). Source: the C3 extra row (Iteration_01/results/newsets/c2c3/newsets_c3_20261119.txt).",
+ "caps": {
+  "triviaqa": {"llama3.1-8b": {"e_blank": null, "own_blank": 0.25}, "qwen3.5-9b": {"e_blank": null, "own_blank": 0.25},
+               "qwen3.8-27b": {"e_blank": 0.25, "own_blank": null}, "gemma3-12b": {"e_blank": null, "own_blank": 0.25},
+               "gemma3-27b": {"e_blank": null, "own_blank": 0.25}},
+  "popqa": {"llama3.1-8b": {"e_blank": null, "own_blank": 0.25}, "qwen3.5-9b": {"e_blank": null, "own_blank": 0.25},
+            "qwen3.8-27b": {"e_blank": 0.25, "own_blank": null}, "gemma3-12b": {"e_blank": null, "own_blank": 0.25},
+            "gemma3-27b": {"e_blank": null, "own_blank": 0.25}}
+ }
+}

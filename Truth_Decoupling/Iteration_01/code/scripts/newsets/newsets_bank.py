@@ -61,14 +61,24 @@ def popqa_records(raw_path, splits):
                "meta": {"prop": r["prop"], "subj_id": r["subj_id"], "s_pop": int(r["s_pop"]), "merged_ids": ids}}
 
 
+def split_names(splits):
+    """("train", "tune", "test") for the base split file; the single fresh split for a file made by
+    newsets_splits.py extend."""
+    return [splits["name"]] if "name" in splits else ["train", "tune", "test"]
+
+
+def pro_key(splits):
+    return (splits["name"] + "_pro100") if "name" in splits else "test_pro100"
+
+
 def iter_split_ids(splits):
-    for name in ("train", "tune", "test"):
+    for name in split_names(splits):
         for i in splits[name]:
             yield name, i
 
 
 def build(dataset, raw_path, splits):
-    pro = set(splits["test_pro100"])
+    pro = set(splits[pro_key(splits)])
     fn = triviaqa_records if dataset == "triviaqa" else popqa_records
     recs = []
     for r in fn(raw_path, splits):
@@ -76,7 +86,7 @@ def build(dataset, raw_path, splits):
             raise SystemExit("no gold answer for %s" % r["id"])
         r["pro100"] = r["id"] in pro
         recs.append(r)
-    n = {k: sum(1 for r in recs if r["split"] == k) for k in ("train", "tune", "test")}
+    n = {k: sum(1 for r in recs if r["split"] == k) for k in split_names(splits)}
     if n != {k: len(splits[k]) for k in n} or sum(r["pro100"] for r in recs) != len(pro):
         raise SystemExit("record counts do not match the split file: %r" % n)
     return recs

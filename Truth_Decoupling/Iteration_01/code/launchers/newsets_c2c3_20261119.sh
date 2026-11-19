@@ -15,6 +15,10 @@
 #   test        needs Iteration_01/newsets/gap/D2_REGISTERED: tune ladder arms (for the extra row), test nine arms,
 #               test confidences (with the first-difference check), test judge inputs (the frozen Pro 100)     GPU
 #   test_judge  DeepSeek Pro on the two test work dirs                                                         no GPU
+#   val         fresh questions (split test2, novelty/ours/2026-11-20_rechosen_caps_validation.md); needs
+#               Iteration_01/newsets/gap/VAL_REGISTERED: x, E, E + C at the four strengths on test2, then the Pro 100
+#               judge input with the three arms the re-chosen caps can use (x, E, E + C 0.25)                     GPU
+#   val_judge   DeepSeek Pro on the two test2 work dirs                                                         no GPU
 # Judging: a work dir starts only off-peak and at least 40 min before the next peak (Mon-Fri 09-12 and 14-18 Beijing);
 # the judge process itself runs under `timeout` that ends 5 min before that peak (exit 3 = stopped at the deadline;
 # rerun later, the judge resumes from its reply cache). A judged work dir is reused only after
@@ -41,7 +45,7 @@ read -r PY EL CL NG <<< "$(python3 -c '
 import json, sys
 m = json.load(open(sys.argv[1]))["models"][sys.argv[2]]
 print(m["python"], m["el"], m["cl"], m["gpus"])' "$(host "$M")" "$MODEL")" || fail "model $MODEL not in the config"
-case "$STAGE" in tune_judge|test_judge) ;; *) [ -n "$GPUS" ] || fail "stage $STAGE needs GPUS";
+case "$STAGE" in tune_judge|test_judge|val_judge) ;; *) [ -n "$GPUS" ] || fail "stage $STAGE needs GPUS";
   [ "$(echo "$GPUS" | tr ',' '\n' | grep -c .)" = "$NG" ] || fail "$MODEL needs $NG GPU(s), got $GPUS" ;; esac
 DX=(docker exec -u 1000:1001 -e HOME=$ROOT/hf_cache -e HF_HOME=$ROOT/hf_cache -e TD_MODEL_ROOT=$ROOT/models
     -e HF_HUB_OFFLINE=1 -e TRANSFORMERS_OFFLINE=1 -e PYTHONUNBUFFERED=1 -e PYTHONDONTWRITEBYTECODE=1
@@ -147,6 +151,21 @@ case "$STAGE" in
   test_judge)
     [ -n "$DRY" ] || [ -s "$(host "$NS")/gap/D2_REGISTERED" ] || fail "the D2 predictions are not registered yet"
     for t in triviaqa popqa; do judge $t test_pro100 test; done ;;
+  val)
+    [ -n "$DRY" ] || [ -s "$(host "$NS")/gap/VAL_REGISTERED" ] || fail "the validation predictions are not registered yet"
+    for t in triviaqa popqa; do
+      B2=$NS/bank/${t}_bank_test2_20261120.jsonl
+      run "${DX[@]}" $PY -I $G gen --models $M --model $MODEL --task $t --items $B2 --split test2 \
+          --out $NS/gen/$t/$MODEL/test2 --arms x "x:$E" $LADDER || fail "gen $t test2"
+      out=$NS/judge/$t/$MODEL/test2_pro100/judge_input.json
+      if [ -z "$DRY" ] && [ -e "$(host "$out")" ]; then say "skip $out (exists)"; else
+        run "${DX[@]}" python3 -I $G export --task $t --model $MODEL --items $B2 --split test2 --pro100 \
+            --gen-dir $NS/gen/$t/$MODEL/test2 --only-arms x "x:$E" "x:$E+$C.m0.25" --out $out || fail "export $t test2"
+      fi
+    done ;;
+  val_judge)
+    [ -n "$DRY" ] || [ -s "$(host "$NS")/gap/VAL_REGISTERED" ] || fail "the validation predictions are not registered yet"
+    for t in triviaqa popqa; do judge $t test2_pro100 test2; done ;;
   *) fail "unknown stage $STAGE" ;;
 esac
 say "done"
