@@ -79,6 +79,7 @@
 | `diag/cap_score.py` | 能力保持的规则计分：各条件的准确率、不答率、与不写入的差和区间；N1 直接调用 `final_records.py`（GSM8K 的条件名映射到 x） | 新写，待 GPT 审；合成自测通过；按 GPT 审稿（`discussion/validation_dataset/2026-11-19_gpt_review_pilot_capability.md`）修改，自测含其反例（修改前为 df3bc84903463d7f） | b774cee195c6beec |
 | `diag/d2_register.py` | D2 预测登记：读十格差值与调参集收益，按事先的规则写出预测表与 `newsets/gap/d2_predictions.json`；已有任何测试生成或测试判分输入就拒绝运行 | 新写，待运行（调参判分之后） | 64d0a9a996aff923 |
 | `diag/newsets_val.py` | 新题验证的计分：不写入、只推 E、重选上限的 N1（Pro 100 题与别名 500 题），五模型合计（`novelty/ours/2026-11-20_rechosen_caps_validation.md`） | 新写，未经 GPT 审 | 9f49f62b0436543e |
+| `diag/newsets_tqa_shared_answers.py` | TriviaQA 两批测试题上只推 E 的差别，按答案是否与别的题共用拆开（新题排除共用答案是否改变了题的构成）；容器内运行 | 新写，未经 GPT 审 | ce5c4a083e178f43 |
 | `configs/newsets/rechosen_caps_20261120.json` | 各题集调参集上重选、冻结的 N1 上限 | 新写 | 097709b6ee358227 |
 | `configs/newsets/triviaqa_test2_20261120.json`、`popqa_test2_20261120.json` | 新题（test2）的题号清单（服务器上在 `Iteration_01/newsets/splits/`） | 已生成 | b51a9ffa4dfce1e9、18ea733ad9bc0a37 |
 | `scripts/capability/cap_mcq_prob.py` | MMLU 的选项概率测法（ITI、LoFiT 所用的方式：比四个字母的概率，不能说不知道；每个字母的两种单词元写法相加）；同题、同问法、同写入，只换判分 | 新写（赵磊 2026-11-19 19:5x 要求），未经 GPT 审；8 题试跑后运行 | 514fdc7c4c9c1697 |
@@ -119,3 +120,4 @@
 | 2026-11-19 | 迁入 `diag/d2_register.py`；能力保持 MMLU 的计分输出放进 `results/capability/mmlu/` | 赵磊（Opus 5.5 代笔） |
 | 2026-11-20 | 迁入 `scripts/capability/cap_mcq_prob.py`；`newsets_gen.py` 与启动脚本的把握分补救；新题集 C2、C3 计分输出放进 `results/newsets/c2c3/` | 赵磊（Opus 5.5 代笔） |
 | 2026-11-20 | 新题验证：迁入 `diag/newsets_val.py`、重选上限的配置与新题清单；切分、题库、生成程序与启动脚本相应扩展 | 赵磊（Opus 5.5 代笔） |
+| 2026-11-20 | 新题验证结果放进 `results/newsets/val/`；迁入 `diag/newsets_tqa_shared_answers.py` | 赵磊（Opus 5.5 代笔） |
