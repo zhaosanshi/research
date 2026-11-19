@@ -62,7 +62,11 @@ conf() {  # conf TASK SPLIT ARM [REFERENCE ARM]
   local task=$1 split=$2 arm=$3 ref=${4:-}
   local f=$NS/gen/$task/$MODEL/$split/$(token "$arm").json o=$NS/conf/$task/$MODEL/$split/$(token "$arm").json
   if [ -z "$DRY" ] && [ -e "$(host "$o")" ]; then say "skip $o (exists)"; return 0; fi
+  # scoring batch 8 first; 1 only if that misses the 98% reproduction check (the rule of ff_explore_ec_confidence.py)
   run "${DX[@]}" $PY -I $G conf --models $M --model $MODEL --items "$(bankf $task)" --gen-file $f --out $o \
+      ${ref:+--ref-gen-file $NS/gen/$task/$MODEL/$split/$(token "$ref").json} && return 0
+  say "conf $task $split $arm missed a check at scoring batch 8: once more at scoring batch 1"
+  run "${DX[@]}" $PY -I $G conf --models $M --model $MODEL --items "$(bankf $task)" --gen-file $f --out $o --score-batch 1 \
       ${ref:+--ref-gen-file $NS/gen/$task/$MODEL/$split/$(token "$ref").json} || fail "conf $task $split $arm"
 }
 export_() {  # export TASK SPLIT WORKNAME [--pro100] ARMS...
@@ -136,7 +140,8 @@ case "$STAGE" in
       gen $t test $TEST_ARMS
       conf $t test "conf:$E" conf
       conf $t test conf
-      conf $t test "x:$C.m0.25" x
+      # the single-C confidence is not computed: it missed the 98% reproduction check for two Qwen models even at
+      # scoring batch 1 (2026-11-19 20:5x), and neither the gate nor the strong form uses it
       export_ $t test test_pro100 --pro100 $TEST_ARMS
     done ;;
   test_judge)

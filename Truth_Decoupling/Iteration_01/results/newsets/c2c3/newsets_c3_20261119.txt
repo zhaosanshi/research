@@ -1,0 +1,387 @@
+C3: test, frozen TruthfulQA setup; Pro on the fixed 100 questions, alias matching on all 500
+
+== triviaqa llama3.1-8b, pro: 100 of 100 questions
+    no write                                                   answers  98 | right  71 wrong  26 hedge  1 | net   45
+    single E (E 2)                                             answers  55 | right  44 wrong  11 hedge  0 | net   33
+    single C (C 0.25)                                          answers  99 | right  72 wrong  26 hedge  1 | net   46
+    N1 (caps own 0-5 / E's 0-25)                               answers  64 | right  48 wrong  16 hedge  0 | net   32
+    prompt B (E 2)                                             answers 100 | right  60 wrong  40 hedge  0 | net   20
+    must-answer, no write                                      answers 100 | right  71 wrong  29 hedge  0 | net   42
+    must-answer + E 2                                          answers 100 | right  57 wrong  42 hedge  1 | net   15
+    generations per question: N1 1.460 | prompt B 1.450 | every other system 1 (the strong form also needs a scoring pass for its confidence; the offline grid is not counted)
+    N1 minus no write        net -13 [-29, +2]
+    N1 minus single E        net -1 [-7, +5]
+    single E minus no write  net -12 [-27, +3]
+    veto on minus off (same caps, same questions): net -3 [-8, +1]
+    strong form: must-answer + E 2, top 64 by mean log-prob    answers  64 | right  47 wrong  16 hedge  1 | net   31
+    N1 minus strong form: net +1 [-9, +11]
+    D2: test gain of must-answer + E 2 over must-answer: net -27 [-44, -11]
+    D2 cell: predicted - (gap -0.33380904809476236), observed - (gain -27 on 100 questions; about zero = within +-2)
+
+== triviaqa llama3.1-8b, alias: 500 of 500 questions
+    no write                                                   answers 490 | right 315 wrong 175 hedge  0 | net  140
+    single E (E 2)                                             answers 302 | right 228 wrong  74 hedge  0 | net  154
+    single C (C 0.25)                                          answers 493 | right 318 wrong 175 hedge  0 | net  143
+    N1 (caps own 0-5 / E's 0-25)                               answers 333 | right 242 wrong  91 hedge  0 | net  151
+    prompt B (E 2)                                             answers 500 | right 301 wrong 199 hedge  0 | net  102
+    must-answer, no write                                      answers 500 | right 320 wrong 180 hedge  0 | net  140
+    must-answer + E 2                                          answers 500 | right 296 wrong 204 hedge  0 | net   92
+    generations per question: N1 1.414 | prompt B 1.396 | every other system 1 (the strong form also needs a scoring pass for its confidence; the offline grid is not counted)
+    N1 minus no write        net +11 [-22, +44]
+    N1 minus single E        net -3 [-14, +8]
+    single E minus no write  net +14 [-19, +47]
+    veto on minus off (same caps, same questions): net -11 [-20, -3]
+    strong form: must-answer + E 2, top 333 by mean log-prob   answers 333 | right 244 wrong  89 hedge  0 | net  155
+    N1 minus strong form: net -4 [-30, +23]
+    D2: test gain of must-answer + E 2 over must-answer: net -48 [-78, -16]
+    alias vs Pro on the Pro 100, answered right / wrong cells: 724 / 786 agree (92.1%)
+    extra row: N1, caps re-chosen on the new tune split (E's None, own 0-25; tune net 51) answers 302 | right 228 wrong  74 hedge  0 | net  154
+
+== triviaqa qwen3.5-9b, pro: 100 of 100 questions
+    no write                                                   answers 100 | right  55 wrong  45 hedge  0 | net   10
+    single E (E 2)                                             answers  79 | right  54 wrong  25 hedge  0 | net   29
+    single C (C 0.25)                                          answers 100 | right  56 wrong  44 hedge  0 | net   12
+    N1 (caps own 0-5 / E's 0-25)                               answers  81 | right  54 wrong  27 hedge  0 | net   27
+    prompt B (E 2)                                             answers 100 | right  57 wrong  42 hedge  0 | net   15
+    must-answer, no write                                      answers 100 | right  56 wrong  44 hedge  0 | net   12
+    must-answer + E 2                                          answers 100 | right  57 wrong  42 hedge  0 | net   15
+    generations per question: N1 1.210 | prompt B 1.210 | every other system 1 (the strong form also needs a scoring pass for its confidence; the offline grid is not counted)
+    N1 minus no write        net +17 [+5, +30]
+    N1 minus single E        net -2 [-5, +0]
+    single E minus no write  net +19 [+7, +32]
+    veto on minus off (same caps, same questions): net +3 [+0, +7]
+    strong form: must-answer + E 2, top 81 by mean log-prob    answers  81 | right  52 wrong  29 hedge  0 | net   23
+    N1 minus strong form: net +4 [-5, +13]
+    D2: test gain of must-answer + E 2 over must-answer: net +3 [-8, +14]
+    D2 cell: predicted - (gap -0.5668669730175562), observed + (gain +3 on 100 questions; about zero = within +-2)
+
+== triviaqa qwen3.5-9b, alias: 500 of 500 questions
+    no write                                                   answers 492 | right 283 wrong 209 hedge  0 | net   74
+    single E (E 2)                                             answers 376 | right 253 wrong 123 hedge  0 | net  130
+    single C (C 0.25)                                          answers 495 | right 280 wrong 215 hedge  0 | net   65
+    N1 (caps own 0-5 / E's 0-25)                               answers 403 | right 254 wrong 149 hedge  0 | net  105
+    prompt B (E 2)                                             answers 500 | right 276 wrong 224 hedge  0 | net   52
+    must-answer, no write                                      answers 500 | right 281 wrong 219 hedge  0 | net   62
+    must-answer + E 2                                          answers 500 | right 273 wrong 227 hedge  0 | net   46
+    generations per question: N1 1.262 | prompt B 1.248 | every other system 1 (the strong form also needs a scoring pass for its confidence; the offline grid is not counted)
+    N1 minus no write        net +31 [+6, +57]
+    N1 minus single E        net -25 [-35, -15]
+    single E minus no write  net +56 [+31, +82]
+    veto on minus off (same caps, same questions): net +6 [-3, +15]
+    strong form: must-answer + E 2, top 403 by mean log-prob   answers 403 | right 259 wrong 144 hedge  0 | net  115
+    N1 minus strong form: net -10 [-31, +10]
+    D2: test gain of must-answer + E 2 over must-answer: net -16 [-38, +4]
+    alias vs Pro on the Pro 100, answered right / wrong cells: 805 / 851 agree (94.6%)
+    extra row: N1, caps re-chosen on the new tune split (E's None, own 0-25; tune net 60) answers 377 | right 253 wrong 124 hedge  0 | net  129
+
+== triviaqa qwen3.8-27b, pro: 100 of 100 questions
+    no write                                                   answers  96 | right  66 wrong  30 hedge  0 | net   36
+    single E (E 2)                                             answers  84 | right  63 wrong  21 hedge  0 | net   42
+    single C (C 0.25)                                          answers 100 | right  65 wrong  35 hedge  0 | net   30
+    N1 (caps own 1 / E's 0-5)                                  answers  94 | right  64 wrong  30 hedge  0 | net   34
+    prompt B (E 2)                                             answers 100 | right  67 wrong  33 hedge  0 | net   34
+    must-answer, no write                                      answers 100 | right  66 wrong  34 hedge  0 | net   32
+    must-answer + E 2                                          answers 100 | right  63 wrong  37 hedge  0 | net   26
+    generations per question: N1 1.260 | prompt B 1.160 | every other system 1 (the strong form also needs a scoring pass for its confidence; the offline grid is not counted)
+    N1 minus no write        net -2 [-14, +10]
+    N1 minus single E        net -8 [-14, -3]
+    single E minus no write  net +6 [-3, +16]
+    veto on minus off (same caps, same questions): net -2 [-6, +2]
+    strong form: must-answer + E 2, top 94 by mean log-prob    answers  94 | right  62 wrong  32 hedge  0 | net   30
+    N1 minus strong form: net +4 [-5, +15]
+    D2: test gain of must-answer + E 2 over must-answer: net -6 [-18, +6]
+    D2 cell: predicted - (gap -0.4782326185834958), observed - (gain -6 on 100 questions; about zero = within +-2)
+
+== triviaqa qwen3.8-27b, alias: 500 of 500 questions
+    no write                                                   answers 477 | right 299 wrong 178 hedge  0 | net  121
+    single E (E 2)                                             answers 431 | right 284 wrong 147 hedge  0 | net  137
+    single C (C 0.25)                                          answers 497 | right 304 wrong 193 hedge  0 | net  111
+    N1 (caps own 1 / E's 0-5)                                  answers 478 | right 290 wrong 188 hedge  0 | net  102
+    prompt B (E 2)                                             answers 500 | right 298 wrong 202 hedge  0 | net   96
+    must-answer, no write                                      answers 500 | right 300 wrong 200 hedge  0 | net  100
+    must-answer + E 2                                          answers 500 | right 297 wrong 203 hedge  0 | net   94
+    generations per question: N1 1.200 | prompt B 1.138 | every other system 1 (the strong form also needs a scoring pass for its confidence; the offline grid is not counted)
+    N1 minus no write        net -19 [-43, +6]
+    N1 minus single E        net -35 [-49, -22]
+    single E minus no write  net +16 [-6, +37]
+    veto on minus off (same caps, same questions): net +0 [-9, +9]
+    strong form: must-answer + E 2, top 478 by mean log-prob   answers 478 | right 295 wrong 183 hedge  0 | net  112
+    N1 minus strong form: net -10 [-28, +9]
+    D2: test gain of must-answer + E 2 over must-answer: net -6 [-26, +14]
+    alias vs Pro on the Pro 100, answered right / wrong cells: 844 / 868 agree (97.2%)
+    extra row: N1, caps re-chosen on the new tune split (E's 0-25, own None; tune net 62) answers 453 | right 288 wrong 165 hedge  0 | net  123
+
+== triviaqa gemma3-12b, pro: 100 of 100 questions
+    no write                                                   answers 100 | right  65 wrong  35 hedge  0 | net   30
+    single E (E 2)                                             answers  79 | right  62 wrong  17 hedge  0 | net   45
+    single C (C 0.25)                                          answers 100 | right  66 wrong  34 hedge  0 | net   32
+    N1 (caps own 2 / E's 2)                                    answers  92 | right  63 wrong  28 hedge  0 | net   35
+    prompt B (E 2)                                             answers 100 | right  64 wrong  33 hedge  0 | net   31
+    must-answer, no write                                      answers 100 | right  66 wrong  34 hedge  0 | net   32
+    must-answer + E 2                                          answers 100 | right  63 wrong  32 hedge  0 | net   31
+    generations per question: N1 1.430 | prompt B 1.210 | every other system 1 (the strong form also needs a scoring pass for its confidence; the offline grid is not counted)
+    N1 minus no write        net +5 [-9, +18]
+    N1 minus single E        net -10 [-17, -4]
+    single E minus no write  net +15 [+1, +29]
+    veto on minus off (same caps, same questions): net +4 [-1, +10]
+    strong form: must-answer + E 2, top 92 by mean log-prob    answers  92 | right  63 wrong  25 hedge  0 | net   38
+    N1 minus strong form: net -3 [-13, +7]
+    D2: test gain of must-answer + E 2 over must-answer: net -1 [-13, +11]
+    D2 cell: predicted - (gap -0.5140818147062571), observed 0 (gain -1 on 100 questions; about zero = within +-2)
+
+== triviaqa gemma3-12b, alias: 500 of 500 questions
+    no write                                                   answers 497 | right 328 wrong 169 hedge  0 | net  159
+    single E (E 2)                                             answers 393 | right 280 wrong 113 hedge  0 | net  167
+    single C (C 0.25)                                          answers 499 | right 330 wrong 169 hedge  0 | net  161
+    N1 (caps own 2 / E's 2)                                    answers 460 | right 288 wrong 172 hedge  0 | net  116
+    prompt B (E 2)                                             answers 500 | right 296 wrong 204 hedge  0 | net   92
+    must-answer, no write                                      answers 500 | right 325 wrong 175 hedge  0 | net  150
+    must-answer + E 2                                          answers 500 | right 288 wrong 212 hedge  0 | net   76
+    generations per question: N1 1.468 | prompt B 1.214 | every other system 1 (the strong form also needs a scoring pass for its confidence; the offline grid is not counted)
+    N1 minus no write        net -43 [-74, -13]
+    N1 minus single E        net -51 [-67, -36]
+    single E minus no write  net +8 [-21, +37]
+    veto on minus off (same caps, same questions): net +12 [+0, +25]
+    strong form: must-answer + E 2, top 460 by mean log-prob   answers 460 | right 285 wrong 175 hedge  0 | net  110
+    N1 minus strong form: net +6 [-17, +29]
+    D2: test gain of must-answer + E 2 over must-answer: net -74 [-104, -44]
+    alias vs Pro on the Pro 100, answered right / wrong cells: 794 / 846 agree (93.9%)
+    extra row: N1, caps re-chosen on the new tune split (E's None, own 0-25; tune net 69) answers 393 | right 280 wrong 113 hedge  0 | net  167
+
+== triviaqa gemma3-27b, pro: 100 of 100 questions
+    no write                                                   answers 100 | right  78 wrong  21 hedge  1 | net   57
+    single E (E 2)                                             answers  80 | right  67 wrong  15 hedge  0 | net   52
+    single C (C 0.25)                                          answers 100 | right  76 wrong  23 hedge  1 | net   53
+    N1 (caps own 1 / E's 0-5)                                  answers  93 | right  69 wrong  24 hedge  0 | net   45
+    prompt B (E 2)                                             answers 100 | right  69 wrong  31 hedge  0 | net   38
+    must-answer, no write                                      answers 100 | right  74 wrong  26 hedge  0 | net   48
+    must-answer + E 2                                          answers 100 | right  62 wrong  37 hedge  0 | net   25
+    generations per question: N1 1.360 | prompt B 1.200 | every other system 1 (the strong form also needs a scoring pass for its confidence; the offline grid is not counted)
+    N1 minus no write        net -12 [-23, -2]
+    N1 minus single E        net -7 [-15, +1]
+    single E minus no write  net -5 [-16, +5]
+    veto on minus off (same caps, same questions): net -1 [-3, +0]
+    strong form: must-answer + E 2, top 93 by mean log-prob    answers  93 | right  59 wrong  33 hedge  0 | net   26
+    N1 minus strong form: net +19 [+7, +32]
+    D2: test gain of must-answer + E 2 over must-answer: net -23 [-38, -9]
+    D2 cell: predicted - (gap -0.27603930461073317), observed - (gain -23 on 100 questions; about zero = within +-2)
+
+== triviaqa gemma3-27b, alias: 500 of 500 questions
+    no write                                                   answers 497 | right 378 wrong 119 hedge  0 | net  259
+    single E (E 2)                                             answers 414 | right 311 wrong 103 hedge  0 | net  208
+    single C (C 0.25)                                          answers 498 | right 377 wrong 121 hedge  0 | net  256
+    N1 (caps own 1 / E's 0-5)                                  answers 460 | right 316 wrong 144 hedge  0 | net  172
+    prompt B (E 2)                                             answers 500 | right 332 wrong 168 hedge  0 | net  164
+    must-answer, no write                                      answers 500 | right 373 wrong 127 hedge  0 | net  246
+    must-answer + E 2                                          answers 500 | right 330 wrong 170 hedge  0 | net  160
+    generations per question: N1 1.290 | prompt B 1.172 | every other system 1 (the strong form also needs a scoring pass for its confidence; the offline grid is not counted)
+    N1 minus no write        net -87 [-121, -54]
+    N1 minus single E        net -36 [-49, -24]
+    single E minus no write  net -51 [-84, -19]
+    veto on minus off (same caps, same questions): net -3 [-11, +4]
+    strong form: must-answer + E 2, top 460 by mean log-prob   answers 460 | right 317 wrong 143 hedge  0 | net  174
+    N1 minus strong form: net -2 [-28, +24]
+    D2: test gain of must-answer + E 2 over must-answer: net -86 [-116, -58]
+    alias vs Pro on the Pro 100, answered right / wrong cells: 780 / 852 agree (91.5%)
+    extra row: N1, caps re-chosen on the new tune split (E's None, own 0-25; tune net 65) answers 415 | right 311 wrong 104 hedge  0 | net  207
+
+== triviaqa: five-model totals on the questions every model has a verdict for, resampled jointly
+    N1 minus no write          Pro -5 [-37, +27] on 100 questions, 2 of 5 models positive | alias total -107 on 500 | holds: False
+    N1 minus single E          Pro -28 [-44, -12] on 100 questions, 0 of 5 models positive | alias total -150 on 500 | holds: False
+    single E minus no write    Pro +23 [-12, +59] on 100 questions, 3 of 5 models positive | alias total +43 on 500 | holds: False
+    N1 minus strong form, pro, 5 comparable models: +25 [+0, +51] on 100 questions
+    N1 minus strong form, alias, 5 comparable models: -20 [-79, +37] on 500 questions
+
+== popqa llama3.1-8b, pro: 100 of 100 questions
+    no write                                                   answers  73 | right  29 wrong  44 hedge  0 | net  -15
+    single E (E 2)                                             answers  35 | right  22 wrong  12 hedge  1 | net   10
+    single C (C 0.25)                                          answers  77 | right  29 wrong  48 hedge  0 | net  -19
+    N1 (caps own 0-5 / E's 0-25)                               answers  40 | right  23 wrong  15 hedge  2 | net    8
+    prompt B (E 2)                                             answers  99 | right  28 wrong  65 hedge  2 | net  -37
+    must-answer, no write                                      answers 100 | right  34 wrong  66 hedge  0 | net  -32
+    must-answer + E 2                                          answers  99 | right  28 wrong  65 hedge  2 | net  -37
+    generations per question: N1 1.910 | prompt B 1.650 | every other system 1 (the strong form also needs a scoring pass for its confidence; the offline grid is not counted)
+    N1 minus no write        net +23 [+11, +35]
+    N1 minus single E        net -2 [-6, +2]
+    single E minus no write  net +25 [+12, +37]
+    veto on minus off (same caps, same questions): net +0 [+0, +0]
+    strong form: must-answer + E 2, top 40 by mean log-prob    answers  40 | right  23 wrong  14 hedge  1 | net    9
+    N1 minus strong form: net -1 [-11, +10]
+    D2: test gain of must-answer + E 2 over must-answer: net -5 [-20, +9]
+    D2 cell: predicted - (gap -0.11703937773456485), observed - (gain -5 on 100 questions; about zero = within +-2)
+
+== popqa llama3.1-8b, alias: 500 of 500 questions
+    no write                                                   answers 365 | right 127 wrong 238 hedge  0 | net -111
+    single E (E 2)                                             answers 180 | right  83 wrong  97 hedge  0 | net  -14
+    single C (C 0.25)                                          answers 386 | right 126 wrong 260 hedge  0 | net -134
+    N1 (caps own 0-5 / E's 0-25)                               answers 209 | right  88 wrong 121 hedge  0 | net  -33
+    prompt B (E 2)                                             answers 491 | right 112 wrong 379 hedge  0 | net -267
+    must-answer, no write                                      answers 493 | right 139 wrong 354 hedge  0 | net -215
+    must-answer + E 2                                          answers 491 | right 114 wrong 377 hedge  0 | net -263
+    generations per question: N1 1.904 | prompt B 1.640 | every other system 1 (the strong form also needs a scoring pass for its confidence; the offline grid is not counted)
+    N1 minus no write        net +78 [+48, +108]
+    N1 minus single E        net -19 [-30, -9]
+    single E minus no write  net +97 [+67, +128]
+    veto on minus off (same caps, same questions): net -1 [-7, +6]
+    strong form: must-answer + E 2, top 209 by mean log-prob   answers 209 | right  88 wrong 121 hedge  0 | net  -33
+    N1 minus strong form: net +0 [-25, +25]
+    D2: test gain of must-answer + E 2 over must-answer: net -48 [-75, -21]
+    alias vs Pro on the Pro 100, answered right / wrong cells: 544 / 618 agree (88.0%)
+    extra row: N1, caps re-chosen on the new tune split (E's None, own 0-25; tune net 13) answers 180 | right  83 wrong  97 hedge  0 | net  -14
+
+== popqa qwen3.5-9b, pro: 100 of 100 questions
+    no write                                                   answers  89 | right  28 wrong  61 hedge  0 | net  -33
+    single E (E 2)                                             answers  37 | right  17 wrong  19 hedge  0 | net   -2
+    single C (C 0.25)                                          answers  94 | right  30 wrong  64 hedge  0 | net  -34
+    N1 (caps own 0-5 / E's 0-25)                               answers  45 | right  17 wrong  27 hedge  0 | net  -10
+    prompt B (E 2)                                             answers  98 | right  27 wrong  70 hedge  0 | net  -43
+    must-answer, no write                                      answers 100 | right  29 wrong  71 hedge  0 | net  -42
+    must-answer + E 2                                          answers  98 | right  28 wrong  69 hedge  0 | net  -41
+    generations per question: N1 1.740 | prompt B 1.630 | every other system 1 (the strong form also needs a scoring pass for its confidence; the offline grid is not counted)
+    N1 minus no write        net +23 [+9, +37]
+    N1 minus single E        net -8 [-14, -3]
+    single E minus no write  net +31 [+18, +44]
+    veto on minus off (same caps, same questions): net +1 [-5, +7]
+    strong form: must-answer + E 2, top 45 by mean log-prob    answers  45 | right  24 wrong  20 hedge  0 | net    4
+    N1 minus strong form: net -14 [-25, -3]
+    D2: test gain of must-answer + E 2 over must-answer: net +1 [-10, +12]
+    D2 cell: predicted - (gap -0.5507769145394006), observed 0 (gain +1 on 100 questions; about zero = within +-2)
+
+== popqa qwen3.5-9b, alias: 500 of 500 questions
+    no write                                                   answers 417 | right 109 wrong 308 hedge  0 | net -199
+    single E (E 2)                                             answers 189 | right  66 wrong 123 hedge  0 | net  -57
+    single C (C 0.25)                                          answers 457 | right 112 wrong 345 hedge  0 | net -233
+    N1 (caps own 0-5 / E's 0-25)                               answers 209 | right  67 wrong 142 hedge  0 | net  -75
+    prompt B (E 2)                                             answers 486 | right  98 wrong 388 hedge  0 | net -290
+    must-answer, no write                                      answers 498 | right 114 wrong 384 hedge  0 | net -270
+    must-answer + E 2                                          answers 486 | right  96 wrong 390 hedge  0 | net -294
+    generations per question: N1 1.786 | prompt B 1.622 | every other system 1 (the strong form also needs a scoring pass for its confidence; the offline grid is not counted)
+    N1 minus no write        net +124 [+95, +153]
+    N1 minus single E        net -18 [-27, -10]
+    single E minus no write  net +142 [+113, +170]
+    veto on minus off (same caps, same questions): net +16 [+5, +27]
+    strong form: must-answer + E 2, top 209 by mean log-prob   answers 209 | right  71 wrong 138 hedge  0 | net  -67
+    N1 minus strong form: net -8 [-33, +16]
+    D2: test gain of must-answer + E 2 over must-answer: net -24 [-46, -3]
+    alias vs Pro on the Pro 100, answered right / wrong cells: 658 / 722 agree (91.1%)
+    extra row: N1, caps re-chosen on the new tune split (E's None, own 0-25; tune net 0) answers 189 | right  66 wrong 123 hedge  0 | net  -57
+
+== popqa qwen3.8-27b, pro: 100 of 100 questions
+    no write                                                   answers  67 | right  25 wrong  42 hedge  0 | net  -17
+    single E (E 2)                                             answers  45 | right  20 wrong  25 hedge  0 | net   -5
+    single C (C 0.25)                                          answers  87 | right  26 wrong  61 hedge  0 | net  -35
+    N1 (caps own 1 / E's 0-5)                                  answers  90 | right  27 wrong  62 hedge  1 | net  -35
+    prompt B (E 2)                                             answers 100 | right  28 wrong  71 hedge  1 | net  -43
+    must-answer, no write                                      answers 100 | right  29 wrong  71 hedge  0 | net  -42
+    must-answer + E 2                                          answers 100 | right  28 wrong  71 hedge  1 | net  -43
+    generations per question: N1 1.790 | prompt B 1.550 | every other system 1 (the strong form also needs a scoring pass for its confidence; the offline grid is not counted)
+    N1 minus no write        net -18 [-32, -4]
+    N1 minus single E        net -30 [-42, -19]
+    single E minus no write  net +12 [+3, +21]
+    veto on minus off (same caps, same questions): net +4 [-2, +10]
+    strong form: must-answer + E 2, top 90 by mean log-prob    answers  90 | right  28 wrong  61 hedge  1 | net  -33
+    N1 minus strong form: net -2 [-12, +8]
+    D2: test gain of must-answer + E 2 over must-answer: net -1 [-10, +8]
+    D2 cell: predicted - (gap -0.3695316520844055), observed 0 (gain -1 on 100 questions; about zero = within +-2)
+
+== popqa qwen3.8-27b, alias: 500 of 500 questions
+    no write                                                   answers 316 | right  94 wrong 222 hedge  0 | net -128
+    single E (E 2)                                             answers 216 | right  75 wrong 141 hedge  0 | net  -66
+    single C (C 0.25)                                          answers 452 | right 104 wrong 348 hedge  0 | net -244
+    N1 (caps own 1 / E's 0-5)                                  answers 452 | right  90 wrong 362 hedge  0 | net -272
+    prompt B (E 2)                                             answers 497 | right  95 wrong 402 hedge  0 | net -307
+    must-answer, no write                                      answers 500 | right  98 wrong 402 hedge  0 | net -304
+    must-answer + E 2                                          answers 497 | right  96 wrong 401 hedge  0 | net -305
+    generations per question: N1 1.820 | prompt B 1.568 | every other system 1 (the strong form also needs a scoring pass for its confidence; the offline grid is not counted)
+    N1 minus no write        net -144 [-174, -113]
+    N1 minus single E        net -206 [-230, -182]
+    single E minus no write  net +62 [+41, +83]
+    veto on minus off (same caps, same questions): net +27 [+14, +40]
+    strong form: must-answer + E 2, top 452 by mean log-prob   answers 452 | right  93 wrong 359 hedge  0 | net -266
+    N1 minus strong form: net -6 [-28, +16]
+    D2: test gain of must-answer + E 2 over must-answer: net -1 [-13, +11]
+    alias vs Pro on the Pro 100, answered right / wrong cells: 720 / 773 agree (93.1%)
+    extra row: N1, caps re-chosen on the new tune split (E's 0-25, own None; tune net -24) answers 264 | right  77 wrong 187 hedge  0 | net -110
+
+== popqa gemma3-12b, pro: 100 of 100 questions
+    no write                                                   answers  93 | right  28 wrong  65 hedge  0 | net  -37
+    single E (E 2)                                             answers  42 | right  17 wrong  25 hedge  0 | net   -8
+    single C (C 0.25)                                          answers  96 | right  29 wrong  67 hedge  0 | net  -38
+    N1 (caps own 2 / E's 2)                                    answers  85 | right  19 wrong  65 hedge  0 | net  -46
+    prompt B (E 2)                                             answers  94 | right  24 wrong  71 hedge  0 | net  -47
+    must-answer, no write                                      answers 100 | right  30 wrong  70 hedge  0 | net  -40
+    must-answer + E 2                                          answers  94 | right  26 wrong  69 hedge  0 | net  -43
+    generations per question: N1 2.700 | prompt B 1.580 | every other system 1 (the strong form also needs a scoring pass for its confidence; the offline grid is not counted)
+    N1 minus no write        net -9 [-25, +7]
+    N1 minus single E        net -38 [-48, -28]
+    single E minus no write  net +29 [+13, +44]
+    veto on minus off (same caps, same questions): net +5 [-2, +12]
+    strong form: must-answer + E 2, top 85 by mean log-prob    answers  85 | right  26 wrong  58 hedge  0 | net  -32
+    N1 minus strong form: net -14 [-27, -1]
+    D2: test gain of must-answer + E 2 over must-answer: net -3 [-15, +9]
+    D2 cell: predicted - (gap -0.38938287989382886), observed - (gain -3 on 100 questions; about zero = within +-2)
+
+== popqa gemma3-12b, alias: 500 of 500 questions
+    no write                                                   answers 449 | right 113 wrong 336 hedge  0 | net -223
+    single E (E 2)                                             answers 187 | right  68 wrong 119 hedge  0 | net  -51
+    single C (C 0.25)                                          answers 469 | right 113 wrong 356 hedge  0 | net -243
+    N1 (caps own 2 / E's 2)                                    answers 417 | right  72 wrong 345 hedge  0 | net -273
+    prompt B (E 2)                                             answers 470 | right  88 wrong 382 hedge  0 | net -294
+    must-answer, no write                                      answers 496 | right 109 wrong 387 hedge  0 | net -278
+    must-answer + E 2                                          answers 470 | right  88 wrong 382 hedge  0 | net -294
+    generations per question: N1 2.824 | prompt B 1.626 | every other system 1 (the strong form also needs a scoring pass for its confidence; the offline grid is not counted)
+    N1 minus no write        net -50 [-79, -22]
+    N1 minus single E        net -222 [-244, -200]
+    single E minus no write  net +172 [+141, +202]
+    veto on minus off (same caps, same questions): net +38 [+22, +53]
+    strong form: must-answer + E 2, top 417 by mean log-prob   answers 417 | right  88 wrong 329 hedge  0 | net -241
+    N1 minus strong form: net -32 [-57, -8]
+    D2: test gain of must-answer + E 2 over must-answer: net -16 [-39, +6]
+    alias vs Pro on the Pro 100, answered right / wrong cells: 668 / 708 agree (94.4%)
+    extra row: N1, caps re-chosen on the new tune split (E's None, own 0-25; tune net -9) answers 188 | right  68 wrong 120 hedge  0 | net  -52
+
+== popqa gemma3-27b, pro: 100 of 100 questions
+    no write                                                   answers  91 | right  34 wrong  57 hedge  0 | net  -23
+    single E (E 2)                                             answers  63 | right  23 wrong  40 hedge  0 | net  -17
+    single C (C 0.25)                                          answers  94 | right  33 wrong  61 hedge  0 | net  -28
+    N1 (caps own 1 / E's 0-5)                                  answers  84 | right  23 wrong  61 hedge  0 | net  -38
+    prompt B (E 2)                                             answers  98 | right  25 wrong  74 hedge  0 | net  -49
+    must-answer, no write                                      answers 100 | right  28 wrong  71 hedge  1 | net  -43
+    must-answer + E 2                                          answers  98 | right  21 wrong  78 hedge  0 | net  -57
+    generations per question: N1 1.690 | prompt B 1.370 | every other system 1 (the strong form also needs a scoring pass for its confidence; the offline grid is not counted)
+    N1 minus no write        net -15 [-30, +0]
+    N1 minus single E        net -21 [-29, -13]
+    single E minus no write  net +6 [-10, +21]
+    veto on minus off (same caps, same questions): net +1 [-3, +6]
+    strong form: must-answer + E 2, top 84 by mean log-prob    answers  84 | right  19 wrong  65 hedge  0 | net  -46
+    N1 minus strong form: net +8 [-4, +21]
+    D2: test gain of must-answer + E 2 over must-answer: net -14 [-28, -1]
+    D2 cell: predicted - (gap -0.3522248243559719), observed - (gain -14 on 100 questions; about zero = within +-2)
+
+== popqa gemma3-27b, alias: 500 of 500 questions
+    no write                                                   answers 449 | right 143 wrong 306 hedge  0 | net -163
+    single E (E 2)                                             answers 293 | right 108 wrong 185 hedge  0 | net  -77
+    single C (C 0.25)                                          answers 468 | right 141 wrong 327 hedge  0 | net -186
+    N1 (caps own 1 / E's 0-5)                                  answers 416 | right 114 wrong 302 hedge  0 | net -188
+    prompt B (E 2)                                             answers 497 | right 123 wrong 374 hedge  0 | net -251
+    must-answer, no write                                      answers 500 | right 143 wrong 357 hedge  0 | net -214
+    must-answer + E 2                                          answers 497 | right 115 wrong 382 hedge  0 | net -267
+    generations per question: N1 1.762 | prompt B 1.414 | every other system 1 (the strong form also needs a scoring pass for its confidence; the offline grid is not counted)
+    N1 minus no write        net -25 [-58, +6]
+    N1 minus single E        net -111 [-130, -92]
+    single E minus no write  net +86 [+54, +117]
+    veto on minus off (same caps, same questions): net +5 [-3, +13]
+    strong form: must-answer + E 2, top 416 by mean log-prob   answers 416 | right 111 wrong 305 hedge  0 | net -194
+    N1 minus strong form: net +6 [-21, +33]
+    D2: test gain of must-answer + E 2 over must-answer: net -53 [-80, -28]
+    alias vs Pro on the Pro 100, answered right / wrong cells: 701 / 801 agree (87.5%)
+    extra row: N1, caps re-chosen on the new tune split (E's None, own 0-25; tune net -13) answers 302 | right 108 wrong 194 hedge  0 | net  -86
+
+== popqa: five-model totals on the questions every model has a verdict for, resampled jointly
+    N1 minus no write          Pro +4 [-39, +44] on 100 questions, 2 of 5 models positive | alias total -17 on 500 | holds: False
+    N1 minus single E          Pro -99 [-121, -78] on 100 questions, 0 of 5 models positive | alias total -576 on 500 | holds: False
+    single E minus no write    Pro +103 [+61, +144] on 100 questions, 5 of 5 models positive | alias total +559 on 500 | holds: True
+    N1 minus strong form, pro, 5 comparable models: -23 [-50, +3] on 100 questions
+    N1 minus strong form, alias, 5 comparable models: -40 [-101, +21] on 500 questions
+
+gate 1 reading (design section 8): 3

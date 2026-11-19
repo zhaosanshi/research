@@ -1,0 +1,131 @@
+C2: tune 192, Pro (main) and alias matching (auxiliary)
+
+== triviaqa llama3.1-8b: 192 of 192 questions (excluded: none); votes {"scored": 1152, "empty answer": 0, "pro declined": 0, "refusal-only references": 0}
+    baseline_x                                                 answers 190 | right 146 wrong  44 hedge  0 | net  102
+    baseline_caut                                              answers 190 | right 144 wrong  45 hedge  0 | net   99
+    baseline_conf                                              answers 192 | right 143 wrong  49 hedge  0 | net   94
+    baseline_conf_E2                                           answers 192 | right 138 wrong  54 hedge  0 | net   84
+    baseline_conf_FR                                           answers 192 | right 140 wrong  52 hedge  0 | net   88
+    E_L11_conf-w-p2                                            answers 192 | right 127 wrong  65 hedge  0 | net   62
+    step 0 / D2  baseline_conf_E2               minus baseline_conf: net -10 [-26, +6]
+    step 0 / D2  baseline_conf_FR               minus baseline_conf: net -6 [-18, +6]
+    step 0 / D2  E_L11_conf-w-p2                minus baseline_conf: net -32 [-56, -8]
+    alias vs Pro on answered right / wrong cells: 1035 / 1147 agree (90.2%)
+    D2: counts {"right": 143, "wrong": 49, "hedge": 0, "refusal or empty": 0, "excluded": 0, "no finite confidence": 0, "no finite projection": 0} | readout AUROC 0.4846581989439132 | confidence AUROC 0.8184672470386756 | gap -0.33380904809476236 -> predicted sign of the test gain: - | reference predictor (tune gain of must-answer + E, -32): -
+
+== triviaqa qwen3.5-9b: 192 of 192 questions (excluded: none); votes {"scored": 1152, "empty answer": 0, "pro declined": 0, "refusal-only references": 0}
+    baseline_x                                                 answers 186 | right 125 wrong  61 hedge  0 | net   64
+    baseline_caut                                              answers 185 | right 123 wrong  62 hedge  0 | net   61
+    baseline_conf                                              answers 192 | right 123 wrong  69 hedge  0 | net   54
+    baseline_conf_E2                                           answers 192 | right 129 wrong  62 hedge  0 | net   67
+    baseline_conf_FR                                           answers 192 | right 122 wrong  70 hedge  0 | net   52
+    E_L15_conf-w-p2                                            answers 192 | right 117 wrong  69 hedge  0 | net   48
+    step 0 / D2  baseline_conf_E2               minus baseline_conf: net +13 [+0, +27]
+    step 0 / D2  baseline_conf_FR               minus baseline_conf: net -2 [-16, +12]
+    step 0 / D2  E_L15_conf-w-p2                minus baseline_conf: net -6 [-24, +12]
+    alias vs Pro on answered right / wrong cells: 1069 / 1132 agree (94.4%)
+    D2: counts {"right": 123, "wrong": 69, "hedge": 0, "refusal or empty": 0, "excluded": 0, "no finite confidence": 0, "no finite projection": 0} | readout AUROC 0.3247319429716036 | confidence AUROC 0.8915989159891599 | gap -0.5668669730175562 -> predicted sign of the test gain: - | reference predictor (tune gain of must-answer + E, -6): -
+
+== triviaqa qwen3.8-27b: 192 of 192 questions (excluded: none); votes {"scored": 1152, "empty answer": 0, "pro declined": 0, "refusal-only references": 0}
+    baseline_x                                                 answers 183 | right 128 wrong  55 hedge  0 | net   73
+    baseline_caut                                              answers 186 | right 130 wrong  56 hedge  0 | net   74
+    baseline_conf                                              answers 192 | right 135 wrong  57 hedge  0 | net   78
+    baseline_conf_E2                                           answers 192 | right 132 wrong  59 hedge  1 | net   73
+    baseline_conf_FR                                           answers 192 | right 133 wrong  59 hedge  0 | net   74
+    E_L28_conf-w-p2                                            answers 192 | right 132 wrong  59 hedge  1 | net   73
+    step 0 / D2  baseline_conf_E2               minus baseline_conf: net -5 [-13, +2]
+    step 0 / D2  baseline_conf_FR               minus baseline_conf: net -4 [-12, +4]
+    step 0 / D2  E_L28_conf-w-p2                minus baseline_conf: net -5 [-16, +6]
+    alias vs Pro on answered right / wrong cells: 1082 / 1135 agree (95.3%)
+    D2: counts {"right": 135, "wrong": 57, "hedge": 0, "refusal or empty": 0, "excluded": 0, "no finite confidence": 0, "no finite projection": 0} | readout AUROC 0.4092267706302794 | confidence AUROC 0.8874593892137752 | gap -0.4782326185834958 -> predicted sign of the test gain: - | reference predictor (tune gain of must-answer + E, -5): -
+
+== triviaqa gemma3-12b: 192 of 192 questions (excluded: none); votes {"scored": 1152, "empty answer": 0, "pro declined": 0, "refusal-only references": 0}
+    baseline_x                                                 answers 190 | right 137 wrong  53 hedge  0 | net   84
+    baseline_caut                                              answers 190 | right 136 wrong  54 hedge  0 | net   82
+    baseline_conf                                              answers 192 | right 133 wrong  59 hedge  0 | net   74
+    baseline_conf_E2                                           answers 192 | right 132 wrong  59 hedge  0 | net   73
+    baseline_conf_FR                                           answers 192 | right 134 wrong  58 hedge  0 | net   76
+    E_L22_conf-w-p2                                            answers 192 | right 129 wrong  59 hedge  0 | net   70
+    step 0 / D2  baseline_conf_E2               minus baseline_conf: net -1 [-12, +10]
+    step 0 / D2  baseline_conf_FR               minus baseline_conf: net +2 [-10, +14]
+    step 0 / D2  E_L22_conf-w-p2                minus baseline_conf: net -4 [-22, +14]
+    alias vs Pro on answered right / wrong cells: 1063 / 1143 agree (93.0%)
+    D2: counts {"right": 133, "wrong": 59, "hedge": 0, "refusal or empty": 0, "excluded": 0, "no finite confidence": 0, "no finite projection": 0} | readout AUROC 0.34446285204536764 | confidence AUROC 0.8585446667516248 | gap -0.5140818147062571 -> predicted sign of the test gain: - | reference predictor (tune gain of must-answer + E, -4): -
+
+== triviaqa gemma3-27b: 192 of 192 questions (excluded: none); votes {"scored": 1152, "empty answer": 0, "pro declined": 0, "refusal-only references": 0}
+    baseline_x                                                 answers 191 | right 149 wrong  42 hedge  0 | net  107
+    baseline_caut                                              answers 189 | right 146 wrong  43 hedge  0 | net  103
+    baseline_conf                                              answers 192 | right 147 wrong  45 hedge  0 | net  102
+    baseline_conf_E2                                           answers 192 | right 138 wrong  54 hedge  0 | net   84
+    baseline_conf_FR                                           answers 192 | right 148 wrong  44 hedge  0 | net  104
+    E_L26_conf-w-p2                                            answers 192 | right 118 wrong  73 hedge  0 | net   45
+    step 0 / D2  baseline_conf_E2               minus baseline_conf: net -18 [-34, -2]
+    step 0 / D2  baseline_conf_FR               minus baseline_conf: net +2 [-6, +12]
+    step 0 / D2  E_L26_conf-w-p2                minus baseline_conf: net -57 [-80, -35]
+    alias vs Pro on answered right / wrong cells: 1036 / 1147 agree (90.3%)
+    D2: counts {"right": 147, "wrong": 45, "hedge": 0, "refusal or empty": 0, "excluded": 0, "no finite confidence": 0, "no finite projection": 0} | readout AUROC 0.4613756613756614 | confidence AUROC 0.7374149659863946 | gap -0.27603930461073317 -> predicted sign of the test gain: - | reference predictor (tune gain of must-answer + E, -57): -
+
+== popqa llama3.1-8b: 192 of 192 questions (excluded: none); votes {"scored": 1152, "empty answer": 0, "pro declined": 0, "refusal-only references": 0}
+    baseline_x                                                 answers 144 | right  64 wrong  81 hedge  0 | net  -17
+    baseline_caut                                              answers 138 | right  61 wrong  78 hedge  0 | net  -17
+    baseline_conf                                              answers 189 | right  68 wrong 121 hedge  1 | net  -53
+    baseline_conf_E2                                           answers 190 | right  62 wrong 126 hedge  1 | net  -64
+    baseline_conf_FR                                           answers 192 | right  66 wrong 126 hedge  0 | net  -60
+    E_L11_conf-w-p2                                            answers 190 | right  54 wrong 118 hedge  2 | net  -64
+    step 0 / D2  baseline_conf_E2               minus baseline_conf: net -11 [-26, +3]
+    step 0 / D2  baseline_conf_FR               minus baseline_conf: net -7 [-20, +6]
+    step 0 / D2  E_L11_conf-w-p2                minus baseline_conf: net -11 [-31, +8]
+    alias vs Pro on answered right / wrong cells: 973 / 1020 agree (95.4%)
+    D2: counts {"right": 68, "wrong": 121, "hedge": 1, "refusal or empty": 2, "excluded": 0, "no finite confidence": 0, "no finite projection": 0} | readout AUROC 0.7507292173067575 | confidence AUROC 0.8677685950413223 | gap -0.11703937773456485 -> predicted sign of the test gain: - | reference predictor (tune gain of must-answer + E, -11): -
+
+== popqa qwen3.5-9b: 192 of 192 questions (excluded: none); votes {"scored": 1152, "empty answer": 0, "pro declined": 0, "refusal-only references": 0}
+    baseline_x                                                 answers 155 | right  51 wrong 104 hedge  0 | net  -53
+    baseline_caut                                              answers 148 | right  52 wrong  96 hedge  0 | net  -44
+    baseline_conf                                              answers 189 | right  53 wrong 136 hedge  0 | net  -83
+    baseline_conf_E2                                           answers 189 | right  52 wrong 137 hedge  0 | net  -85
+    baseline_conf_FR                                           answers 192 | right  52 wrong 140 hedge  0 | net  -88
+    E_L15_conf-w-p2                                            answers 181 | right  50 wrong 132 hedge  0 | net  -82
+    step 0 / D2  baseline_conf_E2               minus baseline_conf: net -2 [-11, +7]
+    step 0 / D2  baseline_conf_FR               minus baseline_conf: net -5 [-15, +4]
+    step 0 / D2  E_L15_conf-w-p2                minus baseline_conf: net +1 [-9, +11]
+    alias vs Pro on answered right / wrong cells: 1011 / 1054 agree (95.9%)
+    D2: counts {"right": 53, "wrong": 136, "hedge": 0, "refusal or empty": 3, "excluded": 0, "no finite confidence": 0, "no finite projection": 0} | readout AUROC 0.37028301886792453 | confidence AUROC 0.9210599334073252 | gap -0.5507769145394006 -> predicted sign of the test gain: - | reference predictor (tune gain of must-answer + E, +1): 0
+
+== popqa qwen3.8-27b: 192 of 192 questions (excluded: none); votes {"scored": 1148, "empty answer": 4, "pro declined": 0, "refusal-only references": 0}
+    baseline_x                                                 answers 119 | right  50 wrong  70 hedge  0 | net  -20
+    baseline_caut                                              answers 121 | right  46 wrong  76 hedge  0 | net  -30
+    baseline_conf                                              answers 190 | right  58 wrong 134 hedge  0 | net  -76
+    baseline_conf_E2                                           answers 190 | right  57 wrong 133 hedge  1 | net  -76
+    baseline_conf_FR                                           answers 189 | right  54 wrong 136 hedge  1 | net  -82
+    E_L28_conf-w-p2                                            answers 191 | right  57 wrong 135 hedge  0 | net  -78
+    step 0 / D2  baseline_conf_E2               minus baseline_conf: net +0 [-9, +9]
+    step 0 / D2  baseline_conf_FR               minus baseline_conf: net -6 [-16, +3]
+    step 0 / D2  E_L28_conf-w-p2                minus baseline_conf: net -2 [-10, +6]
+    alias vs Pro on answered right / wrong cells: 942 / 998 agree (94.4%)
+    D2: counts {"right": 58, "wrong": 134, "hedge": 0, "refusal or empty": 0, "excluded": 0, "no finite confidence": 0, "no finite projection": 0} | readout AUROC 0.5165980442614514 | confidence AUROC 0.8861296963458569 | gap -0.3695316520844055 -> predicted sign of the test gain: - | reference predictor (tune gain of must-answer + E, -2): 0
+
+== popqa gemma3-12b: 192 of 192 questions (excluded: none); votes {"scored": 1152, "empty answer": 0, "pro declined": 0, "refusal-only references": 0}
+    baseline_x                                                 answers 166 | right  57 wrong 110 hedge  0 | net  -53
+    baseline_caut                                              answers 165 | right  57 wrong 109 hedge  0 | net  -52
+    baseline_conf                                              answers 190 | right  55 wrong 137 hedge  0 | net  -82
+    baseline_conf_E2                                           answers 190 | right  47 wrong 144 hedge  0 | net  -97
+    baseline_conf_FR                                           answers 191 | right  54 wrong 138 hedge  0 | net  -84
+    E_L22_conf-w-p2                                            answers 184 | right  53 wrong 127 hedge  0 | net  -74
+    step 0 / D2  baseline_conf_E2               minus baseline_conf: net -15 [-26, -5]
+    step 0 / D2  baseline_conf_FR               minus baseline_conf: net -2 [-14, +10]
+    step 0 / D2  E_L22_conf-w-p2                minus baseline_conf: net +8 [-7, +25]
+    alias vs Pro on answered right / wrong cells: 1033 / 1079 agree (95.7%)
+    D2: counts {"right": 55, "wrong": 137, "hedge": 0, "refusal or empty": 0, "excluded": 0, "no finite confidence": 0, "no finite projection": 0} | readout AUROC 0.4859986728599867 | confidence AUROC 0.8753815527538156 | gap -0.38938287989382886 -> predicted sign of the test gain: - | reference predictor (tune gain of must-answer + E, +8): +
+
+== popqa gemma3-27b: 192 of 192 questions (excluded: none); votes {"scored": 1152, "empty answer": 0, "pro declined": 0, "refusal-only references": 0}
+    baseline_x                                                 answers 177 | right  65 wrong 113 hedge  0 | net  -48
+    baseline_caut                                              answers 176 | right  67 wrong 110 hedge  0 | net  -43
+    baseline_conf                                              answers 190 | right  70 wrong 122 hedge  0 | net  -52
+    baseline_conf_E2                                           answers 189 | right  62 wrong 130 hedge  0 | net  -68
+    baseline_conf_FR                                           answers 191 | right  76 wrong 116 hedge  0 | net  -40
+    E_L26_conf-w-p2                                            answers 191 | right  53 wrong 139 hedge  0 | net  -86
+    step 0 / D2  baseline_conf_E2               minus baseline_conf: net -16 [-32, -2]
+    step 0 / D2  baseline_conf_FR               minus baseline_conf: net +12 [+2, +24]
+    step 0 / D2  E_L26_conf-w-p2                minus baseline_conf: net -34 [-54, -14]
+    alias vs Pro on answered right / wrong cells: 1031 / 1114 agree (92.5%)
+    D2: counts {"right": 70, "wrong": 122, "hedge": 0, "refusal or empty": 0, "excluded": 0, "no finite confidence": 0, "no finite projection": 0} | readout AUROC 0.4717798594847775 | confidence AUROC 0.8240046838407494 | gap -0.3522248243559719 -> predicted sign of the test gain: - | reference predictor (tune gain of must-answer + E, -34): -

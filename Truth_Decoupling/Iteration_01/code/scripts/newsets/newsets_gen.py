@@ -403,7 +403,8 @@ def run_conf(X, m, args):
     report = {"protocol": PROTOCOL + "_conf", "gen_version": GEN_VERSION, "model": args.model, "task": c["task"],
               "split": c["split"], "arm": c["arm"], "condition": c["condition"], "generation_sha256": sha_file(args.gen_file),
               "reference_sha256": sha_file(args.ref_gen_file) if args.ref_gen_file else None,
-              "identity_sha256": ctx.ident_sha, "script_sha256": sha_file(__file__), "scorer_sha256": sha_file(FC.__file__)}
+              "identity_sha256": ctx.ident_sha, "script_sha256": sha_file(__file__), "scorer_sha256": sha_file(FC.__file__),
+              "scoring_batch_size": args.score_batch}
     eot = list(ctx.eot)
     with X.E.fp32_output_projection(ctx.bundle, enabled=True):
         prompts = [X.pd.render_prompt(ctx.bundle, systems[c["base_prompt"]], template, q) for _, q in items]
@@ -423,10 +424,10 @@ def run_conf(X, m, args):
                 rf = list(ref_rows[i]["token_ids"]) + (eot if ref_rows[i]["finished"] else [])
                 j = next((k for k in range(min(len(tf), len(rf))) if tf[k] != rf[k]), None)
                 probes.append(None if j is None else (j, rf[j]))
-        res = FC.score(ctx, [prompts[i] for i in keep], [rows[i] for i in keep], writes, probes, batch=BATCH)
+        res = FC.score(ctx, [prompts[i] for i in keep], [rows[i] for i in keep], writes, probes, batch=args.score_batch)
         check = None
         if probes is not None:
-            abl = FC.score(ctx, [prompts[i] for i in keep], [rows[i] for i in keep], writes[:-1], probes, batch=BATCH)
+            abl = FC.score(ctx, [prompts[i] for i in keep], [rows[i] for i in keep], writes[:-1], probes, batch=args.score_batch)
             shifts = [(f[3][0] - f[3][1]) - (a[3][0] - a[3][1]) for pr, f, a in zip(probes, res, abl) if pr is not None]
             n = len(shifts)
             toward = sum(s > 0 for s in shifts)
@@ -580,6 +581,8 @@ def main():
     ap.add_argument("phase", choices=["repro", "gen", "conf", "export", "selftest"])
     ap.add_argument("--gen-file", type=Path)
     ap.add_argument("--ref-gen-file", type=Path, help="conf: the same arm without its last write (first-difference check)")
+    ap.add_argument("--score-batch", type=int, default=BATCH, choices=(8, 1),
+                    help="conf: teacher-forced scoring batch; 1 only after a target misses the 98%% check at 8 (the rule of ff_explore_ec_confidence.py)")
     ap.add_argument("--models", type=Path)
     ap.add_argument("--model")
     ap.add_argument("--task", choices=["triviaqa", "popqa", "mmlu", "gsm8k"])
