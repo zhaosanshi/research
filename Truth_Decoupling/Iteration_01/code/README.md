@@ -85,7 +85,7 @@
 | `scripts/capability/cap_mcq_prob.py` | MMLU 的选项概率测法（ITI、LoFiT 所用的方式：比四个字母的概率，不能说不知道；每个字母的两种单词元写法相加）；同题、同问法、同写入，只换判分 | 新写（赵磊 2026-11-19 19:5x 要求），未经 GPT 审；8 题试跑后运行 | 514fdc7c4c9c1697 |
 | `scripts/capability/cap_mcq_sweep.py` | MMLU 选项概率测法下换写入方式的对照：力度、反向、同样大小的随机方向、均值差方向、学到的方向拆成两部分、只从提问末尾写；一次前向读出四个字母，与 `cap_mcq_prob.py` 的结果逐题相同 | 新写（赵磊 2026-11-20 要求找原因），未经 GPT 审；16 题试跑后运行 | 001bf8d5725f5818 |
 | `diag/cap_mcq_flips.py` | 逐题看推 E 把 MMLU 的选项改成了什么（字母偏向、原选择对错、把握高低、否定选项、科目） | 新写，未经 GPT 审 | 62370da7eb44d5d7 |
-| `diag/dose_table.py` | TruthfulQA 测试集上 E 力度 1 与力度 2 的主要系统并排（只读已有回答与判分，调用 `main_table_same_n.py`） | 新写，未经 GPT 审 | 829257ae39f6c876 |
+| `diag/dose_table.py` | TruthfulQA 测试集上 E 力度 1 与力度 2 的主要系统并排（只读已有回答与判分，调用 `main_table_same_n.py`） | 新写，未经 GPT 审；同日补入与提示词基线的比较（留空再问 B、必须作答加如实句不写入）及正文三个模型的合计（修改前为 829257ae39f6c876） | d1e33c892a41fc8f |
 | `diag/cap_mcq_fresh.py` | MMLU 全测试集的计分：没看过的 13,042 题、看过的 1,000 题、全部，各按 1 个百分点判据给标签 | 新写，未经 GPT 审 | fa36034a0e569c6e |
 
 ## 变更记录
@@ -126,3 +126,4 @@
 | 2026-11-20 | 新题验证：迁入 `diag/newsets_val.py`、重选上限的配置与新题清单；切分、题库、生成程序与启动脚本相应扩展 | 赵磊（Opus 5.5 代笔） |
 | 2026-11-20 | 新题验证结果放进 `results/newsets/val/`；迁入 `diag/newsets_tqa_shared_answers.py` | 赵磊（Opus 5.5 代笔） |
 | 2026-11-20 | MMLU 找原因：迁入 `cap_mcq_sweep.py`、`diag/cap_mcq_flips.py`、`diag/dose_table.py`、`diag/cap_mcq_fresh.py`；结果在 `results/capability/dose/` 与 `results/capability/mmlu/` | 赵磊（Fable 5.2 代笔） |
+| 2026-11-20 | `diag/dose_table.py` 补入提示词基线；总表换成 Fable 5.2 重做的版本 | 赵磊（Fable 5.2 代笔） |

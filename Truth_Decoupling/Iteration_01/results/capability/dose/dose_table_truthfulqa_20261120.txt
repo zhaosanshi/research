@@ -1,77 +1,136 @@
 
 ## Llama-3.1-8B: test 523 questions (tune 192)
     no write                                                       answers 467 | right 181 wrong 267 hedge 18 | net  -86
+    must-answer prompt + the honest sentence, nothing written      answers 523 | right 251 wrong 251 hedge 16 | net    0
     single E, strength 1                                           answers 407 | right 180 wrong 209 hedge 15 | net  -29
     N1 at E 1 (chosen on tune: N1: E 1, own blanks up to 2, E's blanks up to none) answers 459 | right 208 wrong 219 hedge 25 | net  -11
+    prompt B at E 1 (blanks re-asked with the must-answer prompt)  answers 523 | right 236 wrong 257 hedge 24 | net  -21
+    must-answer + E 1, every question answered                     answers 523 | right 228 wrong 273 hedge 17 | net  -45
     must-answer + E 1, its 459 most confident answers              answers 459 | right 210 wrong 230 hedge 14 | net  -20
     at E 1: single E minus no write +57 [+21, +91] | N1 minus no write +75 [+37, +111] | N1 minus single E +18 [+6, +30] | N1 minus the strong form +9 [-25, +42]
+    at E 1: N1 minus prompt B +10 [-8, +28] | N1 minus must-answer + sentence -11 [-49, +27] | must-answer + E minus must-answer + sentence: net -45 [-79, -11] | right answers -23 [-40, -5]
     single E, strength 2                                           answers 312 | right 190 wrong 105 hedge 15 | net   85
     N1 at E 2 (chosen on tune: N1: E 2, own blanks up to 0.5, E's blanks up to 0.25) answers 379 | right 233 wrong 123 hedge 21 | net  110
+    prompt B at E 2 (blanks re-asked with the must-answer prompt)  answers 523 | right 294 wrong 199 hedge 22 | net   95
+    must-answer + E 2, every question answered                     answers 523 | right 288 wrong 213 hedge 14 | net   75
     must-answer + E 2, its 379 most confident answers              answers 379 | right 220 wrong 142 hedge 11 | net   78
     at E 2: single E minus no write +171 [+125, +214] | N1 minus no write +196 [+148, +241] | N1 minus single E +25 [+10, +40] | N1 minus the strong form +32 [-1, +65]
+    at E 2: N1 minus prompt B +15 [-10, +40] | N1 minus must-answer + sentence +110 [+68, +152] | must-answer + E minus must-answer + sentence: net +75 [+36, +116] | right answers +37 [+17, +59]
     single E 1 minus single E 2: -114 [-150, -77]
     N1 at E 1 minus N1 at E 2: -121 [-160, -84]
 
 ## Qwen3.5-9B: test 523 questions (tune 192)
     no write                                                       answers 474 | right 268 wrong 195 hedge 10 | net   73
+    must-answer prompt + the honest sentence, nothing written      answers 522 | right 338 wrong 170 hedge  6 | net  168
     single E, strength 1                                           answers 446 | right 288 wrong 151 hedge  6 | net  137
     N1 at E 1 (chosen on tune: N1: E 1, own blanks up to 0.5, E's blanks up to 0.5) answers 472 | right 304 wrong 158 hedge  7 | net  146
+    prompt B at E 1 (blanks re-asked with the must-answer prompt)  answers 521 | right 317 wrong 189 hedge 10 | net  128
+    must-answer + E 1, every question answered                     answers 521 | right 319 wrong 189 hedge  8 | net  130
     must-answer + E 1, its 472 most confident answers              answers 472 | right 298 wrong 162 hedge  6 | net  136
     at E 1: single E minus no write +64 [+37, +92] | N1 minus no write +73 [+45, +101] | N1 minus single E +9 [+0, +19] | N1 minus the strong form +10 [-18, +37]
+    at E 1: N1 minus prompt B +18 [+4, +32] | N1 minus must-answer + sentence -22 [-50, +7] | must-answer + E minus must-answer + sentence: net -38 [-62, -14] | right answers -19 [-32, -6]
     single E, strength 2                                           answers 409 | right 287 wrong 116 hedge  3 | net  171
     N1 at E 2 (chosen on tune: N1: E 2, own blanks up to 0.5, E's blanks up to 0.25) answers 446 | right 312 wrong 123 hedge  4 | net  189
+    prompt B at E 2 (blanks re-asked with the must-answer prompt)  answers 519 | right 327 wrong 176 hedge  6 | net  151
+    must-answer + E 2, every question answered                     answers 519 | right 328 wrong 177 hedge  6 | net  151
     must-answer + E 2, its 446 most confident answers              answers 446 | right 305 wrong 129 hedge  5 | net  176
     at E 2: single E minus no write +98 [+63, +134] | N1 minus no write +116 [+79, +154] | N1 minus single E +18 [+7, +29] | N1 minus the strong form +13 [-11, +37]
+    at E 2: N1 minus prompt B +38 [+21, +56] | N1 minus must-answer + sentence +21 [-8, +50] | must-answer + E minus must-answer + sentence: net -17 [-42, +7] | right answers -10 [-23, +3]
     single E 1 minus single E 2: -34 [-58, -10]
     N1 at E 1 minus N1 at E 2: -43 [-68, -18]
 
 ## Qwen3.8-27B: test 522 questions (tune 192)
     no write                                                       answers 362 | right 202 wrong 156 hedge  1 | net   46
+    must-answer prompt + the honest sentence, nothing written      answers 522 | right 320 wrong 186 hedge 11 | net  134
     single E, strength 1                                           answers 341 | right 221 wrong 116 hedge  1 | net  105
     N1 at E 1 (chosen on tune: N1: E 1, own blanks up to 0.5, E's blanks up to 0.25) answers 471 | right 297 wrong 162 hedge  6 | net  135
+    prompt B at E 1 (blanks re-asked with the must-answer prompt)  answers 522 | right 308 wrong 197 hedge 11 | net  111
+    must-answer + E 1, every question answered                     answers 522 | right 304 wrong 202 hedge 11 | net  102
     must-answer + E 1, its 471 most confident answers              answers 471 | right 279 wrong 180 hedge  9 | net   99
     at E 1: single E minus no write +59 [+36, +83] | N1 minus no write +89 [+57, +121] | N1 minus single E +30 [+8, +52] | N1 minus the strong form +36 [+11, +62]
+    at E 1: N1 minus prompt B +24 [+5, +44] | N1 minus must-answer + sentence +1 [-30, +33] | must-answer + E minus must-answer + sentence: net -32 [-60, -5] | right answers -16 [-30, -2]
     single E, strength 2                                           answers 365 | right 262 wrong 100 hedge  0 | net  162
     N1 at E 2 (chosen on tune: N1: E 2, own blanks up to 1, E's blanks up to 0.5) answers 493 | right 339 wrong 140 hedge  7 | net  199
+    prompt B at E 2 (blanks re-asked with the must-answer prompt)  answers 520 | right 343 wrong 163 hedge  7 | net  180
+    must-answer + E 2, every question answered                     answers 520 | right 333 wrong 173 hedge  8 | net  160
     must-answer + E 2, its 493 most confident answers              answers 493 | right 322 wrong 161 hedge  5 | net  161
     at E 2: single E minus no write +116 [+80, +152] | N1 minus no write +153 [+112, +193] | N1 minus single E +37 [+15, +59] | N1 minus the strong form +38 [+12, +65]
+    at E 2: N1 minus prompt B +19 [+1, +38] | N1 minus must-answer + sentence +65 [+33, +98] | must-answer + E minus must-answer + sentence: net +26 [-4, +55] | right answers +13 [-2, +28]
     single E 1 minus single E 2: -57 [-85, -28]
     N1 at E 1 minus N1 at E 2: -64 [-96, -33]
 
 ## Gemma-3-12B: test 522 questions (tune 192)
     no write                                                       answers 460 | right 228 wrong 216 hedge 17 | net   12
+    must-answer prompt + the honest sentence, nothing written      answers 520 | right 293 wrong 216 hedge 10 | net   77
     single E, strength 1                                           answers 408 | right 237 wrong 163 hedge  9 | net   74
     N1 at E 1 (chosen on tune: N1: E 1, own blanks up to 2, E's blanks up to 1) answers 498 | right 289 wrong 188 hedge 17 | net  101
+    prompt B at E 1 (blanks re-asked with the must-answer prompt)  answers 519 | right 288 wrong 208 hedge 17 | net   80
+    must-answer + E 1, every question answered                     answers 519 | right 281 wrong 221 hedge 12 | net   60
     must-answer + E 1, its 498 most confident answers              answers 498 | right 269 wrong 212 hedge 10 | net   57
     at E 1: single E minus no write +62 [+31, +93] | N1 minus no write +89 [+56, +122] | N1 minus single E +27 [+11, +45] | N1 minus the strong form +44 [+16, +72]
+    at E 1: N1 minus prompt B +21 [+3, +40] | N1 minus must-answer + sentence +24 [-15, +63] | must-answer + E minus must-answer + sentence: net -17 [-54, +21] | right answers -12 [-31, +8]
     single E, strength 2                                           answers 346 | right 224 wrong 117 hedge  4 | net  107
     N1 at E 2 (chosen on tune: N1: E 2, own blanks up to 2, E's blanks up to 2) answers 493 | right 318 wrong 161 hedge  7 | net  157
+    prompt B at E 2 (blanks re-asked with the must-answer prompt)  answers 521 | right 332 wrong 168 hedge  7 | net  164
+    must-answer + E 2, every question answered                     answers 521 | right 336 wrong 168 hedge  3 | net  168
     must-answer + E 2, its 493 most confident answers              answers 493 | right 321 wrong 158 hedge  2 | net  163
     at E 2: single E minus no write +95 [+52, +138] | N1 minus no write +145 [+96, +196] | N1 minus single E +50 [+28, +73] | N1 minus the strong form -6 [-31, +19]
+    at E 2: N1 minus prompt B -7 [-27, +13] | N1 minus must-answer + sentence +80 [+37, +124] | must-answer + E minus must-answer + sentence: net +91 [+49, +133] | right answers +43 [+21, +65]
     single E 1 minus single E 2: -33 [-67, +1]
     N1 at E 1 minus N1 at E 2: -56 [-97, -15]
 
 ## Gemma-3-27B: test 523 questions (tune 192)
     no write                                                       answers 456 | right 221 wrong 218 hedge 17 | net    3
+    must-answer prompt + the honest sentence, nothing written      answers 521 | right 320 wrong 180 hedge 22 | net  140
     single E, strength 1                                           answers 433 | right 269 wrong 146 hedge 18 | net  123
     N1 at E 1 (chosen on tune: N1: E 1, own blanks up to 2, E's blanks up to 1) answers 519 | right 330 wrong 162 hedge 23 | net  168
+    prompt B at E 1 (blanks re-asked with the must-answer prompt)  answers 521 | right 323 wrong 177 hedge 20 | net  146
+    must-answer + E 1, every question answered                     answers 520 | right 301 wrong 204 hedge 18 | net   97
     must-answer + E 1, its 519 most confident answers              answers 519 | right 298 wrong 203 hedge 18 | net   95
     at E 1: single E minus no write +120 [+86, +155] | N1 minus no write +165 [+128, +203] | N1 minus single E +45 [+29, +62] | N1 minus the strong form +73 [+41, +105]
+    at E 1: N1 minus prompt B +22 [+7, +38] | N1 minus must-answer + sentence +28 [-10, +66] | must-answer + E minus must-answer + sentence: net -43 [-80, -5] | right answers -19 [-39, +1]
     single E, strength 2                                           answers 433 | right 309 wrong 104 hedge 14 | net  205
     N1 at E 2 (chosen on tune: N1: E 2, own blanks up to 1, E's blanks up to 0.5) answers 499 | right 356 wrong 116 hedge 18 | net  240
+    prompt B at E 2 (blanks re-asked with the must-answer prompt)  answers 522 | right 358 wrong 143 hedge 16 | net  215
+    must-answer + E 2, every question answered                     answers 521 | right 343 wrong 165 hedge 14 | net  178
     must-answer + E 2, its 499 most confident answers              answers 499 | right 329 wrong 157 hedge 13 | net  172
     at E 2: single E minus no write +202 [+158, +245] | N1 minus no write +237 [+191, +284] | N1 minus single E +35 [+21, +50] | N1 minus the strong form +68 [+38, +97]
+    at E 2: N1 minus prompt B +25 [+11, +39] | N1 minus must-answer + sentence +100 [+58, +143] | must-answer + E minus must-answer + sentence: net +38 [-3, +79] | right answers +23 [+1, +44]
     single E 1 minus single E 2: -82 [-116, -47]
     N1 at E 1 minus N1 at E 2: -72 [-110, -34]
 
 ## the five models together (net; per question the differences of the models are summed; questions resampled)
-  single E 1 minus no write                    +362 [+278, +445] (523 questions)
-  N1 at E 1 minus no write                     +491 [+396, +587] (523 questions)
-  N1 at E 1 minus single E 1                   +129 [+87, +174] (523 questions)
-  N1 at E 1 minus the strong form at E 1       +172 [+99, +243] (523 questions)
-  single E 2 minus no write                    +682 [+547, +814] (523 questions)
-  N1 at E 2 minus no write                     +847 [+702, +998] (523 questions)
-  N1 at E 2 minus single E 2                   +165 [+116, +217] (523 questions)
-  N1 at E 2 minus the strong form at E 2       +145 [+78, +210] (523 questions)
-  single E 1 minus single E 2                  -320 [-411, -229] (523 questions)
-  N1 at E 1 minus N1 at E 2                    -356 [-460, -253] (523 questions)
+  single E 1 minus no write                          +362 [+278, +445] (523 questions)
+  N1 at E 1 minus no write                           +491 [+396, +587] (523 questions)
+  N1 at E 1 minus single E 1                         +129 [+87, +174] (523 questions)
+  N1 at E 1 minus the strong form at E 1             +172 [+99, +243] (523 questions)
+  N1 at E 1 minus prompt B at E 1                    +95 [+52, +138] (523 questions)
+  N1 at E 1 minus must-answer + sentence             +20 [-76, +112] (523 questions)
+  must-answer + E 1 minus must-answer + sentence     -175 [-255, -93] (523 questions)
+  single E 2 minus no write                          +682 [+547, +814] (523 questions)
+  N1 at E 2 minus no write                           +847 [+702, +998] (523 questions)
+  N1 at E 2 minus single E 2                         +165 [+116, +217] (523 questions)
+  N1 at E 2 minus the strong form at E 2             +145 [+78, +210] (523 questions)
+  N1 at E 2 minus prompt B at E 2                    +90 [+41, +136] (523 questions)
+  N1 at E 2 minus must-answer + sentence             +376 [+264, +490] (523 questions)
+  must-answer + E 2 minus must-answer + sentence     +213 [+116, +314] (523 questions)
+  single E 1 minus single E 2                        -320 [-411, -229] (523 questions)
+  N1 at E 1 minus N1 at E 2                          -356 [-460, -253] (523 questions)
+
+## the three main-text models together (Llama-3.1-8B, Qwen3.5-9B, Qwen3.8-27B) (net; per question the differences of the models are summed; questions resampled)
+  single E 1 minus no write                          +180 [+126, +235] (523 questions)
+  N1 at E 1 minus no write                           +237 [+179, +297] (523 questions)
+  N1 at E 1 minus single E 1                         +57 [+29, +85] (523 questions)
+  N1 at E 1 minus the strong form at E 1             +55 [+5, +105] (523 questions)
+  N1 at E 1 minus prompt B at E 1                    +52 [+20, +85] (523 questions)
+  N1 at E 1 minus must-answer + sentence             -32 [-95, +31] (523 questions)
+  must-answer + E 1 minus must-answer + sentence     -115 [-170, -61] (523 questions)
+  single E 2 minus no write                          +385 [+305, +463] (523 questions)
+  N1 at E 2 minus no write                           +465 [+379, +550] (523 questions)
+  N1 at E 2 minus single E 2                         +80 [+50, +112] (523 questions)
+  N1 at E 2 minus the strong form at E 2             +83 [+34, +133] (523 questions)
+  N1 at E 2 minus prompt B at E 2                    +72 [+34, +109] (523 questions)
+  N1 at E 2 minus must-answer + sentence             +196 [+129, +266] (523 questions)
+  must-answer + E 2 minus must-answer + sentence     +84 [+27, +142] (523 questions)
+  single E 1 minus single E 2                        -205 [-263, -146] (523 questions)
+  N1 at E 1 minus N1 at E 2                          -228 [-292, -165] (523 questions)
