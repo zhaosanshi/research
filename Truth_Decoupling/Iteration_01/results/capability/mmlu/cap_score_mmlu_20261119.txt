@@ -1,0 +1,56 @@
+capability check mmlu, batch 8: accuracy and no-answer rate per condition; changes vs no write (95%, items resampled)
+
+== mmlu llama3.1-8b: 1000 items; blank under E: 50
+    no write                               accuracy 0.640 | no answer 0.000 {}
+    E 2                                    accuracy 0.563 | no answer 0.050 {"refusal": 50}
+      change: accuracy -7.7 [-10.5, -5.0] points, no answer +5.0 [+3.7, +6.4] -> damage (point estimate beyond a line)
+    N1 (caps own 0-5 / E's 0-25)           accuracy 0.565 | no answer 0.041 {"refusal": 41}
+      change: accuracy -7.5 [-10.3, -4.8] points, no answer +4.1 [+2.9, +5.3] -> damage (point estimate beyond a line)
+    C = 2 on every item (stress control)   accuracy 0.634 | no answer 0.001 {"none": 1}
+      change: accuracy -0.6 [-1.5, +0.2] points, no answer +0.1 [+0.0, +0.3] -> damage cannot be excluded (point estimates within, an interval crosses a line)
+      N1: re-asked 50, released 9, vetoed 13, final state differs from E 2 on 9; generations per item 1.050
+
+== mmlu qwen3.5-9b: 1000 items; blank under E: 4
+    no write                               accuracy 0.777 | no answer 0.000 {}
+    E 2                                    accuracy 0.774 | no answer 0.004 {"refusal": 4}
+      change: accuracy -0.3 [-1.8, +1.2] points, no answer +0.4 [+0.1, +0.8] -> damage cannot be excluded (point estimates within, an interval crosses a line)
+    N1 (caps own 0-5 / E's 0-25)           accuracy 0.774 | no answer 0.004 {"refusal": 4}
+      change: accuracy -0.3 [-1.8, +1.2] points, no answer +0.4 [+0.1, +0.8] -> damage cannot be excluded (point estimates within, an interval crosses a line)
+    C = 2 on every item (stress control)   accuracy 0.778 | no answer 0.000 {}
+      change: accuracy +0.1 [-0.8, +0.9] points, no answer +0.0 [+0.0, +0.0] -> kept (both intervals exclude damage beyond the lines)
+      N1: re-asked 4, released 0, vetoed 2, final state differs from E 2 on 0; generations per item 1.004
+
+== mmlu qwen3.8-27b: 1000 items; blank under E: 3
+    no write                               accuracy 0.821 | no answer 0.002 {"refusal": 2}
+    E 2                                    accuracy 0.806 | no answer 0.003 {"refusal": 3}
+      change: accuracy -1.5 [-2.8, -0.2] points, no answer +0.1 [+0.0, +0.3] -> damage (point estimate beyond a line)
+    N1 (caps own 1 / E's 0-5)              accuracy 0.807 | no answer 0.001 {"refusal": 1}
+      change: accuracy -1.4 [-2.7, -0.1] points, no answer -0.1 [-0.5, +0.2] -> damage (point estimate beyond a line)
+    C = 2 on every item (stress control)   accuracy 0.818 | no answer 0.000 {}
+      change: accuracy -0.3 [-1.4, +0.8] points, no answer -0.2 [-0.5, +0.0] -> damage cannot be excluded (point estimates within, an interval crosses a line)
+      N1: re-asked 3, released 2, vetoed 1, final state differs from E 2 on 2; generations per item 1.006
+
+== mmlu gemma3-12b: 1000 items; blank under E: 166
+    no write                               accuracy 0.710 | no answer 0.004 {"refusal": 4}
+    E 2                                    accuracy 0.615 | no answer 0.166 {"refusal": 166}
+      change: accuracy -9.5 [-11.8, -7.2] points, no answer +16.2 [+14.0, +18.5] -> damage (point estimate beyond a line)
+    N1 (caps own 2 / E's 2)                accuracy 0.627 | no answer 0.112 {"none": 9, "refusal": 103}
+      change: accuracy -8.3 [-10.7, -5.8] points, no answer +10.8 [+8.9, +12.8] -> damage (point estimate beyond a line)
+    C = 2 on every item (stress control)   accuracy 0.712 | no answer 0.001 {"refusal": 1}
+      change: accuracy +0.2 [-1.0, +1.3] points, no answer -0.3 [-0.7, +0.0] -> kept (both intervals exclude damage beyond the lines)
+      N1: re-asked 166, released 63, vetoed 102, final state differs from E 2 on 54; generations per item 1.447
+
+== mmlu gemma3-27b: 1000 items; blank under E: 33
+    no write                               accuracy 0.771 | no answer 0.002 {"refusal": 2}
+    E 2                                    accuracy 0.690 | no answer 0.033 {"refusal": 33}
+      change: accuracy -8.1 [-10.7, -5.4] points, no answer +3.1 [+2.1, +4.2] -> damage (point estimate beyond a line)
+    N1 (caps own 1 / E's 0-5)              accuracy 0.694 | no answer 0.024 {"none": 1, "refusal": 23}
+      change: accuracy -7.7 [-10.4, -5.0] points, no answer +2.2 [+1.4, +3.1] -> damage (point estimate beyond a line)
+    C = 2 on every item (stress control)   accuracy 0.757 | no answer 0.000 {}
+      change: accuracy -1.4 [-2.4, -0.4] points, no answer -0.2 [-0.5, +0.0] -> damage (point estimate beyond a line)
+      N1: re-asked 33, released 10, vetoed 7, final state differs from E 2 on 9; generations per item 1.063
+
+== five-model (or listed-model) totals on the same items, items resampled jointly
+    E 2                                    mean accuracy change -5.42 [-6.60, -4.28] points
+    N1                                     mean accuracy change -5.04 [-6.22, -3.88] points
+    C = 2 on every item                    mean accuracy change -0.40 [-0.84, +0.06] points
