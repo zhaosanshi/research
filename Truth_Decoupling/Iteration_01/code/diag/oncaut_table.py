@@ -79,6 +79,13 @@ def main():
         print("\n## %s, base prompt %s: test %d questions | the prompt alone: answers %d, right %d, wrong %d, net %+d (tune net %+d)" % (
             model, BASE, len(xsp.qs), sum(base[1]), base[0].count("R"), base[0].count("W"), sum(map(val, base[0])),
             sum(map(val, S.system(tsp, ttx, ("base",))[0]))))
+        tb = S.system(tsp, ttx, ("base",))
+        for s in ts:      # the tune split at every strength (the choice of the strength is made here)
+            cands = [("E", s)] + [("N1", s, k1, k2) for k1 in CAPS for k2 in CAPS if not (k1 is None and k2 is None)]
+            pick = max(cands, key=lambda c: (ps.score(S.system(tsp, ttx, c)[0], 1), -cands.index(c)))
+            e, n1 = S.system(tsp, ttx, ("E", s)), S.system(tsp, ttx, pick)
+            print("    tune E %-4s the prompt alone net %+4d (answers %3d) | single E net %+4d (answers %3d) | best setting: %s, net %+4d (answers %3d)" % (
+                s.replace("-", "."), sum(map(val, tb[0])), sum(tb[1]), sum(map(val, e[0])), sum(e[1]), ro.name_of(pick), sum(map(val, n1[0])), sum(n1[1])))
         for s in [s for s in ts if s in xs]:
             cands = [("E", s)] + [("N1", s, k1, k2) for k1 in CAPS for k2 in CAPS if not (k1 is None and k2 is None)]
             pick = max(cands, key=lambda c: (ps.score(S.system(tsp, ttx, c)[0], 1), -cands.index(c)))
