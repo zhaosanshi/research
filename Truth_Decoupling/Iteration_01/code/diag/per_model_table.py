@@ -143,6 +143,7 @@ def model_block(model, budgets, tot):
             for q, x, y in zip(qs, n1[0], other):
                 t[1][q] = t[1].get(q, 0) + val(x) - val(y)
         tot.setdefault((B, "strengths"), []).append("%s %s" % (model, DM.show(s)))
+        tot.setdefault((B, "questions"), []).append(set(qs))
 
 
 def main():
@@ -157,9 +158,11 @@ def main():
             print("  budget %g: %s" % (B, "; ".join(got) if len(got) == len(names) else "not every model has a strength within the budget (%s)" % "; ".join(got)))
             if len(got) != len(names):
                 continue
+            common = sorted(set.intersection(*tot[(B, "questions")]))
+            print("    on the %d questions that all models have (of %d in any):" % (len(common), len(set.union(*tot[(B, "questions")]))))
             for (b, name), v in tot.items():
-                if b == B and name != "strengths" and v[0] == len(names):
-                    print("    N1 minus %-16s %s" % (name, ps.ci([v[1][q] for q in sorted(v[1])])))
+                if b == B and name not in ("strengths", "questions") and v[0] == len(names):
+                    print("    N1 minus %-16s %s" % (name, ps.ci([v[1][q] for q in common])))
 
 
 if __name__ == "__main__":

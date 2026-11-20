@@ -48,10 +48,16 @@ class Alt:
             return None
         st, bl = dict(D.sp.st), dict(D.sp.blank)
         st1, bl1 = ps.load(w, "pro")
+        tx = dict(fr.raw_texts(D.m["ec"][i]))
+        tx1 = fr.raw_texts(w)
+        # the new work dir judges the no-write answers again: they must be the answers and verdicts of the usual
+        # tables, otherwise "no write" would mean two things; the usual ones are kept
+        bad = [k for k in st1 if k in st and (st1[k] != st[k] or bl1[k] != bl[k] or tx1.get(k) != tx.get(k))]
+        if bad:
+            raise SystemExit("%s: %d cells of %s differ from the usual tables, e.g. %s" % (self.model, len(bad), w, bad[:3]))
         st.update(st1)
         bl.update(bl1)
-        tx = dict(fr.raw_texts(D.m["ec"][i]))
-        tx.update(fr.raw_texts(w))
+        tx.update(tx1)
         sh = S.shell(self.layer, D.m["c"])
         need = ["baseline_x"] + [c for s in self.doses for c in [sh.cE(s)] + [sh.cEC(s, k) for k in LAD]]
         return D, S.NewSplit(self.layer, D.m["c"], st, bl, need, qs=D.sp.qs), fr.Texts(tx, tx)
@@ -167,7 +173,7 @@ def report(a):
             print("  E %-4s mean difference: net %+4d (answers %3d, %d questions) | learned single E minus it %s | N1 minus it %s | it minus no write %s" % (
                 DM.show(s), sum(map(val, md)), sum(not bl1[(qs[i], c)] for i in keep), len(keep),
                 dd([e[0][i] for i in keep], md), dd([n1[0][i] for i in keep], md), dd(md, [base[0][i] for i in keep])))
-    print("## for reference, layer %d (diag/dose_mid.py, same questions where both exist)" % Dx.m["e"])
+    print("## for reference, layer %d (diag/dose_mid.py, on its own question list: not paired with the rows above)" % Dx.m["e"])
     D0, sp0, tx0, doses0, _, _ = DM.merged_all(a.model, 1)
     _, tsp0, ttx0, _, _, _ = DM.merged_all(a.model, 0)
     acc0 = PM.mmlu(a.model, Dx.m["e"])

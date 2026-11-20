@@ -77,6 +77,10 @@ def model_block(model, budgets, tot):
     Dt, Dx, srcs = sources(model)
     base_acc = srcs[0][6]["0"]
     dev, rep = PM.halves(list(base_acc))
+    for layer, tsp, ttx, xsp, xtx, doses, acc, strong in srcs[1:]:
+        if tsp.qs != srcs[0][1].qs or xsp.qs != srcs[0][3].qs:
+            raise SystemExit("%s layer %d: its tune or test question list differs from layer %d's (%d / %d against %d / %d); the layers would be compared on different questions" % (
+                model, layer, srcs[0][0], len(tsp.qs), len(xsp.qs), len(srcs[0][1].qs), len(srcs[0][3].qs)))
     cands = []
     for layer, tsp, ttx, xsp, xtx, doses, acc, strong in srcs:
         if acc["0"] != base_acc:
@@ -141,6 +145,7 @@ def model_block(model, budgets, tot):
             for q, x, y in zip(qs, n1[0], other):
                 t[1][q] = t[1].get(q, 0) + val(x) - val(y)
         tot.setdefault((B, "picks"), []).append("%s L%d %s" % (model, best["layer"], DM.show(s)))
+        tot.setdefault((B, "questions"), []).append(set(qs))
 
 
 def main():
@@ -154,10 +159,12 @@ def main():
         print("  budget %g: %s" % (B, "; ".join(got) if len(got) == len(ro.FIVE) else "not every model has a candidate within the budget (%s)" % "; ".join(got)))
         if len(got) != len(ro.FIVE):
             continue
+        common = sorted(set.intersection(*tot[(B, "questions")]))
+        print("    on the %d questions that all five models have (of %d in any):" % (len(common), len(set.union(*tot[(B, "questions")]))))
         for (b, name), v in tot.items():
-            if b == B and name != "picks":
+            if b == B and name not in ("picks", "questions"):
                 if v[0] == len(ro.FIVE):
-                    print("    N1 minus %-16s %s" % (name, ps.ci([v[1][q] for q in sorted(v[1])])))
+                    print("    N1 minus %-16s %s" % (name, ps.ci([v[1][q] for q in common])))
                 else:
                     print("    N1 minus %-16s only %d of %d models have it" % (name, v[0], len(ro.FIVE)))
 
