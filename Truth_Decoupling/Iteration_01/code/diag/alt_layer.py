@@ -3,6 +3,7 @@
 # version, diag/l16_table.py, which was Llama only). Registered so far:
 #   Llama-3.1-8B   layer 16 instead of 11, strengths 2.5 / 3 / 3.5 / 4   (launchers l16_all.sh, l16b_all.sh, tag l16)
 #   Gemma-3-27B    layer 28 instead of 26, strengths 1 / 1.5 / 2         (launcher g27_l28.sh, tag l28)
+#   Gemma-3-12B    layer 24 instead of 22, strengths 1.5 / 2 / 2.5 / 3   (launcher alt_chain.sh, tag l24)
 # Both layers were found on the MMLU layer map (capability/layermap): the E write costs far less MMLU there.
 # Per model: TruthfulQA free-form, DeepSeek Pro, score = right - wrong, single E and N1 at each strength, next to the
 # MMLU change on the full test split (capability/full_<tag>; the 13,042 items outside the diagnostic list, and the two
@@ -80,7 +81,8 @@ class Alt:
 
 
 ALTS = (Alt("Llama-3.1-8B", "llama3.1-8b", 16, ("2-5", "3", "3-5", "4"), "l16"),
-        Alt("Gemma-3-27B", "gemma3-27b", 28, ("1", "1-5", "2"), "l28"))
+        Alt("Gemma-3-27B", "gemma3-27b", 28, ("1", "1-5", "2"), "l28"),
+        Alt("Gemma-3-12B", "gemma3-12b", 24, ("1-5", "2", "2-5", "3"), "l24"))
 
 
 def mm_text(acc, s, dev, rep, fresh):
