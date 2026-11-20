@@ -1,0 +1,119 @@
+
+## Llama-3.1-8B: grid 1 1.25 1.5 1.75 2 | MMLU change on the selection half: 1: -1.35, 1.25: -2.09, 1.5: -3.09, 1.75: -4.52, 2: -6.28
+  budget 1: no strength on the grid stays within it (smallest strength 1: -1.35)
+  budget 1.5 -> E strength 1 | MMLU on the report half -1.71 [-2.39, -1.00] | N1 on tune: N1: E 1, own blanks up to 2, E's blanks up to none
+    no write                                     answers 467 | right 181 wrong 267 | net  -86
+    single C (strength 0.25, chosen on tune)     answers 475 | right 184 wrong 273 | net  -89
+    single E                                     answers 407 | right 180 wrong 209 | net  -29
+    N1                                           answers 459 | right 208 wrong 219 | net  -11
+    strong form: must-answer + E, top 459        answers 459 | right 210 wrong 230 | net  -20
+    prompt only (must-answer + sentence)         net   +0
+    N1 minus: no write +75 [+37, +111] | single C +78 [+40, +114] | single E +18 [+6, +30] | the strong form +9 [-25, +42] | prompt only -11 [-49, +27]
+  budget 2 -> E strength 1 | MMLU on the report half -1.71 [-2.39, -1.00] | N1 on tune: N1: E 1, own blanks up to 2, E's blanks up to none
+    no write                                     answers 467 | right 181 wrong 267 | net  -86
+    single C (strength 0.25, chosen on tune)     answers 475 | right 184 wrong 273 | net  -89
+    single E                                     answers 407 | right 180 wrong 209 | net  -29
+    N1                                           answers 459 | right 208 wrong 219 | net  -11
+    strong form: must-answer + E, top 459        answers 459 | right 210 wrong 230 | net  -20
+    prompt only (must-answer + sentence)         net   +0
+    N1 minus: no write +75 [+37, +111] | single C +78 [+40, +114] | single E +18 [+6, +30] | the strong form +9 [-25, +42] | prompt only -11 [-49, +27]
+
+## Qwen3.5-9B: grid 1 1.25 1.5 1.75 2 2.5 3 3.5 4 | MMLU change on the selection half: 1: -0.26, 1.25: -0.43, 1.5: -0.56, 1.75: -0.70, 2: -0.90, 2.5: -1.35, 3: -1.99, 3.5: -3.06, 4: -4.02
+  budget 1 -> E strength 2 | MMLU on the report half -0.48 [-0.98, +0.06] | N1 on tune: N1: E 2, own blanks up to 0.5, E's blanks up to 0.25
+    no write                                     answers 474 | right 268 wrong 195 | net  +73
+    single C (strength 0.25, chosen on tune)     answers 495 | right 279 wrong 207 | net  +72
+    single E                                     answers 409 | right 287 wrong 116 | net +171
+    N1                                           answers 446 | right 312 wrong 123 | net +189
+    strong form: must-answer + E, top 446        answers 446 | right 305 wrong 129 | net +176
+    prompt only (must-answer + sentence)         net +168
+    N1 minus: no write +116 [+79, +154] | single C +117 [+80, +154] | single E +18 [+7, +29] | the strong form +13 [-11, +37] | prompt only +21 [-8, +50]
+  budget 1.5 -> E strength 2.5 | MMLU on the report half -1.15 [-1.72, -0.54] | N1 on tune: N1: E 2-5, own blanks up to 0.5, E's blanks up to 0.5
+    no write                                     answers 474 | right 268 wrong 195 | net  +73
+    single C (strength 0.25, chosen on tune)     answers 495 | right 279 wrong 207 | net  +72
+    single E                                     answers 386 | right 280 wrong 101 | net +179
+    N1                                           answers 442 | right 318 wrong 115 | net +203
+    strong form: must-answer + E, top 442        answers 442 | right 303 wrong 129 | net +174
+    prompt only (must-answer + sentence)         net +168
+    N1 minus: no write +130 [+92, +169] | single C +131 [+91, +170] | single E +24 [+10, +38] | the strong form +29 [+1, +56] | prompt only +35 [+3, +67]
+  budget 2 -> E strength 3 | MMLU on the report half -2.05 [-2.68, -1.38] | N1 on tune: N1: E 3, own blanks up to 0.5, E's blanks up to 1
+    no write                                     answers 474 | right 268 wrong 195 | net  +73
+    single C (strength 0.25, chosen on tune)     answers 495 | right 279 wrong 207 | net  +72
+    single E                                     answers 372 | right 265 wrong 102 | net +163
+    N1                                           answers 454 | right 307 wrong 138 | net +169
+    strong form: must-answer + E, top 454        answers 454 | right 306 wrong 138 | net +168
+    prompt only (must-answer + sentence)         net +168
+    N1 minus: no write +96 [+55, +138] | single C +97 [+54, +140] | single E +6 [-11, +23] | the strong form +1 [-24, +28] | prompt only +1 [-34, +37]
+
+## Qwen3.8-27B: grid 1 1.25 1.5 1.75 2 2.5 3 | MMLU change on the selection half: 1: -0.23, 1.25: -0.30, 1.5: -0.63, 1.75: -0.95, 2: -1.10, 2.5: -1.98, 3: -2.82
+  budget 1 -> E strength 1.75 | MMLU on the report half -0.73 [-1.20, -0.23] | N1 on tune: N1: E 1-75, own blanks up to 1, E's blanks up to 0.5
+    no write                                     answers 361 | right 202 wrong 155 | net  +47
+    single C (strength 0.25, chosen on tune)     answers 451 | right 241 wrong 204 | net  +37
+    single E                                     answers 353 | right 250 wrong 100 | net +150
+    N1                                           answers 491 | right 331 wrong 145 | net +186
+    strong form: must-answer + E, top 491        answers 491 | right 321 wrong 158 | net +163
+    prompt only (must-answer + sentence)         net +135
+    N1 minus: no write +139 [+99, +179] | single C +149 [+107, +190] | single E +36 [+15, +58] | the strong form +23 [-3, +49] | prompt only +51 [+18, +84]
+  budget 1.5 -> E strength 2 | MMLU on the report half -1.21 [-1.71, -0.68] | N1 on tune: N1: E 2, own blanks up to 1, E's blanks up to 0.5
+    no write                                     answers 361 | right 202 wrong 155 | net  +47
+    single C (strength 0.25, chosen on tune)     answers 451 | right 241 wrong 204 | net  +37
+    single E                                     answers 365 | right 262 wrong 100 | net +162
+    N1                                           answers 492 | right 339 wrong 139 | net +200
+    strong form: must-answer + E, top 492        answers 492 | right 322 wrong 160 | net +162
+    prompt only (must-answer + sentence)         net +135
+    N1 minus: no write +153 [+112, +194] | single C +163 [+120, +205] | single E +38 [+18, +59] | the strong form +38 [+13, +65] | prompt only +65 [+31, +98]
+  budget 2 -> E strength 2.5 | MMLU on the report half -1.92 [-2.48, -1.30] | N1 on tune: N1: E 2-5, own blanks up to 1, E's blanks up to 0.25
+    no write                                     answers 361 | right 202 wrong 155 | net  +47
+    single C (strength 0.25, chosen on tune)     answers 451 | right 241 wrong 204 | net  +37
+    single E                                     answers 395 | right 283 wrong 108 | net +175
+    N1                                           answers 490 | right 343 wrong 133 | net +210
+    strong form: must-answer + E, top 490        answers 490 | right 324 wrong 151 | net +173
+    prompt only (must-answer + sentence)         net +135
+    N1 minus: no write +163 [+120, +205] | single C +173 [+128, +218] | single E +35 [+18, +53] | the strong form +37 [+12, +62] | prompt only +75 [+40, +110]
+
+## Gemma-3-12B: grid 1 1.25 1.5 1.75 2 | MMLU change on the selection half: 1: -0.71, 1.25: -0.91, 1.5: -1.58, 1.75: -2.39, 2: -3.30
+  budget 1 -> E strength 1.25 | MMLU on the report half -1.18 [-1.75, -0.61] | N1 on tune: N1: E 1-25, own blanks up to 2, E's blanks up to 0.5
+    no write                                     answers 460 | right 228 wrong 216 | net  +12
+    single C (strength 0.25, chosen on tune)     answers 487 | right 239 wrong 228 | net  +11
+    single E                                     answers 395 | right 239 wrong 148 | net  +91
+    N1                                           answers 483 | right 293 wrong 173 | net +120
+    strong form: must-answer + E, top 483        answers 483 | right 280 wrong 187 | net  +93
+    prompt only (must-answer + sentence)         net  +77
+    N1 minus: no write +108 [+70, +146] | single C +109 [+71, +146] | single E +29 [+12, +47] | the strong form +27 [+0, +54] | prompt only +43 [+4, +81]
+  budget 1.5 -> E strength 1.25 | MMLU on the report half -1.18 [-1.75, -0.61] | N1 on tune: N1: E 1-25, own blanks up to 2, E's blanks up to 0.5
+    no write                                     answers 460 | right 228 wrong 216 | net  +12
+    single C (strength 0.25, chosen on tune)     answers 487 | right 239 wrong 228 | net  +11
+    single E                                     answers 395 | right 239 wrong 148 | net  +91
+    N1                                           answers 483 | right 293 wrong 173 | net +120
+    strong form: must-answer + E, top 483        answers 483 | right 280 wrong 187 | net  +93
+    prompt only (must-answer + sentence)         net  +77
+    N1 minus: no write +108 [+70, +146] | single C +109 [+71, +146] | single E +29 [+12, +47] | the strong form +27 [+0, +54] | prompt only +43 [+4, +81]
+  budget 2 -> E strength 1.5 | MMLU on the report half -1.75 [-2.38, -1.07] | N1 on tune: N1: E 1-5, own blanks up to 2, E's blanks up to 1
+    no write                                     answers 460 | right 228 wrong 216 | net  +12
+    single C (strength 0.25, chosen on tune)     answers 487 | right 239 wrong 228 | net  +11
+    single E                                     answers 382 | right 237 wrong 136 | net +101
+    N1                                           answers 495 | right 304 wrong 170 | net +134
+    strong form: must-answer + E, top 495        answers 495 | right 296 wrong 184 | net +112
+    prompt only (must-answer + sentence)         net  +77
+    N1 minus: no write +122 [+79, +164] | single C +123 [+80, +164] | single E +33 [+14, +53] | the strong form +22 [-5, +49] | prompt only +57 [+19, +96]
+
+## Gemma-3-27B: grid 1 1.25 1.5 1.75 2 | MMLU change on the selection half: 1: -1.74, 1.25: -2.79, 1.5: -4.02, 1.75: -5.68, 2: -8.42
+  budget 1: no strength on the grid stays within it (smallest strength 1: -1.74)
+  budget 1.5: no strength on the grid stays within it (smallest strength 1: -1.74)
+  budget 2 -> E strength 1 | MMLU on the report half -1.50 [-2.09, -0.90] | N1 on tune: N1: E 1, own blanks up to 2, E's blanks up to 1
+    no write                                     answers 456 | right 221 wrong 218 | net   +3
+    single C (strength 0.25, chosen on tune)     answers 485 | right 234 wrong 231 | net   +3
+    single E                                     answers 433 | right 269 wrong 146 | net +123
+    N1                                           answers 519 | right 330 wrong 162 | net +168
+    strong form: must-answer + E, top 519        answers 519 | right 298 wrong 203 | net  +95
+    prompt only (must-answer + sentence)         net +140
+    N1 minus: no write +165 [+128, +203] | single C +165 [+127, +204] | single E +45 [+29, +62] | the strong form +73 [+41, +105] | prompt only +28 [-10, +66]
+
+## the five models together, each model at its own strength (per question the differences are summed; questions resampled)
+  budget 1: not every model has a strength within the budget (Qwen3.5-9B 2; Qwen3.8-27B 1.75; Gemma-3-12B 1.25)
+  budget 1.5: not every model has a strength within the budget (Llama-3.1-8B 1; Qwen3.5-9B 2.5; Qwen3.8-27B 2; Gemma-3-12B 1.25)
+  budget 2: Llama-3.1-8B 1; Qwen3.5-9B 3; Qwen3.8-27B 2.5; Gemma-3-12B 1.5; Gemma-3-27B 1
+    N1 minus no write         +621 [+500, +744]
+    N1 minus single C         +636 [+513, +761]
+    N1 minus single E         +137 [+92, +187]
+    N1 minus the strong form  +142 [+70, +210]
+    N1 minus prompt only      +150 [+53, +246]
