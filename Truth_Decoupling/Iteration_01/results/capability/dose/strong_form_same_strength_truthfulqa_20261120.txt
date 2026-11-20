@@ -31,7 +31,7 @@
     E 4    N1 answers 472 net  164 | must-answer + E: answers 520 net  135 | its top 472: net  150 | N1 minus strong form +14 [-12, +39]
            N1 minus prompt B +17 [-2, +35] | N1 minus must-answer + E (all answered) +29 [+4, +54] | must-answer + E minus prompt only -33 [-72, +6]
 
-## Qwen3.8-27B: test 521 questions (E 2.5: no confidence file; E 3: no confidence file)
+## Qwen3.8-27B: test 521 questions
     E 1    N1 answers 470 net  136 | must-answer + E: answers 521 net  103 | its top 470: net  100 | N1 minus strong form +36 [+11, +62]
            N1 minus prompt B +24 [+4, +44] | N1 minus must-answer + E (all answered) +33 [+8, +59] | must-answer + E minus prompt only -32 [-60, -5]
     E 1.25 N1 answers 468 net  148 | must-answer + E: answers 520 net  135 | its top 468: net  130 | N1 minus strong form +18 [-9, +46]
@@ -42,43 +42,55 @@
            N1 minus prompt B +10 [-9, +28] | N1 minus must-answer + E (all answered) +17 [-10, +43] | must-answer + E minus prompt only +34 [+7, +61]
     E 2    N1 answers 492 net  200 | must-answer + E: answers 519 net  161 | its top 492: net  162 | N1 minus strong form +38 [+13, +65]
            N1 minus prompt B +19 [+1, +38] | N1 minus must-answer + E (all answered) +39 [+13, +66] | must-answer + E minus prompt only +26 [-3, +54]
-    E 2.5  N1 answers 490 net  210 | must-answer + E: answers 518 net  168 | strong form: no confidence file
+    E 2.5  N1 answers 490 net  210 | must-answer + E: answers 518 net  168 | its top 490: net  173 | N1 minus strong form +37 [+12, +62]
            N1 minus prompt B +23 [+7, +41] | N1 minus must-answer + E (all answered) +42 [+17, +67] | must-answer + E minus prompt only +33 [-1, +66]
-    E 3    N1 answers 482 net  209 | must-answer + E: answers 517 net  187 | strong form: no confidence file
+    E 3    N1 answers 482 net  209 | must-answer + E: answers 517 net  187 | its top 482: net  195 | N1 minus strong form +14 [-8, +37]
            N1 minus prompt B +10 [-5, +24] | N1 minus must-answer + E (all answered) +22 [+0, +45] | must-answer + E minus prompt only +52 [+15, +89]
 
-## Gemma-3-12B: test 522 questions (E 1.25: no confidence file; E 1.5: no confidence file; E 1.75: no confidence file)
+## Gemma-3-12B: test 522 questions
     E 1    N1 answers 498 net  101 | must-answer + E: answers 519 net   60 | its top 498: net   57 | N1 minus strong form +44 [+16, +72]
            N1 minus prompt B +21 [+3, +40] | N1 minus must-answer + E (all answered) +41 [+13, +69] | must-answer + E minus prompt only -17 [-54, +21]
-    E 1.25 N1 answers 483 net  120 | must-answer + E: answers 519 net   93 | strong form: no confidence file
+    E 1.25 N1 answers 483 net  120 | must-answer + E: answers 519 net   93 | its top 483: net   93 | N1 minus strong form +27 [+0, +54]
            N1 minus prompt B +17 [-2, +37] | N1 minus must-answer + E (all answered) +27 [-2, +56] | must-answer + E minus prompt only +16 [-20, +53]
-    E 1.5  N1 answers 495 net  134 | must-answer + E: answers 520 net  120 | strong form: no confidence file
+    E 1.5  N1 answers 495 net  134 | must-answer + E: answers 520 net  120 | its top 495: net  112 | N1 minus strong form +22 [-5, +49]
            N1 minus prompt B +13 [-4, +30] | N1 minus must-answer + E (all answered) +14 [-13, +40] | must-answer + E minus prompt only +43 [+6, +80]
-    E 1.75 N1 answers 489 net  158 | must-answer + E: answers 520 net  142 | strong form: no confidence file
+    E 1.75 N1 answers 489 net  158 | must-answer + E: answers 520 net  142 | its top 489: net  138 | N1 minus strong form +20 [-5, +45]
            N1 minus prompt B +17 [-1, +35] | N1 minus must-answer + E (all answered) +16 [-10, +42] | must-answer + E minus prompt only +65 [+25, +105]
     E 2    N1 answers 493 net  157 | must-answer + E: answers 521 net  168 | its top 493: net  163 | N1 minus strong form -6 [-31, +19]
            N1 minus prompt B -7 [-27, +13] | N1 minus must-answer + E (all answered) -11 [-36, +15] | must-answer + E minus prompt only +91 [+49, +133]
 
-## Gemma-3-27B: test 523 questions (no must-answer verdicts at other strengths)
+## Gemma-3-27B: test 523 questions
     E 1    N1 answers 519 net  168 | must-answer + E: answers 520 net   97 | its top 519: net   95 | N1 minus strong form +73 [+41, +105]
            N1 minus prompt B +22 [+7, +38] | N1 minus must-answer + E (all answered) +71 [+39, +103] | must-answer + E minus prompt only -43 [-80, -5]
-    E 1.25 N1 answers 505 net  188 | no must-answer + E answers at this strength
-    E 1.5  N1 answers 520 net  202 | no must-answer + E answers at this strength
-    E 1.75 N1 answers 505 net  235 | no must-answer + E answers at this strength
+    E 1.25 N1 answers 505 net  188 | must-answer + E: answers 521 net  130 | its top 505: net  127 | N1 minus strong form +61 [+31, +91]
+           N1 minus prompt B +4 [-9, +17] | N1 minus must-answer + E (all answered) +58 [+28, +89] | must-answer + E minus prompt only -10 [-46, +26]
+    E 1.5  N1 answers 520 net  202 | must-answer + E: answers 521 net  152 | its top 520: net  151 | N1 minus strong form +51 [+17, +85]
+           N1 minus prompt B +5 [-7, +18] | N1 minus must-answer + E (all answered) +50 [+16, +84] | must-answer + E minus prompt only +12 [-23, +47]
+    E 1.75 N1 answers 505 net  235 | must-answer + E: answers 521 net  177 | its top 505: net  183 | N1 minus strong form +52 [+21, +83]
+           N1 minus prompt B +12 [-2, +27] | N1 minus must-answer + E (all answered) +58 [+25, +90] | must-answer + E minus prompt only +37 [+0, +74]
     E 2    N1 answers 499 net  240 | must-answer + E: answers 521 net  178 | its top 499: net  172 | N1 minus strong form +68 [+38, +97]
            N1 minus prompt B +25 [+11, +39] | N1 minus must-answer + E (all answered) +62 [+33, +91] | must-answer + E minus prompt only +38 [-3, +79]
 
 ## N1 minus the strong form at the same strength, by model
   Llama-3.1-8B   E 1: +9 [-25, +42] | E 1.25: -22 [-54, +10] | E 1.5: +14 [-18, +45] | E 1.75: +23 [-10, +53] | E 2: +32 [-1, +65]
   Qwen3.5-9B     E 1: +10 [-18, +37] | E 1.25: +12 [-15, +39] | E 1.5: +17 [-10, +44] | E 1.75: +12 [-15, +38] | E 2: +13 [-11, +37] | E 2.5: +29 [+1, +56] | E 3: +1 [-24, +28] | E 3.5: +3 [-22, +29] | E 4: +14 [-12, +39]
-  Qwen3.8-27B    E 1: +36 [+11, +62] | E 1.25: +18 [-9, +46] | E 1.5: +21 [-5, +47] | E 1.75: +23 [-3, +49] | E 2: +38 [+13, +65]
-  Gemma-3-12B    E 1: +44 [+16, +72] | E 2: -6 [-31, +19]
-  Gemma-3-27B    E 1: +73 [+41, +105] | E 2: +68 [+38, +97]
+  Qwen3.8-27B    E 1: +36 [+11, +62] | E 1.25: +18 [-9, +46] | E 1.5: +21 [-5, +47] | E 1.75: +23 [-3, +49] | E 2: +38 [+13, +65] | E 2.5: +37 [+12, +62] | E 3: +14 [-8, +37]
+  Gemma-3-12B    E 1: +44 [+16, +72] | E 1.25: +27 [+0, +54] | E 1.5: +22 [-5, +49] | E 1.75: +20 [-5, +45] | E 2: -6 [-31, +19]
+  Gemma-3-27B    E 1: +73 [+41, +105] | E 1.25: +61 [+31, +91] | E 1.5: +51 [+17, +85] | E 1.75: +52 [+21, +83] | E 2: +68 [+38, +97]
 
 ## the models above together (per question the differences of the models are summed; questions resampled)
   E 1: N1 minus the strong form at the same strength         +172 [+99, +243] (523 questions)
   E 1: N1 minus prompt B at the same strength                +95 [+52, +138] (523 questions)
   E 1: must-answer + E minus prompt only                     -175 [-255, -93] (523 questions)
+  E 1.25: N1 minus the strong form at the same strength      +96 [+29, +166] (523 questions)
+  E 1.25: N1 minus prompt B at the same strength             +50 [+7, +93] (523 questions)
+  E 1.25: must-answer + E minus prompt only                  -38 [-113, +35] (523 questions)
+  E 1.5: N1 minus the strong form at the same strength       +125 [+53, +194] (523 questions)
+  E 1.5: N1 minus prompt B at the same strength              +62 [+16, +107] (523 questions)
+  E 1.5: must-answer + E minus prompt only                   +74 [-5, +156] (523 questions)
+  E 1.75: N1 minus the strong form at the same strength      +130 [+62, +198] (523 questions)
+  E 1.75: N1 minus prompt B at the same strength             +68 [+22, +116] (523 questions)
+  E 1.75: must-answer + E minus prompt only                  +181 [+92, +270] (523 questions)
   E 2: N1 minus the strong form at the same strength         +145 [+78, +210] (523 questions)
   E 2: N1 minus prompt B at the same strength                +90 [+41, +136] (523 questions)
   E 2: must-answer + E minus prompt only                     +213 [+116, +314] (523 questions)

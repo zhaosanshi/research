@@ -1,0 +1,31 @@
+MMLU, the model writes its own answer and may decline (1,000 items): net score per 100 items = right - wrong; changes vs no write [95%, items resampled]
+
+== llama3.1-8b: 1000 items | no write: right 640, wrong 360, no pick 0, net +28.0 per 100
+    E 2                right 563, wrong 387, no pick  50 | net change -10.4 [-15.8, -5.0] | accuracy change -7.7 [-10.5, -5.0] | moved: right to no pick 23, right to wrong 117, wrong to no pick 27, wrong to right 63, no pick to right 0, no pick to wrong 0
+    N1                 right 565, wrong 394, no pick  41 | net change -10.9 [-16.4, -5.5] | accuracy change -7.5 [-10.3, -4.8] | moved: right to no pick 21, right to wrong 119, wrong to no pick 20, wrong to right 65, no pick to right 0, no pick to wrong 0
+    C 2 on every item  right 634, wrong 365, no pick   1 | net change -1.1 [-2.8, +0.6] | accuracy change -0.6 [-1.5, +0.2] | moved: right to no pick 0, right to wrong 13, wrong to no pick 1, wrong to right 7, no pick to right 0, no pick to wrong 0
+
+== qwen3.5-9b: 1000 items | no write: right 777, wrong 223, no pick 0, net +55.4 per 100
+    E 2                right 774, wrong 222, no pick   4 | net change -0.2 [-3.3, +2.8] | accuracy change -0.3 [-1.8, +1.2] | moved: right to no pick 0, right to wrong 31, wrong to no pick 4, wrong to right 28, no pick to right 0, no pick to wrong 0
+    N1                 right 774, wrong 222, no pick   4 | net change -0.2 [-3.3, +2.8] | accuracy change -0.3 [-1.8, +1.2] | moved: right to no pick 0, right to wrong 31, wrong to no pick 4, wrong to right 28, no pick to right 0, no pick to wrong 0
+    C 2 on every item  right 778, wrong 222, no pick   0 | net change +0.2 [-1.6, +1.8] | accuracy change +0.1 [-0.8, +0.9] | moved: right to no pick 0, right to wrong 9, wrong to no pick 0, wrong to right 10, no pick to right 0, no pick to wrong 0
+
+== qwen3.8-27b: 1000 items | no write: right 821, wrong 177, no pick 2, net +64.4 per 100
+    E 2                right 806, wrong 191, no pick   3 | net change -2.9 [-5.5, -0.4] | accuracy change -1.5 [-2.8, -0.2] | moved: right to no pick 1, right to wrong 29, wrong to no pick 0, wrong to right 15, no pick to right 0, no pick to wrong 0
+    N1                 right 807, wrong 192, no pick   1 | net change -2.9 [-5.5, -0.3] | accuracy change -1.4 [-2.7, -0.1] | moved: right to no pick 1, right to wrong 29, wrong to no pick 0, wrong to right 15, no pick to right 1, no pick to wrong 1
+    C 2 on every item  right 818, wrong 182, no pick   0 | net change -0.8 [-3.0, +1.4] | accuracy change -0.3 [-1.4, +0.8] | moved: right to no pick 0, right to wrong 18, wrong to no pick 0, wrong to right 15, no pick to right 0, no pick to wrong 2
+
+== gemma3-12b: 1000 items | no write: right 710, wrong 286, no pick 4, net +42.4 per 100
+    E 2                right 615, wrong 219, no pick 166 | net change -2.8 [-6.9, +1.4] | accuracy change -9.5 [-11.8, -7.2] | moved: right to no pick 80, right to wrong 44, wrong to no pick 82, wrong to right 29, no pick to right 0, no pick to wrong 0
+    N1                 right 627, wrong 261, no pick 112 | net change -5.8 [-10.3, -1.3] | accuracy change -8.3 [-10.7, -5.8] | moved: right to no pick 56, right to wrong 68, wrong to no pick 53, wrong to right 40, no pick to right 1, no pick to wrong 0
+    C 2 on every item  right 712, wrong 287, no pick   1 | net change +0.1 [-2.3, +2.4] | accuracy change +0.2 [-1.0, +1.3] | moved: right to no pick 0, right to wrong 17, wrong to no pick 0, wrong to right 18, no pick to right 1, no pick to wrong 2
+
+== gemma3-27b: 1000 items | no write: right 771, wrong 227, no pick 2, net +54.4 per 100
+    E 2                right 690, wrong 277, no pick  33 | net change -13.1 [-18.2, -7.9] | accuracy change -8.1 [-10.7, -5.4] | moved: right to no pick 20, right to wrong 111, wrong to no pick 11, wrong to right 50, no pick to right 0, no pick to wrong 0
+    N1                 right 694, wrong 282, no pick  24 | net change -13.2 [-18.4, -7.9] | accuracy change -7.7 [-10.4, -5.0] | moved: right to no pick 16, right to wrong 115, wrong to no pick 6, wrong to right 54, no pick to right 0, no pick to wrong 0
+    C 2 on every item  right 757, wrong 243, no pick   0 | net change -3.0 [-5.1, -0.9] | accuracy change -1.4 [-2.4, -0.4] | moved: right to no pick 0, right to wrong 21, wrong to no pick 0, wrong to right 7, no pick to right 0, no pick to wrong 2
+
+== the listed models together (same items, resampled jointly): mean net change per 100 items
+    E 2                -5.88 [-8.16, -3.68]
+    N1                 -6.60 [-8.92, -4.34]
+    C 2 on every item  -0.92 [-1.82, +0.00]

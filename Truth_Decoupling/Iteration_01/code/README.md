@@ -95,8 +95,10 @@
 | `diag/prompt_sweep_table.py` | 把每个模型冻结回答里的 11 条提示都当作纯提示词基线（无写入）：调参集与测试集的净分；每个模型在调参集上选最好的一条，再与各档力度的 N1 在测试集上比较（只读判分） | 新写，未经 GPT 审 | 271550ea2d70f706 |
 | `diag/pos_table.py` | 只从提问最后一个词元起写 E（`e44_positions.py` 的 gen 规则）在 TruthfulQA 测试集上的净分，对不写入、对纯提示词、对同力度的原写法（只读判分） | 新写，未经 GPT 审 | 863f0edb466332a3 |
 | `diag/tf_net_score.py` | 真假判断（同一遍可答 Unknown 的 E45 运行）按自由回答的记分法重算：答对 +1、Unknown 0、答错 −1；529 对测试题，按题对重抽（只读已有的逐条概率） | 新写（赵磊 2026-11-20：真假判断与自由回答一致），未经 GPT 审；每个运行的计数须复现其已存汇总 | 6e4a77fdce43cd2d |
+| `diag/cap_net_score.py` | 第一次 MMLU 测量（模型自己写答案、可以不答）按答对 +1、不答 0、答错 −1 重算，并列出推 E 把原本对 / 错的题改去了哪里（调用 `cap_score.py` 的读入与核对） | 新写，未经 GPT 审 | 54c7b5aebcc5649e |
+| `diag/train_loss_table.py` | 从各次运行的训练日志读出 E 方向在留出题上的损失：不写入、整个激活差、均值差方向、学出的方向 | 新写，未经 GPT 审 | 88ef7200f986cea5 |
 | `scripts/review_checks/e44_positions.py` | 只在评测时换写入位置的入口：把训练时“从题目第一个词写到结尾”的方向，改成只从提问的最后一个词元起写（题目的词不动）；原程序文件不动，三处内存内改动；只允许单写入的生成与导出 | 新写（探索：MMLU 掉分来自题目词上的写入），未经 GPT 审；Llama 8 题试跑后运行 | 1a8ae7861c1c103e |
-| `launchers/explore_20261120/` | 2026-11-20 探索用的服务器启动脚本原样存档（20 个；晚间新增 Gemma-3 重跑 `pm3_gemma.sh`、只在作答位置写入 `pos_all.sh` 与 `pos_judge.sh`、均值差选层 `md_sweep.sh`、提示词基线全判 `prompt_sweep.sh`）：新题验证 `val_all.sh`；MMLU 找原因与全量确认 `sweep_all.sh`、`sweep_g27.sh`、`full_all.sh`；中间力度 `dose_mid_all.sh`、`dose_mid_judge.sh`；提示词之上再写 E `idea_a.sh`、`idea_a2.sh`；高力度 `q9_high.sh`；补判 `extra_judge.sh`、`extra_judge2.sh`；下午两条队列 `pm_all.sh`、`pm_judge.sh`、`pm2_all.sh`、`pm2_judge.sh` | 均未经 GPT 审（探索阶段先跑，成批送审）；生成、导出、判分调用的都是已审程序，这些脚本只改臂、切分与名称 | 见各文件 |
+| `launchers/explore_20261120/` | 2026-11-20 探索用的服务器启动脚本原样存档（21 个，含 Llama 换层加力度的试探 `layer_probe.sh`；晚间新增 Gemma-3 重跑 `pm3_gemma.sh`、只在作答位置写入 `pos_all.sh` 与 `pos_judge.sh`、均值差选层 `md_sweep.sh`、提示词基线全判 `prompt_sweep.sh`）：新题验证 `val_all.sh`；MMLU 找原因与全量确认 `sweep_all.sh`、`sweep_g27.sh`、`full_all.sh`；中间力度 `dose_mid_all.sh`、`dose_mid_judge.sh`；提示词之上再写 E `idea_a.sh`、`idea_a2.sh`；高力度 `q9_high.sh`；补判 `extra_judge.sh`、`extra_judge2.sh`；下午两条队列 `pm_all.sh`、`pm_judge.sh`、`pm2_all.sh`、`pm2_judge.sh` | 均未经 GPT 审（探索阶段先跑，成批送审）；生成、导出、判分调用的都是已审程序，这些脚本只改臂、切分与名称 | 见各文件 |
 
 ## 变更记录
 
