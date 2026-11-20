@@ -8,7 +8,9 @@
 # Printed: accuracy and no-answer rate of each pass, the paired change against no write with a bootstrap interval, and
 # the wording of the design's evidence rule (kept / damage cannot be excluded / damage; lines at -1 point of accuracy
 # and +3 points of no answer). N1's re-asks are not part of this run: they touch only the items blank under E, whose
-# number is printed.
+# number is printed. The reasons of "no answer" are printed per pass (refusal = the rule detector's abstention or an
+# empty answer; truncated = the 512-token cap was reached without a final answer; the others are the parser's names),
+# because a change in answer length moves the truncated count without any change in ability.
 # usage (host, from /data/sanshizhao/Truth_Decoupling, inside the container for pyarrow):
 #   docker exec -u 1000:1001 -w /workspace/Truth_Decoupling truth_dec python3 -B Iteration_01/diag/gsm8k_main_table.py [MODEL ...]
 import glob
@@ -33,6 +35,14 @@ def load_pass(path, model, ids):
     return g
 
 
+def reasons(judged):
+    c = {}
+    for st, w in judged.values():
+        if st == "X":
+            c[w] = c.get(w, 0) + 1
+    return ", ".join("%s %d" % kv for kv in sorted(c.items(), key=lambda kv: -kv[1])) or "none"
+
+
 def main():
     with open(IDS, encoding="utf-8") as f:
         ids = json.load(f)["ids"]
@@ -42,21 +52,25 @@ def main():
     for model in models:
         d = "%s/%s/b8" % (ROOT, model)
         files = [p for p in sorted(glob.glob(d + "/*.json")) if not os.path.basename(p).startswith("s")]
-        passes = {}
+        passes, why, ntok = {}, {}, {}
         for p in files:
             try:
                 g = load_pass(p, model, ids)
             except SystemExit as e:
                 print("\n## %s: %s" % (model, e))
                 continue
-            passes[g["contract"]["arm"]] = {r["id"]: CS.judge_row("gsm8k", r, gold(r["id"]))[0] for r in g["rows"]}
+            judged = {r["id"]: CS.judge_row("gsm8k", r, gold(r["id"])) for r in g["rows"]}
+            passes[g["contract"]["arm"]] = {i: v[0] for i, v in judged.items()}
+            why[g["contract"]["arm"]] = reasons(judged)
+            ntok[g["contract"]["arm"]] = sum(not r["finished"] for r in g["rows"])
         if "neutral" not in passes:
             print("\n## %s: no complete no-write pass yet (%d files)" % (model, len(files)))
             continue
         base = passes["neutral"]
         n = len(ids)
-        print("\n## %s: no write: accuracy %.1f%%, no answer %.1f%%" % (
-            model, 100.0 * sum(base[i] == "R" for i in ids) / n, 100.0 * sum(base[i] == "X" for i in ids) / n))
+        print("\n## %s: no write: accuracy %.1f%%, no answer %.1f%% (%s; %d answers reached the token cap)" % (
+            model, 100.0 * sum(base[i] == "R" for i in ids) / n, 100.0 * sum(base[i] == "X" for i in ids) / n,
+            why["neutral"], ntok["neutral"]))
         for arm, st in passes.items():
             if arm == "neutral":
                 continue
@@ -66,6 +80,11 @@ def main():
                 arm, 100.0 * sum(st[i] == "R" for i in ids) / n, 100 * da[0], 100 * da[1], 100 * da[2],
                 100.0 * sum(st[i] == "X" for i in ids) / n, 100 * dn[0], 100 * dn[1], 100 * dn[2], sum(st[i] == "X" for i in ids),
                 sum(base[i] == "R" and st[i] == "W" for i in ids), sum(base[i] == "W" and st[i] == "R" for i in ids), CS.evidence(da, dn)))
+            both = [i for i in ids if base[i] != "X" and st[i] != "X"]
+            if both:
+                db = CS.ci([(st[i] == "R") - (base[i] == "R") for i in both])
+                print("    %-22s no answer by reason: %s; %d answers reached the token cap | on the %d items answered in both passes: accuracy change %+.1f [%+.1f, %+.1f]" % (
+                    "", why[arm], ntok[arm], len(both), 100 * db[0], 100 * db[1], 100 * db[2]))
 
 
 if __name__ == "__main__":
