@@ -1,7 +1,7 @@
 # Iteration_01 analysis (Claude Fable 5.2, 2026-11-21), read-only, no model, no judge call.
 # The per-model main table (diag/per_model_table.py) with the E LAYER allowed to differ from the one chosen for
-# TruthfulQA alone, where a second layer has been run. So far that is Llama-3.1-8B: layer 11 (the TruthfulQA choice)
-# and layer 16 (launchers l16_all.sh / l16b_all.sh / l16_strong.sh; found on the MMLU layer map, where it costs far less).
+# TruthfulQA alone, where a second layer has been run (the registry diag/alt_layer.py: Llama-3.1-8B layer 16 next to
+# 11, Gemma-3-27B layer 28 next to 26; both found on the MMLU layer map, where they cost far less).
 # Rule, stated before reading any TruthfulQA test number of this table and using tune + the MMLU selection half only:
 #   candidates of a model = every (layer, strength) that has the N1 arms judged on tune and test and full-set MMLU answers;
 #   1. within a layer, as in per_model_table.py: for a budget of B points the strength is the LARGEST one whose MMLU
@@ -23,7 +23,7 @@ sys.path.insert(0, "Iteration_01/diag")
 import dose_mid as DM
 import strong_mid as SM
 import per_model_table as PM
-import l16_table as L16
+import alt_layer as AL
 
 MT, S = DM.MT, DM.S
 ps, ro = MT.ps, MT.ro
@@ -56,20 +56,20 @@ def sources(model):
         return must.get(s), conf.get(s)
 
     out.append((el, tsp, ttx, xsp, xtx, [s for s in doses if s in tdoses], PM.mmlu(model, el), strong11))
-    if model == L16.MODEL:
-        t, x, acc = L16.load(0), L16.load(1), L16.mmlu16()
-        if t and x and acc:
-            _, tsp16, ttx16 = t
-            _, xsp16, xtx16 = x
-            w16 = run + "/eval_extra/judge_test_dmustl16_test"
+    for alt in AL.ALTS:
+        if alt.model != model:
+            continue
+        t, x, acc = alt.load(0), alt.load(1), alt.mmlu()
+        if not (t and x and acc):
+            continue
+        _, tsp2, ttx2 = t
+        _, xsp2, xtx2 = x
 
-            def strong16(s, qs):
-                if not os.path.exists(w16 + "/judge2/single_pro.jsonl"):
-                    return None, None
-                must, conf, _ = SM.must_dir(run, w16, (("pml16_test", L16.DOSES),), xsp16, list(L16.DOSES))
-                return must.get(s), conf.get(s)
+        def strong2(s, qs, alt=alt, xsp2=xsp2):
+            must, conf, _ = alt.strong(run, xsp2)
+            return must.get(s), conf.get(s)
 
-            out.append((L16.LAYER, tsp16, ttx16, xsp16, xtx16, list(L16.DOSES), acc, strong16))
+        out.append((alt.layer, tsp2, ttx2, xsp2, xtx2, list(alt.doses), acc, strong2))
     return Dt, Dx, out
 
 
