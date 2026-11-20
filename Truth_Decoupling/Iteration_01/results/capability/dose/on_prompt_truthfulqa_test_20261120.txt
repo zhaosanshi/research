@@ -1,0 +1,51 @@
+
+## Llama-3.1-8B, test: prompt only (must-answer + the honest sentence): net +0, answers 523 of 523
+    baseline_conf_E2             net   +0 | right 251 wrong 251 | blank   0 | minus prompt only +0 [+0, +0] | 523 questions
+    E_L11_conf_E2-w-p0-25        net  +30 | right 264 wrong 234 | blank   0 | minus prompt only +30 [+9, +51] | 523 questions
+    E_L11_conf_E2-w-p0-5         net  +65 | right 283 wrong 218 | blank   1 | minus prompt only +65 [+34, +98] | 523 questions
+    E_L11_conf_E2-w-p0-75        net  +62 | right 282 wrong 220 | blank   1 | minus prompt only +62 [+25, +100] | 523 questions | 1 without verdict
+    E_L11_conf_E2-w-p1           net  +60 | right 283 wrong 223 | blank   1 | minus prompt only +60 [+20, +102] | 523 questions
+    ideaA4b_test: no Pro verdicts
+
+## Qwen3.5-9B, test: prompt only (must-answer + the honest sentence): net +168, answers 522 of 523
+    baseline_conf_E2             net +168 | right 338 wrong 170 | blank   1 | minus prompt only +0 [+0, +0] | 523 questions
+    E_L15_conf_E2-w-p0-25        net +167 | right 337 wrong 170 | blank   2 | minus prompt only -1 [-15, +12] | 523 questions
+    E_L15_conf_E2-w-p0-5         net +161 | right 335 wrong 174 | blank   2 | minus prompt only -7 [-26, +11] | 523 questions
+    E_L15_conf_E2-w-p0-75        net +154 | right 331 wrong 177 | blank   3 | minus prompt only -14 [-37, +8] | 523 questions
+    E_L15_conf_E2-w-p1           net +153 | right 331 wrong 178 | blank   3 | minus prompt only -15 [-43, +12] | 523 questions
+    baseline_conf_E2             net +168 | right 338 wrong 170 | blank   1 | minus prompt only +0 [+0, +0] | 523 questions
+    E_L15_conf_E2-w-p1-5         net +151 | right 330 wrong 179 | blank   5 | minus prompt only -17 [-49, +14] | 523 questions
+    E_L15_conf_E2-w-p2           net +157 | right 333 wrong 176 | blank   6 | minus prompt only -11 [-45, +22] | 523 questions
+
+## Qwen3.8-27B, test: prompt only (must-answer + the honest sentence): net +134, answers 522 of 522
+    baseline_conf_E2             net +134 | right 320 wrong 186 | blank   0 | minus prompt only +0 [+0, +0] | 522 questions
+    E_L28_conf_E2-w-p0-25        net +165 | right 334 wrong 169 | blank   0 | minus prompt only +31 [+16, +48] | 522 questions
+    E_L28_conf_E2-w-p0-5         net +170 | right 335 wrong 165 | blank   0 | minus prompt only +36 [+16, +57] | 522 questions
+    E_L28_conf_E2-w-p0-75        net +189 | right 345 wrong 156 | blank   0 | minus prompt only +55 [+30, +81] | 522 questions
+    E_L28_conf_E2-w-p1           net +186 | right 343 wrong 157 | blank   2 | minus prompt only +52 [+20, +82] | 522 questions
+    baseline_conf_E2             net +134 | right 320 wrong 186 | blank   0 | minus prompt only +0 [+0, +0] | 522 questions
+    E_L28_conf_E2-w-p1-5         net +194 | right 347 wrong 153 | blank   2 | minus prompt only +60 [+25, +95] | 522 questions
+    E_L28_conf_E2-w-p2           net +190 | right 342 wrong 152 | blank   3 | minus prompt only +56 [+19, +94] | 522 questions
+
+## Gemma-3-12B, test: prompt only (must-answer + the honest sentence): net +77, answers 520 of 522
+    baseline_conf_E2             net  +77 | right 293 wrong 216 | blank   2 | minus prompt only +0 [+0, +0] | 522 questions
+    E_L22_conf_E2-w-p0-25        net  +94 | right 301 wrong 207 | blank   1 | minus prompt only +17 [+0, +36] | 522 questions
+    E_L22_conf_E2-w-p0-5         net +124 | right 316 wrong 192 | blank   1 | minus prompt only +47 [+21, +74] | 522 questions
+    E_L22_conf_E2-w-p0-75        net +134 | right 320 wrong 186 | blank   2 | minus prompt only +57 [+25, +89] | 522 questions
+    E_L22_conf_E2-w-p1           net +157 | right 333 wrong 176 | blank   2 | minus prompt only +80 [+41, +119] | 522 questions
+    ideaA4b_test: no Pro verdicts
+
+## Gemma-3-27B, test: prompt only (must-answer + the honest sentence): net +140, answers 521 of 523
+    baseline_conf_E2             net +140 | right 320 wrong 180 | blank   2 | minus prompt only +0 [+0, +0] | 523 questions
+    E_L26_conf_E2-w-p0-25        net +136 | right 320 wrong 184 | blank   2 | minus prompt only -4 [-26, +18] | 523 questions
+    E_L26_conf_E2-w-p0-5         net +155 | right 329 wrong 174 | blank   2 | minus prompt only +15 [-12, +44] | 523 questions
+    E_L26_conf_E2-w-p0-75        net +155 | right 330 wrong 175 | blank   2 | minus prompt only +15 [-20, +51] | 523 questions
+    E_L26_conf_E2-w-p1           net +150 | right 326 wrong 176 | blank   2 | minus prompt only +10 [-28, +48] | 523 questions
+    ideaA4b_test: no Pro verdicts
+
+## all five models together where every model has the strength (per question summed; questions resampled)
+  strength baseline_conf_E2 minus prompt only +0 [+0, +0] (1 questions)
+  strength 0.25   minus prompt only +73 [+33, +114] (521 questions)
+  strength 0.5    minus prompt only +155 [+89, +219] (521 questions)
+  strength 0.75   minus prompt only +174 [+93, +254] (521 questions)
+  strength 1      minus prompt only +186 [+88, +283] (521 questions)

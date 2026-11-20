@@ -100,10 +100,16 @@ def run(a):
            "ids_file_sha256": NG.sha_file(a.ids), "identity_sha256": ctx.ident_sha, "script_sha256": NG.sha_file(__file__),
            "letter_token_ids": letter_ids, "n": len(items), "arms": {}, "skipped": {}}
     with X.E.fp32_output_projection(ctx.bundle, enabled=True):
-        prompts = [X.pd.render_prompt(ctx.bundle, systems["x"], template, q) for _, q in items]
+        rendered = {}
         for spec in a.arms:
             arm = spec.replace("E#", "E%d" % m["el"]).replace("C#", "C%d" % m["cl"])
             positions, core = ("gen", arm[:-4]) if arm.endswith("@gen") else ("content", arm)
+            base = core.split(":", 1)[0]     # the system prompt of the arm: x, or another prompt of the run (e.g. conf_E2)
+            if base not in systems:
+                raise SystemExit("arm %s: unknown base prompt %s (known: %s)" % (arm, base, ", ".join(sorted(systems))))
+            if base not in rendered:
+                rendered[base] = [X.pd.render_prompt(ctx.bundle, systems[base], template, q) for _, q in items]
+            prompts = rendered[base]
             writes, descs = [], []
             if ":" in core:
                 try:
@@ -164,7 +170,7 @@ def report(paths):
             moved = sum(r["pick"] != base[r["id"]]["pick"] for r in rows)
             amt = "; ".join("L%d %+.2f" % (w["layer"], w["amount"]) for w in d["arms"][arm]["writes"])
             print("    %-22s %.3f (%+.1f [%+.1f, %+.1f]) | picks changed %3d | mass %.2f | write %s" % (
-                arm.split(":", 1)[1], d["arms"][arm]["accuracy"], 100 * m_, 100 * lo, 100 * hi, moved,
+                arm.split(":", 1)[1] if arm.startswith("x:") else arm, d["arms"][arm]["accuracy"], 100 * m_, 100 * lo, 100 * hi, moved,
                 d["arms"][arm]["median_letter_mass"], amt))
         for arm, why in d.get("skipped", {}).items():
             print("    skipped %s: %s" % (arm, why))
