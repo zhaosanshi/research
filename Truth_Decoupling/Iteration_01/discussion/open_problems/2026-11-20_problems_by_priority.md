@@ -123,6 +123,8 @@
 
 ## 出处
 
+- GPT 与 Claude 的后续逐题复算、已解决的问题及可停止的旧线见[七项处理意见](2026-11-20_gpt_joint_resolution.md)和[逐号去留表](2026-11-20_gpt_item_disposition.md)。
+
 - 第 1、2、4 节的 TruthfulQA 数字：`Iteration_01/results/capability/dose/dose_table_truthfulqa_20261120.txt`（程序 `Iteration_01/code/diag/dose_table.py`）；主表 `Iteration_01/novelty/ours/2026-11-19_same_answer_count_main_table.md`。
 - MMLU：`Iteration_01/novelty/ours/2026-11-19_capability_preservation_design.md` 第 8 节；`Iteration_01/results/capability/dose/cap_mcq_sweep_mmlu_20261120.txt`。
 - 新题集：`Iteration_01/novelty/ours/2026-11-19_new_datasets_pilot_design.md` 第 10 节；`Iteration_01/novelty/ours/2026-11-20_rechosen_caps_validation.md` 第 5 节。
@@ -134,3 +136,4 @@
 |---|---|---|
 | 2026-11-20 | 建立本文件 | 赵磊（Fable 5.2 代笔） |
 | 2026-11-20 | 第 0、1 节的 MMLU 数字换成五个模型在 13,042 道没看过的题上的结果 | 赵磊（Fable 5.2 代笔） |
+| 2026-11-20 | 添加后续复算入口，保留原问题与当时的数字 | 赵磊（GPT-6.2-Astra 代笔） |
