@@ -1,0 +1,87 @@
+## Llama-3.1-8B, E at layer 16 (C at layer 19): tune 192 questions
+  tune E 2.5  single E net  +14 (answers 126) | N1 N1: E 2-5, own blanks up to 2, E's blanks up to 1 net  +29 (answers 182)
+  tune E 3    single E net   +9 (answers 119) | N1 N1: E 3, own blanks up to 2, E's blanks up to 0.25 net  +20 (answers 149)
+  tune E 3.5  single E net  +14 (answers 116) | N1 N1: E 3-5, own blanks up to 2, E's blanks up to 0.5 net  +26 (answers 166)
+  tune E 4    single E net  +14 (answers 109) | N1 N1: E 4, own blanks up to 2, E's blanks up to 0.25 net  +28 (answers 152)
+## test 523 questions (old work dir 523): no write net -86 (answers 467) | single C (0.25) net -89 | prompt only net +0
+  E 2.5  strong form (must-answer + E at layer 16, top 492): net  +15 | N1 minus the strong form +33 [+0, +65] | must-answer + E, every answer: net  +15 (answers 521)
+  E 2.5  single E net  +22 (answers 355) | N1 net  +48 (answers 492) | MMLU fresh -0.28 [-0.73, +0.15] | selection half -0.21 | report half -0.36
+         N1 minus: no write +134 [+85, +181] | single C +137 [+89, +185] | single E +26 [+4, +49] | prompt only +48 [+3, +93] | single E minus no write +108 [+62, +153]
+  E 3    strong form (must-answer + E at layer 16, top 421): net  +48 | N1 minus the strong form +15 [-19, +49] | must-answer + E, every answer: net  +39 (answers 521)
+  E 3    single E net  +37 (answers 332) | N1 net  +63 (answers 421) | MMLU fresh -0.39 [-0.87, +0.09] | selection half -0.33 | report half -0.46
+         N1 minus: no write +149 [+98, +200] | single C +152 [+101, +203] | single E +26 [+9, +43] | prompt only +63 [+16, +111] | single E minus no write +123 [+74, +173]
+  E 3.5  strong form (must-answer + E at layer 16, top 452): net  +44 | N1 minus the strong form +47 [+11, +84] | must-answer + E, every answer: net  +30 (answers 522)
+  E 3.5  single E net  +51 (answers 313) | N1 net  +91 (answers 452) | MMLU fresh -0.84 [-1.37, -0.28] | selection half -0.74 | report half -0.90
+         N1 minus: no write +177 [+120, +235] | single C +180 [+123, +238] | single E +40 [+18, +63] | prompt only +91 [+38, +146] | single E minus no write +137 [+85, +188]
+  E 4    strong form (must-answer + E at layer 16, top 405): net  +69 | N1 minus the strong form +9 [-29, +46] | must-answer + E, every answer: net  +50 (answers 523)
+  E 4    single E net  +54 (answers 308) | N1 net  +78 (answers 405) | MMLU fresh -1.46 [-2.02, -0.86] | selection half -1.42 | report half -1.54
+         N1 minus: no write +164 [+108, +220] | single C +167 [+111, +223] | single E +24 [+6, +43] | prompt only +78 [+25, +134] | single E minus no write +140 [+86, +193]
+## the mean-difference direction at layer 16 with the same write amount (kind mdg), single write
+  E 3.5  mean difference: net  -30 (answers 346, 523 questions) | learned single E minus it +81 [+41, +120] | N1 minus it +121 [+76, +166] | it minus no write +56 [+16, +95]
+  E 4    mean difference: net   -7 (answers 321, 523 questions) | learned single E minus it +61 [+21, +101] | N1 minus it +85 [+44, +128] | it minus no write +79 [+36, +121]
+## for reference, layer 11 (diag/dose_mid.py, on its own question list: not paired with the rows above)
+  E 0.5  single E net  -74 (answers 442) | N1 net  -58 (answers 514) | MMLU fresh -0.61
+  E 0.75 single E net  -51 (answers 424) | N1 net  -33 (answers 478) | MMLU fresh -0.97
+  E 1    single E net  -29 (answers 407) | N1 net  -11 (answers 459) | MMLU fresh -1.63
+  E 1.25 single E net  -26 (answers 384) | N1 net   -4 (answers 435) | MMLU fresh -2.58
+  E 1.5  single E net  +31 (answers 356) | N1 net  +58 (answers 392) | MMLU fresh -3.80
+  E 1.75 single E net  +70 (answers 333) | N1 net  +98 (answers 419) | MMLU fresh -5.18
+  E 2    single E net  +85 (answers 312) | N1 net +110 (answers 379) | MMLU fresh -6.86
+
+## Gemma-3-27B, E at layer 28 (C at layer 31): tune 192 questions
+  tune E 1    single E net  +42 (answers 152) | N1 N1: E 1, own blanks up to 2, E's blanks up to 1 net  +59 (answers 187)
+  tune E 1.5  single E net  +43 (answers 143) | N1 N1: E 1-5, own blanks up to 2, E's blanks up to 2 net  +61 (answers 188)
+  tune E 2    single E net  +47 (answers 140) | N1 N1: E 2, own blanks up to 1, E's blanks up to 1 net  +66 (answers 182)
+## test 523 questions (old work dir 523): no write net +3 (answers 456) | single C (0.25) net +3 | prompt only net +140
+  E 1    strong form (must-answer + E at layer 28, top 514): net  +95 | N1 minus the strong form +51 [+20, +81] | must-answer + E, every answer: net  +96 (answers 520)
+  E 1    single E net +107 (answers 422) | N1 net +146 (answers 514) | MMLU fresh -0.69 [-1.07, -0.31] | selection half -0.50 | report half -0.66
+         N1 minus: no write +143 [+107, +179] | single C +143 [+104, +180] | single E +39 [+21, +57] | prompt only +6 [-32, +44] | single E minus no write +104 [+70, +137]
+  E 1.5  strong form (must-answer + E at layer 28, top 515): net +135 | N1 minus the strong form +48 [+18, +79] | must-answer + E, every answer: net +141 (answers 522)
+  E 1.5  single E net +141 (answers 410) | N1 net +183 (answers 515) | MMLU fresh -2.10 [-2.60, -1.63] | selection half -2.05 | report half -1.87
+         N1 minus: no write +180 [+138, +223] | single C +180 [+134, +224] | single E +42 [+23, +61] | prompt only +43 [+4, +81] | single E minus no write +138 [+99, +177]
+  E 2    strong form (must-answer + E at layer 28, top 508): net +186 | N1 minus the strong form +35 [+4, +66] | must-answer + E, every answer: net +193 (answers 522)
+  E 2    single E net +178 (answers 408) | N1 net +221 (answers 508) | MMLU fresh -3.53 [-4.10, -2.96] | selection half -3.49 | report half -3.23
+         N1 minus: no write +218 [+172, +264] | single C +218 [+170, +266] | single E +43 [+26, +61] | prompt only +81 [+37, +124] | single E minus no write +175 [+129, +219]
+## the mean-difference direction at layer 28 with the same write amount (kind mdg), single write
+  E 1    mean difference: net   -1 (answers 439, 523 questions) | learned single E minus it +108 [+76, +140] | N1 minus it +147 [+112, +182] | it minus no write -4 [-25, +17]
+  E 1.5  mean difference: net  +15 (answers 432, 523 questions) | learned single E minus it +126 [+90, +162] | N1 minus it +168 [+128, +208] | it minus no write +12 [-13, +38]
+  E 2    mean difference: net  +27 (answers 425, 523 questions) | learned single E minus it +151 [+108, +194] | N1 minus it +194 [+150, +239] | it minus no write +24 [-4, +51]
+## for reference, layer 26 (diag/dose_mid.py, on its own question list: not paired with the rows above)
+  E 0.5  single E net  +57 (answers 445) | N1 net  +89 (answers 507) | MMLU fresh -0.16
+  E 0.75 single E net +100 (answers 439) | N1 net +128 (answers 501) | MMLU fresh -0.69
+  E 1    single E net +123 (answers 433) | N1 net +168 (answers 519) | MMLU fresh -1.76
+  E 1.25 single E net +153 (answers 438) | N1 net +188 (answers 505) | MMLU fresh -2.78
+  E 1.5  single E net +174 (answers 442) | N1 net +202 (answers 520) | MMLU fresh -3.98
+  E 1.75 single E net +199 (answers 441) | N1 net +235 (answers 505) | MMLU fresh -5.63
+  E 2    single E net +205 (answers 433) | N1 net +240 (answers 499) | MMLU fresh -8.00
+
+## Gemma-3-12B, E at layer 24 (C at layer 25): tune 192 questions
+  tune E 1.5  single E net  +28 (answers 132) | N1 N1: E 1-5, own blanks up to 2, E's blanks up to 0.25 net  +46 (answers 161)
+  tune E 2    single E net  +32 (answers 121) | N1 N1: E 2, own blanks up to 2, E's blanks up to 1 net  +50 (answers 177)
+  tune E 2.5  single E net  +45 (answers 111) | N1 N1: E 2-5, own blanks up to 2, E's blanks up to 2 net  +75 (answers 181)
+  tune E 3    single E net  +40 (answers 104) | N1 N1: E 3, own blanks up to 2, E's blanks up to 2 net  +74 (answers 183)
+## test 522 questions (old work dir 522): no write net +12 (answers 460) | single C (0.25) net +11 | prompt only net +77
+  E 1.5  strong form (must-answer + E at layer 24, top 463): net +103 | N1 minus the strong form +29 [+2, +55] | must-answer + E, every answer: net +112 (answers 519)
+  E 1.5  single E net  +91 (answers 380) | N1 net +132 (answers 463) | MMLU fresh -0.28 [-0.62, +0.05] | selection half -0.11 | report half -0.38
+         N1 minus: no write +120 [+80, +161] | single C +121 [+80, +162] | single E +41 [+25, +58] | prompt only +55 [+16, +94] | single E minus no write +79 [+42, +116]
+  E 2    strong form (must-answer + E at layer 24, top 494): net +152 | N1 minus the strong form -19 [-46, +8] | must-answer + E, every answer: net +151 (answers 519)
+  E 2    single E net  +92 (answers 348) | N1 net +133 (answers 494) | MMLU fresh -0.51 [-0.92, -0.11] | selection half -0.20 | report half -0.64
+         N1 minus: no write +121 [+73, +168] | single C +122 [+74, +168] | single E +41 [+18, +65] | prompt only +56 [+14, +98] | single E minus no write +80 [+36, +121]
+  E 2.5  strong form (must-answer + E at layer 24, top 500): net +152 | N1 minus the strong form +0 [-28, +28] | must-answer + E, every answer: net +154 (answers 520)
+  E 2.5  single E net  +95 (answers 321) | N1 net +152 (answers 500) | MMLU fresh -0.62 [-1.10, -0.13] | selection half -0.57 | report half -0.54
+         N1 minus: no write +140 [+86, +192] | single C +141 [+86, +194] | single E +57 [+32, +82] | prompt only +75 [+29, +122] | single E minus no write +83 [+36, +129]
+  E 3    strong form (must-answer + E at layer 24, top 504): net +165 | N1 minus the strong form -9 [-33, +15] | must-answer + E, every answer: net +160 (answers 521)
+  E 3    single E net +111 (answers 311) | N1 net +156 (answers 504) | MMLU fresh -1.41 [-1.96, -0.89] | selection half -1.55 | report half -1.24
+         N1 minus: no write +144 [+84, +201] | single C +145 [+86, +201] | single E +45 [+20, +71] | prompt only +79 [+29, +130] | single E minus no write +99 [+47, +148]
+## the mean-difference direction at layer 24 with the same write amount (kind mdg), single write
+  E 1.5  mean difference: net  +29 (answers 476, 522 questions) | learned single E minus it +62 [+26, +98] | N1 minus it +103 [+65, +140] | it minus no write +17 [-7, +41]
+  E 2    mean difference: net  +32 (answers 480, 522 questions) | learned single E minus it +60 [+20, +100] | N1 minus it +101 [+55, +145] | it minus no write +20 [-4, +45]
+  E 2.5  mean difference: net  +30 (answers 481, 522 questions) | learned single E minus it +65 [+20, +110] | N1 minus it +122 [+72, +173] | it minus no write +18 [-10, +47]
+  E 3    mean difference: net  +34 (answers 480, 522 questions) | learned single E minus it +77 [+28, +126] | N1 minus it +122 [+67, +177] | it minus no write +22 [-7, +52]
+## for reference, layer 22 (diag/dose_mid.py, on its own question list: not paired with the rows above)
+  E 1    single E net  +74 (answers 408) | N1 net +101 (answers 498) | MMLU fresh -0.90
+  E 1.25 single E net  +91 (answers 395) | N1 net +120 (answers 483) | MMLU fresh -1.13
+  E 1.5  single E net +101 (answers 382) | N1 net +134 (answers 495) | MMLU fresh -1.77
+  E 1.75 single E net +106 (answers 367) | N1 net +158 (answers 489) | MMLU fresh -2.64
+  E 2    single E net +107 (answers 346) | N1 net +157 (answers 493) | MMLU fresh -3.40
+
