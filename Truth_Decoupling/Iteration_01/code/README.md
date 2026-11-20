@@ -87,7 +87,7 @@
 | `diag/cap_mcq_flips.py` | 逐题看推 E 把 MMLU 的选项改成了什么（字母偏向、原选择对错、把握高低、否定选项、科目） | 新写，未经 GPT 审 | 62370da7eb44d5d7 |
 | `diag/dose_table.py` | TruthfulQA 测试集上 E 力度 1 与力度 2 的主要系统并排（只读已有回答与判分，调用 `main_table_same_n.py`） | 新写，未经 GPT 审；同日补入与提示词基线的比较（留空再问 B、必须作答加如实句不写入）及正文三个模型的合计（修改前为 829257ae39f6c876） | d1e33c892a41fc8f |
 | `diag/cap_mcq_fresh.py` | MMLU 全测试集的计分：没看过的 13,042 题、看过的 1,000 题、全部，各按 1 个百分点判据给标签 | 新写，未经 GPT 审；2026-11-20 晚加改：只有提示词、不写入的一臂也能列出；写在别的提示词上的臂另报对该提示词本身的变化（修改前为 fa36034a0e569c6e） | 72ae112cd10bece0 |
-| `diag/dose_mid.py` | TruthfulQA 测试集上各模型在自己有的每一档 E 力度（1、1.25、1.5、1.75、2，个别模型另有 2.5 至 4）下的只推 E 与 N1：对不写入、对只推 E、对纯提示词（必须作答加如实句、不写入）；每档的两个上限都在调参集上选；末尾按调参集给每个模型选一个力度（只读已有回答与判分） | 新写（赵磊 2026-11-20：分模型列出、中间力度也试、各模型可用各自力度），未经 GPT 审；当晚加改：保留给 GPT 复算工具用的旧函数名（修改前为 bdec110dc0d82678） | 4dfd2f712f376a0d |
+| `diag/dose_mid.py` | TruthfulQA 测试集上各模型在自己有的每一档 E 力度（1、1.25、1.5、1.75、2，个别模型另有 2.5 至 4）下的只推 E 与 N1：对不写入、对只推 E、对纯提示词（必须作答加如实句、不写入）；每档的两个上限都在调参集上选；末尾按调参集给每个模型选一个力度（只读已有回答与判分） | 新写（赵磊 2026-11-20：分模型列出、中间力度也试、各模型可用各自力度），未经 GPT 审；当晚加改：保留给 GPT 复算工具用的旧函数名（修改前为 bdec110dc0d82678） | da7f169c48bfc6db |
 | `diag/on_prompt_table.py` | 把 E 写在“必须作答加如实句”这条提示词之上，对比该提示词本身（TruthfulQA，DeepSeek Pro，分模型与五模型合计；只读已有回答与判分） | 新写，未经 GPT 审 | 4d1367ce018287a6 |
 | `diag/md_table.py` | 学出的 E 方向对均值差方向（同一层；同写入量与均值差自身的量两种），TruthfulQA 测试集，力度 1 与 2，分模型与五模型合计（只读已有回答与判分） | 新写，未经 GPT 审；当晚加第二部分：均值差在调参集上自己挑层与系数后的对照（修改前为 9b706dc5ffe7d320） | 4cfad0ab73ef362a |
 | `diag/md_choose.py` | 给均值差基线在调参集上选它自己最好的层与系数（读 `md_sweep.sh` 的调参集判分，写出选择记录） | 新写，未经 GPT 审 | 43b30cacd011e8b1 |
@@ -99,12 +99,16 @@
 | `diag/per_model_table.py` | 每个模型用自己力度的主表：MMLU 14,042 题对半分，“选力度”的一半上取掉分不超过预算的最大力度，另一半报 MMLU；该力度下 TruthfulQA 的原模型、只推 C、只推 E、N1、同力度强对照、纯提示词与各项差（只读已有回答与判分） | 新写（赵磊 2026-11-21：表按各模型各自力度摆），未经 GPT 审 | d4a7b22af7f82560 |
 | `diag/ns_dose_table.py` | TriviaQA / PopQA 上各档 E 力度的只推 E、N1（上限在该题集调参集上选）与不带否决的诊断版；按调参集选力度后看测试集；别名匹配判分，不调用裁判 | 新写（赵磊 2026-11-21：新题集也按各自力度），未经 GPT 审；力度 2 的现有数据上试跑通过 | 46295eb5e2a46a7a |
 | `diag/keep_table.py` | 训练题加入 MMLU 题后学出的 E，与现用 E 在 TruthfulQA 上逐档比较（只读判分） | 新写，未经 GPT 审 | d0a493f2836c7d84 |
-| `diag/oncaut_table.py` | 把 N1 整套叠在“加强谨慎 + 如实句”这条提示上的计分（条件名里的提示名读作 x，记录函数不改）：提示本身、其上只推 E、其上的 N1 | 新写，未经 GPT 审 | ead3d4d0dcb45d6d |
-| `diag/ns_caut_table.py` | TriviaQA / PopQA 上让 C 的力度取谨慎方向：只推 C（谨慎）、E 加 C（谨慎）每题都写；各自在调参集上选力度，再比测试集 | 新写，未经 GPT 审 | 9e32f20bd6e8b549 |
+| `diag/oncaut_table.py` | 把 N1 整套叠在“加强谨慎 + 如实句”这条提示上的计分（条件名里的提示名读作 x，记录函数不改）：提示本身、其上只推 E、其上的 N1 | 新写，未经 GPT 审 | 5091f15a475f705c |
+| `diag/ns_caut_table.py` | TriviaQA / PopQA 上让 C 的力度取谨慎方向：只推 C（谨慎）、E 加 C（谨慎）每题都写；各自在调参集上选力度，再比测试集 | 新写，未经 GPT 审 | 6af51448c1284165 |
+| `diag/l16_table.py` | Llama 把 E 写在第 16 层（不是第 11 层）时的计分：各档力度的只推 E、N1（上限在调参集上选）与 MMLU 全量变化并排，附第 11 层各档作参照 | 新写，未经 GPT 审 | 0ac0728f8fe507fc |
+| `diag/ns_stable_table.py` | 探索：TriviaQA / PopQA 上把两次写入当作对模型原回答的“稳定性检查”（N1 规则的镜像：只保留推 E 后不变、或加 C 后原样回来的原回答）；E 力度与上限在调参集上选，读测试集 | 新写，未经 GPT 审 | 9ea91cadd27e7c89 |
+| `diag/ns_probe_table.py` | 探索：把任意一遍写入（E、C 往谨慎、C 往作答、两个一起写）或换问法当作“探针”，只保留探针下不变的原回答；各族在调参集上选成员，读测试集；含“换成必须作答问法”的对照 | 新写，未经 GPT 审 | d8da400447e433e5 |
+| `diag/ns_choose.py` | 只用调参集，给出某模型某题集需要在测试集上补“再问”回答的 E 力度（N1 最好的一档、稳定性检查最好的一档） | 新写，未经 GPT 审 | 77a83874ee7f5cec |
 | `diag/train_loss_table.py` | 从各次运行的训练日志读出 E 方向在留出题上的损失：不写入、整个激活差、均值差方向、学出的方向 | 新写，未经 GPT 审 | 88ef7200f986cea5 |
 | `scripts/review_checks/e44_positions.py` | 只在评测时换写入位置的入口：把训练时“从题目第一个词写到结尾”的方向，改成只从提问的最后一个词元起写（题目的词不动）；原程序文件不动，三处内存内改动；只允许单写入的生成与导出 | 新写（探索：MMLU 掉分来自题目词上的写入），未经 GPT 审；Llama 8 题试跑后运行 | 1a8ae7861c1c103e |
 | `scripts/review_checks/make_keep_source.py` | 给 E 的训练题里加入多项选择题的源目录构造：原训练题加 160 道 MMLU 诊断题（调参集、测试集不动）；训练程序不改，照旧在训练题上学“写入后要与带如实句的提示输出一致” | 新写（探索：能否让 E 不伤 MMLU），未经 GPT 审；Llama 的源目录已构造并核对 | fd71b3337a121b18 |
-| `launchers/explore_20261120/` | 2026-11-20 探索用的服务器启动脚本原样存档（29 个，新增 Llama 第 16 层 `l16_all.sh`、叠在最好提示上的 `oncaut_all.sh`、新题集上 C 取谨慎方向的 `ns_caut.sh`；另含含 Llama 换层加力度的试探 `layer_probe.sh`、训练题加入 MMLU 题的试验 `keep_pilot.sh`、作答位置写入第二轮 `pos2_all.sh` 与 `pos2_judge.sh`、Llama 与 Gemma-3-27B 的低力度 `low_all.sh`、新题集换力度 `ns_dose_all.sh`；晚间新增 Gemma-3 重跑 `pm3_gemma.sh`、只在作答位置写入 `pos_all.sh` 与 `pos_judge.sh`、均值差选层 `md_sweep.sh`、提示词基线全判 `prompt_sweep.sh`）：新题验证 `val_all.sh`；MMLU 找原因与全量确认 `sweep_all.sh`、`sweep_g27.sh`、`full_all.sh`；中间力度 `dose_mid_all.sh`、`dose_mid_judge.sh`；提示词之上再写 E `idea_a.sh`、`idea_a2.sh`；高力度 `q9_high.sh`；补判 `extra_judge.sh`、`extra_judge2.sh`；下午两条队列 `pm_all.sh`、`pm_judge.sh`、`pm2_all.sh`、`pm2_judge.sh` | 均未经 GPT 审（探索阶段先跑，成批送审）；生成、导出、判分调用的都是已审程序，这些脚本只改臂、切分与名称 | 见各文件 |
+| `launchers/explore_20261120/` | 2026-11-20 探索用的服务器启动脚本原样存档（32 个，新增 Llama 第 16 层 `l16_all.sh`、叠在最好提示上的 `oncaut_all.sh` 与省判分的第二版 `oncaut2_all.sh`、新题集上 C 取谨慎方向的 `ns_caut.sh`、新题集各档力度的精简版 `ns2_all.sh` 与改排显卡并补测试集再问回答的 `ns2b_all.sh`；另含含 Llama 换层加力度的试探 `layer_probe.sh`、训练题加入 MMLU 题的试验 `keep_pilot.sh`、作答位置写入第二轮 `pos2_all.sh` 与 `pos2_judge.sh`、Llama 与 Gemma-3-27B 的低力度 `low_all.sh`、新题集换力度 `ns_dose_all.sh`；晚间新增 Gemma-3 重跑 `pm3_gemma.sh`、只在作答位置写入 `pos_all.sh` 与 `pos_judge.sh`、均值差选层 `md_sweep.sh`、提示词基线全判 `prompt_sweep.sh`）：新题验证 `val_all.sh`；MMLU 找原因与全量确认 `sweep_all.sh`、`sweep_g27.sh`、`full_all.sh`；中间力度 `dose_mid_all.sh`、`dose_mid_judge.sh`；提示词之上再写 E `idea_a.sh`、`idea_a2.sh`；高力度 `q9_high.sh`；补判 `extra_judge.sh`、`extra_judge2.sh`；下午两条队列 `pm_all.sh`、`pm_judge.sh`、`pm2_all.sh`、`pm2_judge.sh` | 均未经 GPT 审（探索阶段先跑，成批送审）；生成、导出、判分调用的都是已审程序，这些脚本只改臂、切分与名称 | 见各文件 |
 
 ## 变更记录
 

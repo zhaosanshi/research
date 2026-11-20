@@ -4,7 +4,7 @@
 # is shared, the strength may differ by model).
 # Strengths 1 and 2 come from the existing E+C work dirs; the others from the work dirs judge_<split>_<tag>_<split> of
 # the same runs (same engine, same judge; launchers logs/newsets_20261119/dose_mid_all.sh, q9_high.sh, pm_all.sh):
-# dosemid = 1.25 / 1.5 / 1.75 (five models), dosehigh = 2.5 / 3, dosehigh2 = 3.5 / 4 (only the models that have them,
+# dosemid = 1.25 / 1.5 / 1.75 (five models), dosehigh = 2.5 / 3, dosehigh2 = 3.5 / 4, doselow = 0.5 / 0.75 (only the models that have them,
 # judged on both splits). For every strength the two caps of N1 are chosen on tune among the candidates of
 # main_table_same_n.py restricted to that strength, by the same rule; nothing is chosen on test. The per-question
 # records come from final_records.py unchanged (through newsets_score.NewSplit, a Split over a supplied verdict table).
@@ -24,7 +24,7 @@ import newsets_score as S
 ps, ro, fr = MT.ps, MT.ro, MT.fr
 CAPS, LAD = MT.CAPS, ps.LAD
 BASE = ("1", "2")
-TAGS = (("dosemid", ("1-25", "1-5", "1-75")), ("dosehigh", ("2-5", "3")), ("dosehigh2", ("3-5", "4")))
+TAGS = (("dosemid", ("1-25", "1-5", "1-75")), ("dosehigh", ("2-5", "3")), ("dosehigh2", ("3-5", "4")), ("doselow", ("0-5", "0-75")))
 COMMON = ("1", "1-25", "1-5", "1-75", "2")
 MID, TAG = TAGS[0][1], TAGS[0][0]   # names kept for discussion/open_problems/2026-11-20_matched_e_reference.py
 MAIN = ("Llama-3.1-8B", "Qwen3.5-9B", "Qwen3.8-27B")

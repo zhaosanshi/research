@@ -1,0 +1,151 @@
+
+# triviaqa (alias match): members chosen on tune (192), numbers on test
+
+## llama3.1-8b: no write: tune  +90 (ans 190, R 140 W  50) | test +140 (ans 490, R 315 W 175)
+    single E answering by itself, best on tune E 2: tune  +51 (ans 115, R  83 W  32) | test +154 (ans 302, R 228 W  74)
+    E                             1 members on tune ( 1 also on test); best on tune: E 2, tune  +49 (ans  69, R  59 W  10) || test +143 (ans 195, R 169 W  26) | minus no write +3 [-31, +36] | single E answering (E 2) -11 [-31, +9]
+    C caution                     4 members on tune ( 4 also on test); best on tune: C caution 0.25, tune  +90 (ans 178, R 134 W  44) || test +154 (ans 466, R 310 W 156) | minus no write +14 [+5, +23] | single E answering (E 2) +0 [-32, +32]
+    C answer                      1 members on tune ( 1 also on test); best on tune: C answer 0.25, tune  +90 (ans 184, R 137 W  47) || test +148 (ans 474, R 311 W 163) | minus no write +8 [+0, +16] | single E answering (E 2) -6 [-39, +26]
+    E+C caution, one pass        12 members on tune ( 1 also on test); best on tune: E 0.5 + C caution 0.25, tune  +89 (ans 157, R 123 W  34) || test +169 (ans 423, R 296 W 127) | minus no write +29 [+14, +45] | single E answering (E 2) +15 [-16, +46]
+    E+C answer, one pass          4 members on tune ( 4 also on test); best on tune: E 2 + C answer 1, tune  +61 (ans  91, R  76 W  15) || test +151 (ans 257, R 204 W  53) | minus no write +11 [-19, +41] | single E answering (E 2) -3 [-28, +24]
+    E and C caution, two passes   4 members on tune ( 4 also on test); best on tune: E 2 and C caution 0.25, tune  +49 (ans  69, R  59 W  10) || test +144 (ans 194, R 169 W  25) | minus no write +4 [-30, +37] | single E answering (E 2) -10 [-30, +10]
+    prompt (control)              1 members on tune ( 1 also on test); best on tune: must-answer prompt, tune  +78 (ans 158, R 118 W  40) || test +153 (ans 403, R 278 W 125) | minus no write +13 [-4, +31] | single E answering (E 2) -1 [-34, +33]
+        C caution                    minus the E probe: +11 [-21, +43]
+        C answer                     minus the E probe: +5 [-28, +38]
+        E+C caution, one pass        minus the E probe: +26 [-3, +56]
+        E+C answer, one pass         minus the E probe: +8 [-10, +26]
+        E and C caution, two passes  minus the E probe: +1 [+0, +4]
+        prompt (control)             minus the E probe: +10 [-20, +42]
+        confidence filter (must-answer prompt, its 195 most confident answers) +159 (ans 195, R 177 W  18) | the E probe minus it: -16 [-39, +7]
+
+## qwen3.5-9b: no write: tune  +48 (ans 186, R 117 W  69) | test  +74 (ans 492, R 283 W 209)
+    single E answering by itself, best on tune E 2: tune  +61 (ans 151, R 106 W  45) | test +130 (ans 376, R 253 W 123)
+    E                             1 members on tune ( 1 also on test); best on tune: E 2, tune  +71 (ans 129, R 100 W  29) || test +151 (ans 311, R 231 W  80) | minus no write +77 [+53, +102] | single E answering (E 2) +21 [+5, +36]
+    C answer                      1 members on tune ( 1 also on test); best on tune: C answer 0.25, tune  +52 (ans 176, R 114 W  62) || test  +80 (ans 470, R 275 W 195) | minus no write +6 [-3, +15] | single E answering (E 2) -50 [-76, -25]
+    E+C answer, one pass          4 members on tune ( 4 also on test); best on tune: E 2 + C answer 0.25, tune  +75 (ans 139, R 107 W  32) || test +147 (ans 331, R 239 W  92) | minus no write +73 [+49, +97] | single E answering (E 2) +17 [-1, +35]
+    prompt (control)              1 members on tune ( 1 also on test); best on tune: must-answer prompt, tune  +52 (ans 162, R 107 W  55) || test +108 (ans 414, R 261 W 153) | minus no write +34 [+17, +51] | single E answering (E 2) -22 [-47, +3]
+        C answer                     minus the E probe: -71 [-96, -47]
+        E+C answer, one pass         minus the E probe: -4 [-15, +6]
+        prompt (control)             minus the E probe: -43 [-65, -20]
+        confidence filter (must-answer prompt, its 311 most confident answers) +169 (ans 311, R 240 W  71) | the E probe minus it: -18 [-39, +4]
+
+## qwen3.8-27b: no write: tune  +57 (ans 183, R 120 W  63) | test +121 (ans 477, R 299 W 178)
+    single E answering by itself, best on tune E 2: tune  +63 (ans 177, R 120 W  57) | test +137 (ans 431, R 284 W 147)
+    E                             1 members on tune ( 1 also on test); best on tune: E 2, tune  +71 (ans 159, R 115 W  44) || test +160 (ans 374, R 267 W 107) | minus no write +39 [+20, +58] | single E answering (E 2) +23 [+9, +38]
+    C answer                      1 members on tune ( 1 also on test); best on tune: C answer 0.25, tune  +59 (ans 173, R 116 W  57) || test +140 (ans 448, R 294 W 154) | minus no write +19 [+9, +30] | single E answering (E 2) +3 [-18, +25]
+    E+C answer, one pass          4 members on tune ( 4 also on test); best on tune: E 2 + C answer 1, tune  +71 (ans 159, R 115 W  44) || test +171 (ans 371, R 271 W 100) | minus no write +50 [+30, +69] | single E answering (E 2) +34 [+14, +54]
+    prompt (control)              1 members on tune ( 1 also on test); best on tune: must-answer prompt, tune  +70 (ans 156, R 113 W  43) || test +160 (ans 372, R 266 W 106) | minus no write +39 [+20, +59] | single E answering (E 2) +23 [+0, +46]
+        C answer                     minus the E probe: -20 [-39, -1]
+        E+C answer, one pass         minus the E probe: +11 [-4, +26]
+        prompt (control)             minus the E probe: +0 [-21, +21]
+        confidence filter (must-answer prompt, its 374 most confident answers) +200 (ans 374, R 287 W  87) | the E probe minus it: -40 [-62, -18]
+
+## gemma3-12b: no write: tune  +64 (ans 190, R 127 W  63) | test +159 (ans 497, R 328 W 169)
+    single E answering by itself, best on tune E 2: tune  +70 (ans 154, R 112 W  42) | test +167 (ans 393, R 280 W 113)
+    E                             6 members on tune ( 2 also on test); best on tune: E 1, tune  +82 (ans 160, R 121 W  39) | best with a test file: E 2, tune  +81 (ans 115, R  98 W  17) || test +207 (ans 299, R 253 W  46) | minus no write +48 [+21, +76] | single E answering (E 2) +40 [+21, +59]
+    C caution                     4 members on tune ( 0 also on test); best on tune: C caution 2, tune  +83 (ans 117, R 100 W  17)
+    C answer                      1 members on tune ( 1 also on test); best on tune: C answer 0.25, tune  +67 (ans 185, R 126 W  59) || test +173 (ans 475, R 324 W 151) | minus no write +14 [+5, +23] | single E answering (E 2) +6 [-23, +34]
+    E+C caution, one pass        12 members on tune ( 0 also on test); best on tune: E 1 + C caution 1, tune  +82 (ans 128, R 105 W  23)
+    E+C answer, one pass         24 members on tune ( 8 also on test); best on tune: E 1 + C answer 2, tune  +80 (ans 138, R 109 W  29) | best with a test file: E 0.5 + C answer 2, tune  +79 (ans 143, R 111 W  32) || test +186 (ans 376, R 281 W  95) | minus no write +27 [+6, +49] | single E answering (E 2) +19 [-8, +46]
+    E and C caution, two passes  24 members on tune ( 0 also on test); best on tune: E 1 and C caution 1, tune  +83 (ans 145, R 114 W  31)
+    prompt (control)              1 members on tune ( 1 also on test); best on tune: must-answer prompt, tune  +72 (ans 168, R 120 W  48) || test +173 (ans 435, R 304 W 131) | minus no write +14 [-1, +30] | single E answering (E 2) +6 [-23, +34]
+        C answer                     minus the E probe: -34 [-60, -9]
+        E+C answer, one pass         minus the E probe: -21 [-42, -1]
+        prompt (control)             minus the E probe: -34 [-58, -11]
+        confidence filter (must-answer prompt, its 299 most confident answers) +185 (ans 299, R 242 W  57) | the E probe minus it: +22 [+0, +44]
+
+## gemma3-27b: no write: tune +103 (ans 191, R 147 W  44) | test +259 (ans 497, R 378 W 119)
+    single E answering by itself, best on tune E 2: tune  +65 (ans 159, R 112 W  47) | test +208 (ans 414, R 311 W 103)
+    E                             1 members on tune ( 1 also on test); best on tune: E 2, tune  +79 (ans 109, R  94 W  15) || test +243 (ans 297, R 270 W  27) | minus no write -16 [-44, +11] | single E answering (E 2) +35 [+14, +57]
+    C answer                      1 members on tune ( 1 also on test); best on tune: C answer 0.25, tune +101 (ans 181, R 141 W  40) || test +262 (ans 470, R 366 W 104) | minus no write +3 [-7, +13] | single E answering (E 2) +54 [+23, +87]
+    E+C answer, one pass          4 members on tune ( 4 also on test); best on tune: E 2 + C answer 0.25, tune  +85 (ans 115, R 100 W  15) || test +245 (ans 303, R 274 W  29) | minus no write -14 [-41, +13] | single E answering (E 2) +37 [+15, +60]
+    prompt (control)              1 members on tune ( 1 also on test); best on tune: must-answer prompt, tune  +91 (ans 145, R 118 W  27) || test +224 (ans 380, R 302 W  78) | minus no write -35 [-55, -14] | single E answering (E 2) +16 [-15, +48]
+        C answer                     minus the E probe: +19 [-7, +45]
+        E+C answer, one pass         minus the E probe: +2 [-4, +8]
+        prompt (control)             minus the E probe: -19 [-44, +6]
+        confidence filter (must-answer prompt, its 297 most confident answers) +189 (ans 297, R 243 W  54) | the E probe minus it: +54 [+27, +82]
+
+## triviaqa, models together (a line only if all 5 models have it; questions resampled)
+    C answer minus the E probe                           -101 [-178, -23] (500 questions)
+    E+C answer, one pass minus the E probe               -4 [-40, +31] (500 questions)
+    prompt (control) minus the E probe                   -86 [-154, -18] (500 questions)
+    E probe minus the confidence filter, same answer count +2 [-56, +59] (500 questions)
+    E probe minus no write                               +151 [+67, +237] (500 questions)
+    E probe minus single E answering                     +108 [+61, +157] (500 questions)
+
+# popqa (alias match): members chosen on tune (192), numbers on test
+
+## llama3.1-8b: no write: tune  -20 (ans 144, R  62 W  82) | test -111 (ans 365, R 127 W 238)
+    single E answering by itself, best on tune E 2: tune  +14 (ans  70, R  42 W  28) | test  -14 (ans 180, R  83 W  97)
+    E                             6 members on tune ( 1 also on test); best on tune: E 2, tune  +19 (ans  33, R  26 W   7) || test  +28 (ans  82, R  55 W  27) | minus no write +139 [+108, +170] | single E answering (E 2) +42 [+23, +61]
+    C caution                     4 members on tune ( 4 also on test); best on tune: C caution 1, tune  +20 (ans  76, R  48 W  28) || test   -1 (ans 213, R 106 W 107) | minus no write +110 [+89, +131] | single E answering (E 2) +13 [-11, +37]
+    C answer                      1 members on tune ( 1 also on test); best on tune: C answer 0.25, tune  -11 (ans 133, R  61 W  72) || test  -92 (ans 332, R 120 W 212) | minus no write +19 [+8, +30] | single E answering (E 2) -78 [-108, -49]
+    E+C caution, one pass        12 members on tune (12 also on test); best on tune: E 0.5 + C caution 1, tune  +24 (ans  62, R  43 W  19) || test  +23 (ans 173, R  98 W  75) | minus no write +134 [+110, +158] | single E answering (E 2) +37 [+15, +59]
+    E+C answer, one pass         12 members on tune ( 4 also on test); best on tune: E 2 + C answer 2, tune  +20 (ans  48, R  34 W  14) || test   +3 (ans 119, R  61 W  58) | minus no write +114 [+85, +142] | single E answering (E 2) +17 [-6, +41]
+    E and C caution, two passes  24 members on tune ( 4 also on test); best on tune: E 1.5 and C caution 1, tune  +22 (ans  50, R  36 W  14) | best with a test file: E 2 and C caution 1, tune  +20 (ans  32, R  26 W   6) || test  +31 (ans  79, R  55 W  24) | minus no write +142 [+111, +173] | single E answering (E 2) +45 [+26, +65]
+    prompt (control)              1 members on tune ( 1 also on test); best on tune: must-answer prompt, tune  +14 (ans  98, R  56 W  42) || test  -40 (ans 256, R 108 W 148) | minus no write +71 [+52, +90] | single E answering (E 2) -26 [-55, +3]
+        C caution                    minus the E probe: -29 [-52, -6]
+        C answer                     minus the E probe: -120 [-150, -91]
+        E+C caution, one pass        minus the E probe: -5 [-24, +15]
+        E+C answer, one pass         minus the E probe: -25 [-41, -9]
+        E and C caution, two passes  minus the E probe: +3 [+0, +7]
+        prompt (control)             minus the E probe: -68 [-95, -41]
+        confidence filter (must-answer prompt, its 82 most confident answers)  +46 (ans  82, R  64 W  18) | the E probe minus it: -18 [-35, -1]
+
+## qwen3.5-9b: no write: tune  -63 (ans 155, R  46 W 109) | test -199 (ans 417, R 109 W 308)
+    single E answering by itself, best on tune E 2: tune   +0 (ans  78, R  39 W  39) | test  -57 (ans 189, R  66 W 123)
+    E                             1 members on tune ( 1 also on test); best on tune: E 2, tune  +11 (ans  57, R  34 W  23) || test  -11 (ans 137, R  63 W  74) | minus no write +188 [+159, +216] | single E answering (E 2) +46 [+33, +60]
+    C answer                      1 members on tune ( 1 also on test); best on tune: C answer 0.25, tune  -59 (ans 149, R  45 W 104) || test -171 (ans 385, R 107 W 278) | minus no write +28 [+18, +40] | single E answering (E 2) -114 [-142, -85]
+    E+C answer, one pass          4 members on tune ( 4 also on test); best on tune: E 2 + C answer 0.25, tune   +9 (ans  63, R  36 W  27) || test  -29 (ans 169, R  70 W  99) | minus no write +170 [+143, +195] | single E answering (E 2) +28 [+10, +46]
+    prompt (control)              1 members on tune ( 1 also on test); best on tune: must-answer prompt, tune  -38 (ans 122, R  42 W  80) || test -101 (ans 303, R 101 W 202) | minus no write +98 [+79, +118] | single E answering (E 2) -44 [-72, -14]
+        C answer                     minus the E probe: -160 [-187, -132]
+        E+C answer, one pass         minus the E probe: -18 [-29, -7]
+        prompt (control)             minus the E probe: -90 [-115, -63]
+        confidence filter (must-answer prompt, its 137 most confident answers)  +11 (ans 137, R  74 W  63) | the E probe minus it: -22 [-40, -4]
+
+## qwen3.8-27b: no write: tune  -33 (ans 119, R  43 W  76) | test -128 (ans 316, R  94 W 222)
+    single E answering by itself, best on tune E 2: tune   -5 (ans  77, R  36 W  41) | test  -66 (ans 216, R  75 W 141)
+    E                             1 members on tune ( 1 also on test); best on tune: E 2, tune   +3 (ans  63, R  33 W  30) || test  -27 (ans 173, R  73 W 100) | minus no write +101 [+80, +123] | single E answering (E 2) +39 [+27, +52]
+    C answer                      1 members on tune ( 1 also on test); best on tune: C answer 0.25, tune  -23 (ans 103, R  40 W  63) || test -108 (ans 286, R  89 W 197) | minus no write +20 [+10, +31] | single E answering (E 2) -42 [-63, -21]
+    E+C answer, one pass          4 members on tune ( 4 also on test); best on tune: E 2 + C answer 2, tune   +8 (ans  66, R  37 W  29) || test  -31 (ans 187, R  78 W 109) | minus no write +97 [+77, +118] | single E answering (E 2) +35 [+14, +56]
+    prompt (control)              1 members on tune ( 1 also on test); best on tune: must-answer prompt, tune   +2 (ans  76, R  39 W  37) || test  -47 (ans 203, R  78 W 125) | minus no write +81 [+62, +101] | single E answering (E 2) +19 [-2, +40]
+        C answer                     minus the E probe: -81 [-102, -61]
+        E+C answer, one pass         minus the E probe: -4 [-22, +14]
+        prompt (control)             minus the E probe: -20 [-40, -1]
+        confidence filter (must-answer prompt, its 173 most confident answers)  -15 (ans 173, R  79 W  94) | the E probe minus it: -12 [-31, +7]
+
+## gemma3-12b: no write: tune  -68 (ans 166, R  49 W 117) | test -223 (ans 449, R 113 W 336)
+    single E answering by itself, best on tune E 3: tune   +2 (ans  26, R  14 W  12) | test   -5 (ans  47, R  21 W  26)
+    E                             6 members on tune ( 6 also on test); best on tune: E 2, tune   +9 (ans  49, R  29 W  20) || test   -7 (ans 129, R  61 W  68) | minus no write +216 [+186, +245] | single E answering (E 3) -2 [-23, +19]
+    C caution                     4 members on tune ( 4 also on test); best on tune: C caution 2, tune  +19 (ans  37, R  28 W   9) || test   +8 (ans  92, R  50 W  42) | minus no write +231 [+199, +262] | single E answering (E 3) +13 [-5, +31]
+    C answer                      1 members on tune ( 1 also on test); best on tune: C answer 0.25, tune  -53 (ans 149, R  48 W 101) || test -189 (ans 413, R 112 W 301) | minus no write +34 [+23, +46] | single E answering (E 3) -184 [-219, -148]
+    E+C caution, one pass        12 members on tune ( 1 also on test); best on tune: E 1 + C caution 1, tune  +16 (ans  50, R  33 W  17) | best with a test file: E 0.5 + C caution 0.25, tune  -25 (ans 119, R  47 W  72) || test -120 (ans 322, R 101 W 221) | minus no write +103 [+83, +123] | single E answering (E 3) -115 [-147, -82]
+    E+C answer, one pass         24 members on tune ( 4 also on test); best on tune: E 4 + C answer 2, tune  +17 (ans  23, R  20 W   3) | best with a test file: E 2 + C answer 2, tune  +10 (ans  56, R  33 W  23) || test  -30 (ans 174, R  72 W 102) | minus no write +193 [+166, +221] | single E answering (E 3) -25 [-49, +0]
+    E and C caution, two passes  24 members on tune (24 also on test); best on tune: E 1.5 and C caution 2, tune  +20 (ans  34, R  27 W   7) || test  +13 (ans  77, R  45 W  32) | minus no write +236 [+203, +268] | single E answering (E 3) +18 [+1, +35]
+    prompt (control)              1 members on tune ( 1 also on test); best on tune: must-answer prompt, tune  -35 (ans 117, R  41 W  76) || test -139 (ans 339, R 100 W 239) | minus no write +84 [+65, +103] | single E answering (E 3) -134 [-168, -101]
+        C caution                    minus the E probe: +15 [-1, +32]
+        C answer                     minus the E probe: -182 [-211, -153]
+        E+C caution, one pass        minus the E probe: -113 [-138, -87]
+        E+C answer, one pass         minus the E probe: -23 [-40, -5]
+        E and C caution, two passes  minus the E probe: +20 [+5, +35]
+        prompt (control)             minus the E probe: -132 [-158, -105]
+        confidence filter (must-answer prompt, its 129 most confident answers)   +3 (ans 129, R  66 W  63) | the E probe minus it: -10 [-28, +9]
+
+## gemma3-27b: no write: tune  -49 (ans 177, R  64 W 113) | test -163 (ans 449, R 143 W 306)
+    single E answering by itself, best on tune E 2: tune  -13 (ans 107, R  47 W  60) | test  -77 (ans 293, R 108 W 185)
+    E                             1 members on tune ( 1 also on test); best on tune: E 2, tune  +23 (ans  47, R  35 W  12) || test  +21 (ans 131, R  76 W  55) | minus no write +184 [+152, +214] | single E answering (E 2) +98 [+75, +122]
+    C answer                      1 members on tune ( 1 also on test); best on tune: C answer 0.25, tune  -41 (ans 161, R  60 W 101) || test -136 (ans 402, R 133 W 269) | minus no write +27 [+14, +41] | single E answering (E 2) -59 [-90, -26]
+    E+C answer, one pass          4 members on tune ( 4 also on test); best on tune: E 2 + C answer 1, tune  +24 (ans  64, R  44 W  20) || test   +6 (ans 152, R  79 W  73) | minus no write +169 [+138, +199] | single E answering (E 2) +83 [+55, +110]
+    prompt (control)              1 members on tune ( 1 also on test); best on tune: must-answer prompt, tune  -13 (ans 113, R  50 W  63) || test  -84 (ans 296, R 106 W 190) | minus no write +79 [+56, +102] | single E answering (E 2) -7 [-39, +26]
+        C answer                     minus the E probe: -157 [-187, -127]
+        E+C answer, one pass         minus the E probe: -15 [-29, -1]
+        prompt (control)             minus the E probe: -105 [-132, -79]
+        confidence filter (must-answer prompt, its 131 most confident answers)  +27 (ans 131, R  79 W  52) | the E probe minus it: -6 [-25, +13]
+
+## popqa, models together (a line only if all 5 models have it; questions resampled)
+    C answer minus the E probe                           -700 [-778, -619] (500 questions)
+    E+C answer, one pass minus the E probe               -85 [-124, -46] (500 questions)
+    prompt (control) minus the E probe                   -415 [-482, -345] (500 questions)
+    E probe minus the confidence filter, same answer count -68 [-109, -24] (500 questions)
+    E probe minus no write                               +828 [+741, +912] (500 questions)
+    E probe minus single E answering                     +223 [+182, +264] (500 questions)

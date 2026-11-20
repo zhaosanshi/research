@@ -1,0 +1,43 @@
+
+# triviaqa (alias match; tune 192, test 500)
+
+## llama3.1-8b: the cautious-C passes are not all there yet (4 of 4 single, 4 of 12 with E, on both splits)
+
+## qwen3.5-9b: the cautious-C passes are not all there yet (0 of 4 single, 0 of 12 with E, on both splits)
+
+## qwen3.8-27b: the cautious-C passes are not all there yet (0 of 4 single, 0 of 12 with E, on both splits)
+
+## gemma3-12b: the cautious-C passes are not all there yet (0 of 4 single, 0 of 12 with E, on both splits)
+
+## gemma3-27b: the cautious-C passes are not all there yet (0 of 4 single, 0 of 12 with E, on both splits)
+
+# popqa (alias match; tune 192, test 500)
+
+## llama3.1-8b: no write: tune net  -20 (answers 144, right  62, wrong  82) | test net -111 (answers 365, right 127, wrong 238)
+    single E 2    tune net  +14 (answers  70, right  42, wrong  28) | test net  -14 (answers 180, right  83, wrong  97)
+    single C toward caution 0.25 tune net   -9 (answers 133, right  62, wrong  71) | test net  -99 (answers 347, right 124, wrong 223)
+    single C toward caution 0.5  tune net   -5 (answers 123, right  59, wrong  64) | test net  -79 (answers 327, right 124, wrong 203)
+    single C toward caution 1    tune net   +7 (answers  97, right  52, wrong  45) | test net  -31 (answers 249, right 109, wrong 140)
+    single C toward caution 2    tune net  +14 (answers  22, right  18, wrong   4) | test net  +27 (answers  69, right  48, wrong  21)
+    E 0.5 + C toward caution 0.25 tune net   -3 (answers 121, right  59, wrong  62) | test net  -73 (answers 315, right 121, wrong 194)
+    E 0.5 + C toward caution 0.5  tune net   +4 (answers 108, right  56, wrong  52) | test net  -53 (answers 289, right 118, wrong 171)
+    E 0.5 + C toward caution 1    tune net  +13 (answers  81, right  47, wrong  34) | test net   -4 (answers 212, right 104, wrong 108)
+    E 0.5 + C toward caution 2    tune net  +11 (answers  17, right  14, wrong   3) | test net  +28 (answers  54, right  41, wrong  13)
+    E 1   + C toward caution 0.25 tune net   +7 (answers  99, right  53, wrong  46) | test net  -43 (answers 257, right 107, wrong 150)
+    E 1   + C toward caution 0.5  tune net   +7 (answers  89, right  48, wrong  41) | test net  -15 (answers 221, right 103, wrong 118)
+    E 1   + C toward caution 1    tune net  +17 (answers  59, right  38, wrong  21) | test net   +4 (answers 156, right  80, wrong  76)
+    E 1   + C toward caution 2    tune net   +9 (answers  11, right  10, wrong   1) | test net  +17 (answers  35, right  26, wrong   9)
+    E 2   + C toward caution 0.25 tune net  +18 (answers  56, right  37, wrong  19) | test net   +5 (answers 145, right  75, wrong  70)
+    E 2   + C toward caution 0.5  tune net  +16 (answers  42, right  29, wrong  13) | test net  +12 (answers 108, right  60, wrong  48)
+    E 2   + C toward caution 1    tune net  +17 (answers  19, right  18, wrong   1) | test net  +20 (answers  52, right  36, wrong  16)
+    E 2   + C toward caution 2    tune net   +1 (answers   1, right   1, wrong   0) | test net   +4 (answers   8, right   6, wrong   2)
+  chosen on tune: combination E 2 + C toward caution 0.25 | single E 2 | single C toward caution 2
+  test: combination net   +5 (answers 145, right  75, wrong  70) | minus no write +116 [+87, +146] | minus single E at the same strength +19 [+7, +32] | minus single E at its own best +19 [+7, +32] | minus single C -22 [-42, -2]
+
+## qwen3.5-9b: the cautious-C passes are not all there yet (0 of 4 single, 0 of 12 with E, on both splits)
+
+## qwen3.8-27b: the cautious-C passes are not all there yet (0 of 4 single, 0 of 12 with E, on both splits)
+
+## gemma3-12b: the cautious-C passes are not all there yet (4 of 4 single, 3 of 12 with E, on both splits)
+
+## gemma3-27b: the cautious-C passes are not all there yet (0 of 4 single, 0 of 12 with E, on both splits)

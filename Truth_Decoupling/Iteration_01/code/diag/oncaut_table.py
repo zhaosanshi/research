@@ -7,7 +7,11 @@
 # prompt caut_E2 with nothing written, i.e. the prompt-only baseline itself.
 # Per model and strength: the caps of N1 are chosen on tune (single E is a candidate too); on test: the prompt alone,
 # single E on it, N1 on it, and the differences with paired intervals.
+# To save judge calls the test split is judged only at the strength chosen on tune (work dir
+# judge_test_oncautbest_test: the prompt alone, single E and the four E + C arms of that strength); "--choose MODEL"
+# prints that strength (the one whose N1 has the highest tune score, single E included; ties to the lower strength).
 # usage (host, from /data/sanshizhao/Truth_Decoupling): python3 -B Iteration_01/diag/oncaut_table.py [MODEL ...]
+#                                                       python3 -B Iteration_01/diag/oncaut_table.py --choose MODEL
 import os
 import sys
 
@@ -29,6 +33,8 @@ def rename(c):
 def load(D, split):
     run = D.m["ec"][0].split("/eval_extra/")[0]
     w = "%s/eval_extra/judge_%s_oncaut_%s" % (run, split, split)
+    if split == "test" and not os.path.exists(w + "/judge2/single_pro.jsonl"):
+        w = "%s/eval_extra/judge_test_oncautbest_test" % run
     if not os.path.exists(w + "/judge2/single_pro.jsonl"):
         return None
     st0, bl0 = ps.load(w, "pro")
@@ -47,7 +53,20 @@ def val(x):
     return (x == "R") - (x == "W")
 
 
+def best_strength(tsp, ttx, ts):
+    def top(s):
+        cands = [("E", s)] + [("N1", s, k1, k2) for k1 in CAPS for k2 in CAPS if not (k1 is None and k2 is None)]
+        return max(ps.score(S.system(tsp, ttx, c)[0], 1) for c in cands)
+    return max(ts, key=lambda s: (top(s), -ts.index(s)))
+
+
 def main():
+    if sys.argv[1:2] == ["--choose"]:
+        t = load(MT.Data(sys.argv[2], 0), "tune")
+        if t is None:
+            raise SystemExit("no tune verdicts")
+        print(best_strength(*t).replace("-", "."))
+        return
     for model in sys.argv[1:] or list(ro.FIVE):
         Dt, Dx = MT.Data(model, 0), MT.Data(model, 1)
         t, x = load(Dt, "tune"), load(Dx, "test")

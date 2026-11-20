@@ -1,0 +1,134 @@
+
+# triviaqa (alias match), settings chosen on tune, numbers on test
+
+## llama3.1-8b: tune strengths 2; on test also: 2 | no write on tune  +90 (ans 190, R 140 W  50)
+    tune E 2    single E  +51 (ans 115) | stable filter by cap, net (answers): none: +49 (69) | 0.25: +52 (74) | 0.5: +57 (81) | 1: +62 (88) | 2: +61 (91)
+    best on tune over every tune strength: E 2, cap 1, net +62
+    chosen on tune among strengths present on test: stable filter E 2 cap 1 | filter without C: E 2 | single E: 2 | N1: E 2 caps none / 0.25
+    test 500 questions: no write +140 (ans 490, R 315 W 175) | single E +154 (ans 302, R 228 W  74) | N1 +154 (ans 302, R 228 W  74)
+        stable filter +153 (ans 249, R 201 W  48) | filter without C +143 (ans 195, R 169 W  26)
+        single C 0.25 +143 (ans 493, R 318 W 175)
+        stable filter minus: no write +13 [-18, +43] | single C +10 [-20, +41] | single E at its own best -1 [-26, +25] | N1 at its own best -1 [-26, +25] | the filter without C +10 [-4, +25]
+        filter without C minus: no write +3 [-31, +36] | single E at its own best -11 [-31, +9]
+
+## qwen3.5-9b: tune strengths 2; on test also: 2 | no write on tune  +48 (ans 186, R 117 W  69)
+    tune E 2    single E  +61 (ans 151) | stable filter by cap, net (answers): none: +71 (129) | 0.25: +70 (138) | 0.5: +68 (140) | 1: +66 (142) | 2: +66 (142)
+    best on tune over every tune strength: E 2, cap none, net +71
+    chosen on tune among strengths present on test: stable filter E 2 cap none | filter without C: E 2 | single E: 2 | N1: E 2 caps none / 0.25
+    test 500 questions: no write  +74 (ans 492, R 283 W 209) | single E +130 (ans 376, R 253 W 123) | N1 +129 (ans 377, R 253 W 124)
+        stable filter +151 (ans 311, R 231 W  80) | filter without C +151 (ans 311, R 231 W  80)
+        single C 0.25  +65 (ans 495, R 280 W 215)
+        stable filter minus: no write +77 [+53, +102] | single C +86 [+61, +112] | single E at its own best +21 [+5, +36] | N1 at its own best +22 [+6, +37] | the filter without C +0 [+0, +0]
+        filter without C minus: no write +77 [+53, +102] | single E at its own best +21 [+5, +36]
+
+## qwen3.8-27b: tune strengths 2; on test also: 2 | no write on tune  +57 (ans 183, R 120 W  63)
+    tune E 2    single E  +63 (ans 177) | stable filter by cap, net (answers): none: +71 (159) | 0.25: +71 (163) | 0.5: +70 (164) | 1: +70 (164) | 2: +70 (164)
+    best on tune over every tune strength: E 2, cap none, net +71
+    chosen on tune among strengths present on test: stable filter E 2 cap none | filter without C: E 2 | single E: 2 | N1: E 2 caps 0.25 / none
+    test 500 questions: no write +121 (ans 477, R 299 W 178) | single E +137 (ans 431, R 284 W 147) | N1 +123 (ans 453, R 288 W 165)
+        stable filter +160 (ans 374, R 267 W 107) | filter without C +160 (ans 374, R 267 W 107)
+        single C 0.25 +111 (ans 497, R 304 W 193)
+        stable filter minus: no write +39 [+20, +58] | single C +49 [+27, +70] | single E at its own best +23 [+9, +38] | N1 at its own best +37 [+20, +54] | the filter without C +0 [+0, +0]
+        filter without C minus: no write +39 [+20, +58] | single E at its own best +23 [+9, +38]
+
+## gemma3-12b: tune strengths 0.5 1 1.5 2 3 4; on test also: 0.5 2 | no write on tune  +64 (ans 190, R 127 W  63)
+    tune E 0.5  single E  +69 (ans 189) | stable filter by cap, net (answers): none: +70 (176) | 0.25: +70 (176) | 0.5: +70 (176) | 1: +70 (176) | 2: +70 (176)
+    tune E 1    single E  +72 (ans 184) | stable filter by cap, net (answers): none: +82 (160) | 0.25: +80 (162) | 0.5: +80 (162) | 1: +80 (162) | 2: +80 (162)
+    tune E 1.5  single E  +71 (ans 173) | stable filter by cap, net (answers): none: +77 (137) | 0.25: +78 (142) | 0.5: +79 (143) | 1: +76 (146) | 2: +76 (146)
+    tune E 2    single E  +70 (ans 154) | stable filter by cap, net (answers): none: +81 (115) | 0.25: +78 (118) | 0.5: +77 (121) | 1: +77 (125) | 2: +77 (125)
+    tune E 3    single E  +37 (ans  85) | stable filter by cap, net (answers): none: +48 (62) | 0.25: +59 (73) | 0.5: +67 (81) | 1: +66 (86) | 2: +66 (86)
+    tune E 4    single E   -7 (ans  31) | stable filter by cap, net (answers): none: +8 (10) | 0.25: +10 (20) | 0.5: +17 (27) | 1: +30 (40) | 2: +30 (40)
+    best on tune over every tune strength: E 1, cap none, net +82  <- its arms do not exist on test yet
+    chosen on tune among strengths present on test: stable filter E 2 cap none | filter without C: E 2 | single E: 2 | N1: E 0.5 caps none / 0.25
+    test 500 questions: no write +159 (ans 497, R 328 W 169) | single E +167 (ans 393, R 280 W 113) | N1 +154 (ans 496, R 325 W 171)
+        stable filter +207 (ans 299, R 253 W  46) | filter without C +207 (ans 299, R 253 W  46)
+        single C 0.25 +161 (ans 499, R 330 W 169)
+        stable filter minus: no write +48 [+21, +76] | single C +46 [+19, +74] | single E at its own best +40 [+21, +59] | N1 at its own best +53 [+25, +81] | the filter without C +0 [+0, +0]
+        filter without C minus: no write +48 [+21, +76] | single E at its own best +40 [+21, +59]
+
+## gemma3-27b: tune strengths 2; on test also: 2 | no write on tune +103 (ans 191, R 147 W  44)
+    tune E 2    single E  +65 (ans 159) | stable filter by cap, net (answers): none: +79 (109) | 0.25: +82 (114) | 0.5: +82 (114) | 1: +83 (115) | 2: +83 (115)
+    best on tune over every tune strength: E 2, cap 1, net +83
+    chosen on tune among strengths present on test: stable filter E 2 cap 1 | filter without C: E 2 | single E: 2 | N1: E 2 caps none / 0.25
+    test 500 questions: no write +259 (ans 497, R 378 W 119) | single E +208 (ans 414, R 311 W 103) | N1 +207 (ans 415, R 311 W 104)
+        stable filter +246 (ans 316, R 281 W  35) | filter without C +243 (ans 297, R 270 W  27)
+        single C 0.25 +256 (ans 498, R 377 W 121)
+        stable filter minus: no write -13 [-39, +13] | single C -10 [-37, +17] | single E at its own best +38 [+15, +61] | N1 at its own best +39 [+16, +62] | the filter without C +3 [-6, +12]
+        filter without C minus: no write -16 [-44, +11] | single E at its own best +35 [+14, +57]
+
+## triviaqa, five models together (per question the differences are summed; questions resampled)
+    stable filter minus no write                         +164 [+84, +245] (500 questions)
+    stable filter minus single C                         +181 [+98, +266] (500 questions)
+    stable filter minus single E at its own best         +121 [+71, +173] (500 questions)
+    stable filter minus N1 at its own best               +150 [+94, +206] (500 questions)
+    stable filter minus the filter without C             +13 [-4, +30] (500 questions)
+    filter without C minus no write                      +151 [+67, +237] (500 questions)
+    filter without C minus single E at its own best      +108 [+61, +157] (500 questions)
+
+# popqa (alias match), settings chosen on tune, numbers on test
+
+## llama3.1-8b: tune strengths 0.5 1 2; on test also: 2 | no write on tune  -20 (ans 144, R  62 W  82)
+    tune E 0.5  single E   -7 (ans 131) | stable filter by cap, net (answers): none: +3 (111) | 0.25: -2 (118) | 0.5: -5 (121) | 1: -5 (121) | 2: -5 (121)
+    tune E 1    single E   +3 (ans 109) | stable filter by cap, net (answers): none: +16 (82) | 0.25: +9 (93) | 0.5: +7 (95) | 1: +4 (100) | 2: +2 (102)
+    tune E 2    single E  +14 (ans  70) | stable filter by cap, net (answers): none: +19 (33) | 0.25: +20 (34) | 0.5: +18 (40) | 1: +19 (47) | 2: +17 (49)
+    best on tune over every tune strength: E 2, cap 0.25, net +20
+    chosen on tune among strengths present on test: stable filter E 2 cap 0.25 | filter without C: E 2 | single E: 2 | N1: E 2 caps none / 0.25
+    test 500 questions: no write -111 (ans 365, R 127 W 238) | single E  -14 (ans 180, R  83 W  97) | N1  -14 (ans 180, R  83 W  97)
+        stable filter  +29 (ans  93, R  61 W  32) | filter without C  +28 (ans  82, R  55 W  27)
+        single C 0.25 -134 (ans 386, R 126 W 260)
+        stable filter minus: no write +140 [+110, +169] | single C +163 [+133, +193] | single E at its own best +43 [+23, +63] | N1 at its own best +43 [+23, +63] | the filter without C +1 [-6, +7]
+        filter without C minus: no write +139 [+108, +170] | single E at its own best +42 [+23, +61]
+
+## qwen3.5-9b: tune strengths 2; on test also: 2 | no write on tune  -63 (ans 155, R  46 W 109)
+    tune E 2    single E   +0 (ans  78) | stable filter by cap, net (answers): none: +11 (57) | 0.25: +8 (60) | 0.5: -6 (76) | 1: -19 (93) | 2: -21 (95)
+    best on tune over every tune strength: E 2, cap none, net +11
+    chosen on tune among strengths present on test: stable filter E 2 cap none | filter without C: E 2 | single E: 2 | N1: E 2 caps none / 0.25
+    test 500 questions: no write -199 (ans 417, R 109 W 308) | single E  -57 (ans 189, R  66 W 123) | N1  -57 (ans 189, R  66 W 123)
+        stable filter  -11 (ans 137, R  63 W  74) | filter without C  -11 (ans 137, R  63 W  74)
+        single C 0.25 -233 (ans 457, R 112 W 345)
+        stable filter minus: no write +188 [+159, +216] | single C +222 [+192, +250] | single E at its own best +46 [+33, +60] | N1 at its own best +46 [+33, +60] | the filter without C +0 [+0, +0]
+        filter without C minus: no write +188 [+159, +216] | single E at its own best +46 [+33, +60]
+
+## qwen3.8-27b: tune strengths 2; on test also: 2 | no write on tune  -33 (ans 119, R  43 W  76)
+    tune E 2    single E   -5 (ans  77) | stable filter by cap, net (answers): none: +3 (63) | 0.25: -1 (79) | 0.5: -1 (83) | 1: -1 (83) | 2: -1 (83)
+    best on tune over every tune strength: E 2, cap none, net +3
+    chosen on tune among strengths present on test: stable filter E 2 cap none | filter without C: E 2 | single E: 2 | N1: E 2 caps 0.25 / none
+    test 500 questions: no write -128 (ans 316, R  94 W 222) | single E  -66 (ans 216, R  75 W 141) | N1 -110 (ans 264, R  77 W 187)
+        stable filter  -27 (ans 173, R  73 W 100) | filter without C  -27 (ans 173, R  73 W 100)
+        single C 0.25 -244 (ans 452, R 104 W 348)
+        stable filter minus: no write +101 [+80, +123] | single C +217 [+190, +244] | single E at its own best +39 [+27, +52] | N1 at its own best +83 [+66, +101] | the filter without C +0 [+0, +0]
+        filter without C minus: no write +101 [+80, +123] | single E at its own best +39 [+27, +52]
+
+## gemma3-12b: tune strengths 0.5 1 1.5 2 3 4; on test also: 2 | no write on tune  -68 (ans 166, R  49 W 117)
+    tune E 0.5  single E  -57 (ans 153) | stable filter by cap, net (answers): none: -29 (125) | 0.25: -34 (132) | 0.5: -38 (136) | 1: -38 (136) | 2: -38 (136)
+    tune E 1    single E  -42 (ans 130) | stable filter by cap, net (answers): none: -14 (90) | 0.25: -17 (93) | 0.5: -23 (101) | 1: -24 (104) | 2: -25 (105)
+    tune E 1.5  single E  -19 (ans 101) | stable filter by cap, net (answers): none: +3 (67) | 0.25: -1 (75) | 0.5: -5 (79) | 1: -14 (90) | 2: -16 (94)
+    tune E 2    single E   -9 (ans  73) | stable filter by cap, net (answers): none: +9 (49) | 0.25: +9 (53) | 0.5: +5 (61) | 1: +4 (68) | 2: -1 (73)
+    tune E 3    single E   +2 (ans  26) | stable filter by cap, net (answers): none: +8 (18) | 0.25: +11 (21) | 0.5: +15 (27) | 1: +14 (32) | 2: +12 (38)
+    tune E 4    single E   +2 (ans   2) | stable filter by cap, net (answers): none: +2 (2) | 0.25: +5 (5) | 0.5: +8 (10) | 1: +14 (18) | 2: +16 (20)
+    best on tune over every tune strength: E 4, cap 2, net +16  <- its arms do not exist on test yet
+    chosen on tune among strengths present on test: stable filter E 2 cap none | filter without C: E 2 | single E: 2 | N1: E 2 caps none / 0.25
+    test 500 questions: no write -223 (ans 449, R 113 W 336) | single E  -51 (ans 187, R  68 W 119) | N1  -52 (ans 188, R  68 W 120)
+        stable filter   -7 (ans 129, R  61 W  68) | filter without C   -7 (ans 129, R  61 W  68)
+        single C 0.25 -243 (ans 469, R 113 W 356)
+        stable filter minus: no write +216 [+186, +245] | single C +236 [+207, +265] | single E at its own best +44 [+30, +58] | N1 at its own best +45 [+31, +60] | the filter without C +0 [+0, +0]
+        filter without C minus: no write +216 [+186, +245] | single E at its own best +44 [+30, +58]
+
+## gemma3-27b: tune strengths 2; on test also: 2 | no write on tune  -49 (ans 177, R  64 W 113)
+    tune E 2    single E  -13 (ans 107) | stable filter by cap, net (answers): none: +23 (47) | 0.25: +22 (52) | 0.5: +24 (54) | 1: +24 (58) | 2: +23 (59)
+    best on tune over every tune strength: E 2, cap 0.5, net +24
+    chosen on tune among strengths present on test: stable filter E 2 cap 0.5 | filter without C: E 2 | single E: 2 | N1: E 2 caps none / 0.25
+    test 500 questions: no write -163 (ans 449, R 143 W 306) | single E  -77 (ans 293, R 108 W 185) | N1  -86 (ans 302, R 108 W 194)
+        stable filter  +16 (ans 148, R  82 W  66) | filter without C  +21 (ans 131, R  76 W  55)
+        single C 0.25 -186 (ans 468, R 141 W 327)
+        stable filter minus: no write +179 [+148, +209] | single C +202 [+170, +231] | single E at its own best +93 [+68, +118] | N1 at its own best +102 [+77, +127] | the filter without C -5 [-13, +3]
+        filter without C minus: no write +184 [+152, +214] | single E at its own best +98 [+75, +122]
+
+## popqa, five models together (per question the differences are summed; questions resampled)
+    stable filter minus no write                         +824 [+736, +907] (500 questions)
+    stable filter minus single C                         +1040 [+941, +1135] (500 questions)
+    stable filter minus single E at its own best         +265 [+221, +310] (500 questions)
+    stable filter minus N1 at its own best               +319 [+272, +366] (500 questions)
+    stable filter minus the filter without C             -4 [-15, +6] (500 questions)
+    filter without C minus no write                      +828 [+741, +912] (500 questions)
+    filter without C minus single E at its own best      +269 [+226, +312] (500 questions)

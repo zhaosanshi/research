@@ -82,8 +82,9 @@ def main():
             arms_e = [s for s in ES if tt("x:" + e + s) and tx("x:" + e + s)]
             arms_c = [k for k in KS if tt("x:" + c + k) and tx("x:" + c + k)]
             arms_ec = [(s, k) for s in ("0.5", "1", "2") for k in KS if tt("x:%s%s+%s%s" % (e, s, c, k)) and tx("x:%s%s+%s%s" % (e, s, c, k))]
-            if not arms_c or not arms_ec:
-                print("\n## %s: the cautious-C passes are not there yet" % name)
+            if len(arms_c) < len(KS) or len(arms_ec) < 3 * len(KS):
+                print("\n## %s: the cautious-C passes are not all there yet (%d of %d single, %d of %d with E, on both splits)" % (
+                    name, len(arms_c), len(KS), len(arms_ec), 3 * len(KS)))
                 continue
             b_t, b_x = tt("x"), tx("x")
             print("\n## %s: no write: tune %s | test %s" % (name, desc(b_t), desc(b_x)))
@@ -101,7 +102,8 @@ def main():
             e_best, e_same, c_best = tx("x:" + e + se), tx("x:" + e + sk[0]), tx("x:" + c + kc)
             print("  chosen on tune: combination E %s + C toward caution %s | single E %s | single C toward caution %s" % (sk[0], sk[1], se, kc))
             print("  test: combination %s | minus no write %s | minus single E at the same strength %s | minus single E at its own best %s | minus single C %s" % (
-                desc(combo), diff(combo, b_x), diff(combo, e_same), diff(combo, e_best), diff(combo, c_best)))
+                desc(combo), diff(combo, b_x), diff(combo, e_same) if e_same else "(no single-E pass at that strength)",
+                diff(combo, e_best), diff(combo, c_best)))
             for key, other in (("combination minus no write", b_x), ("combination minus single E (its own best)", e_best),
                                ("combination minus single C toward caution", c_best)):
                 tot.setdefault(key, []).append([((x == "R") - (x == "W")) - ((y == "R") - (y == "W")) for x, y in zip(combo[0], other[0])])
