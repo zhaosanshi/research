@@ -25,15 +25,31 @@ MT, S = DM.MT, DM.S
 ps, ro = MT.ps, MT.ro
 CAPS = MT.CAPS
 CONF_FILES = (("pmmid_test", ("1-25", "1-5", "1-75")), ("pmhigh_test", ("2-5", "3")), ("pmhigh2_test", ("3-5", "4")))
+MUST_DIRS = (("judge_test_dmust_test", CONF_FILES), ("judge_test_dmustlow_test", (("pmlow_test", ("0-5", "0-75")),)))
 MAIN = DM.MAIN
 
 
 def new_must(run, sp, doses):
-    """({strength: (states, answered)}, {strength: confidence rows}) for the strengths other than 1 / 2 that are complete."""
-    w = run + "/eval_extra/judge_test_dmust_test"
-    out, conf = {}, {}
-    if not os.path.exists(w + "/judge2/single_pro.jsonl"):
+    """({strength: (states, answered)}, {strength: confidence rows}) for the strengths other than 1 / 2 that are complete.
+    Two work dirs: judge_test_dmust_test (pm2_all.sh) and judge_test_dmustlow_test (low_strong.sh, strengths 0.5 / 0.75)."""
+    out, conf, notes, seen = {}, {}, [], False
+    for wname, files in MUST_DIRS:
+        w = run + "/eval_extra/" + wname
+        if not os.path.exists(w + "/judge2/single_pro.jsonl"):
+            continue
+        seen = True
+        o, c, n = must_dir(run, w, files, sp, doses)
+        out.update(o)
+        conf.update(c)
+        if n:
+            notes.append(n)
+    if not seen:
         return out, conf, "no must-answer verdicts at other strengths"
+    return out, conf, "; ".join(notes)
+
+
+def must_dir(run, w, files, sp, doses):
+    out, conf = {}, {}
     st, bl = ps.load(w, "pro")
     text = {}
     with open(w + "/judge2/cells.jsonl", encoding="utf-8") as f:
@@ -41,7 +57,7 @@ def new_must(run, sp, doses):
             r = json.loads(line)
             text[(r["pair_id"], r["condition"])] = r["prediction"]
     notes = []
-    for tag, ds in CONF_FILES:
+    for tag, ds in files:
         p = "%s/eval_extra/confidence_%s.json" % (run, tag)
         d = None
         if os.path.exists(p):
