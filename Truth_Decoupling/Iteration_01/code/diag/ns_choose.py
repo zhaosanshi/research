@@ -2,7 +2,8 @@
 # For one model and task: the E strengths whose release-ladder passes (E + C toward answering at 0.25 / 0.5 / 1 / 2) are
 # needed on the test split, decided on the TUNE split only (alias match):
 #   the strength of N1's best tune setting (diag/ns_dose_table.py; caps over None / 0.25 / 0.5 / 1 / 2, ties to the
-#   lower strength), and the strength of the stability filter's best tune setting (diag/ns_stable_table.py).
+#   lower strength), the strength of the stability filter's best tune setting when that setting uses C
+#   (diag/ns_stable_table.py), and single E's own best tune strength.
 # Prints the strengths (dots, space separated) on the last line; nothing else is decided here.
 # usage (host, from /data/sanshizhao/Truth_Decoupling): python3 -B Iteration_01/diag/ns_choose.py TASK MODEL
 import sys
@@ -30,10 +31,15 @@ def main():
     s_s, cap_s = max(keys, key=lambda k: (grid[k], -keys.index(k)))
     print("%s %s: N1 best on tune at E %s (net %+d); stability filter best on tune at E %s cap %s (net %+d)" % (
         name, task, s_n.replace("-", "."), n1[s_n], s_s.replace("-", "."), cap_s, grid[(s_s, cap_s)]), file=sys.stderr)
-    out = [s_n.replace("-", ".")]
-    if cap_s is not None and s_s != s_n:
-        out.append(s_s.replace("-", "."))
-    print(" ".join(out))
+    e_net = {s: T.net(S.system(tsp, ttx, ("E", s))[0]) for s in th}
+    s_e = max(th, key=lambda s: (e_net[s], -th.index(s)))
+    print("%s %s: single E best on tune at E %s (net %+d)" % (name, task, s_e.replace("-", "."), e_net[s_e]), file=sys.stderr)
+    out = [s_n]
+    if cap_s is not None and s_s not in out:
+        out.append(s_s)
+    if s_e not in out:
+        out.append(s_e)
+    print(" ".join(x.replace("-", ".") for x in out))
 
 
 if __name__ == "__main__":
