@@ -1,0 +1,28 @@
+
+## Gemma-3-12B, base prompt caut_E2: test 523 questions | the prompt alone: answers 484, right 303, wrong 163, net +140 (tune net +34)
+    tune E 0.25 the prompt alone net  +34 (answers 173) | single E net  +39 (answers 170) | best setting: N1: E 0-25, own blanks up to 1, E's blanks up to none, net  +43 (answers 184)
+    tune E 0.5  the prompt alone net  +34 (answers 173) | single E net  +54 (answers 167) | best setting: N1: E 0-5, own blanks up to 1, E's blanks up to 0.25, net  +63 (answers 183)
+    tune E 0.75 the prompt alone net  +34 (answers 173) | single E net  +55 (answers 165) | best setting: N1: E 0-75, own blanks up to 1, E's blanks up to 0.25, net  +66 (answers 186)
+    tune E 1    the prompt alone net  +34 (answers 173) | single E net  +63 (answers 165) | best setting: N1: E 1, own blanks up to 1, E's blanks up to 0.25, net  +71 (answers 185)
+    E 1    single E: answers 464 net +185 | N1 (on tune: N1: E 1, own blanks up to 1, E's blanks up to 0.25; tune net +71): answers 501 net +202 || single E minus the prompt +45 [+11, +78] | N1 minus the prompt +62 [+26, +97] | N1 minus single E +17 [+6, +29]
+
+## Llama-3.1-8B, base prompt caut_E2: test 523 questions | the prompt alone: answers 445, right 234, wrong 198, net +36 (tune net +12)
+    tune E 0.25 the prompt alone net  +12 (answers 155) | single E net  +17 (answers 152) | best setting: N1: E 0-25, own blanks up to 2, E's blanks up to none, net  +30 (answers 189)
+    tune E 0.5  the prompt alone net  +12 (answers 155) | single E net  +19 (answers 146) | best setting: N1: E 0-5, own blanks up to 0.5, E's blanks up to none, net  +28 (answers 164)
+    tune E 0.75 the prompt alone net  +12 (answers 155) | single E net  +28 (answers 147) | best setting: N1: E 0-75, own blanks up to 2, E's blanks up to 0.5, net  +41 (answers 191)
+    tune E 1    the prompt alone net  +12 (answers 155) | single E net  +37 (answers 150) | best setting: N1: E 1, own blanks up to 2, E's blanks up to 0.5, net  +55 (answers 191)
+    E 1    single E: answers 402 net  +96 | N1 (on tune: N1: E 1, own blanks up to 2, E's blanks up to 0.5; tune net +55): answers 494 net +121 || single E minus the prompt +60 [+24, +96] | N1 minus the prompt +85 [+45, +124] | N1 minus single E +25 [+8, +42]
+
+## Qwen3.5-9B, base prompt caut_E2: test 523 questions | the prompt alone: answers 442, right 302, wrong 136, net +166 (tune net +70)
+    tune E 0.5  the prompt alone net  +70 (answers 152) | single E net  +70 (answers 150) | best setting: N1: E 0-5, own blanks up to 1, E's blanks up to 0.25, net  +81 (answers 184)
+    tune E 1    the prompt alone net  +70 (answers 152) | single E net  +70 (answers 140) | best setting: N1: E 1, own blanks up to 2, E's blanks up to 0.25, net  +83 (answers 180)
+    tune E 1.5  the prompt alone net  +70 (answers 152) | single E net  +73 (answers 130) | best setting: N1: E 1-5, own blanks up to 2, E's blanks up to none, net  +86 (answers 166)
+    tune E 2    the prompt alone net  +70 (answers 152) | single E net  +63 (answers 127) | best setting: N1: E 2, own blanks up to 2, E's blanks up to none, net  +78 (answers 162)
+    E 1.5  single E: answers 395 net +190 | N1 (on tune: N1: E 1-5, own blanks up to 2, E's blanks up to none; tune net +86): answers 468 net +192 || single E minus the prompt +24 [-3, +50] | N1 minus the prompt +26 [-5, +57] | N1 minus single E +2 [-14, +18]
+
+## Llama-3.1-8B, base prompt caut_E2, E at layer 16: test 523 questions | the prompt alone: answers 445, right 234, wrong 198, net +36 (tune net +12)
+    tune E 1    the prompt alone net  +12 (answers 155) | single E net  +20 (answers 133) | best setting: N1: E 1, own blanks up to 1, E's blanks up to 0.5, net  +43 (answers 182)
+    tune E 1.5  the prompt alone net  +12 (answers 155) | single E net  +26 (answers 125) | best setting: N1: E 1-5, own blanks up to 2, E's blanks up to 0.5, net  +43 (answers 183)
+    tune E 2    the prompt alone net  +12 (answers 155) | single E net  +39 (answers 118) | best setting: N1: E 2, own blanks up to 2, E's blanks up to 0.5, net  +61 (answers 179)
+    tune E 3    the prompt alone net  +12 (answers 155) | single E net  +12 (answers 103) | best setting: N1: E 3, own blanks up to 2, E's blanks up to none, net  +36 (answers 138)
+    E 2    single E: answers 334 net  +67 | N1 (on tune: N1: E 2, own blanks up to 2, E's blanks up to 0.5; tune net +61): answers 474 net +130 || single E minus the prompt +31 [-10, +72] | N1 minus the prompt +94 [+49, +139] | N1 minus single E +63 [+42, +85]
