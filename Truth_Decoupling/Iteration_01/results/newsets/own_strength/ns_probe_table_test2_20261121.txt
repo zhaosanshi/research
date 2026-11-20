@@ -1,0 +1,106 @@
+
+# triviaqa (alias match): members chosen on tune (192), numbers on test2
+
+## llama3.1-8b: no write: tune  +90 (ans 190, R 140 W  50) | test2 +196 (ans 492, R 344 W 148)
+    single E answering by itself, best on tune E 2: tune  +51 (ans 115, R  83 W  32) | test2 +152 (ans 294, R 223 W  71)
+    E                             6 members on tune ( 1 also on test2); best on tune: E 0.5, tune  +87 (ans 161, R 124 W  37) | best with a test2 file: E 2, tune  +49 (ans  69, R  59 W  10) || test2 +141 (ans 183, R 162 W  21) | minus no write -55 [-90, -21] | single E answering (E 2) -11 [-31, +10]
+    C caution                     4 members on tune ( 0 also on test2); best on tune: C caution 0.25, tune  +90 (ans 178, R 134 W  44)
+    C answer                      1 members on tune ( 0 also on test2); best on tune: C answer 0.25, tune  +90 (ans 184, R 137 W  47)
+    E+C caution, one pass        12 members on tune ( 0 also on test2); best on tune: E 0.5 + C caution 0.25, tune  +89 (ans 157, R 123 W  34)
+    E+C answer, one pass         24 members on tune ( 4 also on test2); best on tune: E 0.5 + C answer 2, tune  +90 (ans 148, R 119 W  29) | best with a test2 file: E 2 + C answer 1, tune  +61 (ans  91, R  76 W  15) || test2 +175 (ans 259, R 217 W  42) | minus no write -21 [-51, +8] | single E answering (E 2) +23 [-4, +49]
+    E and C caution, two passes  24 members on tune ( 0 also on test2); best on tune: E 0.5 and C caution 0.25, tune  +86 (ans 158, R 122 W  36)
+    prompt (control)              1 members on tune ( 0 also on test2); best on tune: must-answer prompt, tune  +78 (ans 158, R 118 W  40)
+        E+C answer, one pass         minus the E probe: +34 [+16, +51]
+
+## qwen3.5-9b: no write: tune  +48 (ans 186, R 117 W  69) | test2 +116 (ans 490, R 303 W 187)
+    single E answering by itself, best on tune E 2: tune  +61 (ans 151, R 106 W  45) | test2 +146 (ans 386, R 266 W 120)
+    E                             1 members on tune ( 1 also on test2); best on tune: E 2, tune  +71 (ans 129, R 100 W  29) || test2 +174 (ans 312, R 243 W  69) | minus no write +58 [+32, +83] | single E answering (E 2) +28 [+11, +45]
+    C answer                      1 members on tune ( 0 also on test2); best on tune: C answer 0.25, tune  +52 (ans 176, R 114 W  62)
+    E+C answer, one pass          4 members on tune ( 4 also on test2); best on tune: E 2 + C answer 0.25, tune  +75 (ans 139, R 107 W  32) || test2 +183 (ans 339, R 261 W  78) | minus no write +67 [+44, +90] | single E answering (E 2) +37 [+16, +58]
+    prompt (control)              1 members on tune ( 0 also on test2); best on tune: must-answer prompt, tune  +52 (ans 162, R 107 W  55)
+        E+C answer, one pass         minus the E probe: +9 [-3, +22]
+
+## qwen3.8-27b: no write: tune  +57 (ans 183, R 120 W  63) | test2 +149 (ans 475, R 312 W 163)
+    single E answering by itself, best on tune E 2: tune  +63 (ans 177, R 120 W  57) | test2 +142 (ans 440, R 291 W 149)
+    E                             1 members on tune ( 1 also on test2); best on tune: E 2, tune  +71 (ans 159, R 115 W  44) || test2 +176 (ans 368, R 272 W  96) | minus no write +27 [+7, +47] | single E answering (E 2) +34 [+17, +50]
+    C answer                      1 members on tune ( 0 also on test2); best on tune: C answer 0.25, tune  +59 (ans 173, R 116 W  57)
+    E+C answer, one pass          4 members on tune ( 4 also on test2); best on tune: E 2 + C answer 1, tune  +71 (ans 159, R 115 W  44) || test2 +170 (ans 376, R 273 W 103) | minus no write +21 [+1, +40] | single E answering (E 2) +28 [+5, +50]
+    prompt (control)              1 members on tune ( 0 also on test2); best on tune: must-answer prompt, tune  +70 (ans 156, R 113 W  43)
+        E+C answer, one pass         minus the E probe: -6 [-22, +10]
+
+## gemma3-12b: no write: tune  +64 (ans 190, R 127 W  63) | test2 +166 (ans 500, R 333 W 167)
+    single E answering by itself, best on tune E 2: tune  +70 (ans 154, R 112 W  42) | test2 +164 (ans 410, R 287 W 123)
+    E                             6 members on tune ( 1 also on test2); best on tune: E 1, tune  +82 (ans 160, R 121 W  39) | best with a test2 file: E 2, tune  +81 (ans 115, R  98 W  17) || test2 +220 (ans 304, R 262 W  42) | minus no write +54 [+27, +81] | single E answering (E 2) +56 [+37, +75]
+    C caution                     4 members on tune ( 0 also on test2); best on tune: C caution 2, tune  +83 (ans 117, R 100 W  17)
+    C answer                      1 members on tune ( 0 also on test2); best on tune: C answer 0.25, tune  +67 (ans 185, R 126 W  59)
+    E+C caution, one pass        12 members on tune ( 0 also on test2); best on tune: E 1 + C caution 1, tune  +82 (ans 128, R 105 W  23)
+    E+C answer, one pass         24 members on tune ( 4 also on test2); best on tune: E 1 + C answer 2, tune  +80 (ans 138, R 109 W  29) | best with a test2 file: E 2 + C answer 1, tune  +79 (ans 125, R 102 W  23) || test2 +211 (ans 341, R 276 W  65) | minus no write +45 [+20, +69] | single E answering (E 2) +47 [+22, +71]
+    E and C caution, two passes  24 members on tune ( 0 also on test2); best on tune: E 1 and C caution 1, tune  +83 (ans 145, R 114 W  31)
+    prompt (control)              1 members on tune ( 0 also on test2); best on tune: must-answer prompt, tune  +72 (ans 168, R 120 W  48)
+        E+C answer, one pass         minus the E probe: -9 [-25, +7]
+
+## gemma3-27b: no write: tune +103 (ans 191, R 147 W  44) | test2 +277 (ans 499, R 388 W 111)
+    single E answering by itself, best on tune E 2: tune  +65 (ans 159, R 112 W  47) | test2 +165 (ans 423, R 294 W 129)
+    E                             1 members on tune ( 1 also on test2); best on tune: E 2, tune  +79 (ans 109, R  94 W  15) || test2 +218 (ans 274, R 246 W  28) | minus no write -59 [-87, -30] | single E answering (E 2) +53 [+30, +76]
+    C answer                      1 members on tune ( 0 also on test2); best on tune: C answer 0.25, tune +101 (ans 181, R 141 W  40)
+    E+C answer, one pass          4 members on tune ( 4 also on test2); best on tune: E 2 + C answer 0.25, tune  +85 (ans 115, R 100 W  15) || test2 +232 (ans 294, R 263 W  31) | minus no write -45 [-73, -18] | single E answering (E 2) +67 [+43, +92]
+    prompt (control)              1 members on tune ( 0 also on test2); best on tune: must-answer prompt, tune  +91 (ans 145, R 118 W  27)
+        E+C answer, one pass         minus the E probe: +14 [+4, +24]
+
+## triviaqa, models together (a line only if all 5 models have it; questions resampled)
+    E+C answer, one pass minus the E probe               +42 [+8, +76] (500 questions)
+    E probe minus no write                               +25 [-57, +105] (500 questions)
+    E probe minus single E answering                     +160 [+107, +211] (500 questions)
+
+# popqa (alias match): members chosen on tune (192), numbers on test2
+
+## llama3.1-8b: no write: tune  -20 (ans 144, R  62 W  82) | test2  -97 (ans 375, R 139 W 236)
+    single E answering by itself, best on tune E 2: tune  +14 (ans  70, R  42 W  28) | test2  +21 (ans 177, R  99 W  78)
+    E                             6 members on tune ( 1 also on test2); best on tune: E 2, tune  +19 (ans  33, R  26 W   7) || test2  +25 (ans  97, R  61 W  36) | minus no write +122 [+91, +152] | single E answering (E 2) +4 [-14, +22]
+    C caution                     4 members on tune ( 0 also on test2); best on tune: C caution 1, tune  +20 (ans  76, R  48 W  28)
+    C answer                      1 members on tune ( 0 also on test2); best on tune: C answer 0.25, tune  -11 (ans 133, R  61 W  72)
+    E+C caution, one pass        12 members on tune ( 0 also on test2); best on tune: E 0.5 + C caution 1, tune  +24 (ans  62, R  43 W  19)
+    E+C answer, one pass         24 members on tune ( 4 also on test2); best on tune: E 1.5 + C answer 2, tune  +23 (ans  71, R  47 W  24) | best with a test2 file: E 2 + C answer 2, tune  +20 (ans  48, R  34 W  14) || test2   +8 (ans 130, R  69 W  61) | minus no write +105 [+75, +135] | single E answering (E 2) -13 [-36, +10]
+    E and C caution, two passes  24 members on tune ( 0 also on test2); best on tune: E 1.5 and C caution 1, tune  +22 (ans  50, R  36 W  14)
+    prompt (control)              1 members on tune ( 0 also on test2); best on tune: must-answer prompt, tune  +14 (ans  98, R  56 W  42)
+        E+C answer, one pass         minus the E probe: -17 [-32, -2]
+
+## qwen3.5-9b: no write: tune  -63 (ans 155, R  46 W 109) | test2 -216 (ans 412, R  98 W 314)
+    single E answering by itself, best on tune E 2: tune   +0 (ans  78, R  39 W  39) | test2  -32 (ans 200, R  84 W 116)
+    E                             1 members on tune ( 1 also on test2); best on tune: E 2, tune  +11 (ans  57, R  34 W  23) || test2   -7 (ans 153, R  73 W  80) | minus no write +209 [+183, +234] | single E answering (E 2) +25 [+12, +38]
+    C answer                      1 members on tune ( 0 also on test2); best on tune: C answer 0.25, tune  -59 (ans 149, R  45 W 104)
+    E+C answer, one pass          4 members on tune ( 4 also on test2); best on tune: E 2 + C answer 0.25, tune   +9 (ans  63, R  36 W  27) || test2  -25 (ans 177, R  76 W 101) | minus no write +191 [+166, +216] | single E answering (E 2) +7 [-10, +23]
+    prompt (control)              1 members on tune ( 0 also on test2); best on tune: must-answer prompt, tune  -38 (ans 122, R  42 W  80)
+        E+C answer, one pass         minus the E probe: -18 [-29, -7]
+
+## qwen3.8-27b: no write: tune  -33 (ans 119, R  43 W  76) | test2 -116 (ans 324, R 104 W 220)
+    single E answering by itself, best on tune E 2: tune   -5 (ans  77, R  36 W  41) | test2  -43 (ans 221, R  89 W 132)
+    E                             1 members on tune ( 1 also on test2); best on tune: E 2, tune   +3 (ans  63, R  33 W  30) || test2   -8 (ans 180, R  86 W  94) | minus no write +108 [+86, +129] | single E answering (E 2) +35 [+23, +47]
+    C answer                      1 members on tune ( 0 also on test2); best on tune: C answer 0.25, tune  -23 (ans 103, R  40 W  63)
+    E+C answer, one pass          4 members on tune ( 4 also on test2); best on tune: E 2 + C answer 2, tune   +8 (ans  66, R  37 W  29) || test2  -19 (ans 193, R  87 W 106) | minus no write +97 [+76, +118] | single E answering (E 2) +24 [+2, +45]
+    prompt (control)              1 members on tune ( 0 also on test2); best on tune: must-answer prompt, tune   +2 (ans  76, R  39 W  37)
+        E+C answer, one pass         minus the E probe: -11 [-30, +8]
+
+## gemma3-12b: no write: tune  -68 (ans 166, R  49 W 117) | test2 -239 (ans 445, R 103 W 342)
+    single E answering by itself, best on tune E 2: tune   -9 (ans  73, R  32 W  41) | test2  -17 (ans 189, R  86 W 103)
+    E                             6 members on tune ( 1 also on test2); best on tune: E 2, tune   +9 (ans  49, R  29 W  20) || test2  +20 (ans 124, R  72 W  52) | minus no write +259 [+233, +285] | single E answering (E 2) +37 [+22, +52]
+    C caution                     4 members on tune ( 0 also on test2); best on tune: C caution 2, tune  +19 (ans  37, R  28 W   9)
+    C answer                      1 members on tune ( 0 also on test2); best on tune: C answer 0.25, tune  -53 (ans 149, R  48 W 101)
+    E+C caution, one pass        12 members on tune ( 0 also on test2); best on tune: E 1 + C caution 1, tune  +16 (ans  50, R  33 W  17)
+    E+C answer, one pass         24 members on tune ( 4 also on test2); best on tune: E 4 + C answer 2, tune  +17 (ans  23, R  20 W   3) | best with a test2 file: E 2 + C answer 2, tune  +10 (ans  56, R  33 W  23) || test2  -19 (ans 159, R  70 W  89) | minus no write +220 [+193, +247] | single E answering (E 2) -2 [-24, +21]
+    E and C caution, two passes  24 members on tune ( 0 also on test2); best on tune: E 1.5 and C caution 2, tune  +20 (ans  34, R  27 W   7)
+    prompt (control)              1 members on tune ( 0 also on test2); best on tune: must-answer prompt, tune  -35 (ans 117, R  41 W  76)
+        E+C answer, one pass         minus the E probe: -39 [-57, -21]
+
+## gemma3-27b: no write: tune  -49 (ans 177, R  64 W 113) | test2 -170 (ans 470, R 150 W 320)
+    single E answering by itself, best on tune E 2: tune  -13 (ans 107, R  47 W  60) | test2  -61 (ans 301, R 120 W 181)
+    E                             1 members on tune ( 1 also on test2); best on tune: E 2, tune  +23 (ans  47, R  35 W  12) || test2  +35 (ans 145, R  90 W  55) | minus no write +205 [+173, +235] | single E answering (E 2) +96 [+73, +119]
+    C answer                      1 members on tune ( 0 also on test2); best on tune: C answer 0.25, tune  -41 (ans 161, R  60 W 101)
+    E+C answer, one pass          4 members on tune ( 4 also on test2); best on tune: E 2 + C answer 1, tune  +24 (ans  64, R  44 W  20) || test2  +23 (ans 163, R  93 W  70) | minus no write +193 [+163, +222] | single E answering (E 2) +84 [+59, +109]
+    prompt (control)              1 members on tune ( 0 also on test2); best on tune: must-answer prompt, tune  -13 (ans 113, R  50 W  63)
+        E+C answer, one pass         minus the E probe: -12 [-26, +2]
+
+## popqa, models together (a line only if all 5 models have it; questions resampled)
+    E+C answer, one pass minus the E probe               -97 [-134, -60] (500 questions)
+    E probe minus no write                               +903 [+814, +991] (500 questions)
+    E probe minus single E answering                     +197 [+153, +238] (500 questions)

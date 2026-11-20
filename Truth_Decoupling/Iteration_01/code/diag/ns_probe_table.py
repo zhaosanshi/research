@@ -38,7 +38,7 @@ KS = ("0.25", "0.5", "1", "2")
 class Passes:
     def __init__(self, task, model, split):
         self.task, self.model, self.split = task, model, split
-        self.bank_path = "%s/bank/%s_bank_20261119.jsonl" % (NS, task)
+        self.bank_path = "%s/bank/%s_bank_%s.jsonl" % (NS, task, "test2_20261120" if split == "test2" else "20261119")
         with open(self.bank_path, encoding="utf-8") as f:
             rows = [json.loads(l) for l in f]
         self.b = {r["id"]: r for r in rows if r["split"] == split}
@@ -97,6 +97,8 @@ def conf_top(task, name, split, X, n):
     except (SystemExit, OSError):
         return None
     cf = X.get("conf")
+    if cf is None:
+        return None
     ids = ["%s:%s" % (task, i) for i in X.ids]
     cand = [i for i in range(len(ids)) if cf[1][i] and rows[ids[i]].get("mean_logp") is not None]
     if len(cand) < n:

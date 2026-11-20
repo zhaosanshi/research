@@ -1,0 +1,18 @@
+
+## Llama-3.1-8B, E layer 11
+  current direction: gap 0.789, cos(learned, mean difference) 0.69 | held-out cause loss: no write 0.0638, learned 0.0165 (closes 74%) | isolate: no write 0.00011, learned 0.00017 | 80 training questions, 1017 s
+  new direction:     gap 0.565, cos(learned, mean difference) 0.65 | held-out cause loss: no write 0.0367, learned 0.0090 (closes 75%) | isolate: no write 0.00011, learned 0.00019 | 240 training questions, 766 s
+  tune, 192 questions: no write net -34 (answers 169) | prompt only net +12
+    normal prompt, E 1     answers 141 | right  65 wrong  72 | net   -7 | minus no write +27 [+10, +43] | minus prompt only -19 [-44, +6] | current direction: answers 139 net +6; new minus current -13 [-28, +1]
+    normal prompt, E 1.5   answers 134 | right  65 wrong  65 | net   +0 | minus no write +34 [+13, +55] | minus prompt only -12 [-37, +13] | current direction: answers 130 net +20; new minus current -20 [-39, -1]
+    normal prompt, E 2     answers 125 | right  70 wrong  50 | net  +20 | minus no write +54 [+29, +77] | minus prompt only +8 [-16, +32] | current direction: answers 115 net +30; new minus current -10 [-30, +10]
+    normal prompt, E 3     answers 111 | right  65 wrong  38 | net  +27 | minus no write +61 [+33, +88] | minus prompt only +15 [-13, +42]
+    must-answer + E 1      answers 191 | right  79 wrong 101 | net  -22 | current direction: net +18; new minus current -40 [-58, -23] | minus prompt only -34 [-55, -13]
+    must-answer + E 2      answers 192 | right 103 wrong  77 | net  +26 | current direction: net +36; new minus current -10 [-31, +11] | minus prompt only +14 [-8, +36]
+  test, 523 questions: no write net -86 (answers 467) | prompt only net +0
+    normal prompt, E 1     answers 415 | right 177 wrong 225 | net  -48 | minus no write +38 [+8, +68] | minus prompt only -48 [-87, -7] | current direction: answers 407 net -29; new minus current -19 [-42, +4]
+    normal prompt, E 1.5   answers 383 | right 170 wrong 202 | net  -32 | minus no write +54 [+18, +88] | minus prompt only -32 [-70, +5] | current direction: answers 356 net +31; new minus current -63 [-92, -35]
+    normal prompt, E 2     answers 333 | right 176 wrong 147 | net  +29 | minus no write +115 [+74, +155] | minus prompt only +29 [-10, +69] | current direction: answers 312 net +85; new minus current -56 [-84, -29]
+    normal prompt, E 3     answers 290 | right 181 wrong  99 | net  +82 | minus no write +168 [+122, +214] | minus prompt only +82 [+37, +128]
+    must-answer + E 1      answers 522 | right 214 wrong 284 | net  -70 | current direction: net -45; new minus current -25 [-50, -1] | minus prompt only -70 [-109, -30]
+    must-answer + E 2      answers 523 | right 249 wrong 240 | net   +9 | current direction: net +75; new minus current -66 [-103, -31] | minus prompt only +9 [-24, +43]

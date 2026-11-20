@@ -34,7 +34,8 @@ def dash(s):
 
 
 def bank(task, split):
-    p = "%s/bank/%s_bank_20261119.jsonl" % (NS, task)
+    """Rows of one split; the second batch of test questions (test2) has its own bank file."""
+    p = "%s/bank/%s_bank_%s.jsonl" % (NS, task, "test2_20261120" if split == "test2" else "20261119")
     with open(p, encoding="utf-8") as f:
         rows = [json.loads(l) for l in f]
     return {r["id"]: r for r in rows if r["split"] == split}, p

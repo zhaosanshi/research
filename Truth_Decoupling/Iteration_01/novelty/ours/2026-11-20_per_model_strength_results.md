@@ -236,7 +236,7 @@ Gemma-3-12B 的准确率下降大半是"改成不答"，其中一半原本就是
 
 - 同一名义力度下新方向的 MMLU 代价小了一半左右，但它在 TruthfulQA 上的增益也同比例变小。新方向的 gap（每单位力度的写入量）是 0.565，现用方向是 0.789；按同样的写入量比，两者的增益与代价大致相同，没有换来更好的取舍。
 - 原因：训练时每道题的写入量取两种提示在该方向上的实际差值，这个差值在多项选择题上本来就很小，训练行约束不到"推理时对所有题写同一个固定量"的行为。要约束它，需要在训练程序里加一项"固定写入量下、无关题的输出不变"的损失，这是对训练程序的改动，没有做。
-- 测试集的判分到了补入。
+- 测试集（523 题，Pro）确认了这一点。按写入量相近的两档比：新方向力度 2（写入量 1.13）净分 +29、MMLU −3.6；现用方向力度 1.5（写入量 1.18）净分 +31、MMLU −3.8，两者一样。再高一档：新方向力度 3（写入量 1.70）净分 +82、MMLU −10.1；现用方向力度 2（写入量 1.58）净分 +85、MMLU −6.9，新方向更差。结果文件 `Iteration_01/results/capability/keep/keep_table_llama_20261121.txt`（程序 `diag/keep_table.py`）。
 
 ## 8. 纯提示词基线换成各模型在调参集上最好的一条
 
@@ -341,7 +341,9 @@ N1 里有一条规则：推 E 之后才不答的题，加 C 后如果给出的�
 
 E 与往谨慎推的 C 每题都写，力度在调参集上选。Llama、PopQA、测试集：不写入 −111；只推 E（2）−14；只推 C 往谨慎（2）+27；E 2 加 C 往谨慎 0.25（调参集选出）+5。组合减只推 E 为 **+19** [+7, +32]，组合减只推 C（往谨慎）为 −22 [−42, −2]。
 
-- 对论文：这个模型上组合强于只推 E，但不如只推 C 往谨慎（消极）。在这套题上两个方向做的是同一件事（让模型少答），叠在一起没有额外的好处。其余四个模型在跑。
+Llama、TriviaQA、测试集：不写入 +140；只推 E（2）+154；只推 C 往谨慎（调参集选 0.25）+147；E 1 加 C 往谨慎 0.5（调参集选出）+169。组合减不写入 **+29** [+4, +54]，减只推 E 为 +15 [−14, +43]，减只推 C 为 +22 [−2, +46]。
+
+- 对论文：PopQA 上组合强于只推 E，但不如只推 C 往谨慎（消极）；TriviaQA 上组合显著强于原模型，数值上高于两个单方向，但两个差距都不显著（不能下结论）。调参集只有 192 题，相差三四分的设置在调参集上分不出来，选出的设置不稳。其余模型在跑。
 
 **12.4 探索中看到的一个现象：把 E 当作对原回答的"复核"**
 
@@ -362,6 +364,14 @@ E 与往谨慎推的 C 每题都写，力度在调参集上选。Llama、PopQA�
 - 消极二：它不强于常规的"按把握挑题"。PopQA 上显著更低（−68），TriviaQA 上打平；分模型看，两个 Gemma-3 在 TriviaQA 上显著更高（+22 [0, +44]、+54 [+27, +82]），Qwen3.8-27B 显著更低（−40 [−62, −18]）。
 - 原因的直接证据：推 E 之后回答变了的题，变坏的多于变好的。Llama、PopQA：原来对的变错 14 题，原来错的变对 5 题；Gemma-3-27B、TriviaQA：变错 40 题，变对 10 题。读原始回答，变坏的多是把题目前提否定掉的回答。
 - 别名匹配的一个偏差：否定句里只要出现了标准答案的字样也会被算对（例如"某某并没有写这部剧本"）。这会让"只推 E 直接作答"的别名分数偏高，正式数字要用 Pro 判的 100 题。
+- **在没看过的第二批题上复核**（各 500 题，本节的探索没有用过它们；力度 2，五个模型合计）：
+
+| | PopQA 第二批 | TriviaQA 第二批 |
+|---|---|---|
+| 减不写入 | **+903** [+814, +991] | +25 [−57, +105] |
+| 减"只推 E 直接作答" | **+197** [+153, +238] | **+160** [+107, +211] |
+
+  PopQA 两项都重现，五个模型对不写入都显著。TriviaQA 上"强于只推 E 直接作答"重现；"强于不写入"没有重现：Qwen3.5-9B、Qwen3.8-27B、Gemma-3-12B 显著为正（+58、+27、+54），Llama 与 Gemma-3-27B 显著为负（−55 [−90, −21]、−59 [−87, −30]）。这两个模型在 TriviaQA 上原本答对的比例最高，力度 2 的复核筛掉了太多答对的题。
 - 这是换了一条规则（N1 相信新答案，这里只相信没变的原答案），属于主张层面的改动，本节只记录事实。
 
 **12.5 在跑**
@@ -381,7 +391,7 @@ E 与往谨慎推的 C 每题都写，力度在调参集上选。Llama、PopQA�
 - 第 7 节：`Iteration_01/results/capability/mmlu/cap_net_score_mmlu_20261120.txt`（程序 `diag/cap_net_score.py`）；`Iteration_01/results/capability/mmlu/cap_mcq_layermap_llama_mmlu1000_20261120.txt`。
 - 第 6 节：`Iteration_01/results/tf/tf_net_score_20261120.txt`（程序 `diag/tf_net_score.py`）；原运行的方案与结果见 `Iteration_01/novelty/ours/2026-11-19_tf_unknown_ec_new_models.md`。
 - 同类文章的做法（各模型是否同一力度；主结果报在哪些题集上；有没有提示词与均值差基线）：`Iteration_01/novelty/prior_work/2026-11-20_steering_strength_per_model_survey.md`、`2026-11-20_steering_eval_datasets_survey.md`。
-- 第 12 节：`Iteration_01/results/newsets/own_strength/` 下的 `ns_dose_table_20261121.txt`（程序 `diag/ns_dose_table.py`）、`ns_caut_table_20261121.txt`（`diag/ns_caut_table.py`）、`ns_stable_table_20261121.txt`（`diag/ns_stable_table.py`）、`ns_probe_table_20261121.txt`（`diag/ns_probe_table.py`）。
+- 第 12 节：`Iteration_01/results/newsets/own_strength/` 下的 `ns_probe_table_test2_20261121.txt`（第二批题）、`ns_dose_table_20261121.txt`（程序 `diag/ns_dose_table.py`）、`ns_caut_table_20261121.txt`（`diag/ns_caut_table.py`）、`ns_stable_table_20261121.txt`（`diag/ns_stable_table.py`）、`ns_probe_table_20261121.txt`（`diag/ns_probe_table.py`）。
 - 启动脚本：`Iteration_01/code/launchers/explore_20261120/`。本文件涉及的新程序都还没有交 GPT 审。
 
 ## 变更记录
