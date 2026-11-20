@@ -15,6 +15,10 @@
 # write, single C (strength chosen on tune), single E, N1, the strong form at the same layer and strength (must-answer
 # + E, the N most confident answers, N = N1's answers) where its files exist, the prompt-only baseline; differences with
 # paired intervals; models together with the per-question differences summed.
+# Two prompt-only baselines are printed: "prompt only" = must-answer + the honest sentence (conf_E2, the one used from
+# the start), and "the best prompt on tune" = of the run's no-write prompts judged by diag/prompt_sweep_table.py the one
+# with the highest tune score (ties to conf_E2; its choice function is reused), read on test. Where the two are the same
+# prompt the two differences are equal.
 # usage (host, from /data/sanshizhao/Truth_Decoupling): python3 -B Iteration_01/diag/main_table_layers.py [BUDGET ...]
 import os
 import sys
@@ -24,6 +28,7 @@ import dose_mid as DM
 import strong_mid as SM
 import per_model_table as PM
 import alt_layer as AL
+import prompt_sweep_table as PW
 
 MT, S = DM.MT, DM.S
 ps, ro = MT.ps, MT.ro
@@ -100,6 +105,15 @@ def model_block(model, budgets, tot):
     cby = dict(zip(Dx.sp.qs, zip(c0[0], c0[1]))) if c0 else None
     da0 = MT.handed_in(Dx, ("DA",))
     da = dict(zip(Dx.sp.qs, da0[0]))
+    run = Dx.m["ec"][1].split("/eval_extra/")[0]
+    ptune, ptest = PW.prompts_of(run, "tune", srcs[0][1].qs), PW.prompts_of(run, "test", srcs[0][3].qs)
+    bestp = None
+    if ptune and ptest:
+        order = sorted(ptune, key=lambda p: (-sum(map(val, ptune[p][0])), p != "conf_E2", p))
+        if order[0] in ptest:
+            bestp = (order[0], dict(zip(srcs[0][3].qs, ptest[order[0]][0])), sum(map(val, ptune[order[0]][0])), ptest[order[0]][1])
+    if bestp is None:
+        print("    (no complete verdicts for the run's other prompts: the row of the best prompt on tune is left out)")
     for B in budgets:
         ok = [c for c in cands if c["chg"] >= -B]
         if not ok:
@@ -138,6 +152,10 @@ def model_block(model, budgets, tot):
                 diffs.append(("the strong form", st[0]))
         print("    %-44s net %+4d" % ("prompt only (must-answer + sentence)", sum(map(val, da_s))))
         diffs.append(("prompt only", da_s))
+        if bestp:
+            bp = [bestp[1][q] for q in qs]
+            print("    %-44s net %+4d (answers %d; tune net %+d)" % ("best prompt on tune: %s" % bestp[0], sum(map(val, bp)), bestp[3], bestp[2]))
+            diffs.append(("the best prompt on tune", bp))
         print("    N1 minus: " + " | ".join("%s %s" % (name, ps.ci([val(x) - val(y) for x, y in zip(n1[0], other)])) for name, other in diffs))
         for name, other in diffs:
             t = tot.setdefault((B, name), [0, {}])
@@ -164,9 +182,9 @@ def main():
         for (b, name), v in tot.items():
             if b == B and name not in ("picks", "questions"):
                 if v[0] == len(ro.FIVE):
-                    print("    N1 minus %-16s %s" % (name, ps.ci([v[1][q] for q in common])))
+                    print("    N1 minus %-24s %s" % (name, ps.ci([v[1][q] for q in common])))
                 else:
-                    print("    N1 minus %-16s only %d of %d models have it" % (name, v[0], len(ro.FIVE)))
+                    print("    N1 minus %-24s only %d of %d models have it" % (name, v[0], len(ro.FIVE)))
 
 
 if __name__ == "__main__":

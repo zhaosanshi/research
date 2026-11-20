@@ -27,7 +27,8 @@
 | `diag/ns_choose.py` | 只用调参集，给出需要在测试集上补“再问”回答的力度 | 1a674775fff960e4 |
 | `diag/ns_caut_confirm.py` | 探索：设置在调参集加第一批测试题上选，只读第二批测试题 | 2e4baaec3c43e3b4 |
 | `diag/alt_layer.py` | 把 E 写在另一层时的通用计分（登记了 Llama 第 16 层、Gemma-3-27B 第 28 层、Gemma-3-12B 第 24 层）：各档的只推 E、N1、同层强对照、同层均值差对照，与 MMLU 全量并排；`l16_table.py` 现在只是它的入口 | 0e23a0b83badc780 |
-| `diag/main_table_layers.py` | **现在的主表程序**：`per_model_table.py` 加上“可以换层”。两步规则：每层取 MMLU“选力度”一半上掉分不超过预算的最大力度，再按该力度下 N1 的调参集净分选层；只有一层的模型与 `per_model_table.py` 逐行相同 | 2a71bb2347c6072c |
+| `diag/main_table_layers.py` | **现在的主表程序**：`per_model_table.py` 加上“可以换层”。两步规则：每层取 MMLU“选力度”一半上掉分不超过预算的最大力度，再按该力度下 N1 的调参集净分选层；只有一层的模型与 `per_model_table.py` 逐行相同。07:4x 加了一行对照：每个模型在调参集上净分最高的无写入提示（选法沿用 `prompt_sweep_table.py`，并列取 conf_E2），原有各行与加之前逐行相同 | 0c3872e7ace844b8 |
+| `diag/gsm8k_main_table.py` | GSM8K（1,319 题）在主表设置下的规则计分（不写入一遍、只推 E 一遍；生成由 `launchers/explore_20261120/gsm8k_main.sh` 调 `newsets_gen.py`，设置沿用能力保持设计）。计分函数直接用 `cap_score.py` 的；不答按原因分列，并另报两遍都作答的题上的准确率变化 | 0797724e76fb3de8 |
 | `diag/ns_pressure_pilot.py` | 题后加一句用户看法的小试验（只看调参集）：C 放出来的回答对多还是错多 | ba4b2e5964a5832a |
 | `diag/ns_pressure_table.py` | 同一种问法下各系统的设置在调参集上选、读测试集；每个差值按“原题是否答对”拆开 | 20ac688d51789679 |
 | `scripts/newsets/newsets_pressure_bank.py` | 造带用户看法句子的题库（否定句 / 肯定句），题号、标准答案、切分照抄 | 3f5416f240da0458 |
@@ -64,3 +65,4 @@
 | 2026-11-21 | 建立本文件 | 赵磊（Fable 5.2 代笔） |
 | 2026-11-21 | 补入换层的计分与主表程序、题后加用户看法的三个程序；第 3 节加第 0 条（换层有没有偷看测试集） | 赵磊（Fable 5.2 代笔） |
 | 2026-11-21 | 第 4 节补主表程序的自查与三处防护 | 赵磊（Fable 5.2 代笔） |
+| 2026-11-21 | 主表程序加“各模型最好的提示”一行（校验值已更新）；补入 GSM8K 的计分程序 | 赵磊（Fable 5.2 代笔） |

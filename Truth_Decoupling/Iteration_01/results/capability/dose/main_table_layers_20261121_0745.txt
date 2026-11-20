@@ -1,0 +1,179 @@
+
+## Llama-3.1-8B: candidates (layer, strength: MMLU change on the selection half, N1 tune score)
+    layer 11: 0.5: -0.46, -17 | 0.75: -0.74, +6 | 1: -1.35, +16 | 1.25: -2.09, +22 | 1.5: -3.09, +28 | 1.75: -4.52, +32 | 2: -6.28, +40
+    layer 16: 2.5: -0.21, +29 | 3: -0.33, +20 | 3.5: -0.74, +26 | 4: -1.42, +28
+  budget 1 -> layer 16, E strength 3.5 (N1 tune score +26; N1 on tune: N1: E 3-5, own blanks up to 2, E's blanks up to 0.5) | MMLU on the report half -0.90 [-1.62, -0.16] | per layer: layer 11 -> 0.75 (tune +6); layer 16 -> 3.5 (tune +26) | best tune score within the budget would be layer 16, 2.5 (+29)
+    no write                                     answers 467 | right 181 wrong 267 | net  -86
+    single C (strength 0.25, chosen on tune)     answers 475 | right 184 wrong 273 | net  -89
+    single E                                     answers 313 | right 179 wrong 128 | net  +51
+    N1                                           answers 452 | right 266 wrong 175 | net  +91
+    strong form: must-answer + E, top 452        answers 452 | right 241 wrong 197 | net  +44
+    prompt only (must-answer + sentence)         net   +0
+    best prompt on tune: conf_E2                 net   +0 (answers 523; tune net +12)
+    N1 minus: no write +177 [+120, +235] | single C +180 [+123, +238] | single E +40 [+18, +63] | the strong form +47 [+11, +84] | prompt only +91 [+38, +146] | the best prompt on tune +91 [+38, +146]
+  budget 1.5 -> layer 16, E strength 4 (N1 tune score +28; N1 on tune: N1: E 4, own blanks up to 2, E's blanks up to 0.25) | MMLU on the report half -1.54 [-2.34, -0.75] | per layer: layer 11 -> 1 (tune +16); layer 16 -> 4 (tune +28) | best tune score within the budget would be layer 16, 2.5 (+29)
+    no write                                     answers 467 | right 181 wrong 267 | net  -86
+    single C (strength 0.25, chosen on tune)     answers 475 | right 184 wrong 273 | net  -89
+    single E                                     answers 308 | right 178 wrong 124 | net  +54
+    N1                                           answers 405 | right 236 wrong 158 | net  +78
+    strong form: must-answer + E, top 405        answers 405 | right 232 wrong 163 | net  +69
+    prompt only (must-answer + sentence)         net   +0
+    best prompt on tune: conf_E2                 net   +0 (answers 523; tune net +12)
+    N1 minus: no write +164 [+108, +220] | single C +167 [+111, +223] | single E +24 [+6, +43] | the strong form +9 [-29, +46] | prompt only +78 [+25, +134] | the best prompt on tune +78 [+25, +134]
+  budget 2 -> layer 16, E strength 4 (N1 tune score +28; N1 on tune: N1: E 4, own blanks up to 2, E's blanks up to 0.25) | MMLU on the report half -1.54 [-2.34, -0.75] | per layer: layer 11 -> 1 (tune +16); layer 16 -> 4 (tune +28) | best tune score within the budget would be layer 16, 2.5 (+29)
+    no write                                     answers 467 | right 181 wrong 267 | net  -86
+    single C (strength 0.25, chosen on tune)     answers 475 | right 184 wrong 273 | net  -89
+    single E                                     answers 308 | right 178 wrong 124 | net  +54
+    N1                                           answers 405 | right 236 wrong 158 | net  +78
+    strong form: must-answer + E, top 405        answers 405 | right 232 wrong 163 | net  +69
+    prompt only (must-answer + sentence)         net   +0
+    best prompt on tune: conf_E2                 net   +0 (answers 523; tune net +12)
+    N1 minus: no write +164 [+108, +220] | single C +167 [+111, +223] | single E +24 [+6, +43] | the strong form +9 [-29, +46] | prompt only +78 [+25, +134] | the best prompt on tune +78 [+25, +134]
+
+## Qwen3.5-9B: candidates (layer, strength: MMLU change on the selection half, N1 tune score)
+    layer 15: 1: -0.26, +54 | 1.25: -0.43, +59 | 1.5: -0.56, +60 | 1.75: -0.70, +61 | 2: -0.90, +65 | 2.5: -1.35, +65 | 3: -1.99, +69 | 3.5: -3.06, +73 | 4: -4.02, +74
+  budget 1 -> layer 15, E strength 2 (N1 tune score +65; N1 on tune: N1: E 2, own blanks up to 0.5, E's blanks up to 0.25) | MMLU on the report half -0.48 [-0.98, +0.06] | per layer: layer 15 -> 2 (tune +65) | best tune score within the budget would be layer 15, 2 (+65)
+    no write                                     answers 474 | right 268 wrong 195 | net  +73
+    single C (strength 0.25, chosen on tune)     answers 495 | right 279 wrong 207 | net  +72
+    single E                                     answers 409 | right 287 wrong 116 | net +171
+    N1                                           answers 446 | right 312 wrong 123 | net +189
+    strong form: must-answer + E, top 446        answers 446 | right 305 wrong 129 | net +176
+    prompt only (must-answer + sentence)         net +168
+    best prompt on tune: caut_E2                 net +166 (answers 442; tune net +70)
+    N1 minus: no write +116 [+79, +154] | single C +117 [+80, +154] | single E +18 [+7, +29] | the strong form +13 [-11, +37] | prompt only +21 [-8, +50] | the best prompt on tune +23 [-3, +48]
+  budget 1.5 -> layer 15, E strength 2.5 (N1 tune score +65; N1 on tune: N1: E 2-5, own blanks up to 0.5, E's blanks up to 0.5) | MMLU on the report half -1.15 [-1.72, -0.54] | per layer: layer 15 -> 2.5 (tune +65) | best tune score within the budget would be layer 15, 2 (+65)
+    no write                                     answers 474 | right 268 wrong 195 | net  +73
+    single C (strength 0.25, chosen on tune)     answers 495 | right 279 wrong 207 | net  +72
+    single E                                     answers 386 | right 280 wrong 101 | net +179
+    N1                                           answers 442 | right 318 wrong 115 | net +203
+    strong form: must-answer + E, top 442        answers 442 | right 303 wrong 129 | net +174
+    prompt only (must-answer + sentence)         net +168
+    best prompt on tune: caut_E2                 net +166 (answers 442; tune net +70)
+    N1 minus: no write +130 [+92, +169] | single C +131 [+91, +170] | single E +24 [+10, +38] | the strong form +29 [+1, +56] | prompt only +35 [+3, +67] | the best prompt on tune +37 [+8, +65]
+  budget 2 -> layer 15, E strength 3 (N1 tune score +69; N1 on tune: N1: E 3, own blanks up to 0.5, E's blanks up to 1) | MMLU on the report half -2.05 [-2.68, -1.38] | per layer: layer 15 -> 3 (tune +69) | best tune score within the budget would be layer 15, 3 (+69)
+    no write                                     answers 474 | right 268 wrong 195 | net  +73
+    single C (strength 0.25, chosen on tune)     answers 495 | right 279 wrong 207 | net  +72
+    single E                                     answers 372 | right 265 wrong 102 | net +163
+    N1                                           answers 454 | right 307 wrong 138 | net +169
+    strong form: must-answer + E, top 454        answers 454 | right 306 wrong 138 | net +168
+    prompt only (must-answer + sentence)         net +168
+    best prompt on tune: caut_E2                 net +166 (answers 442; tune net +70)
+    N1 minus: no write +96 [+55, +138] | single C +97 [+54, +140] | single E +6 [-11, +23] | the strong form +1 [-24, +28] | prompt only +1 [-34, +37] | the best prompt on tune +3 [-30, +36]
+
+## Qwen3.8-27B: candidates (layer, strength: MMLU change on the selection half, N1 tune score)
+    layer 28: 1: -0.23, +57 | 1.25: -0.30, +72 | 1.5: -0.63, +82 | 1.75: -0.95, +79 | 2: -1.10, +90 | 2.5: -1.98, +82 | 3: -2.82, +80
+  budget 1 -> layer 28, E strength 1.75 (N1 tune score +79; N1 on tune: N1: E 1-75, own blanks up to 1, E's blanks up to 0.5) | MMLU on the report half -0.73 [-1.20, -0.23] | per layer: layer 28 -> 1.75 (tune +79) | best tune score within the budget would be layer 28, 1.5 (+82)
+    no write                                     answers 361 | right 202 wrong 155 | net  +47
+    single C (strength 0.25, chosen on tune)     answers 451 | right 241 wrong 204 | net  +37
+    single E                                     answers 353 | right 250 wrong 100 | net +150
+    N1                                           answers 491 | right 331 wrong 145 | net +186
+    strong form: must-answer + E, top 491        answers 491 | right 321 wrong 158 | net +163
+    prompt only (must-answer + sentence)         net +135
+    best prompt on tune: conf_E2                 net +135 (answers 521; tune net +69)
+    N1 minus: no write +139 [+99, +179] | single C +149 [+107, +190] | single E +36 [+15, +58] | the strong form +23 [-3, +49] | prompt only +51 [+18, +84] | the best prompt on tune +51 [+18, +84]
+  budget 1.5 -> layer 28, E strength 2 (N1 tune score +90; N1 on tune: N1: E 2, own blanks up to 1, E's blanks up to 0.5) | MMLU on the report half -1.21 [-1.71, -0.68] | per layer: layer 28 -> 2 (tune +90) | best tune score within the budget would be layer 28, 2 (+90)
+    no write                                     answers 361 | right 202 wrong 155 | net  +47
+    single C (strength 0.25, chosen on tune)     answers 451 | right 241 wrong 204 | net  +37
+    single E                                     answers 365 | right 262 wrong 100 | net +162
+    N1                                           answers 492 | right 339 wrong 139 | net +200
+    strong form: must-answer + E, top 492        answers 492 | right 322 wrong 160 | net +162
+    prompt only (must-answer + sentence)         net +135
+    best prompt on tune: conf_E2                 net +135 (answers 521; tune net +69)
+    N1 minus: no write +153 [+112, +194] | single C +163 [+120, +205] | single E +38 [+18, +59] | the strong form +38 [+13, +65] | prompt only +65 [+31, +98] | the best prompt on tune +65 [+31, +98]
+  budget 2 -> layer 28, E strength 2.5 (N1 tune score +82; N1 on tune: N1: E 2-5, own blanks up to 1, E's blanks up to 0.25) | MMLU on the report half -1.92 [-2.48, -1.30] | per layer: layer 28 -> 2.5 (tune +82) | best tune score within the budget would be layer 28, 2 (+90)
+    no write                                     answers 361 | right 202 wrong 155 | net  +47
+    single C (strength 0.25, chosen on tune)     answers 451 | right 241 wrong 204 | net  +37
+    single E                                     answers 395 | right 283 wrong 108 | net +175
+    N1                                           answers 490 | right 343 wrong 133 | net +210
+    strong form: must-answer + E, top 490        answers 490 | right 324 wrong 151 | net +173
+    prompt only (must-answer + sentence)         net +135
+    best prompt on tune: conf_E2                 net +135 (answers 521; tune net +69)
+    N1 minus: no write +163 [+120, +205] | single C +173 [+128, +218] | single E +35 [+18, +53] | the strong form +37 [+12, +62] | prompt only +75 [+40, +110] | the best prompt on tune +75 [+40, +110]
+
+## Gemma-3-12B: candidates (layer, strength: MMLU change on the selection half, N1 tune score)
+    layer 22: 1: -0.71, +35 | 1.25: -0.91, +35 | 1.5: -1.58, +54 | 1.75: -2.39, +57 | 2: -3.30, +67
+    layer 24: 1.5: -0.11, +46 | 2: -0.20, +50 | 2.5: -0.57, +75 | 3: -1.55, +74
+  budget 1 -> layer 24, E strength 2.5 (N1 tune score +75; N1 on tune: N1: E 2-5, own blanks up to 2, E's blanks up to 2) | MMLU on the report half -0.54 [-1.21, +0.13] | per layer: layer 22 -> 1.25 (tune +35); layer 24 -> 2.5 (tune +75) | best tune score within the budget would be layer 24, 2.5 (+75)
+    no write                                     answers 460 | right 228 wrong 216 | net  +12
+    single C (strength 0.25, chosen on tune)     answers 487 | right 239 wrong 228 | net  +11
+    single E                                     answers 321 | right 205 wrong 110 | net  +95
+    N1                                           answers 500 | right 315 wrong 163 | net +152
+    strong form: must-answer + E, top 500        answers 500 | right 316 wrong 164 | net +152
+    prompt only (must-answer + sentence)         net  +77
+    best prompt on tune: caut_E2                 net +139 (answers 483; tune net +34)
+    N1 minus: no write +140 [+86, +192] | single C +141 [+86, +194] | single E +57 [+32, +82] | the strong form +0 [-28, +28] | prompt only +75 [+29, +122] | the best prompt on tune +13 [-30, +56]
+  budget 1.5 -> layer 24, E strength 2.5 (N1 tune score +75; N1 on tune: N1: E 2-5, own blanks up to 2, E's blanks up to 2) | MMLU on the report half -0.54 [-1.21, +0.13] | per layer: layer 22 -> 1.25 (tune +35); layer 24 -> 2.5 (tune +75) | best tune score within the budget would be layer 24, 2.5 (+75)
+    no write                                     answers 460 | right 228 wrong 216 | net  +12
+    single C (strength 0.25, chosen on tune)     answers 487 | right 239 wrong 228 | net  +11
+    single E                                     answers 321 | right 205 wrong 110 | net  +95
+    N1                                           answers 500 | right 315 wrong 163 | net +152
+    strong form: must-answer + E, top 500        answers 500 | right 316 wrong 164 | net +152
+    prompt only (must-answer + sentence)         net  +77
+    best prompt on tune: caut_E2                 net +139 (answers 483; tune net +34)
+    N1 minus: no write +140 [+86, +192] | single C +141 [+86, +194] | single E +57 [+32, +82] | the strong form +0 [-28, +28] | prompt only +75 [+29, +122] | the best prompt on tune +13 [-30, +56]
+  budget 2 -> layer 24, E strength 3 (N1 tune score +74; N1 on tune: N1: E 3, own blanks up to 2, E's blanks up to 2) | MMLU on the report half -1.24 [-1.97, -0.46] | per layer: layer 22 -> 1.5 (tune +54); layer 24 -> 3 (tune +74) | best tune score within the budget would be layer 24, 2.5 (+75)
+    no write                                     answers 460 | right 228 wrong 216 | net  +12
+    single C (strength 0.25, chosen on tune)     answers 487 | right 239 wrong 228 | net  +11
+    single E                                     answers 311 | right 208 wrong  97 | net +111
+    N1                                           answers 504 | right 319 wrong 163 | net +156
+    strong form: must-answer + E, top 504        answers 504 | right 317 wrong 152 | net +165
+    prompt only (must-answer + sentence)         net  +77
+    best prompt on tune: caut_E2                 net +139 (answers 483; tune net +34)
+    N1 minus: no write +144 [+84, +201] | single C +145 [+86, +201] | single E +45 [+20, +71] | the strong form -9 [-33, +15] | prompt only +79 [+29, +130] | the best prompt on tune +17 [-29, +62]
+
+## Gemma-3-27B: candidates (layer, strength: MMLU change on the selection half, N1 tune score)
+    layer 26: 0.5: -0.16, +21 | 0.75: -0.68, +44 | 1: -1.74, +62 | 1.25: -2.79, +71 | 1.5: -4.02, +75 | 1.75: -5.68, +77 | 2: -8.42, +95
+    layer 28: 1: -0.50, +59 | 1.5: -2.05, +61 | 2: -3.49, +66
+  budget 1 -> layer 28, E strength 1 (N1 tune score +59; N1 on tune: N1: E 1, own blanks up to 2, E's blanks up to 1) | MMLU on the report half -0.66 [-1.14, -0.16] | per layer: layer 26 -> 0.75 (tune +44); layer 28 -> 1 (tune +59) | best tune score within the budget would be layer 28, 1 (+59)
+    no write                                     answers 456 | right 221 wrong 218 | net   +3
+    single C (strength 0.25, chosen on tune)     answers 485 | right 234 wrong 231 | net   +3
+    single E                                     answers 422 | right 256 wrong 149 | net +107
+    N1                                           answers 514 | right 318 wrong 172 | net +146
+    strong form: must-answer + E, top 514        answers 514 | right 298 wrong 203 | net  +95
+    prompt only (must-answer + sentence)         net +140
+    best prompt on tune: caut_E2                 net +150 (answers 460; tune net +50)
+    N1 minus: no write +143 [+107, +179] | single C +143 [+104, +180] | single E +39 [+21, +57] | the strong form +51 [+20, +81] | prompt only +6 [-32, +44] | the best prompt on tune -4 [-41, +33]
+  budget 1.5 -> layer 28, E strength 1 (N1 tune score +59; N1 on tune: N1: E 1, own blanks up to 2, E's blanks up to 1) | MMLU on the report half -0.66 [-1.14, -0.16] | per layer: layer 26 -> 0.75 (tune +44); layer 28 -> 1 (tune +59) | best tune score within the budget would be layer 28, 1 (+59)
+    no write                                     answers 456 | right 221 wrong 218 | net   +3
+    single C (strength 0.25, chosen on tune)     answers 485 | right 234 wrong 231 | net   +3
+    single E                                     answers 422 | right 256 wrong 149 | net +107
+    N1                                           answers 514 | right 318 wrong 172 | net +146
+    strong form: must-answer + E, top 514        answers 514 | right 298 wrong 203 | net  +95
+    prompt only (must-answer + sentence)         net +140
+    best prompt on tune: caut_E2                 net +150 (answers 460; tune net +50)
+    N1 minus: no write +143 [+107, +179] | single C +143 [+104, +180] | single E +39 [+21, +57] | the strong form +51 [+20, +81] | prompt only +6 [-32, +44] | the best prompt on tune -4 [-41, +33]
+  budget 2 -> layer 26, E strength 1 (N1 tune score +62; N1 on tune: N1: E 1, own blanks up to 2, E's blanks up to 1) | MMLU on the report half -1.50 [-2.09, -0.90] | per layer: layer 26 -> 1 (tune +62); layer 28 -> 1 (tune +59) | best tune score within the budget would be layer 26, 1 (+62)
+    no write                                     answers 456 | right 221 wrong 218 | net   +3
+    single C (strength 0.25, chosen on tune)     answers 485 | right 234 wrong 231 | net   +3
+    single E                                     answers 433 | right 269 wrong 146 | net +123
+    N1                                           answers 519 | right 330 wrong 162 | net +168
+    strong form: must-answer + E, top 519        answers 519 | right 298 wrong 203 | net  +95
+    prompt only (must-answer + sentence)         net +140
+    best prompt on tune: caut_E2                 net +150 (answers 460; tune net +50)
+    N1 minus: no write +165 [+128, +203] | single C +165 [+127, +204] | single E +45 [+29, +62] | the strong form +73 [+41, +105] | prompt only +28 [-10, +66] | the best prompt on tune +18 [-16, +53]
+
+## the five models together, each at its own layer and strength (per question the differences are summed; questions resampled)
+  budget 1: Llama-3.1-8B L16 3.5; Qwen3.5-9B L15 2; Qwen3.8-27B L28 1.75; Gemma-3-12B L24 2.5; Gemma-3-27B L28 1
+    on the 520 questions that all five models have (of 523 in any):
+    N1 minus no write                 +709 [+561, +852]
+    N1 minus single C                 +724 [+577, +867]
+    N1 minus single E                 +190 [+132, +250]
+    N1 minus the strong form          +132 [+62, +203]
+    N1 minus prompt only              +241 [+130, +351]
+    N1 minus the best prompt on tune  +171 [+68, +275]
+  budget 1.5: Llama-3.1-8B L16 4; Qwen3.5-9B L15 2.5; Qwen3.8-27B L28 2; Gemma-3-12B L24 2.5; Gemma-3-27B L28 1
+    on the 520 questions that all five models have (of 523 in any):
+    N1 minus no write                 +722 [+572, +871]
+    N1 minus single C                 +737 [+587, +886]
+    N1 minus single E                 +182 [+127, +241]
+    N1 minus the strong form          +123 [+55, +195]
+    N1 minus prompt only              +254 [+144, +365]
+    N1 minus the best prompt on tune  +184 [+83, +289]
+  budget 2: Llama-3.1-8B L16 4; Qwen3.5-9B L15 3; Qwen3.8-27B L28 2.5; Gemma-3-12B L24 3; Gemma-3-27B L26 1
+    on the 520 questions that all five models have (of 523 in any):
+    N1 minus no write                 +725 [+560, +884]
+    N1 minus single C                 +740 [+574, +900]
+    N1 minus single E                 +157 [+99, +216]
+    N1 minus the strong form          +109 [+41, +177]
+    N1 minus prompt only              +257 [+137, +377]
+    N1 minus the best prompt on tune  +187 [+72, +303]
