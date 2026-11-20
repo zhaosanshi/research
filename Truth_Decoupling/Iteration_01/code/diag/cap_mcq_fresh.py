@@ -4,6 +4,7 @@
 # Per model and arm: accuracy, change vs no write in points [95%, items resampled], picks changed; then the label of
 # novelty/ours/2026-11-19_capability_preservation_design.md section 6 for the accuracy part: "kept" only if the interval
 # excludes a drop of more than 1 point, "damage" if the interval lies below -1, otherwise "cannot exclude damage".
+# An arm on another prompt of the run (conf_E2:...) is also compared with that prompt alone when the file holds it.
 # usage: python3 -I Iteration_01/diag/cap_mcq_fresh.py SEEN_IDS_JSON FULL_JSON...
 import json
 import random
@@ -44,8 +45,15 @@ def main():
                 diff = [(a[i]["pick"] == a[i]["gold"]) - (base[i]["pick"] == base[i]["gold"]) for i in ids]
                 m_, lo, hi = ci(diff)
                 moved = sum(a[i]["pick"] != base[i]["pick"] for i in ids)
-                print("    %-16s %.3f (%+.2f [%+.2f, %+.2f]) | picks changed %5d (%.1f%%) | %s" % (
-                    arm.split(":", 1)[1], acc0 + m_, 100 * m_, 100 * lo, 100 * hi, moved, 100.0 * moved / len(ids), label(lo, hi)))
+                own = ""                                 # an arm on another prompt (e.g. conf_E2:E11.w.p0.5): also against that prompt alone
+                prompt = arm.split(":", 1)[0]
+                if ":" in arm and prompt != "x" and prompt in d["arms"]:
+                    b = {r["id"]: r for r in d["arms"][prompt]["rows"]}
+                    o_, olo, ohi = ci([(a[i]["pick"] == a[i]["gold"]) - (b[i]["pick"] == b[i]["gold"]) for i in ids])
+                    own = " | vs its prompt alone %+.2f [%+.2f, %+.2f]" % (100 * o_, 100 * olo, 100 * ohi)
+                print("    %-22s %.3f (%+.2f [%+.2f, %+.2f]) | picks changed %5d (%.1f%%) | %s%s" % (
+                    arm.split(":", 1)[1] if arm.startswith("x:") else arm, acc0 + m_, 100 * m_, 100 * lo, 100 * hi, moved,
+                    100.0 * moved / len(ids), label(lo, hi), own))
 
 
 if __name__ == "__main__":

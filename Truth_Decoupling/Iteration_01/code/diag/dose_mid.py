@@ -26,6 +26,7 @@ CAPS, LAD = MT.CAPS, ps.LAD
 BASE = ("1", "2")
 TAGS = (("dosemid", ("1-25", "1-5", "1-75")), ("dosehigh", ("2-5", "3")), ("dosehigh2", ("3-5", "4")))
 COMMON = ("1", "1-25", "1-5", "1-75", "2")
+MID, TAG = TAGS[0][1], TAGS[0][0]   # names kept for discussion/open_problems/2026-11-20_matched_e_reference.py
 MAIN = ("Llama-3.1-8B", "Qwen3.5-9B", "Qwen3.8-27B")
 
 
@@ -33,7 +34,7 @@ def show(s):
     return s.replace("-", ".")
 
 
-def new_work(D, i, tag):
+def new_work(D, i, tag=TAG):
     run = D.m["ec"][i].split("/eval_extra/")[0]
     split = ("tune", "test")[i]
     return "%s/eval_extra/judge_%s_%s_%s" % (run, split, tag, split)
@@ -62,7 +63,7 @@ def check_names(name):
             print("%s %s: %d conditions in %s; missing %s" % (name, ("tune", "test")[i], len(have), w.split("/")[-1], miss or "none"))
 
 
-def merged(name, i):
+def merged_all(name, i):
     """(old Data, Split over old + new verdicts, texts, strengths, cells present in two dirs, cells whose verdict differs)."""
     D = MT.Data(name, i)
     sp0 = D.sp
@@ -83,13 +84,19 @@ def merged(name, i):
     return D, sp, fr.Texts(tx, tx), doses, both, diff
 
 
+def merged(name, i):
+    """The five-value form of the first version (used by the review tool named above): without the strengths."""
+    D, sp, tx, _, both, diff = merged_all(name, i)
+    return D, sp, tx, both, diff
+
+
 def val(states):
     return [(x == "R") - (x == "W") for x in states]
 
 
 def one(name, tots, table):
-    Dt, tsp, ttx, tdoses, _, _ = merged(name, 0)
-    Dx, xsp, xtx, doses, both, diff = merged(name, 1)
+    Dt, tsp, ttx, tdoses, _, _ = merged_all(name, 0)
+    Dx, xsp, xtx, doses, both, diff = merged_all(name, 1)
     if tdoses != doses:
         raise SystemExit("%s: tune has strengths %s, test %s" % (name, tdoses, doses))
     print("\n## %s: test %d questions (old work dir %d), tune %d; cells judged in two work dirs %d, verdict differs in %d" % (

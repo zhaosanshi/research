@@ -1,0 +1,97 @@
+MMLU by option probability, full test split; change vs no write in points [95%]; label by the 1-point rule
+
+== llama3.1-8b, fresh items (not in the 1,000): 13042 items, no write 0.665
+    conf_E2                0.662 (-0.31 [-0.75, +0.16]) | picks changed  1139 (8.7%) | kept
+    conf_E2:E11.w.p0.25    0.653 (-1.15 [-1.67, -0.62]) | picks changed  1521 (11.7%) | cannot exclude damage | vs its prompt alone -0.84 [-1.13, -0.54]
+    conf_E2:E11.w.p0.5     0.645 (-2.00 [-2.58, -1.43]) | picks changed  1945 (14.9%) | damage | vs its prompt alone -1.69 [-2.12, -1.27]
+    conf_E2:E11.w.p0.75    0.632 (-3.26 [-3.90, -2.58]) | picks changed  2439 (18.7%) | damage | vs its prompt alone -2.95 [-3.46, -2.43]
+    conf_E2:E11.w.p1       0.617 (-4.80 [-5.50, -4.08]) | picks changed  2946 (22.6%) | damage | vs its prompt alone -4.49 [-5.08, -3.87]
+
+== llama3.1-8b, the 1,000: 1000 items, no write 0.638
+    conf_E2                0.639 (+0.10 [-1.20, +1.40]) | picks changed    86 (8.6%) | cannot exclude damage
+    conf_E2:E11.w.p0.25    0.639 (+0.10 [-1.60, +1.70]) | picks changed   117 (11.7%) | cannot exclude damage | vs its prompt alone +0.00 [-1.20, +1.10]
+    conf_E2:E11.w.p0.5     0.640 (+0.20 [-1.70, +2.00]) | picks changed   144 (14.4%) | cannot exclude damage | vs its prompt alone +0.10 [-1.60, +1.60]
+    conf_E2:E11.w.p0.75    0.627 (-1.10 [-3.30, +1.10]) | picks changed   192 (19.2%) | cannot exclude damage | vs its prompt alone -1.20 [-3.20, +0.70]
+    conf_E2:E11.w.p1       0.606 (-3.20 [-5.60, -0.80]) | picks changed   231 (23.1%) | cannot exclude damage | vs its prompt alone -3.30 [-5.50, -1.10]
+
+== llama3.1-8b, all: 14042 items, no write 0.663
+    conf_E2                0.660 (-0.28 [-0.71, +0.14]) | picks changed  1225 (8.7%) | kept
+    conf_E2:E11.w.p0.25    0.652 (-1.06 [-1.59, -0.57]) | picks changed  1638 (11.7%) | cannot exclude damage | vs its prompt alone -0.78 [-1.08, -0.50]
+    conf_E2:E11.w.p0.5     0.644 (-1.84 [-2.44, -1.29]) | picks changed  2089 (14.9%) | damage | vs its prompt alone -1.57 [-1.99, -1.15]
+    conf_E2:E11.w.p0.75    0.632 (-3.10 [-3.75, -2.50]) | picks changed  2631 (18.7%) | damage | vs its prompt alone -2.83 [-3.33, -2.32]
+    conf_E2:E11.w.p1       0.616 (-4.69 [-5.39, -4.02]) | picks changed  3177 (22.6%) | damage | vs its prompt alone -4.41 [-4.99, -3.82]
+
+== qwen3.5-9b, fresh items (not in the 1,000): 13042 items, no write 0.783
+    conf_E2                0.780 (-0.30 [-0.58, +0.01]) | picks changed   507 (3.9%) | kept
+    conf_E2:E15.w.p0.25    0.780 (-0.24 [-0.53, +0.07]) | picks changed   542 (4.2%) | kept | vs its prompt alone +0.06 [-0.07, +0.18]
+    conf_E2:E15.w.p0.5     0.779 (-0.40 [-0.71, -0.07]) | picks changed   606 (4.6%) | kept | vs its prompt alone -0.10 [-0.29, +0.08]
+    conf_E2:E15.w.p0.75    0.777 (-0.54 [-0.87, -0.18]) | picks changed   679 (5.2%) | kept | vs its prompt alone -0.24 [-0.47, -0.02]
+    conf_E2:E15.w.p1       0.775 (-0.74 [-1.09, -0.37]) | picks changed   768 (5.9%) | cannot exclude damage | vs its prompt alone -0.44 [-0.71, -0.17]
+    conf_E2:E15.w.p1.5     0.772 (-1.10 [-1.50, -0.68]) | picks changed   960 (7.4%) | cannot exclude damage | vs its prompt alone -0.80 [-1.13, -0.46]
+    conf_E2:E15.w.p2       0.764 (-1.90 [-2.35, -1.43]) | picks changed  1195 (9.2%) | damage | vs its prompt alone -1.60 [-2.01, -1.20]
+
+== qwen3.5-9b, the 1,000: 1000 items, no write 0.780
+    conf_E2                0.770 (-1.00 [-2.30, +0.20]) | picks changed    51 (5.1%) | cannot exclude damage
+    conf_E2:E15.w.p0.25    0.773 (-0.70 [-1.90, +0.50]) | picks changed    49 (4.9%) | cannot exclude damage | vs its prompt alone +0.30 [-0.10, +0.80]
+    conf_E2:E15.w.p0.5     0.770 (-1.00 [-2.30, +0.30]) | picks changed    54 (5.4%) | cannot exclude damage | vs its prompt alone +0.00 [-0.60, +0.60]
+    conf_E2:E15.w.p0.75    0.770 (-1.00 [-2.30, +0.30]) | picks changed    55 (5.5%) | cannot exclude damage | vs its prompt alone +0.00 [-0.70, +0.70]
+    conf_E2:E15.w.p1       0.774 (-0.60 [-1.90, +0.70]) | picks changed    57 (5.7%) | cannot exclude damage | vs its prompt alone +0.40 [-0.40, +1.20]
+    conf_E2:E15.w.p1.5     0.769 (-1.10 [-2.70, +0.40]) | picks changed    74 (7.4%) | cannot exclude damage | vs its prompt alone -0.10 [-1.30, +1.10]
+    conf_E2:E15.w.p2       0.764 (-1.60 [-3.40, +0.20]) | picks changed   101 (10.1%) | cannot exclude damage | vs its prompt alone -0.60 [-2.00, +0.90]
+
+== qwen3.5-9b, all: 14042 items, no write 0.783
+    conf_E2                0.779 (-0.35 [-0.65, -0.04]) | picks changed   558 (4.0%) | kept
+    conf_E2:E15.w.p0.25    0.780 (-0.27 [-0.57, +0.03]) | picks changed   591 (4.2%) | kept | vs its prompt alone +0.08 [-0.04, +0.20]
+    conf_E2:E15.w.p0.5     0.778 (-0.44 [-0.76, -0.11]) | picks changed   660 (4.7%) | kept | vs its prompt alone -0.09 [-0.28, +0.09]
+    conf_E2:E15.w.p0.75    0.777 (-0.57 [-0.90, -0.23]) | picks changed   734 (5.2%) | kept | vs its prompt alone -0.22 [-0.45, +0.00]
+    conf_E2:E15.w.p1       0.775 (-0.73 [-1.10, -0.36]) | picks changed   825 (5.9%) | cannot exclude damage | vs its prompt alone -0.38 [-0.65, -0.11]
+    conf_E2:E15.w.p1.5     0.772 (-1.10 [-1.49, -0.69]) | picks changed  1034 (7.4%) | cannot exclude damage | vs its prompt alone -0.75 [-1.08, -0.41]
+    conf_E2:E15.w.p2       0.764 (-1.88 [-2.31, -1.43]) | picks changed  1296 (9.2%) | damage | vs its prompt alone -1.53 [-1.92, -1.15]
+
+== qwen3.8-27b, fresh items (not in the 1,000): 13042 items, no write 0.837
+    conf_E2                0.838 (+0.08 [-0.21, +0.38]) | picks changed   492 (3.8%) | kept
+    conf_E2:E28.w.p0.25    0.835 (-0.18 [-0.50, +0.12]) | picks changed   533 (4.1%) | kept | vs its prompt alone -0.25 [-0.40, -0.11]
+    conf_E2:E28.w.p0.5     0.835 (-0.21 [-0.52, +0.12]) | picks changed   585 (4.5%) | kept | vs its prompt alone -0.28 [-0.49, -0.08]
+    conf_E2:E28.w.p0.75    0.833 (-0.38 [-0.72, -0.05]) | picks changed   645 (4.9%) | kept | vs its prompt alone -0.46 [-0.71, -0.21]
+    conf_E2:E28.w.p1       0.831 (-0.58 [-0.95, -0.22]) | picks changed   716 (5.5%) | kept | vs its prompt alone -0.66 [-0.94, -0.38]
+    conf_E2:E28.w.p1.5     0.825 (-1.26 [-1.65, -0.85]) | picks changed   895 (6.9%) | cannot exclude damage | vs its prompt alone -1.33 [-1.67, -0.99]
+    conf_E2:E28.w.p2       0.815 (-2.22 [-2.68, -1.76]) | picks changed  1137 (8.7%) | damage | vs its prompt alone -2.29 [-2.71, -1.89]
+
+== qwen3.8-27b, the 1,000: 1000 items, no write 0.820
+    conf_E2                0.830 (+1.00 [+0.00, +2.10]) | picks changed    38 (3.8%) | kept
+    conf_E2:E28.w.p0.25    0.825 (+0.50 [-0.60, +1.60]) | picks changed    43 (4.3%) | kept | vs its prompt alone -0.50 [-0.90, -0.10]
+    conf_E2:E28.w.p0.5     0.824 (+0.40 [-0.60, +1.50]) | picks changed    41 (4.1%) | kept | vs its prompt alone -0.60 [-1.10, -0.10]
+    conf_E2:E28.w.p0.75    0.822 (+0.20 [-0.90, +1.40]) | picks changed    47 (4.7%) | kept | vs its prompt alone -0.80 [-1.60, +0.00]
+    conf_E2:E28.w.p1       0.819 (-0.10 [-1.30, +1.20]) | picks changed    52 (5.2%) | cannot exclude damage | vs its prompt alone -1.10 [-2.00, -0.10]
+    conf_E2:E28.w.p1.5     0.813 (-0.70 [-2.20, +0.80]) | picks changed    71 (7.1%) | cannot exclude damage | vs its prompt alone -1.70 [-3.00, -0.30]
+    conf_E2:E28.w.p2       0.804 (-1.60 [-3.20, +0.10]) | picks changed    93 (9.3%) | cannot exclude damage | vs its prompt alone -2.60 [-4.10, -1.10]
+
+== qwen3.8-27b, all: 14042 items, no write 0.836
+    conf_E2                0.837 (+0.14 [-0.14, +0.43]) | picks changed   530 (3.8%) | kept
+    conf_E2:E28.w.p0.25    0.835 (-0.13 [-0.43, +0.16]) | picks changed   576 (4.1%) | kept | vs its prompt alone -0.27 [-0.42, -0.14]
+    conf_E2:E28.w.p0.5     0.834 (-0.16 [-0.46, +0.16]) | picks changed   626 (4.5%) | kept | vs its prompt alone -0.31 [-0.50, -0.11]
+    conf_E2:E28.w.p0.75    0.833 (-0.34 [-0.66, -0.01]) | picks changed   692 (4.9%) | kept | vs its prompt alone -0.48 [-0.72, -0.26]
+    conf_E2:E28.w.p1       0.830 (-0.55 [-0.88, -0.21]) | picks changed   768 (5.5%) | kept | vs its prompt alone -0.69 [-0.95, -0.41]
+    conf_E2:E28.w.p1.5     0.824 (-1.22 [-1.60, -0.84]) | picks changed   966 (6.9%) | cannot exclude damage | vs its prompt alone -1.36 [-1.69, -1.03]
+    conf_E2:E28.w.p2       0.814 (-2.17 [-2.63, -1.75]) | picks changed  1230 (8.8%) | damage | vs its prompt alone -2.31 [-2.71, -1.93]
+
+== gemma3-12b, fresh items (not in the 1,000): 13042 items, no write 0.715
+    conf_E2                0.713 (-0.14 [-0.57, +0.33]) | picks changed  1261 (9.7%) | kept
+    conf_E2:E22.w.p0.25    0.712 (-0.30 [-0.77, +0.18]) | picks changed  1404 (10.8%) | kept | vs its prompt alone -0.16 [-0.36, +0.05]
+    conf_E2:E22.w.p0.5     0.710 (-0.49 [-1.00, -0.01]) | picks changed  1553 (11.9%) | kept | vs its prompt alone -0.35 [-0.64, -0.06]
+    conf_E2:E22.w.p0.75    0.703 (-1.11 [-1.63, -0.58]) | picks changed  1779 (13.6%) | cannot exclude damage | vs its prompt alone -0.97 [-1.34, -0.61]
+    conf_E2:E22.w.p1       0.696 (-1.90 [-2.46, -1.33]) | picks changed  2029 (15.6%) | damage | vs its prompt alone -1.76 [-2.19, -1.34]
+
+== gemma3-12b, the 1,000: 1000 items, no write 0.711
+    conf_E2                0.711 (+0.00 [-1.70, +1.60]) | picks changed    99 (9.9%) | cannot exclude damage
+    conf_E2:E22.w.p0.25    0.707 (-0.40 [-2.10, +1.30]) | picks changed   108 (10.8%) | cannot exclude damage | vs its prompt alone -0.40 [-1.00, +0.20]
+    conf_E2:E22.w.p0.5     0.707 (-0.40 [-2.10, +1.40]) | picks changed   117 (11.7%) | cannot exclude damage | vs its prompt alone -0.40 [-1.30, +0.50]
+    conf_E2:E22.w.p0.75    0.702 (-0.90 [-2.80, +1.00]) | picks changed   138 (13.8%) | cannot exclude damage | vs its prompt alone -0.90 [-2.10, +0.30]
+    conf_E2:E22.w.p1       0.683 (-2.80 [-4.80, -0.70]) | picks changed   160 (16.0%) | cannot exclude damage | vs its prompt alone -2.80 [-4.40, -1.20]
+
+== gemma3-12b, all: 14042 items, no write 0.714
+    conf_E2                0.713 (-0.13 [-0.57, +0.31]) | picks changed  1360 (9.7%) | kept
+    conf_E2:E22.w.p0.25    0.711 (-0.31 [-0.77, +0.16]) | picks changed  1512 (10.8%) | kept | vs its prompt alone -0.18 [-0.37, +0.01]
+    conf_E2:E22.w.p0.5     0.709 (-0.48 [-0.98, +0.01]) | picks changed  1670 (11.9%) | kept | vs its prompt alone -0.36 [-0.63, -0.09]
+    conf_E2:E22.w.p0.75    0.703 (-1.10 [-1.60, -0.55]) | picks changed  1917 (13.7%) | cannot exclude damage | vs its prompt alone -0.97 [-1.32, -0.63]
+    conf_E2:E22.w.p1       0.695 (-1.97 [-2.53, -1.41]) | picks changed  2189 (15.6%) | damage | vs its prompt alone -1.84 [-2.24, -1.43]

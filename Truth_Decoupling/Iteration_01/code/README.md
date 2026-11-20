@@ -86,10 +86,14 @@
 | `scripts/capability/cap_mcq_sweep.py` | MMLU 选项概率测法下换写入方式的对照：力度、反向、同样大小的随机方向、均值差方向、学到的方向拆成两部分、只从提问末尾写；一次前向读出四个字母，与 `cap_mcq_prob.py` 的结果逐题相同 | 新写（赵磊 2026-11-20 要求找原因），未经 GPT 审；16 题试跑后运行；同日加改：写入可以叠在该次运行的其他提示词上（例如必须作答加如实句），不写入的提示词本身也可单列一臂（修改前为 001bf8d5725f5818） | ca1eab3469d4ab6c |
 | `diag/cap_mcq_flips.py` | 逐题看推 E 把 MMLU 的选项改成了什么（字母偏向、原选择对错、把握高低、否定选项、科目） | 新写，未经 GPT 审 | 62370da7eb44d5d7 |
 | `diag/dose_table.py` | TruthfulQA 测试集上 E 力度 1 与力度 2 的主要系统并排（只读已有回答与判分，调用 `main_table_same_n.py`） | 新写，未经 GPT 审；同日补入与提示词基线的比较（留空再问 B、必须作答加如实句不写入）及正文三个模型的合计（修改前为 829257ae39f6c876） | d1e33c892a41fc8f |
-| `diag/cap_mcq_fresh.py` | MMLU 全测试集的计分：没看过的 13,042 题、看过的 1,000 题、全部，各按 1 个百分点判据给标签 | 新写，未经 GPT 审 | fa36034a0e569c6e |
-| `diag/dose_mid.py` | TruthfulQA 测试集上各模型在自己有的每一档 E 力度（1、1.25、1.5、1.75、2，个别模型另有 2.5 至 4）下的只推 E 与 N1：对不写入、对只推 E、对纯提示词（必须作答加如实句、不写入）；每档的两个上限都在调参集上选；末尾按调参集给每个模型选一个力度（只读已有回答与判分） | 新写（赵磊 2026-11-20：分模型列出、中间力度也试、各模型可用各自力度），未经 GPT 审 | bdec110dc0d82678 |
+| `diag/cap_mcq_fresh.py` | MMLU 全测试集的计分：没看过的 13,042 题、看过的 1,000 题、全部，各按 1 个百分点判据给标签 | 新写，未经 GPT 审；2026-11-20 晚加改：只有提示词、不写入的一臂也能列出；写在别的提示词上的臂另报对该提示词本身的变化（修改前为 fa36034a0e569c6e） | 72ae112cd10bece0 |
+| `diag/dose_mid.py` | TruthfulQA 测试集上各模型在自己有的每一档 E 力度（1、1.25、1.5、1.75、2，个别模型另有 2.5 至 4）下的只推 E 与 N1：对不写入、对只推 E、对纯提示词（必须作答加如实句、不写入）；每档的两个上限都在调参集上选；末尾按调参集给每个模型选一个力度（只读已有回答与判分） | 新写（赵磊 2026-11-20：分模型列出、中间力度也试、各模型可用各自力度），未经 GPT 审；当晚加改：保留给 GPT 复算工具用的旧函数名（修改前为 bdec110dc0d82678） | 4dfd2f712f376a0d |
 | `diag/on_prompt_table.py` | 把 E 写在“必须作答加如实句”这条提示词之上，对比该提示词本身（TruthfulQA，DeepSeek Pro，分模型与五模型合计；只读已有回答与判分） | 新写，未经 GPT 审 | 4d1367ce018287a6 |
-| `launchers/explore_20261120/` | 2026-11-20 探索用的服务器启动脚本原样存档（15 个）：新题验证 `val_all.sh`；MMLU 找原因与全量确认 `sweep_all.sh`、`sweep_g27.sh`、`full_all.sh`；中间力度 `dose_mid_all.sh`、`dose_mid_judge.sh`；提示词之上再写 E `idea_a.sh`、`idea_a2.sh`；高力度 `q9_high.sh`；补判 `extra_judge.sh`、`extra_judge2.sh`；下午两条队列 `pm_all.sh`、`pm_judge.sh`、`pm2_all.sh`、`pm2_judge.sh` | 均未经 GPT 审（探索阶段先跑，成批送审）；生成、导出、判分调用的都是已审程序，这些脚本只改臂、切分与名称 | 见各文件 |
+| `diag/md_table.py` | 学出的 E 方向对均值差方向（同一层；同写入量与均值差自身的量两种），TruthfulQA 测试集，力度 1 与 2，分模型与五模型合计（只读已有回答与判分） | 新写，未经 GPT 审 | 9b706dc5ffe7d320 |
+| `diag/md_choose.py` | 给均值差基线在调参集上选它自己最好的层与系数（读 `md_sweep.sh` 的调参集判分，写出选择记录） | 新写，未经 GPT 审 | 43b30cacd011e8b1 |
+| `diag/strong_mid.py` | N1 在每一档力度下，对同一力度的三个对照：必须作答加 E 按把握留同样多条（强对照）、留空再问 B、必须作答加 E 全答；力度 1、2 用旧文件（须与 `dose_table.py` 一致），其余力度用 `pm2_all.sh` 的回答与置信度文件 | 新写，未经 GPT 审；Qwen3.8-27B 力度 2 复现 +38 | af569511e312a3b1 |
+| `scripts/review_checks/e44_positions.py` | 只在评测时换写入位置的入口：把训练时“从题目第一个词写到结尾”的方向，改成只从提问的最后一个词元起写（题目的词不动）；原程序文件不动，三处内存内改动；只允许单写入的生成与导出 | 新写（探索：MMLU 掉分来自题目词上的写入），未经 GPT 审；Llama 8 题试跑后运行 | 1a8ae7861c1c103e |
+| `launchers/explore_20261120/` | 2026-11-20 探索用的服务器启动脚本原样存档（19 个；晚间新增 Gemma-3 重跑 `pm3_gemma.sh`、只在作答位置写入 `pos_all.sh` 与 `pos_judge.sh`、均值差选层 `md_sweep.sh`）：新题验证 `val_all.sh`；MMLU 找原因与全量确认 `sweep_all.sh`、`sweep_g27.sh`、`full_all.sh`；中间力度 `dose_mid_all.sh`、`dose_mid_judge.sh`；提示词之上再写 E `idea_a.sh`、`idea_a2.sh`；高力度 `q9_high.sh`；补判 `extra_judge.sh`、`extra_judge2.sh`；下午两条队列 `pm_all.sh`、`pm_judge.sh`、`pm2_all.sh`、`pm2_judge.sh` | 均未经 GPT 审（探索阶段先跑，成批送审）；生成、导出、判分调用的都是已审程序，这些脚本只改臂、切分与名称 | 见各文件 |
 
 ## 变更记录
 
@@ -131,3 +135,4 @@
 | 2026-11-20 | MMLU 找原因：迁入 `cap_mcq_sweep.py`、`diag/cap_mcq_flips.py`、`diag/dose_table.py`、`diag/cap_mcq_fresh.py`；结果在 `results/capability/dose/` 与 `results/capability/mmlu/` | 赵磊（Fable 5.2 代笔） |
 | 2026-11-20 | `diag/dose_table.py` 补入提示词基线；总表换成 Fable 5.2 重做的版本 | 赵磊（Fable 5.2 代笔） |
 | 2026-11-20 | 中间力度与分模型力度：迁入 `diag/dose_mid.py`、`diag/on_prompt_table.py`；`cap_mcq_sweep.py` 可叠在其他提示词上；当天的服务器启动脚本存档到 `launchers/explore_20261120/`；结果表放进 `results/capability/dose/` 与 `results/capability/mmlu/` | 赵磊（Fable 5.2 代笔） |
+| 2026-11-20 | 晚间：迁入 `diag/md_table.py`、`diag/md_choose.py`、`diag/strong_mid.py`、`scripts/review_checks/e44_positions.py`；`cap_mcq_fresh.py`、`dose_mid.py` 小改；高力度、调参集、MMLU 全量与均值差对照的结果表放进 `results/capability/` | 赵磊（Fable 5.2 代笔） |

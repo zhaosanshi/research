@@ -1,0 +1,46 @@
+
+## Llama-3.1-8B, tune: prompt only (must-answer + the honest sentence): net +12, answers 192 of 192
+    baseline_conf_E2             net  +12 | right  98 wrong  86 | blank   0 | minus prompt only +0 [+0, +0] | 192 questions
+    E_L11_conf_E2-w-p0-25        net  +23 | right 102 wrong  79 | blank   0 | minus prompt only +11 [-3, +26] | 192 questions
+    E_L11_conf_E2-w-p0-5         net  +41 | right 112 wrong  71 | blank   1 | minus prompt only +29 [+9, +50] | 192 questions
+    E_L11_conf_E2-w-p0-75        net  +49 | right 117 wrong  68 | blank   2 | minus prompt only +37 [+15, +59] | 192 questions
+    E_L11_conf_E2-w-p1           net  +50 | right 117 wrong  67 | blank   1 | minus prompt only +38 [+13, +63] | 192 questions
+
+## Qwen3.5-9B, tune: prompt only (must-answer + the honest sentence): net +58, answers 190 of 192
+    baseline_conf_E2             net  +58 | right 122 wrong  64 | blank   2 | minus prompt only +0 [+0, +0] | 192 questions
+    E_L15_conf_E2-w-p0-25        net  +69 | right 127 wrong  58 | blank   2 | minus prompt only +11 [+3, +20] | 192 questions
+    E_L15_conf_E2-w-p0-5         net  +74 | right 130 wrong  56 | blank   3 | minus prompt only +16 [+3, +30] | 192 questions
+    E_L15_conf_E2-w-p0-75        net  +77 | right 131 wrong  54 | blank   3 | minus prompt only +19 [+3, +35] | 192 questions
+    E_L15_conf_E2-w-p1           net  +84 | right 134 wrong  50 | blank   3 | minus prompt only +26 [+8, +44] | 192 questions
+    E_L15_conf_E2-w-p1-5         net  +86 | right 134 wrong  48 | blank   3 | minus prompt only +28 [+8, +48] | 192 questions
+    E_L15_conf_E2-w-p2           net  +81 | right 131 wrong  50 | blank   3 | minus prompt only +23 [+3, +42] | 192 questions
+
+## Qwen3.8-27B, tune: prompt only (must-answer + the honest sentence): net +69, answers 192 of 192
+    baseline_conf_E2             net  +69 | right 126 wrong  57 | blank   0 | minus prompt only +0 [+0, +0] | 192 questions
+    E_L28_conf_E2-w-p0-25        net  +77 | right 130 wrong  53 | blank   0 | minus prompt only +8 [-6, +22] | 192 questions
+    E_L28_conf_E2-w-p0-5         net  +78 | right 130 wrong  52 | blank   0 | minus prompt only +9 [-7, +25] | 192 questions
+    E_L28_conf_E2-w-p0-75        net  +87 | right 134 wrong  47 | blank   0 | minus prompt only +18 [+0, +37] | 192 questions
+    E_L28_conf_E2-w-p1           net  +81 | right 131 wrong  50 | blank   0 | minus prompt only +12 [-7, +32] | 192 questions
+    E_L28_conf_E2-w-p1-5         net  +80 | right 132 wrong  52 | blank   1 | minus prompt only +11 [-10, +33] | 192 questions
+    E_L28_conf_E2-w-p2           net  +79 | right 132 wrong  53 | blank   0 | minus prompt only +10 [-12, +33] | 192 questions
+
+## Gemma-3-12B, tune: prompt only (must-answer + the honest sentence): net +17, answers 192 of 192
+    baseline_conf_E2             net  +20 | right 101 wrong  81 | blank   0 | minus prompt only +3 [-2, +9] | 192 questions
+    E_L22_conf_E2-w-p0-25        net  +36 | right 110 wrong  74 | blank   0 | minus prompt only +19 [+4, +35] | 192 questions
+    E_L22_conf_E2-w-p0-5         net  +54 | right 119 wrong  65 | blank   0 | minus prompt only +37 [+17, +58] | 192 questions
+    E_L22_conf_E2-w-p0-75        net  +61 | right 123 wrong  62 | blank   0 | minus prompt only +44 [+23, +66] | 192 questions
+    E_L22_conf_E2-w-p1           net  +69 | right 127 wrong  58 | blank   0 | minus prompt only +52 [+29, +75] | 192 questions
+
+## Gemma-3-27B, tune: prompt only (must-answer + the honest sentence): net +44, answers 192 of 192
+    baseline_conf_E2             net  +47 | right 112 wrong  65 | blank   0 | minus prompt only +3 [-4, +10] | 192 questions
+    E_L26_conf_E2-w-p0-25        net  +61 | right 120 wrong  59 | blank   2 | minus prompt only +17 [-1, +36] | 192 questions
+    E_L26_conf_E2-w-p0-5         net  +53 | right 117 wrong  64 | blank   2 | minus prompt only +9 [-13, +30] | 192 questions
+    E_L26_conf_E2-w-p0-75        net  +55 | right 118 wrong  63 | blank   0 | minus prompt only +11 [-12, +34] | 192 questions
+    E_L26_conf_E2-w-p1           net  +65 | right 125 wrong  60 | blank   0 | minus prompt only +21 [-4, +45] | 192 questions
+
+## all five models together where every model has the strength (per question summed; questions resampled)
+  strength baseline_conf_E2 minus prompt only +6 [-3, +15] (192 questions)
+  strength 0.25   minus prompt only +66 [+31, +102] (192 questions)
+  strength 0.5    minus prompt only +100 [+53, +150] (192 questions)
+  strength 0.75   minus prompt only +129 [+75, +184] (192 questions)
+  strength 1      minus prompt only +149 [+90, +209] (192 questions)
