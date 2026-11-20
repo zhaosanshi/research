@@ -9,6 +9,8 @@
 # The strong form at the same strength (must-answer + E at layer 16, its N most confident answers, N = N1's answers)
 # is printed when launchers/explore_20261120/l16_strong.sh has produced it (work dir judge_test_dmustl16_test and
 # eval_extra/confidence_pml16_test.json); the files are read by strong_mid.must_dir, as for layer 11.
+# The mean-difference direction at layer 16 with the same write amount (launcher l16_mdg.sh, work dir
+# judge_test_l16mdg_test) is compared with the learned direction when its verdicts exist.
 # usage (host, from /data/sanshizhao/Truth_Decoupling): python3 -B Iteration_01/diag/l16_table.py
 import json
 import os
@@ -133,6 +135,21 @@ def main():
             DM.show(s), sum(map(val, e[0])), sum(e[1]), sum(map(val, n1[0])), sum(n1[1]), mm_text(acc, s, dev, rep, fresh)))
         print("         N1 minus: no write %s | single C %s | single E %s | prompt only %s | single E minus no write %s" % (
             d(base[0]), d(cs), d(e[0]), d(da_s), ps.ci([val(a) - val(b) for a, b in zip(e[0], base[0])])))
+    wm = run + "/eval_extra/judge_test_l16mdg_test"
+    if os.path.exists(wm + "/judge2/single_pro.jsonl"):
+        st1, bl1 = ps.load(wm, "pro")
+        print("## the mean-difference direction at layer %d with the same write amount (kind mdg), single write (launcher l16_mdg.sh)" % LAYER)
+        for s in DOSES:
+            c = "E_L%d_x-mdg-p%s" % (LAYER, s)
+            if any((q, c) not in st1 for q in qs):
+                continue
+            keep = [i for i, q in enumerate(qs) if st1[(q, c)] != "?"]
+            md = [st1[(qs[i], c)] for i in keep]
+            e, n1 = S.system(xsp, xtx, ("E", s)), S.system(xsp, xtx, picks[s])
+            dd = lambda a, b: ps.ci([val(x) - val(y) for x, y in zip(a, b)])
+            print("  E %-4s mean difference: net %+4d (answers %3d, %d questions) | learned single E minus it %s | N1 minus it %s | it minus no write %s" % (
+                DM.show(s), sum(map(val, md)), sum(not bl1[(qs[i], c)] for i in keep), len(keep),
+                dd([e[0][i] for i in keep], md), dd([n1[0][i] for i in keep], md), dd(md, [base[0][i] for i in keep])))
     print("## for reference, layer %d (diag/dose_mid.py, same questions where both exist)" % Dx.m["e"])
     D11, sp11, tx11, doses11, _, _ = DM.merged_all(MODEL, 1)
     _, tsp11, ttx11, _, _, _ = DM.merged_all(MODEL, 0)
