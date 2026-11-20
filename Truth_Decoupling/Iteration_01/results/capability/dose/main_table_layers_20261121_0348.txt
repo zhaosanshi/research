@@ -7,22 +7,25 @@
     single C (strength 0.25, chosen on tune)     answers 475 | right 184 wrong 273 | net  -89
     single E                                     answers 313 | right 179 wrong 128 | net  +51
     N1                                           answers 452 | right 266 wrong 175 | net  +91
+    strong form: must-answer + E, top 452        answers 452 | right 241 wrong 197 | net  +44
     prompt only (must-answer + sentence)         net   +0
-    N1 minus: no write +177 [+120, +235] | single C +180 [+123, +238] | single E +40 [+18, +63] | prompt only +91 [+38, +146]
+    N1 minus: no write +177 [+120, +235] | single C +180 [+123, +238] | single E +40 [+18, +63] | the strong form +47 [+11, +84] | prompt only +91 [+38, +146]
   budget 1.5 -> layer 16, E strength 4 (N1 tune score +28; N1 on tune: N1: E 4, own blanks up to 2, E's blanks up to 0.25) | MMLU on the report half -1.54 [-2.34, -0.75] | per layer: layer 11 -> 1 (tune +16); layer 16 -> 4 (tune +28) | best tune score within the budget would be layer 16, 2.5 (+29)
     no write                                     answers 467 | right 181 wrong 267 | net  -86
     single C (strength 0.25, chosen on tune)     answers 475 | right 184 wrong 273 | net  -89
     single E                                     answers 308 | right 178 wrong 124 | net  +54
     N1                                           answers 405 | right 236 wrong 158 | net  +78
+    strong form: must-answer + E, top 405        answers 405 | right 232 wrong 163 | net  +69
     prompt only (must-answer + sentence)         net   +0
-    N1 minus: no write +164 [+108, +220] | single C +167 [+111, +223] | single E +24 [+6, +43] | prompt only +78 [+25, +134]
+    N1 minus: no write +164 [+108, +220] | single C +167 [+111, +223] | single E +24 [+6, +43] | the strong form +9 [-29, +46] | prompt only +78 [+25, +134]
   budget 2 -> layer 16, E strength 4 (N1 tune score +28; N1 on tune: N1: E 4, own blanks up to 2, E's blanks up to 0.25) | MMLU on the report half -1.54 [-2.34, -0.75] | per layer: layer 11 -> 1 (tune +16); layer 16 -> 4 (tune +28) | best tune score within the budget would be layer 16, 2.5 (+29)
     no write                                     answers 467 | right 181 wrong 267 | net  -86
     single C (strength 0.25, chosen on tune)     answers 475 | right 184 wrong 273 | net  -89
     single E                                     answers 308 | right 178 wrong 124 | net  +54
     N1                                           answers 405 | right 236 wrong 158 | net  +78
+    strong form: must-answer + E, top 405        answers 405 | right 232 wrong 163 | net  +69
     prompt only (must-answer + sentence)         net   +0
-    N1 minus: no write +164 [+108, +220] | single C +167 [+111, +223] | single E +24 [+6, +43] | prompt only +78 [+25, +134]
+    N1 minus: no write +164 [+108, +220] | single C +167 [+111, +223] | single E +24 [+6, +43] | the strong form +9 [-29, +46] | prompt only +78 [+25, +134]
 
 ## Qwen3.5-9B: candidates (layer, strength: MMLU change on the selection half, N1 tune score)
     layer 15: 1: -0.26, +54 | 1.25: -0.43, +59 | 1.5: -0.56, +60 | 1.75: -0.70, +61 | 2: -0.90, +65 | 2.5: -1.35, +65 | 3: -1.99, +69 | 3.5: -3.06, +73 | 4: -4.02, +74
@@ -137,17 +140,17 @@
     N1 minus no write         +665 [+537, +795]
     N1 minus single C         +680 [+549, +811]
     N1 minus single E         +151 [+102, +204]
+    N1 minus the strong form  +160 [+89, +231]
     N1 minus prompt only      +194 [+88, +298]
-    N1 minus the strong form  only 4 of 5 models have it
   budget 1.5: Llama-3.1-8B L16 4; Qwen3.5-9B L15 2.5; Qwen3.8-27B L28 2; Gemma-3-12B L22 1.25; Gemma-3-27B L26 0.75
     N1 minus no write         +680 [+551, +810]
     N1 minus single C         +695 [+563, +826]
     N1 minus single E         +143 [+97, +192]
+    N1 minus the strong form  +153 [+83, +221]
     N1 minus prompt only      +209 [+105, +312]
-    N1 minus the strong form  only 4 of 5 models have it
   budget 2: Llama-3.1-8B L16 4; Qwen3.5-9B L15 3; Qwen3.8-27B L28 2.5; Gemma-3-12B L22 1.5; Gemma-3-27B L26 1
     N1 minus no write         +710 [+566, +855]
     N1 minus single C         +725 [+580, +870]
     N1 minus single E         +143 [+94, +196]
+    N1 minus the strong form  +142 [+69, +214]
     N1 minus prompt only      +239 [+129, +350]
-    N1 minus the strong form  only 4 of 5 models have it
