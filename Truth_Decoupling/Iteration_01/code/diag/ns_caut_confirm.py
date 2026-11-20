@@ -40,6 +40,8 @@ def choose(task, name, m):
         rows = [(a, P.net(t[0]) + P.net(x[0])) for a, t, x in rows if t and x]
         n[fam] = (len(rows), len(arms))
         out[fam] = max(rows, key=lambda r: (r[1], -rows.index(r))) if len(rows) == len(arms) or (fam == "single E" and rows) else None
+    if T.get("x") is None or X.get("x") is None:
+        raise SystemExit("no no-write pass on tune or test")
     base = P.net(T.get("x")[0]) + P.net(X.get("x")[0])
     return out, n, base
 

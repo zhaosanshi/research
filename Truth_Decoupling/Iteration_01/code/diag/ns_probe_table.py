@@ -57,8 +57,9 @@ class Passes:
                 g = json.load(h)
             k = g.get("contract") or {}
             if not (g.get("completed") and k.get("full_pass") and k.get("split") == self.split and k.get("model") == self.model
+                    and k.get("arm") == arm and k.get("gen_version") == S.GEN_VERSION
                     and k.get("items_file_sha256") == self.sha and [r["id"] for r in g["rows"]] == self.ids):
-                raise SystemExit("%s is not a complete %s pass of %s" % (f, self.split, self.model))
+                raise SystemExit("%s is not a complete %s pass of %s for arm %s" % (f, self.split, self.model, arm))
             st, ans, tx = [], [], []
             for r in g["rows"]:
                 blank = bool(r["rule_abstain"]) or not r["text"].strip()
@@ -89,22 +90,25 @@ def diff(a, b):
 
 
 def conf_top(task, name, split, X, n):
-    """The must-answer pass with only its n most confident answers kept (mean log-probability of the answer tokens,
-    files of newsets_gen.py conf, bound to the generation by newsets_score.conf_rows); None if it cannot be built."""
+    """(states, None) for the must-answer pass with only its n most confident answers kept (mean log-probability of the
+    answer tokens, files of newsets_gen.py conf, bound to the generation by newsets_score.conf_rows), or (None, why).
+    newsets_score.gen_file / conf_rows read the first question bank, so the second test batch has no such filter here."""
+    if split == "test2":
+        return None, "not built for test2 (the confidence files are bound to the first question bank)"
+    cf = X.get("conf")
+    if cf is None:
+        return None, "no must-answer pass"
     try:
         g, _ = S.gen_file(task, name, split, "conf")
         rows = S.conf_rows(task, name, split, "conf", {"%s:%s" % (task, r["id"]): r["text"] for r in g["rows"]})
-    except (SystemExit, OSError):
-        return None
-    cf = X.get("conf")
-    if cf is None:
-        return None
+    except (SystemExit, OSError) as e:
+        return None, "no usable confidence file (%s)" % str(e)[:80]
     ids = ["%s:%s" % (task, i) for i in X.ids]
     cand = [i for i in range(len(ids)) if cf[1][i] and rows[ids[i]].get("mean_logp") is not None]
     if len(cand) < n:
-        return None
+        return None, "only %d answers carry a confidence, %d needed" % (len(cand), n)
     kept = set(sorted(cand, key=lambda i: (-rows[ids[i]]["mean_logp"], i))[:n])
-    return [cf[0][i] if i in kept else "X" for i in range(len(ids))]
+    return [cf[0][i] if i in kept else "X" for i in range(len(ids))], None
 
 
 def families(m):
@@ -171,8 +175,10 @@ def main():
                         print("        %-28s minus the E probe: %s" % (fam, diff(got[fam][2], got["E"][2])))
                         tot.setdefault("%s minus the E probe" % fam, []).append(dict(zip(X.ids, [((a == "R") - (a == "W")) - ((b == "R") - (b == "W")) for a, b in zip(got[fam][2], got["E"][2])])))
                 n = sum(v != "X" for v in got["E"][2])
-                top = conf_top(task, name, second, X, n)
-                if top is not None:
+                top, why = conf_top(task, name, second, X, n)
+                if top is None:
+                    print("        confidence filter: %s" % why)
+                else:
                     print("        confidence filter (must-answer prompt, its %d most confident answers) %s | the E probe minus it: %s" % (
                         n, cnt(top), diff(got["E"][2], top)))
                     tot.setdefault("E probe minus the confidence filter, same answer count", []).append(

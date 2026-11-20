@@ -126,9 +126,12 @@ def main():
                 tot.setdefault("stable filter minus " + lab, []).append(dict(zip(xsp.qs, [a - b for a, b in zip(S.vals(st_x), S.vals(v))])))
             tot.setdefault("filter without C minus no write", []).append(dict(zip(xsp.qs, [a - b for a, b in zip(S.vals(st0_x), S.vals(base))])))
             tot.setdefault("filter without C minus single E at its own best", []).append(dict(zip(xsp.qs, [a - b for a, b in zip(S.vals(st0_x), S.vals(e_x))])))
-        if tot and all(len(v) == len(S.ORDER) for v in tot.values()):
+        if tot:
             print("\n## %s, five models together (per question the differences are summed; questions resampled)" % task)
             for key, per in tot.items():
+                if len(per) != len(S.ORDER):
+                    print("    %-52s only %d of %d models have it" % (key, len(per), len(S.ORDER)))
+                    continue
                 common = sorted(set.intersection(*[set(p) for p in per]))
                 print("    %-52s %s (%d questions)" % (key, S.ps.ci([sum(p[q] for p in per) for q in common]), len(common)))
 
