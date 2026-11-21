@@ -16,6 +16,8 @@
 #            is printed and, with --write-choice FILE, saved.
 #   --choice FILE   read the settings chosen on tune and report them on the questions that are NOT in the tune split
 #            (give the tune id file as --skip-ids): N1 against single E at its own chosen strength, and the rest.
+#            With --list-arms: only print, per model, the write arms those settings need on this bank that have no
+#            generation file yet ("MODEL ARM ARM ..."; no verdict is read), for launchers/.../qaqa_tuned_chain.sh.
 # --work takes a comma list of judge work dirs under newsets/judge/<task>/<model>/ (their verdicts are merged).
 # --skip-ids FILE leaves out the questions of an id file.
 # Runs in the scoring container (the verdict files record container paths):
@@ -67,6 +69,8 @@ class Raw:
         self.rows, self.cond, self.val = {}, {}, {}
         for work_name in works:
             work = Path(S.NS) / "judge" / task / model / work_name
+            if not (work / "judge2" / "single_pro.jsonl").is_file():
+                continue                 # not judged (yet), or a model without extra arms
             # require_complete=False: an empty output has no vote; every other cell must be scored (checked here)
             _, cells, votes = load_verified_single(str(work), "pro", generation_path=str(work / "judge_input.json"), require_complete=False)
             for key, c in cells.items():
@@ -129,7 +133,8 @@ class Raw:
     def n1_system(self, s, cap_e, cap_own):
         """N1 at E strength s with the two caps (None = that kind of blank is not re-asked)."""
         e = self.e(s)
-        for a in [e, "x"] + [self.ec(s, k) for k in LAD]:
+        tops = [LAD.index(c) for c in (cap_e, cap_own) if c is not None]
+        for a in [e, "x"] + [self.ec(s, k) for k in LAD[:max(tops) + 1 if tops else 0]]:
             self.need(a)
         v, a, events = {}, {}, {}
         for q in self.ids:
@@ -228,10 +233,12 @@ def main():
     argv = sys.argv[1:]
     opt = {"--task": "qaqa", "--bank": "Iteration_01/newsets/bank/qaqa_pilot_bank_20261122.jsonl", "--work": "test_pilot100",
            "--skip-ids": None, "--write-choice": None, "--choice": None}
-    mode_tune = False
-    while argv[:1] and (argv[0] in opt or argv[0] == "--tune"):
+    mode_tune = list_arms = False
+    while argv[:1] and (argv[0] in opt or argv[0] in ("--tune", "--list-arms")):
         if argv[0] == "--tune":
             mode_tune, argv = True, argv[1:]
+        elif argv[0] == "--list-arms":
+            list_arms, argv = True, argv[1:]
         else:
             opt[argv[0]], argv = argv[1], argv[2:]
     if not argv:
@@ -244,6 +251,20 @@ def main():
     if opt["--choice"]:
         with open(opt["--choice"], encoding="utf-8") as f:
             chosen = json.load(f)
+    if list_arms:
+        if not chosen:
+            raise SystemExit("--list-arms needs --choice")
+        for model in argv:
+            ch = chosen[model]
+            el, cl = SET[model][0], SET[model][2]
+            e = lambda s: "x:E%d.w.p%s" % (el, s)  # noqa: E731
+            arms = [e(ch["single_E"]), "x:C%d.w.m%s" % (cl, ch["single_C"]), e(ch["n1_strength"])]
+            top = max([LAD.index(c) for c in (ch["n1_cap_e"], ch["n1_cap_own"]) if c is not None], default=-1)
+            arms += ["%s+C%d.w.m%s" % (e(ch["n1_strength"]), cl, k) for k in LAD[:top + 1]]
+            gdir = Path(S.NS) / "gen_prompt" / opt["--task"] / model / "test"
+            miss = [a for a in dict.fromkeys(arms) if not (gdir / (G.arm_token(a) + ".json")).is_file()]
+            print(model, " ".join(miss))
+        return
     title = "pilot" if opt["--task"] == "qaqa" else "full run"
     done, choices = {}, {}
     for model in argv:
