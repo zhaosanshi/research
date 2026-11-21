@@ -109,6 +109,7 @@
 | `scripts/newsets/ns_positions.py` | 探索：让 `newsets_gen.py` 把 E 写在另一种位置（核心里已有的 prompt = 只写题目与助手开头、生成的词都不写；gen = 从最后一个提示词元起写）。`newsets_gen.py` 原样运行，内存里三处改动（引擎的写入位置、`plan_arm` 的位置检查、输出文件名加“-at-位置”）；只许单个写入 | 新写，未经 GPT 审；Llama 两批 GSM8K 试跑核对过：文件里记的位置是 prompt、回答与不写入不同 | 8b82a87d9a2f46af |
 | `scripts/review_checks/e44_positions2.py` | 探索：`e44_positions.py`（不改，导入）放开到两个写入的臂，用于在“只写题目位置”下生成 N1 的再问各臂；两个写入的验收记录另存为 `selfcheck_*-at-<位置>.json`，不覆盖训练时位置的记录 | 新写，未经 GPT 审 | bb09350373df2922 |
 | `diag/posp_table.py` | 探索：TruthfulQA 上只写题目位置的只推 E 对原写法（同层），力度在调参集上选（规则先写在 `posp.sh` 文件头） | 新写，未经 GPT 审 | f52aa727938ee80f |
+| `diag/posp_n1_table.py` | 探索：TruthfulQA 上 N1 的两个写入都只写题目位置，对原写法的 N1（同层同力度 = 主表预算 1 点的设置）；两种写法各自在调参集上选上限；原写法这一行必须等于主表 | 新写，未经 GPT 审 | 3deb82365ce9fbea |
 | `diag/prompt_conf_table.py` | 主表缺的一个对照：纯提示词再按模型自己的把握挑题（什么都不写入）。P1 = 必须作答 + 如实句的提示留下与 N1 同样多的最有把握的回答；P2 = 提示与门槛都在调参集上选。N1 的逐题记录直接取自主表程序。规则先写在文件头再看数 | 新写，未经 GPT 审；挑题的几个函数用假题测过 | 2bb6bf53f7b11b45 |
 | `diag/ns_stable_table.py` | 探索：TriviaQA / PopQA 上把两次写入当作对模型原回答的“稳定性检查”（N1 规则的镜像：只保留推 E 后不变、或加 C 后原样回来的原回答）；E 力度与上限在调参集上选，读测试集 | 新写，未经 GPT 审 | 670cffc7359055bb |
 | `diag/ns_probe_table.py` | 探索：把任意一遍写入（E、C 往谨慎、C 往作答、两个一起写）或换问法当作“探针”，只保留探针下不变的原回答；各族在调参集上选成员，读测试集；含“换成必须作答问法”的对照 | 新写，未经 GPT 审 | c85c558756ec40ea |
