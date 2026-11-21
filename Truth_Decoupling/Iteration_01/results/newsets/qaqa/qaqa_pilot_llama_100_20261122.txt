@@ -1,0 +1,39 @@
+# (QA)^2 pilot, llama3.1-8b, 100 questions, write rule prompt, E16 at 3.5, caps E's 1 / own 2, single C 0.25 (all from TruthfulQA); DeepSeek Pro
+
+## all (100 questions)
+    no write     net   -8 | answers  87 | right  40 | wrong  48
+    prompt only  net  -13 | answers 100 | right  42 | wrong  55
+    single C     net   -7 | answers  87 | right  40 | wrong  47
+    single E     net  +13 | answers  57 | right  35 | wrong  22
+    N1           net   +4 | answers  95 | right  48 | wrong  44
+    N1 minus single E -9 [-21, +3] | N1 minus no write +12 [-6, +30] | N1 minus single C +11 [-7, +29] | N1 minus prompt only +17 [-2, +36] | single E minus no write +21 [+5, +37]
+
+## valid assumption (50 questions)
+    no write     net  +14 | answers  47 | right  31 | wrong  17
+    prompt only  net   +7 | answers  50 | right  28 | wrong  21
+    single C     net  +14 | answers  47 | right  31 | wrong  17
+    single E     net  +12 | answers  32 | right  22 | wrong  10
+    N1           net   +2 | answers  49 | right  25 | wrong  23
+    N1 minus single E -10 [-18, -3] | N1 minus no write -12 [-23, -2] | N1 minus single C -12 [-23, -2] | N1 minus prompt only -5 [-18, +8] | single E minus no write -2 [-14, +10]
+
+## false assumption (40 questions)
+    no write     net  -14 | answers  32 | right   9 | wrong  23
+    prompt only  net  -13 | answers  40 | right  13 | wrong  26
+    single C     net  -13 | answers  32 | right   9 | wrong  22
+    single E     net   +3 | answers  21 | right  12 | wrong   9
+    N1           net   +4 | answers  37 | right  20 | wrong  16
+    N1 minus single E +1 [-7, +9] | N1 minus no write +18 [+6, +30] | N1 minus single C +17 [+5, +29] | N1 minus prompt only +17 [+5, +29] | single E minus no write +17 [+7, +27]
+
+## unverifiable assumption (10 questions)
+    no write     net   -8 | answers   8 | right   0 | wrong   8
+    prompt only  net   -7 | answers  10 | right   1 | wrong   8
+    single C     net   -8 | answers   8 | right   0 | wrong   8
+    single E     net   -2 | answers   4 | right   1 | wrong   3
+    N1           net   -2 | answers   9 | right   3 | wrong   5
+    N1 minus single E +0 [-4, +4] | N1 minus no write +6 [+1, +11] | N1 minus single C +6 [+1, +11] | N1 minus prompt only +5 [+0, +10] | single E minus no write +6 [+2, +10]
+
+## the re-ask: answered without a write and blank under E: released 27 (right 7, wrong 18, no information 2), same answer again and kept blank 4, not released 1 | the model's own blanks: released 11 (right 6, wrong 4, no information 1), not released 0
+    answered in both passes and E changed the answer, all: 38, better 6, worse 4
+    answered in both passes and E changed the answer, valid assumption: 24, better 1, worse 4
+    answered in both passes and E changed the answer, false assumption: 10, better 4, worse 0
+    answered in both passes and E changed the answer, unverifiable assumption: 4, better 1, worse 0
