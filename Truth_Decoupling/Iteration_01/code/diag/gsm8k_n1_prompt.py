@@ -120,7 +120,7 @@ def table():
     gold = CS.gold_of("gsm8k")
     order = frozen_ids()
     print("# GSM8K, 1,319 items: the full N1 at the prompt rule from actual re-asks (changes against no write, paired)")
-    tot = {}
+    tot, tot_e = {}, {}
     for key, (el, s, cl, cap_e, cap_own, cap) in SET.items():
         try:
             bc, base = load_arm(key, "neutral", None, order)
@@ -179,10 +179,15 @@ def table():
         for x in notes:
             print("    " + x)
         tot[key] = [(st["N1"][i] == "R") - (st["no write"][i] == "R") for i in order]
+        tot_e[key] = [(st["single E"][i] == "R") - (st["no write"][i] == "R") for i in order]
     if len(tot) == len(SET):
-        avg = [sum(tot[k][j] for k in tot) / len(tot) for j in range(len(order))]
-        m, lo, hi = CS.ci(avg)
-        print("\n## five models, average change of N1 against no write: %+.2f [%+.2f, %+.2f] points (items resampled, the five models together)" % (100 * m, 100 * lo, 100 * hi))
+        # the first three keys of SET are the main-text models; items are resampled for all models of a group together
+        for label, keys in (("first three models (main text)", list(SET)[:3]), ("five models", list(SET))):
+            out = []
+            for name, d in (("single E", tot_e), ("N1", tot)):
+                m, lo, hi = CS.ci([sum(d[k][j] for k in keys) / len(keys) for j in range(len(order))])
+                out.append("%s %+.2f [%+.2f, %+.2f]" % (name, 100 * m, 100 * lo, 100 * hi))
+            print("\n## %s, average change against no write in points (items resampled, the models together): %s" % (label, " | ".join(out)))
 
 
 if __name__ == "__main__":

@@ -62,7 +62,8 @@ def main():
     print("# GSM8K, %d items, rule scoring, token cap %d; changes are against the model's own no-write pass" % (len(ids), cap))
     for model in models:
         d = "%s/%s/b8" % (root, model)
-        files = [p for p in sorted(glob.glob(d + "/*.json")) if not os.path.basename(p).startswith("s")]
+        # not passes: "s<digest>.*" are the re-asks of a subset, "n1_blank_ids_*" the id lists of gsm8k_n1_prompt.py
+        files = [p for p in sorted(glob.glob(d + "/*.json")) if not os.path.basename(p).startswith(("s", "n1_blank_ids"))]
         passes, why, ntok, blank = {}, {}, {}, {}
         for p in files:
             try:
