@@ -1,0 +1,120 @@
+
+# triviaqa at the prompt rule (alias match; tune 192 questions, test2 500)
+
+## llama3.1-8b, E at layer 16: strengths 1 2 3.5 5 | no write: tune net +90 (answers 190), test2 net +196 (answers 492)
+    single C, tune / test2 net: 0.25: +88 / +191 (answers 493) | 0.5: +88 / +190 (answers 494) | 1: +88 / +186 (answers 496) | 2: +84 / +174 (answers 500)
+    E 1    tune: E  +89 (ans 183) | N1  +89 (ans 183; caps E's None / own 0-25) || test2: E +187 (ans 471) | N1 +187 (ans 471), N1 minus E +0 [+0, +0]
+    E 2    tune: E  +77 (ans 167) | N1  +77 (ans 167; caps E's None / own 0-25) || test2: E +176 (ans 428) | N1 +176 (ans 428), N1 minus E +0 [+0, +0]
+    E 3.5  tune: E  +53 (ans 115) | N1  +53 (ans 115; caps E's None / own 0-25) || test2: E +149 (ans 251) | N1 +148 (ans 252), N1 minus E -1 [-3, +0]
+    E 5    tune: E  +26 (ans  90) | N1  +32 (ans 118; caps E's 0-25 / own None) || test2: E  +75 (ans 187) | N1  +71 (ans 287), N1 minus E -4 [-23, +16]
+    F (frozen from TruthfulQA: E 3.5, caps E's 1 / own 2, single C 0.25): no write +196 | single C +191 | single E +149 (ans 251) | N1 +72 (ans 424) || N1 minus single E -77 [-102, -53] | minus single C -119 [-158, -79] | minus no write -124 [-161, -85] | single E minus no write -47 [-82, -12]
+    D (chosen on this dataset's tune: N1 at E 1 with caps E's None / own 0-25; single E's own best 1; single C 0.25): single C +191 | single E same strength +187, own best +187 | N1 +187 || N1 minus single E same strength +0 [+0, +0] | minus single E own best +0 [+0, +0] | minus single C -4 [-26, +18] | minus no write -9 [-30, +12]
+    re-ask at E 3.5 on test2: answered without a write and blank under E: 241 (original answer right 133 / wrong 108); released as the original answer right 52 / wrong 16, as a new answer right 47 / wrong 126, not released 0 | own blanks under E: released right 1 / wrong 6, not released 1
+
+## qwen3.5-9b, E at layer 15: strengths 0.5 1 2 3 | no write: tune net +48 (answers 186), test2 net +116 (answers 490)
+    single C, tune / test2 net: 0.25: +45 / +114 (answers 494) | 0.5: +47 / +117 (answers 499) | 1: +46 / +122 (answers 500) | 2: +50 / +126 (answers 500)
+    E 0.5  tune: E  +51 (ans 183) | N1  +50 (ans 184; caps E's None / own 0-25) || test2: E +115 (ans 485) | N1 +115 (ans 485), N1 minus E +0 [+0, +0]
+    E 1    tune: E  +60 (ans 174) | N1  +60 (ans 174; caps E's None / own 0-25) || test2: E +132 (ans 460) | N1 +132 (ans 460), N1 minus E +0 [+0, +0]
+    E 2    tune: E  +61 (ans 151) | N1  +61 (ans 153; caps E's None / own 0-5) || test2: E +150 (ans 386) | N1 +148 (ans 388), N1 minus E -2 [-5, +0]
+    E 3    tune: E  +58 (ans 112) | N1  +56 (ans 114; caps E's None / own 0-25) || test2: E +105 (ans 269) | N1 +103 (ans 271), N1 minus E -2 [-5, +0]
+    F (frozen from TruthfulQA: E 2, caps E's 0-25 / own 0-5, single C 0.25): no write +116 | single C +114 | single E +150 (ans 386) | N1 +129 (ans 409) || N1 minus single E -21 [-31, -12] | minus single C +15 [-13, +43] | minus no write +13 [-15, +40] | single E minus no write +34 [+5, +63]
+    D (chosen on this dataset's tune: N1 at E 2 with caps E's None / own 0-5; single E's own best 2; single C 2): single C +126 | single E same strength +150, own best +150 | N1 +148 || N1 minus single E same strength -2 [-5, +0] | minus single E own best -2 [-5, +0] | minus single C +22 [-10, +56] | minus no write +32 [+3, +61]
+    re-ask at E 2 on test2: answered without a write and blank under E: 104 (original answer right 25 / wrong 79); released as the original answer right 17 / wrong 21, as a new answer right 6 / wrong 60, not released 0 | own blanks under E: released right 3 / wrong 7, not released 0
+
+## qwen3.8-27b, E at layer 28: strengths 0.5 1 1.75 3 | no write: tune net +57 (answers 183), test2 net +149 (answers 475)
+    single C, tune / test2 net: 0.25: +54 / +127 (answers 497) | 0.5: +52 / +120 (answers 498) | 1: +52 / +116 (answers 500) | 2: +57 / +110 (answers 500)
+    E 0.5  tune: E  +60 (ans 180) | N1  +60 (ans 180; caps E's 0-25 / own None) || test2: E +155 (ans 465) | N1 +152 (ans 468), N1 minus E -3 [-7, +0]
+    E 1    tune: E  +58 (ans 182) | N1  +58 (ans 182; caps E's 0-25 / own None) || test2: E +153 (ans 457) | N1 +150 (ans 460), N1 minus E -3 [-7, +0]
+    E 1.75 tune: E  +58 (ans 180) | N1  +57 (ans 181; caps E's 0-25 / own None) || test2: E +145 (ans 453) | N1 +135 (ans 463), N1 minus E -10 [-17, -4]
+    E 3    tune: E  +47 (ans 169) | N1  +46 (ans 170; caps E's None / own 0-25) || test2: E +105 (ans 431) | N1  +98 (ans 438), N1 minus E -7 [-13, -2]
+    F (frozen from TruthfulQA: E 1.75, caps E's 0-5 / own 1, single C 0.5): no write +149 | single C +120 | single E +145 (ans 453) | N1 +118 (ans 484) || N1 minus single E -27 [-38, -17] | minus single C -2 [-24, +20] | minus no write -31 [-54, -9] | single E minus no write -4 [-24, +16]
+    D (chosen on this dataset's tune: N1 at E 0.5 with caps E's 0-25 / own None; single E's own best 0.5; single C 2): single C +110 | single E same strength +155, own best +155 | N1 +152 || N1 minus single E same strength -3 [-7, +0] | minus single E own best -3 [-7, +0] | minus single C +42 [+16, +68] | minus no write +3 [-8, +15]
+    re-ask at E 1.75 on test2: answered without a write and blank under E: 28 (original answer right 10 / wrong 18); released as the original answer right 5 / wrong 9, as a new answer right 0 / wrong 14, not released 0 | own blanks under E: released right 3 / wrong 16, not released 0
+
+## gemma3-12b, E at layer 24: strengths 1 2.5 4 | no write: tune net +64 (answers 190), test2 net +166 (answers 500)
+    single C, tune / test2 net: 0.25: +62 / +164 (answers 500) | 0.5: +58 / +168 (answers 500) | 1: +58 / +172 (answers 500) | 2: +50 / +162 (answers 500)
+    E 1    tune: E  +72 (ans 184) | N1  +72 (ans 184; caps E's None / own 0-25) || test2: E +163 (ans 491) | N1 +163 (ans 491), N1 minus E +0 [+0, +0]
+    E 2.5  tune: E  +44 (ans 140) | N1  +44 (ans 140; caps E's None / own 0-25) || test2: E +109 (ans 377) | N1 +109 (ans 377), N1 minus E +0 [+0, +0]
+    E 4    tune: E  -50 (ans 134) | N1  -50 (ans 134; caps E's None / own 0-25) || test2: E -197 (ans 341) | N1 -197 (ans 341), N1 minus E +0 [+0, +0]
+    F (frozen from TruthfulQA: E 2.5, caps E's 2 / own 2, single C 0.5): no write +166 | single C +168 | single E +109 (ans 377) | N1 +27 (ans 469) || N1 minus single E -82 [-99, -65] | minus single C -141 [-176, -106] | minus no write -139 [-173, -105] | single E minus no write -57 [-92, -22]
+    D (chosen on this dataset's tune: N1 at E 1 with caps E's None / own 0-25; single E's own best 1; single C 0.25): single C +164 | single E same strength +163, own best +163 | N1 +163 || N1 minus single E same strength +0 [+0, +0] | minus single E own best +0 [+0, +0] | minus single C -1 [-18, +16] | minus no write -3 [-20, +14]
+    re-ask at E 2.5 on test2: answered without a write and blank under E: 123 (original answer right 45 / wrong 78); released as the original answer right 20 / wrong 11, as a new answer right 5 / wrong 87, not released 0 | own blanks under E: released right 0 / wrong 0, not released 0
+
+## gemma3-27b, E at layer 28: strengths 0.5 1 2 | no write: tune net +103 (answers 191), test2 net +277 (answers 499)
+    single C, tune / test2 net: 0.25: +103 / +275 (answers 499) | 0.5: +100 / +275 (answers 499) | 1: +102 / +263 (answers 499) | 2: +98 / +264 (answers 500)
+    E 0.5  tune: E +104 (ans 190) | N1 +104 (ans 190; caps E's None / own 0-25) || test2: E +279 (ans 499) | N1 +279 (ans 499), N1 minus E +0 [+0, +0]
+    E 1    tune: E  +99 (ans 187) | N1  +99 (ans 187; caps E's None / own 0-25) || test2: E +280 (ans 494) | N1 +280 (ans 494), N1 minus E +0 [+0, +0]
+    E 2    tune: E  +90 (ans 158) | N1  +90 (ans 158; caps E's None / own 0-25) || test2: E +200 (ans 440) | N1 +200 (ans 440), N1 minus E +0 [+0, +0]
+    F (frozen from TruthfulQA: E 1, caps E's 1 / own 2, single C 0.25): no write +277 | single C +275 | single E +280 (ans 494) | N1 +278 (ans 498) || N1 minus single E -2 [-6, +2] | minus single C +3 [-15, +21] | minus no write +1 [-16, +17] | single E minus no write +3 [-14, +20]
+    D (chosen on this dataset's tune: N1 at E 0.5 with caps E's None / own 0-25; single E's own best 0.5; single C 0.25): single C +275 | single E same strength +279, own best +279 | N1 +279 || N1 minus single E same strength +0 [+0, +0] | minus single E own best +0 [+0, +0] | minus single C +4 [-10, +18] | minus no write +2 [-10, +14]
+    re-ask at E 1 on test2: answered without a write and blank under E: 5 (original answer right 2 / wrong 3); released as the original answer right 1 / wrong 1, as a new answer right 1 / wrong 2, not released 0 | own blanks under E: released right 0 / wrong 1, not released 0
+
+## triviaqa, five models together on test2 (questions resampled jointly)
+    F: N1 minus single E                     -209 [-249, -171] on 500 questions, 0 of 5 models positive
+    F: N1 minus single C                     -244 [-319, -170] on 500 questions, 2 of 5 models positive
+    F: N1 minus no write                     -280 [-351, -209] on 500 questions, 2 of 5 models positive
+    F: single E minus no write               -71 [-142, +0] on 500 questions, 2 of 5 models positive
+    D: N1 minus single E, same strength      -5 [-10, -1] on 500 questions, 0 of 5 models positive
+    D: N1 minus single E at its own best     -5 [-10, -1] on 500 questions, 0 of 5 models positive
+    D: N1 minus single C                     +63 [+8, +117] on 500 questions, 3 of 5 models positive
+    D: N1 minus no write                     +25 [-16, +66] on 500 questions, 3 of 5 models positive
+
+# popqa at the prompt rule (alias match; tune 192 questions, test2 500)
+
+## llama3.1-8b, E at layer 16: strengths 1 2 3.5 5 | no write: tune net -20 (answers 144), test2 net -97 (answers 375)
+    single C, tune / test2 net: 0.25: -26 / -116 (answers 394) | 0.5: -26 / -126 (answers 408) | 1: -36 / -160 (answers 438) | 2: -72 / -213 (answers 481)
+    E 1    tune: E   +0 (ans 112) | N1   +0 (ans 112; caps E's None / own 0-25) || test2: E  -44 (ans 304) | N1  -44 (ans 304), N1 minus E +0 [+0, +0]
+    E 2    tune: E  +15 (ans  81) | N1  +15 (ans  81; caps E's None / own 0-25) || test2: E  +14 (ans 208) | N1  +14 (ans 208), N1 minus E +0 [+0, +0]
+    E 3.5  tune: E  +18 (ans  44) | N1  +17 (ans  45; caps E's None / own 0-25) || test2: E  +19 (ans  99) | N1  +19 (ans  99), N1 minus E +0 [+0, +0]
+    E 5    tune: E  +10 (ans  32) | N1  +10 (ans  32; caps E's None / own 0-25) || test2: E  +13 (ans  73) | N1  +13 (ans  73), N1 minus E +0 [+0, +0]
+    F (frozen from TruthfulQA: E 3.5, caps E's 1 / own 2, single C 0.25): no write -97 | single C -116 | single E +19 (ans 99) | N1 -121 (ans 309) || N1 minus single E -140 [-166, -114] | minus single C -5 [-42, +31] | minus no write -24 [-62, +13] | single E minus no write +116 [+81, +150]
+    D (chosen on this dataset's tune: N1 at E 3.5 with caps E's None / own 0-25; single E's own best 3.5; single C 0.25): single C -116 | single E same strength +19, own best +19 | N1 +19 || N1 minus single E same strength +0 [+0, +0] | minus single E own best +0 [+0, +0] | minus single C +135 [+100, +168] | minus no write +116 [+81, +150]
+    re-ask at E 3.5 on test2: answered without a write and blank under E: 276 (original answer right 71 / wrong 205); released as the original answer right 27 / wrong 34, as a new answer right 36 / wrong 170, not released 9 | own blanks under E: released right 3 / wrong 74, not released 48
+
+## qwen3.5-9b, E at layer 15: strengths 0.5 1 2 3 | no write: tune net -63 (answers 155), test2 net -216 (answers 412)
+    single C, tune / test2 net: 0.25: -74 / -251 (answers 449) | 0.5: -82 / -277 (answers 479) | 1: -89 / -300 (answers 498) | 2: -94 / -302 (answers 500)
+    E 0.5  tune: E  -48 (ans 136) | N1  -52 (ans 140; caps E's None / own 0-25) || test2: E -163 (ans 355) | N1 -166 (ans 358), N1 minus E -3 [-7, +0]
+    E 1    tune: E  -26 (ans 114) | N1  -26 (ans 114; caps E's None / own 0-25) || test2: E -108 (ans 298) | N1 -110 (ans 300), N1 minus E -2 [-5, +0]
+    E 2    tune: E   +2 (ans  78) | N1   +2 (ans  78; caps E's None / own 0-25) || test2: E  -34 (ans 200) | N1  -35 (ans 201), N1 minus E -1 [-3, +0]
+    E 3    tune: E   +6 (ans  48) | N1   +6 (ans  48; caps E's None / own 0-25) || test2: E   +3 (ans 127) | N1   +2 (ans 128), N1 minus E -1 [-3, +0]
+    F (frozen from TruthfulQA: E 2, caps E's 0-25 / own 0-5, single C 0.25): no write -216 | single C -251 | single E -34 (ans 200) | N1 -51 (ans 225) || N1 minus single E -17 [-27, -7] | minus single C +200 [+174, +227] | minus no write +165 [+138, +192] | single E minus no write +182 [+156, +209]
+    D (chosen on this dataset's tune: N1 at E 3 with caps E's None / own 0-25; single E's own best 3; single C 0.25): single C -251 | single E same strength +3, own best +3 | N1 +2 || N1 minus single E same strength -1 [-3, +0] | minus single E own best -1 [-3, +0] | minus single C +253 [+222, +282] | minus no write +218 [+188, +247]
+    re-ask at E 2 on test2: answered without a write and blank under E: 212 (original answer right 15 / wrong 197); released as the original answer right 9 / wrong 97, as a new answer right 6 / wrong 100, not released 0 | own blanks under E: released right 2 / wrong 82, not released 4
+
+## qwen3.8-27b, E at layer 28: strengths 0.5 1 1.75 3 | no write: tune net -33 (answers 119), test2 net -116 (answers 324)
+    single C, tune / test2 net: 0.25: -81 / -230 (answers 450) | 0.5: -98 / -277 (answers 497) | 1: -103 / -282 (answers 500) | 2: -101 / -276 (answers 500)
+    E 0.5  tune: E  -25 (ans 107) | N1  -27 (ans 109; caps E's 0-25 / own None) || test2: E  -93 (ans 301) | N1  -99 (ans 307), N1 minus E -6 [-11, -2]
+    E 1    tune: E  -13 (ans  95) | N1  -22 (ans 104; caps E's 0-25 / own None) || test2: E  -65 (ans 267) | N1  -85 (ans 289), N1 minus E -20 [-29, -11]
+    E 1.75 tune: E  -11 (ans  85) | N1  -26 (ans 100; caps E's 0-25 / own None) || test2: E  -53 (ans 231) | N1  -94 (ans 272), N1 minus E -41 [-53, -29]
+    E 3    tune: E   -9 (ans  79) | N1  -28 (ans 100; caps E's 0-25 / own None) || test2: E  -55 (ans 225) | N1 -107 (ans 279), N1 minus E -52 [-65, -39]
+    F (frozen from TruthfulQA: E 1.75, caps E's 0-5 / own 1, single C 0.5): no write -116 | single C -277 | single E -53 (ans 231) | N1 -258 (ans 450) || N1 minus single E -205 [-228, -182] | minus single C +19 [+1, +36] | minus no write -142 [-170, -115] | single E minus no write +63 [+42, +83]
+    D (chosen on this dataset's tune: N1 at E 1 with caps E's 0-25 / own None; single E's own best 3; single C 0.25): single C -230 | single E same strength -65, own best -55 | N1 -85 || N1 minus single E same strength -20 [-29, -11] | minus single E own best -30 [-51, -9] | minus single C +145 [+122, +167] | minus no write +31 [+17, +45]
+    re-ask at E 1.75 on test2: answered without a write and blank under E: 94 (original answer right 9 / wrong 85); released as the original answer right 8 / wrong 42, as a new answer right 0 / wrong 44, not released 0 | own blanks under E: released right 7 / wrong 168, not released 0
+
+## gemma3-12b, E at layer 24: strengths 1 2.5 4 | no write: tune net -68 (answers 166), test2 net -239 (answers 445)
+    single C, tune / test2 net: 0.25: -85 / -267 (answers 471) | 0.5: -92 / -278 (answers 484) | 1: -92 / -288 (answers 494) | 2: -96 / -296 (answers 498)
+    E 1    tune: E  -42 (ans 128) | N1  -42 (ans 128; caps E's None / own 0-25) || test2: E -147 (ans 357) | N1 -148 (ans 358), N1 minus E -1 [-3, +0]
+    E 2.5  tune: E   -3 (ans  55) | N1   -3 (ans  55; caps E's None / own 0-25) || test2: E   -1 (ans 139) | N1   -1 (ans 139), N1 minus E +0 [+0, +0]
+    E 4    tune: E   -9 (ans  31) | N1   -9 (ans  31; caps E's None / own 0-25) || test2: E  -31 (ans  87) | N1  -31 (ans  87), N1 minus E +0 [+0, +0]
+    F (frozen from TruthfulQA: E 2.5, caps E's 2 / own 2, single C 0.5): no write -239 | single C -278 | single E -1 (ans 139) | N1 -291 (ans 437) || N1 minus single E -290 [-312, -267] | minus single C -13 [-41, +16] | minus no write -52 [-82, -20] | single E minus no write +238 [+208, +268]
+    D (chosen on this dataset's tune: N1 at E 2.5 with caps E's None / own 0-25; single E's own best 2.5; single C 0.25): single C -267 | single E same strength -1, own best -1 | N1 -1 || N1 minus single E same strength +0 [+0, +0] | minus single E own best +0 [+0, +0] | minus single C +266 [+236, +296] | minus no write +238 [+208, +268]
+    re-ask at E 2.5 on test2: answered without a write and blank under E: 307 (original answer right 34 / wrong 273); released as the original answer right 7 / wrong 49, as a new answer right 4 / wrong 246, not released 1 | own blanks under E: released right 0 / wrong 48, not released 6
+
+## gemma3-27b, E at layer 28: strengths 0.5 1 2 | no write: tune net -49 (answers 177), test2 net -170 (answers 470)
+    single C, tune / test2 net: 0.25: -56 / -184 (answers 484) | 0.5: -63 / -182 (answers 490) | 1: -66 / -193 (answers 497) | 2: -71 / -210 (answers 498)
+    E 0.5  tune: E  -42 (ans 166) | N1  -43 (ans 167; caps E's None / own 0-25) || test2: E -147 (ans 445) | N1 -147 (ans 445), N1 minus E +0 [+0, +0]
+    E 1    tune: E  -23 (ans 141) | N1  -23 (ans 141; caps E's None / own 0-25) || test2: E -104 (ans 398) | N1 -104 (ans 398), N1 minus E +0 [+0, +0]
+    E 2    tune: E   +0 (ans  98) | N1   -1 (ans  99; caps E's None / own 0-25) || test2: E  -34 (ans 270) | N1  -34 (ans 270), N1 minus E +0 [+0, +0]
+    F (frozen from TruthfulQA: E 1, caps E's 1 / own 2, single C 0.25): no write -170 | single C -184 | single E -104 (ans 398) | N1 -161 (ans 463) || N1 minus single E -57 [-72, -42] | minus single C +23 [+4, +44] | minus no write +9 [-13, +32] | single E minus no write +66 [+45, +88]
+    D (chosen on this dataset's tune: N1 at E 2 with caps E's None / own 0-25; single E's own best 2; single C 0.25): single C -184 | single E same strength -34, own best -34 | N1 -34 || N1 minus single E same strength +0 [+0, +0] | minus single E own best +0 [+0, +0] | minus single C +150 [+119, +181] | minus no write +136 [+106, +166]
+    re-ask at E 1 on test2: answered without a write and blank under E: 74 (original answer right 6 / wrong 68); released as the original answer right 2 / wrong 34, as a new answer right 4 / wrong 34, not released 0 | own blanks under E: released right 1 / wrong 27, not released 0
+
+## popqa, five models together on test2 (questions resampled jointly)
+    F: N1 minus single E                     -709 [-766, -651] on 500 questions, 0 of 5 models positive
+    F: N1 minus single C                     +224 [+157, +290] on 500 questions, 3 of 5 models positive
+    F: N1 minus no write                     -44 [-118, +29] on 500 questions, 2 of 5 models positive
+    F: single E minus no write               +665 [+588, +740] on 500 questions, 5 of 5 models positive
+    D: N1 minus single E, same strength      -21 [-31, -12] on 500 questions, 0 of 5 models positive
+    D: N1 minus single E at its own best     -31 [-52, -8] on 500 questions, 0 of 5 models positive
+    D: N1 minus single C                     +949 [+857, +1043] on 500 questions, 5 of 5 models positive
+    D: N1 minus no write                     +739 [+655, +823] on 500 questions, 5 of 5 models positive

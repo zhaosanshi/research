@@ -681,7 +681,7 @@ E 的力度与 N1 的两个上限都在各题集自己的调参集（192 题）�
 
 **12.7 只写题目下重做，以及"答两遍"的小试验（2026-11-22 凌晨）**
 
-写入规则换成只写题目、E 用主表的层之后，两套事实题重做（`launchers/explore_20261120/ns_prompt.sh`，表 `diag/ns_prompt_table.py`）。到 01:07 四个模型的第一批题齐全（Gemma-3-27B 的这一套按"先小后大"取消了）。别名匹配，每批 500 题。
+写入规则换成只写题目、E 用主表的层之后，两套事实题重做（`launchers/explore_20261120/ns_prompt.sh`，表 `diag/ns_prompt_table.py`）。到 01:07 四个模型的第一批题齐全；Gemma-3-27B 的这一套当时被我按对赵磊一句话的误读取消了，2026-11-22 05 时补跑，下表已是五个模型。别名匹配，每批 500 题。
 
 两种读法：**搬** = E 的力度、两个上限、只推 C 的力度全部沿用 TruthfulQA 上选好的，不在新题集上选任何东西；**选** = E 的力度与两个上限在各题集自己的调参集（192 题）上选。
 
@@ -691,13 +691,24 @@ E 的力度与 N1 的两个上限都在各题集自己的调参集（192 题）�
 | TriviaQA | Qwen3.5-9B | +74 | **+54** [+29, +80] | **−23** [−33, −14] | −5 [−9, −1] | **+49** [+23, +75] |
 | TriviaQA | Qwen3.8-27B | +121 | +19 [−1, +39] | **−33** [−46, −21] | −3 [−7, 0] | +4 [−5, +13] |
 | TriviaQA | Gemma-3-12B | +159 | −33 [−68, +1] | **−94** [−113, −76] | 0 | −10 [−27, +7] |
+| TriviaQA | Gemma-3-27B | +259 | +1 [−16, +18] | −5 [−11, 0] | 0 | +9 [−3, +22] |
 | PopQA | Llama-3.1-8B | −111 | **+126** [+96, +157] | **−178** [−203, −152] | −1 [−3, 0] | **+125** [+95, +155] |
 | PopQA | Qwen3.5-9B | −199 | **+142** [+113, +170] | **−18** [−27, −10] | 0 | **+179** [+147, +210] |
 | PopQA | Qwen3.8-27B | −128 | **+59** [+39, +80] | **−200** [−224, −176] | −19 [−28, −11] | **+24** [+9, +39] |
 | PopQA | Gemma-3-12B | −223 | **+200** [+167, +233] | **−288** [−311, −265] | −1 [−3, 0] | **+199** [+166, +232] |
+| PopQA | Gemma-3-27B | −163 | **+38** [+15, +61] | **−69** [−85, −53] | −3 [−7, 0] | **+119** [+86, +151] |
 
-- 对论文积极：PopQA 上只推 E 对原模型四个模型都显著（+59 至 +200），换了写入规则仍在。
-- 对论文消极：把 TruthfulQA 的上限原样搬过来，N1 比只推 E 低得多（四个模型合计 TriviaQA −222、PopQA −684）；在各题集上自己选上限，选出来就是"不放"，N1 等于只推 E。两种写入位置结论相同，所以 12.2 节的原因不是"每个生成词元都写入"造成的，是题型：事实题上留空的题就是不知道的题。
+五个模型合计（按题号联合重抽；斜杠前后是第一批 / 第二批题）：
+
+| | TriviaQA | PopQA |
+|---|---|---|
+| 只推 E（主表力度）减原模型 | +28 [−45, +101] / −71 [−142, 0] | **+565** [+491, +641] / **+665** [+588, +740] |
+| 搬：N1 减只推 E | **−227** [−271, −184] / **−209** [−249, −171] | **−753** [−811, −696] / **−709** [−766, −651] |
+| 选：N1 减只推 E | −8 [−14, −3] / −5 [−10, −1] | −24 [−34, −14] / −21 [−31, −12] |
+| 选：N1 减原模型 | **+56** [+15, +97] / +25 [−16, +66] | **+646** [+562, +731] / **+739** [+655, +823] |
+
+- 对论文积极：PopQA 上只推 E 对原模型五个模型都显著（+38 至 +200），两批题都如此，换了写入规则仍在。
+- 对论文消极：把 TruthfulQA 的上限原样搬过来，N1 比只推 E 低得多（五个模型合计 TriviaQA −227、PopQA −753）；在各题集上自己选上限，选出来就是"不放"，N1 等于只推 E。两种写入位置结论相同，所以 12.2 节的原因不是"每个生成词元都写入"造成的，是题型：事实题上留空的题就是不知道的题。
 - GPT 给的上界（`discussion/validation_dataset/2026-11-22_same_answer_probe.py`，已在服务器重跑）：Gemma-3-12B 的 PopQA 第一批，搬过来的 N1 在 E 压住的题里多交 304 个回答；即使有人知道标准答案、逐题从四档 C 里任挑一条，也只有 24 题挑得到对的，净增最多 −256（实际 −288）。第二批上界 −276（实际 −290）。Llama 的 PopQA 两批上界 −116、−70；TriviaQA 上界 +18、+51，还有一点空间。
 
 **"答两遍、只留答案不变的"小试验**（Llama 与 Gemma-3-12B，`launchers/explore_20261120/nsc_prompt.sh`，表 `diag/nsc_prompt_table.py`）。候选：只推 E、只推 C（两头）、E 与往谨慎的 C 一遍写入、不写入与推 E 两遍一致才保留原回答、已答的题用 E 加往谨慎的 C 再问一遍且答案不变才保留、只用往谨慎的 C 做复核。每个模型、每套题在调参集上取净分最高的候选，记作 U。两个模型合计：
@@ -968,7 +979,7 @@ GPT 的审核意见：`discussion/write_positions/2026-11-21_gpt_review.md`（�
 
 ## 出处
 
-- 第 12.7 节：`Iteration_01/results/newsets/prompt_rule/` 下的 `ns_prompt_table_test_4models_20261122_0107.txt`、`ns_prompt_table_test2_4models_20261122_0107.txt`、`nsc_pilot_two_models_20261122.txt`、`gpt_pilot_controls_rerun_20261122.jsonl`、`gpt_same_answer_probe_rerun_20261122.txt`；GPT 的复审 `Iteration_01/discussion/validation_dataset/2026-11-22_gpt_review.md`。
+- 第 12.7 节：`Iteration_01/results/newsets/prompt_rule/` 下的 `ns_prompt_table_test_five_models_20261122.txt`、`ns_prompt_table_test2_five_models_20261122.txt`（01:07 的四模型版 `ns_prompt_table_test_4models_20261122_0107.txt`、`ns_prompt_table_test2_4models_20261122_0107.txt` 留作记录，其中 Qwen3.8-27B 的 TriviaQA 第二批当时还没跑完）、`nsc_pilot_two_models_20261122.txt`、`gpt_pilot_controls_rerun_20261122.jsonl`、`gpt_same_answer_probe_rerun_20261122.txt`；GPT 的复审 `Iteration_01/discussion/validation_dataset/2026-11-22_gpt_review.md`。
 - 第 1 节：`Iteration_01/results/capability/dose/dose_mid_truthfulqa_20261120.txt`（程序 `Iteration_01/code/diag/dose_mid.py`）；MMLU 见 `Iteration_01/novelty/ours/2026-11-19_capability_preservation_design.md` 第 8.5、8.6 节与 `Iteration_01/results/capability/mmlu/cap_mcq_fullmid_mmlu_20261120.txt`、`cap_mcq_fullhigh_mmlu_20261120.txt`。
 - 第 2 节：`Iteration_01/results/capability/dose/strong_form_same_strength_truthfulqa_20261120.txt`（程序 `diag/strong_mid.py`）；跨力度的表来自 GPT 的工具 `Iteration_01/discussion/open_problems/2026-11-20_matched_e_reference.py`，输出存 `Iteration_01/results/capability/dose/matched_e_reference_gpt_tool_20261120.jsonl`。
 - 第 3 节：`Iteration_01/results/capability/dose/md_vs_das_truthfulqa_20261120.txt`（程序 `diag/md_table.py`）。
@@ -1005,4 +1016,5 @@ GPT 的审核意见：`discussion/write_positions/2026-11-21_gpt_review.md`（�
 | 2026-11-22 | 第 13.7 节补齐五个模型（只写题目下学出的方向对均值差方向） | 赵磊（Fable 5.2 代笔） |
 | 2026-11-22 | 新增第 12.8 节：(QA)² 五个模型整套 570 题（设置沿用 TruthfulQA），含按把握挑题的对照与四条预测的核对 | 赵磊（Fable 5.2 代笔） |
 | 2026-11-22 | 第 12.8 节补入在 (QA)² 自己的调参集上选力度的两种读法（470 题，三种读法并排） | 赵磊（Fable 5.2 代笔） |
+| 2026-11-22 | 第 12.7 节的事实题表补 Gemma-3-27B 成五个模型并加合计；小试验与 GPT 两项对照补到五个模型 | 赵磊（Fable 5.2 代笔） |
 | 2026-11-22 | GSM8K 收尾：第 13.3 节的表把 Qwen3.8-27B 换成 1,024 词元上限的两遍并加判词一列；第 13.4 节补更新后的平均；第 13.6 节补齐五个模型的实际再问 | 赵磊（Fable 5.2 代笔） |
