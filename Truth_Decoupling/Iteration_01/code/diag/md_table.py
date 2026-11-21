@@ -68,26 +68,29 @@ def main():
                     b = [val(st[(q, have[(kind, s)])]) - val(st[(q, "baseline_x")]) for q in qs]
                     print("    E %s: learned minus %s %s | %s minus no write %s" % (s, kind, ps.ci(d), kind, ps.ci(b)))
                     for key, v in (("E %s: learned minus %s" % (s, kind), d), ("E %s: %s minus no write" % (s, kind), b)):
-                        t = tot.setdefault(key, [0, {}])
+                        t = tot.setdefault(key, [0, {}, []])
                         t[0] += 1
+                        t[2].append(set(qs))
                         for q, x in zip(qs, v):
                             t[1][q] = t[1].get(q, 0) + x
             if ("w", s) in have:
                 b = [val(st[(q, have[("w", s)])]) - val(st[(q, "baseline_x")]) for q in qs]
                 print("    E %s: learned minus no write %s" % (s, ps.ci(b)))
-                t = tot.setdefault("E %s: learned minus no write" % s, [0, {}])
+                t = tot.setdefault("E %s: learned minus no write" % s, [0, {}, []])
                 t[0] += 1
+                t[2].append(set(qs))
                 for q, x in zip(qs, b):
                     t[1][q] = t[1].get(q, 0) + x
-    print("\n## the five models together (per question the differences of the models are summed; questions resampled)")
-    for key, (n, d) in tot.items():
+    print("\n## the five models together (per question the differences of the models are summed; questions resampled; only the questions every model has)")
+    for key, (n, d, sets) in tot.items():
         if n == len(ro.FIVE):
-            print("  %-40s %s (%d questions)" % (key, ps.ci([d[q] for q in sorted(d)]), len(d)))
+            common = sorted(set.intersection(*sets))
+            print("  %-40s %s (%d questions, of %d in any)" % (key, ps.ci([d[q] for q in common]), len(common), len(d)))
     best_layer()
 
 
 def best_layer():
-    tot, done = {}, 0
+    tot, done, qsets = {}, 0, []
     print("\n\n# the mean-difference baseline at its own best layer and coefficient (chosen on tune)")
     for model in ro.FIVE:
         Dt, tsp, ttx, _, _, _ = DM.merged_all(model, 0)
@@ -123,15 +126,17 @@ def best_layer():
         print("    N1 at that strength: net %+d | minus the mean difference %s | the mean difference minus no write %s" % (
             sum(map(val, n1)), ps.ci(d_n), ps.ci(d_b)))
         done += 1
+        qsets.append(set(qs))
         for key, v in (("learned single E minus mean difference (each at its own best on tune)", d_e),
                        ("N1 minus mean difference at its own best", d_n), ("mean difference at its own best minus no write", d_b)):
             t = tot.setdefault(key, {})
             for q, x in zip(qs, v):
                 t[q] = t.get(q, 0) + x
     if done == len(ro.FIVE):
-        print("\n## the five models together")
+        common = sorted(set.intersection(*qsets))
+        print("\n## the five models together (only the %d questions every model has, of %d in any)" % (len(common), len(set.union(*qsets))))
         for key, d in tot.items():
-            print("  %-72s %s (%d questions)" % (key, ps.ci([d[q] for q in sorted(d)]), len(d)))
+            print("  %-72s %s" % (key, ps.ci([d[q] for q in common])))
 
 
 if __name__ == "__main__":

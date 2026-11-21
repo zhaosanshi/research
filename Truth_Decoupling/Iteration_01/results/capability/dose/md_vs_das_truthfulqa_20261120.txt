@@ -74,14 +74,52 @@
     E 2: learned minus md +198 [+154, +243] | md minus no write +4 [-26, +34]
     E 2: learned minus no write +202 [+158, +245]
 
-## the five models together (per question the differences of the models are summed; questions resampled)
-  E 1: learned minus mdg                   +336 [+254, +414] (523 questions)
-  E 1: mdg minus no write                  +26 [-11, +63] (523 questions)
-  E 1: learned minus md                    +322 [+242, +400] (523 questions)
-  E 1: md minus no write                   +40 [-11, +93] (523 questions)
-  E 1: learned minus no write              +362 [+278, +445] (523 questions)
-  E 2: learned minus mdg                   +634 [+509, +759] (523 questions)
-  E 2: mdg minus no write                  +48 [-4, +100] (523 questions)
-  E 2: learned minus md                    +615 [+496, +738] (523 questions)
-  E 2: md minus no write                   +67 [-1, +134] (523 questions)
-  E 2: learned minus no write              +682 [+547, +814] (523 questions)
+## the five models together (per question the differences of the models are summed; questions resampled; only the questions every model has)
+  E 1: learned minus mdg                   +334 [+252, +412] (521 questions, of 523 in any)
+  E 1: mdg minus no write                  +26 [-11, +62] (521 questions, of 523 in any)
+  E 1: learned minus md                    +320 [+239, +396] (521 questions, of 523 in any)
+  E 1: md minus no write                   +40 [-12, +90] (521 questions, of 523 in any)
+  E 1: learned minus no write              +360 [+278, +442] (521 questions, of 523 in any)
+  E 2: learned minus mdg                   +629 [+498, +752] (521 questions, of 523 in any)
+  E 2: mdg minus no write                  +48 [-6, +101] (521 questions, of 523 in any)
+  E 2: learned minus md                    +612 [+488, +731] (521 questions, of 523 in any)
+  E 2: md minus no write                   +65 [-3, +129] (521 questions, of 523 in any)
+  E 2: learned minus no write              +677 [+542, +811] (521 questions, of 523 in any)
+
+
+# the mean-difference baseline at its own best layer and coefficient (chosen on tune)
+
+## Llama-3.1-8B: learned direction at layer 11; mean difference swept over 12 layers x 3 coefficients on tune (no write on tune: -34)
+    tune, best five: L14 x2: +20 | L18 x4: +12 | L22 x4: +11 | L16 x4: +2 | L14 x4: +1
+    chosen: layer 14, coefficient 2. test (523 questions): answers 346 | right 181 wrong 152 | net +29
+    learned single E at strength 2 (chosen on tune): net +85 | minus the mean difference +56 [+20, +93]
+    N1 at that strength: net +110 | minus the mean difference +81 [+43, +121] | the mean difference minus no write +115 [+76, +152]
+
+## Qwen3.5-9B: learned direction at layer 15; mean difference swept over 11 layers x 3 coefficients on tune (no write on tune: 35)
+    tune, best five: L18 x2: +51 | L18 x1: +50 | L15 x1: +45 | L16 x2: +44 | L16 x1: +43
+    chosen: layer 18, coefficient 2. test (523 questions): answers 479 | right 295 wrong 177 | net +118
+    learned single E at strength 3.5 (chosen on tune): net +165 | minus the mean difference +47 [+8, +86]
+    N1 at that strength: net +167 | minus the mean difference +49 [+9, +89] | the mean difference minus no write +45 [+16, +74]
+
+## Qwen3.8-27B: learned direction at layer 28; mean difference swept over 9 layers x 3 coefficients on tune (no write on tune: 15)
+    tune, best five: L32 x2: +45 | L32 x4: +40 | L24 x2: +30 | L28 x1: +27 | L28 x2: +27
+    chosen: layer 32, coefficient 2. test (521 questions): answers 416 | right 245 wrong 167 | net +78
+    learned single E at strength 2.5 (chosen on tune): net +175 | minus the mean difference +97 [+61, +132]
+    N1 at that strength: net +210 | minus the mean difference +132 [+92, +171] | the mean difference minus no write +31 [+3, +59]
+
+## Gemma-3-12B: learned direction at layer 22; mean difference swept over 7 layers x 3 coefficients on tune (no write on tune: -6)
+    tune, best five: L22 x4: +29 | L20 x2: +19 | L22 x2: +15 | L24 x2: +6 | L24 x4: +6
+    chosen: layer 22, coefficient 4. test (522 questions): answers 495 | right 253 wrong 209 | net +44
+    learned single E at strength 2 (chosen on tune): net +107 | minus the mean difference +63 [+22, +101]
+    N1 at that strength: net +157 | minus the mean difference +113 [+70, +156] | the mean difference minus no write +32 [-9, +74]
+
+## Gemma-3-27B: learned direction at layer 26; mean difference swept over 8 layers x 3 coefficients on tune (no write on tune: -2)
+    tune, best five: L30 x2: +20 | L28 x1: +12 | L28 x2: +10 | L30 x1: +3 | L16 x4: +2
+    chosen: layer 30, coefficient 2. test (523 questions): answers 494 | right 295 wrong 183 | net +112
+    learned single E at strength 2 (chosen on tune): net +205 | minus the mean difference +93 [+50, +135]
+    N1 at that strength: net +240 | minus the mean difference +128 [+85, +171] | the mean difference minus no write +109 [+69, +148]
+
+## the five models together (only the 520 questions every model has, of 523 in any)
+  learned single E minus mean difference (each at its own best on tune)    +350 [+239, +456]
+  N1 minus mean difference at its own best                                 +498 [+377, +614]
+  mean difference at its own best minus no write                           +329 [+239, +421]
