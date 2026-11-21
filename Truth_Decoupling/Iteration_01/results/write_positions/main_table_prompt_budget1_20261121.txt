@@ -1,0 +1,71 @@
+
+## Llama-3.1-8B, budget 1: candidates at the prompt rule: layer 11 / 0.75 (N1 tune +2); layer 16 / 3.5 (N1 tune +27)
+  -> layer 16, E strength 3.5 (N1 on tune: N1: E 3-5, own blanks up to 2, E's blanks up to 1) | MMLU on the report half -0.90 [-1.62, -0.16] (the same as at the training rule) | test 523 questions, tune 192
+    no write                                     answers 467 | right 181 wrong 267 | net  -86
+    single C (strength 0.25, chosen on tune), prompt rule answers 475 | right 182 wrong 275 | net  -93
+    single E, prompt rule                        answers 319 | right 172 wrong 132 | net  +40
+    N1, prompt rule                              answers 476 | right 253 wrong 191 | net  +62
+    strong form: must-answer + E, top 476, prompt rule answers 476 | right 231 wrong 220 | net  +11
+    prompt only (must-answer + sentence)         net   +0
+    best prompt on tune: conf_E2                 net   +0
+    N1, training rule, same layer and strength   answers 452 | net  +91 (reference: the main table's row at this layer and strength)
+    N1 (prompt rule) minus: no write +148 [+98, +197] | single C +155 [+106, +204] | single E +22 [-1, +45] | the strong form +51 [+17, +87] | prompt only +62 [+14, +111] | the best prompt on tune +62 [+14, +111] | N1 at the training rule (same layer) -29 [-67, +9]
+
+## Qwen3.5-9B, budget 1: candidates at the prompt rule: layer 15 / 2 (N1 tune +63)
+  -> layer 15, E strength 2 (N1 on tune: N1: E 2, own blanks up to 0.5, E's blanks up to 0.25) | MMLU on the report half -0.48 [-0.98, +0.06] (the same as at the training rule) | test 523 questions, tune 192
+    no write                                     answers 474 | right 268 wrong 195 | net  +73
+    single C (strength 0.25, chosen on tune), prompt rule answers 494 | right 279 wrong 206 | net  +73
+    single E, prompt rule                        answers 408 | right 285 wrong 117 | net +168
+    N1, prompt rule                              answers 444 | right 310 wrong 124 | net +186
+    strong form: must-answer + E, top 444, prompt rule answers 444 | right 302 wrong 129 | net +173
+    prompt only (must-answer + sentence)         net +168
+    best prompt on tune: caut_E2                 net +166
+    N1, training rule, same layer and strength   answers 446 | net +189 (reference: the main table's row at this layer and strength)
+    N1 (prompt rule) minus: no write +113 [+77, +148] | single C +113 [+76, +149] | single E +18 [+7, +30] | the strong form +13 [-11, +37] | prompt only +18 [-11, +45] | the best prompt on tune +20 [-5, +44] | N1 at the training rule (same layer) -3 [-14, +8]
+
+## Qwen3.8-27B, budget 1: candidates at the prompt rule: layer 28 / 1.75 (N1 tune +80)
+    the two rules cover different questions (prompt rule: test 522, tune 192; training rule: test 521, tune 192): both are read on the 521 test / 192 tune questions they share
+  -> layer 28, E strength 1.75 (N1 on tune: N1: E 1-75, own blanks up to 1, E's blanks up to 0.5) | MMLU on the report half -0.73 [-1.20, -0.23] (the same as at the training rule) | test 521 questions, tune 192
+    no write                                     answers 361 | right 202 wrong 155 | net  +47
+    single C (strength 0.5, chosen on tune), prompt rule answers 494 | right 260 wrong 226 | net  +34
+    single E, prompt rule                        answers 354 | right 246 wrong 104 | net +142
+    N1, prompt rule                              answers 490 | right 325 wrong 150 | net +175
+    strong form: must-answer + E, top 490, prompt rule answers 490 | right 318 wrong 161 | net +157
+    prompt only (must-answer + sentence)         net +135
+    best prompt on tune: conf_E2                 net +135
+    N1, training rule, same layer and strength   answers 491 | net +186 (reference: the main table's row at this layer and strength)
+    N1 (prompt rule) minus: no write +128 [+89, +167] | single C +141 [+99, +183] | single E +33 [+12, +55] | the strong form +18 [-8, +45] | prompt only +40 [+8, +73] | the best prompt on tune +40 [+8, +73] | N1 at the training rule (same layer) -11 [-21, -3]
+
+## Gemma-3-12B, budget 1: candidates at the prompt rule: layer 22 / 1.25 (N1 tune +36); layer 24 / 2.5 (N1 tune +74)
+  -> layer 24, E strength 2.5 (N1 on tune: N1: E 2-5, own blanks up to 2, E's blanks up to 2) | MMLU on the report half -0.54 [-1.21, +0.13] (the same as at the training rule) | test 522 questions, tune 192
+    no write                                     answers 460 | right 228 wrong 216 | net  +12
+    single C (strength 0.5, chosen on tune), prompt rule answers 498 | right 243 wrong 238 | net   +5
+    single E, prompt rule                        answers 323 | right 211 wrong 108 | net +103
+    N1, prompt rule                              answers 489 | right 312 wrong 154 | net +158
+    strong form: must-answer + E, top 489, prompt rule answers 489 | right 315 wrong 151 | net +164
+    prompt only (must-answer + sentence)         net  +77
+    best prompt on tune: caut_E2                 net +139
+    N1, training rule, same layer and strength   answers 500 | net +152 (reference: the main table's row at this layer and strength)
+    N1 (prompt rule) minus: no write +146 [+95, +197] | single C +153 [+100, +205] | single E +55 [+31, +79] | the strong form -6 [-37, +24] | prompt only +81 [+34, +129] | the best prompt on tune +19 [-23, +62] | N1 at the training rule (same layer) +6 [-12, +25]
+
+## Gemma-3-27B, budget 1: candidates at the prompt rule: layer 26 / 0.75 (N1 tune +40); layer 28 / 1 (N1 tune +53)
+  -> layer 28, E strength 1 (N1 on tune: N1: E 1, own blanks up to 2, E's blanks up to 1) | MMLU on the report half -0.66 [-1.14, -0.16] (the same as at the training rule) | test 523 questions, tune 192
+    no write                                     answers 456 | right 221 wrong 218 | net   +3
+    single C (strength 0.25, chosen on tune), prompt rule answers 485 | right 232 wrong 233 | net   -1
+    single E, prompt rule                        answers 423 | right 253 wrong 148 | net +105
+    N1, prompt rule                              answers 510 | right 313 wrong 169 | net +144
+    strong form: must-answer + E, top 510, prompt rule answers 510 | right 294 wrong 202 | net  +92
+    prompt only (must-answer + sentence)         net +140
+    best prompt on tune: caut_E2                 net +150
+    N1, training rule, same layer and strength   answers 514 | net +146 (reference: the main table's row at this layer and strength)
+    N1 (prompt rule) minus: no write +141 [+104, +176] | single C +145 [+107, +182] | single E +39 [+22, +57] | the strong form +52 [+22, +82] | prompt only +4 [-34, +43] | the best prompt on tune -6 [-43, +31] | N1 at the training rule (same layer) -2 [-20, +16]
+
+## the five models together at the prompt rule, budget 1: Llama-3.1-8B L16 3.5; Qwen3.5-9B L15 2; Qwen3.8-27B L28 1.75; Gemma-3-12B L24 2.5; Gemma-3-27B L28 1
+    on the 520 questions that all five models have:
+    N1 minus no write                   +673 [+536, +805]
+    N1 minus single C                   +704 [+563, +837]
+    N1 minus single E                   +169 [+112, +226]
+    N1 minus the strong form            +128 [+58, +197]
+    N1 minus prompt only                +205 [+100, +308]
+    N1 minus the best prompt on tune    +135 [+40, +231]
+    N1 minus N1 at the training rule (same layer) -36 [-87, +15]
