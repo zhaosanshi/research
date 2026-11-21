@@ -15,14 +15,22 @@ newsets_gen.py runs unchanged, with three in-memory changes:
   2. plan_arm accepts POS where it demands "content" (a source replacement that must match exactly once);
   3. arm_token appends "-at-<POS>" to arms with a write, so the output file never collides with the content-rule file
      of the same arm. The output contract records "positions": POS.
-Only single-write arms are allowed (two-write generation at another rule was not checked for this generator; GSM8K
-needs single writes only). Only the gen phase is allowed: newsets_gen's export and conf phases do not look at the
-recorded position.
+Single-write arms by default (GSM8K needs single writes only). Two environment switches, added 2026-11-21 night for
+the TriviaQA / PopQA runs at "prompt" (launchers/explore_20261120/ns_prompt.sh):
+  NS_POS_TWO_WRITE=1    two-write arms are accepted. The engine's generate_two takes one rule for its two hooks, and
+                        its acceptance check at "prompt" was run on TruthfulQA for every model's E / C pair
+                        (e44_positions2.py, records selfcheck_*-at-prompt.json); newsets_gen itself asks for no record.
+  NS_POS_PLAIN_NAMES=1  the output files keep their usual names (no "-at-<POS>"), so that the usual table programs can
+                        read a directory of POS-rule answers. Only into an output directory whose path contains
+                        "gen_<POS>" (e.g. newsets/gen_prompt/...), never next to training-rule files; the contract of
+                        every file still records "positions": POS.
+Only the gen phase is allowed: newsets_gen's export and conf phases do not look at the recorded position.
 usage (host side, with the model's own interpreter, like newsets_gen.py):
   python -I Iteration_01/code/scripts/newsets/ns_positions.py prompt|gen gen <newsets_gen.py gen arguments>
 """
 import hashlib
 import inspect
+import os
 import sys
 from pathlib import Path
 
@@ -63,8 +71,14 @@ def main():
         raise SystemExit(__doc__)
     pos, rest = sys.argv[1], sys.argv[2:]
     arms = arms_of(rest)
-    if not arms or any("+" in a for a in arms) or any(":" not in a for a in arms):
-        raise SystemExit("give single-write arms only (base:direction), no two-write arms and no no-write arm")
+    two_ok = os.environ.get("NS_POS_TWO_WRITE") == "1"
+    plain = os.environ.get("NS_POS_PLAIN_NAMES") == "1"
+    if not arms or any(":" not in a for a in arms) or (not two_ok and any("+" in a for a in arms)):
+        raise SystemExit("give arms with a write (base:direction); two-write arms only with NS_POS_TWO_WRITE=1; no no-write arm")
+    if plain:
+        out = next((rest[i + 1] for i, a in enumerate(rest[:-1]) if a == "--out"), "")
+        if ("gen_" + pos) not in out:
+            raise SystemExit("NS_POS_PLAIN_NAMES=1 needs an --out path containing gen_%s (got %r)" % (pos, out))
     real_engine = G.engine
 
     def engine(m):
@@ -85,7 +99,8 @@ def main():
     G.engine = engine
     recompile(G, "plan_arm", OLD, 'if positions != %r:' % pos)
     original_token = G.arm_token
-    G.arm_token = lambda arm: original_token(arm) + ("-at-" + pos if ":" in arm else "")
+    if not plain:
+        G.arm_token = lambda arm: original_token(arm) + ("-at-" + pos if ":" in arm else "")
     print("[ns-positions] newsets_gen.py sha256 %s (unchanged file); entry sha256 %s" % (
         hashlib.sha256(Path(G.__file__).read_bytes()).hexdigest()[:16], hashlib.sha256(Path(__file__).read_bytes()).hexdigest()[:16]), flush=True)
     sys.argv = [G.__file__] + rest

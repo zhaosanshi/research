@@ -37,11 +37,11 @@ def stable(sp, tx, s, cap):
             continue
         a0 = ro.norm(tx.ec[(q, "baseline_x")])
         if not sp.blank[(q, e)]:
-            out.append(sp.st[(q, e)] if ro.norm(tx.ec[(q, e)]) == a0 else "X")
+            out.append(sp.st[(q, "baseline_x")] if ro.norm(tx.ec[(q, e)]) == a0 else "X")
             continue
         k = fr.first_answer(sp, q, s, tc.lad(cap)) if cap is not None else None
         c = sp.cEC(s, k) if k is not None else None
-        out.append(sp.st[(q, c)] if c is not None and ro.norm(tx.ec[(q, c)]) == a0 else "X")
+        out.append(sp.st[(q, "baseline_x")] if c is not None and ro.norm(tx.ec[(q, c)]) == a0 else "X")
     return out
 
 
