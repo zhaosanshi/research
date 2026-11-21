@@ -1,0 +1,330 @@
+
+# triviaqa at the prompt rule (alias match; every setting chosen on tune, 192 questions)
+
+## llama3.1-8b, E at layer 16: tune no write net +90 (answers 190)
+    tune, single E:                                  chosen E16.w.p1                           | E16p1=+89(183) E16p2=+77(167) E16p3.5=+53(115) E16p5=+26(90)
+    tune, single C toward answering:                 chosen C19.w.m0.25                        | Cm0.25=+88(190) Cm0.5=+88(190) Cm1=+88(190) Cm2=+84(192)
+    tune, single C toward caution:                   chosen C19.w.p0.25                        | Cp0.25=+85(189) Cp0.5=+83(187) Cp1=+82(176) Cp2=+41(57)
+    tune, single C, either sign:                     chosen C19.w.m0.25                        | Cm0.25=+88(190) Cm0.5=+88(190) Cm1=+88(190) Cm2=+84(192) Cp0.25=+85(189) Cp0.5=+83(187) Cp1=+82(176) Cp2=+41(57)
+    tune, E + C toward caution or none:              chosen E16.w.p1+C19.w.p0.25               | E16p1=+89(183) E16p1+Cp0.25=+93(181) E16p1+Cp0.5=+92(176) E16p1+Cp1=+72(140) E16p1+Cp2=+21(35) E16p2=+77(167) E16p2+Cp0.25=+69(153) E16p2+Cp0.5=+57(133) E16p2+Cp1=+46(82) E16p2+Cp2=+5(11) E16p3.5=+53(115) E16p3.5+Cp0.25=+44(74) E16p3.5+Cp0.5=+25(43) E16p3.5+Cp1=+6(12) E16p3.5+Cp2=-1(1) E16p5=+26(90) E16p5+Cp0.25=+19(45) E16p5+Cp0.5=+6(16) E16p5+Cp1=+1(3) E16p5+Cp2=-1(1)
+    tune, E as a check:                              chosen check with E16.w.p1                | E16p1=+91(151) E16p2=+79(113) E16p3.5=+54(70) E16p5=+21(27)
+    tune, E + C toward caution or none, as a check:  chosen check with E16.w.p1                | E16p1=+91(151) E16p1+Cp0.25=+90(146) E16p1+Cp0.5=+89(139) E16p1+Cp1=+72(114) E16p1+Cp2=+19(27) E16p2=+79(113) E16p2+Cp0.25=+72(106) E16p2+Cp0.5=+64(94) E16p2+Cp1=+45(63) E16p2+Cp2=+5(7) E16p3.5=+54(70) E16p3.5+Cp0.25=+36(48) E16p3.5+Cp0.5=+19(25) E16p3.5+Cp1=+5(5) E16p3.5+Cp2=+0(0) E16p5=+21(27) E16p5+Cp0.25=+13(17) E16p5+Cp0.5=+5(5) E16p5+Cp1=+0(0) E16p5+Cp2=+0(0)
+    tune, E, answers challenged with caution or not: chosen E16.w.p1 kept if same under +C19.w.p0.5 | E16p1=+89(183) E16p1+Cp0.25=+91(173) E16p1+Cp0.5=+94(162) E16p1+Cp1=+76(128) E16p1+Cp2=+21(29) E16p2=+77(167) E16p2+Cp0.25=+73(143) E16p2+Cp0.5=+63(121) E16p2+Cp1=+47(71) E16p2+Cp2=+7(7) E16p3.5=+53(115) E16p3.5+Cp0.25=+41(69) E16p3.5+Cp0.5=+22(38) E16p3.5+Cp1=+6(8) E16p3.5+Cp2=-1(1) E16p5=+26(90) E16p5+Cp0.25=+21(43) E16p5+Cp0.5=+6(16) E16p5+Cp1=+1(3) E16p5+Cp2=-1(1)
+    tune, best of all on tune:                       chosen E16.w.p1 kept if same under +C19.w.p0.5 | E16p1_kept_if_same_under_+Cp0.5=+94(162) E16p1+Cp0.25=+93(181) E16p1+Cp0.5=+92(176) check_with_E16p1=+91(151) E16p1_kept_if_same_under_+Cp0.25=+91(173)
+    test (500 questions): no write +140 (answers 490) | single E +144 (474) | single C toward answering +143 (493) | single C toward caution +145 (487) | single C, either sign +143 (493) | E + C toward caution or none +149 (465) | E as a check +170 (404) | E + C toward caution or none, as a check +170 (404) | E, answers challenged with caution or not +178 (410) | best of all on tune +178 (410)
+        A minus no write +9 [-11, +29] | A minus single E +5 [-3, +13] | A minus single C toward caution +4 [-17, +24] | A minus single C, either sign +6 [-14, +26] | A minus single C toward answering +6 [-14, +26]
+        B minus no write +30 [+11, +47] | B minus single E +26 [+10, +42] | B minus single C, either sign +27 [+8, +45] | B minus A +21 [+4, +38] | B2 minus B +0 [+0, +0]
+        B2 minus single E +26 [+10, +42] | B2 minus single C, either sign +27 [+8, +45] | single E minus no write +4 [-16, +23] | G minus no write +38 [+16, +60] | G minus single E +34 [+19, +49]
+        G minus single C, either sign +35 [+12, +57] | G minus A +29 [+15, +44] | G minus B +8 [-9, +25] | U minus no write +38 [+16, +60] | U minus single E +34 [+19, +49]
+        U minus single C, either sign +35 [+12, +57] | U minus single C toward answering +35 [+12, +57]
+    test2 (500 questions): no write +196 (answers 492) | single E +187 (471) | single C toward answering +191 (493) | single C toward caution +198 (490) | single C, either sign +191 (493) | E + C toward caution or none +187 (467) | E as a check +205 (411) | E + C toward caution or none, as a check +205 (411) | E, answers challenged with caution or not +199 (431) | best of all on tune +199 (431)
+        A minus no write -9 [-31, +13] | A minus single E +0 [-9, +9] | A minus single C toward caution -11 [-33, +11] | A minus single C, either sign -4 [-27, +18] | A minus single C toward answering -4 [-27, +18]
+        B minus no write +9 [-8, +26] | B minus single E +18 [+3, +34] | B minus single C, either sign +14 [-5, +33] | B minus A +18 [+2, +34] | B2 minus B +0 [+0, +0]
+        B2 minus single E +18 [+3, +34] | B2 minus single C, either sign +14 [-5, +33] | single E minus no write -9 [-30, +12] | G minus no write +3 [-21, +27] | G minus single E +12 [+0, +24]
+        G minus single C, either sign +8 [-16, +32] | G minus A +12 [-1, +24] | G minus B -6 [-24, +11] | U minus no write +3 [-21, +27] | U minus single E +12 [+0, +24]
+        U minus single C, either sign +8 [-16, +32] | U minus single C toward answering +8 [-16, +32]
+
+## qwen3.5-9b, E at layer 15: tune no write net +48 (answers 186)
+    tune, single E:                                  chosen E15.w.p2                           | E15p0.5=+51(183) E15p1=+60(174) E15p2=+61(151) E15p3=+58(112)
+    tune, single C toward answering:                 chosen C16.w.m2                           | Cm0.25=+45(189) Cm0.5=+47(191) Cm1=+46(192) Cm2=+50(192)
+    tune, single C toward caution:                   chosen C16.w.p1                           | Cp0.25=+45(185) Cp0.5=+50(180) Cp1=+58(160) Cp2=+51(79)
+    tune, single C, either sign:                     chosen C16.w.p1                           | Cm0.25=+45(189) Cm0.5=+47(191) Cm1=+46(192) Cm2=+50(192) Cp0.25=+45(185) Cp0.5=+50(180) Cp1=+58(160) Cp2=+51(79)
+    tune, E + C toward caution or none:              chosen E15.w.p2+C16.w.p0.25               | E15p0.5=+51(183) E15p0.5+Cp0.25=+53(177) E15p0.5+Cp0.5=+55(165) E15p0.5+Cp1=+64(146) E15p0.5+Cp2=+45(63) E15p1=+60(174) E15p1+Cp0.25=+58(168) E15p1+Cp0.5=+63(151) E15p1+Cp1=+60(132) E15p1+Cp2=+34(42) E15p2=+61(151) E15p2+Cp0.25=+66(140) E15p2+Cp0.5=+65(119) E15p2+Cp1=+51(73) E15p2+Cp2=+6(10) E15p3=+58(112) E15p3+Cp0.25=+54(78) E15p3+Cp0.5=+38(54) E15p3+Cp1=+16(20) E15p3+Cp2=+1(1)
+    tune, E as a check:                              chosen check with E15.w.p2                | E15p0.5=+54(178) E15p1=+65(161) E15p2=+71(129) E15p3=+68(90)
+    tune, E + C toward caution or none, as a check:  chosen check with E15.w.p2+C16.w.p0.25    | E15p0.5=+54(178) E15p0.5+Cp0.25=+57(173) E15p0.5+Cp0.5=+59(153) E15p0.5+Cp1=+68(130) E15p0.5+Cp2=+47(57) E15p1=+65(161) E15p1+Cp0.25=+61(157) E15p1+Cp0.5=+64(140) E15p1+Cp1=+65(115) E15p1+Cp2=+35(39) E15p2=+71(129) E15p2+Cp0.25=+72(120) E15p2+Cp0.5=+69(105) E15p2+Cp1=+53(67) E15p2+Cp2=+6(10) E15p3=+68(90) E15p3+Cp0.25=+55(67) E15p3+Cp0.5=+40(50) E15p3+Cp1=+16(20) E15p3+Cp2=+1(1)
+    tune, E, answers challenged with caution or not: chosen E15.w.p0.5 kept if same under +C16.w.p1 | E15p0.5=+51(183) E15p0.5+Cp0.25=+55(173) E15p0.5+Cp0.5=+59(155) E15p0.5+Cp1=+69(131) E15p0.5+Cp2=+47(57) E15p1=+60(174) E15p1+Cp0.25=+64(158) E15p1+Cp0.5=+68(134) E15p1+Cp1=+68(112) E15p1+Cp2=+35(39) E15p2=+61(151) E15p2+Cp0.25=+66(138) E15p2+Cp0.5=+68(110) E15p2+Cp1=+51(69) E15p2+Cp2=+6(10) E15p3=+58(112) E15p3+Cp0.25=+51(75) E15p3+Cp0.5=+38(52) E15p3+Cp1=+16(20) E15p3+Cp2=+1(1)
+    tune, best of all on tune:                       chosen check with E15.w.p2+C16.w.p0.25    | check_with_E15p2+Cp0.25=+72(120) check_with_E15p2=+71(129) E15p0.5_kept_if_same_under_+Cp1=+69(131) check_with_E15p2+Cp0.5=+69(105) check_with_E15p3=+68(90)
+    test (500 questions): no write +74 (answers 492) | single E +128 (376) | single C toward answering +68 (500) | single C toward caution +116 (414) | single C, either sign +116 (414) | E + C toward caution or none +147 (335) | E as a check +151 (313) | E + C toward caution or none, as a check +157 (279) | E, answers challenged with caution or not +146 (324) | best of all on tune +157 (279)
+        A minus no write +73 [+47, +100] | A minus single E +19 [+5, +33] | A minus single C toward caution +31 [+8, +54] | A minus single C, either sign +31 [+8, +54] | A minus single C toward answering +79 [+49, +109]
+        B minus no write +77 [+53, +102] | B minus single E +23 [+7, +38] | B minus single C, either sign +35 [+14, +57] | B minus A +4 [-14, +22] | B2 minus B +6 [-6, +18]
+        B2 minus single E +29 [+9, +49] | B2 minus single C, either sign +41 [+18, +65] | single E minus no write +54 [+29, +80] | G minus no write +72 [+47, +97] | G minus single E +18 [-2, +37]
+        G minus single C, either sign +30 [+11, +49] | G minus A -1 [-22, +19] | G minus B -5 [-21, +11] | U minus no write +83 [+56, +111] | U minus single E +29 [+9, +49]
+        U minus single C, either sign +41 [+18, +65] | U minus single C toward answering +89 [+59, +119]
+    test2 (500 questions): no write +116 (answers 490) | single E +150 (386) | single C toward answering +126 (500) | single C toward caution +144 (418) | single C, either sign +144 (418) | E + C toward caution or none +157 (337) | E as a check +175 (319) | E + C toward caution or none, as a check +173 (291) | E, answers challenged with caution or not +171 (337) | best of all on tune +173 (291)
+        A minus no write +41 [+12, +71] | A minus single E +7 [-10, +24] | A minus single C toward caution +13 [-11, +37] | A minus single C, either sign +13 [-11, +37] | A minus single C toward answering +31 [-2, +64]
+        B minus no write +59 [+34, +84] | B minus single E +25 [+9, +41] | B minus single C, either sign +31 [+9, +53] | B minus A +18 [+1, +35] | B2 minus B -2 [-14, +10]
+        B2 minus single E +23 [+3, +43] | B2 minus single C, either sign +29 [+6, +53] | single E minus no write +34 [+5, +63] | G minus no write +55 [+31, +80] | G minus single E +21 [-1, +42]
+        G minus single C, either sign +27 [+9, +46] | G minus A +14 [-6, +33] | G minus B -4 [-21, +13] | U minus no write +57 [+30, +83] | U minus single E +23 [+3, +43]
+        U minus single C, either sign +29 [+6, +53] | U minus single C toward answering +47 [+15, +79]
+
+## qwen3.8-27b, E at layer 28: tune no write net +57 (answers 183)
+    tune, single E:                                  chosen E28.w.p0.5                         | E28p0.5=+60(180) E28p1=+58(182) E28p1.75=+58(180) E28p3=+47(169)
+    tune, single C toward answering:                 chosen C33.w.m2                           | Cm0.25=+54(188) Cm0.5=+52(190) Cm1=+52(190) Cm2=+57(191)
+    tune, single C toward caution:                   chosen C33.w.p0.5                         | Cp0.25=+70(170) Cp0.5=+81(133) Cp1=+58(80) Cp2=+55(61)
+    tune, single C, either sign:                     chosen C33.w.p0.5                         | Cm0.25=+54(188) Cm0.5=+52(190) Cm1=+52(190) Cm2=+57(191) Cp0.25=+70(170) Cp0.5=+81(133) Cp1=+58(80) Cp2=+55(61)
+    tune, E + C toward caution or none:              chosen E28.w.p0.5+C33.w.p0.5              | E28p0.5=+60(180) E28p0.5+Cp0.25=+71(167) E28p0.5+Cp0.5=+84(130) E28p0.5+Cp1=+52(68) E28p0.5+Cp2=+47(51) E28p1=+58(182) E28p1+Cp0.25=+75(159) E28p1+Cp0.5=+77(111) E28p1+Cp1=+42(50) E28p1+Cp2=+40(44) E28p1.75=+58(180) E28p1.75+Cp0.25=+70(152) E28p1.75+Cp0.5=+66(96) E28p1.75+Cp1=+39(49) E28p1.75+Cp2=+31(33) E28p3=+47(169) E28p3+Cp0.25=+56(148) E28p3+Cp0.5=+67(117) E28p3+Cp1=+52(68) E28p3+Cp2=+18(18)
+    tune, E as a check:                              chosen check with E28.w.p3                | E28p0.5=+62(176) E28p1=+65(171) E28p1.75=+68(166) E28p3=+73(129)
+    tune, E + C toward caution or none, as a check:  chosen check with E28.w.p0.5+C33.w.p0.5   | E28p0.5=+62(176) E28p0.5+Cp0.25=+72(158) E28p0.5+Cp0.5=+87(121) E28p0.5+Cp1=+54(64) E28p0.5+Cp2=+47(51) E28p1=+65(171) E28p1+Cp0.25=+78(150) E28p1+Cp0.5=+80(106) E28p1+Cp1=+43(49) E28p1+Cp2=+40(44) E28p1.75=+68(166) E28p1.75+Cp0.25=+77(141) E28p1.75+Cp0.5=+67(91) E28p1.75+Cp1=+41(47) E28p1.75+Cp2=+31(33) E28p3=+73(129) E28p3+Cp0.25=+75(121) E28p3+Cp0.5=+71(101) E28p3+Cp1=+48(64) E28p3+Cp2=+18(18)
+    tune, E, answers challenged with caution or not: chosen E28.w.p0.5 kept if same under +C33.w.p0.5 | E28p0.5=+60(180) E28p0.5+Cp0.25=+71(161) E28p0.5+Cp0.5=+85(121) E28p0.5+Cp1=+54(64) E28p0.5+Cp2=+47(51) E28p1=+58(182) E28p1+Cp0.25=+74(154) E28p1+Cp0.5=+77(105) E28p1+Cp1=+42(48) E28p1+Cp2=+39(43) E28p1.75=+58(180) E28p1.75+Cp0.25=+74(148) E28p1.75+Cp0.5=+65(95) E28p1.75+Cp1=+39(47) E28p1.75+Cp2=+30(32) E28p3=+47(169) E28p3+Cp0.25=+58(142) E28p3+Cp0.5=+65(111) E28p3+Cp1=+49(65) E28p3+Cp2=+18(18)
+    tune, best of all on tune:                       chosen check with E28.w.p0.5+C33.w.p0.5   | check_with_E28p0.5+Cp0.5=+87(121) check_with_Cp0.5=+86(124) E28p0.5_kept_if_same_under_+Cp0.5=+85(121) E28p0.5+Cp0.5=+84(130) Cp0.5=+81(133)
+    test (500 questions): no write +121 (answers 477) | single E +128 (468) | single C toward answering +100 (500) | single C toward caution +188 (358) | single C, either sign +188 (358) | E + C toward caution or none +190 (326) | E as a check +175 (323) | E + C toward caution or none, as a check +194 (314) | E, answers challenged with caution or not +192 (312) | best of all on tune +194 (314)
+        A minus no write +69 [+45, +94] | A minus single E +62 [+37, +87] | A minus single C toward caution +2 [-9, +14] | A minus single C, either sign +2 [-9, +14] | A minus single C toward answering +90 [+62, +119]
+        B minus no write +54 [+30, +77] | B minus single E +47 [+24, +71] | B minus single C, either sign -13 [-35, +9] | B minus A -15 [-37, +7] | B2 minus B +19 [+0, +39]
+        B2 minus single E +66 [+43, +91] | B2 minus single C, either sign +6 [-7, +19] | single E minus no write +7 [-3, +17] | G minus no write +71 [+46, +95] | G minus single E +64 [+41, +88]
+        G minus single C, either sign +4 [-9, +17] | G minus A +2 [-5, +9] | G minus B +17 [-3, +37] | U minus no write +73 [+49, +97] | U minus single E +66 [+43, +91]
+        U minus single C, either sign +6 [-7, +19] | U minus single C toward answering +94 [+66, +122]
+    test2 (500 questions): no write +149 (answers 475) | single E +155 (465) | single C toward answering +110 (500) | single C toward caution +185 (353) | single C, either sign +185 (353) | E + C toward caution or none +177 (319) | E as a check +168 (306) | E + C toward caution or none, as a check +176 (292) | E, answers challenged with caution or not +176 (294) | best of all on tune +176 (292)
+        A minus no write +28 [+2, +55] | A minus single E +22 [-5, +48] | A minus single C toward caution -8 [-20, +4] | A minus single C, either sign -8 [-20, +4] | A minus single C toward answering +67 [+35, +99]
+        B minus no write +19 [-7, +45] | B minus single E +13 [-12, +38] | B minus single C, either sign -17 [-40, +6] | B minus A -9 [-32, +14] | B2 minus B +8 [-13, +29]
+        B2 minus single E +21 [-5, +47] | B2 minus single C, either sign -9 [-25, +6] | single E minus no write +6 [-5, +18] | G minus no write +27 [+1, +54] | G minus single E +21 [-5, +46]
+        G minus single C, either sign -9 [-24, +6] | G minus A -1 [-11, +9] | G minus B +8 [-13, +30] | U minus no write +27 [+1, +54] | U minus single E +21 [-5, +47]
+        U minus single C, either sign -9 [-25, +6] | U minus single C toward answering +66 [+35, +98]
+
+## gemma3-12b, E at layer 24: tune no write net +64 (answers 190)
+    tune, single E:                                  chosen E24.w.p1                           | E24p1=+72(184) E24p2.5=+44(140) E24p4=-50(134)
+    tune, single C toward answering:                 chosen C25.w.m0.25                        | Cm0.25=+62(190) Cm0.5=+58(192) Cm1=+58(192) Cm2=+50(192)
+    tune, single C toward caution:                   chosen C25.w.p2                           | Cp0.25=+70(190) Cp0.5=+71(189) Cp1=+80(180) Cp2=+90(142)
+    tune, single C, either sign:                     chosen C25.w.p2                           | Cm0.25=+62(190) Cm0.5=+58(192) Cm1=+58(192) Cm2=+50(192) Cp0.25=+70(190) Cp0.5=+71(189) Cp1=+80(180) Cp2=+90(142)
+    tune, E + C toward caution or none:              chosen E24.w.p1+C25.w.p1                  | E24p1=+72(184) E24p1+Cp0.25=+71(183) E24p1+Cp0.5=+72(178) E24p1+Cp1=+85(155) E24p1+Cp2=+66(82) E24p2.5=+44(140) E24p2.5+Cp0.25=+49(117) E24p2.5+Cp0.5=+54(90) E24p2.5+Cp1=+31(47) E24p2.5+Cp2=+0(0) E24p4=-50(134) E24p4+Cp0.25=-20(86) E24p4+Cp0.5=-1(45) E24p4+Cp1=+1(9) E24p4+Cp2=+0(0)
+    tune, E as a check:                              chosen check with E24.w.p1                | E24p1=+81(155) E24p2.5=+68(94) E24p4=+32(42)
+    tune, E + C toward caution or none, as a check:  chosen check with E24.w.p1                | E24p1=+81(155) E24p1+Cp0.25=+79(153) E24p1+Cp0.5=+78(152) E24p1+Cp1=+79(135) E24p1+Cp2=+61(75) E24p2.5=+68(94) E24p2.5+Cp0.25=+63(83) E24p2.5+Cp0.5=+56(70) E24p2.5+Cp1=+30(40) E24p2.5+Cp2=+0(0) E24p4=+32(42) E24p4+Cp0.25=+28(34) E24p4+Cp0.5=+18(22) E24p4+Cp1=+5(5) E24p4+Cp2=+0(0)
+    tune, E, answers challenged with caution or not: chosen E24.w.p1 kept if same under +C25.w.p1 | E24p1=+72(184) E24p1+Cp0.25=+73(177) E24p1+Cp0.5=+75(165) E24p1+Cp1=+82(140) E24p1+Cp2=+63(75) E24p2.5=+44(140) E24p2.5+Cp0.25=+49(117) E24p2.5+Cp0.5=+54(90) E24p2.5+Cp1=+31(47) E24p2.5+Cp2=+0(0) E24p4=-50(134) E24p4+Cp0.25=-18(82) E24p4+Cp0.5=+1(41) E24p4+Cp1=+1(9) E24p4+Cp2=+0(0)
+    tune, best of all on tune:                       chosen C25.w.p2                           | Cp2=+90(142) check_with_Cp2=+87(121) E24p1+Cp1=+85(155) E24p1_kept_if_same_under_+Cp1=+82(140) check_with_E24p1=+81(155)
+    test (500 questions): no write +159 (answers 497) | single E +149 (487) | single C toward answering +161 (499) | single C toward caution +214 (348) | single C, either sign +214 (348) | E + C toward caution or none +186 (412) | E as a check +189 (423) | E + C toward caution or none, as a check +189 (423) | E, answers challenged with caution or not +196 (372) | best of all on tune +214 (348)
+        A minus no write +27 [+4, +50] | A minus single E +37 [+16, +58] | A minus single C toward caution -28 [-50, -7] | A minus single C, either sign -28 [-50, -7] | A minus single C toward answering +25 [+2, +48]
+        B minus no write +30 [+13, +47] | B minus single E +40 [+25, +55] | B minus single C, either sign -25 [-51, +1] | B minus A +3 [-18, +24] | B2 minus B +0 [+0, +0]
+        B2 minus single E +40 [+25, +55] | B2 minus single C, either sign -25 [-51, +1] | single E minus no write -10 [-27, +7] | G minus no write +37 [+14, +60] | G minus single E +47 [+27, +67]
+        G minus single C, either sign -18 [-40, +4] | G minus A +10 [-3, +23] | G minus B +7 [-12, +26] | U minus no write +55 [+27, +83] | U minus single E +65 [+38, +92]
+        U minus single C, either sign +0 [+0, +0] | U minus single C toward answering +53 [+24, +82]
+    test2 (500 questions): no write +166 (answers 500) | single E +163 (491) | single C toward answering +164 (500) | single C toward caution +212 (372) | single C, either sign +212 (372) | E + C toward caution or none +182 (414) | E as a check +198 (420) | E + C toward caution or none, as a check +198 (420) | E, answers challenged with caution or not +206 (372) | best of all on tune +212 (372)
+        A minus no write +16 [-8, +40] | A minus single E +19 [-2, +40] | A minus single C toward caution -30 [-50, -9] | A minus single C, either sign -30 [-50, -9] | A minus single C toward answering +18 [-6, +42]
+        B minus no write +32 [+16, +49] | B minus single E +35 [+19, +51] | B minus single C, either sign -14 [-39, +11] | B minus A +16 [-7, +39] | B2 minus B +0 [+0, +0]
+        B2 minus single E +35 [+19, +51] | B2 minus single C, either sign -14 [-39, +11] | single E minus no write -3 [-20, +14] | G minus no write +40 [+15, +65] | G minus single E +43 [+22, +64]
+        G minus single C, either sign -6 [-27, +15] | G minus A +24 [+12, +36] | G minus B +8 [-12, +28] | U minus no write +46 [+19, +74] | U minus single E +49 [+21, +76]
+        U minus single C, either sign +0 [+0, +0] | U minus single C toward answering +48 [+22, +76]
+
+## gemma3-27b, E at layer 28: tune no write net +103 (answers 191)
+    tune, single E:                                  chosen E28.w.p0.5                         | E28p0.5=+104(190) E28p1=+99(187) E28p2=+90(158)
+    tune, single C toward answering:                 chosen C31.w.m0.25                        | Cm0.25=+103(191) Cm0.5=+100(192) Cm1=+102(192) Cm2=+98(192)
+    tune, single C toward caution:                   chosen C31.w.p1                           | Cp0.25=+101(189) Cp0.5=+104(186) Cp1=+113(179) Cp2=+102(158)
+    tune, single C, either sign:                     chosen C31.w.p1                           | Cm0.25=+103(191) Cm0.5=+100(192) Cm1=+102(192) Cm2=+98(192) Cp0.25=+101(189) Cp0.5=+104(186) Cp1=+113(179) Cp2=+102(158)
+    tune, E + C toward caution or none:              chosen E28.w.p0.5+C31.w.p1                | E28p0.5=+104(190) E28p0.5+Cp0.25=+101(189) E28p0.5+Cp0.5=+106(184) E28p0.5+Cp1=+112(176) E28p0.5+Cp2=+103(149) E28p1=+99(187) E28p1+Cp0.25=+103(183) E28p1+Cp0.5=+101(179) E28p1+Cp1=+102(166) E28p1+Cp2=+87(121) E28p2=+90(158) E28p2+Cp0.25=+80(144) E28p2+Cp0.5=+66(118) E28p2+Cp1=+52(88) E28p2+Cp2=+13(25)
+    tune, E as a check:                              chosen check with E28.w.p0.5              | E28p0.5=+105(179) E28p1=+100(160) E28p2=+87(121)
+    tune, E + C toward caution or none, as a check:  chosen check with E28.w.p0.5              | E28p0.5=+105(179) E28p0.5+Cp0.25=+103(177) E28p0.5+Cp0.5=+104(174) E28p0.5+Cp1=+104(156) E28p0.5+Cp2=+96(128) E28p1=+100(160) E28p1+Cp0.25=+104(162) E28p1+Cp0.5=+101(157) E28p1+Cp1=+98(144) E28p1+Cp2=+79(103) E28p2=+87(121) E28p2+Cp0.25=+81(111) E28p2+Cp0.5=+67(89) E28p2+Cp1=+48(68) E28p2+Cp2=+13(21)
+    tune, E, answers challenged with caution or not: chosen E28.w.p0.5 kept if same under +C31.w.p0.5 | E28p0.5=+104(190) E28p0.5+Cp0.25=+105(177) E28p0.5+Cp0.5=+106(172) E28p0.5+Cp1=+103(155) E28p0.5+Cp2=+97(125) E28p1=+99(187) E28p1+Cp0.25=+102(178) E28p1+Cp0.5=+102(168) E28p1+Cp1=+99(151) E28p1+Cp2=+80(104) E28p2=+90(158) E28p2+Cp0.25=+82(138) E28p2+Cp0.5=+70(104) E28p2+Cp1=+51(71) E28p2+Cp2=+14(22)
+    tune, best of all on tune:                       chosen C31.w.p1                           | Cp1=+113(179) E28p0.5+Cp1=+112(176) check_with_Cp1=+107(161) E28p0.5_kept_if_same_under_+Cp0.5=+106(172) E28p0.5+Cp0.5=+106(184)
+    test (500 questions): no write +259 (answers 497) | single E +268 (494) | single C toward answering +254 (498) | single C toward caution +271 (479) | single C, either sign +271 (479) | E + C toward caution or none +272 (468) | E as a check +284 (454) | E + C toward caution or none, as a check +284 (454) | E, answers challenged with caution or not +266 (456) | best of all on tune +271 (479)
+        A minus no write +13 [-4, +30] | A minus single E +4 [-12, +19] | A minus single C toward caution +1 [-12, +14] | A minus single C, either sign +1 [-12, +14] | A minus single C toward answering +18 [+0, +36]
+        B minus no write +25 [+13, +38] | B minus single E +16 [+4, +28] | B minus single C, either sign +13 [-3, +29] | B minus A +12 [-4, +28] | B2 minus B +0 [+0, +0]
+        B2 minus single E +16 [+4, +28] | B2 minus single C, either sign +13 [-3, +29] | single E minus no write +9 [-3, +22] | G minus no write +7 [-9, +23] | G minus single E -2 [-14, +10]
+        G minus single C, either sign -5 [-20, +10] | G minus A -6 [-22, +9] | G minus B -18 [-32, -5] | U minus no write +12 [-3, +26] | U minus single E +3 [-12, +18]
+        U minus single C, either sign +0 [+0, +0] | U minus single C toward answering +17 [+1, +33]
+    test2 (500 questions): no write +277 (answers 499) | single E +279 (499) | single C toward answering +275 (499) | single C toward caution +273 (485) | single C, either sign +273 (485) | E + C toward caution or none +281 (477) | E as a check +278 (466) | E + C toward caution or none, as a check +278 (466) | E, answers challenged with caution or not +280 (466) | best of all on tune +273 (485)
+        A minus no write +4 [-13, +21] | A minus single E +2 [-13, +17] | A minus single C toward caution +8 [-3, +20] | A minus single C, either sign +8 [-3, +20] | A minus single C toward answering +6 [-12, +24]
+        B minus no write +1 [-10, +12] | B minus single E -1 [-12, +10] | B minus single C, either sign +5 [-11, +21] | B minus A -3 [-20, +14] | B2 minus B +0 [+0, +0]
+        B2 minus single E -1 [-12, +10] | B2 minus single C, either sign +5 [-11, +21] | single E minus no write +2 [-10, +14] | G minus no write +3 [-11, +17] | G minus single E +1 [-10, +13]
+        G minus single C, either sign +7 [-7, +20] | G minus A -1 [-15, +12] | G minus B +2 [-11, +14] | U minus no write -4 [-20, +11] | U minus single E -6 [-21, +9]
+        U minus single C, either sign +0 [+0, +0] | U minus single C toward answering -2 [-19, +14]
+
+## triviaqa, test: 5 of 5 models complete, together (questions resampled jointly)
+    A minus no write                     +191 [+132, +252], 5 of 5 models positive
+    A minus single E                     +127 [+85, +170], 5 of 5 models positive
+    A minus single C toward caution      +10 [-31, +54], 4 of 5 models positive
+    A minus single C, either sign        +12 [-28, +56], 4 of 5 models positive
+    A minus single C toward answering    +218 [+157, +281], 5 of 5 models positive
+    B minus no write                     +216 [+159, +274], 5 of 5 models positive
+    B minus single E                     +152 [+105, +201], 5 of 5 models positive
+    B minus single C, either sign        +37 [-9, +86], 3 of 5 models positive
+    B minus A                            +25 [-18, +69], 4 of 5 models positive
+    B2 minus B                           +25 [+2, +48], 2 of 5 models positive
+    B2 minus single E                    +177 [+126, +229], 5 of 5 models positive
+    B2 minus single C, either sign       +62 [+16, +108], 4 of 5 models positive
+    single E minus no write              +64 [+23, +104], 4 of 5 models positive
+    G minus no write                     +225 [+164, +288], 5 of 5 models positive
+    G minus single E                     +161 [+114, +210], 4 of 5 models positive
+    G minus single C, either sign        +46 [+2, +92], 3 of 5 models positive
+    G minus A                            +34 [+1, +68], 3 of 5 models positive
+    G minus B                            +9 [-29, +47], 3 of 5 models positive
+    U minus no write                     +261 [+196, +326], 5 of 5 models positive
+    U minus single E                     +197 [+145, +249], 5 of 5 models positive
+    U minus single C, either sign        +82 [+44, +120], 3 of 5 models positive
+    U minus single C toward answering    +288 [+218, +357], 5 of 5 models positive
+
+## triviaqa, test2: 5 of 5 models complete, together (questions resampled jointly)
+    A minus no write                     +80 [+22, +137], 4 of 5 models positive
+    A minus single E                     +50 [+7, +95], 4 of 5 models positive
+    A minus single C toward caution      -28 [-65, +12], 2 of 5 models positive
+    A minus single C, either sign        -21 [-60, +21], 2 of 5 models positive
+    A minus single C toward answering    +118 [+50, +184], 4 of 5 models positive
+    B minus no write                     +120 [+67, +174], 5 of 5 models positive
+    B minus single E                     +90 [+46, +132], 4 of 5 models positive
+    B minus single C, either sign        +19 [-30, +69], 3 of 5 models positive
+    B minus A                            +40 [-3, +84], 3 of 5 models positive
+    B2 minus B                           +6 [-18, +29], 1 of 5 models positive
+    B2 minus single E                    +96 [+47, +143], 4 of 5 models positive
+    B2 minus single C, either sign       +25 [-21, +72], 3 of 5 models positive
+    single E minus no write              +30 [-11, +72], 3 of 5 models positive
+    G minus no write                     +128 [+69, +188], 5 of 5 models positive
+    G minus single E                     +98 [+50, +145], 5 of 5 models positive
+    G minus single C, either sign        +27 [-15, +72], 3 of 5 models positive
+    G minus A                            +48 [+16, +80], 3 of 5 models positive
+    G minus B                            +8 [-30, +48], 3 of 5 models positive
+    U minus no write                     +129 [+66, +193], 4 of 5 models positive
+    U minus single E                     +99 [+48, +152], 4 of 5 models positive
+    U minus single C, either sign        +28 [-10, +67], 2 of 5 models positive
+    U minus single C toward answering    +167 [+95, +236], 4 of 5 models positive
+
+# popqa at the prompt rule (alias match; every setting chosen on tune, 192 questions)
+
+## llama3.1-8b, E at layer 16: tune no write net -20 (answers 144)
+    tune, single E:                                  chosen E16.w.p3.5                         | E16p1=+0(112) E16p2=+15(81) E16p3.5=+18(44) E16p5=+10(32)
+    tune, single C toward answering:                 chosen C19.w.m0.25                        | Cm0.25=-26(152) Cm0.5=-26(154) Cm1=-36(164) Cm2=-72(188)
+    tune, single C toward caution:                   chosen C19.w.p2                           | Cp0.25=-9(133) Cp0.5=-5(123) Cp1=+6(98) Cp2=+14(22)
+    tune, single C, either sign:                     chosen C19.w.p2                           | Cm0.25=-26(152) Cm0.5=-26(154) Cm1=-36(164) Cm2=-72(188) Cp0.25=-9(133) Cp0.5=-5(123) Cp1=+6(98) Cp2=+14(22)
+    tune, E + C toward caution or none:              chosen E16.w.p2+C19.w.p0.5                | E16p1=+0(112) E16p1+Cp0.25=+6(100) E16p1+Cp0.5=+10(90) E16p1+Cp1=+20(64) E16p1+Cp2=+6(14) E16p2=+15(81) E16p2+Cp0.25=+18(68) E16p2+Cp0.5=+23(57) E16p2+Cp1=+12(32) E16p2+Cp2=+1(1) E16p3.5=+18(44) E16p3.5+Cp0.25=+12(32) E16p3.5+Cp0.5=+7(15) E16p3.5+Cp1=+3(3) E16p3.5+Cp2=+0(0) E16p5=+10(32) E16p5+Cp0.25=+11(19) E16p5+Cp0.5=+8(10) E16p5+Cp1=+1(1) E16p5+Cp2=+0(0)
+    tune, E as a check:                              chosen check with E16.w.p2                | E16p1=+14(90) E16p2=+28(60) E16p3.5=+18(28) E16p5=+10(10)
+    tune, E + C toward caution or none, as a check:  chosen check with E16.w.p2                | E16p1=+14(90) E16p1+Cp0.25=+18(80) E16p1+Cp0.5=+20(74) E16p1+Cp1=+24(54) E16p1+Cp2=+9(11) E16p2=+28(60) E16p2+Cp0.25=+25(53) E16p2+Cp0.5=+24(46) E16p2+Cp1=+13(27) E16p2+Cp2=+1(1) E16p3.5=+18(28) E16p3.5+Cp0.25=+12(20) E16p3.5+Cp0.5=+8(10) E16p3.5+Cp1=+3(3) E16p3.5+Cp2=+0(0) E16p5=+10(10) E16p5+Cp0.25=+7(7) E16p5+Cp0.5=+3(3) E16p5+Cp1=+1(1) E16p5+Cp2=+0(0)
+    tune, E, answers challenged with caution or not: chosen E16.w.p1 kept if same under +C19.w.p1 | E16p1=+0(112) E16p1+Cp0.25=+8(98) E16p1+Cp0.5=+12(86) E16p1+Cp1=+23(57) E16p1+Cp2=+9(11) E16p2=+15(81) E16p2+Cp0.25=+18(66) E16p2+Cp0.5=+23(53) E16p2+Cp1=+12(30) E16p2+Cp2=+1(1) E16p3.5=+18(44) E16p3.5+Cp0.25=+14(30) E16p3.5+Cp0.5=+7(15) E16p3.5+Cp1=+3(3) E16p3.5+Cp2=+0(0) E16p5=+10(32) E16p5+Cp0.25=+11(19) E16p5+Cp0.5=+8(10) E16p5+Cp1=+1(1) E16p5+Cp2=+0(0)
+    tune, best of all on tune:                       chosen check with E16.w.p2                | check_with_E16p2=+28(60) check_with_E16p2+Cp0.25=+25(53) check_with_E16p1+Cp1=+24(54) check_with_E16p2+Cp0.5=+24(46) E16p1_kept_if_same_under_+Cp1=+23(57)
+    test (500 questions): no write -111 (answers 365) | single E +15 (99) | single C toward answering -134 (386) | single C toward caution +27 (73) | single C, either sign +27 (73) | E + C toward caution or none +7 (147) | E as a check +19 (153) | E + C toward caution or none, as a check +19 (153) | E, answers challenged with caution or not +12 (156) | best of all on tune +19 (153)
+        A minus no write +118 [+91, +146] | A minus single E -8 [-24, +8] | A minus single C toward caution -20 [-39, -2] | A minus single C, either sign -20 [-39, -2] | A minus single C toward answering +141 [+113, +170]
+        B minus no write +130 [+105, +156] | B minus single E +4 [-14, +23] | B minus single C, either sign -8 [-27, +12] | B minus A +12 [-4, +28] | B2 minus B +0 [+0, +0]
+        B2 minus single E +4 [-14, +23] | B2 minus single C, either sign -8 [-27, +12] | single E minus no write +126 [+96, +157] | G minus no write +123 [+97, +150] | G minus single E -3 [-20, +15]
+        G minus single C, either sign -15 [-34, +5] | G minus A +5 [-8, +18] | G minus B -7 [-21, +7] | U minus no write +130 [+105, +156] | U minus single E +4 [-14, +23]
+        U minus single C, either sign -8 [-27, +12] | U minus single C toward answering +153 [+127, +181]
+    test2 (500 questions): no write -97 (answers 375) | single E +19 (99) | single C toward answering -116 (394) | single C toward caution +20 (70) | single C, either sign +20 (70) | E + C toward caution or none +33 (133) | E as a check +38 (162) | E + C toward caution or none, as a check +38 (162) | E, answers challenged with caution or not +36 (154) | best of all on tune +38 (162)
+        A minus no write +130 [+98, +161] | A minus single E +14 [-3, +30] | A minus single C toward caution +13 [-5, +30] | A minus single C, either sign +13 [-5, +30] | A minus single C toward answering +149 [+117, +180]
+        B minus no write +135 [+110, +161] | B minus single E +19 [-2, +41] | B minus single C, either sign +18 [-4, +39] | B minus A +5 [-12, +22] | B2 minus B +0 [+0, +0]
+        B2 minus single E +19 [-2, +41] | B2 minus single C, either sign +18 [-4, +39] | single E minus no write +116 [+81, +150] | G minus no write +133 [+105, +162] | G minus single E +17 [-4, +39]
+        G minus single C, either sign +16 [-4, +36] | G minus A +3 [-12, +18] | G minus B -2 [-17, +13] | U minus no write +135 [+110, +161] | U minus single E +19 [-2, +41]
+        U minus single C, either sign +18 [-4, +39] | U minus single C toward answering +154 [+128, +181]
+
+## qwen3.5-9b, E at layer 15: tune no write net -63 (answers 155)
+    tune, single E:                                  chosen E15.w.p3                           | E15p0.5=-48(136) E15p1=-26(114) E15p2=+2(78) E15p3=+6(48)
+    tune, single C toward answering:                 chosen C16.w.m0.25                        | Cm0.25=-74(170) Cm0.5=-82(180) Cm1=-89(189) Cm2=-94(192)
+    tune, single C toward caution:                   chosen C16.w.p2                           | Cp0.25=-42(134) Cp0.5=-24(108) Cp1=+2(76) Cp2=+7(27)
+    tune, single C, either sign:                     chosen C16.w.p2                           | Cm0.25=-74(170) Cm0.5=-82(180) Cm1=-89(189) Cm2=-94(192) Cp0.25=-42(134) Cp0.5=-24(108) Cp1=+2(76) Cp2=+7(27)
+    tune, E + C toward caution or none:              chosen E15.w.p1+C16.w.p1                  | E15p0.5=-48(136) E15p0.5+Cp0.25=-27(111) E15p0.5+Cp0.5=-8(92) E15p0.5+Cp1=+10(68) E15p0.5+Cp2=+2(20) E15p1=-26(114) E15p1+Cp0.25=-7(89) E15p1+Cp0.5=+4(78) E15p1+Cp1=+17(55) E15p1+Cp2=+4(14) E15p2=+2(78) E15p2+Cp0.25=+8(64) E15p2+Cp0.5=+16(54) E15p2+Cp1=+7(27) E15p2+Cp2=+2(4) E15p3=+6(48) E15p3+Cp0.25=+8(34) E15p3+Cp0.5=+5(19) E15p3+Cp1=+6(8) E15p3+Cp2=+1(1)
+    tune, E as a check:                              chosen check with E15.w.p3                | E15p0.5=-47(135) E15p1=-20(102) E15p2=+13(59) E15p3=+15(31)
+    tune, E + C toward caution or none, as a check:  chosen check with E15.w.p1+C16.w.p1       | E15p0.5=-47(135) E15p0.5+Cp0.25=-21(103) E15p0.5+Cp0.5=-4(82) E15p0.5+Cp1=+19(53) E15p0.5+Cp2=+4(14) E15p1=-20(102) E15p1+Cp0.25=-1(81) E15p1+Cp0.5=+9(67) E15p1+Cp1=+23(43) E15p1+Cp2=+4(10) E15p2=+13(59) E15p2+Cp0.25=+17(47) E15p2+Cp0.5=+22(40) E15p2+Cp1=+10(22) E15p2+Cp2=+2(4) E15p3=+15(31) E15p3+Cp0.25=+14(24) E15p3+Cp0.5=+6(16) E15p3+Cp1=+6(8) E15p3+Cp2=+1(1)
+    tune, E, answers challenged with caution or not: chosen E15.w.p1 kept if same under +C16.w.p1 | E15p0.5=-48(136) E15p0.5+Cp0.25=-22(104) E15p0.5+Cp0.5=-5(83) E15p0.5+Cp1=+19(53) E15p0.5+Cp2=+4(14) E15p1=-26(114) E15p1+Cp0.25=-1(81) E15p1+Cp0.5=+7(69) E15p1+Cp1=+22(44) E15p1+Cp2=+4(10) E15p2=+2(78) E15p2+Cp0.25=+12(60) E15p2+Cp0.5=+21(49) E15p2+Cp1=+9(23) E15p2+Cp2=+2(4) E15p3=+6(48) E15p3+Cp0.25=+7(33) E15p3+Cp0.5=+4(18) E15p3+Cp1=+6(8) E15p3+Cp2=+1(1)
+    tune, best of all on tune:                       chosen check with E15.w.p1+C16.w.p1       | check_with_E15p1+Cp1=+23(43) E15p1_kept_if_same_under_+Cp1=+22(44) check_with_E15p2+Cp0.5=+22(40) E15p2_kept_if_same_under_+Cp0.5=+21(49) E15p0.5_kept_if_same_under_+Cp1=+19(53)
+    test (500 questions): no write -199 (answers 417) | single E -20 (118) | single C toward answering -231 (457) | single C toward caution +7 (67) | single C, either sign +7 (67) | E + C toward caution or none -12 (124) | E as a check +8 (86) | E + C toward caution or none, as a check +5 (101) | E, answers challenged with caution or not +2 (104) | best of all on tune +5 (101)
+        A minus no write +187 [+156, +217] | A minus single E +8 [-5, +22] | A minus single C toward caution -19 [-34, -4] | A minus single C, either sign -19 [-34, -4] | A minus single C toward answering +219 [+188, +249]
+        B minus no write +207 [+176, +237] | B minus single E +28 [+18, +39] | B minus single C, either sign +1 [-12, +14] | B minus A +20 [+7, +33] | B2 minus B -3 [-14, +7]
+        B2 minus single E +25 [+12, +39] | B2 minus single C, either sign -2 [-16, +12] | single E minus no write +179 [+147, +210] | G minus no write +201 [+171, +230] | G minus single E +22 [+9, +35]
+        G minus single C, either sign -5 [-19, +9] | G minus A +14 [+5, +23] | G minus B -6 [-17, +5] | U minus no write +204 [+174, +233] | U minus single E +25 [+12, +39]
+        U minus single C, either sign -2 [-16, +12] | U minus single C toward answering +236 [+205, +266]
+    test2 (500 questions): no write -216 (answers 412) | single E +3 (127) | single C toward answering -251 (449) | single C toward caution +15 (75) | single C, either sign +15 (75) | E + C toward caution or none +2 (134) | E as a check +18 (94) | E + C toward caution or none, as a check +17 (107) | E, answers challenged with caution or not +19 (105) | best of all on tune +17 (107)
+        A minus no write +218 [+189, +246] | A minus single E -1 [-17, +16] | A minus single C toward caution -13 [-29, +3] | A minus single C, either sign -13 [-29, +3] | A minus single C toward answering +253 [+223, +282]
+        B minus no write +234 [+206, +261] | B minus single E +15 [+4, +26] | B minus single C, either sign +3 [-14, +19] | B minus A +16 [-1, +32] | B2 minus B -1 [-13, +12]
+        B2 minus single E +14 [-2, +31] | B2 minus single C, either sign +2 [-13, +17] | single E minus no write +219 [+189, +248] | G minus no write +235 [+207, +262] | G minus single E +16 [+1, +32]
+        G minus single C, either sign +4 [-11, +19] | G minus A +17 [+7, +27] | G minus B +1 [-12, +14] | U minus no write +233 [+205, +260] | U minus single E +14 [-2, +31]
+        U minus single C, either sign +2 [-13, +17] | U minus single C toward answering +268 [+240, +295]
+
+## qwen3.8-27b, E at layer 28: tune no write net -33 (answers 119)
+    tune, single E:                                  chosen E28.w.p3                           | E28p0.5=-25(107) E28p1=-13(95) E28p1.75=-11(85) E28p3=-9(79)
+    tune, single C toward answering:                 chosen C33.w.m0.25                        | Cm0.25=-81(169) Cm0.5=-98(186) Cm1=-103(191) Cm2=-101(191)
+    tune, single C toward caution:                   chosen C33.w.p2                           | Cp0.25=-12(86) Cp0.5=+4(58) Cp1=+9(21) Cp2=+13(15)
+    tune, single C, either sign:                     chosen C33.w.p2                           | Cm0.25=-81(169) Cm0.5=-98(186) Cm1=-103(191) Cm2=-101(191) Cp0.25=-12(86) Cp0.5=+4(58) Cp1=+9(21) Cp2=+13(15)
+    tune, E + C toward caution or none:              chosen E28.w.p0.5+C33.w.p2                | E28p0.5=-25(107) E28p0.5+Cp0.25=+1(75) E28p0.5+Cp0.5=+12(44) E28p0.5+Cp1=+11(21) E28p0.5+Cp2=+13(13) E28p1=-13(95) E28p1+Cp0.25=+5(65) E28p1+Cp0.5=+13(35) E28p1+Cp1=+11(13) E28p1+Cp2=+10(10) E28p1.75=-11(85) E28p1.75+Cp0.25=+8(48) E28p1.75+Cp0.5=+12(22) E28p1.75+Cp1=+10(10) E28p1.75+Cp2=+7(7) E28p3=-9(79) E28p3+Cp0.25=+6(48) E28p3+Cp0.5=+10(26) E28p3+Cp1=+11(13) E28p3+Cp2=+6(6)
+    tune, E as a check:                              chosen check with E28.w.p3                | E28p0.5=-23(99) E28p1=-9(85) E28p1.75=-2(70) E28p3=+6(56)
+    tune, E + C toward caution or none, as a check:  chosen check with E28.w.p0.5+C33.w.p2     | E28p0.5=-23(99) E28p0.5+Cp0.25=-1(69) E28p0.5+Cp0.5=+11(39) E28p0.5+Cp1=+10(20) E28p0.5+Cp2=+12(12) E28p1=-9(85) E28p1+Cp0.25=+5(57) E28p1+Cp0.5=+11(31) E28p1+Cp1=+10(12) E28p1+Cp2=+9(9) E28p1.75=-2(70) E28p1.75+Cp0.25=+9(43) E28p1.75+Cp0.5=+12(20) E28p1.75+Cp1=+10(10) E28p1.75+Cp2=+7(7) E28p3=+6(56) E28p3+Cp0.25=+7(41) E28p3+Cp0.5=+10(24) E28p3+Cp1=+11(13) E28p3+Cp2=+6(6)
+    tune, E, answers challenged with caution or not: chosen E28.w.p1 kept if same under +C33.w.p0.5 | E28p0.5=-25(107) E28p0.5+Cp0.25=+0(70) E28p0.5+Cp0.5=+13(39) E28p0.5+Cp1=+9(19) E28p0.5+Cp2=+11(11) E28p1=-13(95) E28p1+Cp0.25=+8(60) E28p1+Cp0.5=+14(32) E28p1+Cp1=+9(11) E28p1+Cp2=+8(8) E28p1.75=-11(85) E28p1.75+Cp0.25=+10(46) E28p1.75+Cp0.5=+13(21) E28p1.75+Cp1=+10(10) E28p1.75+Cp2=+7(7) E28p3=-9(79) E28p3+Cp0.25=+5(47) E28p3+Cp0.5=+10(26) E28p3+Cp1=+11(13) E28p3+Cp2=+6(6)
+    tune, best of all on tune:                       chosen E28.w.p1 kept if same under +C33.w.p0.5 | E28p1_kept_if_same_under_+Cp0.5=+14(32) Cp2=+13(15) E28p0.5_kept_if_same_under_+Cp0.5=+13(39) E28p1.75_kept_if_same_under_+Cp0.5=+13(21) E28p0.5+Cp2=+13(13)
+    test (500 questions): no write -128 (answers 316) | single E -78 (216) | single C toward answering -244 (452) | single C toward caution +18 (24) | single C, either sign +18 (24) | E + C toward caution or none +17 (23) | E as a check -11 (139) | E + C toward caution or none, as a check +15 (21) | E, answers challenged with caution or not +6 (84) | best of all on tune +6 (84)
+        A minus no write +145 [+114, +177] | A minus single E +95 [+70, +122] | A minus single C toward caution -1 [-3, +0] | A minus single C, either sign -1 [-3, +0] | A minus single C toward answering +261 [+226, +295]
+        B minus no write +117 [+93, +141] | B minus single E +67 [+51, +84] | B minus single C, either sign -29 [-51, -7] | B minus A -28 [-50, -6] | B2 minus B +26 [+5, +48]
+        B2 minus single E +93 [+68, +119] | B2 minus single C, either sign -3 [-7, +0] | single E minus no write +50 [+26, +75] | G minus no write +134 [+107, +162] | G minus single E +84 [+63, +106]
+        G minus single C, either sign -12 [-29, +4] | G minus A -11 [-28, +5] | G minus B +17 [+0, +35] | U minus no write +134 [+107, +162] | U minus single E +84 [+63, +106]
+        U minus single C, either sign -12 [-29, +4] | U minus single C toward answering +250 [+219, +282]
+    test2 (500 questions): no write -116 (answers 324) | single E -55 (225) | single C toward answering -230 (450) | single C toward caution +20 (24) | single C, either sign +20 (24) | E + C toward caution or none +19 (23) | E as a check +6 (156) | E + C toward caution or none, as a check +19 (23) | E, answers challenged with caution or not +25 (89) | best of all on tune +25 (89)
+        A minus no write +135 [+103, +165] | A minus single E +74 [+48, +101] | A minus single C toward caution -1 [-3, +0] | A minus single C, either sign -1 [-3, +0] | A minus single C toward answering +249 [+214, +283]
+        B minus no write +122 [+99, +145] | B minus single E +61 [+46, +77] | B minus single C, either sign -14 [-37, +8] | B minus A -13 [-36, +9] | B2 minus B +13 [-9, +36]
+        B2 minus single E +74 [+48, +101] | B2 minus single C, either sign -1 [-3, +0] | single E minus no write +61 [+38, +83] | G minus no write +141 [+113, +167] | G minus single E +80 [+58, +103]
+        G minus single C, either sign +5 [-10, +21] | G minus A +6 [-9, +22] | G minus B +19 [+1, +38] | U minus no write +141 [+113, +167] | U minus single E +80 [+58, +103]
+        U minus single C, either sign +5 [-10, +21] | U minus single C toward answering +255 [+224, +283]
+
+## gemma3-12b, E at layer 24: tune no write net -68 (answers 166)
+    tune, single E:                                  chosen E24.w.p2.5                         | E24p1=-42(128) E24p2.5=-3(55) E24p4=-9(31)
+    tune, single C toward answering:                 chosen C25.w.m0.25                        | Cm0.25=-85(181) Cm0.5=-92(188) Cm1=-92(190) Cm2=-96(190)
+    tune, single C toward caution:                   chosen C25.w.p2                           | Cp0.25=-57(157) Cp0.5=-45(141) Cp1=-23(113) Cp2=+11(49)
+    tune, single C, either sign:                     chosen C25.w.p2                           | Cm0.25=-85(181) Cm0.5=-92(188) Cm1=-92(190) Cm2=-96(190) Cp0.25=-57(157) Cp0.5=-45(141) Cp1=-23(113) Cp2=+11(49)
+    tune, E + C toward caution or none:              chosen E24.w.p1+C25.w.p2                  | E24p1=-42(128) E24p1+Cp0.25=-27(113) E24p1+Cp0.5=-15(93) E24p1+Cp1=+5(61) E24p1+Cp2=+10(22) E24p2.5=-3(55) E24p2.5+Cp0.25=+5(39) E24p2.5+Cp0.5=+5(27) E24p2.5+Cp1=+8(14) E24p2.5+Cp2=+0(0) E24p4=-9(31) E24p4+Cp0.25=+5(13) E24p4+Cp0.5=+3(7) E24p4+Cp1=+0(2) E24p4+Cp2=+0(0)
+    tune, E as a check:                              chosen check with E24.w.p2.5              | E24p1=-15(95) E24p2.5=+14(34) E24p4=+7(13)
+    tune, E + C toward caution or none, as a check:  chosen check with E24.w.p2.5+C25.w.p0.25  | E24p1=-15(95) E24p1+Cp0.25=-3(81) E24p1+Cp0.5=+3(71) E24p1+Cp1=+11(53) E24p1+Cp2=+11(21) E24p2.5=+14(34) E24p2.5+Cp0.25=+15(27) E24p2.5+Cp0.5=+9(21) E24p2.5+Cp1=+8(14) E24p2.5+Cp2=+0(0) E24p4=+7(13) E24p4+Cp0.25=+8(10) E24p4+Cp0.5=+4(6) E24p4+Cp1=+0(2) E24p4+Cp2=+0(0)
+    tune, E, answers challenged with caution or not: chosen E24.w.p1 kept if same under +C25.w.p1 | E24p1=-42(128) E24p1+Cp0.25=-17(101) E24p1+Cp0.5=-6(76) E24p1+Cp1=+12(50) E24p1+Cp2=+11(21) E24p2.5=-3(55) E24p2.5+Cp0.25=+7(37) E24p2.5+Cp0.5=+6(26) E24p2.5+Cp1=+7(13) E24p2.5+Cp2=+0(0) E24p4=-9(31) E24p4+Cp0.25=+5(13) E24p4+Cp0.5=+3(7) E24p4+Cp1=+0(2) E24p4+Cp2=+0(0)
+    tune, best of all on tune:                       chosen check with C25.w.p2                | check_with_Cp2=+15(41) check_with_E24p2.5+Cp0.25=+15(27) check_with_E24p2.5=+14(34) E24p1_kept_if_same_under_+Cp1=+12(50) Cp2=+11(49)
+    test (500 questions): no write -223 (answers 449) | single E -23 (139) | single C toward answering -243 (469) | single C toward caution -13 (123) | single C, either sign -13 (123) | E + C toward caution or none +12 (50) | E as a check +12 (96) | E + C toward caution or none, as a check +13 (73) | E, answers challenged with caution or not -24 (154) | best of all on tune +10 (98)
+        A minus no write +235 [+200, +269] | A minus single E +35 [+16, +55] | A minus single C toward caution +25 [+8, +42] | A minus single C, either sign +25 [+8, +42] | A minus single C toward answering +255 [+221, +289]
+        B minus no write +235 [+204, +265] | B minus single E +35 [+23, +48] | B minus single C, either sign +25 [+8, +42] | B minus A +0 [-16, +15] | B2 minus B +1 [-8, +10]
+        B2 minus single E +36 [+21, +52] | B2 minus single C, either sign +26 [+9, +43] | single E minus no write +200 [+167, +233] | G minus no write +199 [+169, +228] | G minus single E -1 [-19, +18]
+        G minus single C, either sign -11 [-27, +5] | G minus A -36 [-57, -15] | G minus B -36 [-54, -18] | U minus no write +233 [+202, +264] | U minus single E +33 [+15, +51]
+        U minus single C, either sign +23 [+14, +33] | U minus single C toward answering +253 [+222, +284]
+    test2 (500 questions): no write -239 (answers 445) | single E -1 (139) | single C toward answering -267 (471) | single C toward caution +13 (135) | single C, either sign +13 (135) | E + C toward caution or none +21 (51) | E as a check +25 (87) | E + C toward caution or none, as a check +23 (71) | E, answers challenged with caution or not -2 (166) | best of all on tune +23 (109)
+        A minus no write +260 [+229, +292] | A minus single E +22 [+2, +42] | A minus single C toward caution +8 [-11, +27] | A minus single C, either sign +8 [-11, +27] | A minus single C toward answering +288 [+256, +319]
+        B minus no write +264 [+236, +293] | B minus single E +26 [+12, +40] | B minus single C, either sign +12 [-6, +30] | B minus A +4 [-12, +20] | B2 minus B -2 [-11, +7]
+        B2 minus single E +24 [+7, +41] | B2 minus single C, either sign +10 [-8, +28] | single E minus no write +238 [+208, +268] | G minus no write +237 [+211, +264] | G minus single E -1 [-19, +17]
+        G minus single C, either sign -15 [-34, +4] | G minus A -23 [-45, -1] | G minus B -27 [-44, -9] | U minus no write +262 [+236, +289] | U minus single E +24 [+5, +43]
+        U minus single C, either sign +10 [+0, +20] | U minus single C toward answering +290 [+262, +317]
+
+## gemma3-27b, E at layer 28: tune no write net -49 (answers 177)
+    tune, single E:                                  chosen E28.w.p2                           | E28p0.5=-42(166) E28p1=-23(141) E28p2=+0(98)
+    tune, single C toward answering:                 chosen C31.w.m0.25                        | Cm0.25=-56(184) Cm0.5=-63(189) Cm1=-66(190) Cm2=-71(191)
+    tune, single C toward caution:                   chosen C31.w.p2                           | Cp0.25=-41(167) Cp0.5=-26(146) Cp1=-3(115) Cp2=+27(53)
+    tune, single C, either sign:                     chosen C31.w.p2                           | Cm0.25=-56(184) Cm0.5=-63(189) Cm1=-66(190) Cm2=-71(191) Cp0.25=-41(167) Cp0.5=-26(146) Cp1=-3(115) Cp2=+27(53)
+    tune, E + C toward caution or none:              chosen E28.w.p0.5+C31.w.p2                | E28p0.5=-42(166) E28p0.5+Cp0.25=-28(148) E28p0.5+Cp0.5=-11(131) E28p0.5+Cp1=+14(100) E28p0.5+Cp2=+28(44) E28p1=-23(141) E28p1+Cp0.25=-13(127) E28p1+Cp0.5=+1(113) E28p1+Cp1=+22(86) E28p1+Cp2=+28(34) E28p2=+0(98) E28p2+Cp0.25=+7(77) E28p2+Cp0.5=+21(57) E28p2+Cp1=+20(32) E28p2+Cp2=+9(11)
+    tune, E as a check:                              chosen check with E28.w.p2                | E28p0.5=-20(142) E28p1=+3(105) E28p2=+29(51)
+    tune, E + C toward caution or none, as a check:  chosen check with E28.w.p2                | E28p0.5=-20(142) E28p0.5+Cp0.25=-6(124) E28p0.5+Cp0.5=+6(110) E28p0.5+Cp1=+25(83) E28p0.5+Cp2=+26(36) E28p1=+3(105) E28p1+Cp0.25=+6(98) E28p1+Cp0.5=+18(84) E28p1+Cp1=+27(69) E28p1+Cp2=+23(27) E28p2=+29(51) E28p2+Cp0.25=+23(45) E28p2+Cp0.5=+26(38) E28p2+Cp1=+22(24) E28p2+Cp2=+8(8)
+    tune, E, answers challenged with caution or not: chosen E28.w.p1 kept if same under +C31.w.p1 | E28p0.5=-42(166) E28p0.5+Cp0.25=-17(133) E28p0.5+Cp0.5=+3(111) E28p0.5+Cp1=+25(81) E28p0.5+Cp2=+26(36) E28p1=-23(141) E28p1+Cp0.25=-3(115) E28p1+Cp0.5=+14(94) E28p1+Cp1=+28(70) E28p1+Cp2=+25(29) E28p2=+0(98) E28p2+Cp0.25=+11(73) E28p2+Cp0.5=+22(54) E28p2+Cp1=+19(29) E28p2+Cp2=+8(10)
+    tune, best of all on tune:                       chosen check with E28.w.p2                | check_with_E28p2=+29(51) E28p1_kept_if_same_under_+Cp1=+28(70) E28p0.5+Cp2=+28(44) E28p1+Cp2=+28(34) Cp2=+27(53)
+    test (500 questions): no write -163 (answers 449) | single E -41 (249) | single C toward answering -186 (468) | single C toward caution +28 (146) | single C, either sign +28 (146) | E + C toward caution or none +37 (127) | E as a check +10 (148) | E + C toward caution or none, as a check +10 (148) | E, answers challenged with caution or not +10 (178) | best of all on tune +10 (148)
+        A minus no write +200 [+168, +233] | A minus single E +78 [+54, +101] | A minus single C toward caution +9 [+1, +18] | A minus single C, either sign +9 [+1, +18] | A minus single C toward answering +223 [+191, +255]
+        B minus no write +173 [+142, +203] | B minus single E +51 [+32, +70] | B minus single C, either sign -18 [-36, +0] | B minus A -27 [-45, -9] | B2 minus B +0 [+0, +0]
+        B2 minus single E +51 [+32, +70] | B2 minus single C, either sign -18 [-36, +0] | single E minus no write +122 [+90, +154] | G minus no write +173 [+143, +204] | G minus single E +51 [+31, +72]
+        G minus single C, either sign -18 [-35, -1] | G minus A -27 [-45, -10] | G minus B +0 [-15, +16] | U minus no write +173 [+142, +203] | U minus single E +51 [+32, +70]
+        U minus single C, either sign -18 [-36, +0] | U minus single C toward answering +196 [+165, +226]
+    test2 (500 questions): no write -170 (answers 470) | single E -34 (270) | single C toward answering -184 (484) | single C toward caution +48 (158) | single C, either sign +48 (158) | E + C toward caution or none +44 (138) | E as a check +41 (157) | E + C toward caution or none, as a check +41 (157) | E, answers challenged with caution or not +36 (190) | best of all on tune +41 (157)
+        A minus no write +214 [+182, +244] | A minus single E +78 [+54, +102] | A minus single C toward caution -4 [-13, +5] | A minus single C, either sign -4 [-13, +5] | A minus single C toward answering +228 [+195, +259]
+        B minus no write +211 [+181, +240] | B minus single E +75 [+55, +95] | B minus single C, either sign -7 [-26, +11] | B minus A -3 [-21, +15] | B2 minus B +0 [+0, +0]
+        B2 minus single E +75 [+55, +95] | B2 minus single C, either sign -7 [-26, +11] | single E minus no write +136 [+106, +166] | G minus no write +206 [+178, +232] | G minus single E +70 [+50, +90]
+        G minus single C, either sign -12 [-30, +5] | G minus A -8 [-26, +10] | G minus B -5 [-20, +9] | U minus no write +211 [+181, +240] | U minus single E +75 [+55, +95]
+        U minus single C, either sign -7 [-26, +11] | U minus single C toward answering +225 [+195, +255]
+
+## popqa, test: 5 of 5 models complete, together (questions resampled jointly)
+    A minus no write                     +885 [+786, +987], 5 of 5 models positive
+    A minus single E                     +208 [+160, +255], 4 of 5 models positive
+    A minus single C toward caution      -6 [-35, +25], 2 of 5 models positive
+    A minus single C, either sign        -6 [-35, +25], 2 of 5 models positive
+    A minus single C toward answering    +1099 [+990, +1207], 5 of 5 models positive
+    B minus no write                     +862 [+778, +948], 5 of 5 models positive
+    B minus single E                     +185 [+149, +221], 5 of 5 models positive
+    B minus single C, either sign        -29 [-73, +15], 2 of 5 models positive
+    B minus A                            -23 [-64, +17], 2 of 5 models positive
+    B2 minus B                           +24 [-2, +49], 2 of 5 models positive
+    B2 minus single E                    +209 [+165, +253], 5 of 5 models positive
+    B2 minus single C, either sign       -5 [-39, +29], 1 of 5 models positive
+    single E minus no write              +677 [+589, +767], 5 of 5 models positive
+    G minus no write                     +830 [+740, +921], 5 of 5 models positive
+    G minus single E                     +153 [+112, +194], 3 of 5 models positive
+    G minus single C, either sign        -61 [-101, -20], 0 of 5 models positive
+    G minus A                            -55 [-93, -18], 2 of 5 models positive
+    G minus B                            -32 [-66, +3], 1 of 5 models positive
+    U minus no write                     +874 [+784, +963], 5 of 5 models positive
+    U minus single E                     +197 [+154, +238], 5 of 5 models positive
+    U minus single C, either sign        -17 [-55, +19], 1 of 5 models positive
+    U minus single C toward answering    +1088 [+988, +1189], 5 of 5 models positive
+
+## popqa, test2: 5 of 5 models complete, together (questions resampled jointly)
+    A minus no write                     +957 [+854, +1063], 5 of 5 models positive
+    A minus single E                     +187 [+137, +240], 4 of 5 models positive
+    A minus single C toward caution      +3 [-29, +33], 2 of 5 models positive
+    A minus single C, either sign        +3 [-29, +33], 2 of 5 models positive
+    A minus single C toward answering    +1167 [+1059, +1276], 5 of 5 models positive
+    B minus no write                     +966 [+878, +1058], 5 of 5 models positive
+    B minus single E                     +196 [+155, +237], 5 of 5 models positive
+    B minus single C, either sign        +12 [-36, +57], 3 of 5 models positive
+    B minus A                            +9 [-35, +52], 3 of 5 models positive
+    B2 minus B                           +10 [-17, +37], 1 of 5 models positive
+    B2 minus single E                    +206 [+156, +256], 5 of 5 models positive
+    B2 minus single C, either sign       +22 [-16, +58], 3 of 5 models positive
+    single E minus no write              +770 [+682, +861], 5 of 5 models positive
+    G minus no write                     +952 [+865, +1042], 5 of 5 models positive
+    G minus single E                     +182 [+136, +230], 4 of 5 models positive
+    G minus single C, either sign        -2 [-47, +41], 3 of 5 models positive
+    G minus A                            -5 [-45, +35], 3 of 5 models positive
+    G minus B                            -14 [-49, +20], 2 of 5 models positive
+    U minus no write                     +982 [+892, +1074], 5 of 5 models positive
+    U minus single E                     +212 [+165, +261], 5 of 5 models positive
+    U minus single C, either sign        +28 [-11, +67], 4 of 5 models positive
+    U minus single C toward answering    +1192 [+1097, +1289], 5 of 5 models positive

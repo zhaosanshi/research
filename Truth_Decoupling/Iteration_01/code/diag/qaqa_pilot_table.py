@@ -23,6 +23,15 @@
 # log-probability, newsets/conf/<task>/<model>/test/conf_E2.json from launchers/.../qaqa_conf.sh), N = the number of
 # answers of the system it is compared with (single E, N1), counted on the questions that are read. Shown when the
 # confidence file exists.
+# Equal-answer-count comparators added on 2026-11-22 05 h (method, readings and prediction in the work queue, section
+# 2.8, committed before any of their answers was generated; launchers/.../qaqa_strong.sh):
+#   - the strong comparator of the TruthfulQA main table: must-answer prompt (conf) + E at N1's layer and strength at
+#     "prompt", keeping the N most confident answers, N = N1's answers on the questions that are read; confidence =
+#     mean token log-probability scored with E at "prompt" too (scripts/newsets/ns_conf_pos.py, file
+#     newsets/conf/<task>/<model>/test/<arm token>-at-prompt.json, bound to the generation file and to the no-write
+#     must-answer pass of its first-difference check);
+#   - the must-answer prompt alone (conf, no write, no honest sentence), keeping N1's N most confident answers.
+# Shown when their confidence files exist; the pass "must answer + E, every answer" is shown with them for context.
 # --tune --fix-e: E stays at the main-table strength (the MMLU budget defines it); only the two caps and the single-C
 # strength are chosen on the tune split.
 # After the read-only review of 2026-11-22 (no number changed; the four tables are reproduced line by line):
@@ -69,8 +78,11 @@ TUNE_BANK = "Iteration_01/newsets/bank/qaqa_pilot_bank_20261122.jsonl"
 TYPES = (("no_failure", "valid assumption"), ("failure", "false assumption"), ("unverifiable", "unverifiable assumption"))
 ORDER = ("no write", "prompt only", "single C", "single E", "N1")
 CONF_E, CONF_N = "prompt + confidence, single E's N", "prompt + confidence, N1's N"
+STRONG_N, MUST_N, STRONG_ALL = "must answer + E + confidence, N1's N", "must answer + confidence, N1's N", "must answer + E, every answer"
+MUST_ALL = "must answer, every answer"
+# the last pair is not one of the pre-written readings: E on top of the must-answer prompt, every answer kept
 PAIRS = (("N1", "single E"), ("N1", "no write"), ("N1", "single C"), ("N1", "prompt only"), ("single E", "no write"),
-         ("single E", CONF_E), ("N1", CONF_N))
+         ("single E", CONF_E), ("N1", CONF_N), ("N1", STRONG_N), ("N1", MUST_N), (STRONG_ALL, MUST_ALL))
 
 
 class Raw:
@@ -151,28 +163,39 @@ class Raw:
     def text(self, arm, q):
         return self.rows[arm][q]["text"]
 
-    def confidence(self, task):
-        """{question: mean log-probability of the prompt-only answer, None for an empty one}; None without the file."""
-        p = Path(S.NS) / "conf" / task / self.model / "test" / "conf_E2.json"
+    def confidence(self, task, arm="conf_E2"):
+        """{question: mean log-probability of the answer of the pass arm, None for an empty one}; None without the file.
+        A pass with a write is read from <arm token>-at-prompt.json (scripts/newsets/ns_conf_pos.py: scored with the
+        write at "prompt"), which must carry the first-difference check against the no-write pass of the same prompt."""
+        write = ":" in arm
+        p = Path(S.NS) / "conf" / task / self.model / "test" / (G.arm_token(arm) + ("-at-prompt" if write else "") + ".json")
         if not p.is_file():
             return None
-        self.need("conf_E2")
+        if arm != "conf_E2" and not self.has(arm):
+            # e.g. an earlier command line that does not name the judge work dir of the later passes
+            print("note: %s has %s but no complete judged pass of %s in the work dirs given; that comparator is left out" % (
+                self.model, p.name, arm), file=sys.stderr)
+            return None
+        self.need(arm)
         d = json.loads(p.read_text(encoding="utf-8"))
         rows = {r["id"]: r for r in d["rows"]}
-        if (d.get("arm") != "conf_E2" or d.get("model") != self.model or list(rows) != self.ids
-                or d.get("generation_sha256") != G.sha_file(self.gdir / "conf_E2.json")):
-            raise SystemExit("%s: the confidence file does not belong to the prompt-only pass of this bank" % self.model)
+        if (d.get("arm") != arm or d.get("model") != self.model or list(rows) != self.ids
+                or d.get("generation_sha256") != G.sha_file(self.gdir / (G.arm_token(arm) + ".json"))):
+            raise SystemExit("%s: the confidence file %s does not belong to the pass %s of this bank" % (self.model, p.name, arm))
+        if write and (not d.get("first_difference_check")
+                      or d.get("reference_sha256") != G.sha_file(self.gdir / (arm.split(":")[0] + ".json"))):
+            raise SystemExit("%s: %s was scored without the first-difference check against its no-write pass" % (self.model, p.name))
         for q in self.ids:
-            if rows[q]["text_sha1"] != hashlib.sha1(self.text("conf_E2", q).strip().encode("utf-8")).hexdigest():
-                raise SystemExit("%s: confidence of %s was scored on another answer" % (self.model, q))
+            if rows[q]["text_sha1"] != hashlib.sha1(self.text(arm, q).strip().encode("utf-8")).hexdigest():
+                raise SystemExit("%s: confidence of %s under %s was scored on another answer" % (self.model, q, arm))
         return {q: rows[q].get("mean_logp") for q in self.ids}
 
-    def top_conf(self, ids, conf, n):
-        """The prompt-only answers, keeping the n most confident among the questions ids (ties in question order)."""
+    def top_conf(self, ids, conf, n, arm="conf_E2"):
+        """The answers of the pass arm, keeping the n most confident among the questions ids (ties in question order)."""
         pos = {q: k for k, q in enumerate(ids)}
-        cand = sorted((q for q in ids if conf[q] is not None and not self.blank("conf_E2", q)), key=lambda q: (-conf[q], pos[q]))
+        cand = sorted((q for q in ids if conf[q] is not None and not self.blank(arm, q)), key=lambda q: (-conf[q], pos[q]))
         keep = set(cand[:n])
-        return {q: (self.cell("conf_E2", q) if q in keep else 0) for q in self.ids}, {q: q in keep for q in self.ids}
+        return {q: (self.cell(arm, q) if q in keep else 0) for q in self.ids}, {q: q in keep for q in self.ids}
 
     def arm_system(self, arm):
         self.need(arm)
@@ -354,6 +377,13 @@ def main():
             if conf is not None:
                 for name, ref in ((CONF_E, "single E"), (CONF_N, "N1")):
                     systems[name] = R.top_conf(ids, conf, sum(systems[ref][1][q] for q in ids))
+            strong_arm = "conf:E%d.w.p%s" % (el, s)          # must answer + E at N1's layer and strength
+            for name, arm in ((STRONG_N, strong_arm), (MUST_N, "conf")):
+                cf = R.confidence(opt["--task"], arm)
+                if cf is not None:
+                    systems[name] = R.top_conf(ids, cf, sum(systems["N1"][1][q] for q in ids), arm)
+            if STRONG_N in systems and MUST_N in systems:
+                systems[STRONG_ALL], systems[MUST_ALL] = R.arm_system(strong_arm), R.arm_system("conf")
         except (FileNotFoundError, ValueError) as err:
             print("\n# %s: not ready (%s)\n" % (model, str(err)[:200]))
             not_ready.append(model)
@@ -375,6 +405,11 @@ def main():
         for label, qs in [("all", ids)] + [(lab, [q for q in ids if qtype[q] == t]) for t, lab in TYPES]:
             print("\n## %s (%d questions per model)" % (label, len(qs)))
             print("    net: " + " | ".join("%s %+d" % (name, sum(d[2][name][0][q] for d in done.values() for q in qs)) for name in ORDER))
+            extra = [n for n in (CONF_N, MUST_N, STRONG_N, MUST_ALL, STRONG_ALL) if all(n in d[2] for d in done.values())]
+            if STRONG_N in extra:
+                print("    net, comparators (answers): " + " | ".join("%s %+d (%d)" % (
+                    name, sum(d[2][name][0][q] for d in done.values() for q in qs),
+                    sum(d[2][name][1][q] for d in done.values() for q in qs)) for name in ["N1"] + extra))
             for x, y in PAIRS:
                 if any(x not in d[2] or y not in d[2] for d in done.values()):
                     continue
