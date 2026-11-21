@@ -10,9 +10,14 @@
 # Inputs per (model, layer): the usual no-write cells; single E at "prompt" (work dir judge_<split>_posprompt<tag>_<split>),
 # E + C at "prompt" (judge_<split>_posprompt2<tag>_<split>, conditions with the suffix "-at-prompt"), single C at
 # "prompt" (judge_<split>_pospromptc_<split>, one per run), tag = l<layer>; launchers/explore_20261120/pospall.sh.
-# Not here yet: the strong comparator at "prompt" (it needs the must-answer answers with E at "prompt" and their
-# confidence). For reference the training-rule N1 of the main table is printed at the same layer and strength.
+# The strong comparator at "prompt" (launchers/explore_20261120/posd.sh): must-answer prompt + E at "prompt" on test
+# (work dir judge_test_pospromptd<tag>_test), the N most confident answered answers kept (N = N1's answers; confidence
+# = mean log-probability of the answer's own tokens, scored with E at "prompt", eval_extra/
+# confidence_pospromptd<tag>_test.json; rows bound to the judged texts by sha1). For reference the training-rule N1
+# of the main table is printed at the same layer and strength.
 # usage (host, from /data/sanshizhao/Truth_Decoupling): python3 -B Iteration_01/diag/main_table_prompt.py [BUDGET ...]
+import hashlib
+import json
 import os
 import sys
 
@@ -88,6 +93,35 @@ def prompt_split(model, layer, i, s):
     return (sp, fr.Texts(tx, tx), singles, list(sp.qs)), None
 
 
+def strong(run, layer, s, qs, n):
+    """(states, answered) of must-answer + E at "prompt", top n by confidence, or (None, why)."""
+    tag = "l%d" % layer
+    w = work(run, "test", "pospromptd" + tag)
+    cf = "%s/eval_extra/confidence_pospromptd%s_test.json" % (run, tag)
+    if not (has(w) and os.path.exists(cf)):
+        return None, "not there yet"
+    st, bl = ps.load(w, "pro")
+    texts = fr.raw_texts(w)
+    cond = "E_L%d_conf-w-p%s" % (layer, s)
+    if any(st.get((q, cond), "?") == "?" for q in qs):
+        return None, "incomplete verdicts for %s" % cond
+    with open(cf, encoding="utf-8") as f:
+        d = json.load(f)
+    t = d.get("targets", {}).get("conf_E" + DM.show(s))
+    if d.get("split") != "test" or d.get("partial") or t is None or not str(t.get("source", {}).get("file", "")).endswith(SUF + "_test.json"):
+        return None, "%s is not the complete prompt-rule confidence file of this arm" % os.path.basename(cf)
+    rows = {r["pair_id"]: r for r in t["rows"]}
+    bad = [q for q in qs if q not in rows or hashlib.sha1(texts[(q, cond)].strip().encode("utf-8")).hexdigest() != rows[q]["text_sha1"]]
+    if bad:
+        return None, "%d confidence rows do not belong to the judged answers" % len(bad)
+    ans = [not bl[(q, cond)] for q in qs]
+    cand = [i for i, a in enumerate(ans) if a and rows[qs[i]]["mean_logp"] is not None]
+    if len(cand) < n:
+        return None, "only %d answers carry a confidence, %d needed" % (len(cand), n)
+    kept = set(sorted(cand, key=lambda i: (-rows[qs[i]]["mean_logp"], i))[:n])
+    return ([st[(q, cond)] if i in kept else "X" for i, q in enumerate(qs)], [i in kept for i in range(len(qs))]), None
+
+
 def model_block(model, B, tot):
     Dt, Dx, srcs = ML.sources(model)
     base_acc = srcs[0][6]["0"]
@@ -132,6 +166,13 @@ def model_block(model, B, tot):
     rows.append(("single E", e[0], e[1]))
     rows.append(("N1", n1[0], n1[1]))
     diffs.append(("single E", e[0]))
+    run_x = Dx.m["ec"][1].split("/eval_extra/")[0]
+    sf, why = strong(run_x, best["layer"], s, qs, sum(n1[1]))
+    if sf is None:
+        print("    strong form at the prompt rule: %s" % why)
+    else:
+        rows.append(("strong form: must-answer + E, top %d" % sum(n1[1]), sf[0], sf[1]))
+        diffs.append(("the strong form", sf[0]))
     for label, st, ans in rows:
         print(PM.row(label + ", prompt rule" if label != "no write" else label, st, ans))
     da0 = MT.handed_in(Dx, ("DA",))
