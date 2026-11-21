@@ -11,9 +11,10 @@
 #   G. the mirror image of N1's re-ask: answer with E; an answered question is asked once more with E + C toward
 #      caution, and E's answer is kept only if that pass gives the same answer (blanks stay blank). "No challenge"
 #      (plain single E) is in the family.
-#   U. all of the above as one family, together with single C toward caution and a check of the no-write answer with
-#      C toward caution alone: whatever the tune split likes best (ties to the simpler candidate: single E, single C,
-#      B, the check with C alone, G, A, B2). By construction U is at least as good on tune as either single direction.
+#   U. all of the above as one family, together with single C of either sign and a check of the no-write answer with
+#      C toward caution alone: whatever the tune split likes best (ties to the simpler candidate: single E, single C
+#      toward caution, single C toward answering, B, the check with C alone, G, A, B2). Both single directions (C with
+#      either sign) are candidates, so on tune U is at least as good as either of them.
 # Every setting of every system is chosen on the dataset's tune split (192 questions) by net score = right - wrong
 # (alias match), ties to the earlier candidate (lower strengths); the chosen settings are then read on test and test2.
 # Comparators, each at its own best tune setting: no write, single E, single C toward answering, single C toward
@@ -60,8 +61,9 @@ def passes(task, model, split):
                 if not (k.get("full_pass") and k.get("split") == split and k.get("model") == model
                         and k.get("items_file_sha256") == sha and [r["id"] for r in g["rows"]] == want):
                     raise SystemExit("%s is not a full %s pass of %s" % (p, split, model))
-                if (":" in arm) != (k.get("positions") == "prompt"):
-                    raise SystemExit("%s: positions %r do not fit the arm %s" % (p, k.get("positions"), arm))
+                if k.get("positions") != ("prompt" if ":" in arm else None) or k.get("arm") != arm:
+                    raise SystemExit("%s: arm %r at positions %r is not the pass %s (write arms at \"prompt\", the no-write pass at none)" % (
+                        p, k.get("arm"), k.get("positions"), arm))
                 val, ans, txt = [], [], []
                 for r in g["rows"]:
                     blank = bool(r["rule_abstain"]) or not r["text"].strip()
@@ -84,7 +86,7 @@ def families(model, cl):
     cc = lambda k: "x:C%d.w.p%s" % (cl, k)                             # noqa: E731  toward caution
     ec = lambda s, k: "x:E%d.w.p%s+C%d.w.p%s" % (el, s, cl, k)         # noqa: E731
     grid = [a for s in sweep for a in [e(s)] + [ec(s, k) for k in KS]]
-    union = ([("arm", e(s)) for s in sweep] + [("arm", cc(k)) for k in KS] + [("check", e(s)) for s in sweep]
+    union = ([("arm", e(s)) for s in sweep] + [("arm", cc(k)) for k in KS] + [("arm", ca(k)) for k in KS] + [("check", e(s)) for s in sweep]
              + [("check", cc(k)) for k in KS] + [("gate", ec(s, k), e(s)) for s in sweep for k in KS]
              + [("arm", ec(s, k)) for s in sweep for k in KS] + [("check", ec(s, k)) for s in sweep for k in KS])
     return {
