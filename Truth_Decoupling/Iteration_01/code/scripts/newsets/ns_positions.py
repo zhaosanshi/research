@@ -15,7 +15,9 @@ newsets_gen.py runs unchanged, with three in-memory changes:
   2. plan_arm accepts POS where it demands "content" (a source replacement that must match exactly once);
   3. arm_token appends "-at-<POS>" to arms with a write, so the output file never collides with the content-rule file
      of the same arm. The output contract records "positions": POS.
-Only single-write arms are allowed (two-write arms have an acceptance record for the training rule only).
+Only single-write arms are allowed (two-write generation at another rule was not checked for this generator; GSM8K
+needs single writes only). Only the gen phase is allowed: newsets_gen's export and conf phases do not look at the
+recorded position.
 usage (host side, with the model's own interpreter, like newsets_gen.py):
   python -I Iteration_01/code/scripts/newsets/ns_positions.py prompt|gen gen <newsets_gen.py gen arguments>
 """

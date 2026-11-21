@@ -8,7 +8,8 @@
 # launchers/explore_20261120/posp.sh); the E + C arms at "prompt" (judge_<split>_posprompt2<tag>_<split>, posp2.sh;
 # their conditions carry the suffix "-at-prompt", removed here so that the usual N1 code reads them). The no-write
 # cells of both work dirs must equal the usual ones; the training-rule side is diag/alt_layer.py's split, which gives
-# the main table's N1 (checked: the printed row must equal the main table's).
+# the main table's N1 (compared by hand on 2026-11-21: Llama 16 / 3.5 tune +26, test +91 with 452 answers, as in the
+# main table; the program itself does not check it).
 # usage (host, from /data/sanshizhao/Truth_Decoupling): python3 -B Iteration_01/diag/posp_n1_table.py
 import os
 import sys
@@ -101,12 +102,12 @@ def main():
         da = dict(zip(Dx.sp.qs, da0[0]))
         da_s = [da[q] for q in qs]
         run = Dx.m["ec"][1].split("/eval_extra/")[0]
-        ptune, ptest = PW.prompts_of(run, "tune", Dt.sp.qs), PW.prompts_of(run, "test", Dx.sp.qs)
+        ptune, ptest = PW.prompts_of(run, "tune", tsp_c.qs), PW.prompts_of(run, "test", xsp_c.qs)
         best = None
         if ptune and ptest:
             order = sorted(ptune, key=lambda p: (-sum(map(val, ptune[p][0])), p != "conf_E2", p))
             if order[0] in ptest:
-                by = dict(zip(Dx.sp.qs, ptest[order[0]][0]))
+                by = dict(zip(xsp_c.qs, ptest[order[0]][0]))
                 best = (order[0], [by[q] for q in qs])
         print("  test (%d questions)" % len(qs))
         print(row("no write", base[0], base[1]))

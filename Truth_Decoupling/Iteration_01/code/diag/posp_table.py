@@ -6,7 +6,8 @@
 # Rule (stated in posp.sh before any verdict was read): the strength at "prompt" is the one with the best single-E net
 # on TUNE (ties to the smaller strength); test is read at that strength. The comparison is single E at the training
 # rule at the main-table strength (budget 1: Llama-3.1-8B 3.5, Gemma-3-12B 2.5), which the main table uses.
-# Work dirs: <run>/eval_extra/judge_<split>_posprompt<tag>_<split>; their no-write cells must equal the usual ones.
+# Work dirs: <run>/eval_extra/judge_<split>_posprompt<tag>_<split>; their no-write cells must equal the usual ones in
+# state and blank flag (the texts are not compared; this table has no veto that reads them).
 # usage (host, from /data/sanshizhao/Truth_Decoupling): python3 -B Iteration_01/diag/posp_table.py
 import os
 import sys

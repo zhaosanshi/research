@@ -107,8 +107,9 @@ ES="2.5 3 3.5 4"
 #   1. single E at the strength                      -> work dir judge_<split>_posprompt<TAG>_<split>  (as posp.sh)
 #   2. single C at 0.25 / 0.5 / 1 / 2 (once per run)  -> judge_<split>_pospromptc_<split>
 #   3. E + C at the four C strengths (two writes)     -> judge_<split>_posprompt2<TAG>_<split>          (as posp2.sh)
-# tune and test, DeepSeek Pro in the background (Saturday: no peak hour). A step whose export already exists is
-# skipped (step 2 for a second layer of the same model). Through scripts/review_checks/e44_positions.py (single writes)
+# tune and test, DeepSeek Pro in the background (Saturday: no peak hour). A step whose work dir already holds judge
+# cells is skipped (step 2 for a second layer of the same model); that also skips its judge, so a judge that failed
+# or timed out is not relaunched by a rerun - check the work dir's judge2/single_pro.jsonl. Through scripts/review_checks/e44_positions.py (single writes)
 # and e44_positions2.py (two writes, acceptance record selfcheck_*-at-prompt.json); engines unchanged.
 # Why: at the training rule the main-table settings cost 19 GSM8K points on Llama-3.1-8B; at "prompt" the same write
 # costs nothing there (+1.1) and keeps the TruthfulQA effect of single E (Gemma-3-12B +103 against +95).

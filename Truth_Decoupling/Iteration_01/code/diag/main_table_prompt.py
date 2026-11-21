@@ -150,9 +150,13 @@ def model_block(model, B, tot):
     s, acc = best["s"], best["acc"]
     tsp_p, ttx_p, tsing, tqs = best["T"]
     xsp_p, xtx_p, xsing, qs = best["X"]
+    tsp, ttx, xsp, xtx = best["content"]
+    if list(xsp.qs) != qs or list(tsp.qs) != tqs:
+        raise SystemExit("%s layer %d: the prompt-rule split covers other questions than the training-rule split (test %d / %d, tune %d / %d); find the missing verdicts first" % (
+            model, best["layer"], len(qs), len(xsp.qs), len(tqs), len(tsp.qs)))
     m_, lo, hi = PM.boot([acc[s][i] - base_acc[i] for i in rep])
-    print("  -> layer %d, E strength %s (N1 on tune: %s) | MMLU on the report half %+.2f [%+.2f, %+.2f] (the same as at the training rule)" % (
-        best["layer"], DM.show(s), ro.name_of(best["pick"]), m_, lo, hi))
+    print("  -> layer %d, E strength %s (N1 on tune: %s) | MMLU on the report half %+.2f [%+.2f, %+.2f] (the same as at the training rule) | test %d questions, tune %d" % (
+        best["layer"], DM.show(s), ro.name_of(best["pick"]), m_, lo, hi, len(qs), len(tqs)))
     base = S.system(xsp_p, xtx_p, ("base",))
     e, n1 = S.system(xsp_p, xtx_p, ("E", s)), S.system(xsp_p, xtx_p, best["pick"])
     rows = [("no write", base[0], base[1])]
@@ -181,23 +185,22 @@ def model_block(model, B, tot):
     print("    %-44s net %+4d" % ("prompt only (must-answer + sentence)", sum(map(val, da_s))))
     diffs.append(("prompt only", da_s))
     run = Dx.m["ec"][1].split("/eval_extra/")[0]
-    ptune, ptest = PW.prompts_of(run, "tune", Dt.sp.qs), PW.prompts_of(run, "test", Dx.sp.qs)
+    ptune, ptest = PW.prompts_of(run, "tune", srcs[0][1].qs), PW.prompts_of(run, "test", srcs[0][3].qs)   # the main table's lists
     if ptune and ptest:
         order = sorted(ptune, key=lambda p: (-sum(map(val, ptune[p][0])), p != "conf_E2", p))
         if order[0] in ptest:
-            by = dict(zip(Dx.sp.qs, ptest[order[0]][0]))
+            by = dict(zip(srcs[0][3].qs, ptest[order[0]][0]))
             bp = [by[q] for q in qs]
             print("    %-44s net %+4d" % ("best prompt on tune: %s" % order[0], sum(map(val, bp))))
             diffs.append(("the best prompt on tune", bp))
-    tsp, ttx, xsp, xtx = best["content"]
     cpick = ML.n1_pick(tsp, ttx, s)
     cn1 = S.system(xsp, xtx, cpick)
     cby = dict(zip(xsp.qs, cn1[0]))
     if all(q in cby for q in qs):
         cs = [cby[q] for q in qs]
         print("    %-44s answers %3d | net %+4d (reference: the main table's row at this layer and strength)" % (
-            "N1, training rule", sum(cn1[1]), sum(map(val, cn1[0]))))
-        diffs.append(("N1 at the training rule", cs))
+            "N1, training rule, same layer and strength", sum(cn1[1]), sum(map(val, cn1[0]))))
+        diffs.append(("N1 at the training rule (same layer)", cs))
     print("    N1 (prompt rule) minus: " + " | ".join("%s %s" % (name, ps.ci([val(x) - val(y) for x, y in zip(n1[0], other)])) for name, other in diffs))
     for name, other in diffs:
         t = tot.setdefault((B, name), [0, {}])

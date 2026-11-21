@@ -7,7 +7,9 @@ Why: with the write rule "prompt" (question tokens and assistant header; no deco
 TruthfulQA effect on Gemma-3-12B tune (+42 against +45 at the training rule), while the training rule costs 14 to 19
 GSM8K points at the main-table settings. N1 needs the E + C arms at the same rule.
 
-What it adds to e44_positions.py (whose three in-memory changes are applied by calling its main() logic below):
+What it adds to e44_positions.py (whose three in-memory changes - writes, arm_token, run_export - are re-applied here
+with its own helpers P.recompile and P.OLD_LINE; its main() is not called, so a later edit of e44_positions.py does not
+carry over by itself):
   1. two-write arms are allowed for generate, and the phase selfcheck is allowed;
   2. the engine's acceptance record of a two-write pair is kept apart: Context.selfcheck_path gets the suffix
      "-at-<POS>" (the record itself already stores "positions", which require_selfcheck compares), so the record of

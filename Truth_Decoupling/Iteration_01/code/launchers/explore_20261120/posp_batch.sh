@@ -2,7 +2,7 @@
 # 2026-11-21 12:3x, posp_batch.sh, exploration: the main table at the write rule "prompt" for all five models, budget 1
 # MMLU point (the strength of each candidate layer is the main-table one; the MMLU read is the same under both rules,
 # so the candidates do not change). pospall.sh per (model, layer, strength); the layer is then chosen on tune by the
-# main-table rule (N1's tune score), in diag/posp_n1_table.py.
+# main-table rule (N1's tune score), in diag/main_table_prompt.py.
 # Reason for running all five now: on tune, N1 at "prompt" equals N1 at the training rule on the two models done
 # (Llama-3.1-8B +27 / +26, Gemma-3-12B +74 / +75), and on Llama the GSM8K damage of the training rule (-19.0) is gone
 # at "prompt" (+1.1).
