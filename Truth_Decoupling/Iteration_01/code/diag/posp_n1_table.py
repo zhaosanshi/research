@@ -79,17 +79,20 @@ def main():
         alt = next(a for a in AL.ALTS if a.model == model and a.tag == tag)
         print("\n## %s, layer %d, E strength %s: N1 at the prompt rule against N1 at the training rule" % (model, alt.layer, DM.show(s)))
         T, why_t = prompt_split(alt, 0, s)
-        X, why_x = prompt_split(alt, 1, s)
-        if T is None or X is None:
-            print("    not complete: tune %s; test %s" % (why_t or "ok", why_x or "ok"))
+        if T is None:
+            print("    tune not complete: %s" % why_t)
             continue
         Dt, tsp_p, ttx_p, tsp_c, ttx_c = T
-        Dx, xsp_p, xtx_p, xsp_c, xtx_c = X
         pick_p, pick_c = ML.n1_pick(tsp_p, ttx_p, s), ML.n1_pick(tsp_c, ttx_c, s)
         for label, sp, tx, pick in (("prompt rule", tsp_p, ttx_p, pick_p), ("training rule", tsp_c, ttx_c, pick_c)):
             e = S.system(sp, tx, ("E", s))[0]
             n1 = S.system(sp, tx, pick)[0]
             print("    tune, %-14s single E net %+4d | N1 chosen on tune: %s, net %+4d" % (label, sum(map(val, e)), ro_name(pick), sum(map(val, n1))))
+        X, why_x = prompt_split(alt, 1, s)
+        if X is None:
+            print("    test not complete: %s" % why_x)
+            continue
+        Dx, xsp_p, xtx_p, xsp_c, xtx_c = X
         qs = xsp_p.qs
         base = S.system(xsp_c, xtx_c, ("base",))
         e_c, n_c = S.system(xsp_c, xtx_c, ("E", s)), S.system(xsp_c, xtx_c, pick_c)
