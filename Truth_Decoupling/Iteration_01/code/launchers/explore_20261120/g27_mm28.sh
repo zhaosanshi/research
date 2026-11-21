@@ -105,10 +105,20 @@ ES="2.5 3 3.5 4"
 # needs about 67.6 GiB, the card has 71.1 GiB and another user's process holds 3.6 GiB of it). Here on GPU 2, which
 # nobody else uses, once the Qwen3.8-27B GSM8K run on GPUs 2,3 has ended (its exit line in gsm8k_all.log).
 # Arms as before: no write, the prompt caut_E2 alone, and caut_E2 with E28 at 1 and 1.5 (capability/full_oncautl28).
+# 13:5x change (made before this script started): the prompt-rule strong comparators of the two 27B models (posd.sh,
+# lane B of posd_batch.sh) run FIRST, then this MMLU; they are on the critical path of the prompt-rule main table, the
+# MMLU only serves a side table. posd_batch.sh's lane B, which waits for POSP_BATCH_DONE, then finds their files and
+# skips them (posd.sh skips a step whose output exists).
 # Functions above are those of l16_all.sh. usage: g27_mm28.sh GPU
 unset ELO; export GPUO=$1
 [ -n "$GPUO" ] || { echo "usage: g27_mm28.sh GPU"; exit 2; }
 until grep -q -E "^gsm8k qwen3.8-27b (cap [0-9]+ )?exit=" $L/gsm8k_all.log; do sleep 60; done
+echo "g27_mm28: prompt-rule strong comparators of the 27B models first $(date '+%T')" >> $L/gsm8k_all.log
+bash $L/posd.sh q27 28 1.75 l28 2,3 judge_test_testD_E_L28 > $L/posd_q27_l28.out 2>&1
+bash $L/posd.sh g27 28 1 l28 2 judge_test_testD_E_L26 > $L/posd_g27_l28.out 2>&1 &
+bash $L/posd.sh g27 26 0.75 l26 3 judge_test_testD_E_L26 > $L/posd_g27_l26.out 2>&1 &
+wait
 echo "g27_mm28: start on GPU $GPUO $(date '+%T')" >> $L/gsm8k_all.log
+export GPUO=$1
 mm g27 full_oncautl28 x caut_E2 "caut_E2:E28.w.p1" "caut_E2:E28.w.p1.5"
 touch $L/ONCAUT_MM_L28B_DONE

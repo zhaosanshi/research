@@ -49,7 +49,7 @@ def usual(model, i):
     return D, run, fr.raw_texts(D.m["ec"][i])
 
 
-def prompt_split(model, layer, i, s):
+def prompt_split(model, layer, i, s, qs=None):
     """(Split at the prompt rule for E at this layer and strength, texts, single-C states by strength, questions) or
     (None, why)."""
     D, run, utx = usual(model, i)
@@ -84,7 +84,7 @@ def prompt_split(model, layer, i, s):
             st[k], bl[k], tx[k] = v, bl1[(q, c0)], t1[(q, c0)]
     sh = S.shell(layer, D.m["c"])
     need = ["baseline_x", sh.cE(s)] + [sh.cEC(s, k) for k in ps.LAD]
-    sp = S.NewSplit(layer, D.m["c"], st, bl, need, qs=D.sp.qs)
+    sp = S.NewSplit(layer, D.m["c"], st, bl, need, qs=D.sp.qs if qs is None else qs)
     singles = {}
     for k in ps.LAD:
         c = "C_L%d_x-w-m%s" % (D.m["c"], k)
@@ -152,8 +152,20 @@ def model_block(model, B, tot):
     xsp_p, xtx_p, xsing, qs = best["X"]
     tsp, ttx, xsp, xtx = best["content"]
     if list(xsp.qs) != qs or list(tsp.qs) != tqs:
-        raise SystemExit("%s layer %d: the prompt-rule split covers other questions than the training-rule split (test %d / %d, tune %d / %d); find the missing verdicts first" % (
-            model, best["layer"], len(qs), len(xsp.qs), len(tqs), len(tsp.qs)))
+        # the two rules lack verdicts on different questions: every system is read on the questions both rules have
+        # (the main table's own list when the prompt rule covers it), and the counts are printed
+        ct = [q for q in tqs if q in set(tsp.qs)]
+        cx = [q for q in qs if q in set(xsp.qs)]
+        print("    the two rules cover different questions (prompt rule: test %d, tune %d; training rule: test %d, tune %d): both are read on the %d test / %d tune questions they share" % (
+            len(qs), len(tqs), len(xsp.qs), len(tsp.qs), len(cx), len(ct)))
+        if ct != tqs:
+            T2, why = prompt_split(model, best["layer"], 0, s, qs=ct)
+            tsp_p, ttx_p, tsing, tqs = T2
+            best["pick"] = ML.n1_pick(tsp_p, ttx_p, s)
+        X2, why = prompt_split(model, best["layer"], 1, s, qs=cx)
+        xsp_p, xtx_p, xsing, qs = X2
+        if qs != cx or tqs != ct:
+            raise SystemExit("%s: the restricted splits lost questions again" % model)
     m_, lo, hi = PM.boot([acc[s][i] - base_acc[i] for i in rep])
     print("  -> layer %d, E strength %s (N1 on tune: %s) | MMLU on the report half %+.2f [%+.2f, %+.2f] (the same as at the training rule) | test %d questions, tune %d" % (
         best["layer"], DM.show(s), ro.name_of(best["pick"]), m_, lo, hi, len(qs), len(tqs)))
