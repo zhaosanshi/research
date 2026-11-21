@@ -1,0 +1,390 @@
+--- a/Truth_Decoupling/Iteration_01/code/diag/gsm8k_n1_prompt.py
++++ b/Truth_Decoupling/Iteration_01/code/diag/gsm8k_n1_prompt.py
+@@ -14,3 +14,2 @@
+ #                                python3 -B Iteration_01/diag/gsm8k_n1_prompt.py table
+-import glob
+ import json
+@@ -18,4 +17,9 @@
+ import sys
++from pathlib import Path
+
+ sys.path.insert(0, "Iteration_01/diag")
++sys.path.insert(0, "Iteration_01/code/scripts/newsets")
++import newsets_gen as G
++
++GOLD = "data_external/gsm8k_20261119/main/test-00000-of-00001.parquet"
+
+@@ -42,11 +46,51 @@
+
+-def full(key, arm, pos):
+-    p = "%s/%s%s.json" % (root(key), tok(arm), "-at-" + pos if pos else "")
+-    with open(p, encoding="utf-8") as f:
+-        g = json.load(f)
++def load_arm(key, arm, pos, ids, subset=None):
++    stem = tok(arm) + ("-at-" + pos if pos else "")
++    if subset is not None:
++        stem = "s" + G.ids_digest(ids)[:12] + "." + stem
++    path = Path(root(key)) / (stem + ".json")
++    g = json.loads(path.read_text(encoding="utf-8"))
+     c = g["contract"]
+-    if not (g.get("completed") and c.get("full_pass") and c.get("model") == key and c.get("arm") == arm
+-            and c.get("positions") == pos and c.get("max_new_tokens") == SET[key][5]):
+-        raise SystemExit("%s is not the complete pass it should be" % p)
+-    return {r["id"]: r for r in g["rows"]}
++    rows = g["rows"]
++    if g.get("completed") is not True or len(set(ids)) != len(ids) or [r["id"] for r in rows] != ids:
++        raise SystemExit("%s: incomplete, duplicate or foreign rows" % path)
++    # With plain names disabled, the wrapper suffixes arm_token. The generator
++    # uses that token inside a double-write condition name, but not a single one.
++    condition = G.condition_name(arm, c["parts"])
++    if "+" in arm and pos:
++        condition += "-at-" + pos
++    expected = dict(protocol=G.PROTOCOL, gen_version=G.GEN_VERSION, task="gsm8k", split="all",
++                    model=key, ids=ids, condition=condition, items_file_sha256=G.sha_file(GOLD),
++                    arm=arm, base_prompt="neutral", positions=pos, batch_size=8,
++                    full_pass=subset is None, max_new_tokens=SET[key][5],
++                    ids_file_sha256=G.sha_file(IDS),
++                    only_ids_sha256=G.sha_file(subset) if subset is not None else None)
++    if any(c.get(k) != v for k, v in expected.items()) or any(g.get(k) != v for k, v in c.items()):
++        raise SystemExit("%s: wrong generation contract" % path)
++    cfg = json.loads(Path("Iteration_01/code/configs/newsets/frozen_models_20261119.json").read_text())["models"][key]
++    if c["model_config"] != cfg:
++        raise SystemExit("%s: wrong frozen model setup" % path)
++    parts = c["parts"]
++    desc = [] if ":" not in arm else arm.split(":")[1].split("+")
++    if len(parts) != len(desc):
++        raise SystemExit("%s: number of writes differs from the arm" % path)
++    for part, token in zip(parts, desc):
++        layer_token, kind, signed = token.split(".", 2)
++        family, layer = layer_token[0], int(layer_token[1:])
++        beta = float(signed[1:]) * (-1 if signed.startswith("m") else 1)
++        run = cfg.get("c_run_dir", cfg["run_dir"]) if family == "C" else cfg["run_dir"]
++        direction = Path(run) / "dirs" / ("%s_L%d.pt" % (family, layer))
++        if (part["family"], part["layer"], part["kind"], part["beta"], part["direction_file_sha256"]) != (
++                family, layer, kind, beta, G.sha_file(direction)):
++            raise SystemExit("%s: wrong direction, layer or strength" % path)
++    return c, {r["id"]: r for r in g["rows"]}
++
++
++def frozen_ids():
++    with open(IDS, encoding="utf-8") as f:
++        m = json.load(f)
++    ids = m["ids"]
++    if len(ids) != 1319 or len(set(ids)) != 1319 or m["source_file_sha256"] != G.sha_file(GOLD):
++        raise SystemExit("incorrect GSM8K input or frozen 1,319-item list")
++    return ids
+
+@@ -63,5 +107,4 @@
+ def ids_mode(key):
+-    e = full(key, e_arm(key), "prompt")
+-    with open(IDS, encoding="utf-8") as f:
+-        order = json.load(f)["ids"]
++    order = frozen_ids()
++    _, e = load_arm(key, e_arm(key), "prompt", order)
+     b = [i for i in order if blank(e[i])]
+@@ -77,4 +120,3 @@
+     gold = CS.gold_of("gsm8k")
+-    with open(IDS, encoding="utf-8") as f:
+-        order = json.load(f)["ids"]
++    order = frozen_ids()
+     print("# GSM8K, 1,319 items: the full N1 at the prompt rule from actual re-asks (changes against no write, paired)")
+@@ -83,4 +125,8 @@
+         try:
+-            base, e = full(key, "neutral", None), full(key, e_arm(key), "prompt")
+-        except (SystemExit, FileNotFoundError) as err:
++            bc, base = load_arm(key, "neutral", None, order)
++            ec, e = load_arm(key, e_arm(key), "prompt", order)
++            same = ("identity_sha256", "frozen_file_sha256", "model_config", "system_text", "user_template")
++            if any(bc[k] != ec[k] for k in same):
++                raise SystemExit("%s: base and E belong to different runs" % key)
++        except FileNotFoundError as err:
+             print("\n## %s: %s" % (key, err))
+@@ -89,14 +135,24 @@
+         re = {}
+-        for k in LAD:
+-            arm = "neutral:E%d.w.p%s+C%d.w.m%s" % (el, s, cl, k)
+-            files = [p for p in glob.glob("%s/s*.%s-at-prompt.json" % (root(key), tok(arm)))]
+-            for p in files:
+-                with open(p, encoding="utf-8") as f:
+-                    g = json.load(f)
+-                c = g["contract"]
+-                if g.get("completed") and c.get("positions") == "prompt" and c.get("arm") == arm and [r["id"] for r in g["rows"]] == b:
+-                    re[k] = {r["id"]: r for r in g["rows"]}
+-        if b and len(re) < len(LAD):
+-            print("\n## %s: %d blank items under E, re-asks for %d of %d C strengths found" % (key, len(b), len(re), len(LAD)))
+-            continue
++        if b:
++            subset = Path(root(key)) / "n1_blank_ids_at-prompt.json"
++            if not subset.is_file():
++                print("\n## %s: pending blank-ID list" % key)
++                continue
++            if json.loads(subset.read_text(encoding="utf-8")) != b:
++                raise SystemExit("%s: saved re-ask IDs differ from E blanks" % key)
++            required = [k for k in LAD if any(float(k) <= float(cap_own if blank(base[i]) else cap_e) for i in b)]
++            for k in required:
++                arm = "neutral:E%d.w.p%s+C%d.w.m%s" % (el, s, cl, k)
++                try:
++                    c, re[k] = load_arm(key, arm, "prompt", b, subset)
++                except FileNotFoundError:
++                    break
++                parts = c["parts"]
++                if (any(c[x] != ec[x] for x in (*same, "engine_sha256")) or len(parts) != 2
++                        or parts[0] != ec["parts"][0] or parts[1]["family"] != "C"
++                        or parts[1]["kind"] != "w" or parts[1]["layer"] != cl or parts[1]["beta"] != -float(k)):
++                    raise SystemExit("%s %s: foreign re-ask direction or run" % (key, arm))
++            if len(re) != len(required):
++                print("\n## %s: %d of %d required re-ask strengths ready" % (key, len(re), len(required)))
++                continue
+         n1, notes = dict(e), []
+--- a/Truth_Decoupling/Iteration_01/code/diag/ns_prompt_table.py
++++ b/Truth_Decoupling/Iteration_01/code/diag/ns_prompt_table.py
+@@ -26,2 +26,4 @@
+ import final_records as fr    # noqa: E402
++import newsets_gen as G
++from types import SimpleNamespace
+ import alias_match as AM      # noqa: E402
+@@ -65,8 +67,7 @@
+             return None
+-        with open(p, encoding="utf-8") as f:
+-            g = json.load(f)
+-        k = g.get("contract") or {}
+-        if not (g.get("completed") and k.get("full_pass") and k.get("split") == split and k.get("model") == model
+-                and k.get("items_file_sha256") == S.sha_file(bp) and [r["id"] for r in g["rows"]] == want):
+-            raise SystemExit("%s is not a complete %s pass of %s" % (p, split, model))
++        args = SimpleNamespace(task=task, split=split, model=model, items=bp)
++        g = G.load_generation(p, args, want)
++        k = g["contract"]
++        if k["arm"] != arm:
++            raise SystemExit("%s: expected %s, found %s" % (p, arm, k["arm"]))
+         if (":" in arm) != (k.get("positions") == "prompt") or (":" not in arm and k.get("positions") is not None):
+--- a/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/gsm8k_n1_pos.sh
++++ b/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/gsm8k_n1_pos.sh
+@@ -11,5 +11,8 @@
+ M=$ROOT/Iteration_01/code/configs/newsets/frozen_models_20261119.json
++(( $# > 0 && $# % 2 == 0 )) || exit 2
+ while [ $# -ge 2 ]; do
+   GPUS=$1; MODEL=$2; shift 2
+-  read -r N EL S CL CAP DIR <<< "$(python3 -B Iteration_01/diag/gsm8k_n1_prompt.py ids $MODEL)" || { echo "gsm8k n1 $MODEL: no blank list" >> $L/gsm8k_all.log; continue; }
++  plan=$(python3 -B Iteration_01/diag/gsm8k_n1_prompt.py ids "$MODEL") || exit 1
++  read -r N EL S CL CAP DIR <<< "$plan"
++  [[ "$N" =~ ^[0-9]+$ && -n "$DIR" ]] || exit 1
+   echo "$(date '+%F %T') gsm8k n1 $MODEL: $N items blank under E at prompt (cap $CAP)" >> $L/gsm8k_all.log
+@@ -26,3 +29,5 @@
+     --max-new-tokens $CAP --batch-size 8 --out $ROOT/$DIR --arms $arms >> $L/gsm8k_n1_$MODEL.log 2>&1
+-  echo "gsm8k n1 $MODEL exit=$? $(date '+%T')" >> $L/gsm8k_all.log
++  rc=$?
++  echo "gsm8k n1 $MODEL exit=$rc $(date '+%T')" >> $L/gsm8k_all.log
++  [ "$rc" -eq 0 ] || exit "$rc"
+ done
+--- a/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/gsm8k_pos.sh
++++ b/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/gsm8k_pos.sh
+@@ -30,3 +30,5 @@
+     --out $ROOT/Iteration_01/capability/$OUTTAG/gsm8k/$MODEL/b8 --arms $ARM >> $L/gsm8k_${MODEL}_${NEWTOK}_$POS.log 2>&1
+-  echo "gsm8k $MODEL cap $NEWTOK at $POS exit=$? $(date '+%T')" >> $L/gsm8k_all.log
++  rc=$?
++  echo "gsm8k $MODEL cap $NEWTOK at $POS exit=$rc $(date '+%T')" >> $L/gsm8k_all.log
++  if [ "$rc" -ne 0 ]; then touch "$L/GSM8K_POS_GPU${GPUS//,/_}_${NEWTOK}_FAILED"; exit "$rc"; fi
+ done
+--- a/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/night2b_1121.sh
++++ b/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/night2b_1121.sh
+@@ -9,6 +9,14 @@
+ #     Gemma-3-27B on GPU 3.
++set -e
+ cd /data/sanshizhao/Truth_Decoupling
+ L=Iteration_01/logs/newsets_20261119
++rm -f "$L"/NIGHT2B_LANE{1,2}_{DONE,FAILED} "$L"/NIGHT2_1121_{DONE,FAILED}
++pids=()
+ (
+-  until [ -e $L/NSP_qwen3.5-9b_DONE ]; do sleep 60; done
++  marker=$L/NIGHT2B_LANE1
++  trap 'rc=$?; if [ "$rc" -ne 0 ]; then touch "${marker}_FAILED"; fi' EXIT
++  until [ -f "$L/NSP_qwen3.5-9b_DONE" ]; do
++    [ ! -f "$L/NSP_qwen3.5-9b_FAILED" ] || exit 1
++    sleep 60
++  done
+   bash $L/gsm8k_n1_pos.sh 1 llama3.1-8b 1 qwen3.5-9b > $L/gsm8k_n1_small.out 2>&1
+@@ -16,5 +24,18 @@
+   echo "night2b lane 1 done $(date '+%T')" >> $L/posp_all.log
++  touch "${marker}_DONE"
+ ) &
++pids+=("$!")
+ (
+-  until [ -e $L/NSP_qwen3.8-27b_DONE ] && grep -q "^gsm8k qwen3.8-27b cap 1024 at prompt exit=" $L/gsm8k_all.log; do sleep 60; done
++  marker=$L/NIGHT2B_LANE2
++  trap 'rc=$?; if [ "$rc" -ne 0 ]; then touch "${marker}_FAILED"; fi' EXIT
++  until [ -f "$L/NSP_qwen3.8-27b_DONE" ]; do
++    [ ! -f "$L/NSP_qwen3.8-27b_FAILED" ] || exit 1
++    sleep 60
++  done
++  # A failed 1,024-token pass is logged as well; insist on the real files.
++  dir=Iteration_01/capability/gen_main1024/gsm8k/qwen3.8-27b/b8
++  until [ -f "$dir/neutral.json" ] && [ -f "$dir/neutral--E28-w-p1-75-at-prompt.json" ]; do
++    if [ -f "$L/GSM8K_POS_GPU2_3_1024_FAILED" ]; then exit 1; fi
++    sleep 60
++  done
+   bash $L/gsm8k_n1_pos.sh 2,3 qwen3.8-27b > $L/gsm8k_n1_q27.out 2>&1
+@@ -22,4 +43,8 @@
+   echo "night2b lane 2 done $(date '+%T')" >> $L/posp_all.log
++  touch "${marker}_DONE"
+ ) &
+-wait
+-touch $L/NIGHT2_1121_DONE
++pids+=("$!")
++failed=0
++for pid in "${pids[@]}"; do wait "$pid" || failed=1; done
++if (( failed )); then touch "$L/NIGHT2_1121_FAILED"; exit 1; fi
++touch "$L/NIGHT2_1121_DONE"
+--- a/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/night3_1121.sh
++++ b/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/night3_1121.sh
+@@ -8,2 +8,3 @@
+ # Table afterwards: python3 -B Iteration_01/diag/nsc_prompt_table.py
++set -e
+ cd /data/sanshizhao/Truth_Decoupling
+@@ -11,15 +12,30 @@
+ N=$L/nsc_prompt.sh
++rm -f "$L/NIGHT3_1121_DONE" "$L/NIGHT3_1121_FAILED"
++pids=()
++wait_for() {
++  local prefix=$1
++  until [ -f "${prefix}_DONE" ]; do
++    [ ! -f "${prefix}_FAILED" ] || return 1
++    sleep 30
++  done
++}
+ (
+-  until [ -e $L/NSC_llama3.1-8b_DONE ] && [ -e $L/NSC_gemma3-12b_DONE ]; do sleep 30; done
++  wait_for "$L/NSC_llama3.1-8b"
++  wait_for "$L/NSC_gemma3-12b"
+   bash $N gemma3-27b 0 28 "0.5 1 2" > $L/nsc_g27.out 2>&1
+ ) &
++pids+=("$!")
+ (
+-  until grep -q "^night2b lane 1 done" $L/posp_all.log 2>/dev/null; do sleep 30; done
++  wait_for "$L/NIGHT2B_LANE1"
+   bash $N qwen3.5-9b 1 15 "0.5 1 2 3" > $L/nsc_q9.out 2>&1
+ ) &
++pids+=("$!")
+ (
+-  until grep -q "^night2b lane 2 done" $L/posp_all.log 2>/dev/null; do sleep 30; done
++  wait_for "$L/NIGHT2B_LANE2"
+   bash $N qwen3.8-27b 2,3 28 "0.5 1 1.75 3" > $L/nsc_q27.out 2>&1
+ ) &
+-wait
+-touch $L/NIGHT3_1121_DONE
++pids+=("$!")
++failed=0
++for pid in "${pids[@]}"; do wait "$pid" || failed=1; done
++if (( failed )); then touch "$L/NIGHT3_1121_FAILED"; exit 1; fi
++touch "$L/NIGHT3_1121_DONE"
+--- a/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/night_1121.sh
++++ b/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/night_1121.sh
+@@ -8,2 +8,3 @@
+ # E layers and strengths are the main-table ones (budget 1); the sweeps contain them.
++set -e
+ cd /data/sanshizhao/Truth_Decoupling
+@@ -12,5 +13,10 @@
+ N=$L/ns_prompt.sh
++pids=()
++rm -f "$L"/NIGHT_1121_{FAILED,DONE} "$L/GSM8K_POS_GPU2_3_1024_FAILED"
+ ( bash $N gemma3-12b 0 24 2.5 "1 2.5 4" > $L/nsp_g12.out 2>&1; bash $N gemma3-27b 0 28 1 "0.5 1 2" > $L/nsp_g27.out 2>&1 ) &
++pids+=("$!")
+ ( bash $N llama3.1-8b 1 16 3.5 "1 2 3.5 5" > $L/nsp_llama.out 2>&1; bash $N qwen3.5-9b 1 15 2 "0.5 1 2 3" > $L/nsp_q9.out 2>&1 ) &
++pids+=("$!")
+ ( bash $N qwen3.8-27b 2,3 28 1.75 "0.5 1 1.75 3" > $L/nsp_q27.out 2>&1 ) &
++pids+=("$!")
+ (
+@@ -18,2 +24,3 @@
+   echo "$(date '+%F %T') gsm8k qwen3.8-27b start on GPU 2,3 (cap 1024): neutral" >> $L/gsm8k_all.log
++  trap 'rc=$?; if [ "$rc" -ne 0 ]; then touch "$L/GSM8K_POS_GPU2_3_1024_FAILED"; fi' EXIT
+   docker exec -u 1000:1001 -e HOME=$ROOT/hf_cache -e HF_HOME=$ROOT/hf_cache -e TD_MODEL_ROOT=$ROOT/models \
+@@ -28,3 +35,6 @@
+ ) &
+-wait
+-touch $L/NIGHT_1121_DONE
++pids+=("$!")
++failed=0
++for pid in "${pids[@]}"; do wait "$pid" || failed=1; done
++if (( failed )); then touch "$L/NIGHT_1121_FAILED"; exit 1; fi
++touch "$L/NIGHT_1121_DONE"
+--- a/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/ns_prompt.sh
++++ b/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/ns_prompt.sh
+@@ -31,2 +31,5 @@
+ case " $SWEEP " in *" $MAIN "*) ;; *) echo "the sweep must contain the main strength"; exit 2 ;; esac
++rm -f "$L/NSP_${MODEL}_DONE" "$L/NSP_${MODEL}_FAILED" || exit 1
++trap 'rc=$?; if [ "$rc" -ne 0 ]; then touch "$L/NSP_${MODEL}_FAILED"; fi' EXIT
++FAIL=0
+ read -r PY CL <<< "$(python3 -c '
+@@ -35,2 +38,3 @@
+ print(m["python"], m["cl"])' $HOST/Iteration_01/code/configs/newsets/frozen_models_20261119.json $MODEL)" || { echo "nsp $MODEL: not in the config" >> $L/nsp_all.log; exit 1; }
++[ -n "$PY" ] && [ -n "$CL" ] || { touch "$L/NSP_${MODEL}_FAILED"; exit 1; }
+ [ "$EL" -lt "$CL" ] || { echo "nsp $MODEL: the E layer must be below the C layer" >> $L/nsp_all.log; exit 1; }
+@@ -49,8 +53,10 @@
+     mkdir -p $d
+-    [ -e $d/x.json ] || cp -p $HNS/gen/$t/$MODEL/$sp/x.json $d/x.json || { echo "nsp $MODEL $t $sp: no no-write pass to copy" >> $L/nsp_all.log; continue; }
++    [ -e $d/x.json ] || cp -p $HNS/gen/$t/$MODEL/$sp/x.json $d/x.json || { echo "nsp $MODEL $t $sp: no no-write pass to copy" >> $L/nsp_all.log; FAIL=1; continue; }
+     "${DX[@]}" $PY -I $NSP prompt gen --models $M --model $MODEL --task $t --items $items --split $sp \
+         --out $NS/gen_prompt/$t/$MODEL/$sp --arms $arms >> $L/nsp_$MODEL.log 2>&1
+-    echo "nsp $MODEL $t $sp exit=$? $(date '+%T')" >> $L/nsp_all.log
++    rc=$?; [ "$rc" -eq 0 ] || FAIL=1
++    echo "nsp $MODEL $t $sp exit=$rc $(date '+%T')" >> $L/nsp_all.log
+   done
+ done
+-touch $L/NSP_${MODEL}_DONE
++if [ "$FAIL" -ne 0 ]; then touch "$L/NSP_${MODEL}_FAILED"; exit 1; fi
++touch "$L/NSP_${MODEL}_DONE"
+--- a/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/nsc_prompt.sh
++++ b/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/nsc_prompt.sh
+@@ -25,2 +25,4 @@
+ [ -n "$SWEEP" ] || { echo "usage: nsc_prompt.sh MODEL GPUS E_LAYER \"SWEEP STRENGTHS\" [FILE_TO_WAIT_FOR]"; exit 2; }
++rm -f "$L/NSC_${MODEL}_DONE" "$L/NSC_${MODEL}_FAILED" || exit 1
++trap 'rc=$?; if [ "$rc" -ne 0 ]; then touch "$L/NSC_${MODEL}_FAILED"; fi' EXIT
+ if [ -n "$WAITF" ]; then until [ -e "$WAITF" ]; do sleep 20; done; fi
+@@ -62,2 +64,3 @@
+ done < $L/nsc_choice_$MODEL.txt
+-if [ $FAIL = 0 ]; then touch $L/NSC_${MODEL}_DONE; else echo "nsc $MODEL: finished with failed steps" >> $L/nsc_all.log; touch $L/NSC_${MODEL}_FAILED; fi
++if [ "$FAIL" -ne 0 ]; then touch "$L/NSC_${MODEL}_FAILED"; exit 1; fi
++touch "$L/NSC_${MODEL}_DONE"
+--- a/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/posm.sh
++++ b/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/posm.sh
+@@ -11,2 +11,3 @@
+ ROOT=/workspace/Truth_Decoupling; HOST=/data/sanshizhao/Truth_Decoupling
++export TZ=Asia/Shanghai
+ L=Iteration_01/logs/newsets_20261119
+@@ -98,5 +99,8 @@
+ sys.exit('the merged caches give %d request keys different replies: stop' % n if n else 0)" $ROOT/$W/judge2/cache/conflicts.json &&
+-    "${JX[@]}" timeout -k 60 --signal=INT $secs python3 scripts/review_checks/judge_two_axis_run.py llm $ROOT/$W --judge pro &&
++    secs=$(budget) && [ "$secs" -gt 0 ] &&
++    "${JX[@]}" timeout -k 60 --signal=INT $((secs - 60)) python3 scripts/review_checks/judge_two_axis_run.py llm $ROOT/$W --judge pro &&
+     "${JX[@]}" python3 scripts/review_checks/judge_two_axis_run.py single $ROOT/$W --judge pro > $HOST/$W/single_pro_stdout.md; } >> $log 2>&1
+-  echo "l16 judge $key $(basename $W) exit=$? $(date '+%T')" >> $L/l16_all.log
++  local rc=$?
++  echo "l16 judge $key $(basename $W) exit=$rc $(date '+%T')" >> $L/l16_all.log
++  return "$rc"
+ }
+@@ -127,4 +131,17 @@
+   echo "posm tq $KEY $NAME exit=$rc $(date '+%T')" >> $L/posp_all.log
+-  [ $rc = 0 ] && ( setm $KEY; judge $KEY $W $run/eval_extra/$OX; touch $L/POSM_${KEY}_${TAG}_JUDGE_DONE ) > /dev/null 2>&1 < /dev/null &
++  if [ "$rc" != 0 ]; then touch "$L/POSM_${KEY}_${TAG}_GPU_FAILED"; exit 1; fi
+ fi
+-touch $L/POSM_${KEY}_${TAG}_GPU_DONE
++if [ ! -s "$HOST/$W/judge2/single_pro.jsonl" ]; then
++  ( exec 9>"$HOST/$W/judge2/posm_run.lock" || exit 1
++    flock -n 9 || exit 0
++    [ ! -s "$HOST/$W/judge2/single_pro.jsonl" ] || exit 0
++    rm -f "$L/POSM_${KEY}_${TAG}_JUDGE_FAILED" "$L/POSM_${KEY}_${TAG}_JUDGE_DONE"
++    setm "$KEY"
++    if judge "$KEY" "$W" "$run/eval_extra/$OX" && [ -s "$HOST/$W/judge2/single_pro.jsonl" ]; then
++      touch "$L/POSM_${KEY}_${TAG}_JUDGE_DONE"
++    else
++      touch "$L/POSM_${KEY}_${TAG}_JUDGE_FAILED"
++      exit 1
++    fi ) > /dev/null 2>&1 < /dev/null &
++fi
++touch "$L/POSM_${KEY}_${TAG}_GPU_DONE"
+--- a/Truth_Decoupling/Iteration_01/code/scripts/newsets/ns_positions.py
++++ b/Truth_Decoupling/Iteration_01/code/scripts/newsets/ns_positions.py
+@@ -79,3 +79,3 @@
+         out = next((rest[i + 1] for i, a in enumerate(rest[:-1]) if a == "--out"), "")
+-        if ("gen_" + pos) not in out:
++        if ("gen_" + pos) not in Path(out).resolve().parts:
+             raise SystemExit("NS_POS_PLAIN_NAMES=1 needs an --out path containing gen_%s (got %r)" % (pos, out))
