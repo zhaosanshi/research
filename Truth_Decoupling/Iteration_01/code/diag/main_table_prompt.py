@@ -93,7 +93,7 @@ def prompt_split(model, layer, i, s):
     return (sp, fr.Texts(tx, tx), singles, list(sp.qs)), None
 
 
-def strong(run, layer, s, qs, n):
+def strong_prompt(run, layer, s, qs, n):
     """(states, answered) of must-answer + E at "prompt", top n by confidence, or (None, why)."""
     tag = "l%d" % layer
     w = work(run, "test", "pospromptd" + tag)
@@ -171,7 +171,7 @@ def model_block(model, B, tot):
     rows.append(("N1", n1[0], n1[1]))
     diffs.append(("single E", e[0]))
     run_x = Dx.m["ec"][1].split("/eval_extra/")[0]
-    sf, why = strong(run_x, best["layer"], s, qs, sum(n1[1]))
+    sf, why = strong_prompt(run_x, best["layer"], s, qs, sum(n1[1]))
     if sf is None:
         print("    strong form at the prompt rule: %s" % why)
     else:
