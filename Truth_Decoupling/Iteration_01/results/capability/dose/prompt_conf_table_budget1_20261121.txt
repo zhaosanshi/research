@@ -20,9 +20,12 @@
 
 ## Qwen3.8-27B: N1 at layer 28, E strength 1.75 (budget 1): answers 491, net +186 | test 521 questions, tune 192
     prompt only, every answer (conf_E2)                                                    answers 521 | right 320 wrong 185 | net +135
-    P1 not available: conf_E2 has no usable confidence (see the notes below)
-    N1 minus: prompt only +51 [+18, +84]
-    confidence files: x: tune no confidence file; test no confidence file; x_E1: tune no confidence file; test no confidence file; x_F: tune no confidence file; test no confidence file; conf: tune no confidence file; test no confidence file; conf_E1: tune no confidence file; test no confidence file; conf_E2: tune no confidence file; test no confidence file; conf_M: tune no confidence file; test no confidence file; caut: tune no confidence file; test no confidence file; caut_E1: tune no confidence file; test no confidence file; caut_E2: tune no confidence file; test no confidence file; caut_M: tune no confidence file; test no confidence file
+    P1 conf_E2, its 491 most confident answers                                             answers 491 | right 306 wrong 172 | net +134
+    P2 chosen on tune: conf_E2, keeps every answer (192 of 192 on tune); tune net +69      answers 521 | right 320 wrong 185 | net +135
+    for reference, chosen with the test labels: best cut of conf_E2 on test                answers 462 | net +146   (N1 minus it +40)
+    tune, best cut per prompt: conf_E2 +69 (keep 192 of 192) | conf_E1 +56 (keep 159 of 192) | caut_E2 +50 (keep 91 of 91) | x_E1 +41 (keep 115 of 125) | x_F +36 (keep 84 of 138) | caut_E1 +30 (keep 99 of 106) | conf +25 (keep 126 of 192) | x +20 (keep 106 of 119) | caut +15 (keep 46 of 101) | caut_M +5 (keep 29 of 129) | conf_M +1 (keep 1 of 192)
+    N1 minus: prompt only +51 [+18, +84] | P1 (same answer count) +52 [+20, +85] | P2 (prompt and cut chosen on tune) +51 [+18, +84]
+    confidence files: x: tune scoring batch 8, greedy reproduction 0.9970; test scoring batch 8, greedy reproduction 0.9874; x_E1: tune scoring batch 8, greedy reproduction 0.9909; test scoring batch 8, greedy reproduction 0.9873; x_F: tune scoring batch 8, greedy reproduction 0.9948; test scoring batch 8, greedy reproduction 0.9933; conf: tune scoring batch 8, greedy reproduction 0.9895; test scoring batch 8, greedy reproduction 0.9901; conf_E1: tune scoring batch 8, greedy reproduction 0.9921; test scoring batch 8, greedy reproduction 0.9880; conf_E2: tune scoring batch 8, greedy reproduction 0.9854; test scoring batch 8, greedy reproduction 0.9917; conf_M: tune scoring batch 8, greedy reproduction 0.9854; test scoring batch 8, greedy reproduction 0.9901; caut: tune scoring batch 8, greedy reproduction 0.9927; test scoring batch 8, greedy reproduction 0.9904; caut_E1: tune scoring batch 8, greedy reproduction 0.9933; test scoring batch 8, greedy reproduction 0.9871; caut_E2: tune scoring batch 8, greedy reproduction 1.0000; test scoring batch 8, greedy reproduction 0.9918; caut_M: tune scoring batch 8, greedy reproduction 0.9933; test scoring batch 8, greedy reproduction 0.9855
 
 ## Gemma-3-12B: N1 at layer 24, E strength 2.5 (budget 1): answers 500, net +152 | test 522 questions, tune 192
     prompt only, every answer (conf_E2)                                                    answers 520 | right 293 wrong 216 | net  +77
@@ -44,6 +47,6 @@
 
 ## the five models together, on the 520 questions all five have (per question the differences are summed; questions resampled)
     N1 minus prompt only                          +241 [+130, +351]
-    N1 minus P1 (same answer count)               only 4 of 5 models have it
-    N1 minus P2 (prompt and cut chosen on tune)   only 4 of 5 models have it
+    N1 minus P1 (same answer count)               +210 [+102, +317]
+    N1 minus P2 (prompt and cut chosen on tune)   +142 [+41, +243]
 

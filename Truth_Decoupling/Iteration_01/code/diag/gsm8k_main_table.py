@@ -15,6 +15,7 @@
 # usage (host, from /data/sanshizhao/Truth_Decoupling, inside the container for pyarrow):
 #   docker exec -u 1000:1001 -w /workspace/Truth_Decoupling truth_dec python3 -B Iteration_01/diag/gsm8k_main_table.py [--cap N] [MODEL ...]
 # --cap N reads the passes generated with another token cap (launcher variable NEWTOK; directory capability/gen_main<N>).
+# A pass written at another position rule (launchers/explore_20261120/gsm8k_pos.sh) is shown as ARM@POS.
 import glob
 import json
 import os
@@ -70,10 +71,14 @@ def main():
                 print("\n## %s: %s" % (model, e))
                 continue
             judged = {r["id"]: CS.judge_row("gsm8k", r, gold(r["id"])) for r in g["rows"]}
-            passes[g["contract"]["arm"]] = {i: v[0] for i, v in judged.items()}
-            why[g["contract"]["arm"]] = reasons(judged)
-            blank[g["contract"]["arm"]] = sum(1 for st_, w_ in judged.values() if st_ == "X" and w_ == "refusal")
-            ntok[g["contract"]["arm"]] = sum(not r["finished"] for r in g["rows"])
+            pos = g["contract"].get("positions")
+            key = g["contract"]["arm"] + ("@" + pos if pos not in (None, "content") else "")   # another write rule (gsm8k_pos.sh)
+            if key in passes:
+                raise SystemExit("%s: two files for %s" % (model, key))
+            passes[key] = {i: v[0] for i, v in judged.items()}
+            why[key] = reasons(judged)
+            blank[key] = sum(1 for st_, w_ in judged.values() if st_ == "X" and w_ == "refusal")
+            ntok[key] = sum(not r["finished"] for r in g["rows"])
         if "neutral" not in passes:
             print("\n## %s: no complete no-write pass yet (%d files)" % (model, len(files)))
             continue

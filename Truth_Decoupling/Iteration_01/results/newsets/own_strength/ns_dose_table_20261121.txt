@@ -1,68 +1,79 @@
 
 # triviaqa (alias match; tune 192 questions, test 500)
 
-## llama3.1-8b: strengths 2 | no write: tune net +90 (answers 190), test net +140 (answers 490)
+## llama3.1-8b: strengths 0.5 2 | no write: tune net +90 (answers 190), test net +140 (answers 490)
     single C 0.25: tune net +88 (answers 190) | test net +143 (answers 493)
+    E 0.5  tune: E  +86 (ans 188) | N1  +86 (ans 188; caps E's None / own 0-25) | no veto  +87 (caps 0-25 / None) || test: E +151 (ans 483) | N1 +151 (ans 483), N1 minus E +0 [+0, +0] | no veto +147, minus E -4 [-8, -1]
     E 2    tune: E  +51 (ans 115) | N1  +51 (ans 115; caps E's None / own 0-25) | no veto  +55 (caps 1 / None) || test: E +154 (ans 302) | N1 +154 (ans 302), N1 minus E +0 [+0, +0] | no veto +142, minus E -12 [-35, +12]
-    chosen on tune: N1 at E 2 (test net +154) | single E's own best strength 2 (test net +154) || test: N1 minus no write +14 [-19, +47] | minus E at the same strength +0 [+0, +0] | minus E at its own best +0 [+0, +0] | minus single C +11 [-23, +45]
-    diagnostic, no veto chosen on tune: E 2, test net +142 | minus E at its own best -12 [-35, +12] | minus no write +2 [-28, +32]
+    chosen on tune: N1 at E 0.5 (test net +151) | single E's own best strength 0.5 (test net +151) || test: N1 minus no write +11 [-6, +29] | minus E at the same strength +0 [+0, +0] | minus E at its own best +0 [+0, +0] | minus single C +8 [-9, +25]
+    diagnostic, no veto chosen on tune: E 0.5, test net +147 | minus E at its own best -4 [-8, -1] | minus no write +7 [-9, +24]
 
-## qwen3.5-9b: strengths 2 | no write: tune net +48 (answers 186), test net +74 (answers 492)
+## qwen3.5-9b: strengths 2 3 | no write: tune net +48 (answers 186), test net +74 (answers 492)
     single C 0.25: tune net +45 (answers 189) | test net +65 (answers 495)
     E 2    tune: E  +61 (ans 151) | N1  +60 (ans 152; caps E's None / own 0-25) | no veto  +60 (caps None / 0-25) || test: E +130 (ans 376) | N1 +129 (ans 377), N1 minus E -1 [-3, +0] | no veto +129, minus E -1 [-3, +0]
+    E 3    tune: E  +58 (ans 112) | N1  +56 (ans 114; caps E's None / own 0-25) | no veto  +56 (caps None / 0-25) || test: E +121 (ans 287) | N1 +117 (ans 291), N1 minus E -4 [-8, -1] | no veto +117, minus E -4 [-8, -1]
     chosen on tune: N1 at E 2 (test net +129) | single E's own best strength 2 (test net +130) || test: N1 minus no write +55 [+30, +81] | minus E at the same strength -1 [-3, +0] | minus E at its own best -1 [-3, +0] | minus single C +64 [+38, +90]
     diagnostic, no veto chosen on tune: E 2, test net +129 | minus E at its own best -1 [-3, +0] | minus no write +55 [+30, +81]
 
-## qwen3.8-27b: strengths 2 | no write: tune net +57 (answers 183), test net +121 (answers 477)
+## qwen3.8-27b: strengths 2 3 | no write: tune net +57 (answers 183), test net +121 (answers 477)
     single C 0.25: tune net +54 (answers 188) | test net +111 (answers 497)
     E 2    tune: E  +63 (ans 177) | N1  +62 (ans 178; caps E's 0-25 / own None) | no veto  +62 (caps 0-25 / None) || test: E +137 (ans 431) | N1 +123 (ans 453), N1 minus E -14 [-23, -5] | no veto +123, minus E -14 [-26, -2]
+    E 3    tune: E  +49 (ans 169) | N1  +48 (ans 170; caps E's None / own 0-25) | no veto  +48 (caps None / 0-25) || test: E +120 (ans 426) | N1 +115 (ans 431), N1 minus E -5 [-10, -1] | no veto +115, minus E -5 [-10, -1]
     chosen on tune: N1 at E 2 (test net +123) | single E's own best strength 2 (test net +137) || test: N1 minus no write +2 [-20, +24] | minus E at the same strength -14 [-23, -5] | minus E at its own best -14 [-23, -5] | minus single C +12 [-11, +34]
     diagnostic, no veto chosen on tune: E 2, test net +123 | minus E at its own best -14 [-26, -2] | minus no write +2 [-19, +22]
 
-## gemma3-12b: strengths 0.5 2 | no write: tune net +64 (answers 190), test net +159 (answers 497)
+## gemma3-12b: strengths 0.5 1 2 | no write: tune net +64 (answers 190), test net +159 (answers 497)
     single C 0.25: tune net +62 (answers 190) | test net +161 (answers 499)
     E 0.5  tune: E  +69 (ans 189) | N1  +69 (ans 189; caps E's None / own 0-25) | no veto  +69 (caps None / 0-25) || test: E +155 (ans 495) | N1 +154 (ans 496), N1 minus E -1 [-3, +0] | no veto +154, minus E -1 [-3, +0]
+    E 1    tune: E  +72 (ans 184) | N1  +72 (ans 184; caps E's None / own 0-25) | no veto  +72 (caps None / 0-25) || test: E +146 (ans 484) | N1 +146 (ans 484), N1 minus E +0 [+0, +0] | no veto +146, minus E +0 [+0, +0]
     E 2    tune: E  +70 (ans 154) | N1  +69 (ans 155; caps E's None / own 0-25) | no veto  +69 (caps None / 0-25) || test: E +167 (ans 393) | N1 +167 (ans 393), N1 minus E +0 [+0, +0] | no veto +167, minus E +0 [+0, +0]
-    chosen on tune: N1 at E 0.5 (test net +154) | single E's own best strength 2 (test net +167) || test: N1 minus no write -5 [-17, +6] | minus E at the same strength -1 [-3, +0] | minus E at its own best -13 [-41, +16] | minus single C -7 [-22, +7]
-    diagnostic, no veto chosen on tune: E 0.5, test net +154 | minus E at its own best -13 [-41, +16] | minus no write -5 [-17, +6]
+    chosen on tune: N1 at E 1 (test net +146) | single E's own best strength 1 (test net +146) || test: N1 minus no write -13 [-33, +6] | minus E at the same strength +0 [+0, +0] | minus E at its own best +0 [+0, +0] | minus single C -15 [-37, +6]
+    diagnostic, no veto chosen on tune: E 1, test net +146 | minus E at its own best +0 [+0, +0] | minus no write -13 [-33, +6]
 
-## gemma3-27b: strengths 2 | no write: tune net +103 (answers 191), test net +259 (answers 497)
+## gemma3-27b: strengths 0.5 2 | no write: tune net +103 (answers 191), test net +259 (answers 497)
     single C 0.25: tune net +103 (answers 191) | test net +256 (answers 498)
+    E 0.5  tune: E  +98 (ans 192) | N1  +98 (ans 192; caps E's None / own 0-25) | no veto  +98 (caps None / 0-25) || test: E +268 (ans 494) | N1 +269 (ans 495), N1 minus E +1 [+0, +3] | no veto +269, minus E +1 [+0, +3]
     E 2    tune: E  +65 (ans 159) | N1  +65 (ans 159; caps E's None / own 0-25) | no veto  +65 (caps None / 0-25) || test: E +208 (ans 414) | N1 +207 (ans 415), N1 minus E -1 [-3, +0] | no veto +207, minus E -1 [-3, +0]
-    chosen on tune: N1 at E 2 (test net +207) | single E's own best strength 2 (test net +208) || test: N1 minus no write -52 [-86, -20] | minus E at the same strength -1 [-3, +0] | minus E at its own best -1 [-3, +0] | minus single C -49 [-82, -17]
-    diagnostic, no veto chosen on tune: E 2, test net +207 | minus E at its own best -1 [-3, +0] | minus no write -52 [-86, -20]
+    chosen on tune: N1 at E 0.5 (test net +269) | single E's own best strength 0.5 (test net +268) || test: N1 minus no write +10 [-1, +21] | minus E at the same strength +1 [+0, +3] | minus E at its own best +1 [+0, +3] | minus single C +13 [+2, +25]
+    diagnostic, no veto chosen on tune: E 0.5, test net +269 | minus E at its own best +1 [+0, +3] | minus no write +10 [-1, +21]
 
 ## triviaqa, five models together (each at its own tune-chosen strength; questions resampled jointly)
-    N1 minus no write                              +14 [-50, +79] on 500 questions, 3 of 5 models positive
-    N1 minus E at the same strength                -17 [-26, -8] on 500 questions, 0 of 5 models positive
-    N1 minus E at its own best strength            -29 [-58, +2] on 500 questions, 0 of 5 models positive
-    no-veto N1 minus E at its own best strength    -41 [-81, -1] on 500 questions, 0 of 5 models positive
+    N1 minus no write                              +65 [+19, +111] on 500 questions, 4 of 5 models positive
+    N1 minus E at the same strength                -14 [-24, -5] on 500 questions, 1 of 5 models positive
+    N1 minus E at its own best strength            -14 [-24, -5] on 500 questions, 1 of 5 models positive
+    no-veto N1 minus E at its own best strength    -18 [-31, -5] on 500 questions, 1 of 5 models positive
 
 # popqa (alias match; tune 192 questions, test 500)
 
-## llama3.1-8b: strengths 2 | no write: tune net -20 (answers 144), test net -111 (answers 365)
+## llama3.1-8b: strengths 1.5 2 | no write: tune net -20 (answers 144), test net -111 (answers 365)
     single C 0.25: tune net -26 (answers 152) | test net -134 (answers 386)
+    E 1.5  tune: E   +8 (ans  88) | N1   +8 (ans  88; caps E's None / own 0-25) | no veto   +8 (caps None / 0-25) || test: E  -18 (ans 226) | N1  -21 (ans 229), N1 minus E -3 [-7, +0] | no veto  -21, minus E -3 [-7, +0]
     E 2    tune: E  +14 (ans  70) | N1  +13 (ans  71; caps E's None / own 0-25) | no veto  +13 (caps None / 0-25) || test: E  -14 (ans 180) | N1  -14 (ans 180), N1 minus E +0 [+0, +0] | no veto  -14, minus E +0 [+0, +0]
     chosen on tune: N1 at E 2 (test net -14) | single E's own best strength 2 (test net -14) || test: N1 minus no write +97 [+67, +128] | minus E at the same strength +0 [+0, +0] | minus E at its own best +0 [+0, +0] | minus single C +120 [+88, +151]
     diagnostic, no veto chosen on tune: E 2, test net -14 | minus E at its own best +0 [+0, +0] | minus no write +97 [+67, +128]
 
-## qwen3.5-9b: strengths 2 | no write: tune net -63 (answers 155), test net -199 (answers 417)
+## qwen3.5-9b: strengths 2 3 | no write: tune net -63 (answers 155), test net -199 (answers 417)
     single C 0.25: tune net -74 (answers 170) | test net -233 (answers 457)
     E 2    tune: E   +0 (ans  78) | N1   +0 (ans  78; caps E's None / own 0-25) | no veto   +0 (caps None / 0-25) || test: E  -57 (ans 189) | N1  -57 (ans 189), N1 minus E +0 [+0, +0] | no veto  -57, minus E +0 [+0, +0]
-    chosen on tune: N1 at E 2 (test net -57) | single E's own best strength 2 (test net -57) || test: N1 minus no write +142 [+113, +170] | minus E at the same strength +0 [+0, +0] | minus E at its own best +0 [+0, +0] | minus single C +176 [+147, +204]
-    diagnostic, no veto chosen on tune: E 2, test net -57 | minus E at its own best +0 [+0, +0] | minus no write +142 [+113, +170]
+    E 3    tune: E   +6 (ans  48) | N1   +6 (ans  48; caps E's None / own 0-25) | no veto   +6 (caps None / 0-25) || test: E  -20 (ans 118) | N1  -20 (ans 118), N1 minus E +0 [+0, +0] | no veto  -20, minus E +0 [+0, +0]
+    chosen on tune: N1 at E 3 (test net -20) | single E's own best strength 3 (test net -20) || test: N1 minus no write +179 [+147, +210] | minus E at the same strength +0 [+0, +0] | minus E at its own best +0 [+0, +0] | minus single C +213 [+181, +244]
+    diagnostic, no veto chosen on tune: E 3, test net -20 | minus E at its own best +0 [+0, +0] | minus no write +179 [+147, +210]
 
-## qwen3.8-27b: strengths 2 | no write: tune net -33 (answers 119), test net -128 (answers 316)
+## qwen3.8-27b: strengths 1 2 4 | no write: tune net -33 (answers 119), test net -128 (answers 316)
     single C 0.25: tune net -81 (answers 169) | test net -244 (answers 452)
+    E 1    tune: E  -13 (ans  95) | N1  -24 (ans 106; caps E's 0-25 / own None) | no veto  -33 (caps 0-25 / None) || test: E  -85 (ans 261) | N1 -105 (ans 283), N1 minus E -20 [-30, -11] | no veto -131, minus E -46 [-60, -33]
     E 2    tune: E   -5 (ans  77) | N1  -24 (ans  96; caps E's 0-25 / own None) | no veto  -28 (caps 0-25 / None) || test: E  -66 (ans 216) | N1 -110 (ans 264), N1 minus E -44 [-57, -32] | no veto -132, minus E -66 [-84, -49]
-    chosen on tune: N1 at E 2 (test net -110) | single E's own best strength 2 (test net -66) || test: N1 minus no write +18 [-1, +37] | minus E at the same strength -44 [-57, -32] | minus E at its own best -44 [-57, -32] | minus single C +134 [+108, +160]
+    E 4    tune: E  -24 (ans  86) | N1  -41 (ans 105; caps E's 0-25 / own None) | no veto  -42 (caps 0-25 / None) || test: E -105 (ans 233) | N1 -158 (ans 290), N1 minus E -53 [-67, -39] | no veto -163, minus E -58 [-73, -43]
+    chosen on tune: N1 at E 1 (test net -105) | single E's own best strength 2 (test net -66) || test: N1 minus no write +23 [+7, +39] | minus E at the same strength -20 [-30, -11] | minus E at its own best -39 [-56, -21] | minus single C +139 [+115, +163]
     diagnostic, no veto chosen on tune: E 2, test net -132 | minus E at its own best -66 [-84, -49] | minus no write -4 [-19, +11]
 
-## gemma3-12b: strengths 2 | no write: tune net -68 (answers 166), test net -223 (answers 449)
+## gemma3-12b: strengths 2 3 4 | no write: tune net -68 (answers 166), test net -223 (answers 449)
     single C 0.25: tune net -85 (answers 181) | test net -243 (answers 469)
     E 2    tune: E   -9 (ans  73) | N1   -9 (ans  73; caps E's None / own 0-25) | no veto   -9 (caps None / 0-25) || test: E  -51 (ans 187) | N1  -52 (ans 188), N1 minus E -1 [-3, +0] | no veto  -52, minus E -1 [-3, +0]
-    chosen on tune: N1 at E 2 (test net -52) | single E's own best strength 2 (test net -51) || test: N1 minus no write +171 [+140, +201] | minus E at the same strength -1 [-3, +0] | minus E at its own best -1 [-3, +0] | minus single C +191 [+161, +221]
-    diagnostic, no veto chosen on tune: E 2, test net -52 | minus E at its own best -1 [-3, +0] | minus no write +171 [+140, +201]
+    E 3    tune: E   +2 (ans  26) | N1   +2 (ans  26; caps E's None / own 0-25) | no veto   +2 (caps None / 0-25) || test: E   -5 (ans  47) | N1   -5 (ans  47), N1 minus E +0 [+0, +0] | no veto   -5, minus E +0 [+0, +0]
+    E 4    tune: E   +2 (ans   2) | N1   +2 (ans   2; caps E's None / own 0-25) | no veto   +2 (caps None / 0-25) || test: E   -1 (ans   5) | N1   -1 (ans   5), N1 minus E +0 [+0, +0] | no veto   -1, minus E +0 [+0, +0]
+    chosen on tune: N1 at E 3 (test net -5) | single E's own best strength 3 (test net -5) || test: N1 minus no write +218 [+181, +254] | minus E at the same strength +0 [+0, +0] | minus E at its own best +0 [+0, +0] | minus single C +238 [+202, +274]
+    diagnostic, no veto chosen on tune: E 3, test net -5 | minus E at its own best +0 [+0, +0] | minus no write +218 [+181, +254]
 
 ## gemma3-27b: strengths 2 | no write: tune net -49 (answers 177), test net -163 (answers 449)
     single C 0.25: tune net -58 (answers 184) | test net -186 (answers 468)
@@ -71,7 +82,7 @@
     diagnostic, no veto chosen on tune: E 2, test net -86 | minus E at its own best -9 [-15, -4] | minus no write +77 [+44, +108]
 
 ## popqa, five models together (each at its own tune-chosen strength; questions resampled jointly)
-    N1 minus no write                              +505 [+424, +587] on 500 questions, 5 of 5 models positive
-    N1 minus E at the same strength                -54 [-69, -40] on 500 questions, 0 of 5 models positive
-    N1 minus E at its own best strength            -54 [-69, -40] on 500 questions, 0 of 5 models positive
-    no-veto N1 minus E at its own best strength    -76 [-95, -57] on 500 questions, 0 of 5 models positive
+    N1 minus no write                              +594 [+508, +681] on 500 questions, 5 of 5 models positive
+    N1 minus E at the same strength                -29 [-40, -19] on 500 questions, 0 of 5 models positive
+    N1 minus E at its own best strength            -48 [-66, -30] on 500 questions, 0 of 5 models positive
+    no-veto N1 minus E at its own best strength    -75 [-93, -57] on 500 questions, 0 of 5 models positive
