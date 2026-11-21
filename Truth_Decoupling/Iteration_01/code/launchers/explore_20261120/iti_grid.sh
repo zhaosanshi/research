@@ -7,6 +7,9 @@
 # Early stop within a K (alphas must be given in increasing order): when a point's MMLU change on the selection half
 # is below -STOP points (default 3; the budget is 1), the larger alphas of that K are not run, and the tune answers
 # are generated only for points whose selection-half change is not below -STOP.
+# GEN_ONLY=1 (added 2026-11-22 06 h, after the first three tune readings at alpha 5 were seen: -39, -39, -29 against
+# -34 without a write): only the tune answers, for every point of the lists, no MMLU pass and no early stop. For the
+# reading "the best ITI point on tune whatever its MMLU cost", which is the most favourable one for the baseline.
 # The fit file must exist: baselines/iti/<MODEL>/fit_<FIT>.pt (iti_baseline.py fit). Outputs: baselines/iti/<MODEL>/<FIT>/mmlu/
 # and .../gen/tune_*.json; the K = 0 pass is baselines/iti/<MODEL>/mmlu_k0.json.
 # usage: iti_grid.sh MODEL GPU FIT SIGMA "K ..." "ALPHA ..." TAG      e.g. iti_grid.sh llama3.1-8b 1 train_seed42 endq "16 32" "5 10 15" a
@@ -52,15 +55,17 @@ for K in $KS; do
   fi
   for A in $ALPHAS; do
     name=k${K}_a$(echo "$A" | tr . -)$SUF
-    if [ ! -e $HOST/$D/mmlu/$name.json ]; then
-      "${DX[@]}" $PY -I $IT mmlu --models $M --model $MODEL --fit $ROOT/$B/fit_$FIT.pt --sigma $SIGMA --k $K --alpha $A \
-          --items $ITEMS --ids $IDS --out $ROOT/$D/mmlu/$name.json >> $log 2>&1
-      rc=$?; [ "$rc" -eq 0 ] || { say "mmlu $name exit=$rc"; FAILED=1; }
-    fi
-    chg=$(python3 -B Iteration_01/diag/iti_table.py point $MODEL $FIT $name 2>> $log) || { say "no MMLU reading for $name"; FAILED=1; continue; }
-    if awk -v c="$chg" -v s="${STOP:-3}" 'BEGIN { exit !(c < -s) }'; then
-      say "K $K alpha $A: selection-half MMLU change $chg, below -${STOP:-3}: larger alphas of this K are skipped"
-      break
+    if [ "${GEN_ONLY:-0}" != 1 ]; then
+      if [ ! -e $HOST/$D/mmlu/$name.json ]; then
+        "${DX[@]}" $PY -I $IT mmlu --models $M --model $MODEL --fit $ROOT/$B/fit_$FIT.pt --sigma $SIGMA --k $K --alpha $A \
+            --items $ITEMS --ids $IDS --out $ROOT/$D/mmlu/$name.json >> $log 2>&1
+        rc=$?; [ "$rc" -eq 0 ] || { say "mmlu $name exit=$rc"; FAILED=1; }
+      fi
+      chg=$(python3 -B Iteration_01/diag/iti_table.py point $MODEL $FIT $name 2>> $log) || { say "no MMLU reading for $name"; FAILED=1; continue; }
+      if awk -v c="$chg" -v s="${STOP:-3}" 'BEGIN { exit !(c < -s) }'; then
+        say "K $K alpha $A: selection-half MMLU change $chg, below -${STOP:-3}: larger alphas of this K are skipped"
+        break
+      fi
     fi
     if [ ! -e $HOST/$D/gen/tune_$name.json ]; then
       "${DX[@]}" $PY -I $IT gen --models $M --model $MODEL --fit $ROOT/$B/fit_$FIT.pt --sigma $SIGMA --k $K --alpha $A \

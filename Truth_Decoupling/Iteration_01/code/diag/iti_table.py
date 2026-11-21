@@ -13,6 +13,9 @@
 #                      --write-choice it is saved to baselines/iti/<MODEL>/<FIT>/choice[_sp].json (never overwritten).
 #   test MODEL FIT     TruthfulQA test split at the saved choice: ITI against no write, single E and N1 (main-table
 #                      setting at the write rule "prompt"), paired intervals; MMLU of the chosen point on both halves.
+# --all (added 2026-11-22 06 h, after the first three tune readings were seen; the reading most favourable to ITI):
+#   tune --all   every grid point that has tune answers, whatever its MMLU change (shown when measured); the choice is
+#                saved as choice_all[_sp].json;   test --all   the test split at that choice (work dir ..._all_test).
 #   point MODEL FIT STEM   prints the selection-half MMLU change of one grid point (file stem, e.g. k48_a15), for the
 #                      launcher's early stop: once a K is far over the budget, its larger alphas are not run.
 # Options: --sigma endq|pairs (which sigma of the fit; default endq, the official code's), --budget B.
@@ -92,9 +95,20 @@ def condition_of(model, fit, split, stem):
     return g["condition"], g
 
 
-def tune_table(model, fit, sigma, budget, write):
+def tune_table(model, fit, sigma, budget, write, every=False):
     display, layer, s = KEY[model]
-    rows = [r for r in budget_rows(model, fit, sigma, budget, show=False) if r["within"]]
+    measured = budget_rows(model, fit, sigma, budget, show=False)
+    rows = [r for r in measured if r["within"]]
+    if every:
+        mm = {r["stem"]: r for r in measured}
+        rows = []
+        for p in glob.glob("%s/%s/%s/gen/tune_k*_a*.json" % (BASE, model, fit)):
+            stem = os.path.basename(p)[len("tune_"):-5]
+            if stem.endswith("_sp") != (sigma == "pairs"):
+                continue
+            st0 = read(p)["setting"]
+            rows.append(mm.get(stem) or {"k": st0["k"], "alpha": st0["alpha"], "stem": stem, "dev": None, "within": None})
+        rows.sort(key=lambda r: (r["k"], r["alpha"]))
     if not rows:
         raise SystemExit("no grid point within the budget")
     T, why = MP.prompt_split(display, layer, 0, s)
@@ -112,8 +126,9 @@ def tune_table(model, fit, sigma, budget, write):
         bl.update(bl1)
     base = S.system(tsp, ttx, ("base",))[0]
     e = S.system(tsp, ttx, ("E", s))
-    print("# ITI, %s, fit %s, sigma %s: TruthfulQA tune split, %d questions, DeepSeek Pro, score = right - wrong; grid points within the MMLU budget of %g point(s)" % (
-        model, fit, sigma, len(qs), budget))
+    print("# ITI, %s, fit %s, sigma %s: TruthfulQA tune split, %d questions, DeepSeek Pro, score = right - wrong; %s" % (
+        model, fit, sigma, len(qs), "every grid point with tune answers, whatever its MMLU change" if every
+        else "grid points within the MMLU budget of %g point(s)" % budget))
     print("    no write net %+d | the project's single E (layer %d, strength %s, prompt rule) net %+d (answers %d)" % (
         sum(map(val, base)), layer, DM.show(s), sum(map(val, e[0])), sum(e[1])))
     table, missing = [], []
@@ -127,25 +142,26 @@ def tune_table(model, fit, sigma, budget, write):
         right = sum(st[(q, cond)] == "R" for q in qs)
         wrong = sum(st[(q, cond)] == "W" for q in qs)
         table.append((net, r["k"], r["alpha"], r["stem"], cond, ans))
-        print("    K %3d alpha %5g | net %+4d | answers %3d | right %3d | wrong %3d | MMLU selection half %+.2f" % (
-            r["k"], r["alpha"], net, ans, right, wrong, r["dev"][0]))
+        print("    K %3d alpha %5g | net %+4d | answers %3d | right %3d | wrong %3d | MMLU selection half %s" % (
+            r["k"], r["alpha"], net, ans, right, wrong, "not measured" if r["dev"] is None else "%+.2f%s" % (
+                r["dev"][0], "" if r["within"] else " (over the budget)")))
     if missing:
         raise SystemExit("not judged yet: %s" % " ".join(missing))
     best = max(table, key=lambda t: (t[0], -t[1], -t[2]))
     print("    chosen on tune: K %d, alpha %g (net %+d, answers %d)" % (best[1], best[2], best[0], best[5]))
     if write:
-        path = "%s/%s/%s/choice%s.json" % (BASE, model, fit, "_sp" if sigma == "pairs" else "")
+        path = "%s/%s/%s/choice%s%s.json" % (BASE, model, fit, "_all" if every else "", "_sp" if sigma == "pairs" else "")
         with open(path, "x", encoding="utf-8") as f:
-            json.dump({"model": model, "fit": fit, "sigma": sigma, "budget": budget, "k": best[1], "alpha": best[2],
+            json.dump({"model": model, "fit": fit, "sigma": sigma, "budget": None if every else budget, "k": best[1], "alpha": best[2],
                        "stem": best[3], "tune_condition": best[4], "tune_net": best[0], "tune_questions": len(qs),
                        "candidates": [[t[1], t[2], t[0]] for t in table]}, f, indent=1)
         print("    choice written to %s" % path)
 
 
-def test_table(model, fit, sigma):
+def test_table(model, fit, sigma, every=False):
     display, layer, s = KEY[model]
-    ch = read("%s/%s/%s/choice%s.json" % (BASE, model, fit, "_sp" if sigma == "pairs" else ""))
-    if ch["model"] != model or ch["fit"] != fit or ch["sigma"] != sigma:
+    ch = read("%s/%s/%s/choice%s%s.json" % (BASE, model, fit, "_all" if every else "", "_sp" if sigma == "pairs" else ""))
+    if ch["model"] != model or ch["fit"] != fit or ch["sigma"] != sigma or (ch["budget"] is None) != every:
         raise SystemExit("the choice file belongs to another setting")
     X, why = MP.prompt_split(display, layer, 1, s)
     T, why_t = MP.prompt_split(display, layer, 0, s)
@@ -154,7 +170,7 @@ def test_table(model, fit, sigma):
     xsp, xtx, _, qs = X
     tsp, ttx, _, _ = T
     _, run, _ = MP.usual(display, 1)
-    w = MP.work(run, "test", "iti_%s%s" % (fit, "_sp" if sigma == "pairs" else ""))
+    w = MP.work(run, "test", "iti_%s%s%s" % (fit, "_sp" if sigma == "pairs" else "", "_all" if every else ""))
     if not MP.has(w):
         raise SystemExit("no Pro verdicts yet in %s" % os.path.basename(w))
     cond, g = condition_of(model, fit, "test", ch["stem"])
@@ -169,13 +185,14 @@ def test_table(model, fit, sigma):
     n1 = S.system(xsp, xtx, ML.n1_pick(tsp, ttx, s))
     d = lambda a, b: [val(x) - val(y) for x, y in zip(a, b)]  # noqa: E731
     print("# ITI, %s, fit %s, sigma %s: TruthfulQA test split, %d questions, DeepSeek Pro, score = right - wrong" % (model, fit, sigma, len(qs)))
-    print("    chosen on tune: K %d, alpha %g (tune net %+d); positions: the last prompt token and every generated token" % (ch["k"], ch["alpha"], ch["tune_net"]))
+    print("    chosen on tune%s: K %d, alpha %g (tune net %+d); positions: the last prompt token and every generated token" % (
+        " among all grid points, whatever the MMLU change" if every else " within the MMLU budget", ch["k"], ch["alpha"], ch["tune_net"]))
     print("    no write net %+d | ITI net %+d (answers %d, right %d, wrong %d) | single E (layer %d, strength %s, prompt rule) net %+d (answers %d) | N1 net %+d (answers %d)" % (
         sum(map(val, base)), sum(map(val, iti)), sum(not bl[(q, cond)] for q in qs), sum(x == "R" for x in iti), sum(x == "W" for x in iti),
         layer, DM.show(s), sum(map(val, e[0])), sum(e[1]), sum(map(val, n1[0])), sum(n1[1])))
     print("    ITI minus no write %s | single E minus ITI %s | N1 minus ITI %s | single E minus no write %s" % (
         ps.ci(d(iti, base)), ps.ci(d(e[0], iti)), ps.ci(d(n1[0], iti)), ps.ci(d(e[0], base))))
-    for r in budget_rows(model, fit, sigma, ch["budget"], show=False):
+    for r in budget_rows(model, fit, sigma, 1.0 if every else ch["budget"], show=False):
         if (r["k"], r["alpha"]) == (ch["k"], ch["alpha"]):
             print("    MMLU of the chosen point: selection half %+.2f [%+.2f, %+.2f], report half %+.2f [%+.2f, %+.2f]" % (r["dev"] + r["rep"]))
 
@@ -183,13 +200,15 @@ def test_table(model, fit, sigma):
 def main():
     argv = sys.argv[1:]
     opt = {"--sigma": "endq", "--budget": "1"}
-    write = False
+    write = every = False
     rest = []
     while argv:
         if argv[0] in opt:
             opt[argv[0]], argv = argv[1], argv[2:]
         elif argv[0] == "--write-choice":
             write, argv = True, argv[1:]
+        elif argv[0] == "--all":
+            every, argv = True, argv[1:]
         else:
             rest.append(argv[0])
             argv = argv[1:]
@@ -206,9 +225,9 @@ def main():
     if mode == "budget":
         budget_rows(model, fit, opt["--sigma"], float(opt["--budget"]))
     elif mode == "tune":
-        tune_table(model, fit, opt["--sigma"], float(opt["--budget"]), write)
+        tune_table(model, fit, opt["--sigma"], float(opt["--budget"]), write, every)
     else:
-        test_table(model, fit, opt["--sigma"])
+        test_table(model, fit, opt["--sigma"], every)
 
 
 if __name__ == "__main__":

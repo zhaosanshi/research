@@ -35,6 +35,9 @@ Phases (model interpreter, from /workspace/Truth_Decoupling):
   gen     --fit FIT.pt --split tune|test --k K --alpha A --out GEN.json [--first-batches N]
   mmlu    --fit FIT.pt --k K --alpha A --items PARQUET --ids IDS.json --out OUT.json [--first-batches N]
           (K = 0 scores the model without any intervention)
+  gsm8k   --fit FIT.pt --k K --alpha A --items PARQUET --ids IDS.json --out OUT.json [--max-new-tokens N]
+          the 1,319 GSM8K items under the intervention, neutral system prompt, as the project's own GSM8K passes
+          (K = 0: no intervention, for the check against the usual no-write pass)
   export  --like JUDGE_INPUT.json --gen GEN.json [GEN.json ...] --out JUDGE_INPUT_OUT.json     (no model)
 """
 import argparse
@@ -464,6 +467,40 @@ def run_mmlu(a):
     print("%s mmlu K %d alpha %s: accuracy %.4f over %d items, %.0fs" % (a.model, a.k, a.alpha, acc, len(recs), time.time() - t0), flush=True)
 
 
+def run_gsm8k(a):
+    """GSM8K answers under the intervention; rows as the project's own GSM8K passes (id, text, finished, rule_abstain),
+    so that diag/cap_score.py can score them."""
+    NG, m, X, ctx = open_run(a)
+    bundle = ctx.bundle
+    systems = NG.systems_of(ctx)
+    a.task, a.split, a.only_ids = "gsm8k", "all", None
+    items, template = NG.load_items(a)
+    if a.first_batches:
+        items = items[:a.first_batches * NG.BATCH]
+    if a.k:
+        fit = load_fit(a.fit, a.model, ctx.ident_sha)
+        vecs, chosen = head_vectors(bundle, fit, a.k, a.alpha, a.sigma)
+        st = setting(a, fit, chosen)
+    else:
+        vecs, st = {}, {"k": 0}
+    out = Path(a.out)
+    if out.exists():
+        raise SystemExit("%s exists" % out)
+    t0 = time.time()
+    with X.E.fp32_output_projection(bundle, enabled=True):
+        prompts = [X.pd.render_prompt(bundle, systems["neutral"], template, q) for _, q in items]
+        recs = generate(X, bundle, prompts, vecs, a.max_new_tokens)
+    rows = [dict(r, id=iid, rule_abstain=bool(X.rule_abstains(r["text"]))) for r, (iid, _) in zip(recs, items)]
+    payload = {"protocol": PROTOCOL, "phase": "gsm8k", "completed": not a.first_batches, "model": a.model, "base_prompt": "neutral",
+               "system_text": systems["neutral"], "identity_sha256": ctx.ident_sha, "script_sha256": sha_file(__file__),
+               "items_file_sha256": sha_file(a.items), "ids_file_sha256": sha_file(a.ids), "max_new_tokens": a.max_new_tokens,
+               "batch_size": NG.BATCH, "setting": st, "ids": [i for i, _ in items], "rows": rows, "seconds": time.time() - t0}
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(payload), encoding="utf-8")
+    print("%s gsm8k K %d alpha %s: %d items, rule abstain %d, unfinished %d, %.0fs" % (
+        a.model, a.k, a.alpha, len(rows), sum(r["rule_abstain"] for r in rows), sum(not r["finished"] for r in rows), time.time() - t0), flush=True)
+
+
 def run_export(a):
     """A judge input with the same question, gold and incorrect lists as an existing judge input of the same model
     and split (--like), and one condition per ITI generation file."""
@@ -503,7 +540,7 @@ def run_export(a):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("phase", choices=["fit", "check", "gen", "mmlu", "export"])
+    ap.add_argument("phase", choices=["fit", "check", "gen", "mmlu", "gsm8k", "export"])
     ap.add_argument("--models", type=Path)
     ap.add_argument("--model")
     ap.add_argument("--fit", type=Path)
@@ -517,6 +554,7 @@ def main():
     ap.add_argument("--items", type=Path)
     ap.add_argument("--ids", type=Path)
     ap.add_argument("--first-batches", type=int, default=0)
+    ap.add_argument("--max-new-tokens", type=int, default=512, help="gsm8k only")
     ap.add_argument("--like", type=Path)
     ap.add_argument("--gen", nargs="+", default=[])
     ap.add_argument("--out")
@@ -542,8 +580,8 @@ def main():
         run_gen(a)
     else:
         if not (a.items and a.ids and a.out and (a.fit or not a.k)):
-            ap.error("mmlu needs --items, --ids, --out and (unless --k 0) --fit")
-        run_mmlu(a)
+            ap.error("%s needs --items, --ids, --out and (unless --k 0) --fit" % a.phase)
+        (run_mmlu if a.phase == "mmlu" else run_gsm8k)(a)
 
 
 if __name__ == "__main__":
