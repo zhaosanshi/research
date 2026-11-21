@@ -72,7 +72,8 @@ print(m["python"], m["cl"])' $HOST/Iteration_01/code/configs/newsets/frozen_mode
       touch $L/QAQA_TUNED_${MODEL}_FAILED
     fi ) > /dev/null 2>&1 < /dev/null &
 }
-if python3 -c '
+# (2026-11-22, after the review: the clock is read in Beijing time whatever the host's zone is)
+if TZ=Asia/Shanghai python3 -c '
 import time, sys
 lt = time.localtime(); m = lt.tm_hour * 60 + lt.tm_min
 sys.exit(1 if lt.tm_wday < 5 and (8 * 60 + 30 <= m < 12 * 60 or 13 * 60 + 30 <= m < 18 * 60) else 0)'; then :; else fail "peak hours: the judge of the chosen arms is not started"; fi

@@ -778,7 +778,13 @@ E 不动、上限自选时各模型的 N1 减只推 E（470 题）：Llama **+20
 
 结果文件：`Iteration_01/results/newsets/qaqa/` 下的 `qaqa_frozen_470_five_models_20261122.txt`、`qaqa_fixedE_470_five_models_20261122.txt`、`qaqa_tuned_470_five_models_20261122.txt`，调参集的选择 `qaqa_tune_100_five_models_20261122.txt`、`qaqa_tune_100_fixedE_20261122.txt`。
 
-限制：新写的程序还没有交 GPT 审；每题只有一条参考答案；调参集只有 100 题，选出的上限不稳（Qwen3.5-9B 选的上限在 470 题上是亏的）。结果文件 `Iteration_01/results/newsets/qaqa/qaqa_frozen_570_five_models_20261122.txt`；程序 `code/diag/qaqa_pilot_table.py`、`code/scripts/newsets/ns_task.py`、`qaqa_bank.py`，启动脚本 `code/launchers/explore_20261120/qaqa_run.sh`、`qaqa_full_1122.sh`、`qaqa_conf.sh`。
+限制：新写的程序还没有交 GPT 审；每题只有一条参考答案；调参集只有 100 题，选出的上限不稳（Qwen3.5-9B 选的上限在 470 题上是亏的）。
+
+核对与两处要说明的口径（2026-11-22 03:40）：
+
+- 三个模型（Llama、Qwen3.8-27B、Gemma-3-12B）原样搬的读数，用独立脚本从判分文件与回答文件直接重算，逐数相同。子代理（Opus 5.5）只读审了出表程序、生成入口、题库程序与五个启动脚本：470 题没有进入任何选择，N1 的拼装、按把握挑题的排序与题数、跨模型合计都对，手算核了两张表里五个模型的差值与七个合计。按它的意见给程序加了三道硬检查（判过分的回答必须与现在的回答文件逐字相同；模型或某一档力度没齐就以错误退出；排除的题号必须是调参集那份题库的），改后四张表逐字相同。
+- **作答数与净分的口径**：规则检测器判为不答的回答不计入作答数，但仍按裁判的判定计分（与 TruthfulQA 的表相同），所以个别行"答对 + 答错"比作答数多一两条。
+- **"两个上限都不再问"在这套题的调参集上是允许的**（事先写明），TruthfulQA 主表的规则不允许。受影响的只有"力度放开"读法里的 Qwen3.8-27B：它选了都不再问，N1 就是只推 E。按 TruthfulQA 的规则它会选"E 压住的题问到 0.25 档"，470 题上只涉及 8 道题，合计最多变动 8 分，结论不变。结果文件 `Iteration_01/results/newsets/qaqa/qaqa_frozen_570_five_models_20261122.txt`；程序 `code/diag/qaqa_pilot_table.py`、`code/scripts/newsets/ns_task.py`、`qaqa_bank.py`，启动脚本 `code/launchers/explore_20261120/qaqa_run.sh`、`qaqa_full_1122.sh`、`qaqa_conf.sh`。
 
 ## 13. GSM8K：第二项能力检查（2026-11-21）
 

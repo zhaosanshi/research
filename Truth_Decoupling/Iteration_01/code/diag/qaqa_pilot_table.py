@@ -25,6 +25,15 @@
 # confidence file exists.
 # --tune --fix-e: E stays at the main-table strength (the MMLU budget defines it); only the two caps and the single-C
 # strength are chosen on the tune split.
+# After the read-only review of 2026-11-22 (no number changed; the four tables are reproduced line by line):
+#   - a judged answer must be the text that is in the generation file now (a file regenerated after judging stops the
+#     program); the --skip-ids file must belong to the tune bank and all of its ids must be in the bank read;
+#   - a model that is not ready, or a sweep strength / C strength without complete judged passes on the tune split,
+#     makes the program end with status 1 (--allow-incomplete keeps the earlier behaviour for a first look);
+#   - an answer the rule detector marks as an abstention is counted as "not answered", but it keeps the judge's value
+#     (as in the TruthfulQA tables): in a few rows right + wrong exceeds the number of answers by one or two;
+#   - on the tune split both caps may be "none" (N1 = single E), as written in the work queue before the runs; the
+#     TruthfulQA main-table rule requires at least one cap. Only the free-strength choice of Qwen3.8-27B is affected.
 # --work takes a comma list of judge work dirs under newsets/judge/<task>/<model>/ (their verdicts are merged).
 # --skip-ids FILE leaves out the questions of an id file.
 # Runs in the scoring container (the verdict files record container paths):
@@ -56,6 +65,7 @@ SET = {
 # E strengths looked at on the tune split (the sweeps of the TriviaQA / PopQA runs; they contain the main strength)
 SWEEP = {"llama3.1-8b": ("1", "2", "3.5", "5"), "qwen3.5-9b": ("0.5", "1", "2", "3"), "qwen3.8-27b": ("0.5", "1", "1.75", "3"),
          "gemma3-12b": ("1", "2.5", "4"), "gemma3-27b": ("0.5", "1", "2")}
+TUNE_BANK = "Iteration_01/newsets/bank/qaqa_pilot_bank_20261122.jsonl"
 TYPES = (("no_failure", "valid assumption"), ("failure", "false assumption"), ("unverifiable", "unverifiable assumption"))
 ORDER = ("no write", "prompt only", "single C", "single E", "N1")
 CONF_E, CONF_N = "prompt + confidence, single E's N", "prompt + confidence, N1's N"
@@ -76,7 +86,7 @@ class Raw:
         self.qtype = {b["id"]: b["qtype"] for b in bank}
         self.gdir = Path(S.NS) / "gen_prompt" / task / model / "test"
         self.args = SimpleNamespace(task=task, split="test", model=model, items=bank_path)
-        self.rows, self.cond, self.val = {}, {}, {}
+        self.rows, self.cond, self.val, self.pred = {}, {}, {}, {}
         for work_name in works:
             work = Path(S.NS) / "judge" / task / model / work_name
             if not (work / "judge2" / "single_pro.jsonl").is_file():
@@ -95,6 +105,7 @@ class Raw:
                 if self.val.get(k, new) != new:
                     raise SystemExit("%s: two work dirs disagree on %s %s" % (model, k[0], k[1]))
                 self.val[k] = new
+                self.pred[k] = c["prediction"]
 
     def e(self, s):
         return "x:E%d.w.p%s" % (self.el, s)
@@ -119,6 +130,10 @@ class Raw:
         rows = {r["id"]: r for r in g["rows"]}
         if any((q, k["condition"]) not in self.val and rows[q]["text"].strip() for q in self.ids):
             return False
+        for q in self.ids:
+            t = rows[q]["text"].strip()
+            if t and self.pred[(q, k["condition"])].strip() != t:
+                raise SystemExit("%s: the judged answer of %s under %s is not the text now in %s" % (self.model, q, arm, p.name))
         self.rows[arm], self.cond[arm] = rows, k["condition"]
         return True
 
@@ -228,12 +243,15 @@ def changed_lines(R, ids, e_arm):
         print("    answered in both passes and E changed the answer, %s: %d, better %d, worse %d" % (label, len(qs), b, w))
 
 
-def tune(R, ids, fix_e=False):
+def tune(R, ids, fix_e=False, allow_incomplete=False):
     """Every setting on the tune questions; the choice as a dict. fix_e: only the main-table E strength."""
     sweep = (SET[R.model][1],) if fix_e else SWEEP[R.model]
     strengths = [s for s in sweep if all(R.has(a) for a in [R.e(s)] + [R.ec(s, k) for k in LAD])]
     cs = [k for k in LAD if R.has(R.c(k))]
     R.need("x")
+    if not allow_incomplete and (len(strengths) != len(sweep) or len(cs) != len(LAD)):
+        raise SystemExit("%s: the tune split lacks complete judged passes (E strengths %s of %s, single C %s of %s)" % (
+            R.model, strengths, list(sweep), cs, list(LAD)))
     if not strengths or not cs:
         raise FileNotFoundError("%s: no complete E strength or no single C on the tune split" % R.model)
     base = R.arm_system("x")
@@ -265,16 +283,18 @@ def tune(R, ids, fix_e=False):
 
 def main():
     argv = sys.argv[1:]
-    opt = {"--task": "qaqa", "--bank": "Iteration_01/newsets/bank/qaqa_pilot_bank_20261122.jsonl", "--work": "test_pilot100",
+    opt = {"--task": "qaqa", "--bank": TUNE_BANK, "--work": "test_pilot100",
            "--skip-ids": None, "--write-choice": None, "--choice": None}
-    mode_tune = list_arms = fix_e = False
-    while argv[:1] and (argv[0] in opt or argv[0] in ("--tune", "--list-arms", "--fix-e")):
+    mode_tune = list_arms = fix_e = allow_incomplete = False
+    while argv[:1] and (argv[0] in opt or argv[0] in ("--tune", "--list-arms", "--fix-e", "--allow-incomplete")):
         if argv[0] == "--tune":
             mode_tune, argv = True, argv[1:]
         elif argv[0] == "--list-arms":
             list_arms, argv = True, argv[1:]
         elif argv[0] == "--fix-e":
             fix_e, argv = True, argv[1:]
+        elif argv[0] == "--allow-incomplete":
+            allow_incomplete, argv = True, argv[1:]
         else:
             opt[argv[0]], argv = argv[1], argv[2:]
     if not argv:
@@ -282,7 +302,10 @@ def main():
     skip = set()
     if opt["--skip-ids"]:
         with open(opt["--skip-ids"], encoding="utf-8") as f:
-            skip = set(json.load(f)["ids"])
+            sk = json.load(f)
+        if sk.get("bank_sha256") != G.sha_file(TUNE_BANK) or len(set(sk["ids"])) != len(sk["ids"]):
+            raise SystemExit("--skip-ids is not the id list of the tune bank %s" % TUNE_BANK)
+        skip = set(sk["ids"])
     chosen = {}
     if opt["--choice"]:
         with open(opt["--choice"], encoding="utf-8") as f:
@@ -302,13 +325,15 @@ def main():
             print(model, " ".join(miss))
         return
     title = "pilot" if opt["--task"] == "qaqa" else "full run"
-    done, choices = {}, {}
+    done, choices, not_ready = {}, {}, []
     for model in argv:
         try:
             R = Raw(model, opt["--task"], opt["--bank"], opt["--work"].split(","))
+            if not skip <= set(R.ids):
+                raise SystemExit("%s: --skip-ids names questions that are not in the bank" % model)
             ids = [q for q in R.ids if q not in skip]
             if mode_tune:
-                choices[model] = tune(R, ids, fix_e)
+                choices[model] = tune(R, ids, fix_e, allow_incomplete)
                 print()
                 continue
             el, s, cl, cap_e, cap_own, kc = SET[model]
@@ -331,6 +356,7 @@ def main():
                     systems[name] = R.top_conf(ids, conf, sum(systems[ref][1][q] for q in ids))
         except (FileNotFoundError, ValueError) as err:
             print("\n# %s: not ready (%s)\n" % (model, str(err)[:200]))
+            not_ready.append(model)
             continue
         report(R, ids, systems, n1[2], title + (", without the tune questions" if skip else ""), setting)
         changed_lines(R, ids, R.e(s_e))
@@ -355,6 +381,8 @@ def main():
                 per = [[d[2][x][0][q] - d[2][y][0][q] for q in qs] for d in done.values()]
                 t_, lo, hi = S.joint_ci(per)
                 print("    %-52s %+d [%+d, %+d], %d of %d models positive" % ("%s minus %s" % (x, y), t_, lo, hi, sum(sum(v) > 0 for v in per), len(per)))
+    if not_ready and not allow_incomplete:
+        raise SystemExit("not ready: %s" % ", ".join(not_ready))
 
 
 if __name__ == "__main__":
