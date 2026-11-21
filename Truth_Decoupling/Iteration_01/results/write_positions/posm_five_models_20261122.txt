@@ -1,0 +1,25 @@
+
+## Llama-3.1-8B, layer 16, strength 3.5 (write amount 5.026 for both directions), prompt rule, test 523 questions
+    no write net -86 | mean difference (same layer, same amount) net -17 (answers 347) | learned E net +40 (answers 319) | N1 net +62 (answers 476)
+    learned E minus mean difference +57 [+25, +90] | N1 minus mean difference +79 [+41, +118] | mean difference minus no write +69 [+33, +104]
+
+## Qwen3.5-9B, layer 15, strength 2 (write amount 3.120 for both directions), prompt rule, test 523 questions
+    no write net +73 | mean difference (same layer, same amount) net +107 (answers 462) | learned E net +168 (answers 408) | N1 net +186 (answers 444)
+    learned E minus mean difference +61 [+28, +94] | N1 minus mean difference +79 [+46, +113] | mean difference minus no write +34 [+15, +54]
+
+## Qwen3.8-27B, layer 28, strength 1.75 (write amount 6.444 for both directions), prompt rule, test 522 questions
+    no write net +46 | mean difference (same layer, same amount) net +45 (answers 409) | learned E net +142 (answers 354) | N1 net +174 (answers 491)
+    learned E minus mean difference +97 [+61, +131] | N1 minus mean difference +129 [+89, +169] | mean difference minus no write -1 [-18, +17]
+
+## Gemma-3-12B, layer 24, strength 2.5 (write amount 1410.593 for both directions), prompt rule, test 522 questions
+    no write net +12 | mean difference (same layer, same amount) net +31 (answers 481) | learned E net +103 (answers 323) | N1 net +158 (answers 489)
+    learned E minus mean difference +72 [+28, +117] | N1 minus mean difference +127 [+78, +177] | mean difference minus no write +19 [-6, +45]
+
+## Gemma-3-27B, layer 28, strength 1 (write amount 591.974 for both directions), prompt rule, test 523 questions
+    no write net +3 | mean difference (same layer, same amount) net +2 (answers 440) | learned E net +105 (answers 423) | N1 net +144 (answers 510)
+    learned E minus mean difference +103 [+72, +134] | N1 minus mean difference +142 [+108, +175] | mean difference minus no write -1 [-21, +18]
+
+## the five models together on the 521 questions all have
+    learned E minus mean difference    +387 [+286, +483]
+    N1 minus mean difference           +554 [+439, +668]
+    mean difference minus no write     +119 [+63, +174]
