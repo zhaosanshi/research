@@ -4,6 +4,9 @@
 # of the list, MMLU by option probability on the full 14,042 items (the budget of the project's own direction is
 # read on its selection half) and the answers of the TruthfulQA tune split (192 questions). K = 0 scores the model
 # itself (once, alpha ignored). Nothing here calls a judge. Existing files are kept.
+# Early stop within a K (alphas must be given in increasing order): when a point's MMLU change on the selection half
+# is below -STOP points (default 3; the budget is 1), the larger alphas of that K are not run, and the tune answers
+# are generated only for points whose selection-half change is not below -STOP.
 # The fit file must exist: baselines/iti/<MODEL>/fit_<FIT>.pt (iti_baseline.py fit). Outputs: baselines/iti/<MODEL>/<FIT>/mmlu/
 # and .../gen/tune_*.json; the K = 0 pass is baselines/iti/<MODEL>/mmlu_k0.json.
 # usage: iti_grid.sh MODEL GPU FIT SIGMA "K ..." "ALPHA ..." TAG      e.g. iti_grid.sh llama3.1-8b 1 train_seed42 endq "16 32" "5 10 15" a
@@ -53,6 +56,11 @@ for K in $KS; do
       "${DX[@]}" $PY -I $IT mmlu --models $M --model $MODEL --fit $ROOT/$B/fit_$FIT.pt --sigma $SIGMA --k $K --alpha $A \
           --items $ITEMS --ids $IDS --out $ROOT/$D/mmlu/$name.json >> $log 2>&1
       rc=$?; [ "$rc" -eq 0 ] || { say "mmlu $name exit=$rc"; FAILED=1; }
+    fi
+    chg=$(python3 -B Iteration_01/diag/iti_table.py point $MODEL $FIT $name 2>> $log) || { say "no MMLU reading for $name"; FAILED=1; continue; }
+    if awk -v c="$chg" -v s="${STOP:-3}" 'BEGIN { exit !(c < -s) }'; then
+      say "K $K alpha $A: selection-half MMLU change $chg, below -${STOP:-3}: larger alphas of this K are skipped"
+      break
     fi
     if [ ! -e $HOST/$D/gen/tune_$name.json ]; then
       "${DX[@]}" $PY -I $IT gen --models $M --model $MODEL --fit $ROOT/$B/fit_$FIT.pt --sigma $SIGMA --k $K --alpha $A \
