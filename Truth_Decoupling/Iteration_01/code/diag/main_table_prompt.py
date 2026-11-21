@@ -49,12 +49,12 @@ def usual(model, i):
     return D, run, fr.raw_texts(D.m["ec"][i])
 
 
-def prompt_split(model, layer, i, s, qs=None):
+def prompt_split(model, layer, i, s, qs=None, tag=None):
     """(Split at the prompt rule for E at this layer and strength, texts, single-C states by strength, questions) or
     (None, why)."""
     D, run, utx = usual(model, i)
     split = ("tune", "test")[i]
-    tag = "l%d" % layer
+    tag = tag or "l%d" % layer
     w1, w2, wc = work(run, split, "posprompt" + tag), work(run, split, "posprompt2" + tag), work(run, split, "pospromptc")
     for w in (w1, w2, wc):
         if not has(w):
