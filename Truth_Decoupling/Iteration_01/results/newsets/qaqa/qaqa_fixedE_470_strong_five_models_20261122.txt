@@ -1,0 +1,377 @@
+# (QA)^2 full run, without the tune questions, llama3.1-8b, 470 questions, write rule prompt, chosen on the tune split: N1 at E16 3.5 with caps E's none / own 1; single E at 3.5; single C at 0.25; DeepSeek Pro
+
+## all (470 questions)
+    no write                             net -105 | answers 376 | right 135 | wrong 240
+    prompt only                          net  -96 | answers 470 | right 183 | wrong 279
+    single C                             net -113 | answers 402 | right 144 | wrong 257
+    single E                             net  +17 | answers 235 | right 125 | wrong 108
+    N1                                   net  +37 | answers 296 | right 164 | wrong 127
+    prompt + confidence, single E's N    net   -3 | answers 235 | right 115 | wrong 118
+    prompt + confidence, N1's N          net  -18 | answers 296 | right 138 | wrong 156
+    must answer + E + confidence, N1's N net  +14 | answers 296 | right 154 | wrong 140
+    must answer + confidence, N1's N     net  -64 | answers 296 | right 116 | wrong 180
+    must answer + E, every answer        net  -37 | answers 464 | right 209 | wrong 246
+    must answer, every answer            net -148 | answers 470 | right 160 | wrong 308
+    N1 minus single E +20 [+6, +35] | N1 minus no write +142 [+104, +180] | N1 minus single C +150 [+110, +190] | N1 minus prompt only +133 [+92, +174] | single E minus no write +122 [+87, +159] | single E minus prompt + confidence, single E's N +20 [-15, +54] | N1 minus prompt + confidence, N1's N +55 [+17, +94] | N1 minus must answer + E + confidence, N1's N +23 [-10, +57] | N1 minus must answer + confidence, N1's N +101 [+64, +138] | must answer + E, every answer minus must answer, every answer +111 [+69, +154]
+
+## valid assumption (235 questions)
+    no write                             net   +4 | answers 210 | right 107 | wrong 103
+    prompt only                          net  -30 | answers 235 | right 101 | wrong 131
+    single C                             net   -1 | answers 218 | right 109 | wrong 110
+    single E                             net  +36 | answers 129 | right  81 | wrong  45
+    N1                                   net  +33 | answers 144 | right  87 | wrong  54
+    prompt + confidence, single E's N    net  +19 | answers 126 | right  72 | wrong  53
+    prompt + confidence, N1's N          net  +10 | answers 157 | right  83 | wrong  73
+    must answer + E + confidence, N1's N net   +7 | answers 153 | right  79 | wrong  72
+    must answer + confidence, N1's N     net  +12 | answers 160 | right  86 | wrong  74
+    must answer + E, every answer        net  -25 | answers 233 | right 102 | wrong 127
+    must answer, every answer            net  -24 | answers 235 | right 105 | wrong 129
+    N1 minus single E -3 [-10, +5] | N1 minus no write +29 [+1, +56] | N1 minus single C +34 [+6, +61] | N1 minus prompt only +63 [+34, +92] | single E minus no write +32 [+6, +58] | single E minus prompt + confidence, single E's N +17 [-7, +41] | N1 minus prompt + confidence, N1's N +23 [-3, +50] | N1 minus must answer + E + confidence, N1's N +26 [+2, +50] | N1 minus must answer + confidence, N1's N +21 [-4, +46] | must answer + E, every answer minus must answer, every answer -1 [-30, +29]
+
+## false assumption (190 questions)
+    no write                             net  -88 | answers 138 | right  24 | wrong 112
+    prompt only                          net  -54 | answers 190 | right  67 | wrong 121
+    single C                             net  -89 | answers 154 | right  31 | wrong 120
+    single E                             net  -17 | answers  95 | right  39 | wrong  56
+    N1                                   net   +2 | answers 130 | right  65 | wrong  63
+    prompt + confidence, single E's N    net  -20 | answers  93 | right  36 | wrong  56
+    prompt + confidence, N1's N          net  -23 | answers 116 | right  46 | wrong  69
+    must answer + E + confidence, N1's N net   +2 | answers 122 | right  62 | wrong  60
+    must answer + confidence, N1's N     net  -65 | answers 117 | right  26 | wrong  91
+    must answer + E, every answer        net  -18 | answers 189 | right  83 | wrong 101
+    must answer, every answer            net  -97 | answers 190 | right  46 | wrong 143
+    N1 minus single E +19 [+8, +30] | N1 minus no write +90 [+67, +113] | N1 minus single C +91 [+67, +115] | N1 minus prompt only +56 [+31, +81] | single E minus no write +71 [+49, +93] | single E minus prompt + confidence, single E's N +3 [-20, +26] | N1 minus prompt + confidence, N1's N +25 [+2, +48] | N1 minus must answer + E + confidence, N1's N +0 [-21, +20] | N1 minus must answer + confidence, N1's N +67 [+42, +92] | must answer + E, every answer minus must answer, every answer +79 [+52, +106]
+
+## unverifiable assumption (45 questions)
+    no write                             net  -21 | answers  28 | right   4 | wrong  25
+    prompt only                          net  -12 | answers  45 | right  15 | wrong  27
+    single C                             net  -23 | answers  30 | right   4 | wrong  27
+    single E                             net   -2 | answers  11 | right   5 | wrong   7
+    N1                                   net   +2 | answers  22 | right  12 | wrong  10
+    prompt + confidence, single E's N    net   -2 | answers  16 | right   7 | wrong   9
+    prompt + confidence, N1's N          net   -5 | answers  23 | right   9 | wrong  14
+    must answer + E + confidence, N1's N net   +5 | answers  21 | right  13 | wrong   8
+    must answer + confidence, N1's N     net  -11 | answers  19 | right   4 | wrong  15
+    must answer + E, every answer        net   +6 | answers  42 | right  24 | wrong  18
+    must answer, every answer            net  -27 | answers  45 | right   9 | wrong  36
+    N1 minus single E +4 [-2, +10] | N1 minus no write +23 [+12, +35] | N1 minus single C +25 [+14, +37] | N1 minus prompt only +14 [+2, +27] | single E minus no write +19 [+9, +29] | single E minus prompt + confidence, single E's N +0 [-9, +10] | N1 minus prompt + confidence, N1's N +7 [-5, +20] | N1 minus must answer + E + confidence, N1's N -3 [-12, +6] | N1 minus must answer + confidence, N1's N +13 [+2, +24] | must answer + E, every answer minus must answer, every answer +33 [+21, +45]
+
+## the re-ask: answered without a write and blank under E: released right 0, wrong 0, no information 0; same answer again and kept blank 0; not released 148 | the model's own blanks: released right 39, wrong 19, no information 3; not released 26
+    answered in both passes and E changed the answer, all: 186, better 37, worse 16
+    answered in both passes and E changed the answer, valid assumption: 102, better 14, worse 10
+    answered in both passes and E changed the answer, false assumption: 74, better 19, worse 6
+    answered in both passes and E changed the answer, unverifiable assumption: 10, better 4, worse 0
+
+# (QA)^2 full run, without the tune questions, qwen3.5-9b, 470 questions, write rule prompt, chosen on the tune split: N1 at E15 2 with caps E's 0.5 / own 1; single E at 2; single C at 1; DeepSeek Pro
+
+## all (470 questions)
+    no write                             net  -24 | answers 440 | right 207 | wrong 231
+    prompt only                          net  -42 | answers 468 | right 210 | wrong 252
+    single C                             net  -54 | answers 468 | right 206 | wrong 260
+    single E                             net  +63 | answers 353 | right 206 | wrong 143
+    N1                                   net  +44 | answers 439 | right 237 | wrong 193
+    prompt + confidence, single E's N    net  +24 | answers 353 | right 187 | wrong 163
+    prompt + confidence, N1's N          net  -17 | answers 439 | right 208 | wrong 225
+    must answer + E + confidence, N1's N net  +22 | answers 439 | right 227 | wrong 205
+    must answer + confidence, N1's N     net  -65 | answers 439 | right 186 | wrong 251
+    must answer + E, every answer        net   +3 | answers 467 | right 231 | wrong 228
+    must answer, every answer            net  -85 | answers 468 | right 190 | wrong 275
+    N1 minus single E -19 [-36, -1] | N1 minus no write +68 [+35, +103] | N1 minus single C +98 [+63, +135] | N1 minus prompt only +86 [+60, +115] | single E minus no write +87 [+56, +119] | single E minus prompt + confidence, single E's N +39 [+12, +67] | N1 minus prompt + confidence, N1's N +61 [+33, +91] | N1 minus must answer + E + confidence, N1's N +22 [-6, +49] | N1 minus must answer + confidence, N1's N +109 [+70, +150] | must answer + E, every answer minus must answer, every answer +88 [+52, +126]
+
+## valid assumption (235 questions)
+    no write                             net  -18 | answers 221 | right 101 | wrong 119
+    prompt only                          net  -60 | answers 235 | right  86 | wrong 146
+    single C                             net  -31 | answers 235 | right 101 | wrong 132
+    single E                             net   +0 | answers 182 | right  89 | wrong  89
+    N1                                   net  -29 | answers 225 | right  94 | wrong 123
+    prompt + confidence, single E's N    net  -15 | answers 164 | right  74 | wrong  89
+    prompt + confidence, N1's N          net  -43 | answers 214 | right  84 | wrong 127
+    must answer + E + confidence, N1's N net  -44 | answers 217 | right  84 | wrong 128
+    must answer + confidence, N1's N     net  -29 | answers 212 | right  91 | wrong 120
+    must answer + E, every answer        net  -56 | answers 234 | right  86 | wrong 142
+    must answer, every answer            net  -42 | answers 234 | right  95 | wrong 137
+    N1 minus single E -29 [-41, -18] | N1 minus no write -11 [-31, +9] | N1 minus single C +2 [-19, +23] | N1 minus prompt only +31 [+13, +49] | single E minus no write +18 [-2, +38] | single E minus prompt + confidence, single E's N +15 [-4, +35] | N1 minus prompt + confidence, N1's N +14 [-4, +32] | N1 minus must answer + E + confidence, N1's N +15 [-2, +33] | N1 minus must answer + confidence, N1's N +0 [-24, +25] | must answer + E, every answer minus must answer, every answer -14 [-36, +8]
+
+## false assumption (190 questions)
+    no write                             net   -3 | answers 180 | right  88 | wrong  91
+    prompt only                          net  +23 | answers 190 | right 105 | wrong  82
+    single C                             net  -14 | answers 189 | right  88 | wrong 102
+    single E                             net  +57 | answers 141 | right  99 | wrong  42
+    N1                                   net  +64 | answers 175 | right 119 | wrong  55
+    prompt + confidence, single E's N    net  +40 | answers 154 | right  96 | wrong  56
+    prompt + confidence, N1's N          net  +29 | answers 184 | right 105 | wrong  76
+    must answer + E + confidence, N1's N net  +59 | answers 181 | right 119 | wrong  60
+    must answer + confidence, N1's N     net  -25 | answers 184 | right  79 | wrong 104
+    must answer + E, every answer        net  +52 | answers 190 | right 120 | wrong  68
+    must answer, every answer            net  -31 | answers 190 | right  79 | wrong 110
+    N1 minus single E +7 [-4, +18] | N1 minus no write +67 [+42, +92] | N1 minus single C +78 [+52, +104] | N1 minus prompt only +41 [+23, +59] | single E minus no write +60 [+38, +83] | single E minus prompt + confidence, single E's N +17 [+0, +34] | N1 minus prompt + confidence, N1's N +35 [+16, +54] | N1 minus must answer + E + confidence, N1's N +5 [-14, +23] | N1 minus must answer + confidence, N1's N +89 [+63, +116] | must answer + E, every answer minus must answer, every answer +83 [+57, +111]
+
+## unverifiable assumption (45 questions)
+    no write                             net   -3 | answers  39 | right  18 | wrong  21
+    prompt only                          net   -5 | answers  43 | right  19 | wrong  24
+    single C                             net   -9 | answers  44 | right  17 | wrong  26
+    single E                             net   +6 | answers  30 | right  18 | wrong  12
+    N1                                   net   +9 | answers  39 | right  24 | wrong  15
+    prompt + confidence, single E's N    net   -1 | answers  35 | right  17 | wrong  18
+    prompt + confidence, N1's N          net   -3 | answers  41 | right  19 | wrong  22
+    must answer + E + confidence, N1's N net   +7 | answers  41 | right  24 | wrong  17
+    must answer + confidence, N1's N     net  -11 | answers  43 | right  16 | wrong  27
+    must answer + E, every answer        net   +7 | answers  43 | right  25 | wrong  18
+    must answer, every answer            net  -12 | answers  44 | right  16 | wrong  28
+    N1 minus single E +3 [-3, +9] | N1 minus no write +12 [+0, +24] | N1 minus single C +18 [+5, +32] | N1 minus prompt only +14 [+3, +26] | single E minus no write +9 [-3, +21] | single E minus prompt + confidence, single E's N +7 [-4, +18] | N1 minus prompt + confidence, N1's N +12 [+1, +24] | N1 minus must answer + E + confidence, N1's N +2 [-8, +12] | N1 minus must answer + confidence, N1's N +20 [+6, +35] | must answer + E, every answer minus must answer, every answer +19 [+8, +31]
+
+## the re-ask: answered without a write and blank under E: released right 26, wrong 34, no information 3; same answer again and kept blank 15; not released 13 | the model's own blanks: released right 5, wrong 16, no information 2; not released 3
+    answered in both passes and E changed the answer, all: 168, better 34, worse 17
+    answered in both passes and E changed the answer, valid assumption: 79, better 8, worse 11
+    answered in both passes and E changed the answer, false assumption: 72, better 22, worse 3
+    answered in both passes and E changed the answer, unverifiable assumption: 17, better 4, worse 3
+
+# (QA)^2 full run, without the tune questions, qwen3.8-27b, 470 questions, write rule prompt, chosen on the tune split: N1 at E28 1.75 with caps E's none / own 0.25; single E at 1.75; single C at 0.25; DeepSeek Pro
+
+## all (470 questions)
+    no write                             net   -5 | answers 276 | right 135 | wrong 140
+    prompt only                          net   -1 | answers 470 | right 233 | wrong 234
+    single C                             net  -27 | answers 395 | right 183 | wrong 210
+    single E                             net  +63 | answers 338 | right 199 | wrong 136
+    N1                                   net  +65 | answers 417 | right 239 | wrong 174
+    prompt + confidence, single E's N    net  +66 | answers 338 | right 202 | wrong 136
+    prompt + confidence, N1's N          net  +27 | answers 417 | right 221 | wrong 194
+    must answer + E + confidence, N1's N net  +88 | answers 417 | right 252 | wrong 164
+    must answer + confidence, N1's N     net  -34 | answers 417 | right 191 | wrong 225
+    must answer + E, every answer        net  +61 | answers 470 | right 264 | wrong 203
+    must answer, every answer            net  -65 | answers 469 | right 202 | wrong 267
+    N1 minus single E +2 [-15, +19] | N1 minus no write +70 [+36, +105] | N1 minus single C +92 [+59, +125] | N1 minus prompt only +66 [+36, +97] | single E minus no write +68 [+39, +98] | single E minus prompt + confidence, single E's N -3 [-34, +28] | N1 minus prompt + confidence, N1's N +38 [+7, +70] | N1 minus must answer + E + confidence, N1's N -23 [-49, +4] | N1 minus must answer + confidence, N1's N +99 [+62, +137] | must answer + E, every answer minus must answer, every answer +126 [+92, +160]
+
+## valid assumption (235 questions)
+    no write                             net  +23 | answers 168 | right  95 | wrong  72
+    prompt only                          net  -35 | answers 235 | right  99 | wrong 134
+    single C                             net   -2 | answers 208 | right 102 | wrong 104
+    single E                             net   +3 | answers 184 | right  92 | wrong  89
+    N1                                   net  -15 | answers 215 | right  98 | wrong 113
+    prompt + confidence, single E's N    net  +16 | answers 160 | right  88 | wrong  72
+    prompt + confidence, N1's N          net  -17 | answers 204 | right  93 | wrong 110
+    must answer + E + confidence, N1's N net   -6 | answers 203 | right  98 | wrong 104
+    must answer + confidence, N1's N     net   -3 | answers 206 | right 101 | wrong 104
+    must answer + E, every answer        net  -31 | answers 235 | right 101 | wrong 132
+    must answer, every answer            net  -28 | answers 235 | right 103 | wrong 131
+    N1 minus single E -18 [-29, -8] | N1 minus no write -38 [-58, -16] | N1 minus single C -13 [-33, +7] | N1 minus prompt only +20 [-1, +42] | single E minus no write -20 [-38, -1] | single E minus prompt + confidence, single E's N -13 [-34, +9] | N1 minus prompt + confidence, N1's N +2 [-19, +24] | N1 minus must answer + E + confidence, N1's N -9 [-26, +9] | N1 minus must answer + confidence, N1's N -12 [-34, +11] | must answer + E, every answer minus must answer, every answer -3 [-19, +13]
+
+## false assumption (190 questions)
+    no write                             net  -16 | answers  90 | right  37 | wrong  53
+    prompt only                          net  +41 | answers 190 | right 115 | wrong  74
+    single C                             net  -14 | answers 156 | right  71 | wrong  85
+    single E                             net  +57 | answers 129 | right  93 | wrong  36
+    N1                                   net  +71 | answers 167 | right 119 | wrong  48
+    prompt + confidence, single E's N    net  +49 | answers 145 | right  97 | wrong  48
+    prompt + confidence, N1's N          net  +46 | answers 173 | right 109 | wrong  63
+    must answer + E + confidence, N1's N net  +88 | answers 174 | right 131 | wrong  43
+    must answer + confidence, N1's N     net  -16 | answers 176 | right  80 | wrong  96
+    must answer + E, every answer        net  +89 | answers 190 | right 139 | wrong  50
+    must answer, every answer            net  -20 | answers 190 | right  85 | wrong 105
+    N1 minus single E +14 [+2, +26] | N1 minus no write +87 [+66, +108] | N1 minus single C +85 [+62, +108] | N1 minus prompt only +30 [+10, +50] | single E minus no write +73 [+54, +92] | single E minus prompt + confidence, single E's N +8 [-12, +28] | N1 minus prompt + confidence, N1's N +25 [+4, +45] | N1 minus must answer + E + confidence, N1's N -17 [-35, +0] | N1 minus must answer + confidence, N1's N +87 [+61, +112] | must answer + E, every answer minus must answer, every answer +109 [+84, +135]
+
+## unverifiable assumption (45 questions)
+    no write                             net  -12 | answers  18 | right   3 | wrong  15
+    prompt only                          net   -7 | answers  45 | right  19 | wrong  26
+    single C                             net  -11 | answers  31 | right  10 | wrong  21
+    single E                             net   +3 | answers  25 | right  14 | wrong  11
+    N1                                   net   +9 | answers  35 | right  22 | wrong  13
+    prompt + confidence, single E's N    net   +1 | answers  33 | right  17 | wrong  16
+    prompt + confidence, N1's N          net   -2 | answers  40 | right  19 | wrong  21
+    must answer + E + confidence, N1's N net   +6 | answers  40 | right  23 | wrong  17
+    must answer + confidence, N1's N     net  -15 | answers  35 | right  10 | wrong  25
+    must answer + E, every answer        net   +3 | answers  45 | right  24 | wrong  21
+    must answer, every answer            net  -17 | answers  44 | right  14 | wrong  31
+    N1 minus single E +6 [+0, +12] | N1 minus no write +21 [+10, +32] | N1 minus single C +20 [+11, +30] | N1 minus prompt only +16 [+7, +26] | single E minus no write +15 [+5, +25] | single E minus prompt + confidence, single E's N +2 [-7, +12] | N1 minus prompt + confidence, N1's N +11 [+1, +21] | N1 minus must answer + E + confidence, N1's N +3 [-6, +12] | N1 minus must answer + confidence, N1's N +24 [+13, +35] | must answer + E, every answer minus must answer, every answer +20 [+8, +32]
+
+## the re-ask: answered without a write and blank under E: released right 0, wrong 0, no information 0; same answer again and kept blank 0; not released 12 | the model's own blanks: released right 40, wrong 38, no information 1; not released 41
+    answered in both passes and E changed the answer, all: 105, better 30, worse 10
+    answered in both passes and E changed the answer, valid assumption: 54, better 7, worse 9
+    answered in both passes and E changed the answer, false assumption: 44, better 18, worse 1
+    answered in both passes and E changed the answer, unverifiable assumption: 7, better 5, worse 0
+
+# (QA)^2 full run, without the tune questions, gemma3-12b, 470 questions, write rule prompt, chosen on the tune split: N1 at E24 2.5 with caps E's 1 / own 1; single E at 2.5; single C at 0.25; DeepSeek Pro
+
+## all (470 questions)
+    no write                             net  -59 | answers 432 | right 183 | wrong 242
+    prompt only                          net  -51 | answers 470 | right 207 | wrong 258
+    single C                             net  -69 | answers 445 | right 185 | wrong 254
+    single E                             net  +65 | answers 295 | right 177 | wrong 112
+    N1                                   net  +69 | answers 447 | right 248 | wrong 179
+    prompt + confidence, single E's N    net   -3 | answers 295 | right 146 | wrong 149
+    prompt + confidence, N1's N          net  -46 | answers 447 | right 198 | wrong 244
+    must answer + E + confidence, N1's N net  +46 | answers 447 | right 234 | wrong 188
+    must answer + confidence, N1's N     net  -70 | answers 447 | right 187 | wrong 257
+    must answer + E, every answer        net  +40 | answers 470 | right 241 | wrong 201
+    must answer, every answer            net  -77 | answers 470 | right 195 | wrong 272
+    N1 minus single E +4 [-19, +27] | N1 minus no write +128 [+82, +174] | N1 minus single C +138 [+91, +185] | N1 minus prompt only +120 [+77, +164] | single E minus no write +124 [+82, +166] | single E minus prompt + confidence, single E's N +68 [+29, +105] | N1 minus prompt + confidence, N1's N +115 [+72, +159] | N1 minus must answer + E + confidence, N1's N +23 [-3, +49] | N1 minus must answer + confidence, N1's N +139 [+92, +188] | must answer + E, every answer minus must answer, every answer +117 [+65, +170]
+
+## valid assumption (235 questions)
+    no write                             net   +9 | answers 223 | right 114 | wrong 105
+    prompt only                          net  -24 | answers 235 | right 105 | wrong 129
+    single C                             net  +11 | answers 226 | right 116 | wrong 105
+    single E                             net   -6 | answers 147 | right  69 | wrong  75
+    N1                                   net  -40 | answers 217 | right  83 | wrong 123
+    prompt + confidence, single E's N    net   +8 | answers 140 | right  74 | wrong  66
+    prompt + confidence, N1's N          net  -19 | answers 224 | right 102 | wrong 121
+    must answer + E + confidence, N1's N net  -69 | answers 224 | right  70 | wrong 139
+    must answer + confidence, N1's N     net  +17 | answers 221 | right 118 | wrong 101
+    must answer + E, every answer        net  -73 | answers 235 | right  73 | wrong 146
+    must answer, every answer            net  +13 | answers 235 | right 123 | wrong 110
+    N1 minus single E -34 [-49, -19] | N1 minus no write -49 [-76, -22] | N1 minus single C -51 [-78, -24] | N1 minus prompt only -16 [-44, +11] | single E minus no write -15 [-41, +11] | single E minus prompt + confidence, single E's N -14 [-39, +11] | N1 minus prompt + confidence, N1's N -21 [-49, +7] | N1 minus must answer + E + confidence, N1's N +29 [+13, +47] | N1 minus must answer + confidence, N1's N -57 [-86, -29] | must answer + E, every answer minus must answer, every answer -86 [-115, -58]
+
+## false assumption (190 questions)
+    no write                             net  -51 | answers 174 | right  60 | wrong 111
+    prompt only                          net  -15 | answers 190 | right  86 | wrong 101
+    single C                             net  -59 | answers 180 | right  60 | wrong 119
+    single E                             net  +62 | answers 123 | right  91 | wrong  29
+    N1                                   net  +93 | answers 185 | right 135 | wrong  42
+    prompt + confidence, single E's N    net   -8 | answers 128 | right  60 | wrong  68
+    prompt + confidence, N1's N          net  -15 | answers 178 | right  80 | wrong  95
+    must answer + E + confidence, N1's N net  +98 | answers 179 | right 134 | wrong  36
+    must answer + confidence, N1's N     net  -63 | answers 186 | right  61 | wrong 124
+    must answer + E, every answer        net  +97 | answers 190 | right 138 | wrong  41
+    must answer, every answer            net  -63 | answers 190 | right  63 | wrong 126
+    N1 minus single E +31 [+17, +45] | N1 minus no write +144 [+117, +172] | N1 minus single C +152 [+124, +181] | N1 minus prompt only +108 [+80, +137] | single E minus no write +113 [+86, +139] | single E minus prompt + confidence, single E's N +70 [+46, +95] | N1 minus prompt + confidence, N1's N +108 [+80, +137] | N1 minus must answer + E + confidence, N1's N -5 [-23, +13] | N1 minus must answer + confidence, N1's N +156 [+127, +185] | must answer + E, every answer minus must answer, every answer +160 [+128, +191]
+
+## unverifiable assumption (45 questions)
+    no write                             net  -17 | answers  35 | right   9 | wrong  26
+    prompt only                          net  -12 | answers  45 | right  16 | wrong  28
+    single C                             net  -21 | answers  39 | right   9 | wrong  30
+    single E                             net   +9 | answers  25 | right  17 | wrong   8
+    N1                                   net  +16 | answers  45 | right  30 | wrong  14
+    prompt + confidence, single E's N    net   -3 | answers  27 | right  12 | wrong  15
+    prompt + confidence, N1's N          net  -12 | answers  45 | right  16 | wrong  28
+    must answer + E + confidence, N1's N net  +17 | answers  44 | right  30 | wrong  13
+    must answer + confidence, N1's N     net  -24 | answers  40 | right   8 | wrong  32
+    must answer + E, every answer        net  +16 | answers  45 | right  30 | wrong  14
+    must answer, every answer            net  -27 | answers  45 | right   9 | wrong  36
+    N1 minus single E +7 [-1, +15] | N1 minus no write +33 [+18, +48] | N1 minus single C +37 [+21, +52] | N1 minus prompt only +28 [+15, +41] | single E minus no write +26 [+15, +38] | single E minus prompt + confidence, single E's N +12 [-1, +25] | N1 minus prompt + confidence, N1's N +28 [+15, +41] | N1 minus must answer + E + confidence, N1's N -1 [-9, +7] | N1 minus must answer + confidence, N1's N +40 [+25, +55] | must answer + E, every answer minus must answer, every answer +43 [+28, +58]
+
+## the re-ask: answered without a write and blank under E: released right 54, wrong 59, no information 14; same answer again and kept blank 12; not released 4 | the model's own blanks: released right 17, wrong 8, no information 0; not released 7
+    answered in both passes and E changed the answer, all: 198, better 65, worse 27
+    answered in both passes and E changed the answer, valid assumption: 84, better 5, worse 24
+    answered in both passes and E changed the answer, false assumption: 92, better 50, worse 3
+    answered in both passes and E changed the answer, unverifiable assumption: 22, better 10, worse 0
+
+# (QA)^2 full run, without the tune questions, gemma3-27b, 470 questions, write rule prompt, chosen on the tune split: N1 at E28 1 with caps E's 0.5 / own 0.25; single E at 1; single C at 0.25; DeepSeek Pro
+
+## all (470 questions)
+    no write                             net  -31 | answers 430 | right 197 | wrong 228
+    prompt only                          net  +31 | answers 470 | right 249 | wrong 218
+    single C                             net  -31 | answers 444 | right 203 | wrong 234
+    single E                             net  +40 | answers 411 | right 223 | wrong 183
+    N1                                   net  +39 | answers 428 | right 231 | wrong 192
+    prompt + confidence, single E's N    net  +42 | answers 411 | right 225 | wrong 183
+    prompt + confidence, N1's N          net  +43 | answers 428 | right 234 | wrong 191
+    must answer + E + confidence, N1's N net  +42 | answers 428 | right 233 | wrong 191
+    must answer + confidence, N1's N     net  -39 | answers 428 | right 193 | wrong 232
+    must answer + E, every answer        net  +30 | answers 470 | right 247 | wrong 217
+    must answer, every answer            net  -50 | answers 469 | right 208 | wrong 258
+    N1 minus single E -1 [-9, +7] | N1 minus no write +70 [+42, +99] | N1 minus single C +70 [+42, +100] | N1 minus prompt only +8 [-26, +43] | single E minus no write +71 [+43, +101] | single E minus prompt + confidence, single E's N -2 [-36, +32] | N1 minus prompt + confidence, N1's N -4 [-37, +31] | N1 minus must answer + E + confidence, N1's N -3 [-30, +25] | N1 minus must answer + confidence, N1's N +78 [+43, +114] | must answer + E, every answer minus must answer, every answer +80 [+48, +112]
+
+## valid assumption (235 questions)
+    no write                             net   +9 | answers 224 | right 115 | wrong 106
+    prompt only                          net  -17 | answers 235 | right 109 | wrong 126
+    single C                             net  +13 | answers 227 | right 119 | wrong 106
+    single E                             net  +14 | answers 205 | right 108 | wrong  94
+    N1                                   net  +12 | answers 217 | right 113 | wrong 101
+    prompt + confidence, single E's N    net   +1 | answers 201 | right 101 | wrong 100
+    prompt + confidence, N1's N          net   -5 | answers 209 | right 102 | wrong 107
+    must answer + E + confidence, N1's N net  +16 | answers 214 | right 114 | wrong  98
+    must answer + confidence, N1's N     net  +19 | answers 215 | right 117 | wrong  98
+    must answer + E, every answer        net   +7 | answers 235 | right 119 | wrong 112
+    must answer, every answer            net   +8 | answers 235 | right 121 | wrong 113
+    N1 minus single E -2 [-9, +5] | N1 minus no write +3 [-14, +20] | N1 minus single C -1 [-19, +17] | N1 minus prompt only +29 [+7, +51] | single E minus no write +5 [-12, +21] | single E minus prompt + confidence, single E's N +13 [-8, +35] | N1 minus prompt + confidence, N1's N +17 [-5, +39] | N1 minus must answer + E + confidence, N1's N -4 [-23, +15] | N1 minus must answer + confidence, N1's N -7 [-30, +15] | must answer + E, every answer minus must answer, every answer -1 [-19, +17]
+
+## false assumption (190 questions)
+    no write                             net  -24 | answers 174 | right  74 | wrong  98
+    prompt only                          net  +48 | answers 190 | right 118 | wrong  70
+    single C                             net  -26 | answers 180 | right  75 | wrong 101
+    single E                             net  +30 | answers 175 | right 102 | wrong  72
+    N1                                   net  +29 | answers 176 | right 102 | wrong  73
+    prompt + confidence, single E's N    net  +41 | answers 171 | right 105 | wrong  64
+    prompt + confidence, N1's N          net  +48 | answers 180 | right 113 | wrong  65
+    must answer + E + confidence, N1's N net  +27 | answers 178 | right 102 | wrong  75
+    must answer + confidence, N1's N     net  -41 | answers 175 | right  66 | wrong 107
+    must answer + E, every answer        net  +33 | answers 190 | right 111 | wrong  78
+    must answer, every answer            net  -40 | answers 190 | right  74 | wrong 114
+    N1 minus single E -1 [-3, +0] | N1 minus no write +53 [+33, +74] | N1 minus single C +55 [+36, +75] | N1 minus prompt only -19 [-42, +4] | single E minus no write +54 [+34, +75] | single E minus prompt + confidence, single E's N -11 [-34, +12] | N1 minus prompt + confidence, N1's N -19 [-42, +4] | N1 minus must answer + E + confidence, N1's N +2 [-13, +17] | N1 minus must answer + confidence, N1's N +70 [+47, +94] | must answer + E, every answer minus must answer, every answer +73 [+49, +98]
+
+## unverifiable assumption (45 questions)
+    no write                             net  -16 | answers  32 | right   8 | wrong  24
+    prompt only                          net   +0 | answers  45 | right  22 | wrong  22
+    single C                             net  -18 | answers  37 | right   9 | wrong  27
+    single E                             net   -4 | answers  31 | right  13 | wrong  17
+    N1                                   net   -2 | answers  35 | right  16 | wrong  18
+    prompt + confidence, single E's N    net   +0 | answers  39 | right  19 | wrong  19
+    prompt + confidence, N1's N          net   +0 | answers  39 | right  19 | wrong  19
+    must answer + E + confidence, N1's N net   -1 | answers  36 | right  17 | wrong  18
+    must answer + confidence, N1's N     net  -17 | answers  38 | right  10 | wrong  27
+    must answer + E, every answer        net  -10 | answers  45 | right  17 | wrong  27
+    must answer, every answer            net  -18 | answers  44 | right  13 | wrong  31
+    N1 minus single E +2 [-2, +6] | N1 minus no write +14 [+6, +22] | N1 minus single C +16 [+8, +25] | N1 minus prompt only -2 [-15, +10] | single E minus no write +12 [+4, +21] | single E minus prompt + confidence, single E's N -4 [-16, +9] | N1 minus prompt + confidence, N1's N -2 [-14, +10] | N1 minus must answer + E + confidence, N1's N -1 [-11, +9] | N1 minus must answer + confidence, N1's N +15 [+6, +25] | must answer + E, every answer minus must answer, every answer +8 [-2, +19]
+
+## the re-ask: answered without a write and blank under E: released right 5, wrong 8, no information 0; same answer again and kept blank 12; not released 8 | the model's own blanks: released right 3, wrong 1, no information 0; not released 22
+    answered in both passes and E changed the answer, all: 164, better 39, worse 11
+    answered in both passes and E changed the answer, valid assumption: 73, better 7, worse 7
+    answered in both passes and E changed the answer, false assumption: 76, better 28, worse 4
+    answered in both passes and E changed the answer, unverifiable assumption: 15, better 4, worse 0
+
+# the 5 models together (llama3.1-8b, qwen3.5-9b, qwen3.8-27b, gemma3-12b, gemma3-27b), questions resampled jointly
+
+## all (470 questions per model)
+    net: no write -224 | prompt only -159 | single C -294 | single E +248 | N1 +254
+    net, comparators (answers): N1 +254 (2027) | prompt + confidence, N1's N -11 (2027) | must answer + confidence, N1's N -272 (2027) | must answer + E + confidence, N1's N +212 (2027) | must answer, every answer -425 (2346) | must answer + E, every answer +97 (2341)
+    N1 minus single E                                    +6 [-39, +51], 3 of 5 models positive
+    N1 minus no write                                    +478 [+371, +582], 5 of 5 models positive
+    N1 minus single C                                    +548 [+432, +661], 5 of 5 models positive
+    N1 minus prompt only                                 +413 [+321, +501], 5 of 5 models positive
+    single E minus no write                              +472 [+375, +568], 5 of 5 models positive
+    single E minus prompt + confidence, single E's N     +122 [+38, +206], 3 of 5 models positive
+    N1 minus prompt + confidence, N1's N                 +265 [+178, +349], 4 of 5 models positive
+    N1 minus must answer + E + confidence, N1's N        +42 [-23, +107], 3 of 5 models positive
+    N1 minus must answer + confidence, N1's N            +526 [+407, +643], 5 of 5 models positive
+    must answer + E, every answer minus must answer, every answer +522 [+396, +646], 5 of 5 models positive
+
+## valid assumption (235 questions per model)
+    net: no write +27 | prompt only -166 | single C -10 | single E +47 | N1 -39
+    net, comparators (answers): N1 -39 (1018) | prompt + confidence, N1's N -74 (1008) | must answer + confidence, N1's N +16 (1014) | must answer + E + confidence, N1's N -96 (1011) | must answer, every answer -73 (1174) | must answer + E, every answer -178 (1172)
+    N1 minus single E                                    -86 [-114, -59], 0 of 5 models positive
+    N1 minus no write                                    -66 [-126, -8], 2 of 5 models positive
+    N1 minus single C                                    -29 [-93, +32], 2 of 5 models positive
+    N1 minus prompt only                                 +127 [+67, +186], 4 of 5 models positive
+    single E minus no write                              +20 [-40, +77], 3 of 5 models positive
+    single E minus prompt + confidence, single E's N     +18 [-37, +74], 3 of 5 models positive
+    N1 minus prompt + confidence, N1's N                 +35 [-22, +91], 4 of 5 models positive
+    N1 minus must answer + E + confidence, N1's N        +57 [+17, +100], 3 of 5 models positive
+    N1 minus must answer + confidence, N1's N            -55 [-118, +5], 1 of 5 models positive
+    must answer + E, every answer minus must answer, every answer -105 [-166, -46], 0 of 5 models positive
+
+## false assumption (190 questions per model)
+    net: no write -182 | prompt only +43 | single C -202 | single E +189 | N1 +259
+    net, comparators (answers): N1 +259 (833) | prompt + confidence, N1's N +85 (831) | must answer + confidence, N1's N -210 (838) | must answer + E + confidence, N1's N +274 (834) | must answer, every answer -251 (950) | must answer + E, every answer +253 (949)
+    N1 minus single E                                    +70 [+43, +97], 4 of 5 models positive
+    N1 minus no write                                    +441 [+378, +504], 5 of 5 models positive
+    N1 minus single C                                    +461 [+394, +530], 5 of 5 models positive
+    N1 minus prompt only                                 +216 [+159, +274], 4 of 5 models positive
+    single E minus no write                              +371 [+311, +432], 5 of 5 models positive
+    single E minus prompt + confidence, single E's N     +87 [+35, +139], 4 of 5 models positive
+    N1 minus prompt + confidence, N1's N                 +174 [+118, +232], 4 of 5 models positive
+    N1 minus must answer + E + confidence, N1's N        -15 [-58, +26], 2 of 5 models positive
+    N1 minus must answer + confidence, N1's N            +469 [+393, +546], 5 of 5 models positive
+    must answer + E, every answer minus must answer, every answer +504 [+422, +585], 5 of 5 models positive
+
+## unverifiable assumption (45 questions per model)
+    net: no write -69 | prompt only -36 | single C -82 | single E +12 | N1 +34
+    net, comparators (answers): N1 +34 (176) | prompt + confidence, N1's N -22 (188) | must answer + confidence, N1's N -78 (175) | must answer + E + confidence, N1's N +34 (182) | must answer, every answer -101 (222) | must answer + E, every answer +22 (220)
+    N1 minus single E                                    +22 [+7, +37], 5 of 5 models positive
+    N1 minus no write                                    +103 [+71, +136], 5 of 5 models positive
+    N1 minus single C                                    +116 [+83, +149], 5 of 5 models positive
+    N1 minus prompt only                                 +70 [+41, +97], 4 of 5 models positive
+    single E minus no write                              +81 [+50, +112], 5 of 5 models positive
+    single E minus prompt + confidence, single E's N     +17 [-9, +44], 3 of 5 models positive
+    N1 minus prompt + confidence, N1's N                 +56 [+32, +81], 4 of 5 models positive
+    N1 minus must answer + E + confidence, N1's N        +0 [-20, +20], 2 of 5 models positive
+    N1 minus must answer + confidence, N1's N            +112 [+83, +141], 5 of 5 models positive
+    must answer + E, every answer minus must answer, every answer +123 [+90, +156], 5 of 5 models positive
