@@ -55,7 +55,7 @@ def main():
             for s in "12":
                 conds[(kind, s)] = "E_L%d_x-%s-p%s" % (el, kind, s)
         have = {k: c for k, c in conds.items() if all((q, c) in st for q in sp.qs)}
-        qs = [q for q in sp.qs if all(st[(q, c)] != "?" for c in have.values())]
+        qs = [q for q in sp.qs if all(st.get((q, c), "?") != "?" for c in list(have.values()) + ["baseline_x"])]
         print("\n## %s: %d questions (of %d)%s" % (model, len(qs), len(sp.qs), "" if not missing else "; no verdicts for " + ", ".join(missing)))
         print(row("no write", st, bl, qs, "baseline_x"))
         for s in "12":

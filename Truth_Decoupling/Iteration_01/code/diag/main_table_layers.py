@@ -113,7 +113,7 @@ def model_block(model, budgets, tot):
         if order[0] in ptest:
             bestp = (order[0], dict(zip(srcs[0][3].qs, ptest[order[0]][0])), sum(map(val, ptune[order[0]][0])), ptest[order[0]][1])
     if bestp is None:
-        print("    (no complete verdicts for the run's other prompts: the row of the best prompt on tune is left out)")
+        print("    (the prompts of the run have no complete verdicts on tune or test, or the prompt that is best on tune has none on test: the row of the best prompt on tune is left out)")
     for B in budgets:
         ok = [c for c in cands if c["chg"] >= -B]
         if not ok:
@@ -163,7 +163,7 @@ def model_block(model, budgets, tot):
             for q, x, y in zip(qs, n1[0], other):
                 t[1][q] = t[1].get(q, 0) + val(x) - val(y)
         tot.setdefault((B, "picks"), []).append("%s L%d %s" % (model, best["layer"], DM.show(s)))
-        tot.setdefault((B, "n1 states"), {})[model] = (list(qs), list(n1[0]), list(n1[1]), best["layer"], s)   # for diag/prompt_conf_table.py
+        tot.setdefault((B, "n1 states"), {})[model] = (list(qs), list(n1[0]), list(n1[1]), best["layer"], s, list(da_s))   # for diag/prompt_conf_table.py
         tot.setdefault((B, "questions"), []).append(set(qs))
 
 

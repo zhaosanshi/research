@@ -7,8 +7,9 @@
 # is R correct, W answered but wrong, X no answer; all 1,319 items stay in the denominator.
 # Printed: accuracy and no-answer rate of each pass, the paired change against no write with a bootstrap interval, and
 # the wording of the design's evidence rule (kept / damage cannot be excluded / damage; lines at -1 point of accuracy
-# and +3 points of no answer). N1's re-asks are not part of this run: they touch only the items blank under E, whose
-# number is printed. The reasons of "no answer" are printed per pass (refusal = the rule detector's abstention or an
+# and +3 points of no answer). N1's re-asks are not part of this run: they touch only the items BLANK under E (the rule
+# detector's abstention or an empty answer; an answer cut off at the token cap is not blank), whose number is printed
+# next to the number of all items without an answer. The reasons of "no answer" are printed per pass (refusal = the rule detector's abstention or an
 # empty answer; truncated = the 512-token cap was reached without a final answer; the others are the parser's names),
 # because a change in answer length moves the truncated count without any change in ability.
 # usage (host, from /data/sanshizhao/Truth_Decoupling, inside the container for pyarrow):
@@ -49,8 +50,11 @@ def main():
         ids = json.load(f)["ids"]
     gold = CS.gold_of("gsm8k")
     argv, root, cap = sys.argv[1:], ROOT, 512
-    if argv[:1] == ["--cap"]:
-        cap, argv = int(argv[1]), argv[2:]
+    if "--cap" in argv:
+        k = argv.index("--cap")
+        if k + 1 >= len(argv) or not argv[k + 1].isdigit():
+            raise SystemExit("--cap needs a number")
+        cap, argv = int(argv[k + 1]), argv[:k] + argv[k + 2:]
         if cap != 512:
             root = "Iteration_01/capability/gen_main%d/gsm8k" % cap
     models = argv or sorted(os.path.basename(os.path.dirname(d)) for d in glob.glob(root + "/*/b8"))
@@ -58,7 +62,7 @@ def main():
     for model in models:
         d = "%s/%s/b8" % (root, model)
         files = [p for p in sorted(glob.glob(d + "/*.json")) if not os.path.basename(p).startswith("s")]
-        passes, why, ntok = {}, {}, {}
+        passes, why, ntok, blank = {}, {}, {}, {}
         for p in files:
             try:
                 g = load_pass(p, model, ids, cap)
@@ -68,6 +72,7 @@ def main():
             judged = {r["id"]: CS.judge_row("gsm8k", r, gold(r["id"])) for r in g["rows"]}
             passes[g["contract"]["arm"]] = {i: v[0] for i, v in judged.items()}
             why[g["contract"]["arm"]] = reasons(judged)
+            blank[g["contract"]["arm"]] = sum(1 for st_, w_ in judged.values() if st_ == "X" and w_ == "refusal")
             ntok[g["contract"]["arm"]] = sum(not r["finished"] for r in g["rows"])
         if "neutral" not in passes:
             print("\n## %s: no complete no-write pass yet (%d files)" % (model, len(files)))
@@ -82,9 +87,9 @@ def main():
                 continue
             da = CS.ci([(st[i] == "R") - (base[i] == "R") for i in ids])
             dn = CS.ci([(st[i] == "X") - (base[i] == "X") for i in ids])
-            print("    %-22s accuracy %.1f%% (change %+.1f [%+.1f, %+.1f]) | no answer %.1f%% (change %+.1f [%+.1f, %+.1f]; %d items blank) | right->wrong %d, wrong->right %d | %s" % (
+            print("    %-22s accuracy %.1f%% (change %+.1f [%+.1f, %+.1f]) | no answer %.1f%% (change %+.1f [%+.1f, %+.1f]; %d items, of which %d blank = what N1 would re-ask) | right->wrong %d, wrong->right %d | %s" % (
                 arm, 100.0 * sum(st[i] == "R" for i in ids) / n, 100 * da[0], 100 * da[1], 100 * da[2],
-                100.0 * sum(st[i] == "X" for i in ids) / n, 100 * dn[0], 100 * dn[1], 100 * dn[2], sum(st[i] == "X" for i in ids),
+                100.0 * sum(st[i] == "X" for i in ids) / n, 100 * dn[0], 100 * dn[1], 100 * dn[2], sum(st[i] == "X" for i in ids), blank[arm],
                 sum(base[i] == "R" and st[i] == "W" for i in ids), sum(base[i] == "W" and st[i] == "R" for i in ids), CS.evidence(da, dn)))
             both = [i for i in ids if base[i] != "X" and st[i] != "X"]
             if both:

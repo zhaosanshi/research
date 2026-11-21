@@ -17,7 +17,12 @@
 #       cut "keep the n most confident answered answers" (n = 0 .. all), the pair with the highest TUNE net. Ties: the
 #       smaller n within a prompt (as diag/main_table_same_n.best_cut), then conf_E2 first, then the prompt's name.
 #       On test the same prompt keeps its answers whose confidence is at least the confidence of the last answer kept
-#       on tune (all answers when the tune cut keeps all, none when it keeps none).
+#       on tune (all answers when the tune cut keeps all, none when it keeps none). A cut never falls between two
+#       answers of equal confidence, so that the tune net is the net of that threshold rule (added after the review of
+#       2026-11-21; it changes nothing unless two answers of a prompt have exactly the same confidence).
+# Two stops added after that review: the prompts with verdicts must be exactly the 11 named below (the main table's
+# "best prompt on tune" chooses among whatever was judged), and the conf_E2 states read here must equal, question by
+# question, the "prompt only" states of the main table (they come from two judge work dirs).
 #   For reference only (it uses the test labels, so it is an upper bound and not a system): the best cut of P2's
 #   prompt on test.
 # Printed per model: the rows, N1 minus each with a paired interval; then the five models together on the questions
@@ -53,6 +58,9 @@ def judged(run, split, qs):
     if not os.path.exists(w + "/judge2/single_pro.jsonl"):
         return {}
     st, bl = ps.load(w, "pro")
+    found = {c[len("baseline_"):] for _, c in st if c.startswith("baseline_")}
+    if found != set(PROMPTS):
+        raise SystemExit("%s holds the prompts %s, this table chooses among %s" % (w, sorted(found), sorted(PROMPTS)))
     text = {}
     with open(w + "/judge2/cells.jsonl", encoding="utf-8") as f:
         for l in f:
@@ -96,11 +104,14 @@ def keep(states, kept):
     return ["X" if i not in kept else s for i, s in enumerate(states)], [i in kept for i in range(len(states))]
 
 
-def best_cut(states, order):
-    """(n, net) of the best prefix of the confidence order; ties go to fewer answers."""
+def best_cut(states, order, confs=None):
+    """(n, net) of the best prefix of the confidence order; ties go to fewer answers. With confs (the confidence of
+    each position) a prefix may not end between two answers of equal confidence."""
     best, cur = (0, 0), 0
     for n, i in enumerate(order, 1):
         cur += val(states[i])
+        if confs is not None and n < len(order) and confs[order[n]] == confs[i]:
+            continue
         if cur > best[1]:
             best = (n, cur)
     return best
@@ -114,7 +125,7 @@ def model_block(model, B, tot):
     if got is None:
         print("\n## %s: no main-table setting within budget %g" % (model, B))
         return
-    qs, n1, n1_ans, layer, s = got
+    qs, n1, n1_ans, layer, s, main_prompt_only = got
     Dt, tsp, ttx, _, _, _ = DM.merged_all(model, 0)
     Dx, xsp, xtx, _, _, _ = DM.merged_all(model, 1)
     if list(xsp.qs) != list(qs):
@@ -144,6 +155,10 @@ def model_block(model, B, tot):
 
     if "conf_E2" in test:
         st, ans, _ = test["conf_E2"]
+        differ = [q for q, x, y in zip(qs, st, main_prompt_only) if val(x) != val(y)]
+        if differ:
+            raise SystemExit("%s: conf_E2 as judged in the prompt-sweep work dir differs from the main table's prompt-only row on %d questions (e.g. %s)" % (
+                model, len(differ), differ[:3]))
         row("prompt only, every answer (conf_E2)", st, ans)
         diffs.append(("prompt only", st))
     if "conf_E2" in conf:
@@ -161,7 +176,7 @@ def model_block(model, B, tot):
     for p in conf:
         st, ans, _ = tune[p]
         order = ranked(ans, conf[p][0], tsp.qs)
-        n, sc = best_cut(st, order)
+        n, sc = best_cut(st, order, [conf[p][0][q] for q in tsp.qs])
         cands.append((p, n, sc, order))
     if cands:
         p, n, sc, order = sorted(cands, key=lambda c: (-c[2], c[0] != "conf_E2", c[0]))[0]
@@ -178,7 +193,7 @@ def model_block(model, B, tot):
         p2, a2 = keep(st, kept)
         row("P2 chosen on tune: %s, %s; tune net %+d" % (p, how, sc), p2, a2)
         diffs.append(("P2 (prompt and cut chosen on tune)", p2))
-        un, usc = best_cut(st, xorder)
+        un, usc = best_cut(st, xorder, [conf[p][1][q] for q in qs])
         print("    %-86s answers %3d | net %+4d   (N1 minus it %+d)" % (
             "for reference, chosen with the test labels: best cut of %s on test" % p, un, usc, net(n1) - usc))
         print("    tune, best cut per prompt: " + " | ".join("%s %+d (keep %d of %d)" % (c[0], c[2], c[1], len(c[3])) for c in sorted(cands, key=lambda c: -c[2])))
