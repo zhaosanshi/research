@@ -18,10 +18,18 @@
 #            (give the tune id file as --skip-ids): N1 against single E at its own chosen strength, and the rest.
 #            With --list-arms: only print, per model, the write arms those settings need on this bank that have no
 #            generation file yet ("MODEL ARM ARM ..."; no verdict is read), for launchers/.../qaqa_tuned_chain.sh.
+# Comparator added on 2026-11-22 (prediction in the work queue, section 2.8, written before it was computed): the
+# prompt-only answers (conf_E2, no write), keeping the N answers the model is most confident of (mean token
+# log-probability, newsets/conf/<task>/<model>/test/conf_E2.json from launchers/.../qaqa_conf.sh), N = the number of
+# answers of the system it is compared with (single E, N1), counted on the questions that are read. Shown when the
+# confidence file exists.
+# --tune --fix-e: E stays at the main-table strength (the MMLU budget defines it); only the two caps and the single-C
+# strength are chosen on the tune split.
 # --work takes a comma list of judge work dirs under newsets/judge/<task>/<model>/ (their verdicts are merged).
 # --skip-ids FILE leaves out the questions of an id file.
 # Runs in the scoring container (the verdict files record container paths):
 #   docker exec -u 1000:1001 -w /workspace/Truth_Decoupling truth_dec python3 -B Iteration_01/diag/qaqa_pilot_table.py llama3.1-8b
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -50,7 +58,9 @@ SWEEP = {"llama3.1-8b": ("1", "2", "3.5", "5"), "qwen3.5-9b": ("0.5", "1", "2", 
          "gemma3-12b": ("1", "2.5", "4"), "gemma3-27b": ("0.5", "1", "2")}
 TYPES = (("no_failure", "valid assumption"), ("failure", "false assumption"), ("unverifiable", "unverifiable assumption"))
 ORDER = ("no write", "prompt only", "single C", "single E", "N1")
-PAIRS = (("N1", "single E"), ("N1", "no write"), ("N1", "single C"), ("N1", "prompt only"), ("single E", "no write"))
+CONF_E, CONF_N = "prompt + confidence, single E's N", "prompt + confidence, N1's N"
+PAIRS = (("N1", "single E"), ("N1", "no write"), ("N1", "single C"), ("N1", "prompt only"), ("single E", "no write"),
+         ("single E", CONF_E), ("N1", CONF_N))
 
 
 class Raw:
@@ -126,6 +136,29 @@ class Raw:
     def text(self, arm, q):
         return self.rows[arm][q]["text"]
 
+    def confidence(self, task):
+        """{question: mean log-probability of the prompt-only answer, None for an empty one}; None without the file."""
+        p = Path(S.NS) / "conf" / task / self.model / "test" / "conf_E2.json"
+        if not p.is_file():
+            return None
+        self.need("conf_E2")
+        d = json.loads(p.read_text(encoding="utf-8"))
+        rows = {r["id"]: r for r in d["rows"]}
+        if (d.get("arm") != "conf_E2" or d.get("model") != self.model or list(rows) != self.ids
+                or d.get("generation_sha256") != G.sha_file(self.gdir / "conf_E2.json")):
+            raise SystemExit("%s: the confidence file does not belong to the prompt-only pass of this bank" % self.model)
+        for q in self.ids:
+            if rows[q]["text_sha1"] != hashlib.sha1(self.text("conf_E2", q).strip().encode("utf-8")).hexdigest():
+                raise SystemExit("%s: confidence of %s was scored on another answer" % (self.model, q))
+        return {q: rows[q].get("mean_logp") for q in self.ids}
+
+    def top_conf(self, ids, conf, n):
+        """The prompt-only answers, keeping the n most confident among the questions ids (ties in question order)."""
+        pos = {q: k for k, q in enumerate(ids)}
+        cand = sorted((q for q in ids if conf[q] is not None and not self.blank("conf_E2", q)), key=lambda q: (-conf[q], pos[q]))
+        keep = set(cand[:n])
+        return {q: (self.cell("conf_E2", q) if q in keep else 0) for q in self.ids}, {q: q in keep for q in self.ids}
+
     def arm_system(self, arm):
         self.need(arm)
         return {q: self.cell(arm, q) for q in self.ids}, {q: not self.blank(arm, q) for q in self.ids}
@@ -174,7 +207,7 @@ def report(R, ids, systems, events, title, setting):
         print("\n## %s (%d questions)" % (label, len(qs)))
         for name in systems:
             v, a = systems[name][0], systems[name][1]
-            print("    %-28s net %+4d | answers %3d | right %3d | wrong %3d" % (
+            print("    %-36s net %+4d | answers %3d | right %3d | wrong %3d" % (
                 name, sum(v[q] for q in qs), sum(a[q] for q in qs), sum(v[q] > 0 for q in qs), sum(v[q] < 0 for q in qs)))
         pairs = [(x, y) for x, y in PAIRS if x in systems and y in systems]
         if "single E, N1's strength" in systems:
@@ -195,16 +228,17 @@ def changed_lines(R, ids, e_arm):
         print("    answered in both passes and E changed the answer, %s: %d, better %d, worse %d" % (label, len(qs), b, w))
 
 
-def tune(R, ids):
-    """Every setting on the tune questions; the choice as a dict."""
-    strengths = [s for s in SWEEP[R.model] if all(R.has(a) for a in [R.e(s)] + [R.ec(s, k) for k in LAD])]
+def tune(R, ids, fix_e=False):
+    """Every setting on the tune questions; the choice as a dict. fix_e: only the main-table E strength."""
+    sweep = (SET[R.model][1],) if fix_e else SWEEP[R.model]
+    strengths = [s for s in sweep if all(R.has(a) for a in [R.e(s)] + [R.ec(s, k) for k in LAD])]
     cs = [k for k in LAD if R.has(R.c(k))]
     R.need("x")
     if not strengths or not cs:
         raise FileNotFoundError("%s: no complete E strength or no single C on the tune split" % R.model)
     base = R.arm_system("x")
-    print("# (QA)^2 tune split, %s, %d questions: no write net %+d (answers %d)%s" % (
-        R.model, len(ids), net(base, ids), sum(base[1][q] for q in ids),
+    print("# (QA)^2 tune split%s, %s, %d questions: no write net %+d (answers %d)%s" % (
+        ", E fixed at the main-table strength" if fix_e else "", R.model, len(ids), net(base, ids), sum(base[1][q] for q in ids),
         "; prompt only net %+d" % net(R.arm_system("conf_E2"), ids) if R.has("conf_E2") else ""))
     c_net = [(k, net(R.arm_system(R.c(k)), ids)) for k in cs]
     print("    single C: " + " | ".join("%s: %+d" % x for x in c_net))
@@ -221,7 +255,7 @@ def tune(R, ids):
     s_e = max(e_net, key=lambda x: (x[1], -e_net.index(x)))
     k_c = max(c_net, key=lambda x: (x[1], -c_net.index(x)))
     n1 = max(n_best, key=lambda x: (x[2], -n_best.index(x)))
-    choice = {"model": R.model, "tune_questions": len(ids), "strengths_seen": strengths, "single_C_seen": cs,
+    choice = {"model": R.model, "tune_questions": len(ids), "e_fixed": bool(fix_e), "strengths_seen": strengths, "single_C_seen": cs,
               "single_E": s_e[0], "single_C": k_c[0], "n1_strength": n1[0], "n1_cap_e": n1[1][0], "n1_cap_own": n1[1][1],
               "tune_net": {"no write": net(base, ids), "single E": s_e[1], "single C": k_c[1], "N1": n1[2]}}
     print("    chosen on tune: single E at %s (%+d) | single C at %s (%+d) | N1 at E %s with caps E's %s / own %s (%+d)" % (
@@ -233,12 +267,14 @@ def main():
     argv = sys.argv[1:]
     opt = {"--task": "qaqa", "--bank": "Iteration_01/newsets/bank/qaqa_pilot_bank_20261122.jsonl", "--work": "test_pilot100",
            "--skip-ids": None, "--write-choice": None, "--choice": None}
-    mode_tune = list_arms = False
-    while argv[:1] and (argv[0] in opt or argv[0] in ("--tune", "--list-arms")):
+    mode_tune = list_arms = fix_e = False
+    while argv[:1] and (argv[0] in opt or argv[0] in ("--tune", "--list-arms", "--fix-e")):
         if argv[0] == "--tune":
             mode_tune, argv = True, argv[1:]
         elif argv[0] == "--list-arms":
             list_arms, argv = True, argv[1:]
+        elif argv[0] == "--fix-e":
+            fix_e, argv = True, argv[1:]
         else:
             opt[argv[0]], argv = argv[1], argv[2:]
     if not argv:
@@ -272,7 +308,7 @@ def main():
             R = Raw(model, opt["--task"], opt["--bank"], opt["--work"].split(","))
             ids = [q for q in R.ids if q not in skip]
             if mode_tune:
-                choices[model] = tune(R, ids)
+                choices[model] = tune(R, ids, fix_e)
                 print()
                 continue
             el, s, cl, cap_e, cap_own, kc = SET[model]
@@ -289,6 +325,10 @@ def main():
             if s_e != s:
                 systems["single E, N1's strength"] = R.arm_system(R.e(s))
             systems["N1"] = (n1[0], n1[1])
+            conf = R.confidence(opt["--task"])
+            if conf is not None:
+                for name, ref in ((CONF_E, "single E"), (CONF_N, "N1")):
+                    systems[name] = R.top_conf(ids, conf, sum(systems[ref][1][q] for q in ids))
         except (FileNotFoundError, ValueError) as err:
             print("\n# %s: not ready (%s)\n" % (model, str(err)[:200]))
             continue
@@ -310,9 +350,11 @@ def main():
             print("\n## %s (%d questions per model)" % (label, len(qs)))
             print("    net: " + " | ".join("%s %+d" % (name, sum(d[2][name][0][q] for d in done.values() for q in qs)) for name in ORDER))
             for x, y in PAIRS:
+                if any(x not in d[2] or y not in d[2] for d in done.values()):
+                    continue
                 per = [[d[2][x][0][q] - d[2][y][0][q] for q in qs] for d in done.values()]
                 t_, lo, hi = S.joint_ci(per)
-                print("    %-28s %+d [%+d, %+d], %d of %d models positive" % ("%s minus %s" % (x, y), t_, lo, hi, sum(sum(v) > 0 for v in per), len(per)))
+                print("    %-52s %+d [%+d, %+d], %d of %d models positive" % ("%s minus %s" % (x, y), t_, lo, hi, sum(sum(v) > 0 for v in per), len(per)))
 
 
 if __name__ == "__main__":
