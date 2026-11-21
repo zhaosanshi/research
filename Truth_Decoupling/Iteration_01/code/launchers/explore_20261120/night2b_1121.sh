@@ -7,19 +7,44 @@
 #   lane 1, GPU 1, after the Llama / Qwen3.5-9B lane of night_1121.sh: GSM8K re-asks of these two, then posm for Llama;
 #   lane 2, GPUs 2,3, after the Qwen3.8-27B jobs of night_1121.sh: GSM8K re-asks of Qwen3.8-27B (cap 1,024), then of
 #     Gemma-3-27B on GPU 3.
+set -e
 cd /data/sanshizhao/Truth_Decoupling
 L=Iteration_01/logs/newsets_20261119
+rm -f "$L"/NIGHT2B_LANE{1,2}_{DONE,FAILED} "$L"/NIGHT2_1121_{DONE,FAILED}
+pids=()
 (
-  until [ -e $L/NSP_qwen3.5-9b_DONE ]; do sleep 60; done
+  marker=$L/NIGHT2B_LANE1
+  trap 'rc=$?; if [ "$rc" -ne 0 ]; then touch "${marker}_FAILED"; fi' EXIT
+  until [ -f "$L/NSP_qwen3.5-9b_DONE" ]; do
+    [ ! -f "$L/NSP_qwen3.5-9b_FAILED" ] || exit 1
+    sleep 60
+  done
   bash $L/gsm8k_n1_pos.sh 1 llama3.1-8b 1 qwen3.5-9b > $L/gsm8k_n1_small.out 2>&1
   bash $L/posm.sh llama 16 3.5 l16 1 judge_test_l16mdg_test > $L/posm_llama.out 2>&1
   echo "night2b lane 1 done $(date '+%T')" >> $L/posp_all.log
+  touch "${marker}_DONE"
 ) &
+pids+=("$!")
 (
-  until [ -e $L/NSP_qwen3.8-27b_DONE ] && grep -q "^gsm8k qwen3.8-27b cap 1024 at prompt exit=" $L/gsm8k_all.log; do sleep 60; done
+  marker=$L/NIGHT2B_LANE2
+  trap 'rc=$?; if [ "$rc" -ne 0 ]; then touch "${marker}_FAILED"; fi' EXIT
+  until [ -f "$L/NSP_qwen3.8-27b_DONE" ]; do
+    [ ! -f "$L/NSP_qwen3.8-27b_FAILED" ] || exit 1
+    sleep 60
+  done
+  # A failed 1,024-token pass is logged as well; insist on the real files.
+  dir=Iteration_01/capability/gen_main1024/gsm8k/qwen3.8-27b/b8
+  until [ -f "$dir/neutral.json" ] && [ -f "$dir/neutral--E28-w-p1-75-at-prompt.json" ]; do
+    if [ -f "$L/GSM8K_POS_GPU2_3_1024_FAILED" ]; then exit 1; fi
+    sleep 60
+  done
   bash $L/gsm8k_n1_pos.sh 2,3 qwen3.8-27b > $L/gsm8k_n1_q27.out 2>&1
   bash $L/gsm8k_n1_pos.sh 3 gemma3-27b > $L/gsm8k_n1_g27.out 2>&1
   echo "night2b lane 2 done $(date '+%T')" >> $L/posp_all.log
+  touch "${marker}_DONE"
 ) &
-wait
-touch $L/NIGHT2_1121_DONE
+pids+=("$!")
+failed=0
+for pid in "${pids[@]}"; do wait "$pid" || failed=1; done
+if (( failed )); then touch "$L/NIGHT2_1121_FAILED"; exit 1; fi
+touch "$L/NIGHT2_1121_DONE"

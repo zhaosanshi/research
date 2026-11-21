@@ -77,7 +77,7 @@ def main():
         raise SystemExit("give arms with a write (base:direction); two-write arms only with NS_POS_TWO_WRITE=1; no no-write arm")
     if plain:
         out = next((rest[i + 1] for i, a in enumerate(rest[:-1]) if a == "--out"), "")
-        if ("gen_" + pos) not in out:
+        if ("gen_" + pos) not in Path(out).resolve().parts:
             raise SystemExit("NS_POS_PLAIN_NAMES=1 needs an --out path containing gen_%s (got %r)" % (pos, out))
     real_engine = G.engine
 

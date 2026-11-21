@@ -24,6 +24,8 @@ sys.path.insert(0, "Iteration_01/diag")
 sys.path.insert(0, "Iteration_01/code/scripts/newsets")
 import newsets_score as S     # noqa: E402
 import final_records as fr    # noqa: E402
+import newsets_gen as G
+from types import SimpleNamespace
 import alias_match as AM      # noqa: E402
 import release_origin as ro   # noqa: E402
 
@@ -63,12 +65,11 @@ def load(task, model, m, split):
         p = "%s/gen_prompt/%s/%s/%s/%s.json" % (NS, task, model, split, S.tok(arm))
         if not os.path.exists(p):
             return None
-        with open(p, encoding="utf-8") as f:
-            g = json.load(f)
-        k = g.get("contract") or {}
-        if not (g.get("completed") and k.get("full_pass") and k.get("split") == split and k.get("model") == model
-                and k.get("items_file_sha256") == S.sha_file(bp) and [r["id"] for r in g["rows"]] == want):
-            raise SystemExit("%s is not a complete %s pass of %s" % (p, split, model))
+        args = SimpleNamespace(task=task, split=split, model=model, items=bp)
+        g = G.load_generation(p, args, want)
+        k = g["contract"]
+        if k["arm"] != arm:
+            raise SystemExit("%s: expected %s, found %s" % (p, arm, k["arm"]))
         if (":" in arm) != (k.get("positions") == "prompt") or (":" not in arm and k.get("positions") is not None):
             raise SystemExit("%s: positions %r do not fit the arm %s (write arms must be at \"prompt\")" % (p, k.get("positions"), arm))
         c = k["condition"]
@@ -176,9 +177,24 @@ def main():
             print("    F (frozen from TruthfulQA: E %s, caps E's %s / own %s, single C %s): no write %+d | single C %+d | single E %+d (ans %d) | N1 %+d (ans %d) || N1 minus single E %s | minus single C %s | minus no write %s | single E minus no write %s" % (
                 main_s, tq_caps[0], tq_caps[1], tq_c, net(base_x[0]), net(f_c), net(f_e[0]), sum(f_e[1]), net(f_n[0]), sum(f_n[1]),
                 S.ps.ci(d(f_n[0], f_e[0])), S.ps.ci(d(f_n[0], f_c)), S.ps.ci(d(f_n[0], base_x[0])), S.ps.ci(d(f_e[0], base_x[0]))))
-            # D: tuned on the dataset's own tune split
-            sN = max(have, key=lambda s: (net(rows[s]["n_t"][0]), -have.index(s)))
-            sE = max(have, key=lambda s: (net(rows[s]["e_t"][0]), -have.index(s)))
+            # D: tuned on the dataset's own tune split. The choice is made among the strengths complete on TUNE (th),
+            # whatever exists on the read split, so that it cannot move with the batch that is read (GPT review of
+            # 2026-11-22); a choice without a complete pass on the read split is reported as pending.
+            tune_net = {}
+            for s in th:
+                cands = [("N1", s, k1, k2) for k1 in CAPS for k2 in CAPS if not (k1 is None and k2 is None)]
+                best_t = max(cands, key=lambda c: (net(S.system(tsp, ttx, c)[0]), -cands.index(c)))
+                tune_net[s] = (net(S.system(tsp, ttx, best_t)[0]), net(S.system(tsp, ttx, ("E", s))[0]))
+            sN = max(th, key=lambda s: (tune_net[s][0], -th.index(s)))
+            sE = max(th, key=lambda s: (tune_net[s][1], -th.index(s)))
+            f_rows = (("F: N1 minus single E", d(f_n[0], f_e[0])), ("F: N1 minus single C", d(f_n[0], f_c)), ("F: N1 minus no write", d(f_n[0], base_x[0])),
+                      ("F: single E minus no write", d(f_e[0], base_x[0])))
+            if sN not in have or sE not in have:
+                print("    D: pending (chosen on tune: N1 at E %s, single E at %s; no complete %s pass of that choice yet)" % (
+                    sN.replace("-", "."), sE.replace("-", "."), split))
+                for key, v in f_rows:
+                    tot.setdefault(key, []).append(dict(zip(xsp.qs, v)))
+                continue
             kC = max([k for k in LAD if k in ct], key=lambda k: (net(ct[k]), -LAD.index(k)))
             d_n, d_e, d_eb, d_c = rows[sN]["n_x"][0], rows[sN]["e_x"][0], rows[sE]["e_x"][0], cx[kC]
             print("    D (chosen on this dataset's tune: N1 at E %s with caps E's %s / own %s; single E's own best %s; single C %s): single C %+d | single E same strength %+d, own best %+d | N1 %+d || N1 minus single E same strength %s | minus single E own best %s | minus single C %s | minus no write %s" % (
@@ -188,10 +204,9 @@ def main():
             print("    re-ask at E %s on %s: answered without a write and blank under E: %d (original answer right %d / wrong %d); released as the original answer right %d / wrong %d, as a new answer right %d / wrong %d, not released %d | own blanks under E: released right %d / wrong %d, not released %d" % (
                 main_s, split, sum(r["E's"]["orig"]), r["E's"]["orig"][0], r["E's"]["orig"][1], r["E's"]["same"][0], r["E's"]["same"][1],
                 r["E's"]["new"][0], r["E's"]["new"][1], r["E's"]["none"], r["own"]["new"][0], r["own"]["new"][1], r["own"]["none"]))
-            for key, v in (("F: N1 minus single E", d(f_n[0], f_e[0])), ("F: N1 minus single C", d(f_n[0], f_c)), ("F: N1 minus no write", d(f_n[0], base_x[0])),
-                           ("F: single E minus no write", d(f_e[0], base_x[0])),
-                           ("D: N1 minus single E, same strength", d(d_n, d_e)), ("D: N1 minus single E at its own best", d(d_n, d_eb)),
-                           ("D: N1 minus single C", d(d_n, d_c)), ("D: N1 minus no write", d(d_n, base_x[0]))):
+            for key, v in f_rows + (
+                    ("D: N1 minus single E, same strength", d(d_n, d_e)), ("D: N1 minus single E at its own best", d(d_n, d_eb)),
+                    ("D: N1 minus single C", d(d_n, d_c)), ("D: N1 minus no write", d(d_n, base_x[0]))):
                 tot.setdefault(key, []).append(dict(zip(xsp.qs, v)))
         if tot and all(len(v) == len(S.ORDER) for v in tot.values()):
             print("\n## %s, five models together on %s (questions resampled jointly)" % (task, split))

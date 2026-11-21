@@ -23,6 +23,8 @@ M=$CODE/configs/newsets/frozen_models_20261119.json
 NS=$ROOT/Iteration_01/newsets; HNS=$HOST/Iteration_01/newsets
 MODEL=$1; GPUS=$2; EL=$3; SWEEP=$4; WAITF=${5:-}
 [ -n "$SWEEP" ] || { echo "usage: nsc_prompt.sh MODEL GPUS E_LAYER \"SWEEP STRENGTHS\" [FILE_TO_WAIT_FOR]"; exit 2; }
+rm -f "$L/NSC_${MODEL}_DONE" "$L/NSC_${MODEL}_FAILED" || exit 1
+trap 'rc=$?; if [ "$rc" -ne 0 ]; then touch "$L/NSC_${MODEL}_FAILED"; fi' EXIT
 if [ -n "$WAITF" ]; then until [ -e "$WAITF" ]; do sleep 20; done; fi
 read -r PY CL <<< "$(python3 -c '
 import json, sys
@@ -60,4 +62,5 @@ while read -r t more; do
   [ -n "$more" ] || continue
   for sp in test test2; do gen $sp $t $more; done
 done < $L/nsc_choice_$MODEL.txt
-if [ $FAIL = 0 ]; then touch $L/NSC_${MODEL}_DONE; else echo "nsc $MODEL: finished with failed steps" >> $L/nsc_all.log; touch $L/NSC_${MODEL}_FAILED; fi
+if [ "$FAIL" -ne 0 ]; then touch "$L/NSC_${MODEL}_FAILED"; exit 1; fi
+touch "$L/NSC_${MODEL}_DONE"

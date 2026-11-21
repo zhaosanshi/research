@@ -9,6 +9,7 @@
 # Gemma-3-12B (capability/full_mdbest), for a comparison at equal capability cost.
 cd /data/sanshizhao/Truth_Decoupling
 ROOT=/workspace/Truth_Decoupling; HOST=/data/sanshizhao/Truth_Decoupling
+export TZ=Asia/Shanghai
 L=Iteration_01/logs/newsets_20261119
 RUNNER=$HOST/Iteration_01/code/scripts/review_checks/ff_explore_ec.sh
 TF=$ROOT/envs/tf519/bin/python
@@ -96,9 +97,12 @@ p = sys.argv[1]
 k = json.load(open(p)).get('keys', {}) if os.path.exists(p) else {}
 n = sum(len(v) for v in k.values()) if isinstance(k, dict) else len(k)
 sys.exit('the merged caches give %d request keys different replies: stop' % n if n else 0)" $ROOT/$W/judge2/cache/conflicts.json &&
-    "${JX[@]}" timeout -k 60 --signal=INT $secs python3 scripts/review_checks/judge_two_axis_run.py llm $ROOT/$W --judge pro &&
+    secs=$(budget) && [ "$secs" -gt 0 ] &&
+    "${JX[@]}" timeout -k 60 --signal=INT $((secs - 60)) python3 scripts/review_checks/judge_two_axis_run.py llm $ROOT/$W --judge pro &&
     "${JX[@]}" python3 scripts/review_checks/judge_two_axis_run.py single $ROOT/$W --judge pro > $HOST/$W/single_pro_stdout.md; } >> $log 2>&1
-  echo "l16 judge $key $(basename $W) exit=$? $(date '+%T')" >> $L/l16_all.log
+  local rc=$?
+  echo "l16 judge $key $(basename $W) exit=$rc $(date '+%T')" >> $L/l16_all.log
+  return "$rc"
 }
 ES="2.5 3 3.5 4"
 # 2026-11-21 23:2x, posm.sh, exploration: the mean-difference direction at the SAME layer with the SAME write amount as
@@ -125,6 +129,19 @@ if [ ! -f $HOST/$W/judge2/cells.jsonl ]; then
     mkdir -p $HOST/$W/judge2/cache && cp $HOST/$run/eval_extra/judge_test/$NAME.json $HOST/$W/judge_input.json &&
     "${DX[@]}" python3 scripts/review_checks/judge_two_axis_run.py cells $ROOT/$W --generation judge_input.json; } >> $log 2>&1 || rc=1
   echo "posm tq $KEY $NAME exit=$rc $(date '+%T')" >> $L/posp_all.log
-  [ $rc = 0 ] && ( setm $KEY; judge $KEY $W $run/eval_extra/$OX; touch $L/POSM_${KEY}_${TAG}_JUDGE_DONE ) > /dev/null 2>&1 < /dev/null &
+  if [ "$rc" != 0 ]; then touch "$L/POSM_${KEY}_${TAG}_GPU_FAILED"; exit 1; fi
 fi
-touch $L/POSM_${KEY}_${TAG}_GPU_DONE
+if [ ! -s "$HOST/$W/judge2/single_pro.jsonl" ]; then
+  ( exec 9>"$HOST/$W/judge2/posm_run.lock" || exit 1
+    flock -n 9 || exit 0
+    [ ! -s "$HOST/$W/judge2/single_pro.jsonl" ] || exit 0
+    rm -f "$L/POSM_${KEY}_${TAG}_JUDGE_FAILED" "$L/POSM_${KEY}_${TAG}_JUDGE_DONE"
+    setm "$KEY"
+    if judge "$KEY" "$W" "$run/eval_extra/$OX" && [ -s "$HOST/$W/judge2/single_pro.jsonl" ]; then
+      touch "$L/POSM_${KEY}_${TAG}_JUDGE_DONE"
+    else
+      touch "$L/POSM_${KEY}_${TAG}_JUDGE_FAILED"
+      exit 1
+    fi ) > /dev/null 2>&1 < /dev/null &
+fi
+touch "$L/POSM_${KEY}_${TAG}_GPU_DONE"

@@ -6,7 +6,12 @@
 # judge_test_pospromptm<tag>_test (posm.sh); the no-write cells of both must equal the usual ones.
 # Printed per model: no write, mean difference, learned E, and N1 (from diag/main_table_prompt.py's split) with paired
 # differences; then the five models together on the questions all have.
+# Checked before a model is read (GPT review of 2026-11-22): the two generation files (learned E, mean difference)
+# are single E writes at "prompt" on the same layer with the same strength and the same recorded write amount, from the
+# same run identity on the same questions; every no-write cell of the mean-difference work dir is there and equal to
+# the usual one (a missing cell is an error, not agreement).
 # usage (host, from /data/sanshizhao/Truth_Decoupling): python3 -B Iteration_01/diag/posm_table.py
+import json
 import os
 import sys
 
@@ -19,6 +24,31 @@ SETS = (("Llama-3.1-8B", 16, "3-5"), ("Qwen3.5-9B", 15, "2"), ("Qwen3.8-27B", 28
 
 def val(x):
     return (x == "R") - (x == "W")
+
+
+def gen_part(run, layer, kind, s):
+    """(file content, its single write) of the test generation at "prompt" of one direction kind."""
+    p = "%s/eval_extra/gen/x--E%d-%s-p%s-at-prompt_test.json" % (run, layer, kind, s)
+    with open(p, encoding="utf-8") as f:
+        g = json.load(f)
+    parts = g.get("parts") or []
+    if not (g.get("completed") and g.get("positions") == "prompt" and g.get("split") == "test" and len(parts) == 1
+            and parts[0].get("family") == "E" and parts[0].get("layer") == layer and parts[0].get("kind") == kind):
+        raise SystemExit("%s is not a complete single %s write of E%d at prompt on test" % (p, kind, layer))
+    return g, parts[0]
+
+
+def same_write(model, run, layer, s):
+    """The recorded write amount, after checking that both directions were written alike."""
+    (ge, pe), (gm, pm) = gen_part(run, layer, "w", s), gen_part(run, layer, "mdg", s)
+    want = float(s.replace("-", "."))
+    if pe["beta"] != want or pm["beta"] != want or abs(pe["amount"] - pm["amount"]) > 1e-6 * max(1.0, abs(pe["amount"])):
+        raise SystemExit("%s: strengths or write amounts differ (learned %r / %r, mean difference %r / %r)" % (
+            model, pe["beta"], pe["amount"], pm["beta"], pm["amount"]))
+    for k in ("identity_sha256", "cohort_sha256", "frozen_file_sha256", "question_ids", "max_new_tokens", "base_prompt"):
+        if ge.get(k) != gm.get(k):
+            raise SystemExit("%s: the two generation files differ in %s" % (model, k))
+    return pe["amount"]
 
 
 def main():
@@ -36,11 +66,16 @@ def main():
         if not MP.has(w):
             print("\n## %s: no Pro verdicts yet in %s" % (model, os.path.basename(w)))
             continue
+        try:
+            amount = same_write(model, run, layer, s)
+        except FileNotFoundError as err:
+            print("\n## %s: generation file missing (%s)" % (model, err))
+            continue
         st, bl = ps.load(w, "pro")
         tx = fr.raw_texts(w)
-        bad = [q for q in qs if (q, "baseline_x") in st and (st[(q, "baseline_x")] != xsp.st[(q, "baseline_x")] or tx.get((q, "baseline_x")) != utx[(q, "baseline_x")])]
+        bad = [q for q in qs if (q, "baseline_x") not in st or st[(q, "baseline_x")] != xsp.st[(q, "baseline_x")] or tx.get((q, "baseline_x")) != utx[(q, "baseline_x")]]
         if bad:
-            raise SystemExit("%s: the no-write cells of %s differ from the usual ones (%d)" % (model, os.path.basename(w), len(bad)))
+            raise SystemExit("%s: %d no-write cells of %s are missing or differ from the usual ones" % (model, len(bad), os.path.basename(w)))
         cond = "E_L%d_x-mdg-p%s" % (layer, s)
         if any(st.get((q, cond), "?") == "?" for q in qs):
             print("\n## %s: incomplete verdicts for %s" % (model, cond))
@@ -50,7 +85,7 @@ def main():
         e = S.system(xsp, xtx, ("E", s))
         n1 = S.system(xsp, xtx, ML.n1_pick(tsp, ttx, s))
         d = lambda a, b: [val(x) - val(y) for x, y in zip(a, b)]  # noqa: E731
-        print("\n## %s, layer %d, strength %s, prompt rule, test %d questions" % (model, layer, DM.show(s), len(qs)))
+        print("\n## %s, layer %d, strength %s (write amount %.3f for both directions), prompt rule, test %d questions" % (model, layer, DM.show(s), amount, len(qs)))
         print("    no write net %+d | mean difference (same layer, same amount) net %+d (answers %d) | learned E net %+d (answers %d) | N1 net %+d (answers %d)" % (
             sum(map(val, base)), sum(map(val, md)), sum(not bl[(q, cond)] for q in qs), sum(map(val, e[0])), sum(e[1]), sum(map(val, n1[0])), sum(n1[1])))
         print("    learned E minus mean difference %s | N1 minus mean difference %s | mean difference minus no write %s" % (

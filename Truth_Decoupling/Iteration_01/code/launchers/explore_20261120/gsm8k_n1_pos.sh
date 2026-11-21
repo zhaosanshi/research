@@ -9,9 +9,12 @@ ROOT=/workspace/Truth_Decoupling; HOST=/data/sanshizhao/Truth_Decoupling
 L=Iteration_01/logs/newsets_20261119
 NSP=$ROOT/Iteration_01/code/scripts/newsets/ns_positions.py
 M=$ROOT/Iteration_01/code/configs/newsets/frozen_models_20261119.json
+(( $# > 0 && $# % 2 == 0 )) || exit 2
 while [ $# -ge 2 ]; do
   GPUS=$1; MODEL=$2; shift 2
-  read -r N EL S CL CAP DIR <<< "$(python3 -B Iteration_01/diag/gsm8k_n1_prompt.py ids $MODEL)" || { echo "gsm8k n1 $MODEL: no blank list" >> $L/gsm8k_all.log; continue; }
+  plan=$(python3 -B Iteration_01/diag/gsm8k_n1_prompt.py ids "$MODEL") || exit 1
+  read -r N EL S CL CAP DIR <<< "$plan"
+  [[ "$N" =~ ^[0-9]+$ && -n "$DIR" ]] || exit 1
   echo "$(date '+%F %T') gsm8k n1 $MODEL: $N items blank under E at prompt (cap $CAP)" >> $L/gsm8k_all.log
   [ "$N" -gt 0 ] || continue
   PY=$(python3 -c '
@@ -24,5 +27,7 @@ print(json.load(open(sys.argv[1]))["models"][sys.argv[2]]["python"])' $HOST/Iter
     $PY -I $NSP prompt gen --models $M --model $MODEL --task gsm8k --items $ROOT/data_external/gsm8k_20261119/main/test-00000-of-00001.parquet \
     --ids $ROOT/Iteration_01/capability/sets/gsm8k_1319_20261119.json --only-ids $ROOT/$DIR/n1_blank_ids_at-prompt.json \
     --max-new-tokens $CAP --batch-size 8 --out $ROOT/$DIR --arms $arms >> $L/gsm8k_n1_$MODEL.log 2>&1
-  echo "gsm8k n1 $MODEL exit=$? $(date '+%T')" >> $L/gsm8k_all.log
+  rc=$?
+  echo "gsm8k n1 $MODEL exit=$rc $(date '+%T')" >> $L/gsm8k_all.log
+  [ "$rc" -eq 0 ] || exit "$rc"
 done

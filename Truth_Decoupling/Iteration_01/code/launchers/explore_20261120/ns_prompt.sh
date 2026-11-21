@@ -29,10 +29,14 @@ NS=$ROOT/Iteration_01/newsets; HNS=$HOST/Iteration_01/newsets
 MODEL=$1; GPUS=$2; EL=$3; MAIN=$4; SWEEP=$5
 [ -n "$SWEEP" ] || { echo "usage: ns_prompt.sh MODEL GPUS E_LAYER MAIN_STRENGTH \"SWEEP STRENGTHS\""; exit 2; }
 case " $SWEEP " in *" $MAIN "*) ;; *) echo "the sweep must contain the main strength"; exit 2 ;; esac
+rm -f "$L/NSP_${MODEL}_DONE" "$L/NSP_${MODEL}_FAILED" || exit 1
+trap 'rc=$?; if [ "$rc" -ne 0 ]; then touch "$L/NSP_${MODEL}_FAILED"; fi' EXIT
+FAIL=0
 read -r PY CL <<< "$(python3 -c '
 import json, sys
 m = json.load(open(sys.argv[1]))["models"][sys.argv[2]]
 print(m["python"], m["cl"])' $HOST/Iteration_01/code/configs/newsets/frozen_models_20261119.json $MODEL)" || { echo "nsp $MODEL: not in the config" >> $L/nsp_all.log; exit 1; }
+[ -n "$PY" ] && [ -n "$CL" ] || { touch "$L/NSP_${MODEL}_FAILED"; exit 1; }
 [ "$EL" -lt "$CL" ] || { echo "nsp $MODEL: the E layer must be below the C layer" >> $L/nsp_all.log; exit 1; }
 DX=(docker exec -u 1000:1001 -e HOME=$ROOT/hf_cache -e HF_HOME=$ROOT/hf_cache -e TD_MODEL_ROOT=$ROOT/models
     -e HF_HUB_OFFLINE=1 -e TRANSFORMERS_OFFLINE=1 -e PYTHONUNBUFFERED=1 -e PYTHONDONTWRITEBYTECODE=1
@@ -47,10 +51,12 @@ for sp in tune test test2; do
     items=$NS/bank/${t}_bank_20261119.jsonl; [ $sp = test2 ] && items=$NS/bank/${t}_bank_test2_20261120.jsonl
     d=$HNS/gen_prompt/$t/$MODEL/$sp
     mkdir -p $d
-    [ -e $d/x.json ] || cp -p $HNS/gen/$t/$MODEL/$sp/x.json $d/x.json || { echo "nsp $MODEL $t $sp: no no-write pass to copy" >> $L/nsp_all.log; continue; }
+    [ -e $d/x.json ] || cp -p $HNS/gen/$t/$MODEL/$sp/x.json $d/x.json || { echo "nsp $MODEL $t $sp: no no-write pass to copy" >> $L/nsp_all.log; FAIL=1; continue; }
     "${DX[@]}" $PY -I $NSP prompt gen --models $M --model $MODEL --task $t --items $items --split $sp \
         --out $NS/gen_prompt/$t/$MODEL/$sp --arms $arms >> $L/nsp_$MODEL.log 2>&1
-    echo "nsp $MODEL $t $sp exit=$? $(date '+%T')" >> $L/nsp_all.log
+    rc=$?; [ "$rc" -eq 0 ] || FAIL=1
+    echo "nsp $MODEL $t $sp exit=$rc $(date '+%T')" >> $L/nsp_all.log
   done
 done
-touch $L/NSP_${MODEL}_DONE
+if [ "$FAIL" -ne 0 ]; then touch "$L/NSP_${MODEL}_FAILED"; exit 1; fi
+touch "$L/NSP_${MODEL}_DONE"

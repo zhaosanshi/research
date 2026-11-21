@@ -28,6 +28,8 @@ print(json.load(open(sys.argv[1]))["models"][sys.argv[2]]["python"])' $HOST/Iter
     $PY -I $NSP $POS gen --models $M --model $MODEL --task gsm8k --items $ROOT/data_external/gsm8k_20261119/main/test-00000-of-00001.parquet \
     --ids $ROOT/Iteration_01/capability/sets/gsm8k_1319_20261119.json --max-new-tokens $NEWTOK --batch-size 8 \
     --out $ROOT/Iteration_01/capability/$OUTTAG/gsm8k/$MODEL/b8 --arms $ARM >> $L/gsm8k_${MODEL}_${NEWTOK}_$POS.log 2>&1
-  echo "gsm8k $MODEL cap $NEWTOK at $POS exit=$? $(date '+%T')" >> $L/gsm8k_all.log
+  rc=$?
+  echo "gsm8k $MODEL cap $NEWTOK at $POS exit=$rc $(date '+%T')" >> $L/gsm8k_all.log
+  if [ "$rc" -ne 0 ]; then touch "$L/GSM8K_POS_GPU${GPUS//,/_}_${NEWTOK}_FAILED"; exit "$rc"; fi
 done
 touch $L/GSM8K_POS_GPU${GPUS//,/_}_${NEWTOK}_DONE
