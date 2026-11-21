@@ -1,0 +1,12 @@
+--- a/Truth_Decoupling/Iteration_01/code/diag/ns_stable_table.py
++++ b/Truth_Decoupling/Iteration_01/code/diag/ns_stable_table.py
+@@ -39,3 +39,3 @@
+         if not sp.blank[(q, e)]:
+-            out.append(sp.st[(q, e)] if ro.norm(tx.ec[(q, e)]) == a0 else "X")
++            out.append(sp.st[(q, "baseline_x")] if ro.norm(tx.ec[(q, e)]) == a0 else "X")
+             continue
+@@ -43,3 +43,3 @@
+         c = sp.cEC(s, k) if k is not None else None
+-        out.append(sp.st[(q, c)] if c is not None and ro.norm(tx.ec[(q, c)]) == a0 else "X")
++        out.append(sp.st[(q, "baseline_x")] if c is not None and ro.norm(tx.ec[(q, c)]) == a0 else "X")
+     return out
