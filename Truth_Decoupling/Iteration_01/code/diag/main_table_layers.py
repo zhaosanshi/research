@@ -163,6 +163,7 @@ def model_block(model, budgets, tot):
             for q, x, y in zip(qs, n1[0], other):
                 t[1][q] = t[1].get(q, 0) + val(x) - val(y)
         tot.setdefault((B, "picks"), []).append("%s L%d %s" % (model, best["layer"], DM.show(s)))
+        tot.setdefault((B, "n1 states"), {})[model] = (list(qs), list(n1[0]), list(n1[1]), best["layer"], s)   # for diag/prompt_conf_table.py
         tot.setdefault((B, "questions"), []).append(set(qs))
 
 
@@ -180,7 +181,7 @@ def main():
         common = sorted(set.intersection(*tot[(B, "questions")]))
         print("    on the %d questions that all five models have (of %d in any):" % (len(common), len(set.union(*tot[(B, "questions")]))))
         for (b, name), v in tot.items():
-            if b == B and name not in ("picks", "questions"):
+            if b == B and name not in ("picks", "questions", "n1 states"):
                 if v[0] == len(ro.FIVE):
                     print("    N1 minus %-24s %s" % (name, ps.ci([v[1][q] for q in common])))
                 else:

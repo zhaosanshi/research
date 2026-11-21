@@ -12,7 +12,8 @@
 # empty answer; truncated = the 512-token cap was reached without a final answer; the others are the parser's names),
 # because a change in answer length moves the truncated count without any change in ability.
 # usage (host, from /data/sanshizhao/Truth_Decoupling, inside the container for pyarrow):
-#   docker exec -u 1000:1001 -w /workspace/Truth_Decoupling truth_dec python3 -B Iteration_01/diag/gsm8k_main_table.py [MODEL ...]
+#   docker exec -u 1000:1001 -w /workspace/Truth_Decoupling truth_dec python3 -B Iteration_01/diag/gsm8k_main_table.py [--cap N] [MODEL ...]
+# --cap N reads the passes generated with another token cap (launcher variable NEWTOK; directory capability/gen_main<N>).
 import glob
 import json
 import os
@@ -25,13 +26,13 @@ ROOT = "Iteration_01/capability/gen_main/gsm8k"
 IDS = "Iteration_01/capability/sets/gsm8k_1319_20261119.json"
 
 
-def load_pass(path, model, ids):
+def load_pass(path, model, ids, cap):
     with open(path, encoding="utf-8") as f:
         g = json.load(f)
     c = g.get("contract") or {}
     if not (g.get("completed") and c.get("full_pass") and c.get("model") == model and c.get("task") == "gsm8k"
-            and [r["id"] for r in g["rows"]] == ids):
-        raise SystemExit("%s is not a complete full pass of %s over the frozen GSM8K list" % (path, model))
+            and c.get("max_new_tokens") == cap and c.get("batch_size") == 8 and [r["id"] for r in g["rows"]] == ids):
+        raise SystemExit("%s is not a complete full pass of %s over the frozen GSM8K list at cap %d, batch 8" % (path, model, cap))
     return g
 
 
@@ -47,15 +48,20 @@ def main():
     with open(IDS, encoding="utf-8") as f:
         ids = json.load(f)["ids"]
     gold = CS.gold_of("gsm8k")
-    models = sys.argv[1:] or sorted(os.path.basename(os.path.dirname(d)) for d in glob.glob(ROOT + "/*/b8"))
-    print("# GSM8K, %d items, rule scoring; changes are against the model's own no-write pass" % len(ids))
+    argv, root, cap = sys.argv[1:], ROOT, 512
+    if argv[:1] == ["--cap"]:
+        cap, argv = int(argv[1]), argv[2:]
+        if cap != 512:
+            root = "Iteration_01/capability/gen_main%d/gsm8k" % cap
+    models = argv or sorted(os.path.basename(os.path.dirname(d)) for d in glob.glob(root + "/*/b8"))
+    print("# GSM8K, %d items, rule scoring, token cap %d; changes are against the model's own no-write pass" % (len(ids), cap))
     for model in models:
-        d = "%s/%s/b8" % (ROOT, model)
+        d = "%s/%s/b8" % (root, model)
         files = [p for p in sorted(glob.glob(d + "/*.json")) if not os.path.basename(p).startswith("s")]
         passes, why, ntok = {}, {}, {}
         for p in files:
             try:
-                g = load_pass(p, model, ids)
+                g = load_pass(p, model, ids, cap)
             except SystemExit as e:
                 print("\n## %s: %s" % (model, e))
                 continue
