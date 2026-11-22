@@ -50,6 +50,10 @@
 #   python3 -B Iteration_01/diag/selfjudge_probe.py export llama3.1-8b
 #   python3 -B Iteration_01/diag/selfjudge_probe.py table
 #   score: launchers/explore_20261120/selfjudge_1122.sh (container, GPU 1)
+# step 2 (work queue section 4; see the block above export_qaqa):
+#   docker exec -u 1000:1001 -w /workspace/Truth_Decoupling truth_dec python3 -B Iteration_01/diag/selfjudge_probe.py export-qaqa MODEL
+#   launchers/explore_20261120/selfjudge_1122.sh MODEL --qaqa
+#   python3 -B Iteration_01/diag/selfjudge_probe.py step2
 import argparse
 import hashlib
 import json
@@ -62,6 +66,11 @@ NEG_RE = re.compile(r"^[\s\"'*]*(no|none|nothing|nobody|never|neither|not|there(
                     r"\s+(isn't|aren't|wasn't|weren't)))\b", re.IGNORECASE)
 TEMPLATE = 'The answer to the question "{q}" is: {a}'
 CONDS = ("baseline", "E_a1", "E_a2", "E_a3")
+CONDS2 = ("baseline", "E_a3")          # step 2 (work queue section 4): no write and true/false E at strength 3 only
+QAQA_BANK = "Iteration_01/newsets/bank/qaqa_full_bank_20261122.jsonl"
+QAQA_PILOT = "Iteration_01/newsets/splits/qaqa_pilot_20261122.json"
+QAQA_WORKS = ["test_full570"]
+QTYPES = ("no_failure", "failure", "unverifiable")
 ALPHAS = (1.0, 2.0, 3.0)
 TOL = 0.02
 V = {"R": 1, "W": -1, "X": 0, "H": 0}
@@ -196,7 +205,7 @@ def export(model):
 # ------------------------------------------------------------------------------------------------------------------ #
 # score (container, GPU)
 # ------------------------------------------------------------------------------------------------------------------ #
-def score(model, regress_limit, regress_only, n_show):
+def score(model, regress_limit, regress_only, n_show, qaqa=False):
     import numpy as np
     cfg = MODELS[model]
     code = os.path.abspath(cfg["code"])
@@ -278,6 +287,36 @@ def score(model, regress_limit, regress_only, n_show):
             raise RuntimeError("three-way arg-max and the gate disagree")
         return dict(margin=lpT - lpF, gate=gate, choice=pred, lpT=lpT, lpF=lpF, lpU=lpU)
 
+    if qaqa:
+        # ---- step 2 (work queue section 4, step 3): (QA)^2, same code path, no regression, two conditions --------- #
+        doc = read_json(os.path.join(OUT, model, "qaqa_items.json"))
+        items = [x for x in doc["items"] if x["answered"]]
+        for x in items:
+            if sha1(x["answer"]) != x["answer_sha1"]:
+                raise SystemExit("qaqa_items.json: answer text of %s changed" % x["id"])
+        stmts = [statement(x["question"], x["answer"]) for x in items]
+        texts = [tf_prompt(bundle, prompts, t, allow_idk=True) for t in stmts]
+        if build_label_token_map(bundle.tokenizer, texts[0], st["label_variants"]) != mI:
+            raise SystemExit("the label map differs on the (QA)^2 prompts")
+        res = {c: run(texts, specs[c]) for c in CONDS2}
+        stem = os.path.join(OUT, model, "qaqa_probe")
+        if os.path.exists(stem + ".npz"):
+            raise SystemExit("%s.npz exists" % stem)
+        np.savez(stem + ".npz", ids=np.array([x["id"] for x in items]), answer_sha1=np.array([x["answer_sha1"] for x in items]),
+                 statement_sha1=np.array([sha1(t) for t in stmts]),
+                 **{"%s__%s" % (c, k): v for c, r in res.items() for k, v in r.items()})
+        rng = np.random.default_rng(20261122)
+        show = sorted(rng.choice(len(items), min(n_show, len(items)), replace=False).tolist())
+        meta = dict(model=model, code=cfg["code"], das=cfg["das"], tf_layer=EL, conditions=list(CONDS2),
+                    centre_shift_along_E_in_sd=shift, label_map={k: list(map(int, v)) for k, v in mI.items()},
+                    items_sha256=sha256_file(os.path.join(OUT, model, "qaqa_items.json")), n_items=len(items),
+                    n_answers_with_newline=sum("\n" in x["answer"] for x in items),
+                    shown_probe_prompts=[dict(id=items[k]["id"], value=items[k]["value"], prompt=texts[k]) for k in show])
+        with open(stem + ".json", "w", encoding="utf-8") as f:
+            json.dump(meta, f, ensure_ascii=False, indent=1)
+        print("(QA)^2 probe: %d answered statements x %d conditions -> %s.npz" % (len(items), len(CONDS2), stem), flush=True)
+        return
+
     # ---- regression against E45's npz ----------------------------------------------------------------------------- #
     n = regress_limit or len(recs)
     half_a = np.asarray(refz["half_a"])[:n]
@@ -357,10 +396,10 @@ def auroc(score_, y):
     return float((ranks[y].sum() - npos * (npos + 1) / 2.0) / (npos * nneg))
 
 
-def choose_thresholds(rows):
+def choose_thresholds(rows, conds=CONDS):
     """TUNE ONLY. rows: [(margin by condition, value)] of the answered tune statements. Returns {cond: (t, drops, gain)}."""
     out = {}
-    for c in CONDS:
+    for c in conds:
         m = [r[0][c] for r in rows]
         v = [r[1] for r in rows]
         u = sorted(set(m))
@@ -504,20 +543,204 @@ def table():
                     sum(x["state"] in "HX" for x in dr)))
 
 
+# ------------------------------------------------------------------------------------------------------------------ #
+# step 2 (work queue section 4): rules R5a / R5b, TruthfulQA (offline) and (QA)^2 (validation)
+#   R5a  two thresholds: the answers are split by NEG_RE into "negated-premise opening" and "other"; each class gets its
+#        own threshold chosen on the TruthfulQA TUNE split (choose_thresholds on that class only; "drop nothing"
+#        allowed); an answer of a class whose margin is below its class threshold becomes no answer.
+#   R5b  judge "other" only: negated-premise openings are always kept; "other" uses R5a's "other" threshold.
+#   Conditions: no write and true/false E at strength 3 (CONDS2). The thresholds are chosen once (step2_thresholds),
+#   printed at the head of the output, and then read on the TruthfulQA test split and on (QA)^2 (570 questions, and
+#   the 470 that are not in the 100-question pilot) without any further choice.
+# export-qaqa MODEL (container, no GPU): single E's pass on the 570-question (QA)^2 bank at the main-table layer and
+#   strength (qaqa_pilot_table.SET), write rule "prompt", judge work dir test_full570, read with qaqa_pilot_table.Raw
+#   (value A +1, B -1, C / H / empty 0; answered = not blank for the rule detector and not empty); every answered text
+#   must be the text DeepSeek Pro judged. Writes Iteration_01/newsets/selfjudge/<MODEL>/qaqa_items.json.
+# score MODEL --qaqa (container, GPU): the same code path as "score" on those answers, conditions CONDS2, no
+#   regression (step 1's passed). Writes qaqa_probe.{npz,json}.
+# step2 (host): the readings.
+# ------------------------------------------------------------------------------------------------------------------ #
+def export_qaqa(model):
+    sys.path.insert(0, "Iteration_01/diag")
+    import qaqa_pilot_table as qt
+    cfg = MODELS[model]
+    el, s = qt.SET[model][:2]
+    if el != cfg["layer"] or s.replace(".", "-") != cfg["s"]:
+        raise SystemExit("%s: (QA)^2 setting %s %s differs from the TruthfulQA main-table setting" % (model, el, s))
+    R = qt.Raw(model, "qaqafull", QAQA_BANK, QAQA_WORKS)
+    arm = R.e(s)
+    R.need(arm)
+    with open(QAQA_BANK, encoding="utf-8") as f:
+        bank = {r["id"]: r for r in (json.loads(l) for l in f)}
+    pilot = read_json(QAQA_PILOT)
+    if len(bank) != 570 or len(pilot["ids"]) != 100 or any(q not in bank or bank[q]["qtype"] != pilot["types"][q] for q in pilot["ids"]):
+        raise SystemExit("the pilot ids are not 100 questions of the 570-question bank")
+    pset = set(pilot["ids"])
+    cond = R.cond[arm]
+    items = []
+    for q in R.ids:
+        text = R.text(arm, q)
+        answered = not R.blank(arm, q)
+        if answered and ((q, cond) not in R.pred or R.pred[(q, cond)].strip() != text.strip()):
+            raise SystemExit("%s: the answer of %s is not the judged text" % (model, q))
+        items.append(dict(id=q, question=bank[q]["question"], answer=text, answer_sha1=sha1(text), value=R.cell(arm, q),
+                          answered=answered, qtype=bank[q]["qtype"], pilot=q in pset, neg=bool(NEG_RE.match(text))))
+    path = os.path.join(OUT, model, "qaqa_items.json")
+    if os.path.exists(path):
+        raise SystemExit("%s exists" % path)
+    gpath = R.gdir / (qt.G.arm_token(arm) + ".json")
+    doc = dict(model=model, arm=arm, condition=cond, works=QAQA_WORKS, bank=QAQA_BANK, bank_sha256=sha256_file(QAQA_BANK),
+               generation=str(gpath), generation_sha256=sha256_file(str(gpath)), neg_re=NEG_RE.pattern, items=items)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(doc, f, ensure_ascii=False, indent=0)
+    a = [x for x in items if x["answered"]]
+    print("%s (QA)^2 %s: %d questions, E answered %d (right %d, wrong %d, other %d), negated-premise opening %d; pilot %d -> %s" % (
+        model, arm, len(items), len(a), sum(x["value"] == 1 for x in a), sum(x["value"] == -1 for x in a),
+        sum(x["value"] == 0 for x in a), sum(x["neg"] for x in a), len(pset), path))
+
+
+def step2_thresholds(tq_rows):
+    """TUNE ONLY (TruthfulQA). tq_rows: [(margin by condition, value, neg)] of the answered tune statements.
+    Returns {cond: {"neg": (t, drops, gain), "other": (t, drops, gain)}}."""
+    by = {g: choose_thresholds([(m, v) for m, v, n in tq_rows if n == (g == "neg")], CONDS2) for g in ("neg", "other")}
+    return {c: {g: by[g][c] for g in ("neg", "other")} for c in CONDS2}
+
+
+def step2_drops(rows, mg, thr, rule, c):
+    """rows: [dict(id, answered, neg, v)]; mg: {id: {cond: margin}}. The drop flags under rule a (R5a) or b (R5b)."""
+    out = []
+    for x in rows:
+        if not x["answered"] or (rule == "b" and x["neg"]):
+            out.append(False)
+        else:
+            out.append(mg[x["id"]][c] < thr[c]["neg" if x["neg"] else "other"][0])
+    return out
+
+
+def step2_read(label, rows, mg, thr, ci, qtype=False):
+    def cnt(xs):
+        return "%d (right %d, wrong %d, other %d)" % (len(xs), sum(x["v"] == 1 for x in xs), sum(x["v"] == -1 for x in xs),
+                                                       sum(x["v"] == 0 for x in xs))
+    print("  %s: %d questions; single E net %+d" % (label, len(rows), sum(x["v"] for x in rows)))
+    for rule in ("a", "b"):
+        dl = {}
+        for c in CONDS2:
+            dr = step2_drops(rows, mg, thr, rule, c)
+            dl[c] = [-x["v"] if d else 0 for x, d in zip(rows, dr)]
+            print("    R5%s %-9s drops neg %s | other %s | vs single E %s" % (
+                rule, c, cnt([x for x, d in zip(rows, dr) if d and x["neg"]]), cnt([x for x, d in zip(rows, dr) if d and not x["neg"]]),
+                ci(dl[c])))
+            if qtype:
+                print("                       by type: " + " | ".join("%s %s" % (t, cnt([x for x, d in zip(rows, dr) if d and x["qtype"] == t]))
+                                                          for t in QTYPES))
+        print("    R5%s written minus not written %s" % (rule, ci([a - b for a, b in zip(dl["E_a3"], dl["baseline"])])))
+
+
+def step2_auroc(label, rows, mg):
+    import numpy as np
+    rng = np.random.default_rng(20261122)
+    for g, sel in (("neg", lambda x: x["neg"]), ("other", lambda x: not x["neg"]), ("all", lambda x: True)):
+        rw = [x for x in rows if x["answered"] and x["v"] != 0 and sel(x)]
+        y = np.array([x["v"] == 1 for x in rw])
+        M = {c: np.array([mg[x["id"]][c] for x in rw]) for c in CONDS2}
+        pt = {c: auroc(M[c], y) for c in CONDS2}
+        B = {c: [] for c in CONDS2}
+        for _ in range(4000):
+            ix = rng.integers(0, len(rw), len(rw)) if rw else np.array([], dtype=int)
+            for c in CONDS2:
+                B[c].append(auroc(M[c][ix], y[ix]))
+        B = {c: np.array(B[c]) for c in CONDS2}
+        with np.errstate(all="ignore"):
+            q = lambda a: (np.nanpercentile(a, 2.5), np.nanpercentile(a, 97.5)) if np.isfinite(a).any() else (float("nan"), float("nan"))
+            print("    R1 %-5s %-5s n=%d (right %d, wrong %d): %s | written minus not written %+.3f [%+.3f, %+.3f]" % (
+                label, g, len(rw), int(y.sum()), int((~y).sum()),
+                " | ".join("%s %.3f [%.3f, %.3f]" % (c, pt[c], *q(B[c])) for c in CONDS2),
+                pt["E_a3"] - pt["baseline"], *q(B["E_a3"] - B["baseline"])))
+
+
+def step2():
+    import numpy as np
+    sys.path.insert(0, "Iteration_01/diag")
+    import policy_select2 as ps
+    ci = ps.ci
+    data = {}
+    print("# selfjudge step 2 (work queue 2026-11-22_queue_d, section 4); conditions %s" % (CONDS2,))
+    print("# THRESHOLDS, chosen on the TruthfulQA tune split only (frozen for everything below): t, tune drops, tune net gain")
+    for model in ORDER:
+        d = os.path.join(OUT, model)
+        doc = read_json(d + "/items.json")
+        meta = read_json(d + "/probe.json")
+        if meta["items_sha256"] != sha256_file(d + "/items.json"):
+            raise SystemExit("%s: probe.json was made from another items.json" % model)
+        z = np.load(d + "/probe.npz")
+        ans = [x for x in doc["items"] if x["answered"]]
+        if [str(i) for i in z["ids"]] != [x["id"] for x in ans] or [str(a) for a in z["answer_sha1"]] != [x["answer_sha1"] for x in ans]:
+            raise SystemExit("%s: probe rows are not the answered items" % model)
+        mg = {x["split"] + "|" + x["id"]: {c: float(z[c + "__margin"][j]) for c in CONDS2} for j, x in enumerate(ans)}
+        rows = {s: [dict(id=s + "|" + x["id"], answered=x["answered"], neg=x["neg"], v=V[x["state"]])
+                    for x in doc["items"] if x["split"] == s] for s in ("tune", "test")}
+        thr = step2_thresholds([(mg[x["id"]], x["v"], x["neg"]) for x in rows["tune"] if x["answered"]])
+        data[model] = (mg, rows, thr)
+        for c in CONDS2:
+            print("  %-12s %-9s " % (model, c) + " | ".join("%s t=%s drops %d gain %+d" % (
+                g, "%+.4f" % thr[c][g][0] if abs(thr[c][g][0]) != float("inf") else ("-inf" if thr[c][g][0] < 0 else "+inf"),
+                thr[c][g][1], thr[c][g][2]) for g in ("neg", "other")))
+    print("# NEG_RE: %s" % NEG_RE.pattern)
+    for model in ORDER:
+        mg, rows, thr = data[model]
+        print("=" * 100)
+        print("%s | TruthfulQA (exploration: rules fixed after step 1 was seen)" % model)
+        step2_read("TruthfulQA test", rows["test"], mg, thr, ci)
+        d = os.path.join(OUT, model)
+        if not os.path.exists(d + "/qaqa_probe.npz"):
+            print("  (QA)^2: no probe yet")
+            continue
+        qd = read_json(d + "/qaqa_items.json")
+        qm = read_json(d + "/qaqa_probe.json")
+        if qm["items_sha256"] != sha256_file(d + "/qaqa_items.json"):
+            raise SystemExit("%s: qaqa_probe.json was made from another qaqa_items.json" % model)
+        z = np.load(d + "/qaqa_probe.npz")
+        qa = [x for x in qd["items"] if x["answered"]]
+        if [str(i) for i in z["ids"]] != [x["id"] for x in qa] or [str(a) for a in z["answer_sha1"]] != [x["answer_sha1"] for x in qa]:
+            raise SystemExit("%s: (QA)^2 probe rows are not the answered items" % model)
+        if any(sha1(statement(x["question"], x["answer"])) != str(h) for x, h in zip(qa, z["statement_sha1"])):
+            raise SystemExit("%s: (QA)^2 statement texts differ" % model)
+        qmg = {x["id"]: {c: float(z[c + "__margin"][j]) for c in CONDS2} for j, x in enumerate(qa)}
+        qrows = [dict(id=x["id"], answered=x["answered"], neg=x["neg"], v=x["value"], qtype=x["qtype"], pilot=x["pilot"])
+                 for x in qd["items"]]
+        print("%s | (QA)^2 validation, %s, judge dirs %s; thresholds as above" % (model, qd["arm"], qd["works"]))
+        for lab, rs in (("570", qrows), ("470 (pilot 100 left out)", [x for x in qrows if not x["pilot"]])):
+            a = [x for x in rs if x["answered"]]
+            print("  (QA)^2 %s: E answered %d (right %d, wrong %d, other %d); neg %d (right %d, wrong %d), other %d (right %d, wrong %d)" % (
+                lab, len(a), sum(x["v"] == 1 for x in a), sum(x["v"] == -1 for x in a), sum(x["v"] == 0 for x in a),
+                sum(x["neg"] for x in a), sum(x["neg"] and x["v"] == 1 for x in a), sum(x["neg"] and x["v"] == -1 for x in a),
+                sum(not x["neg"] for x in a), sum(not x["neg"] and x["v"] == 1 for x in a), sum(not x["neg"] and x["v"] == -1 for x in a)))
+            print("    answered by type: " + " | ".join("%s %d (right %d, wrong %d)" % (
+                t, sum(x["qtype"] == t for x in a), sum(x["qtype"] == t and x["v"] == 1 for x in a),
+                sum(x["qtype"] == t and x["v"] == -1 for x in a)) for t in QTYPES))
+            step2_read("(QA)^2 " + lab, rs, qmg, thr, ci, qtype=True)
+            step2_auroc(lab[:3], rs, qmg)
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=("export", "score", "table"))
+    ap.add_argument("cmd", choices=("export", "score", "table", "export-qaqa", "step2"))
     ap.add_argument("model", nargs="?")
     ap.add_argument("--regress-limit", type=int, default=None)
     ap.add_argument("--regress-only", action="store_true")
+    ap.add_argument("--qaqa", action="store_true", help="score: the (QA)^2 answers of qaqa_items.json (step 2)")
     ap.add_argument("--show", type=int, default=5)
     a = ap.parse_args()
-    if a.cmd != "table" and a.model not in MODELS:
+    if a.cmd not in ("table", "step2") and a.model not in MODELS:
         raise SystemExit("model must be one of %s" % sorted(MODELS))
     if a.cmd == "export":
         export(a.model)
+    elif a.cmd == "export-qaqa":
+        export_qaqa(a.model)
     elif a.cmd == "score":
-        score(a.model, a.regress_limit, a.regress_only, a.show)
+        score(a.model, a.regress_limit, a.regress_only, a.show, qaqa=a.qaqa)
+    elif a.cmd == "step2":
+        step2()
     else:
         table()
 
