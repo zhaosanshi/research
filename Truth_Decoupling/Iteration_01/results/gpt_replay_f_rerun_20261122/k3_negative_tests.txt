@@ -1,0 +1,39 @@
+control_new: new-format capture/fit, unmodified data
+neg_text: k1_items.json copy, key qaqa|e0 question text changed
+neg_dup_table: k3_qaqa.npz copy, tune row 14 (qaqa|e14) overwritten by tune row 13 (qaqa|e13); unique keys 569 of 570; fit new-format, digests of the copy
+neg_dup_fit: k3_qaqa.npz copy, tune row 14 (qaqa|e14) overwritten by tune row 13 (qaqa|e13); unique keys 569 of 570; fit removed (fit step)
+neg_prob: k3_fit.json copy, probs[layer 31][popqa_test2|popqa:1000655] = 1.5 (payload digest recomputed)
+neg_prob_legacy: legacy k3_fit.json copy, probs[layer 31][popqa_test2|popqa:1000655] = NaN
+neg_text2: results_e44_factorial_das/llama3.1-8b_side_E2/frozen_test.json copy, pair_id tqa:6 question text changed
+
+return codes (table on host; fit in the scoring container):
+control_new base 0
+control_new patched 0
+neg_dup_fit base 0
+neg_dup_fit patched 1
+neg_dup_table base 0
+neg_dup_table patched 1
+neg_prob base 0
+neg_prob_legacy base 0
+neg_prob_legacy patched 1
+neg_prob patched 1
+neg_text2 base 0
+neg_text2 patched 1
+neg_text base 1
+neg_text patched 1
+
+neg_control_new_patched.out:     TruthfulQA test, 523 common questions: G-B +56 [+13, +99] | G-Bg +28 [+6, +51] | G-N1 +0 [-16, +16] | G-E +40 [+21, +60] | G+SJ-B(same n) +56 [+12, +100]
+neg_dup_fit_patched.out: ls: cannot access '/data/sanshizhao/Truth_Decoupling/Iteration_01/diag/.up7/k3neg_c/neg_dup_fit/Iteration_01/newsets/selfjudge/llama3.1-8b/k3_fit.json': No such file or directory
+neg_neg_dup_table_patched.out: Iteration_01/newsets/selfjudge/llama3.1-8b/k3_qaqa.npz: captured rows differ from source questions
+neg_neg_prob_legacy_patched.out: foreign or incomplete K3 fit, capture, bank, or pilot: llama3.1-8b
+neg_neg_prob_patched.out: llama3.1-8b: invalid K3 probabilities at layer 31
+neg_neg_text2_patched.out: llama3.1-8b tq_test: mismatched text or duplicate question
+neg_neg_text_patched.out: llama3.1-8b: K1 model, protocol, item roster or score digest differs
+control_new patched: output identical to the real K3 table
+control_new base: output identical to the real K3 table
+neg_text2 base: output identical to the real K3 table
+neg_dup_table base: output identical to the real K3 table
+neg_prob base: output identical to the real K3 table
+neg_prob_legacy base: output identical to the real K3 table
+neg_dup_fit base: llama3.1-8b: selected layer 31 (mean 5-fold AUROC 0.7192); E layer 16 (0.6551) -> Iteration_01/newsets/selfjudge/llama3.1-8b/k3_fit.json
+neg_dup_fit patched message: Iteration_01/newsets/selfjudge/llama3.1-8b/k3_qaqa.npz: captured rows differ from source questions (no k3_fit.json written)
