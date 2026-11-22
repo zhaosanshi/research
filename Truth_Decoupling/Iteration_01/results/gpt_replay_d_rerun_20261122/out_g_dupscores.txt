@@ -1,0 +1,63 @@
+llama3.1-8b step1 rows 435 unique statements 435
+llama3.1-8b qaqa_ rows 292 unique statements 292
+llama3.1-8b tq_forced_ rows 521 unique statements 521
+llama3.1-8b tq_release_ rows 225 unique statements 225
+llama3.1-8b qq_forced_ rows 564 unique statements 564
+llama3.1-8b qq_release_ rows 68 unique statements 68
+  meta DIFF alphas {'step1': '[1.0, 2.0, 3.0]', 'qaqa_': '"<absent>"', 'tq_forced_': '"<absent>"', 'tq_release_': '"<absent>"', 'qq_forced_': '"<absent>"', 'qq_release_': '"<absent>"'}
+  meta same centre_shift_along_E_in_sd -1.9872432267329123
+  meta same code "code_e45_20261112"
+  meta DIFF conditions {'step1': '["baseline", "E_a1", "E_a2", "E_a3"]', 'qaqa_': '["baseline", "E_a3"]', 'tq_forced_': '["baseline", "E_a3"]', 'tq_release_': '["baseline", "E_a3"]', 'qq_forced_': '["baseline", "E_a3"]', 'qq_release_': '["baseline", "E_a3"]'}
+  meta same das "results_das_tfce/E1/llama3.1-8b"
+  meta DIFF das_meta {'step1': '{"cos_seed_vs_mean": "[1.0000000000000002]", "cos_with_align_to": 0.7077387267990363, "files": "[\'das_E_L11_r1_s42_tf-ce-bidir.pt\']", "final_losses": "[2.746302', 'qaqa_': '"<absent>"', 'tq_forced_': '"<absent>"', 'tq_release_': '"<absent>"', 'qq_forced_': '"<absent>"', 'qq_release_': '"<absent>"'}
+  meta DIFF items_sha256 {'step1': '"a7baf11ce7e55fe8d13047e437fce068094f195cb36727692dd2fdc21a45bd7c"', 'qaqa_': '"2ff23739460dc066f805adbc9ceb4fb29114bfdad1aa176dd2017dbcb1d23f4e"', 'tq_forced_': '"75e04a048f122ae99a0fb427992dfc5944b477393486d99e5546240182e917ad"', 'tq_release_': '"ef5cec943b8915d47d2d871587aa5555f562c88c55b1e0bb426956a7975005de"', 'qq_forced_': '"ad1407a2c1d1a7b194376d106b26f6d774187e8b485a4748bac2da4dcd3d3c89"', 'qq_release_': '"bb4b80e0acc85dd8fe6bfe6af35de99f9e74f6fb1e437caf447cb81d8c80033a"'}
+  meta same label_map {"Abstain": [9987, 14109, 16476, 22435, 29879, 64818], "False": [905, 3641, 3934, 4139, 31451], "True": [837, 1904, 2575, 3082, 21260]}
+  meta same model "llama3.1-8b"
+  meta DIFF n_answers_with_newline {'step1': '10', 'qaqa_': '12', 'tq_forced_': '0', 'tq_release_': '3', 'qq_forced_': '7', 'qq_release_': '1'}
+  meta DIFF n_items {'step1': '435', 'qaqa_': '292', 'tq_forced_': '521', 'tq_release_': '225', 'qq_forced_': '564', 'qq_release_': '68'}
+  meta DIFF regression {'step1': '{"E_a1": {"answer_flips": 0, "max_abs_gate_diff": 0.0, "max_abs_margin_diff": 0.0, "max_abs_margin_diff_test": 0.0, "mean_abs_margin_diff": 0.0, "n": 1442, "n_t', 'qaqa_': '"<absent>"', 'tq_forced_': '"<absent>"', 'tq_release_': '"<absent>"', 'qq_forced_': '"<absent>"', 'qq_release_': '"<absent>"'}
+  meta DIFF shown_probe_prompts {'step1': '<3391 chars>', 'qaqa_': '<3156 chars>', 'tq_forced_': '<3285 chars>', 'tq_release_': '<3295 chars>', 'qq_forced_': '<3089 chars>', 'qq_release_': '<3271 chars>'}
+  meta DIFF shown_reference_prompts {'step1': '<2638 chars>', 'qaqa_': '<10 chars>', 'tq_forced_': '<10 chars>', 'tq_release_': '<10 chars>', 'qq_forced_': '<10 chars>', 'qq_release_': '<10 chars>'}
+  meta same tf_layer 11
+llama3.1-8b baseline__margin statements in >1 row 332 cross-source pairs 332 within-source pairs 0 within max None
+   |diff| exact0 47 <=1e-6 75 >0.02 158 >0.1 158 >0.5 0 >1 0 median 1.5e-05 p90 0.125004 max 0.499999
+   nonzero |diff| rounded 0.001 value:count {0.0: 99, 0.125: 132, 0.25: 20, 0.375: 5, 0.5: 1}
+   source pairs {('step1', 'tq_forced_'): 141, ('qaqa_', 'qq_forced_'): 120, ('tq_forced_', 'tq_release_'): 49, ('qq_forced_', 'qq_release_'): 22}
+   max by source pair {('step1', 'tq_forced_'): 0.375, ('qaqa_', 'qq_forced_'): 0.5, ('tq_forced_', 'tq_release_'): 0.375, ('qq_forced_', 'qq_release_'): 0.25}
+llama3.1-8b E_a3__margin statements in >1 row 332 cross-source pairs 332 within-source pairs 0 within max None
+   |diff| exact0 48 <=1e-6 66 >0.02 178 >0.1 178 >0.5 0 >1 0 median 0.124989 p90 0.249993 max 0.499997
+   nonzero |diff| rounded 0.001 value:count {0.0: 88, 0.125: 127, 0.25: 41, 0.375: 7, 0.5: 3}
+   source pairs {('step1', 'tq_forced_'): 141, ('qaqa_', 'qq_forced_'): 120, ('tq_forced_', 'tq_release_'): 49, ('qq_forced_', 'qq_release_'): 22}
+   max by source pair {('step1', 'tq_forced_'): 0.375, ('qaqa_', 'qq_forced_'): 0.5, ('tq_forced_', 'tq_release_'): 0.375, ('qq_forced_', 'qq_release_'): 0.25}
+qwen3.5-9b step1 rows 550 unique statements 550
+qwen3.5-9b qaqa_ rows 432 unique statements 432
+qwen3.5-9b tq_forced_ rows 518 unique statements 518
+qwen3.5-9b tq_release_ rows 49 unique statements 49
+qwen3.5-9b qq_forced_ rows 567 unique statements 567
+qwen3.5-9b qq_release_ rows 102 unique statements 102
+  meta DIFF alphas {'step1': '[1.0, 2.0, 3.0]', 'qaqa_': '"<absent>"', 'tq_forced_': '"<absent>"', 'tq_release_': '"<absent>"', 'qq_forced_': '"<absent>"', 'qq_release_': '"<absent>"'}
+  meta same centre_shift_along_E_in_sd 0.15165204694149698
+  meta same code "code_newmodels_20261112"
+  meta DIFF conditions {'step1': '["baseline", "E_a1", "E_a2", "E_a3"]', 'qaqa_': '["baseline", "E_a3"]', 'tq_forced_': '["baseline", "E_a3"]', 'tq_release_': '["baseline", "E_a3"]', 'qq_forced_': '["baseline", "E_a3"]', 'qq_release_': '["baseline", "E_a3"]'}
+  meta same das "results_newmodels_20261112/E1/qwen3.5-9b"
+  meta DIFF das_meta {'step1': '{"cos_seed_vs_mean": "[1.0000000000000002]", "cos_with_align_to": 0.5135343467257475, "files": "[\'das_E_L31_r1_s42_tf-ce-bidir.pt\']", "final_losses": "[0.244126', 'qaqa_': '"<absent>"', 'tq_forced_': '"<absent>"', 'tq_release_': '"<absent>"', 'qq_forced_': '"<absent>"', 'qq_release_': '"<absent>"'}
+  meta DIFF items_sha256 {'step1': '"35140054d3269a6c4348c3d2ff7ac7e655465b0e0f17cf3586be7c6721ec4284"', 'qaqa_': '"478f44a253fc374456dd39d9b7161867240fc77b6a62f13f7d51638029f13d98"', 'tq_forced_': '"1482aa5f96e374bf5e173fe9818cbe94bdf5d559f5b6655e57c55c424a3fce86"', 'tq_release_': '"3073bb4f7b6219a6c9ea0dc0dec8a128b7e9399893a454635deb779e0a99f1ea"', 'qq_forced_': '"d83d2fb64a9973d02f633febc9fd42cc01ba5ce8a1167ca3c0931cc3fac2fc40"', 'qq_release_': '"12b5967dc2cb7c4126d46f3833b789549cca94529c9d9b1b978e6e2ec7df8d42"'}
+  meta same label_map {"Abstain": [9496, 13394, 15615, 21024, 27837, 61568], "False": [867, 3439, 3721, 3913, 29362], "True": [804, 1802, 2434, 2912, 19986]}
+  meta same model "qwen3.5-9b"
+  meta DIFF n_answers_with_newline {'step1': '0', 'qaqa_': '0', 'tq_forced_': '0', 'tq_release_': '0', 'qq_forced_': '0', 'qq_release_': '1'}
+  meta DIFF n_items {'step1': '550', 'qaqa_': '432', 'tq_forced_': '518', 'tq_release_': '49', 'qq_forced_': '567', 'qq_release_': '102'}
+  meta DIFF regression {'step1': '{"E_a1": {"answer_flips": 0, "max_abs_gate_diff": 0.0, "max_abs_margin_diff": 0.0, "max_abs_margin_diff_test": 0.0, "mean_abs_margin_diff": 0.0, "n": 1442, "n_t', 'qaqa_': '"<absent>"', 'tq_forced_': '"<absent>"', 'tq_release_': '"<absent>"', 'qq_forced_': '"<absent>"', 'qq_release_': '"<absent>"'}
+  meta DIFF shown_probe_prompts {'step1': '<2530 chars>', 'qaqa_': '<2386 chars>', 'tq_forced_': '<2616 chars>', 'tq_release_': '<2536 chars>', 'qq_forced_': '<2365 chars>', 'qq_release_': '<2331 chars>'}
+  meta DIFF shown_reference_prompts {'step1': '<2232 chars>', 'qaqa_': '<10 chars>', 'tq_forced_': '<10 chars>', 'tq_release_': '<10 chars>', 'qq_forced_': '<10 chars>', 'qq_release_': '<10 chars>'}
+  meta same tf_layer 31
+qwen3.5-9b baseline__margin statements in >1 row 664 cross-source pairs 664 within-source pairs 0 within max None
+   |diff| exact0 92 <=1e-6 100 >0.02 259 >0.1 259 >0.5 0 >1 0 median 7.8e-05 p90 0.124997 max 0.374975
+   nonzero |diff| rounded 0.001 value:count {0.0: 304, 0.001: 1, 0.123: 1, 0.124: 4, 0.125: 235, 0.126: 2, 0.25: 15, 0.375: 2}
+   source pairs {('step1', 'tq_forced_'): 316, ('qaqa_', 'qq_forced_'): 277, ('tq_forced_', 'tq_release_'): 23, ('qq_forced_', 'qq_release_'): 48}
+   max by source pair {('step1', 'tq_forced_'): 0.3749, ('qaqa_', 'qq_forced_'): 0.375, ('tq_forced_', 'tq_release_'): 0.1249, ('qq_forced_', 'qq_release_'): 0.2499}
+qwen3.5-9b E_a3__margin statements in >1 row 664 cross-source pairs 664 within-source pairs 0 within max None
+   |diff| exact0 93 <=1e-6 94 >0.02 486 >0.1 465 >0.5 69 >1 6 median 0.125122 p90 0.541529 max 1.749829
+   nonzero |diff| rounded 0.001 value:count {0.0: 78, 0.001: 6, 0.037: 1, 0.062: 11, 0.063: 5, 0.064: 1, 0.066: 2, 0.097: 1, 0.109: 1, 0.122: 1, 0.123: 1, 0.124: 11, 0.125: 132, 0.126: 5, 0.129: 1, 0.17: 1, 0.187: 9, 0.188: 7, 0.189: 1, 0.191: 1, 0.192: 1, 0.245: 1, 0.249: 7, 0.25: 79, 0.251: 1, 0.308: 1, 0.311: 1, 0.312: 9, 0.313: 3, 0.371: 1, 0.373: 1, 0.374: 10, 0.375: 62, 0.377: 1, 0.435: 2, 0.437: 3, 0.438: 1, 0.496: 1, 0.497: 2, 0.498: 1, 0.499: 4, 0.5: 34, 0.501: 1, 0.559: 1, 0.561: 1, 0.562: 1, 0.62: 1, 0.624: 5, 0.625: 28, 0.685: 1, 0.746: 1, 0.749: 4, 0.75: 3, 0.81: 1, 0.811: 1, 0.874: 3, 0.875: 4, 0.934: 1, 0.936: 1, 0.937: 1, 0.999: 2, 1.0: 1, 1.062: 1, 1.123: 1, 1.125: 2, 1.185: 1, 1.75: 1}
+   source pairs {('step1', 'tq_forced_'): 316, ('qaqa_', 'qq_forced_'): 277, ('tq_forced_', 'tq_release_'): 23, ('qq_forced_', 'qq_release_'): 48}
+   max by source pair {('step1', 'tq_forced_'): 1.1248, ('qaqa_', 'qq_forced_'): 1.7498, ('tq_forced_', 'tq_release_'): 0.8737, ('qq_forced_', 'qq_release_'): 0.8747}
+total rows six sources two models 4323

@@ -1,0 +1,91 @@
+# selfjudge step 2 (work queue 2026-11-22_queue_d, section 4); conditions ('baseline', 'E_a3')
+# THRESHOLDS, chosen on the TruthfulQA tune split only (frozen for everything below): t, tune drops, tune net gain
+  llama3.1-8b  baseline  neg t=-3.9999 drops 2 gain +2 | other t=+6.1250 drops 63 gain +17
+  llama3.1-8b  E_a3      neg t=-3.4374 drops 2 gain +2 | other t=+1.2500 drops 43 gain +17
+  qwen3.5-9b   baseline  neg t=-2.1258 drops 1 gain +1 | other t=+1.4370 drops 19 gain +7
+  qwen3.5-9b   E_a3      neg t=-7.7498 drops 3 gain +1 | other t=+8.4359 drops 33 gain +11
+# NEG_RE: ^[\s\"'*]*(no|none|nothing|nobody|never|neither|not|there(\s+(is|are|was|were)\s+no|['\u2019]s\s+no|\s+(isn't|aren't|wasn't|weren't)))\b
+====================================================================================================
+llama3.1-8b | TruthfulQA (exploration: rules fixed after step 1 was seen)
+  TruthfulQA test: 523 questions; single E net +40
+    R5a baseline  drops neg 8 (right 1, wrong 7, other 0) | other 162 (right 80, wrong 78, other 4) | vs single E +4 [-21, +29]
+    R5a E_a3      drops neg 13 (right 3, wrong 10, other 0) | other 96 (right 40, wrong 55, other 1) | vs single E +22 [+2, +43]
+    R5a written minus not written +18 [+2, +34]
+    R5b baseline  drops neg 0 (right 0, wrong 0, other 0) | other 162 (right 80, wrong 78, other 4) | vs single E -2 [-27, +23]
+    R5b E_a3      drops neg 0 (right 0, wrong 0, other 0) | other 96 (right 40, wrong 55, other 1) | vs single E +15 [-4, +34]
+    R5b written minus not written +17 [+2, +33]
+llama3.1-8b | (QA)^2 validation, x:E16.w.p3.5, judge dirs ['test_full570']; thresholds as above
+  (QA)^2 570: E answered 292 (right 159, wrong 130, other 3); neg 26 (right 16, wrong 10), other 266 (right 143, wrong 120)
+    answered by type: no_failure 161 (right 103, wrong 55) | failure 116 (right 51, wrong 65) | unverifiable 15 (right 5, wrong 10)
+  (QA)^2 570: 570 questions; single E net +30
+    R5a baseline  drops neg 4 (right 2, wrong 2, other 0) | other 226 (right 109, wrong 115, other 2) | vs single E +6 [-23, +35]
+                       by type: no_failure 125 (right 72, wrong 51, other 2) | failure 92 (right 36, wrong 56, other 0) | unverifiable 13 (right 3, wrong 10, other 0)
+    R5a E_a3      drops neg 5 (right 3, wrong 2, other 0) | other 153 (right 57, wrong 96, other 0) | vs single E +38 [+13, +62]
+                       by type: no_failure 88 (right 43, wrong 45, other 0) | failure 58 (right 14, wrong 44, other 0) | unverifiable 12 (right 3, wrong 9, other 0)
+    R5a written minus not written +32 [+16, +49]
+    R5b baseline  drops neg 0 (right 0, wrong 0, other 0) | other 226 (right 109, wrong 115, other 2) | vs single E +6 [-23, +35]
+                       by type: no_failure 123 (right 72, wrong 49, other 2) | failure 91 (right 35, wrong 56, other 0) | unverifiable 12 (right 2, wrong 10, other 0)
+    R5b E_a3      drops neg 0 (right 0, wrong 0, other 0) | other 153 (right 57, wrong 96, other 0) | vs single E +39 [+15, +62]
+                       by type: no_failure 86 (right 43, wrong 43, other 0) | failure 56 (right 12, wrong 44, other 0) | unverifiable 11 (right 2, wrong 9, other 0)
+    R5b written minus not written +33 [+17, +50]
+    R1 570   neg   n=26 (right 16, wrong 10): baseline 0.631 [0.392, 0.843] | E_a3 0.613 [0.382, 0.830] | written minus not written -0.019 [-0.108, +0.076]
+    R1 570   other n=263 (right 143, wrong 120): baseline 0.775 [0.718, 0.830] | E_a3 0.785 [0.728, 0.838] | written minus not written +0.010 [-0.011, +0.032]
+    R1 570   all   n=289 (right 159, wrong 130): baseline 0.759 [0.705, 0.811] | E_a3 0.771 [0.718, 0.823] | written minus not written +0.012 [-0.010, +0.034]
+  (QA)^2 470 (pilot 100 left out): E answered 235 (right 124, wrong 108, other 3); neg 18 (right 11, wrong 7), other 217 (right 113, wrong 101)
+    answered by type: no_failure 129 (right 81, wrong 45) | failure 95 (right 39, wrong 56) | unverifiable 11 (right 4, wrong 7)
+  (QA)^2 470 (pilot 100 left out): 470 questions; single E net +17
+    R5a baseline  drops neg 2 (right 1, wrong 1, other 0) | other 187 (right 88, wrong 97, other 2) | vs single E +9 [-18, +36]
+                       by type: no_failure 105 (right 60, wrong 43, other 2) | failure 75 (right 27, wrong 48, other 0) | unverifiable 9 (right 2, wrong 7, other 0)
+    R5a E_a3      drops neg 2 (right 1, wrong 1, other 0) | other 123 (right 43, wrong 80, other 0) | vs single E +37 [+14, +59]
+                       by type: no_failure 70 (right 32, wrong 38, other 0) | failure 47 (right 10, wrong 37, other 0) | unverifiable 8 (right 2, wrong 6, other 0)
+    R5a written minus not written +28 [+13, +44]
+    R5b baseline  drops neg 0 (right 0, wrong 0, other 0) | other 187 (right 88, wrong 97, other 2) | vs single E +9 [-19, +35]
+                       by type: no_failure 104 (right 60, wrong 42, other 2) | failure 75 (right 27, wrong 48, other 0) | unverifiable 8 (right 1, wrong 7, other 0)
+    R5b E_a3      drops neg 0 (right 0, wrong 0, other 0) | other 123 (right 43, wrong 80, other 0) | vs single E +37 [+15, +58]
+                       by type: no_failure 69 (right 32, wrong 37, other 0) | failure 47 (right 10, wrong 37, other 0) | unverifiable 7 (right 1, wrong 6, other 0)
+    R5b written minus not written +28 [+13, +44]
+    R1 470   neg   n=18 (right 11, wrong 7): baseline 0.558 [0.262, 0.819] | E_a3 0.545 [0.250, 0.831] | written minus not written -0.013 [-0.143, +0.130]
+    R1 470   other n=214 (right 113, wrong 101): baseline 0.775 [0.712, 0.833] | E_a3 0.782 [0.719, 0.840] | written minus not written +0.007 [-0.018, +0.031]
+    R1 470   all   n=232 (right 124, wrong 108): baseline 0.757 [0.692, 0.816] | E_a3 0.769 [0.707, 0.825] | written minus not written +0.012 [-0.013, +0.038]
+====================================================================================================
+qwen3.5-9b | TruthfulQA (exploration: rules fixed after step 1 was seen)
+  TruthfulQA test: 523 questions; single E net +168
+    R5a baseline  drops neg 1 (right 1, wrong 0, other 0) | other 64 (right 18, wrong 45, other 1) | vs single E +26 [+10, +42]
+    R5a E_a3      drops neg 11 (right 11, wrong 0, other 0) | other 96 (right 31, wrong 64, other 1) | vs single E +22 [+2, +42]
+    R5a written minus not written -4 [-17, +9]
+    R5b baseline  drops neg 0 (right 0, wrong 0, other 0) | other 64 (right 18, wrong 45, other 1) | vs single E +27 [+11, +43]
+    R5b E_a3      drops neg 0 (right 0, wrong 0, other 0) | other 96 (right 31, wrong 64, other 1) | vs single E +33 [+14, +52]
+    R5b written minus not written +6 [-6, +18]
+qwen3.5-9b | (QA)^2 validation, x:E15.w.p2, judge dirs ['test_full570']; thresholds as above
+  (QA)^2 570: E answered 432 (right 248, wrong 180, other 4); neg 55 (right 34, wrong 19), other 377 (right 214, wrong 161)
+    answered by type: no_failure 226 (right 112, wrong 110) | failure 171 (right 116, wrong 55) | unverifiable 35 (right 20, wrong 15)
+  (QA)^2 570: 570 questions; single E net +68
+    R5a baseline  drops neg 0 (right 0, wrong 0, other 0) | other 109 (right 38, wrong 71, other 0) | vs single E +33 [+14, +54]
+                       by type: no_failure 59 (right 13, wrong 46, other 0) | failure 40 (right 21, wrong 19, other 0) | unverifiable 10 (right 4, wrong 6, other 0)
+    R5a E_a3      drops neg 2 (right 0, wrong 2, other 0) | other 180 (right 65, wrong 115, other 0) | vs single E +52 [+26, +77]
+                       by type: no_failure 103 (right 29, wrong 74, other 0) | failure 63 (right 30, wrong 33, other 0) | unverifiable 16 (right 6, wrong 10, other 0)
+    R5a written minus not written +19 [+2, +36]
+    R5b baseline  drops neg 0 (right 0, wrong 0, other 0) | other 109 (right 38, wrong 71, other 0) | vs single E +33 [+14, +54]
+                       by type: no_failure 59 (right 13, wrong 46, other 0) | failure 40 (right 21, wrong 19, other 0) | unverifiable 10 (right 4, wrong 6, other 0)
+    R5b E_a3      drops neg 0 (right 0, wrong 0, other 0) | other 180 (right 65, wrong 115, other 0) | vs single E +50 [+25, +76]
+                       by type: no_failure 101 (right 29, wrong 72, other 0) | failure 63 (right 30, wrong 33, other 0) | unverifiable 16 (right 6, wrong 10, other 0)
+    R5b written minus not written +17 [+1, +34]
+    R1 570   neg   n=53 (right 34, wrong 19): baseline 0.769 [0.630, 0.887] | E_a3 0.709 [0.555, 0.841] | written minus not written -0.060 [-0.115, -0.015]
+    R1 570   other n=375 (right 214, wrong 161): baseline 0.741 [0.690, 0.789] | E_a3 0.747 [0.695, 0.795] | written minus not written +0.006 [-0.011, +0.026]
+    R1 570   all   n=428 (right 248, wrong 180): baseline 0.738 [0.689, 0.783] | E_a3 0.740 [0.691, 0.786] | written minus not written +0.003 [-0.015, +0.021]
+  (QA)^2 470 (pilot 100 left out): E answered 353 (right 206, wrong 143, other 4); neg 43 (right 27, wrong 14), other 310 (right 179, wrong 129)
+    answered by type: no_failure 182 (right 89, wrong 89) | failure 141 (right 99, wrong 42) | unverifiable 30 (right 18, wrong 12)
+  (QA)^2 470 (pilot 100 left out): 470 questions; single E net +63
+    R5a baseline  drops neg 0 (right 0, wrong 0, other 0) | other 91 (right 33, wrong 58, other 0) | vs single E +25 [+7, +43]
+                       by type: no_failure 49 (right 10, wrong 39, other 0) | failure 34 (right 19, wrong 15, other 0) | unverifiable 8 (right 4, wrong 4, other 0)
+    R5a E_a3      drops neg 2 (right 0, wrong 2, other 0) | other 150 (right 57, wrong 93, other 0) | vs single E +38 [+14, +63]
+                       by type: no_failure 86 (right 25, wrong 61, other 0) | failure 52 (right 26, wrong 26, other 0) | unverifiable 14 (right 6, wrong 8, other 0)
+    R5a written minus not written +13 [-2, +29]
+    R5b baseline  drops neg 0 (right 0, wrong 0, other 0) | other 91 (right 33, wrong 58, other 0) | vs single E +25 [+7, +43]
+                       by type: no_failure 49 (right 10, wrong 39, other 0) | failure 34 (right 19, wrong 15, other 0) | unverifiable 8 (right 4, wrong 4, other 0)
+    R5b E_a3      drops neg 0 (right 0, wrong 0, other 0) | other 150 (right 57, wrong 93, other 0) | vs single E +36 [+13, +60]
+                       by type: no_failure 84 (right 25, wrong 59, other 0) | failure 52 (right 26, wrong 26, other 0) | unverifiable 14 (right 6, wrong 8, other 0)
+    R5b written minus not written +11 [-4, +27]
+    R1 470   neg   n=41 (right 27, wrong 14): baseline 0.817 [0.664, 0.937] | E_a3 0.749 [0.574, 0.887] | written minus not written -0.069 [-0.139, -0.014]
+    R1 470   other n=308 (right 179, wrong 129): baseline 0.736 [0.677, 0.788] | E_a3 0.748 [0.691, 0.801] | written minus not written +0.012 [-0.009, +0.035]
+    R1 470   all   n=349 (right 206, wrong 143): baseline 0.740 [0.689, 0.791] | E_a3 0.748 [0.696, 0.797] | written minus not written +0.008 [-0.012, +0.029]
