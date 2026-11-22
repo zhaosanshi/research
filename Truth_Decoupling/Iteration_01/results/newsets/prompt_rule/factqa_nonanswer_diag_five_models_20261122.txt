@@ -1,0 +1,78 @@
+# factqa non-answer diagnosis: alias-W answers that are in substance non-answers (fixed list in the file head)
+# list: no answer found | no answer provided | no answer | no answer available | i don't know | i do not know | i'm not sure | i am not sure | unknown | not known | not available | n/a | not specified | not provided | not applicable | cannot be determined | can't be determined | no information | no information available | no data | unclear
+
+## triviaqa test
+  llama3.1-8b  F ('N1', '3-5', '1', '2'): single E W answers 68, on the list 0 | N1 released 170 (W 121), on the list 21 | N1 W answers on the list in all 21 | N1 minus single E: as scored -72 [-96, -47] -> list answers scored 0 -51 [-74, -27]
+      list hits by phrase prefix, overlapping (e.g. 'no answer' also counts 'no answer found') (single E / released): no answer found 0/20 | no answer 0/21 | no answer available 0/1
+  llama3.1-8b  D ('N1', '1', None, '0-25'): single E W answers 165, on the list 0 | N1 released 0 (W 0), on the list 0 | N1 W answers on the list in all 0 | N1 minus single E: as scored +0 [+0, +0] -> list answers scored 0 +0 [+0, +0]
+  qwen3.5-9b   F ('N1', '2', '0-25', '0-5'): single E W answers 124, on the list 0 | N1 released 25 (W 24), on the list 0 | N1 W answers on the list in all 0 | N1 minus single E: as scored -23 [-33, -14] -> list answers scored 0 -23 [-33, -14]
+      list hits by phrase prefix, overlapping (e.g. 'no answer' also counts 'no answer found') (single E / released): none
+  qwen3.5-9b   D ('N1', '2', None, '0-5'): single E W answers 124, on the list 0 | N1 released 5 (W 5), on the list 0 | N1 W answers on the list in all 0 | N1 minus single E: as scored -5 [-9, -1] -> list answers scored 0 -5 [-9, -1]
+  qwen3.8-27b  F ('N1', '1-75', '0-5', '1'): single E W answers 148, on the list 0 | N1 released 45 (W 39), on the list 0 | N1 W answers on the list in all 0 | N1 minus single E: as scored -33 [-46, -21] -> list answers scored 0 -33 [-46, -21]
+      list hits by phrase prefix, overlapping (e.g. 'no answer' also counts 'no answer found') (single E / released): none
+  qwen3.8-27b  D ('N1', '0-5', '0-25', None): single E W answers 170, on the list 0 | N1 released 3 (W 3), on the list 0 | N1 W answers on the list in all 0 | N1 minus single E: as scored -3 [-7, +0] -> list answers scored 0 -3 [-7, +0]
+  gemma3-12b   F ('N1', '2-5', '2', '2'): single E W answers 115, on the list 0 | N1 released 104 (W 99), on the list 1 | N1 W answers on the list in all 1 | N1 minus single E: as scored -94 [-113, -76] -> list answers scored 0 -93 [-111, -75]
+      list hits by phrase prefix, overlapping (e.g. 'no answer' also counts 'no answer found') (single E / released): not applicable 0/1
+  gemma3-12b   D ('N1', '1', None, '0-25'): single E W answers 169, on the list 0 | N1 released 0 (W 0), on the list 0 | N1 W answers on the list in all 0 | N1 minus single E: as scored +0 [+0, +0] -> list answers scored 0 +0 [+0, +0]
+  gemma3-27b   F ('N1', '1', '1', '2'): single E W answers 114, on the list 0 | N1 released 7 (W 6), on the list 0 | N1 W answers on the list in all 0 | N1 minus single E: as scored -5 [-11, +0] -> list answers scored 0 -5 [-11, +0]
+      list hits by phrase prefix, overlapping (e.g. 'no answer' also counts 'no answer found') (single E / released): none
+  gemma3-27b   D ('N1', '0-5', None, '0-25'): single E W answers 113, on the list 0 | N1 released 0 (W 0), on the list 0 | N1 W answers on the list in all 0 | N1 minus single E: as scored +0 [+0, +0] -> list answers scored 0 +0 [+0, +0]
+  five models together F, 500 questions: N1 minus single E as scored -227 [-271, -184] -> list answers scored 0 -205 [-246, -166]
+  five models together D, 500 questions: N1 minus single E as scored -8 [-14, -3] -> list answers scored 0 -8 [-14, -3]
+
+## popqa test
+  llama3.1-8b  F ('N1', '3-5', '1', '2'): single E W answers 42, on the list 0 | N1 released 234 (W 206), on the list 27 | N1 W answers on the list in all 27 | N1 minus single E: as scored -178 [-203, -152] -> list answers scored 0 -151 [-176, -126]
+      list hits by phrase prefix, overlapping (e.g. 'no answer' also counts 'no answer found') (single E / released): no answer found 0/24 | no answer provided 0/3 | no answer 0/27
+  llama3.1-8b  D ('N1', '3-5', None, '0-25'): single E W answers 42, on the list 0 | N1 released 1 (W 1), on the list 0 | N1 W answers on the list in all 0 | N1 minus single E: as scored -1 [-3, +0] -> list answers scored 0 -1 [-3, +0]
+  qwen3.5-9b   F ('N1', '2', '0-25', '0-5'): single E W answers 123, on the list 0 | N1 released 18 (W 18), on the list 0 | N1 W answers on the list in all 0 | N1 minus single E: as scored -18 [-27, -10] -> list answers scored 0 -18 [-27, -10]
+      list hits by phrase prefix, overlapping (e.g. 'no answer' also counts 'no answer found') (single E / released): none
+  qwen3.5-9b   D ('N1', '3', None, '0-25'): single E W answers 69, on the list 0 | N1 released 0 (W 0), on the list 0 | N1 W answers on the list in all 0 | N1 minus single E: as scored +0 [+0, +0] -> list answers scored 0 +0 [+0, +0]
+  qwen3.8-27b  F ('N1', '1-75', '0-5', '1'): single E W answers 148, on the list 0 | N1 released 228 (W 214), on the list 0 | N1 W answers on the list in all 0 | N1 minus single E: as scored -200 [-224, -176] -> list answers scored 0 -200 [-224, -176]
+      list hits by phrase prefix, overlapping (e.g. 'no answer' also counts 'no answer found') (single E / released): none
+  qwen3.8-27b  D ('N1', '1', '0-25', None): single E W answers 173, on the list 0 | N1 released 21 (W 20), on the list 0 | N1 W answers on the list in all 0 | N1 minus single E: as scored -19 [-28, -11] -> list answers scored 0 -19 [-28, -11]
+  gemma3-12b   F ('N1', '2-5', '2', '2'): single E W answers 81, on the list 0 | N1 released 304 (W 296), on the list 3 | N1 W answers on the list in all 3 | N1 minus single E: as scored -288 [-311, -265] -> list answers scored 0 -285 [-308, -262]
+      list hits by phrase prefix, overlapping (e.g. 'no answer' also counts 'no answer found') (single E / released): n/a 0/3
+  gemma3-12b   D ('N1', '2-5', None, '0-25'): single E W answers 81, on the list 0 | N1 released 1 (W 1), on the list 0 | N1 W answers on the list in all 0 | N1 minus single E: as scored -1 [-3, +0] -> list answers scored 0 -1 [-3, +0]
+  gemma3-27b   F ('N1', '1', '1', '2'): single E W answers 255, on the list 0 | N1 released 77 (W 73), on the list 1 | N1 W answers on the list in all 1 | N1 minus single E: as scored -69 [-85, -53] -> list answers scored 0 -68 [-84, -52]
+      list hits by phrase prefix, overlapping (e.g. 'no answer' also counts 'no answer found') (single E / released): not applicable 0/1
+  gemma3-27b   D ('N1', '2', None, '0-25'): single E W answers 145, on the list 0 | N1 released 3 (W 3), on the list 0 | N1 W answers on the list in all 0 | N1 minus single E: as scored -3 [-7, +0] -> list answers scored 0 -3 [-7, +0]
+  five models together F, 500 questions: N1 minus single E as scored -753 [-811, -696] -> list answers scored 0 -722 [-777, -668]
+  five models together D, 500 questions: N1 minus single E as scored -24 [-34, -14] -> list answers scored 0 -24 [-34, -14]
+
+## triviaqa test2
+  llama3.1-8b  F ('N1', '3-5', '1', '2'): single E W answers 51, on the list 0 | N1 released 173 (W 125), on the list 15 | N1 W answers on the list in all 15 | N1 minus single E: as scored -77 [-102, -53] -> list answers scored 0 -62 [-86, -39]
+      list hits by phrase prefix, overlapping (e.g. 'no answer' also counts 'no answer found') (single E / released): no answer found 0/15 | no answer 0/15
+  llama3.1-8b  D ('N1', '1', None, '0-25'): single E W answers 142, on the list 0 | N1 released 0 (W 0), on the list 0 | N1 W answers on the list in all 0 | N1 minus single E: as scored +0 [+0, +0] -> list answers scored 0 +0 [+0, +0]
+  qwen3.5-9b   F ('N1', '2', '0-25', '0-5'): single E W answers 118, on the list 0 | N1 released 23 (W 22), on the list 0 | N1 W answers on the list in all 0 | N1 minus single E: as scored -21 [-31, -12] -> list answers scored 0 -21 [-31, -12]
+      list hits by phrase prefix, overlapping (e.g. 'no answer' also counts 'no answer found') (single E / released): none
+  qwen3.5-9b   D ('N1', '2', None, '0-5'): single E W answers 118, on the list 0 | N1 released 2 (W 2), on the list 0 | N1 W answers on the list in all 0 | N1 minus single E: as scored -2 [-5, +0] -> list answers scored 0 -2 [-5, +0]
+  qwen3.8-27b  F ('N1', '1-75', '0-5', '1'): single E W answers 154, on the list 0 | N1 released 31 (W 29), on the list 0 | N1 W answers on the list in all 0 | N1 minus single E: as scored -27 [-38, -17] -> list answers scored 0 -27 [-38, -17]
+      list hits by phrase prefix, overlapping (e.g. 'no answer' also counts 'no answer found') (single E / released): none
+  qwen3.8-27b  D ('N1', '0-5', '0-25', None): single E W answers 155, on the list 0 | N1 released 3 (W 3), on the list 0 | N1 W answers on the list in all 0 | N1 minus single E: as scored -3 [-7, +0] -> list answers scored 0 -3 [-7, +0]
+  gemma3-12b   F ('N1', '2-5', '2', '2'): single E W answers 134, on the list 0 | N1 released 92 (W 87), on the list 1 | N1 W answers on the list in all 1 | N1 minus single E: as scored -82 [-99, -65] -> list answers scored 0 -81 [-98, -64]
+      list hits by phrase prefix, overlapping (e.g. 'no answer' also counts 'no answer found') (single E / released): no answer 0/1
+  gemma3-12b   D ('N1', '1', None, '0-25'): single E W answers 164, on the list 0 | N1 released 0 (W 0), on the list 0 | N1 W answers on the list in all 0 | N1 minus single E: as scored +0 [+0, +0] -> list answers scored 0 +0 [+0, +0]
+  gemma3-27b   F ('N1', '1', '1', '2'): single E W answers 107, on the list 0 | N1 released 4 (W 3), on the list 0 | N1 W answers on the list in all 0 | N1 minus single E: as scored -2 [-6, +2] -> list answers scored 0 -2 [-6, +2]
+      list hits by phrase prefix, overlapping (e.g. 'no answer' also counts 'no answer found') (single E / released): none
+  gemma3-27b   D ('N1', '0-5', None, '0-25'): single E W answers 110, on the list 0 | N1 released 0 (W 0), on the list 0 | N1 W answers on the list in all 0 | N1 minus single E: as scored +0 [+0, +0] -> list answers scored 0 +0 [+0, +0]
+  five models together F, 500 questions: N1 minus single E as scored -209 [-249, -171] -> list answers scored 0 -193 [-232, -157]
+  five models together D, 500 questions: N1 minus single E as scored -5 [-10, -1] -> list answers scored 0 -5 [-10, -1]
+
+## popqa test2
+  llama3.1-8b  F ('N1', '3-5', '1', '2'): single E W answers 40, on the list 0 | N1 released 210 (W 175), on the list 31 | N1 W answers on the list in all 31 | N1 minus single E: as scored -140 [-166, -114] -> list answers scored 0 -109 [-134, -85]
+      list hits by phrase prefix, overlapping (e.g. 'no answer' also counts 'no answer found') (single E / released): no answer found 0/26 | no answer provided 0/5 | no answer 0/31
+  llama3.1-8b  D ('N1', '3-5', None, '0-25'): single E W answers 40, on the list 0 | N1 released 0 (W 0), on the list 0 | N1 W answers on the list in all 0 | N1 minus single E: as scored +0 [+0, +0] -> list answers scored 0 +0 [+0, +0]
+  qwen3.5-9b   F ('N1', '2', '0-25', '0-5'): single E W answers 117, on the list 0 | N1 released 25 (W 21), on the list 0 | N1 W answers on the list in all 0 | N1 minus single E: as scored -17 [-27, -7] -> list answers scored 0 -17 [-27, -7]
+      list hits by phrase prefix, overlapping (e.g. 'no answer' also counts 'no answer found') (single E / released): none
+  qwen3.5-9b   D ('N1', '3', None, '0-25'): single E W answers 62, on the list 0 | N1 released 1 (W 1), on the list 0 | N1 W answers on the list in all 0 | N1 minus single E: as scored -1 [-3, +0] -> list answers scored 0 -1 [-3, +0]
+  qwen3.8-27b  F ('N1', '1-75', '0-5', '1'): single E W answers 142, on the list 0 | N1 released 219 (W 212), on the list 0 | N1 W answers on the list in all 0 | N1 minus single E: as scored -205 [-228, -182] -> list answers scored 0 -205 [-228, -182]
+      list hits by phrase prefix, overlapping (e.g. 'no answer' also counts 'no answer found') (single E / released): none
+  qwen3.8-27b  D ('N1', '1', '0-25', None): single E W answers 166, on the list 0 | N1 released 22 (W 21), on the list 0 | N1 W answers on the list in all 0 | N1 minus single E: as scored -20 [-29, -11] -> list answers scored 0 -20 [-29, -11]
+  gemma3-12b   F ('N1', '2-5', '2', '2'): single E W answers 70, on the list 1 | N1 released 298 (W 294), on the list 2 | N1 W answers on the list in all 3 | N1 minus single E: as scored -290 [-312, -267] -> list answers scored 0 -288 [-310, -265]
+      list hits by phrase prefix, overlapping (e.g. 'no answer' also counts 'no answer found') (single E / released): n/a 0/1 | not applicable 1/1
+  gemma3-12b   D ('N1', '2-5', None, '0-25'): single E W answers 70, on the list 1 | N1 released 0 (W 0), on the list 0 | N1 W answers on the list in all 1 | N1 minus single E: as scored +0 [+0, +0] -> list answers scored 0 +0 [+0, +0]
+  gemma3-27b   F ('N1', '1', '1', '2'): single E W answers 251, on the list 0 | N1 released 65 (W 61), on the list 1 | N1 W answers on the list in all 1 | N1 minus single E: as scored -57 [-72, -42] -> list answers scored 0 -56 [-72, -41]
+      list hits by phrase prefix, overlapping (e.g. 'no answer' also counts 'no answer found') (single E / released): not applicable 0/1
+  gemma3-27b   D ('N1', '2', None, '0-25'): single E W answers 152, on the list 0 | N1 released 0 (W 0), on the list 0 | N1 W answers on the list in all 0 | N1 minus single E: as scored +0 [+0, +0] -> list answers scored 0 +0 [+0, +0]
+  five models together F, 500 questions: N1 minus single E as scored -709 [-766, -651] -> list answers scored 0 -675 [-729, -619]
+  five models together D, 500 questions: N1 minus single E as scored -21 [-31, -12] -> list answers scored 0 -21 [-31, -12]
