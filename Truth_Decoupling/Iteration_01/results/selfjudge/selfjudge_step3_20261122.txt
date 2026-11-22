@@ -1,0 +1,41 @@
+# selfjudge step 3 (work queue 2026-11-22_queue_d, section 5): equal answer counts; rule R5b, true/false E strength 3
+# llama3.1-8b: threshold (other class, E_a3, chosen on TruthfulQA tune in step 2) t=+1.2500 (tune drops 43, gain +17)
+# qwen3.5-9b: threshold (other class, E_a3, chosen on TruthfulQA tune in step 2) t=+8.4359 (tune drops 33, gain +11)
+# reference N1 minus strong single E: llama3.1-8b TruthfulQA +51 [+17, +87] (expected +51 [+17, +87]) | (QA)^2 470 +23 (expected +23)
+# reference N1 minus strong single E: qwen3.5-9b TruthfulQA +13 [-11, +37] (expected +13 [-11, +37]) | (QA)^2 470 +22 (expected +22)
+# references reproduced
+====================================================================================================
+llama3.1-8b | TruthfulQA test, E L16 strength 3-5, N1 ('N1', '3-5', '1', '2')
+  TruthfulQA test: 523 questions | drops 96 (right 40, wrong 55, other 1); A drops right 44, wrong 50, other 2
+    answers: E 319, N1 476, S1 = A = B 223 (n1), S2 = B2 = C2 380 (n2); strong answers with confidence 521
+    nets: E +40, N1 +62, strong at N1's count +11 | S1 +55, A +46, B +28 | S2 +77, B2 +38, C2 +42
+    S1-A +9 [+1, +18] | S1-B +27 [-5, +59] | S2-B2 +39 [+2, +77] | S2-C2 +35 [+5, +66] | ref +51 [+17, +87]
+llama3.1-8b | (QA)^2, x:E16.w.p3.5, strong conf:E16.w.p3.5, N1 fixed-E choice caps None / 1
+  (QA)^2 470 held out: 470 questions | drops 123 (right 43, wrong 80, other 0); A drops right 42, wrong 81, other 0
+    answers: E 235, N1 296, S1 = A = B 112 (n1), S2 = B2 = C2 173 (n2); strong answers with confidence 464
+    nets: E +17, N1 +37, strong at N1's count +14 | S1 +54, A +56, B +28 | S2 +74, B2 +27, C2 not comparable
+    S1-A -2 [-11, +7] | S1-B +26 [+1, +51] | S2-B2 +47 [+19, +76] | S2-C2 not comparable | ref +23 [-8, +57]
+  (QA)^2 570: 570 questions | drops 153 (right 57, wrong 96, other 0); A drops right 56, wrong 97, other 0
+    answers: E 292, N1 360, S1 = A = B 139 (n1), S2 = B2 = C2 207 (n2); strong answers with confidence 564
+    nets: E +30, N1 +53, strong at N1's count +27 | S1 +69, A +71, B +43 | S2 +92, B2 +34, C2 not comparable
+    S1-A -2 [-13, +8] | S1-B +26 [-1, +53] | S2-B2 +58 [+26, +90] | S2-C2 not comparable | ref +26 [-12, +61]
+====================================================================================================
+qwen3.5-9b | TruthfulQA test, E L15 strength 2, N1 ('N1', '2', '0-25', '0-5')
+  TruthfulQA test: 523 questions | drops 96 (right 31, wrong 64, other 1); A drops right 31, wrong 63, other 2
+    answers: E 408, N1 444, S1 = A = B 312 (n1), S2 = B2 = C2 348 (n2); strong answers with confidence 518
+    nets: E +168, N1 +186, strong at N1's count +173 | S1 +201, A +200, B +149 | S2 +219, B2 +157, C2 not comparable
+    S1-A +1 [-9, +11] | S1-B +52 [+26, +77] | S2-B2 +62 [+37, +87] | S2-C2 not comparable | ref +13 [-11, +37]
+qwen3.5-9b | (QA)^2, x:E15.w.p2, strong conf:E15.w.p2, N1 fixed-E choice caps 0.5 / 1
+  (QA)^2 470 held out: 470 questions | drops 150 (right 57, wrong 93, other 0); A drops right 60, wrong 90, other 0
+    answers: E 353, N1 439, S1 = A = B 203 (n1), S2 = B2 = C2 289 (n2); strong answers with confidence 467
+    nets: E +63, N1 +44, strong at N1's count +22 | S1 +99, A +93, B +61 | S2 +80, B2 +68, C2 not comparable
+    S1-A +6 [-5, +17] | S1-B +38 [+12, +64] | S2-B2 +12 [-17, +42] | S2-C2 not comparable | ref +22 [-6, +49]
+  (QA)^2 570: 570 questions | drops 180 (right 65, wrong 115, other 0); A drops right 66, wrong 114, other 0
+    answers: E 432, N1 534, S1 = A = B 252 (n1), S2 = B2 = C2 354 (n2); strong answers with confidence 567
+    nets: E +68, N1 +54, strong at N1's count +37 | S1 +118, A +116, B +70 | S2 +104, B2 +75, C2 not comparable
+    S1-A +2 [-10, +13] | S1-B +48 [+20, +77] | S2-B2 +29 [-3, +62] | S2-C2 not comparable | ref +17 [-12, +46]
+====================================================================================================
+two models together (questions both models have; every quantity recomputed on that list)
+  TruthfulQA test, 523 common questions: S1-A +10 [-3, +24] | S1-B +79 [+38, +120] | S2-B2 +101 [+55, +148] | S2-C2 not comparable | ref +64 [+21, +107]
+  (QA)^2 470 held out, 470 questions: S1-A +4 [-10, +18] | S1-B +64 [+27, +101] | S2-B2 +59 [+17, +101] | S2-C2 not comparable | ref +45 [+2, +90]
+  (QA)^2 570, 570 questions: S1-A +0 [-15, +15] | S1-B +74 [+34, +114] | S2-B2 +87 [+42, +132] | S2-C2 not comparable | ref +43 [-4, +91]
