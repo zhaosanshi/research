@@ -1,0 +1,10 @@
+# GSM8K, 1319 items, rule scoring, token cap 512; changes are against the model's own no-write pass
+## llama3.1-8b: no write: accuracy 85.4%, no answer 2.3% (truncated 27, refusal 3; 27 answers reached the token cap)
+    neutral:E16.w.p3.5@prompt accuracy 86.5% (change +1.1 [-0.5, +2.9]) | no answer 2.4% (change +0.1 [-0.9, +1.1]; 31 items, of which 2 blank = what N1 would re-ask) | right->wrong 52, wrong->right 64 | kept (both intervals exclude damage beyond the lines)
+                           no answer by reason: truncated 29, refusal 2; 29 answers reached the token cap | on the 1268 items answered in both passes: accuracy change +0.9 [-0.7, +2.6]
+    neutral:E16.w.p3.5     accuracy 66.4% (change -19.0 [-21.5, -16.5]) | no answer 18.4% (change +16.1 [+14.1, +18.3]; 243 items, of which 10 blank = what N1 would re-ask) | right->wrong 133, wrong->right 38 | damage (point estimate beyond a line)
+                           no answer by reason: truncated 233, refusal 10; 239 answers reached the token cap | on the 1066 items answered in both passes: accuracy change -8.9 [-11.3, -6.6]
+    neutral:E16.w.p5@prompt accuracy 86.6% (change +1.2 [-0.5, +3.0]) | no answer 2.4% (change +0.2 [-0.8, +1.1]; 32 items, of which 3 blank = what N1 would re-ask) | right->wrong 49, wrong->right 68 | kept (both intervals exclude damage beyond the lines)
+                           no answer by reason: truncated 29, refusal 3; 30 answers reached the token cap | on the 1266 items answered in both passes: accuracy change +1.5 [-0.2, +3.2]
+    neutral:E16.w.p7@prompt accuracy 85.7% (change +0.3 [-1.6, +2.2]) | no answer 2.7% (change +0.4 [-0.7, +1.4]; 35 items, of which 5 blank = what N1 would re-ask) | right->wrong 67, wrong->right 71 | damage cannot be excluded (point estimates within, an interval crosses a line)
+                           no answer by reason: truncated 30, refusal 5; 32 answers reached the token cap | on the 1260 items answered in both passes: accuracy change +0.3 [-1.6, +2.1]
