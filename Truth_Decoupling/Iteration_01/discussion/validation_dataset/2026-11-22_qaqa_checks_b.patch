@@ -1,0 +1,59 @@
+--- a/Truth_Decoupling/Iteration_01/code/diag/qaqa_pilot_table.py
++++ b/Truth_Decoupling/Iteration_01/code/diag/qaqa_pilot_table.py
+@@ -51,2 +51,3 @@
+ import json
++import math
+ import sys
+@@ -116,3 +117,3 @@
+                     raise SystemExit("%s: unresolved vote for %s %s" % (model, k[0], k[1]))
+-                if self.val.get(k, new) != new:
++                if self.val.get(k, new) != new or self.pred.get(k, c["prediction"]) != c["prediction"]:
+                     raise SystemExit("%s: two work dirs disagree on %s %s" % (model, k[0], k[1]))
+@@ -146,3 +147,4 @@
+             t = rows[q]["text"].strip()
+-            if t and self.pred[(q, k["condition"])].strip() != t:
++            key = (q, k["condition"])
++            if key in self.pred and self.pred[key].strip() != t:
+                 raise SystemExit("%s: the judged answer of %s under %s is not the text now in %s" % (self.model, q, arm, p.name))
+@@ -181,3 +183,4 @@
+         rows = {r["id"]: r for r in d["rows"]}
+-        if (d.get("arm") != arm or d.get("model") != self.model or list(rows) != self.ids
++        if (d.get("arm") != arm or d.get("model") != self.model or d.get("task") != task
++                or d.get("split") != "test" or len(rows) != len(d["rows"]) or list(rows) != self.ids
+                 or d.get("generation_sha256") != G.sha_file(self.gdir / (G.arm_token(arm) + ".json"))):
+@@ -188,2 +191,5 @@
+         for q in self.ids:
++            lp = rows[q].get("mean_logp")
++            if lp is not None and (not isinstance(lp, (int, float)) or not math.isfinite(lp)):
++                raise SystemExit("%s: non-finite or invalid confidence of %s under %s" % (self.model, q, arm))
+             if rows[q]["text_sha1"] != hashlib.sha1(self.text(arm, q).strip().encode("utf-8")).hexdigest():
+@@ -196,2 +202,5 @@
+         cand = sorted((q for q in ids if conf[q] is not None and not self.blank(arm, q)), key=lambda q: (-conf[q], pos[q]))
++        if len(cand) < n:
++            print("not comparable: %s has %d scored, answered items; %d required" % (arm, len(cand), n), file=sys.stderr)
++            return None
+         keep = set(cand[:n])
+@@ -330,3 +339,9 @@
+             raise SystemExit("--skip-ids is not the id list of the tune bank %s" % TUNE_BANK)
++        with open(TUNE_BANK, encoding="utf-8") as f:
++            pilot_ids = [json.loads(line)["id"] for line in f]
++        if sk["ids"] != pilot_ids:
++            raise SystemExit("--skip-ids list differs from the actual tune bank")
+         skip = set(sk["ids"])
++    if opt["--choice"] and not list_arms and not skip:
++        raise SystemExit("reading a tune choice on the held-out split requires --skip-ids")
+     chosen = {}
+@@ -378,3 +393,5 @@
+                 for name, ref in ((CONF_E, "single E"), (CONF_N, "N1")):
+-                    systems[name] = R.top_conf(ids, conf, sum(systems[ref][1][q] for q in ids))
++                    selected = R.top_conf(ids, conf, sum(systems[ref][1][q] for q in ids))
++                    if selected is not None:
++                        systems[name] = selected
+             strong_arm = "conf:E%d.w.p%s" % (el, s)          # must answer + E at N1's layer and strength
+@@ -383,3 +400,5 @@
+                 if cf is not None:
+-                    systems[name] = R.top_conf(ids, cf, sum(systems["N1"][1][q] for q in ids), arm)
++                    selected = R.top_conf(ids, cf, sum(systems["N1"][1][q] for q in ids), arm)
++                    if selected is not None:
++                        systems[name] = selected
+             if STRONG_N in systems and MUST_N in systems:

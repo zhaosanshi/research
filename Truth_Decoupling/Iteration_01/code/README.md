@@ -106,7 +106,7 @@
 | `diag/alt_layer.py` | “换一层写 E”的通用计分（`l16_table.py` 的一般形式）：登记了 Llama 第 16 层与 Gemma-3-27B 第 28 层；各档力度的只推 E、N1、同层强对照、同层均值差对照与 MMLU 全量并排；`main_table_layers.py` 从这里取候选层 | 新写，未经 GPT 审 | 0e23a0b83badc780 |
 | `diag/gsm8k_main_table.py` | GSM8K（1,319 题）在主表设置下的规则计分：不写入一遍、各模型在主表所用的层与力度上只推 E 一遍；准确率与不答率的变化带区间，判词沿用能力保持设计里的规则；不答按原因分列（拒答、到 512 词元上限被截断等），并另报“两遍都作答的题”上的准确率变化；`--cap N` 读另一种生成上限的两遍（校验文件里的上限与每批题数）；换了写入位置的一遍显示为“臂名@位置”；计分函数直接用 `cap_score.py` 的 | 新写，未经 GPT 审；2026-11-22 修一处：跳过再问留下的题号文件（原先当成回答文件读、报错退出），各模型数字不变 | a1cac4b73291d86a |
 | `scripts/review_checks/ff_prompt_confidence.py` | 各条提示的无写入回答的把握（回答自身词元的平均对数概率）。把握计算程序 `ff_explore_ec_confidence.py` 原样运行，只在内存里把要算的回答集换成“某条提示的冻结回答、不写入”，并让模型只加载一次；每条提示一个文件；98% 的复现检查不放宽，没过的按原程序写明的办法改每批 1 题再算一次 | 新写，未经 GPT 审；Llama、Qwen3.5-9B、Gemma-3-12B 的 11 条提示在调参集与测试集上全部通过 | 32e22e7180bea944 |
-| `scripts/newsets/ns_positions.py` | 探索：让 `newsets_gen.py` 把 E 写在另一种位置（核心里已有的 prompt = 只写题目与助手开头、生成的词都不写；gen = 从最后一个提示词元起写）。`newsets_gen.py` 原样运行，内存里三处改动（引擎的写入位置、`plan_arm` 的位置检查、输出文件名加“-at-位置”）；只许单个写入；23 时加两个环境开关：`NS_POS_TWO_WRITE=1` 放开两个写入（事实题的 N1 再问要用），`NS_POS_PLAIN_NAMES=1` 在专用目录 `gen_<位置>` 里用原文件名，让现成的表格程序能读 | 新写，未经 GPT 审；Llama 两批 GSM8K 试跑核对过：文件里记的位置是 prompt、回答与不写入不同 | 247ad845addde168 |
+| `scripts/newsets/ns_positions.py` | 探索：让 `newsets_gen.py` 把 E 写在另一种位置（核心里已有的 prompt = 只写题目与助手开头、生成的词都不写；gen = 从最后一个提示词元起写）。`newsets_gen.py` 原样运行，内存里三处改动（引擎的写入位置、`plan_arm` 的位置检查、输出文件名加“-at-位置”）；只许单个写入；23 时加两个环境开关：`NS_POS_TWO_WRITE=1` 放开两个写入（事实题的 N1 再问要用），`NS_POS_PLAIN_NAMES=1` 在专用目录 `gen_<位置>` 里用原文件名，让现成的表格程序能读 | 新写，未经 GPT 审；Llama 两批 GSM8K 试跑核对过：文件里记的位置是 prompt、回答与不写入不同 | 85d5ada9f9651440 |
 | `scripts/review_checks/e44_positions2.py` | 探索：`e44_positions.py`（不改，导入）放开到两个写入的臂，用于在“只写题目位置”下生成 N1 的再问各臂；两个写入的验收记录另存为 `selfcheck_*-at-<位置>.json`，不覆盖训练时位置的记录 | 新写，未经 GPT 审 | fddbf7073d29ebf2 |
 | `diag/posp_table.py` | 探索：TruthfulQA 上只写题目位置的只推 E 对原写法（同层），力度在调参集上选（规则先写在 `posp.sh` 文件头） | 新写，未经 GPT 审 | b74bfa57748dc51b |
 | `diag/posp_n1_table.py` | 探索：TruthfulQA 上 N1 的两个写入都只写题目位置，对原写法的 N1（同层同力度 = 主表预算 1 点的设置）；两种写法各自在调参集上选上限；原写法这一行必须等于主表 | 新写，未经 GPT 审 | 300afdadd819fee7 |
@@ -191,3 +191,4 @@
 | 2026-11-22 | 10 时（Opus 5.5）：按只读审核改 `iti_baseline.py`（忠实拟合、原子写入）、`diag/iti_table.py`（三道检查）、`iti_free.sh`、`iti_chain.sh`、`iti_grid.sh`（日志名、`ITI_PROGRAM`）；新增 `diag/iti_period_check.py` 与两个启动脚本 | 赵磊（Opus 5.5 代笔） |
 | 2026-11-22 | 09 时（Opus 5.5）：ITI 扩到 Gemma-3-12B（赵磊定：先扩一个模型）；新增启动脚本 `iti_free.sh`、`e_hi_llama.sh`；`diag/iti_table.py` 的 `point` 提速并加 `unjudged` | 赵磊（Opus 5.5 代笔） |
 | 2026-11-22 | 08 时：ITI 补 `diag/iti_table.py`（预算表、调参集选择、测试集对比）、`diag/iti_gsm8k.py`、`iti_judge.sh`；`iti_baseline.py` 加 GSM8K 阶段；结果放 `results/baselines/iti/` | 赵磊（Fable 5.2 代笔） |
+| 2026-11-22 | 复核时更新 ns_positions.py 的镜像摘要；与实验机现行文件相同 | 赵磊（GPT-6.2-Astra 代笔） |

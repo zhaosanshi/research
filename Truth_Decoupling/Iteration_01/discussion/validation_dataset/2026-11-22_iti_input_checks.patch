@@ -1,0 +1,29 @@
+--- a/Truth_Decoupling/Iteration_01/code/scripts/newsets/iti_baseline.py
++++ b/Truth_Decoupling/Iteration_01/code/scripts/newsets/iti_baseline.py
+@@ -566,2 +566,4 @@
+     ids = [r["pair_id"] for r in like["evaluations"]]
++    if len(set(ids)) != len(ids) or like.get("question_ids") != ids:
++        raise SystemExit("the reference export repeats or misorders the question IDs")
+     conds = [g["condition"] for g in gens]
+@@ -572,2 +574,3 @@
+                 or g.get("split") != like.get("split") or g["question_ids"] != ids \
++                or [r["pair_id"] for r in g["rows"]] != ids \
+                 or g.get("identity_sha256") != like.get("identity_sha256"):
+--- a/Truth_Decoupling/Iteration_01/code/diag/iti_table.py
++++ b/Truth_Decoupling/Iteration_01/code/diag/iti_table.py
+@@ -192,3 +192,6 @@
+     measured = budget_rows(model, fit, sigma, budget, show=False)
+-    if ks and alphas:
++    if bool(ks) != bool(alphas):
++        raise SystemExit("declare both --ks and --alphas or neither")
++    declared = {(k, a) for k in ks or () for a in alphas or ()}
++    if declared:
+         grid_complete(measured, model, fit, sigma, ks, alphas, every)
+@@ -205,4 +208,6 @@
+         rows.sort(key=lambda r: (r["k"], r["alpha"]))
++    if declared:
++        rows = [r for r in rows if (r["k"], r["alpha"]) in declared]
+     if not rows:
+-        raise SystemExit("no grid point within the budget")
++        raise SystemExit("no eligible points in the requested grid")
+     T, why = MP.prompt_split(display, layer, 0, s)
