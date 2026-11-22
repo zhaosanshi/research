@@ -35,10 +35,26 @@ OLD=$RUN/eval_extra/judge_${SPLIT}_${LIKE}_$SPLIT
 [ -s $HOST/$OLD/judge_input.json ] || fail "no judge input in $OLD"
 J=(docker exec -u 1000:1001 -e PYTHONUNBUFFERED=1 -e PYTHONDONTWRITEBYTECODE=1 -e PYTHONPATH=$CODE
    -e DEEPSEEK_API_KEY_FILE=$ROOT/logs/.deepseek_key -w $CODE truth_dec)
+# A newly judged text may also occur in another layer. Serialize cache seeding and charging per model.
+exec 9>"$HOST/$B/.judge.lock" && flock -w 21600 9 || fail "cannot reserve the per-model judge cache"
+python3 -B - "$MODEL" "$W" <<'PREP' || fail "stale judge inputs"
+import sys
+sys.path.insert(0, "Iteration_01/diag")
+from caa_table import Mirror, verify_work
+verify_work(Mirror(sys.argv[1]), sys.argv[2], judged=False)
+PREP
 say "start, like $LIKE"
-mkdir -p $HOST/$W/judge2/cache
-if [ -f $HOST/$OLD/judge2/cache/judge2_cache_deepseek-v4-pro.jsonl ]; then
-  "${J[@]}" python3 scripts/review_checks/judge2_cache_merge.py $ROOT/$W/judge2/cache $ROOT/$OLD/judge2/cache >> $log 2>&1 || fail "cache merge"
+mkdir -p $HOST/$W/judge2/cache || fail "cannot prepare cache"
+sources=()
+if [ -s "$HOST/$OLD/judge2/cache/judge2_cache_deepseek-v4-pro.jsonl" ]; then sources+=("$ROOT/$OLD/judge2/cache"); fi
+for prior in "$B"/run_caa/eval_extra/judge_*/; do
+  prior=${prior%/}
+  if [ "$prior" != "$W" ] && [ -s "$prior/judge2/cache/judge2_cache_deepseek-v4-pro.jsonl" ]; then
+    sources+=("$ROOT/$prior/judge2/cache")
+  fi
+done
+if [ "${#sources[@]}" -gt 0 ]; then
+  "${J[@]}" python3 scripts/review_checks/judge2_cache_merge.py "$ROOT/$W/judge2/cache" "${sources[@]}" >> $log 2>&1 || fail "cache merge"
   "${J[@]}" python3 -c "
 import json, os, sys
 p = sys.argv[1]

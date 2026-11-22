@@ -125,8 +125,8 @@ done
 judge_all $LT "${works[@]}" || fail "a tune judging"
 say "tune judged (${#works[@]} work dirs)"
 # 4. choices
-[ -e $HOST/$B/choice.json ] || "${TB[@]}" tune $MODEL --layers "$LAYERS" --mults "$MULTS" --write-choice > $OUT"_tune_20261122.txt" 2>&1 || fail "tune table"
-[ -e $HOST/$B/choice_all.json ] || "${TB[@]}" tune $MODEL --all --layers "$LAYERS" --mults "$MULTS" --write-choice > $OUT"_tune_all_20261122.txt" 2>&1 || fail "tune table (all measured points)"
+"${TB[@]}" tune $MODEL --layers "$LAYERS" --mults "$MULTS" --write-choice > $OUT"_tune_20261122.txt" 2>&1 || fail "tune table"
+"${TB[@]}" tune $MODEL --all --layers "$LAYERS" --mults "$MULTS" --write-choice > $OUT"_tune_all_20261122.txt" 2>&1 || fail "tune table (all measured points)"
 pick() { python3 -c '
 import json, sys
 c = json.load(open(sys.argv[1]))
@@ -142,6 +142,14 @@ for l in $(printf "%s\n" $ML $AL | awk '!seen[$0]++'); do
 done
 judge_all $LT "${nw[@]}" || fail "judging multiplier -1"
 [ -e $HOST/$B/check_zero_full_L${ML}_$TAG.json ] || grid zero $ML - || fail "multiplier 0 on the whole tune split"
+python3 - "$HOST/$B/check_zero_full_L${ML}_$TAG.json" "$MODEL" "$ML" "$HOST/$B/vectors.pt.json" <<'PYZERO' || fail "zero check is stale or failed"
+import json, sys
+z, model, layer, fit = json.load(open(sys.argv[1])), sys.argv[2], sys.argv[3], json.load(open(sys.argv[4]))
+row = z["zero"][layer]
+if not (z["model"] == model and z["identity_sha256"] == fit["identity_sha256"] and z["passed_2_4"] is True
+        and z["questions"] == row["of"] == row["same_as_no_write"] == 192 and row["amount"] == 0):
+    raise SystemExit(1)
+PYZERO
 # 6. test answers and verdicts
 COMMON=(--source-run $ROOT/$SRC --run-dir $ROOT/$RUN --e-on $E_ON --split test --batch-size 8 --max-new-tokens 48 --max-target-tokens 24 --seed 42)
 tokf() { echo "x--E$1-md-p${2//./-}-at-gen_test.json"; }
