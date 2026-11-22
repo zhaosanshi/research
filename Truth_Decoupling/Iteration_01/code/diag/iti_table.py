@@ -29,6 +29,16 @@
 #     must have tune answers; without the two options the grid is whatever files exist (the earlier behaviour);
 #   - test --all at a choice that is the main reading's own point reads the main reading's test work dir (no second
 #     judging of the same answers).
+# After the faithful run of 2026-11-22 14 h (its largest alphas give word salad, and DeepSeek Pro returns "D", judge
+# declined, on the informativeness axis of some of those answers; no earlier table had such a cell):
+#   - a grid point whose only cells without a verdict are judge-declined ones (basis pro_declined in the finished Pro
+#     pass) is no longer reported as "not judged yet". It has no net; its row shows the net of the answers with a
+#     verdict, the number of declined answers and the range of the net (every declined answer wrong ... right). Such a
+#     point is never chosen, and the table refuses unless it stays below the chosen point even with every declined
+#     answer counted as right, i.e. unless the choice does not depend on what those answers are worth. The choice file
+#     lists these points under "declined" as [K, alpha, net of the scored answers, declined answers].
+#   - a cell that is missing for any other reason (no vote, malformed or inconsistent replies, an unfinished pass)
+#     still stops the table.
 # Options: --sigma endq|pairs (which sigma of the fit; default endq, the official code's), --budget B.
 # Work dirs: <run>/eval_extra/judge_tune_iti_<FIT>[_sp]_k<K>_tune (one per K) and judge_test_iti_<FIT>[_sp]_test.
 # usage (host, from /data/sanshizhao/Truth_Decoupling): python3 -B Iteration_01/diag/iti_table.py budget llama3.1-8b train_seed42
@@ -158,6 +168,21 @@ def merged_verdicts(model, work_dirs):
     return st, bl
 
 
+def declined_cells(work_dirs):
+    """{(question, condition)} that the finished Pro pass of a work dir left without a verdict because the judge itself
+    returned "D" on one of the two axes (basis pro_declined)."""
+    out = set()
+    for w in work_dirs:
+        if not MP.has(w):
+            continue
+        with open(w + "/judge2/single_pro.jsonl", encoding="utf-8") as f:
+            for l in f:
+                r = json.loads(l)
+                if r["status"] != "scored" and r.get("basis") == "pro_declined":
+                    out.add((r["pair_id"], r["condition"]))
+    return out
+
+
 def grid_complete(rows_measured, model, fit, sigma, ks, alphas, every, stop=3.0):
     """Refuse when a declared grid point lacks what the reading needs (see the header)."""
     have_mmlu = {(r["k"], r["alpha"]): r for r in rows_measured}
@@ -216,7 +241,9 @@ def tune_table(model, fit, sigma, budget, write, every=False, ks=None, alphas=No
     tsp, ttx, _, qs = T
     _, run, _ = MP.usual(display, 0)
     tag = "iti_%s%s" % (fit, "_sp" if sigma == "pairs" else "")
-    st, bl = merged_verdicts(model, sorted(glob.glob("%s/eval_extra/judge_tune_%s_k*_tune" % (run, tag))))
+    works = sorted(glob.glob("%s/eval_extra/judge_tune_%s_k*_tune" % (run, tag)))
+    st, bl = merged_verdicts(model, works)
+    refused = declined_cells(works)
     base = S.system(tsp, ttx, ("base",))[0]
     e = S.system(tsp, ttx, ("E", s))
     print("# ITI, %s, fit %s, sigma %s: TruthfulQA tune split, %d questions, DeepSeek Pro, score = right - wrong; %s" % (
@@ -224,11 +251,20 @@ def tune_table(model, fit, sigma, budget, write, every=False, ks=None, alphas=No
         else "grid points within the MMLU budget of %g point(s)" % budget))
     print("    no write net %+d | the project's single E (layer %d, strength %s, prompt rule) net %+d (answers %d)" % (
         sum(map(val, base)), layer, DM.show(s), sum(map(val, e[0])), sum(e[1])))
-    table, missing = [], []
+    table, missing, apart = [], [], []
     for r in rows:
         cond, _ = condition_of(model, fit, "tune", r["stem"])
-        if any(st.get((q, cond), "?") == "?" for q in qs):
+        unknown = [q for q in qs if st.get((q, cond), "?") == "?"]
+        if any((q, cond) not in refused for q in unknown):
             missing.append(cond)
+            continue
+        if unknown:
+            part = sum(val(st[(q, cond)]) for q in qs if st[(q, cond)] != "?")
+            apart.append((r["k"], r["alpha"], part, len(unknown), cond))
+            print("    K %3d alpha %5g | no net: the judge declined %d of the %d answers; net of the other %d %+d, so between %+d and %+d | answers %3d | MMLU selection half %s" % (
+                r["k"], r["alpha"], len(unknown), len(qs), len(qs) - len(unknown), part, part - len(unknown), part + len(unknown),
+                sum(not bl[(q, cond)] for q in qs), "not measured" if r["dev"] is None else "%+.2f%s" % (
+                    r["dev"][0], "" if r["within"] else " (over the budget)")))
             continue
         net = sum(val(st[(q, cond)]) for q in qs)
         ans = sum(not bl[(q, cond)] for q in qs)
@@ -240,14 +276,25 @@ def tune_table(model, fit, sigma, budget, write, every=False, ks=None, alphas=No
                 r["dev"][0], "" if r["within"] else " (over the budget)")))
     if missing:
         raise SystemExit("not judged yet: %s" % " ".join(missing))
+    if not table:
+        raise SystemExit("no grid point with a verdict on every answer")
     best = max(table, key=lambda t: (t[0], -t[1], -t[2]))
+    for k, alpha, part, n, cond in apart:
+        if part + n >= best[0]:
+            raise SystemExit("the judge declined %d answers of %s; with all of them counted as right it reaches %+d, not below the best point with every verdict (%+d): the choice would depend on them" % (
+                n, cond, part + n, best[0]))
+    if apart:
+        print("    %d point(s) with judge-declined answers are not eligible; each stays below the chosen point's net even with every declined answer counted as right" % len(apart))
     print("    chosen on tune: K %d, alpha %g (net %+d, answers %d)" % (best[1], best[2], best[0], best[5]))
     if write:
         path = "%s/%s/%s/choice%s%s.json" % (BASE, model, fit, "_all" if every else "", "_sp" if sigma == "pairs" else "")
         with open(path, "x", encoding="utf-8") as f:
-            json.dump({"model": model, "fit": fit, "sigma": sigma, "budget": None if every else budget, "k": best[1], "alpha": best[2],
-                       "stem": best[3], "tune_condition": best[4], "tune_net": best[0], "tune_questions": len(qs),
-                       "candidates": [[t[1], t[2], t[0]] for t in table]}, f, indent=1)
+            doc = {"model": model, "fit": fit, "sigma": sigma, "budget": None if every else budget, "k": best[1], "alpha": best[2],
+                   "stem": best[3], "tune_condition": best[4], "tune_net": best[0], "tune_questions": len(qs),
+                   "candidates": [[t[1], t[2], t[0]] for t in table]}
+            if apart:
+                doc["declined"] = [[k, alpha, part, n] for k, alpha, part, n, _ in apart]
+            json.dump(doc, f, indent=1)
         print("    choice written to %s" % path)
 
 
