@@ -1,0 +1,53 @@
+J None ('A', 'S', 'natural') 138 77 198 [48, 10, 36, 52, -8]
+J None ('A', 'S', 'equal') 118 49 186 [58, 8, 13, 49, -10]
+J None ('A', 'fill', 'natural') 63 11 115 [26, 5, -3, 45, -10]
+J None ('A', 'fill', 'equal') 63 11 115 [26, 5, -3, 45, -10]
+J None ('A', 'B', 'natural') 172 108 235 [35, 16, 39, 71, 11]
+J None ('A', 'B', 'equal') 148 87 209 [29, 20, 22, 68, 9]
+J None ('Az', 'Sz', 'natural') 112 57 165 [30, 10, 52, 36, -16]
+J None ('Az', 'Sz', 'equal') -23 -84 38 [6, -4, -3, 2, -24]
+J None ('Az', 'fillz', 'natural') 21 -24 65 [10, 5, -1, 27, -20]
+J None ('Az', 'fillz', 'equal') -32 -80 17 [-2, -1, -5, 6, -30]
+J None ('Az', 'Bz', 'natural') 76 21 129 [11, 10, 12, 41, 2]
+J None ('Az', 'Bz', 'equal') 46 -9 101 [0, 29, 10, 17, -10]
+J (0, 1, 2) ('A', 'S', 'natural') 138 77 198 [48, 10, 36, 52, -8]
+J (0, 1, 2) ('A', 'S', 'equal') 118 49 186 [58, 8, 13, 49, -10]
+J (0, 1, 2) ('A', 'fill', 'natural') 63 11 115 [26, 5, -3, 45, -10]
+J (0, 1, 2) ('A', 'fill', 'equal') 63 11 115 [26, 5, -3, 45, -10]
+J (0, 1, 2) ('A', 'B', 'natural') 174 110 238 [35, 16, 39, 71, 13]
+J (0, 1, 2) ('A', 'B', 'equal') 150 88 211 [29, 20, 22, 68, 11]
+J (0, 1, 2) ('Az', 'Sz', 'natural') 112 57 165 [30, 10, 52, 36, -16]
+J (0, 1, 2) ('Az', 'Sz', 'equal') -23 -84 38 [6, -4, -3, 2, -24]
+J (0, 1, 2) ('Az', 'fillz', 'natural') 21 -24 65 [10, 5, -1, 27, -20]
+J (0, 1, 2) ('Az', 'fillz', 'equal') -32 -80 17 [-2, -1, -5, 6, -30]
+J (0, 1, 2) ('Az', 'Bz', 'natural') 78 23 130 [11, 10, 12, 41, 4]
+J (0, 1, 2) ('Az', 'Bz', 'equal') 48 -7 102 [0, 29, 10, 17, -8]
+J (2, 1, 0) ('A', 'S', 'natural') 144 83 205 [52, 10, 36, 52, -6]
+J (2, 1, 0) ('A', 'S', 'equal') 122 52 191 [62, 8, 11, 49, -8]
+J (2, 1, 0) ('A', 'fill', 'natural') 69 17 122 [30, 5, -3, 45, -8]
+J (2, 1, 0) ('A', 'fill', 'equal') 69 17 122 [30, 5, -3, 45, -8]
+J (2, 1, 0) ('A', 'B', 'natural') 178 113 241 [39, 16, 39, 71, 13]
+J (2, 1, 0) ('A', 'B', 'equal') 156 94 217 [33, 22, 22, 68, 11]
+J (2, 1, 0) ('Az', 'Sz', 'natural') 114 58 167 [30, 10, 52, 36, -14]
+J (2, 1, 0) ('Az', 'Sz', 'equal') -25 -86 36 [6, -4, -5, 2, -24]
+J (2, 1, 0) ('Az', 'fillz', 'natural') 23 -21 67 [10, 5, -1, 27, -18]
+J (2, 1, 0) ('Az', 'fillz', 'equal') -32 -80 17 [-2, -1, -5, 6, -30]
+J (2, 1, 0) ('Az', 'Bz', 'natural') 78 23 130 [11, 10, 12, 41, 4]
+J (2, 1, 0) ('Az', 'Bz', 'equal') 48 -7 102 [0, 29, 10, 17, -8]
+llama3.1-8b {'N_correct': 50, 'S_correct': 46, 'saved': 26, 'spoiled': 13} {'dup': 247, 'margin different': 0, 'verdict different': 3}
+qwen3.5-9b {'S_correct': 15, 'N_correct': 17, 'saved': 9, 'spoiled': 5} {'dup': 403, 'margin different': 0, 'verdict different': 1}
+qwen3.8-27b {'N_correct': 13, 'saved': 6, 'S_correct': 25, 'spoiled': 7} {'dup': 400, 'margin different': 0, 'verdict different': 5}
+gemma3-12b {'N_correct': 51, 'saved': 29, 'S_correct': 48, 'spoiled': 6} {'dup': 348, 'margin different': 0, 'verdict different': 2}
+gemma3-27b {'N_correct': 33, 'saved': 23, 'S_correct': 45, 'spoiled': 25} {'dup': 273, 'margin different': 0, 'verdict different': 2}
+S 1907 select top K with self-score on BOTH sides (no exemption) 72 14 128
+S 1907 apply exempting Z to BOTH sides then trim to K -23 -84 38
+S Z vs top K for A and control 1 96 per-model [(np.int64(0), np.int64(15)), (np.int64(1), np.int64(12)), (np.int64(0), np.int64(16)), (np.int64(0), np.int64(24)), (np.int64(0), np.int64(29))]
+S difference between the two variants -95 -128 -63
+fill 2110 select top K with self-score on BOTH sides (no exemption) 42 -5 89
+fill 2110 apply exempting Z to BOTH sides then trim to K -32 -80 17
+fill Z vs top K for A and control 44 118 per-model [(np.int64(0), np.int64(17)), (np.int64(5), np.int64(13)), (np.int64(34), np.int64(32)), (np.int64(5), np.int64(24)), (np.int64(0), np.int64(32))]
+fill difference between the two variants -74 -105 -44
+B 2139 select top K with self-score on BOTH sides (no exemption) 105 51 160
+B 2139 apply exempting Z to BOTH sides then trim to K 46 -9 101
+B Z vs top K for A and control 46 105 per-model [(np.int64(-1), np.int64(21)), (np.int64(10), np.int64(0)), (np.int64(34), np.int64(39)), (np.int64(3), np.int64(30)), (np.int64(0), np.int64(15))]
+B difference between the two variants -59 -89 -29

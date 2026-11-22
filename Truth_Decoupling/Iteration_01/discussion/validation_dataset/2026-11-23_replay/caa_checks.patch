@@ -1,0 +1,175 @@
+--- a/Truth_Decoupling/Iteration_01/code/diag/caa_table.py
++++ b/Truth_Decoupling/Iteration_01/code/diag/caa_table.py
+@@ -124,7 +124,17 @@
+     dev, rep = PM.halves(list(usual))
+     rows, notes = [], []
+     for p in sorted(glob.glob("%s/mmlu/L*.json" % mi.dir)):
+-        layer = int(os.path.basename(p)[1:-5])
++        filename = os.path.basename(p)
++        if re.fullmatch(r"L[0-9]+\.receipt\.json", filename):
++            continue
++        match = re.fullmatch(r"L([0-9]+)\.json", filename)
++        if match is None:
++            raise SystemExit("unexpected MMLU file: " + filename)
++        layer = int(match.group(1))
++        receipt = read(p[:-5] + ".receipt.json")
++        if receipt != {"direction_sha256": mi.listing["layers"][str(layer)]["file_sha256"],
++                       "vectors_sha256": mi.listing["vectors_file_sha256"], "output_sha256": sha_file(p)}:
++            raise SystemExit("MMLU receipt does not match this mirror and result: " + filename)
+         d = read(p)
+         if d.get("protocol") != "cap_mcq_sweep_v1" or d.get("model") != model or d.get("n") != N_MMLU or d.get("skipped"):
+             raise SystemExit("%s is not a complete full-set MMLU pass of this model" % p)
+@@ -196,8 +206,43 @@
+         raise SystemExit("the declared grid is not complete: %s" % " ".join(missing))
+
+
++def verify_work(mi, work, judged=True):
++    """Bind the layer's scored cells to the current CAA generations before using its scores."""
++    exp_path = os.path.join(work, "judge_input.json")
++    exp = read(exp_path)
++    source = exp["sources"]
++    if exp["model"] != mi.model or not exp["completed"] or exp["identity_sha256"] != mi.meta["identity_sha256"]:
++        raise SystemExit("judge input belongs to a different CAA model or identity: " + work)
++    files = source["gen"]
++    if not files or len(set(files)) != len(files):
++        raise SystemExit("empty or repeated source files in " + work)
++    for filename in files:
++        if filename != os.path.basename(filename):
++            raise SystemExit("unexpected generation basename in " + work)
++        path = os.path.join(mi.run, "eval_extra", "gen", filename)
++        digests = [h for p,h in source["sha256"].items() if os.path.basename(p) == filename]
++        if digests != [sha_file(path)]:
++            raise SystemExit("judge input is bound to an old generation: " + filename)
++    folder = os.path.join(work, "judge2")
++    meta = read(os.path.join(folder, "meta.json"))
++    gen_sha = sha_file(exp_path)
++    cells_sha = sha_file(os.path.join(folder, "cells.jsonl"))
++    if meta["generation_sha256"] != gen_sha or meta["cells_sha256"] != cells_sha:
++        raise SystemExit("judge input and generated cells differ in " + work)
++    if judged:
++        manifest = read(os.path.join(folder, "single_pro_manifest.json"))
++        if (manifest["judge"] != "pro" or manifest["generation_sha256"] != gen_sha or
++                manifest["rows_sha256"] != sha_file(os.path.join(folder, "single_pro.jsonl")) or
++                manifest["sources"]["cells.jsonl"] != cells_sha):
++            raise SystemExit("single-judge verdicts differ from the exported cells in " + work)
++
++
+ def tune_works(mi):
+-    return sorted(glob.glob("%s/eval_extra/judge_tune_caa_L*_tune" % mi.run))
++    works = sorted(glob.glob("%s/eval_extra/judge_tune_caa_L*_tune" % mi.run))
++    for w in works:
++        if MP.has(w):
++            verify_work(mi, w)
++    return works
+
+
+ def tune_table(model, budget, write, every=False, layers=None, mults=None):
+@@ -267,13 +312,27 @@
+                "reading": "best among the measured points" if every else "best within the MMLU budget"}
+         if apart:
+             doc["declined"] = [[l, m, part, n] for l, m, part, n, _ in apart]
+-        with open(path, "x", encoding="utf-8") as f:
+-            json.dump(doc, f, indent=1)
+-        print("    choice written to %s" % path)
++        doc["vectors_sha256"] = mi.listing["vectors_file_sha256"]
++        if os.path.exists(path):
++            prior = read(path)
++            if prior != doc:
++                raise SystemExit("existing choice disagrees with the recomputed tuning result: " + path)
++            print("    choice reproduced from the current grid: %s" % path)
++        else:
++            with open(path, "x", encoding="utf-8") as f:
++                json.dump(doc, f, indent=1)
++            print("    choice written to %s" % path)
+
+
+ def read_choice(mi, every):
+     ch = read("%s/choice%s.json" % (mi.dir, "_all" if every else ""))
++    candidates = ch["candidates"]
++    if not candidates or len({(l,m) for l,m,_ in candidates}) != len(candidates):
++        raise SystemExit("choice has no valid tuning grid")
++    layer, mult, net = max(candidates, key=lambda row: (row[2], -row[0], -row[1]))
++    if ((layer, mult, net) != (ch["layer"], ch["mult"], ch["tune_net"]) or ch["arm"] != arm_of(layer, mult)
++            or ch["tune_condition"] != cond_name(layer, mult) or ch.get("vectors_sha256") != mi.listing["vectors_file_sha256"]):
++        raise SystemExit("choice is stale or disagrees with its tuning evidence")
+     if ch["model"] != mi.model or (ch["budget"] is None) != every:
+         raise SystemExit("the choice file belongs to another setting")
+     return ch
+@@ -315,6 +374,7 @@
+     if not MP.has(w):
+         raise SystemExit("no Pro verdicts yet in %s" % os.path.basename(w))
+     cond, g = mi.generation("test", ch["layer"], ch["mult"])
++    verify_work(mi, w)
+     st, bl = ps.load(w, "pro")
+     if any(st.get((q, cond), "?") == "?" for q in qs):
+         raise SystemExit("incomplete verdicts for %s" % cond)
+@@ -360,6 +420,9 @@
+             continue
+         seen.add(ch["layer"])
+         works = sorted(glob.glob("%s/eval_extra/judge_tune_caa_neg_L%d_*_tune" % (mi.run, ch["layer"])))
++        for w in works:
++            if MP.has(w):
++                verify_work(mi, w)
+         sn, bn = IT.merged_verdicts(model, works)
+         cond, _ = mi.generation("tune", ch["layer"], -1.0)
+         if any(sn.get((q, cond), "?") == "?" for q in qs):
+--- a/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/caa_chain.sh
++++ b/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/caa_chain.sh
+@@ -125,8 +125,8 @@
+ judge_all $LT "${works[@]}" || fail "a tune judging"
+ say "tune judged (${#works[@]} work dirs)"
+ # 4. choices
+-[ -e $HOST/$B/choice.json ] || "${TB[@]}" tune $MODEL --layers "$LAYERS" --mults "$MULTS" --write-choice > $OUT"_tune_20261122.txt" 2>&1 || fail "tune table"
+-[ -e $HOST/$B/choice_all.json ] || "${TB[@]}" tune $MODEL --all --layers "$LAYERS" --mults "$MULTS" --write-choice > $OUT"_tune_all_20261122.txt" 2>&1 || fail "tune table (all measured points)"
++"${TB[@]}" tune $MODEL --layers "$LAYERS" --mults "$MULTS" --write-choice > $OUT"_tune_20261122.txt" 2>&1 || fail "tune table"
++"${TB[@]}" tune $MODEL --all --layers "$LAYERS" --mults "$MULTS" --write-choice > $OUT"_tune_all_20261122.txt" 2>&1 || fail "tune table (all measured points)"
+ pick() { python3 -c '
+ import json, sys
+ c = json.load(open(sys.argv[1]))
+@@ -142,6 +142,14 @@
+ done
+ judge_all $LT "${nw[@]}" || fail "judging multiplier -1"
+ [ -e $HOST/$B/check_zero_full_L${ML}_$TAG.json ] || grid zero $ML - || fail "multiplier 0 on the whole tune split"
++python3 - "$HOST/$B/check_zero_full_L${ML}_$TAG.json" "$MODEL" "$ML" "$HOST/$B/vectors.pt.json" <<'PYZERO' || fail "zero check is stale or failed"
++import json, sys
++z, model, layer, fit = json.load(open(sys.argv[1])), sys.argv[2], sys.argv[3], json.load(open(sys.argv[4]))
++row = z["zero"][layer]
++if not (z["model"] == model and z["identity_sha256"] == fit["identity_sha256"] and z["passed_2_4"] is True
++        and z["questions"] == row["of"] == row["same_as_no_write"] == 192 and row["amount"] == 0):
++    raise SystemExit(1)
++PYZERO
+ # 6. test answers and verdicts
+ COMMON=(--source-run $ROOT/$SRC --run-dir $ROOT/$RUN --e-on $E_ON --split test --batch-size 8 --max-new-tokens 48 --max-target-tokens 24 --seed 42)
+ tokf() { echo "x--E$1-md-p${2//./-}-at-gen_test.json"; }
+--- a/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/caa_judge.sh
++++ b/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/caa_judge.sh
+@@ -35,10 +35,26 @@
+ [ -s $HOST/$OLD/judge_input.json ] || fail "no judge input in $OLD"
+ J=(docker exec -u 1000:1001 -e PYTHONUNBUFFERED=1 -e PYTHONDONTWRITEBYTECODE=1 -e PYTHONPATH=$CODE
+    -e DEEPSEEK_API_KEY_FILE=$ROOT/logs/.deepseek_key -w $CODE truth_dec)
++# A newly judged text may also occur in another layer. Serialize cache seeding and charging per model.
++exec 9>"$HOST/$B/.judge.lock" && flock -w 21600 9 || fail "cannot reserve the per-model judge cache"
++python3 -B - "$MODEL" "$W" <<'PREP' || fail "stale judge inputs"
++import sys
++sys.path.insert(0, "Iteration_01/diag")
++from caa_table import Mirror, verify_work
++verify_work(Mirror(sys.argv[1]), sys.argv[2], judged=False)
++PREP
+ say "start, like $LIKE"
+-mkdir -p $HOST/$W/judge2/cache
+-if [ -f $HOST/$OLD/judge2/cache/judge2_cache_deepseek-v4-pro.jsonl ]; then
+-  "${J[@]}" python3 scripts/review_checks/judge2_cache_merge.py $ROOT/$W/judge2/cache $ROOT/$OLD/judge2/cache >> $log 2>&1 || fail "cache merge"
++mkdir -p $HOST/$W/judge2/cache || fail "cannot prepare cache"
++sources=()
++if [ -s "$HOST/$OLD/judge2/cache/judge2_cache_deepseek-v4-pro.jsonl" ]; then sources+=("$ROOT/$OLD/judge2/cache"); fi
++for prior in "$B"/run_caa/eval_extra/judge_*/; do
++  prior=${prior%/}
++  if [ "$prior" != "$W" ] && [ -s "$prior/judge2/cache/judge2_cache_deepseek-v4-pro.jsonl" ]; then
++    sources+=("$ROOT/$prior/judge2/cache")
++  fi
++done
++if [ "${#sources[@]}" -gt 0 ]; then
++  "${J[@]}" python3 scripts/review_checks/judge2_cache_merge.py "$ROOT/$W/judge2/cache" "${sources[@]}" >> $log 2>&1 || fail "cache merge"
+   "${J[@]}" python3 -c "
+ import json, os, sys
+ p = sys.argv[1]
