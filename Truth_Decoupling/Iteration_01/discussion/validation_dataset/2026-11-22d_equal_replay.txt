@@ -1,0 +1,68 @@
+llama3.1-8b tqa all (threshold,tune drops/gain,test drops/gain) {'baseline': (np.float64(-1.4998683997192952), 27, 10, np.int64(81), 11), 'E_a3': (np.float64(-1.4374264001664923), 26, 11, np.int64(81), 18)}
+llama3.1-8b tqa other (threshold,tune drops/gain,test drops/gain) {'baseline': (np.float64(6.1249572409375155), 63, 17, np.int64(162), -2), 'E_a3': (np.float64(1.2499642865065965), 43, 17, np.int64(96), 15)}
+qwen3.5-9b tqa all (threshold,tune drops/gain,test drops/gain) {'baseline': (np.float64(-1.5629717251342718), 5, 3, np.int64(10), -2), 'E_a3': (np.float64(-7.374741157559884), 11, 5, np.int64(26), -4)}
+qwen3.5-9b tqa other (threshold,tune drops/gain,test drops/gain) {'baseline': (np.float64(1.4370413317079294), 19, 7, np.int64(64), 27), 'E_a3': (np.float64(8.435917746563385), 33, 11, np.int64(96), 33)}
+tqa test llama3.1-8b both-available for same-text ranking (origin:forced conf) 201 drops 96 S1-only kept vs A-only 10 S1-B same text and shared-issued 55 96
+tqa test llama3.1-8b S2-C2 35 S1/A/B 223 S2/B2 380 N1 476
+tqa test llama3.1-8b point estimates [9, 27, 39, 15, -2, 19, 8, 0, 13, 0, 0, -2, 18, 51]
+tqa test qwen3.5-9b both-available for same-text ranking (origin:forced conf) 231 drops 96 S1-only kept vs A-only 14 S1-B same text and shared-issued 202 232
+tqa test qwen3.5-9b S2-C2 unreachable S1/A/B 312 S2/B2 348 N1 444
+tqa test qwen3.5-9b point estimates [1, 52, 62, 33, 27, 46, 5, 1, 32, 1, 0, -1, 51, 13]
+tqa test 523 two models totals [95% paired questions]
+S1-A 10 [-3, 24]
+S1-B 79 [38, 120]
+S2-B2 101 [55, 148]
+step2 written improvement 48 [19, 77]
+step2 baseline improvement 25 [-5, 54]
+S1-B forced text frozen: question selection 65 [25, 103]
+S1-B selected eligible: answer text 13 [-11, 36]
+S1-B boundary 1 [0, 3]
+E answers frozen: self-judge vs forced-answer confidence on shared eligible others 45 [18, 72]
+leftover E score on rule blanks 1 [0, 3]
+leftover N1 score on rule blanks 0 [0, 0]
+same text judge residual in content -3 [-8, 0]
+A-B no-write judge vs forced confidence 69 [28, 110]
+reference N1-strong 64 [21, 107]
+qa2 470 llama3.1-8b both-available for same-text ranking (origin:forced conf) 217 drops 123 S1-only kept vs A-only 12 S1-B same text and shared-issued 22 36
+qa2 470 llama3.1-8b S2-C2 unreachable S1/A/B 112 S2/B2 173 N1 296
+qa2 470 llama3.1-8b point estimates [-2, 26, 47, 37, 9, 1, 24, 1, 25, 1, 1, 0, 28, 23]
+qa2 470 qwen3.5-9b both-available for same-text ranking (origin:forced conf) 310 drops 150 S1-only kept vs A-only 16 S1-B same text and shared-issued 91 123
+qa2 470 qwen3.5-9b S2-C2 unreachable S1/A/B 203 S2/B2 289 N1 439
+qa2 470 qwen3.5-9b point estimates [6, 38, 12, 36, 25, 8, 30, 0, 22, 0, 0, 0, 32, 22]
+qa2 470 470 two models totals [95% paired questions]
+S1-A 4 [-10, 18]
+S1-B 64 [27, 101]
+S2-B2 59 [17, 101]
+step2 written improvement 73 [39, 106]
+step2 baseline improvement 34 [0, 66]
+S1-B forced text frozen: question selection 9 [-26, 45]
+S1-B selected eligible: answer text 54 [33, 76]
+S1-B boundary 1 [0, 3]
+E answers frozen: self-judge vs forced-answer confidence on shared eligible others 47 [20, 75]
+leftover E score on rule blanks 1 [0, 3]
+leftover N1 score on rule blanks 1 [0, 3]
+same text judge residual in content 0 [0, 0]
+A-B no-write judge vs forced confidence 60 [23, 97]
+reference N1-strong 45 [2, 90]
+qa2 570 llama3.1-8b both-available for same-text ranking (origin:forced conf) 266 drops 153 S1-only kept vs A-only 14 S1-B same text and shared-issued 31 49
+qa2 570 llama3.1-8b S2-C2 unreachable S1/A/B 139 S2/B2 207 N1 360
+qa2 570 llama3.1-8b point estimates [-2, 26, 58, 39, 6, 0, 25, 1, 25, 1, 1, 0, 28, 26]
+qa2 570 qwen3.5-9b both-available for same-text ranking (origin:forced conf) 377 drops 180 S1-only kept vs A-only 17 S1-B same text and shared-issued 114 152
+qa2 570 qwen3.5-9b S2-C2 unreachable S1/A/B 252 S2/B2 354 N1 534
+qa2 570 qwen3.5-9b point estimates [2, 48, 29, 50, 33, 20, 28, 0, 36, 0, 0, 0, 46, 17]
+qa2 570 570 two models totals [95% paired questions]
+S1-A 0 [-15, 15]
+S1-B 74 [34, 114]
+S2-B2 87 [42, 132]
+step2 written improvement 89 [54, 125]
+step2 baseline improvement 39 [4, 74]
+S1-B forced text frozen: question selection 20 [-18, 59]
+S1-B selected eligible: answer text 53 [29, 78]
+S1-B boundary 1 [0, 3]
+E answers frozen: self-judge vs forced-answer confidence on shared eligible others 61 [32, 90]
+leftover E score on rule blanks 1 [0, 3]
+leftover N1 score on rule blanks 1 [0, 3]
+same text judge residual in content 0 [0, 0]
+A-B no-write judge vs forced confidence 74 [34, 115]
+reference N1-strong 43 [-4, 91]
+completed both models and both banks

@@ -1,0 +1,7 @@
+TQA tqa:131 archive forced-minus-C native / written +0.999961944306 -1.49998834768 choices forced C
+QA2 e127 archive forced-minus-C native / written +0.499982430883 -0.625019929687 choices forced C
+TQA tqa:152 archive forced-minus-C native / written -9.5419071755e-08 +0.874984362922 choices C forced
+2026-11-22 17:24 Beijing: CPU row, statement and source-fingerprint preflight passed.
+Card 1 showed 43519 MiB occupied. Production selfjudge_1122.sh and selfjudge_d_1122.sh each checked only instantaneous headroom and had no common reservation. The guarded launcher stopped before model loading.
+Singleton GPU scores and repeatability are not measured.
+17:30 Beijing, candidate patch at 61aee1f: Linux stub runs confirmed both directions of exclusion between selfjudge_1122.sh and selfjudge_d_1122.sh, including the D worker's retry. Both rejected invalid memory, query failure and over-budget usage; both started again after release. These tests made no production GPU calls.

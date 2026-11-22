@@ -1,0 +1,156 @@
+--- a/Truth_Decoupling/Iteration_01/code/diag/selfjudge_equal_n.py
++++ b/Truth_Decoupling/Iteration_01/code/diag/selfjudge_equal_n.py
+@@ -31,6 +31,7 @@
+ import hashlib
+ import json
+ import os
++from pathlib import Path
+ import sys
+
+ sys.path[:0] = ["Iteration_01/diag", "Iteration_01/code/scripts/newsets"]
+@@ -43,6 +44,10 @@
+ # known numbers the reference row must reproduce (work queue section 5 / main table / summary section 12.8)
+ EXPECT_TQ = {"llama3.1-8b": "+51 [+17, +87]", "qwen3.5-9b": "+13 [-11, +37]"}
+ EXPECT_QQ470 = {"llama3.1-8b": 23, "qwen3.5-9b": 22}
++# Exact existing exports checked against every native answer, score and confidence.
++LEGACY_QA_EXPORT = {"llama3.1-8b": "1d9355479da986add8a729a21f866580a200153fd4bae8cff07a7971944da4b4",
++                    "qwen3.5-9b": "83866af1931abc567081e599e18b2ced9f66fb485a2adc2daa2bd3f9379dd116"}
++FROZEN = {"llama3.1-8b": ("+1.2500", 43, 17), "qwen3.5-9b": ("+8.4359", 33, 11)}
+ KEYS = ("S1-A", "S1-B", "S2-B2", "S2-C2", "ref")
+
+
+@@ -55,8 +60,6 @@
+     import math
+     import qaqa_pilot_table as qt
+     out = os.path.join(SP.OUT, model, "qaqa_equal_n.json")
+-    if os.path.exists(out):
+-        raise SystemExit("%s exists" % out)
+     ch = SP.read_json(CHOICE)[model]
+     s = ch["n1_strength"]
+     if not ch.get("e_fixed") or s != qt.SET[model][1]:
+@@ -81,8 +84,18 @@
+         rows.append(dict(id=q, e=R.cell(ordinary, q), eans=eans, e_sha1=sha1(R.text(ordinary, q)), n1=n1[q], issued=bool(issued[q]),
+                          f=R.cell(forced, q), fans=fans, conf=conf[q] if fans else None, qtype=R.qtype[q]))
+     doc = dict(model=model, ordinary=ordinary, forced=forced, choice=ch, works=QAQA_WORKS, bank_sha256=SP.sha256_file(SP.QAQA_BANK), rows=rows)
+-    with open(out, "w", encoding="utf-8") as f:
+-        json.dump(doc, f, indent=0)
++    if os.path.isfile(out) and SP.sha256_file(out) == LEGACY_QA_EXPORT.get(model) and SP.read_json(out) == doc:
++        print(f"{model}: existing legacy export reproduced from native files")
++        return
++    paths = [R.gdir / (qt.G.arm_token(arm) + ".json") for arm in R.rows]
++    paths.append(Path(qt.S.NS) / "conf/qaqafull" / model / "test" / (qt.G.arm_token(forced) + "-at-prompt.json"))
++    for work in QAQA_WORKS:
++        judge = Path(qt.S.NS) / "judge/qaqafull" / model / work
++        if (judge / "judge2/single_pro.jsonl").is_file():
++            paths.extend(judge / name for name in ("judge_input.json", "judge2/cells.jsonl", "judge2/single_pro.jsonl"))
++    doc["source_sha256"] = {str(path): SP.sha256_file(path) for path in paths}
++    doc["rows_sha256"] = rows_sha256(rows)
++    SP.save_items(out, doc)
+     print("%s: %d questions, E answers %d, N1 answers %d, strong answers %d -> %s" % (
+         model, len(rows), sum(r["eans"] for r in rows), sum(r["issued"] for r in rows), sum(r["fans"] for r in rows), out))
+
+@@ -93,6 +106,8 @@
+     base (no-write margin, E answers only). Returns (cells per question, summary)."""
+     pos = {q: i for i, q in enumerate(ids)}
+     drop = {q: bool(d[q]["drop"] and d[q]["eans"]) for q in ids}
++    if not ids or len(pos) != len(ids) or any(drop[q] and not d[q]["other"] for q in ids):
++        raise ValueError("empty, duplicated or inconsistent answer cohort")
+     k = sum(drop.values())
+     ranked = sorted([q for q in ids if d[q]["fans"] and d[q]["conf"] is not None], key=lambda q: (-d[q]["conf"], pos[q]))
+
+@@ -139,8 +154,11 @@
+     print("  %s: %d questions | drops %d (right %d, wrong %d, other %d); A drops right %d, wrong %d, other %d" % (
+         label, len(ids), summ["k"], summ["drops"]["R"], summ["drops"]["W"], summ["drops"]["O"],
+         summ["adrops"]["R"], summ["adrops"]["W"], summ["adrops"]["O"]))
+-    print("    answers: E %d, N1 %d, S1 = A = B %d (n1), S2 = B2 = C2 %d (n2); strong answers with confidence %d" % (
+-        summ["nE"], summ["nN1"], summ["n1"], summ["n2"], summ["n_strong"]))
++    counts = {"E": summ["nE"], "N1": summ["nN1"], "S1": summ["n1"], "A": summ["n1"], "B": summ["n1"],
++              "S2": summ["n2"], "B2": summ["n2"], "C2": summ["n2"]}
++    print("    answers: " + ", ".join(f"{arm} {count}" if n[arm] is not None else f"{arm} not comparable"
++                                      for arm, count in counts.items())
++          + "; strong answers with confidence %d" % summ["n_strong"])
+     print("    nets: E %+d, N1 %+d, strong at N1's count %+d | S1 %+d, A %+d, B %s | S2 %+d, B2 %s, C2 %s" % (
+         n["E"], n["N1"], n["strong_at_N1"], n["S1"], n["A"], "not comparable" if n["B"] is None else "%+d" % n["B"],
+         n["S2"], "not comparable" if n["B2"] is None else "%+d" % n["B2"], "not comparable" if n["C2"] is None else "%+d" % n["C2"]))
+@@ -150,27 +168,50 @@
+
+ def sj_inputs(model):
+     """Step-2 thresholds (recomputed from step-1 files) and the per-answer flags of both sets."""
+-    import numpy as np
+-    d = os.path.join(SP.OUT, model)
+-    doc = SP.read_json(d + "/items.json")
+-    z = np.load(d + "/probe.npz")
++    doc, _, z = SP.read_probe(model)
+     ans = [x for x in doc["items"] if x["answered"]]
+-    if [str(i) for i in z["ids"]] != [x["id"] for x in ans] or [str(a) for a in z["answer_sha1"]] != [x["answer_sha1"] for x in ans]:
+-        raise SystemExit("%s: step-1 probe rows" % model)
+     mg = {(x["split"], x["id"]): {c: float(z[c + "__margin"][j]) for c in SP.CONDS2} for j, x in enumerate(ans)}
+     thr = SP.step2_thresholds([(mg[("tune", x["id"])], SP.V[x["state"]], x["neg"]) for x in ans if x["split"] == "tune"])
+     t = thr[COND]["other"][0]
+     tq = {x["id"]: dict(state=x["state"], eans=x["answered"], neg=x["neg"], sha=x["answer_sha1"],
+                         m=mg.get(("test", x["id"]))) for x in doc["items"] if x["split"] == "test"}
+-    qd = SP.read_json(d + "/qaqa_items.json")
+-    zq = np.load(d + "/qaqa_probe.npz")
++    qd, _, zq = SP.read_probe(model, qaqa=True)
+     qa = [x for x in qd["items"] if x["answered"]]
+-    if [str(i) for i in zq["ids"]] != [x["id"] for x in qa]:
+-        raise SystemExit("%s: step-2 probe rows" % model)
++    if model in FROZEN and (format(t, "+.4f"), *thr[COND]["other"][1:]) != FROZEN[model]:
++        raise ValueError(f"{model}: frozen step-2 threshold, tune count or gain changed")
+     qm = {x["id"]: {c: float(zq[c + "__margin"][j]) for c in SP.CONDS2} for j, x in enumerate(qa)}
+     qq = {x["id"]: dict(eans=x["answered"], neg=x["neg"], sha=x["answer_sha1"], v=x["value"], pilot=x["pilot"], m=qm.get(x["id"]))
+           for x in qd["items"]}
+     return t, thr, tq, qq
++
++
++def rows_sha256(rows):
++    return hashlib.sha256(json.dumps(rows, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()
++
++
++def read_dump(model, qq):
++    path = Path(SP.OUT) / model / "qaqa_equal_n.json"
++    doc = SP.read_json(path)
++    choice = SP.read_json(CHOICE)[model]
++    pilot = set(SP.read_json(SP.QAQA_PILOT)["ids"])
++    with open(SP.QAQA_BANK, encoding="utf-8") as f:
++        bank = [json.loads(line) for line in f]
++    ids = [r["id"] for r in bank]
++    cfg = SP.MODELS[model]
++    ordinary = "x:E%d.w.p%s" % (cfg["layer"], choice["n1_strength"])
++    if (doc["model"] != model or doc["works"] != QAQA_WORKS or not choice["e_fixed"] or doc["choice"] != choice
++            or doc["ordinary"] != ordinary or doc["forced"] != "conf:" + ordinary.split(":", 1)[1]
++            or doc["bank_sha256"] != SP.sha256_file(SP.QAQA_BANK) or len(ids) != 570 or len(set(ids)) != 570
++            or list(qq) != ids or [x["id"] for x in doc["rows"]] != ids
++            or len(pilot) != 100 or not pilot.issubset(ids) or any(qq[q]["pilot"] != (q in pilot) for q in ids)):
++        raise ValueError(f"{path}: model, settings, bank or pilot roster mismatch")
++    if "source_sha256" not in doc:
++        if SP.sha256_file(path) != LEGACY_QA_EXPORT.get(model):
++            raise ValueError(f"{path}: unaudited legacy export; regenerate from native files")
++    elif (not doc["source_sha256"] or doc["rows_sha256"] != rows_sha256(doc["rows"])
++          or any(SP.sha256_file(p) != digest for p, digest in doc["source_sha256"].items())):
++        raise ValueError(f"{path}: source or row digest mismatch")
++    return doc
+
+
+ def table():
+@@ -191,7 +232,10 @@
+             model, t, thr[COND]["other"][1], thr[COND]["other"][2]))
+         ids, data = TQ.load_model(model)
+         _, layer, s, n1cfg, run, e, eans, n1, issued, F = data
+-        if set(ids) != set(tq) or any(SP.V[tq[q]["state"]] != e[q] or tq[q]["eans"] != eans[q] for q in ids):
++        gen = SP.read_json(Path(run) / "eval_extra/gen" / f"x--E{layer}-w-p{s}-at-prompt_test.json")
++        raw = {r["pair_id"]: r["text"] for r in gen["rows"]}
++        if (list(tq) != list(ids) or len(raw) != len(gen["rows"])
++                or any(SP.V[tq[q]["state"]] != e[q] or tq[q]["eans"] != eans[q] or sha1(raw[q]) != tq[q]["sha"] for q in ids)):
+             raise SystemExit("%s: tq_same_n_decomp's single E differs from step 1's items" % model)
+         dd = {}
+         for q in ids:
+@@ -200,7 +244,7 @@
+             dd[q] = dict(e=e[q], eans=eans[q], n1=n1[q], issued=issued[q], f=F[q][0], fans=F[q][1], conf=F[q][2],
+                          other=other, drop=other and x["m"][COND] < t, base=x["m"]["baseline"] if x["eans"] else None)
+         tqd[model] = (ids, dd, (layer, s, n1cfg))
+-        qdoc = SP.read_json(os.path.join(SP.OUT, model, "qaqa_equal_n.json"))
++        qdoc = read_dump(model, qq)
+         qd = {}
+         for r in qdoc["rows"]:
+             x = qq[r["id"]]
