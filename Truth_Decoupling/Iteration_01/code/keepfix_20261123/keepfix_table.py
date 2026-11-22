@@ -15,7 +15,8 @@ Modes (scoring container, from /workspace/Truth_Decoupling):
   check-fact --run R [--gen-name G] --arms ARM...   the same for the PopQA / TriviaQA tune files of E_k
              (newsets/gen_prompt/G/<task>/<model>/tune, G = keepfix by default)
   train      the training records (main E, lambda 0 and 1), the lambda 0 comparison, the unit test
-  lam TAG... queue K section 5 (TAG in l0p03 l0p1 l0p3, the usable lambdas): the training records of the three lambdas,
+  lam TAG... queue K sections 5 / 6 (TAG in l0p03 l0p1 l0p3 w0 w0p03 w0p1, the usable ones; w0 is a reference, never
+             chosen): the training records of the six runs,
              then for the usable ones TruthfulQA tune (192, DeepSeek Pro: SE / SN1, caps n1_pick on tune; only E), (QA)^2 100
              tune (pilot) questions (DeepSeek Pro, caps over every pair on the 100, ties to the earlier pair; by assumption
              type), PopQA / TriviaQA tune (192 each, alias match; right -> wrong answers and those opening with a negation,
@@ -278,23 +279,31 @@ def texts_of(sp, tx, cfg, N):
 
 
 KR = "Iteration_01/results/keepfix/llama3.1-8b/e44"
-LAM_OF = {"l0p03": "0.03", "l0p1": "0.1", "l0p3": "0.3"}
+LAM_OF = {"l0p03": "0.03", "l0p1": "0.1", "l0p3": "0.3", "w0": "0", "w0p03": "0.03", "w0p1": "0.1"}
+REF_TAGS = ("w0",)      # section 6: lambda 0 from the main E's direction, a reference that is never chosen
 
 
 def tag_info(tag):
-    """Layout of one lambda of queue K section 5 (keepfix_llama_lam.sh)."""
-    return {"tag": tag, "label": "k%s" % LAM_OF[tag], "run": "%s/llama3.1-8b_keepfix_%s" % (KR, tag),
+    """Layout of one lambda of queue K sections 5 (random start, label k<lambda>; keepfix_llama_lam.sh) and 6 (start =
+    the main E's direction, label m<lambda>; keepfix_llama_w0.sh)."""
+    return {"tag": tag, "label": ("m" if tag.startswith("w") else "k") + LAM_OF[tag], "run": "%s/llama3.1-8b_keepfix_%s" % (KR, tag),
             "s": Path(NSK, "aligned_s_%s_%s.txt" % (MODEL, tag)).read_text().strip(),
-            "gen": "keepfix_%s" % tag, "qwork": "keepfix_%s_pilot100" % tag}
+            "gen": "keepfix_%s" % tag, "qwork": "keepfix_%s_pilot100" % tag, "ref": tag in REF_TAGS}
 
 
 def show_lam(tags):
-    print("\n# queue K section 5: lambda 0.03 / 0.1 / 0.3 (usable: signcheck --min-gap 0.718 and cosine with the main E >= 0.5)")
-    for tag in ("l0p03", "l0p1", "l0p3"):
+    print("\n# queue K sections 5 (random start: l0p03 / l0p1 / l0p3) and 6 (start = the main E: w0 = lambda 0 reference, w0p03, w0p1);"
+          " usable: signcheck --min-gap 0.718 and cosine with the main E >= 0.5")
+    p = Path(NSK, "compare_l0r_%s.json" % MODEL)
+    if p.exists():
+        d = jload(p)
+        print("    section 6 entry check, lambda 0 without a start after the change: elementwise equal %s | cosine %.8f | max abs diff %.3g | gap %s" % (
+            d["elementwise_equal"], d["cosine"], d["max_abs_diff"], d["gap"]))
+    for tag in ("l0p03", "l0p1", "l0p3", "w0", "w0p03", "w0p1"):
         run = "%s/llama3.1-8b_keepfix_%s" % (KR, tag)
         p = Path(run) / "train_logs" / ("E_L%d.json" % EL)
         if not p.exists():
-            print("    lambda %-5s no record" % LAM_OF[tag])
+            print("    %-6s lambda %-5s no record" % (tag, LAM_OF[tag]))
             continue
         lg = jload(p)
         tr, va = lg["losses"]["train"], lg["losses"].get("val") or {}
@@ -305,8 +314,8 @@ def show_lam(tags):
         scd = jload(sc) if sc.exists() else {}
         cpd = jload(cp) if cp.exists() else {}
         al = Path(NSK, "aligned_s_%s_%s.txt" % (MODEL, tag))
-        print("    lambda %-5s gap %.6f | cosine with the main E %s | cos(w, md) %.4f | cause loss trained %.4f (no write %.4f, main E 0.0182) | held-out cause %.4f | %s | aligned s' %s" % (
-            LAM_OF[tag], lg["gap"], ("%.4f" % cpd["cosine"]) if cpd else "-", lg["cosine_w_md"], tr["trained"]["cause"], tr["no_write"]["cause"],
+        print("    %-6s lambda %-5s start %s | gap %.6f | cosine with the main E %s | cos(w, md) %.4f | cause loss trained %.4f (no write %.4f, main E 0.0182) | held-out cause %.4f | %s | aligned s' %s" % (
+            tag, LAM_OF[tag], "main E" if k.get("init_from") else "random", lg["gap"], ("%.4f" % cpd["cosine"]) if cpd else "-", lg["cosine_w_md"], tr["trained"]["cause"], tr["no_write"]["cause"],
             va.get("trained", {}).get("cause", float("nan")), "usable" if scd.get("pass") and cpd and cpd["cosine"] >= 0.5 else "NOT usable",
             al.read_text().strip() if al.exists() else "-"))
         print("        keep loss per answer token (all / right under both / right under x only): saved direction at +A %s | -A %s | no write %s" % (
@@ -542,7 +551,7 @@ def choose(tags, tqn, qan, fan):
     for t in tags:
         for at in ("a", S_MAIN):
             nm = "%s@%s" % (t["label"], at)
-            rows.append((nm, parts("SN1 " + nm, "SE " + nm)))
+            rows.append((nm + (" (reference)" if t["ref"] else ""), parts("SN1 " + nm, "SE " + nm)))
     sizes = [n_tq, n_qa, n_fa["triviaqa"], n_fa["popqa"]]
     print("\n# queue K section 5: the sum (TruthfulQA tune SN1 + (QA)^2 100 tune SN1 + TriviaQA tune SE + PopQA tune SE); sizes %s" % sizes)
     old = rows[0][1]
@@ -551,7 +560,7 @@ def choose(tags, tqn, qan, fan):
             (name,) + tuple(v) + (sum(v), " ".join("%+.1f" % (100.0 * x / n) for x, n in zip(v, sizes)),
                                   " ".join("%+.1f" % (100.0 * (x - o) / n) for x, o, n in zip(v, old, sizes)))))
     for at, label in (("a", "aligned strength (main reading)"), (S_MAIN, "nominal 3.5")):
-        cand = [(sum(v), float(LAM_OF[t["tag"]]), t["label"]) for t in tags for name, v in rows if name == "%s@%s" % (t["label"], at)]
+        cand = [(sum(v), float(LAM_OF[t["tag"]]), t["label"]) for t in tags if not t["ref"] for name, v in rows if name == "%s@%s" % (t["label"], at)]
         if cand:
             best = max(cand)
             print("    chosen at the %s: %s (sum %+d; old E %+d) -> %s than the old E" % (

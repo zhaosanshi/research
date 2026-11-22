@@ -29,7 +29,11 @@ identity    no core file and no identity-bearing script changes (this file is ne
             this file's sha256 go into the direction record ("keep") and its training contract ("keep").
 Modes (from the code copy's root, with the model's interpreter):
   train     <driver train arguments> [--keep-set F --keep-lambda L --keep-amount-from G --keep-prompts-extra P
-            [--keep-mem-cap-mib N]]
+            [--keep-mem-cap-mib N] [--keep-init-from DIR.pt]]
+            --keep-init-from (queue K section 6, not used by default): start the training from the direction w of that
+            E record (same layer) instead of the seed's random vector; the random vector is still drawn from the training
+            generator and discarded, so that the order of the training questions per epoch is the same as without the
+            option (only the start differs). Without the option nothing changes.
   unittest  <driver train arguments> --keep-set F --keep-amount-from G --keep-prompts-extra P --keep-check-dir RUN
             --keep-report OUT [--keep-mem-cap-mib N]: with the direction RUN/dirs/E_L<layer>.pt, on 4 keep questions
             (the two of each task with the largest keep loss under that direction at A): the keep loss of the training
@@ -76,7 +80,7 @@ KEEP_SET_PROTOCOL = "keepfix_keep_set_v1"
 OWN = Path(__file__).resolve()
 KEEP = {}
 KEEP_FLAGS = {"--keep-set": str, "--keep-lambda": float, "--keep-amount-from": str, "--keep-prompts-extra": str,
-              "--keep-check-dir": str, "--keep-report": str, "--keep-mem-cap-mib": int}
+              "--keep-check-dir": str, "--keep-report": str, "--keep-mem-cap-mib": int, "--keep-init-from": str}
 NEED = {"train": ("--keep-set", "--keep-lambda", "--keep-amount-from", "--keep-prompts-extra"),
         "unittest": ("--keep-set", "--keep-amount-from", "--keep-prompts-extra", "--keep-check-dir", "--keep-report")}
 HAND_TOL = 1e-4      # training code vs hand computation, nats per token (one unpadded row each)
@@ -234,7 +238,7 @@ def mem_now():
 
 # ----------------------------------------------------------------------------- training
 def train_direction_keep(bundle, layer, questions, *, epochs, lr, clip, seed, init, loss, positions, val_questions,
-                         log, keep_items, amount, lam, mean_vector):
+                         log, keep_items, amount, lam, mean_vector, start=None):
     """core train_direction (same checks, initialisation, generator, order, schedule, clipping, renormalisation,
     history) plus lam * the keep loss of one keep question per step."""
     if not questions:
@@ -249,6 +253,8 @@ def train_direction_keep(bundle, layer, questions, *, epochs, lr, clip, seed, in
         raise ValueError("keep lambda must be finite and nonnegative")
     g = torch.Generator(device="cpu").manual_seed(int(seed) * 1000 + int(layer))
     w0 = pd.unit(torch.randn(bundle.hidden_size, generator=g)) if init is None else pd.unit(init)
+    if start is not None:                    # keep: the random draw above stays, so the question order is unchanged
+        w0 = pd.unit(torch.as_tensor(start).float())
     w = torch.nn.Parameter(w0.clone().to(bundle.device))
     opt = torch.optim.Adam([w], lr=lr)
     kg = torch.Generator(device="cpu").manual_seed(int(seed) * 1000 + int(layer) + KEEP_SEED_OFFSET)
@@ -312,7 +318,7 @@ def train_direction_keep(bundle, layer, questions, *, epochs, lr, clip, seed, in
     info = {"history": history, "seed": seed, "lr": lr, "lr_schedule": "linear_to_zero",
             "clip": clip, "epochs": epochs, "n_questions": len(questions),
             "n_val_questions": len(val_questions), "loss": loss, "positions": positions,
-            "init": "random" if init is None else "given",
+            "init": ("random" if init is None else "given") if start is None else "keep_init_from",
             "init_sha256": pd.fingerprint(w0.tolist()), "seconds": time.time() - t0,
             "keep_steps": len(used), "keep_draws_sha256": pd.fingerprint(used), "keep_last_sign": sign,
             "keep_times_used_min": min(times), "keep_times_used_max": max(times)}
@@ -366,6 +372,17 @@ def run_train_keep(args, meta, prepared, bundle, cfg, systems, ident, ident_sha)
                          "orientation": "sign(mean_d . u), mean_d = training mean of h(plus) - h(minus)",
                          "keep_set": keep_rec, "entry": OWN.name, "entry_sha256": own_sha,
                          "max_target_tokens": args.max_target_tokens}
+        start = None
+        if "--keep-init-from" in KEEP:
+            if args.init != "random":
+                raise SystemExit("--keep-init-from replaces the random start; do not combine it with --init %s" % args.init)
+            sp_ = Path(KEEP["--keep-init-from"])
+            srec = torch.load(sp_, map_location="cpu", weights_only=False)
+            if srec.get("family") != "E" or srec.get("layer") != layer or tuple(srec["w"].shape) != (bundle.hidden_size,):
+                raise SystemExit("%s is not an E direction of layer %d" % (sp_, layer))
+            start = srec["w"].float()
+            keep_contract["init_from"] = {"file": str(sp_), "file_sha256": sha_file(sp_), "record_sha256": srec.get("artifact_sha256"),
+                                          "gap": srec.get("gap"), "question_order": "unchanged (random start drawn and discarded)"}
         contract["keep"] = keep_contract
         if out.exists() and not args.overwrite:
             E.validate_direction(torch.load(out, map_location="cpu", weights_only=False), args.family, layer, ident_sha,
@@ -388,7 +405,7 @@ def run_train_keep(args, meta, prepared, bundle, cfg, systems, ident, ident_sha)
         w, info = train_direction_keep(bundle, layer, train_q, epochs=args.epochs, lr=args.lr, clip=args.clip,
                                        seed=args.seed, init=(w_md if args.init == "md" else None), loss=args.loss,
                                        positions=args.positions, val_questions=val_q, log=E.log, keep_items=keep_items,
-                                       amount=amount, lam=lam, mean_vector=mean_vector)
+                                       amount=amount, lam=lam, mean_vector=mean_vector, start=start)
         stats = fd.difference_stats(plus, minus, w)
         pre_flip_mean = stats["mean"]
         flipped = stats["mean"] < 0
@@ -746,7 +763,7 @@ def main():
         E.main()
         return
     missing = [k for k in NEED[mode] if k not in keep]
-    extra = sorted(set(keep) - set(NEED[mode]) - {"--keep-mem-cap-mib"})
+    extra = sorted(set(keep) - set(NEED[mode]) - {"--keep-mem-cap-mib"} - ({"--keep-init-from"} if mode == "train" else set()))
     if missing or extra:
         raise SystemExit("%s: missing %s, not allowed %s" % (mode, missing, extra))
     KEEP.update(keep)
