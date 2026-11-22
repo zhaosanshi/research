@@ -1,0 +1,207 @@
+--- a/Truth_Decoupling/Iteration_01/code/diag/n1_on_sentence.py
++++ b/Truth_Decoupling/Iteration_01/code/diag/n1_on_sentence.py
+@@ -72,8 +72,8 @@
+     st, bl, tx = {}, {}, {}
+
+     def put(k, v, b, t):
+-        if k in st and st[k] != v:
+-            raise SystemExit("%s: condition %s %s appears twice with different verdicts" % (model, k[0], k[1]))
++        if k in st and (st[k], bl[k], tx[k]) != (v, b, t):
++            raise SystemExit("%s: condition %s %s appears twice with different text, issuance or verdict" % (model, k[0], k[1]))
+         st[k], bl[k], tx[k] = v, b, t
+
+     if prefix == "x":
+@@ -148,8 +148,14 @@
+     display, layer, s = A.KEY[model]
+     ct = restricted(model, 0)
+     rows = []
+-    for st_ in (s, half(s)):
+-        sp, tx = build(model, 0, "x_E2", st_, ct)
++    candidates = [(st, build(model, 0, "x_E2", st, ct)) for st in (s, half(s))]
++    available = set.intersection(*(set(sp.qs) for _, (sp, _) in candidates))
++    common = [q for q in ct if q in available]
++    if not common:
++        raise SystemExit("%s: no common tune questions across strengths" % model)
++    for st_, (sp, tx) in candidates:
++        if list(sp.qs) != common:
++            sp, tx = build(model, 0, "x_E2", st_, common)
+         cfg = ML.n1_pick(sp, tx, st_)
+         se, sn = run_sys(sp, tx, ("E", st_)), run_sys(sp, tx, cfg)
+         s0 = run_sys(sp, tx, ("base",))
+@@ -163,22 +169,34 @@
+             (model, dot(r["s"]), r["qs"], r["dropped"]) + r["S0"] + r["SE"] + r["SN1"] + (str(r["cfg"]),)))
+
+
++def choice_from_tune(model, rows):
++    if len({r["qs"] for r in rows}) != 1:
++        raise SystemExit("%s: the two strengths do not cover the same eligible tune roster" % model)
++    best = max(rows, key=lambda r: (r["SN1"][0], -float(dot(r["s"]))))
++    return {"model": model, "strength": best["s"], "strength_dot": dot(best["s"]), "cfg": list(best["cfg"]),
++            "tune": {r["s"]: {"SE": list(r["SE"]), "SN1": list(r["SN1"]), "cfg": list(r["cfg"])} for r in rows}}
++
++
++def verify_choice(model, stored, fresh):
++    if stored != fresh:
++        raise SystemExit("%s: saved choice differs from the current tune rows, model, strength or caps" % model)
++
++
+ def choose(model):
+     rows = tune_model(model)
+     show_tune(model, rows)
+-    best = max(rows, key=lambda r: (r["SN1"][0], -float(dot(r["s"]))))
++    fresh = choice_from_tune(model, rows)
++    strength = fresh["strength"]
+     out = CHOICE % model
+     if os.path.exists(out):
+         old = json.load(open(out))
+-        if old["strength"] != best["s"] or old["cfg"] != list(best["cfg"]):
+-            raise SystemExit("%s exists with another choice" % out)
++        verify_choice(model, old, fresh)
+         print("choice exists and agrees: %s" % out)
+     else:
+         with open(out, "x") as f:
+-            json.dump({"model": model, "strength": best["s"], "strength_dot": dot(best["s"]), "cfg": list(best["cfg"]),
+-                       "tune": {r["s"]: {"SE": r["SE"], "SN1": r["SN1"], "cfg": list(r["cfg"])} for r in rows}}, f, indent=1)
+-    print("chosen %s: E %s, %s (tune SN1 %+d)" % (model, dot(best["s"]), best["cfg"], best["SN1"][0]))
+-    print(dot(best["s"]))
++            json.dump(fresh, f, indent=1)
++    print("chosen %s: E %s, %s (tune SN1 %+d)" % (model, dot(strength), fresh["cfg"], fresh["tune"][strength]["SN1"][0]))
++    print(dot(strength))
+
+
+ def test():
+@@ -187,6 +205,7 @@
+     for model in ORDER:
+         display, layer, s = A.KEY[model]
+         ch = json.load(open(CHOICE % model))
++        verify_choice(model, ch, choice_from_tune(model, tune_model(model)))
+         sc, cfg = ch["strength"], tuple(ch["cfg"])
+         ct, cx = restricted(model, 0), restricted(model, 1)
+         tsp, ttx = build(model, 0, "x", s, ct)
+--- a/Truth_Decoupling/Iteration_01/code/diag/replacement_2x2.py
++++ b/Truth_Decoupling/Iteration_01/code/diag/replacement_2x2.py
+@@ -32,7 +32,10 @@
+ MP, ps = A.MP, A.ps
+ ORDER = ("llama3.1-8b", "qwen3.5-9b", "qwen3.8-27b", "gemma3-12b", "gemma3-27b")
+ ROOT = Path(S.NS)
+-PILOT = set(json.loads((ROOT / "splits/qaqa_pilot_20261122.json").read_text())["ids"])
++PILOT_IDS = json.loads((ROOT / "splits/qaqa_pilot_20261122.json").read_text())["ids"]
++PILOT = set(PILOT_IDS)
++if len(PILOT_IDS) != 100 or len(PILOT) != 100:
++    raise SystemExit("evaluation requires 100 unique pilot question IDs")
+ BANK = ROOT / "bank/qaqa_full_bank_20261122.jsonl"
+ WORK = ("test_full570", "test_full570_tuned", "test_full570_strong")
+ GPT = {True: ((57, 16, 98), (3, -22, 30)), False: ((180, 104, 258), (60, 3, 115))}
+@@ -55,7 +58,7 @@
+         arms = {"1": "conf_E2", "2": "conf:" + e.split(":")[1], "3": raw.ec(strength, "0.25")}
+         for a in arms.values():
+             raw.need(a)
+-        if len(set(raw.ids)) != 570 or not PILOT <= set(raw.ids):
++        if len(set(raw.ids)) != 570 or len(raw.ids) != 570 or not PILOT <= set(raw.ids):
+             raise SystemExit("wrong evaluation bank")
+         d = {q: {k: (raw.cell(a, q), not raw.blank(a, q)) for k, a in arms.items()} for q in raw.ids}
+         if with4:
+@@ -123,7 +126,7 @@
+                 dropped += 1
+                 continue
+             d[q] = {k: (V[st[(q, cond)]], not bl[(q, cond)]) for k, (st, bl, cond) in loaded.items()}
+-        print("# TruthfulQA %s, %s: %d questions of the main table's list, %d left out (a cell without a verdict)" % (split, model, len(d), dropped))
++        print("# TruthfulQA %s, %s: %d questions of the cell-complete list for this model, %d left out (a cell without a verdict)" % (split, model, len(d), dropped))
+         out[model] = d
+     common = sorted(set.intersection(*(set(v) for v in out.values())))
+     return out, common
+@@ -134,7 +137,7 @@
+     print("\n## %s: %d questions per model, %s" % (title, len(qs), ", ".join(models) if len(models) > 1 else "one model"))
+     if have != list(CELLS):
+         print("    cells: %s; cell%s %s: none" % (" ".join(have), "" if len(CELLS) - len(have) == 1 else "s", " ".join(k for k in CELLS if k not in have)))
+-    for label in ("(a) all four answer", "(b) every question"):
++    for label in (("(a) all four answer" if have == list(CELLS) else "(a) all available cells answer"), "(b) every question"):
+         shared = label.startswith("(a)")
+         use = lambda m, q: (not shared) or all(data[m][q][k][1] for k in have)  # noqa: E731
+         n = sum(use(m, q) for m in models for q in qs)
+--- /dev/null
++++ b/Truth_Decoupling/Iteration_01/code/scripts/newsets/h22_checked_report.py
+@@ -0,0 +1,60 @@
++"""Validate prompt-factor acceptance before either launcher consumes cached outputs. CPU only."""
++import hashlib
++import json
++import math
++from pathlib import Path
++import sys
++
++
++def digest(path):
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++LEGACY = {
++    'qwen3.8-27b': '6591be9854abdf3786833bb03e64b91222c26d82b04144596299f3873cf4830b',
++    'qwen3.5-9b': '33f1dab44e08bab192385c3483e973037655d945400adedc465fa4b7a4613ac0',
++    'llama3.1-8b': 'e8ed32ccaf9584ea86870545298acf854932df75992f11459477c8d7af9de9da',
++    'gemma3-27b': 'c03b665506a18887f5a1b26a4bb48ded2b9bb0e6ec4fcd61114bd8808422a66f',
++    'gemma3-12b': 'fed96cded9dfde1ff4c11db37de13a801861031315e47a7a8d694bcfadff93f7',
++    # The original five reports preceded the h22 zero-cell extension to ns_h22.py.
++}
++
++
++def validate(path, expected_model, expected_arm, producer, tune, bank, prompt, promptdiag=False):
++    report = json.loads(path.read_bytes())
++    if (report.get("passed") is not True or report.get("model") != expected_model or report.get("arm") != expected_arm
++            or (report.get("entry_sha256") != digest(producer) and digest(path) != LEGACY.get(expected_model))):
++        raise ValueError("acceptance failed or belongs to another model, arm or program")
++    tune_ids = json.loads(tune.read_bytes())["question_ids"][:16]
++    if len(set(tune_ids)) != 16:
++        raise ValueError("expected 16 distinct tune IDs")
++    if producer.name == "n1s_check.py":
++        if report["ids"] != tune_ids or any(report[k] != 16 for k in ("E0_equals_no_write", "E0_equals_saved_P", "E_twice", "EC_twice")):
++            raise ValueError("wrong stack acceptance roster or check result")
++        if [w["family"] for w in report["writes"]] != ["E", "C"]:
++            raise ValueError("wrong stack directions")
++        for key in ("E_token_ids","EC_token_ids"):
++            if len(report[key]) != 16:
++                raise ValueError("missing repeatability reference")
++        writes = report["writes"]
++    else:
++        if report["positions"] != "prompt" or report["prompts_sha256"] != digest(prompt):
++            raise ValueError("wrong prompt or intervention position")
++        with bank.open(encoding="utf-8") as f:
++            bank_ids = [json.loads(next(f))["id"] for _ in range(16)]
++        if len(set(bank_ids)) != 16:
++            raise ValueError("expected 16 distinct bank IDs")
++        for k, ids in (("truthfulqa_tune", tune_ids), ("bank", bank_ids)):
++            check = report["checks"][k]
++            if check["ids"] != ids or check["zero_equals_no_write"] != 16 or check["twice_identical"] != 16:
++                raise ValueError("wrong prompt acceptance roster or check result")
++        if promptdiag and any(report["checks"]["truthfulqa_tune"].get(k) != 16 for k in ("promptdiag_equals_zero","promptdiag_equals_no_write")):
++            raise ValueError("missing promptdiag agreement")
++        writes = [report["write"]]
++    if any(not math.isfinite(w["amount"]) or w["amount"] == 0 or not w["direction_file_sha256"] for w in writes):
++        raise ValueError("invalid nonzero write")
++
++
++if __name__ == "__main__":
++    report, model, arm, producer, tune, bank, prompt, promptdiag = sys.argv[1:]
++    validate(Path(report), model, arm, Path(producer), Path(tune), Path(bank), Path(prompt), promptdiag == "yes")
+--- a/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/h22_model.sh
++++ b/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/h22_model.sh
+@@ -83,6 +83,9 @@
+   "${DQ[@]}" $PYM -I $NH check --models $M --model $MODEL --bank $FULLB --cl $CL ${PDG:+--promptdiag $ROOT/$PDG} \
+       --out $CHK/check_$MODEL.json >> $log 2>&1 || fail "check (zero amount / twice / promptdiag)"
+ fi
++ref=no; [ -z "$PDG" ] || ref=yes
++python3 "$HOST/Iteration_01/code/scripts/newsets/h22_checked_report.py" "$HCHK/check_$MODEL.json" "$MODEL" "x_E2:C$CL.w.m0.25" \
++    "$HOST/${NH#$ROOT/}" "$HOST/$run/frozen_tune.json" "$HOST/${FULLB#$ROOT/}" "$HOST/${NEWP#$ROOT/}" "$ref" >> "$log" 2>&1 || fail "cached acceptance"
+ say "check passed"
+ # ---- 2. the entries change nothing else
+ QCHK=$NS/gen_prompt/h22chk/qaqafull/$MODEL/test
+--- a/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/n1s_model.sh
++++ b/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/n1s_model.sh
+@@ -79,6 +79,8 @@
+   CK=$ROOT/Iteration_01/newsets/h22/n1s_check_$MODEL.json
+   [ -s $HOST/${CK#$ROOT/} ] || "${DQ[@]}" $PYM -I $NC gpu --models $M --model $MODEL --el $EL --cl $CL --s $S \
+       --base-file $G/../base_x_E2_tune.json --out $CK >> $log 2>&1 || fail "checks 2-3"
++  python3 "$HOST/Iteration_01/code/scripts/newsets/h22_checked_report.py" "$HOST/${CK#$ROOT/}" "$MODEL" "x_E2:E$EL.w.p$S+C$CL.w.m0.25" \
++      "$HOST/${NC#$ROOT/}" "$HOST/$run/frozen_tune.json" - - no >> "$log" 2>&1 || fail "cached stack acceptance"
+   say "checks 1-3 passed"
+ fi
+ SC=x_E2:E$EL.w.p$(echo $STRS | cut -d" " -f1)+C$CL.w.m0.25

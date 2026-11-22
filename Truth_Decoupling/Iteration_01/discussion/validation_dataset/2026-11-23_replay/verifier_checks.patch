@@ -1,0 +1,79 @@
+--- a/Truth_Decoupling/Iteration_01/code/diag/selfjudge_two_answers.py
++++ b/Truth_Decoupling/Iteration_01/code/diag/selfjudge_two_answers.py
+@@ -311,6 +311,21 @@
+         model, len(items), sum(x["split"] == "tune" for x in items), sum(x["split"] == "test" for x in items)))
+
+
++def read_singleton(model, source):
++    doc, meta, arrays = SP.read_probe(model, source=source)
++    if meta.get("batch_size") != 1 or meta.get("path_identity_batch8_first") != EQ_N:
++        raise ValueError(f"{model} {source}: not a verified single-statement pass")
++    if source == "tj1_chk":
++        expected = set(SP.conds_of(model, source))
++        repeat = meta.get("check_b")
++        keys = {"second_pass_max_abs_diff", "shuffled_pass_max_abs_diff"}
++        if (len(doc["items"]) != NCHK or not all(r["answered"] and r["split"] == "test" for r in doc["items"])
++                or not isinstance(repeat, dict) or set(repeat) != expected
++                or any(not isinstance(v, dict) or set(v) != keys for v in repeat.values())):
++            raise ValueError(f"{model}: incomplete repeat/shuffle controls")
++    return doc, meta, arrays
++
++
+ def score1(model, sources):
+     import fcntl
+     import numpy as np
+@@ -409,7 +424,7 @@
+         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+         for src in sources:
+             if (root / (src + "_probe.json")).exists():
+-                SP.read_probe(model, source=src)
++                read_singleton(model, src)
+                 print("%s: validated batch-1 scores already exist" % src)
+                 continue
+             items, stmts, texts = texts_of(src)
+@@ -442,11 +457,15 @@
+ def check_bc(model):
+     """Section 5 item 2 (b) and (c) on the stored files."""
+     import numpy as np
+-    _, meta, _ = SP.read_probe(model, source="tj1_chk")
++    control, meta, _ = read_singleton(model, "tj1_chk")
+     b = meta["check_b"]
+     okb = all(v["second_pass_max_abs_diff"] == 0 and v["shuffled_pass_max_abs_diff"] == 0 for v in b.values())
+     n1 = n1_answers(model)
+-    doc, _, z = SP.read_probe(model, source="tj1_n1")
++    keys = sorted(k for k in n1 if k[0] == "test")
++    selected = sorted(np.random.default_rng(20261122).choice(len(keys), NCHK, replace=False).tolist())
++    if [row["id"] for row in control["items"]] != ["|".join(keys[i]) for i in selected]:
++        raise ValueError(f"{model}: wrong question list for the repeat/shuffle check")
++    doc, _, z = read_singleton(model, "tj1_n1")
+     ans = [x for x in doc["items"] if x["answered"]]
+     lines = []
+     for c in [c for c in ("baseline", "E_a3") if c in SP.conds_of(model, "x")]:
+@@ -466,7 +485,7 @@
+
+ # ------------------------------------------------------------------------------------------------------------------ #
+ def probe_map(model, src):
+-    doc, _, z = SP.read_probe(model, source=src)
++    doc, _, z = read_singleton(model, src) if src in B1 else SP.read_probe(model, source=src)
+     conds = [c for c in ("baseline", "E_a3") if c in SP.conds_of(model, src)]
+     ans = [x for x in doc["items"] if x["answered"]]
+     out = {}
+@@ -501,6 +520,8 @@
+         N = native(model, i)
+         ids = N["ids"]
+         rows, alln = {}, {}
++        native_texts = {"S": N["fr"].raw_texts(N["w"]), "T": N["fr"].raw_texts(N["d"])}
++        step1_questions = {x["id"]: x["question"] for x in SP.read_json(os.path.join(SP.OUT, model, "items.json"))["items"] if x["split"] == name}
+         for k, q in enumerate(ids):
+             nv, na = V[N["n1"][0][k]], bool(N["n1"][1][k])
+             if N["n1"][2][k]["p"] != q:
+@@ -517,7 +538,8 @@
+                                                  ("T", ci_, cm, N["st1"], N["bl1"], "baseline_conf_E2")):
+                 it = items[name + "|" + q]
+                 v, a = V[st[(q, cond)]], not bl[(q, cond)]
+-                if it["value"] != v or it["answered"] != a:
++                if (it["value"] != v or it["answered"] != a or it["question"] != step1_questions[q]
++                        or it["answer_sha1"] != SP.sha1(native_texts[tag][q, cond])):
+                     raise SystemExit("%s %s: %s item of %s differs from the verdicts" % (model, name, tag, q))
+                 p = mp.get(name + "|" + q)
+                 if a != (p is not None):

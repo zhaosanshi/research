@@ -139,12 +139,12 @@
 | `diag/train_loss_table.py` | 从各次运行的训练日志读出 E 方向在留出题上的损失：不写入、整个激活差、均值差方向、学出的方向 | 新写，未经 GPT 审 | 88ef7200f986cea5 |
 | `scripts/review_checks/e44_positions.py` | 只在评测时换写入位置的入口：把训练时“从题目第一个词写到结尾”的方向，改成只从提问的最后一个词元起写（题目的词不动）；原程序文件不动，三处内存内改动；只允许单写入的生成与导出 | 新写（探索：MMLU 掉分来自题目词上的写入），未经 GPT 审；Llama 8 题试跑后运行 | 1a8ae7861c1c103e |
 | `scripts/review_checks/make_keep_source.py` | 给 E 的训练题里加入多项选择题的源目录构造：原训练题加 160 道 MMLU 诊断题（调参集、测试集不动）；训练程序不改，照旧在训练题上学“写入后要与带如实句的提示输出一致” | 新写（探索：能否让 E 不伤 MMLU），未经 GPT 审；Llama 的源目录已构造并核对 | fd71b3337a121b18 |
-| `diag/selfjudge_probe.py` | 探索：作答后自判。单 E 在 TruthfulQA 上已作答的题，让模型对自己的回答做真假判断（E45 的真假判断代码原样导入，不写入与写入真假 E 力度 1 / 2 / 3 四种条件），看“判为假 → 不答”能否加净分；`export` 导出题与答案（题目原文只留服务器），`score` 在容器里做前向（先对 E45 自己的测试句回归），`table` / `step2` 出第一步、第二步的表（R5a / R5b 规则，门槛只在 TruthfulQA 调参集上选）；`--sources` 给阶段一与事实题的其他答案来源打分 | 新写，探索；已按 GPT 第四、五轮的补丁修改（前向与读表的核对加严；启动器加占卡锁） | 88aeb042a300f68d |
-| `diag/selfjudge_equal_n.py` | 探索：作答后自判的第三步，相同作答数的比较（只读，不调模型与裁判）：单 E + 自判对同样多去掉的单 E、按把握留同样多的强单 E；N1 + 自判对强单 E；TruthfulQA 与 (QA)² 各一套 | 新写，探索；已按 GPT 第四、五轮的补丁修改 | 8401631a03eff816 |
-| `diag/selfjudge_stage1.py` | 探索：作答后自判的阶段一（只读）：强单 E 的回答、N1 放出的回答也交给自判；S1 / S2 / S3 三个系统各对同作答数的强单 E；门槛规则 P / P' 只在 TruthfulQA 调参集上选；`tableZ` 是规则 Z（不选门槛，判分差小于 0 即判假，否定前提开头的不判） | 新写，探索；已按 GPT 第四、五轮的补丁修改 | eeae5271459434a1 |
+| `diag/selfjudge_probe.py` | 探索：作答后自判。单 E 在 TruthfulQA 上已作答的题，让模型对自己的回答做真假判断（E45 的真假判断代码原样导入，不写入与写入真假 E 力度 1 / 2 / 3 四种条件），看“判为假 → 不答”能否加净分；`export` 导出题与答案（题目原文只留服务器），`score` 在容器里做前向（先对 E45 自己的测试句回归），`table` / `step2` 出第一步、第二步的表（R5a / R5b 规则，门槛只在 TruthfulQA 调参集上选）；`--sources` 给阶段一与事实题的其他答案来源打分 | 新写，探索；已按 GPT 第四、五轮的补丁修改（前向与读表的核对加严；启动器加占卡锁） | dd9e8bb20443bf61 |
+| `diag/selfjudge_equal_n.py` | 探索：作答后自判的第三步，相同作答数的比较（只读，不调模型与裁判）：单 E + 自判对同样多去掉的单 E、按把握留同样多的强单 E；N1 + 自判对强单 E；TruthfulQA 与 (QA)² 各一套 | 新写，探索；已按 GPT 第四、五轮的补丁修改 | 4736e617c7bdb3e8 |
+| `diag/selfjudge_stage1.py` | 探索：作答后自判的阶段一（只读）：强单 E 的回答、N1 放出的回答也交给自判；S1 / S2 / S3 三个系统各对同作答数的强单 E；门槛规则 P / P' 只在 TruthfulQA 调参集上选；`tableZ` 是规则 Z（不选门槛，判分差小于 0 即判假，否定前提开头的不判） | 新写，探索；已按 GPT 第四、五轮的补丁修改 | 46d71d1181cb9526 |
 | `diag/selfjudge_gate.py` | 探索：题型开关。只在单 E 留空的题上决定放不放 N1 的回答：K0 = (QA)² 官方题型（只作诊断）、K1 = 模型自己判断这道题是否基于错误或无法核实的前提（固定提示，容器里前向）、K2 = N1 自己的来源信号；各对同作答数的强单 E 与带同一开关的单 E | 新写，探索；已按 GPT 第四、五轮的补丁修改（K1 读表核模型、提示、题单与分数摘要，分数须有限；打印改为不可比时标 n/c） | efe730b80918f904 |
 | `diag/selfjudge_factqa.py` | 探索：事实题（PopQA、TriviaQA 两批测试题）上的作答后自判，规则 Z；只用别名匹配的判决（这些写法没有 Pro 判分）；S1 / S2 / S3 对单 E 与 N1 | 新写，探索；GPT 第四、五轮已审，文件未改（它导入的 `selfjudge_probe.py` 改了，表逐行相同） | 35abb91942303c2d |
-| `diag/selfjudge_gate_k3.py` | 探索：第三个题型开关 K3——在不写入的提问末位读各层残差流，用 (QA)² 的 100 道调参题训一个线性探针判“陷阱题”（五折交叉验证选层）；`capture` 在容器里取特征，`fit` 拟合，`table` 出表（导入 `selfjudge_gate.py`） | 新写，探索，未经 GPT 审 | cd593a7de2c64111 |
+| `diag/selfjudge_gate_k3.py` | 探索：第三个题型开关 K3——在不写入的提问末位读各层残差流，用 (QA)² 的 100 道调参题训一个线性探针判“陷阱题”（五折交叉验证选层）；`capture` 在容器里取特征，`fit` 拟合，`table` 出表（导入 `selfjudge_gate.py`） | 新写，探索，未经 GPT 审 | 3e745a3030bd06e7 |
 | `diag/factqa_nonanswer_diag.py` | 只读诊断：事实题上别名匹配判错的回答里有多少其实是“不回答”（固定短语表，先写后看数），把它们记 0 后 N1 减单 E 变成多少；回答、判决与系统都取自 `ns_prompt_table.py` | 新写，探索，未经 GPT 审 | 20b2749072e34806 |
 | `diag/selfjudge_arbitrate.py` | 探索：排期庚 G4。同一道题有两条不同的回答时（原模型的与 E 的；C 放出的与“必须作答 + E”的），两条各做作答后自判，取自判分高的一条；G4c 再加规则 Z；不写入与写入真假 E 两种条件。只读现成回答、判决与自判分 | 新写，探索；GPT 第六轮审过（分母 113 更正为 112） | 4bca9c4ccfb28b25 |
 | `diag/ec_offline_checks.py` | 探索：排期庚的三项离线检查——G1 每题只生成一遍的 E + C；G2 两个补答上限 25 种组合的平均；G3 四档 C 的独有答对候选。只读现成回答与 Pro 判决 | 新写，探索；装了 GPT 第六轮补丁（同一模型、同一题、同一文字统一判决，G3 由 71 改为 66） | b110985ebf4cc021 |
@@ -227,3 +227,4 @@
 | 2026-11-22 | 复核时更新 ns_positions.py 的镜像摘要；与实验机现行文件相同 | 赵磊（GPT-6.2-Astra 代笔） |
 | 2026-11-22 | 登记作答后自判与题型开关的七个程序（`diag/selfjudge_probe.py`、`selfjudge_equal_n.py`、`selfjudge_stage1.py`、`selfjudge_gate.py`、`selfjudge_factqa.py`、`selfjudge_gate_k3.py`、`factqa_nonanswer_diag.py`）与四个 `selfjudge_*.sh` 启动脚本；应用 GPT 第四、五轮的补丁（`discussion/validation_dataset/2026-11-22d_probe.patch`、`2026-11-22d_equal.patch`、`2026-11-22d_equal_stage1.patch`、`2026-11-22e_compat.patch`），K3 的启动脚本照同样写法加占卡锁 | 赵磊（Opus 5.5 代笔） |
 | 2026-11-23 | 00 时：登记 2026-11-22 下午到夜里定稿的十八个文件（G4 与 G1–G3、如实句的几项对照、2×2、叠在如实句上的第一步、两条回答挑一条、CAA 的表与向量、配置）；仍在改的几个（`ns_h22.py`、`n1_on_sentence2.py`、`prompt_family.py`、`selfjudge_stack.py` 等）等这一批做完再登记 | 赵磊（Opus 5.5 代笔） |
+| 2026-11-23 | 将四个自判脚本的摘要与本次核实的仓库和服务器现行版本对齐 | 赵磊（GPT-6.2-Astra 代笔） |
