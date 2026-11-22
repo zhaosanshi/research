@@ -1,0 +1,28 @@
+===== test
+llama3.1-8b  523 q | S0 +33 (454) | N1 +62 (476) | F1 +55 (515) | F2 +59 (515) | FE +32 (461) | T2 +40 (523)
+     F1 minus S0 +22 [+8, +36] | F1 minus N1 -7 [-50, +34] | F1 minus T2 +15 [+0, +31] | on the 61 S0-blank questions N1 and the must-answer prompt both answer: N1 +23, must-answer +6
+qwen3.5-9b   523 q | S0 +168 (464) | N1 +186 (444) | F1 +172 (481) | F2 +173 (481) | FE +167 (470) | T2 +159 (523)
+     F1 minus S0 +4 [-4, +12] | F1 minus N1 -14 [-38, +12] | F1 minus T2 +13 [+1, +26] | on the 17 S0-blank questions N1 and the must-answer prompt both answer: N1 +5, must-answer +6
+qwen3.8-27b  521 q | S0 +162 (373) | N1 +175 (490) | F1 +201 (498) | F2 +174 (498) | FE +170 (393) | T2 +165 (521)
+     F1 minus S0 +39 [+19, +60] | F1 minus N1 +26 [+2, +51] | F1 minus T2 +36 [+15, +57] | on the 125 S0-blank questions N1 and the must-answer prompt both answer: N1 +39, must-answer +12
+gemma3-12b   522 q | S0 +156 (501) | N1 +158 (489) | F1 +163 (518) | F2 +170 (518) | FE +155 (501) | T2 +145 (521)
+     F1 minus S0 +7 [-1, +15] | F1 minus N1 +5 [-38, +48] | F1 minus T2 +18 [+7, +31] | on the 16 S0-blank questions N1 and the must-answer prompt both answer: N1 +7, must-answer -10
+gemma3-27b   523 q | S0 +186 (488) | N1 +144 (510) | F1 +188 (518) | F2 +152 (518) | FE +183 (496) | T2 +178 (522)
+     F1 minus S0 +2 [-8, +12] | F1 minus N1 +44 [+8, +79] | F1 minus T2 +10 [+0, +21] | on the 30 S0-blank questions N1 and the must-answer prompt both answer: N1 +3, must-answer -5
+five models, 520 common questions: S0 +706 (2269) | N1 +729 (2398) | F1 +781 (2518) | F2 +733 (2518) | FE +708 (2310) | T2 +689 (2598)
+   F1 minus S0 +75 [+42, +109] | F1 minus N1 +52 [-33, +142] | F1 minus T2 +92 [+59, +128] | F2 minus S0 +27 [-67, +119] | FE minus S0 +2 [-14, +17]
+   S0-blank questions answered by both N1 and the must-answer prompt: 248 model x question | N1 +78 | must-answer +10 | difference +68 [+40, +99]
+===== tune
+llama3.1-8b  192 q | S0 +18 (158) | N1 +27 (184) | F1 +32 (192) | F2 +26 (192) | FE +17 (160) | T2 +30 (192)
+     F1 minus S0 +14 [+5, +23] | F1 minus N1 +5 [-21, +32] | F1 minus T2 +2 [-9, +13] | on the 34 S0-blank questions N1 and the must-answer prompt both answer: N1 +14, must-answer +12
+qwen3.5-9b   192 q | S0 +64 (162) | N1 +63 (155) | F1 +66 (170) | F2 +61 (170) | FE +64 (162) | T2 +58 (190)
+     F1 minus S0 +2 [-3, +8] | F1 minus N1 +3 [-13, +19] | F1 minus T2 +8 [-1, +17] | on the 8 S0-blank questions N1 and the must-answer prompt both answer: N1 +2, must-answer +0
+qwen3.8-27b  192 q | S0 +63 (128) | N1 +80 (182) | F1 +93 (188) | F2 +80 (188) | FE +70 (140) | T2 +76 (192)
+     F1 minus S0 +30 [+16, +44] | F1 minus N1 +13 [+2, +25] | F1 minus T2 +17 [+5, +31] | on the 60 S0-blank questions N1 and the must-answer prompt both answer: N1 +30, must-answer +14
+gemma3-12b   192 q | S0 +34 (178) | N1 +74 (180) | F1 +42 (187) | F2 +74 (187) | FE +34 (178) | T2 +32 (192)
+     F1 minus S0 +8 [+3, +14] | F1 minus N1 -32 [-58, -5] | F1 minus T2 +10 [+2, +20] | on the 9 S0-blank questions N1 and the must-answer prompt both answer: N1 +8, must-answer -2
+gemma3-27b   192 q | S0 +65 (178) | N1 +53 (185) | F1 +68 (190) | F2 +55 (190) | FE +64 (179) | T2 +72 (192)
+     F1 minus S0 +3 [-3, +9] | F1 minus N1 +15 [-6, +35] | F1 minus T2 -4 [-8, -1] | on the 12 S0-blank questions N1 and the must-answer prompt both answer: N1 +3, must-answer +6
+five models, 192 common questions: S0 +244 (804) | N1 +297 (886) | F1 +301 (927) | F2 +296 (927) | FE +249 (819) | T2 +268 (958)
+   F1 minus S0 +57 [+34, +80] | F1 minus N1 +4 [-47, +58] | F1 minus T2 +33 [+10, +57] | F2 minus S0 +52 [-7, +109] | FE minus S0 +5 [-2, +12]
+   S0-blank questions answered by both N1 and the must-answer prompt: 123 model x question | N1 +57 | must-answer +30 | difference +27 [+9, +48]
