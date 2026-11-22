@@ -1,0 +1,203 @@
+--- a/Truth_Decoupling/Iteration_01/code/diag/selfjudge_gate_k3.py
++++ b/Truth_Decoupling/Iteration_01/code/diag/selfjudge_gate_k3.py
+@@ -39,6 +39,7 @@
+ # usage (from /data/sanshizhao/Truth_Decoupling):
+ #   (GPU)  Iteration_01/logs/newsets_20261119/selfjudge_gate_k3_1122.sh MODEL   (capture + fit, container, GPU 1)
+ #   (host) python3 -B Iteration_01/diag/selfjudge_gate_k3.py table
++import hashlib
+ import json
+ import os
+ import re
+@@ -59,6 +60,27 @@
+ CV_SEED = 0
+ NFOLD = 5
+
++# These originals predate the fit checksum and were independently rebuilt from all
++# twelve captured arrays. Keep their validated identifiers for read-only migration.
++LEGACY = {
++    "llama3.1-8b": ("cfbdd66588ce92393d0821c1308a4a76712b73e9f7cb5aa688efcf56c0c4f7c0",
++                    "7368b52f302236408a178098b6db2dcb356360b93a90dde67cf54af5fe4bacc1"),
++    "qwen3.5-9b": ("c9d7f1a5526cd6576e3feccfe8de8495885b57768328fab8d52cd0af34408a28",
++                   "19de2ad8cd4b4adbf168b77e2178041174bda5c857af8ff33d7cabd0f9df8850"),
++}
++LEGACY_INPUTS = ("4458128f48a846bc1a099e75d148ca5d55ef01fc715bf9d3c61f3f34db787841",
++                 "a3f6342aa9feca2e24f88003f2a05f1ba4f0f32cff9da5caaa62eaa9ac7782fa")
++
++
++def payload_digest(doc):
++    fields = {k: v for k, v in doc.items() if k != "payload_sha256"}
++    raw = json.dumps(fields, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
++    return hashlib.sha256(raw).hexdigest()
++
++
++def training_inputs():
++    return (SP.sha256_file(SP.QAQA_BANK), SP.sha256_file(SP.QAQA_PILOT))
++
+
+ def read_jsonl(path):
+     with open(path, encoding="utf-8") as f:
+@@ -73,14 +95,15 @@
+     return m.group(0)
+
+
+-def set_items(model):
++def set_items(model, verbose=True):
+     """[(set name, system, template, [dict(key, question, first_token, content_start)])] from the generation records."""
+     fm = SP.read_json(FROZEN_MODELS)["models"][model]
+     out = []
+     bank = read_jsonl(SP.QAQA_BANK)
+     g = SP.read_json("Iteration_01/newsets/gen_prompt/qaqafull/%s/test/x.json" % model)
+     k = g["contract"]
+-    if k["items_file_sha256"] != SP.sha256_file(SP.QAQA_BANK) or k["base_prompt"] != "x" or k["parts"] or k["arm"] != "x":
++    if (k["items_file_sha256"] != SP.sha256_file(SP.QAQA_BANK) or k["base_prompt"] != "x" or k["parts"]
++            or (k["model"], k["task"], k["split"], k["arm"]) != (model, "qaqafull", "test", "x") or not g.get("completed")):
+         raise SystemExit("%s (QA)^2 x.json is not the no-write x pass of the bank" % model)
+     if [r["id"] for r in g["rows"]] != [b["id"] for b in bank] or any(b["split"] != "test" for b in bank):
+         raise SystemExit("%s (QA)^2 x.json rows are not the bank" % model)
+@@ -98,7 +121,8 @@
+         rows = [r for r in read_jsonl(path) if r["split"] == split]
+         g = SP.read_json("Iteration_01/newsets/gen_prompt/%s/%s/%s/x.json" % (task, model, split))
+         k = g["contract"]
+-        if k["items_file_sha256"] != SP.sha256_file(path) or k["base_prompt"] != "x" or k["parts"] or k["split"] != split:
++        if (k["items_file_sha256"] != SP.sha256_file(path) or k["base_prompt"] != "x" or k["parts"]
++                or (k["model"], k["task"], k["split"], k["arm"]) != (model, task, split, "x") or not g.get("completed")):
+             raise SystemExit("%s %s %s x.json is not the no-write x pass of the bank" % (model, task, split))
+         if [r["id"] for r in g["rows"]] != [r["id"] for r in rows]:
+             raise SystemExit("%s %s %s x.json rows are not the bank split" % (model, task, split))
+@@ -122,7 +146,10 @@
+         if [x["key"] for x in mine] != [x["key"] for x in ref]:
+             raise SystemExit("%s %s: question keys differ from k1_items.json" % (model, name))
+         bad = sum(a["question"].strip() != b["question"].strip() for a, b in zip(mine, ref))
+-        print("%s %s: %d questions (K1 list %d), question texts differing from K1's: %d" % (model, name, len(its), len(ref), bad), flush=True)
++        if verbose:
++            print("%s %s: %d questions (K1 list %d), question texts differing from K1's: %d" % (model, name, len(its), len(ref), bad), flush=True)
++        if bad or len({x["key"] for x in its}) != len(its):
++            raise SystemExit("%s %s: mismatched text or duplicate question" % (model, name))
+     return fm, out
+
+
+@@ -247,11 +274,12 @@
+         print("%s %s: %d prompts, read token %r, arg-max next token = first token of the x answer %d / %d; largest gap "
+               "(top logit - logit of that token) where they differ %.4f" % (
+                   model, name, len(its), ps[0]["read_token"], agree, int(has.sum()), float(gap.max())), flush=True)
+-        if agree < MIN_AGREE * has.sum() or gap.max() > MAX_GAP:
++        if not has.any() or agree < MIN_AGREE * has.sum() or gap.max() > MAX_GAP:
+             raise SystemExit("%s %s: arg-max agreement below %.0f%% or a disagreement more than %.1f logit: the prompt may not "
+                              "be the generation's" % (model, name, 100 * MIN_AGREE, MAX_GAP))
+         np.savez(os.path.join(out_dir, "k3_%s.npz" % name), keys=np.array([x["key"] for x in its]),
+                  question_sha1=np.array([SP.sha1(x["question"]) for x in its]), resid=H, argmax=am, first_token=first)
++        meta["sets"][name]["npz_sha256"] = SP.sha256_file(os.path.join(out_dir, "k3_%s.npz" % name))
+     with open(os.path.join(out_dir, "k3_capture.json"), "w", encoding="utf-8") as f:
+         json.dump(meta, f, ensure_ascii=False, indent=1)
+     print("%s: capture done" % model, flush=True)
+@@ -262,6 +290,60 @@
+     import numpy as np
+     z = np.load(os.path.join(SP.OUT, model, "k3_%s.npz" % name))
+     return [str(k) for k in z["keys"]], z["resid"]
++
++
++def validate_captured_rows(model, inputs, cap):
++    import numpy as np
++    if cap["model"] != model or set(cap["sets"]) != set(SETS):
++        raise SystemExit("foreign capture or incomplete sets")
++    expected = set()
++    legacy = {}
++    if any("npz_sha256" not in s for s in cap["sets"].values()):
++        old = os.path.join(SP.OUT, model, "k3_fit.json")
++        if not os.path.isfile(old) or SP.sha256_file(old) != LEGACY[model][0]:
++            raise SystemExit(model + ": legacy capture has no checked feature manifest")
++        legacy = SP.read_json(old)["npz_sha256"]
++    for name, _, _, items in inputs:
++        path = os.path.join(SP.OUT, model, "k3_%s.npz" % name)
++        h = cap["sets"][name].get("npz_sha256", legacy.get(name))
++        if not h or SP.sha256_file(path) != h:
++            raise SystemExit("%s: captured feature digest differs" % path)
++        keys = [item["key"] for item in items]
++        with np.load(path, allow_pickle=False) as z:
++            if (len(set(keys)) != len(keys) or cap["sets"][name]["n"] != len(keys)
++                    or z["keys"].tolist() != keys
++                    or z["question_sha1"].tolist() != [SP.sha1(x["question"]) for x in items]):
++                raise SystemExit("%s: captured rows differ from source questions" % path)
++        expected.update(keys)
++    return expected
++
++
++def checked_fit(model):
++    import math
++    out_dir = os.path.join(SP.OUT, model)
++    path = os.path.join(out_dir, "k3_fit.json")
++    cap_path = os.path.join(out_dir, "k3_capture.json")
++    doc = SP.read_json(path)
++    cap = SP.read_json(cap_path)
++    if "payload_sha256" in doc:
++        intact = (doc["payload_sha256"] == payload_digest(doc)
++                  and tuple(doc["training_inputs"]) == training_inputs()
++                  and doc["capture_sha256"] == SP.sha256_file(cap_path))
++    else:
++        intact = ((SP.sha256_file(path), SP.sha256_file(cap_path)) == LEGACY.get(model)
++                  and training_inputs() == LEGACY_INPUTS)
++    if not intact or doc["model"] != model or doc["n_train"] != 100:
++        raise SystemExit("foreign or incomplete K3 fit, capture, bank, or pilot: " + model)
++    _, inputs = set_items(model, verbose=False)
++    expected = validate_captured_rows(model, inputs, cap)
++    for n in SETS:
++        if doc["npz_sha256"][n] != SP.sha256_file(os.path.join(out_dir, "k3_%s.npz" % n)):
++            raise SystemExit("%s: fit belongs to another %s capture" % (model, n))
++    for l in (doc["selected_layer"], SP.MODELS[model]["layer"]):
++        scores = doc["probs"][str(l)]
++        if set(scores) != expected or not all(math.isfinite(v) and 0 <= v <= 1 for v in scores.values()):
++            raise SystemExit("%s: invalid K3 probabilities at layer %d" % (model, l))
++    return doc, cap
+
+
+ def fit(model):
+@@ -273,15 +355,21 @@
+     out = os.path.join(SP.OUT, model, "k3_fit.json")
+     if os.path.exists(out):
+         raise SystemExit("%s exists" % out)
+-    bank = {r["id"]: r for r in read_jsonl(SP.QAQA_BANK)}
++    _, inputs = set_items(model, verbose=False)
++    cap_path = os.path.join(SP.OUT, model, "k3_capture.json")
++    cap = SP.read_json(cap_path)
++    validate_captured_rows(model, inputs, cap)
++    bank = read_jsonl(SP.QAQA_BANK)
+     pilot = SP.read_json(SP.QAQA_PILOT)
+     pset = set(pilot["ids"])
+     keys, H = load_set(model, "qaqa")
+-    ids = [k.split("|", 1)[1] for k in keys]
+-    tr = [i for i, q in enumerate(ids) if q in pset]
+-    if len(tr) != 100 or any(bank[ids[i]]["qtype"] != pilot["types"][ids[i]] for i in tr):
++    if (keys != ["qaqa|" + r["id"] for r in bank] or len(pset) != 100
++            or len(pilot["ids"]) != len(pset) or set(pilot["types"]) != pset):
++        raise SystemExit("wrong bank or tune roster")
++    tr = [i for i, row in enumerate(bank) if row["id"] in pset]
++    if len(tr) != 100 or any(bank[i]["qtype"] != pilot["types"][bank[i]["id"]] for i in tr):
+         raise SystemExit("the 100 tune questions")
+-    y = np.array([bank[ids[i]]["qtype"] != "no_failure" for i in tr])
++    y = np.array([bank[i]["qtype"] != "no_failure" for i in tr])
+     L = H.shape[1]
+     folds = list(StratifiedKFold(n_splits=NFOLD, shuffle=True, random_state=CV_SEED).split(np.zeros(len(y)), y))
+
+@@ -318,6 +406,9 @@
+                                       ties="lower layer", trap="probability > 0.5"),
+                n_train=len(tr), n_pos=int(y.sum()), cv=cv, selected_layer=sel, e_layer=el, fit=info, probs=probs,
+                npz_sha256={n: SP.sha256_file(os.path.join(SP.OUT, model, "k3_%s.npz" % n)) for n in SETS})
++    doc["training_inputs"] = training_inputs()
++    doc["capture_sha256"] = SP.sha256_file(cap_path)
++    doc["payload_sha256"] = payload_digest(doc)
+     with open(out, "w", encoding="utf-8") as f:
+         json.dump(doc, f, indent=0)
+     print("%s: selected layer %d (mean 5-fold AUROC %.4f); E layer %d (%.4f) -> %s" % (model, sel, best, el, cv[el]["mean"], out), flush=True)
+@@ -366,11 +457,7 @@
+     QQ = {m: SG.load_qq(A1, m) for m in ORDER}
+     FIT, K3 = {}, {}
+     for m in ORDER:
+-        doc = SP.read_json(os.path.join(SP.OUT, m, "k3_fit.json"))
+-        cap = SP.read_json(os.path.join(SP.OUT, m, "k3_capture.json"))
+-        for n in SETS:
+-            if doc["npz_sha256"][n] != SP.sha256_file(os.path.join(SP.OUT, m, "k3_%s.npz" % n)):
+-                raise SystemExit("%s: k3_fit.json made from another k3_%s.npz" % (m, n))
++        doc, cap = checked_fit(m)
+         FIT[m] = doc
+         K3[m] = {"sel": doc["probs"][str(doc["selected_layer"])], "E": doc["probs"][str(doc["e_layer"])]}
+         print("# %s capture: %s" % (m, " | ".join("%s n %d, arg-max = first x token %d / %d" % (

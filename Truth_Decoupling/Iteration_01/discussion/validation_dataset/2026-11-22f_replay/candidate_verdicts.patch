@@ -1,0 +1,85 @@
+--- a/Truth_Decoupling/Iteration_01/code/diag/ec_offline_checks.py
++++ b/Truth_Decoupling/Iteration_01/code/diag/ec_offline_checks.py
+@@ -115,6 +115,30 @@
+
+
+ # ------------------------------------------------------------------ TruthfulQA loader
++def shared_right(ids, read, has_forced):
++    """G3 only. One verdict per literal answer on a model/question; never merge across questions.
++    Freeze conflict precedence E, original, must-answer original, forced E, then ascending C dose.
++    The source's own issued flag still determines whether it can submit the candidate.
++    """
++    result = {src: {} for src in ("C", "F", "O", "M")}
++    for q in ids:
++        cells = read(q)
++        seen = {}
++        correct = {}
++        for src, text, issued, right in cells:
++            key = text.strip()
++            verdict = seen.setdefault(key, right)
++            correct[src] = issued and verdict
++        for src in ("O", "M"):
++            result[src][q] = correct[src]
++        if has_forced:
++            result["F"][q] = correct["F"]
++        result["C"][q] = any(correct[k] for k in LEVELS)
++    if not has_forced:
++        result["F"] = None
++    return result
++
++
+ def tqa_models():
+     import iti_table as A
+     import tq_same_n_decomp as TD
+@@ -164,13 +188,17 @@
+             miss = [q for q in ids if q not in mby]
+             if miss:
+                 raise SystemExit("%s split %d: %d questions have no must-answer (no write) verdict" % (model, i, len(miss)))
+-            right = {
+-                "C": {q: any(sp.st[(q, sp.cEC(s, k))] == "R" and not sp.blank[(q, sp.cEC(s, k))] for k in map(inv.get, LEVELS))
+-                      for q in ids},
+-                "F": None if f is None else {q: f[0][q] == 1 and f[1][q] for q in ids},
+-                "O": {q: sp.st[(q, "baseline_x")] == "R" and not sp.blank[(q, "baseline_x")] for q in ids},
+-                "M": {q: mby[q][0] == "R" and mby[q][1] for q in ids},
+-            }
++            fc = f"E_L{layer}_conf-w-p{s}"
++            ftexts = MP.fr.raw_texts(MP.work(run, "test", f"pospromptdl{layer}")) if f is not None else {}
++            def sources(q):
++                def grid(src, c):
++                    return (src, tx.ec[(q, c)], not sp.blank[(q, c)], sp.st[(q, c)] == "R")
++                result = [grid("E", sp.cE(s)), grid("O", "baseline_x"),
++                          ("M", D.texts.d[(q, "baseline_conf")], mby[q][1], mby[q][0] == "R")]
++                if f is not None:
++                    result.append(("F", ftexts[(q, fc)], f[1][q], f[0][q] == 1))
++                return result + [grid(k, sp.cEC(s, inv[k])) for k in LEVELS]
++            right = shared_right(ids, sources, f is not None)
+             per[i] = M(model, ids, e, ea, n1, ec, f, right, chosen)
+             per[i].types = None
+         per["info"] = "layer %d strength %s, N1 caps chosen on tune %s / %s" % (layer, s, chosen[0], chosen[1])
+@@ -227,11 +255,12 @@
+             if with_f:
+                 fv, fa = Rx.arm_system(forced)
+                 f = (fv, fa, conf)
+-                ok = lambda arm, q: Rx.cell(arm, q) > 0 and not Rx.blank(arm, q)  # noqa: E731
+-                right = {"C": {q: any(ok(Rx.ec(s, k), q) for k in Q.LAD) for q in Rx.ids},
+-                         "F": {q: ok(forced, q) for q in Rx.ids},
+-                         "O": {q: ok("x", q) for q in Rx.ids},
+-                         "M": {q: ok("conf", q) for q in Rx.ids}}
++                arms = [("E", Rx.e(s)), ("O", "x"), ("M", "conf"), ("F", forced)]
++                arms.extend((k, Rx.ec(s, k)) for k in Q.LAD)
++                def sources(q):
++                    return [(src, Rx.text(arm, q), not Rx.blank(arm, q), Rx.cell(arm, q) > 0)
++                            for src, arm in arms]
++                right = shared_right(ids, sources, True)
+             mm = M(model, ids, e, ea, n1, ec, f, right, chosen)
+             mm.types = Rx.qtype
+             return mm
+@@ -439,7 +468,7 @@
+     g1(per, {m: (data[m][0], data[m][0].ids) for m in MODELS}, common, seed)
+     g2(per, common, seed)
+     g3([("TruthfulQA tune split", [(m, data[m][0], data[m][0].ids) for m in MODELS]),
+-        ("TruthfulQA test split", [(m, data[m][1], data[m][1].ids) for m in MODELS])])
++        ("TruthfulQA test split, common roster", [(m, data[m][1], common) for m in MODELS])])
+
+
+ def run_qaqa():

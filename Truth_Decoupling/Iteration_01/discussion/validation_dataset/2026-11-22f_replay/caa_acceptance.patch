@@ -1,0 +1,166 @@
+--- a/Truth_Decoupling/Iteration_01/code/scripts/newsets/caa_vector.py
++++ b/Truth_Decoupling/Iteration_01/code/scripts/newsets/caa_vector.py
+@@ -206,6 +206,8 @@
+     questions = list(ctx.prepared["splits"]["train"])
+     h0, h1 = halves(questions)
+     t0 = time.time()
++    if len(questions) != 96 or len({q["pair_id"] for q in questions}) != 96:
++        raise SystemExit("fit needs all 96 distinct training questions")
+     items, info = ab_items(bundle, questions)
+     per_q = collections.OrderedDict((q["pair_id"], []) for q in questions)
+     with torch.no_grad():
+@@ -217,6 +219,8 @@
+             if n % 200 == 0:
+                 print("pair %d of %d, %.0fs" % (n, len(items), time.time() - t0), flush=True)
+     used = [pid for pid, v in per_q.items() if v]
++    if len(used) != len(questions):
++        raise SystemExit("a training question has no usable positive/negative pair")
+     qmean = {pid: torch.stack(v).mean(0) for pid, v in per_q.items() if v}
+     vec = torch.stack([qmean[p] for p in used]).mean(0)                                  # [layers, hidden]
+     used0 = [q["pair_id"] for q in h0 if q["pair_id"] in qmean]
+@@ -254,9 +258,69 @@
+
+ def load_vectors(path, model):
+     import torch
+-    v = torch.load(path, map_location="cpu", weights_only=False)
++    v = torch.load(path, map_location="cpu", weights_only=True)
++    meta = v["meta"]
++    if meta != json.loads(Path(str(path) + ".json").read_text(encoding="utf-8")):
++        raise SystemExit("vector metadata sidecar differs from tensor file")
++    for field, norm_field in (("vectors", "norms"), ("vectors_half0", "norms_half0")):
++        x = v[field]
++        if (x.shape != (meta["layers"], meta["hidden"]) or not torch.isfinite(x).all()
++                or not torch.allclose(x.float().norm(dim=-1), torch.tensor(meta[norm_field]), atol=1e-6, rtol=1e-6)):
++            raise SystemExit("invalid shape, values or norms in " + field)
+     if v["meta"].get("protocol") != PROTOCOL or v["meta"].get("model") != model:
+         raise SystemExit("%s is not a CAA vector file of %s" % (path, model))
++    return v
++
++
++def verify_inputs(root, model_config, vectors):
++    meta = vectors["meta"]
++    src = root / model_config["source_run"] / "questions.json"
++    bank = json.loads(src.read_text(encoding="utf-8"))["splits"]
++    ids = {split: [q["pair_id"] for q in bank[split]] for split in ("train", "tune", "test")}
++    train = ids["train"]
++    if (sha_file(src) != meta["questions_file_sha256"] or len(train) != 96
++            or any(len(seq) != len(set(seq)) for seq in ids.values())
++            or meta["split"] != "train" or meta["questions_used"] != train or meta["question_ids"] != train
++            or meta["half0_ids"] != train[::2] or meta["half1_ids"] != train[1::2]):
++        raise SystemExit("CAA vector training source, order, complete roster or halves differ")
++    dr = set(json.loads((root / DR100).read_text(encoding="utf-8"))["pair_ids"])
++    if set(train) & (set(ids["tune"]) | set(ids["test"]) | dr):
++        raise SystemExit("CAA train overlaps a held-out split")
++    return ids
++
++
++def verify_bundle(root, a, model_config):
++    """CPU-only; the generic E loader cannot distinguish CAA from a real E record."""
++    import torch
++    v = load_vectors(a.vectors, a.model)
++    meta, vec = v["meta"], v["vectors"]
++    ids = verify_inputs(root, model_config, v)
++    dst = (root / a.mirror).resolve()
++    listing = json.loads((dst / "MIRROR.json").read_text(encoding="utf-8"))
++    digest = sha_file(a.vectors)
++    src = (root / listing["source_run_dir"]).resolve()
++    if (listing["kind"] != "caa" or listing["model"] != a.model or listing["protocol"] != PROTOCOL
++            or listing["vectors_file_sha256"] != digest or src == dst
++            or (root / model_config["run_dir"]).resolve() not in (src, dst)):
++        raise SystemExit("wrong CAA mirror, model or vector source")
++    for split, roster in ids.items():
++        name = "frozen_" + split + ".json"
++        f = json.loads((dst / name).read_text(encoding="utf-8"))
++        if (listing["frozen_files_sha256"][name] != sha_file(dst / name) or sha_file(src / name) != sha_file(dst / name)
++                or f["identity_sha256"] != meta["identity_sha256"] or f["model"] != a.model or not f["completed"]
++                or f["split"] != split or f["question_ids"] != roster):
++            raise SystemExit("wrong frozen CAA inputs in " + name)
++    for l in (a.layers or meta["candidate_layers"]):
++        entry = listing["layers"].get(str(l))
++        p = dst / "dirs" / ("E_L%d.pt" % l)
++        if not entry or entry["file_sha256"] != sha_file(p):
++            raise SystemExit("missing or mismatched CAA layer " + str(l))
++        rec = torch.load(p, map_location="cpu", weights_only=True)
++        if (rec["layer"] != l or rec["identity_sha256"] != meta["identity_sha256"]
++                or rec.get("caa", {}).get("vectors_file_sha256") != digest
++                or rec["training_contract"]["train_ids"] != ids["train"] or rec["training_contract"]["val_ids"] != []
++                or not torch.allclose(rec["md_norm"] * rec["w_md"], vec[l], rtol=1e-6, atol=1e-7)):
++            raise SystemExit("CAA mirror is not the intended direction at layer " + str(l))
+     return v
+
+
+@@ -271,6 +335,11 @@
+         raise SystemExit("%s exists; a mirror is never overwritten" % a.mirror)
+     if dst.name == src.name or (m.get("c_run_dir") and dst.name == Path(m["c_run_dir"]).name):
+         raise SystemExit("the mirror needs a directory name of its own")
++    if a.kind == "caa":
++        if not a.vectors:
++            raise SystemExit("--kind caa needs --vectors")
++        v = load_vectors(a.vectors, a.model)
++        verify_inputs(NG.ROOT, m, v)
+     names = ["frozen_train.json", "frozen_tune.json", "frozen_test.json"]
+     (dst / "dirs").mkdir(parents=True)
+     for n in names:
+@@ -286,9 +355,6 @@
+             shutil.copyfile(src / "dirs" / ("E_L%d.pt" % l), dst / "dirs" / ("E_L%d.pt" % l))
+             listing["layers"][str(l)] = {"file_sha256": sha_file(dst / "dirs" / ("E_L%d.pt" % l)), "copied_from_run": True}
+     else:
+-        if not a.vectors:
+-            raise SystemExit("--kind caa needs --vectors")
+-        v = load_vectors(a.vectors, a.model)
+         vec, meta = v["vectors"], v["meta"]
+         tl = a.template_layer if a.template_layer is not None else meta["candidate_layers"][len(meta["candidate_layers"]) // 2]
+         template = torch.load(src / "dirs" / ("E_L%d.pt" % tl), map_location="cpu", weights_only=False)
+@@ -416,7 +482,7 @@
+     import torch
+     NG, m, X, ctx = open_run(a, run_dir=a.mirror, first_batches=a.first_batches)
+     bundle, fd, pd = ctx.bundle, X.fd, X.pd
+-    v = load_vectors(a.vectors, a.model)
++    v = verify_bundle(NG.ROOT, a, NG.load_models(a.models, a.model))
+     meta = v["meta"]
+     if meta["identity_sha256"] != ctx.ident_sha:
+         raise SystemExit("the vectors belong to another run identity")
+@@ -445,7 +511,7 @@
+                  "tune": len(tune_ids), "test": len(test_ids), "dr100": len(dr),
+                  "half0_half1_disjoint": not set(meta["half0_ids"]) & set(meta["half1_ids"]),
+                  "halves_cover_train": set(meta["half0_ids"]) | set(meta["half1_ids"]) == set(train)}
+-    good = (ids_check["all_in_train"] and ids_check["in_frozen_train"] and ids_check["half0_half1_disjoint"]
++    good = (ids_check["equal_to_train"] and ids_check["all_in_train"] and ids_check["in_frozen_train"] and ids_check["half0_half1_disjoint"]
+             and ids_check["halves_cover_train"] and not any(ids_check[k] for k in ids_check if k.startswith("overlap_")))
+     ok &= good
+     out["ids"] = ids_check
+@@ -492,7 +558,11 @@
+             zero[l] = {"amount": float(ws[0][1]["amount"]), "same_as_no_write": same, "of": len(recs), "trained_positions_carrier": trained,
+                        "record_md_write_minus_vector_max_abs": rec_gap, "prefill_positions_written_per_row": pre,
+                        "decode_steps_total_per_batch": dec}
+-            good = same == len(recs) and rec_gap <= 1e-4 * max(1.0, float(vec_l.norm())) and pre == [1]
++            expected_steps = [r["n_tokens"] if r["finished"] else max(0, r["n_tokens"] - 1) for r in recs]
++            decode_ok = all(r["write"]["decode_steps_own"] == n for r, n in zip(recs, expected_steps))
++            zero[l]["decode_steps_match_generated_rows"] = decode_ok
++            good = (same == len(recs) == len(frozen) > 0 and rec_gap <= 1e-4 * max(1.0, float(vec_l.norm()))
++                    and pre == [1] and decode_ok and zero[l]["amount"] == 0.0)
+             ok &= good
+             print("check 2: layer %2d multiplier 0 at gen: %d of %d answers equal no write token for token; prefill positions "
+                   "written per row %s; record md write minus vector max %.2e -> %s" % (l, same, len(recs), pre, rec_gap,
+@@ -527,7 +597,7 @@
+
+ def main():
+     ap = argparse.ArgumentParser()
+-    ap.add_argument("phase", choices=["fit", "mirror", "check"])
++    ap.add_argument("phase", choices=["fit", "mirror", "check", "verify"])
+     ap.add_argument("--models", type=Path, required=True)
+     ap.add_argument("--model", required=True)
+     ap.add_argument("--out")
+@@ -548,6 +618,12 @@
+         if not a.mirror:
+             ap.error("mirror needs --mirror")
+         run_mirror(a)
++    elif a.phase == "verify":
++        if not (a.mirror and a.vectors):
++            ap.error("verify needs --mirror and --vectors")
++        import newsets_gen as NG
++        verify_bundle(NG.ROOT, a, NG.load_models(a.models, a.model))
++        print("CAA training inputs and mirror verified")
+     else:
+         if not (a.mirror and a.vectors and a.out):
+             ap.error("check needs --mirror, --vectors and --out")

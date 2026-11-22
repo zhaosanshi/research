@@ -1,0 +1,238 @@
+--- /dev/null
++++ b/Truth_Decoupling/Iteration_01/code/scripts/newsets/caa_run_guard.py
+@@ -0,0 +1,168 @@
++"""CPU-side input checks for the CAA launchers. Run from the Truth_Decoupling data root."""
++import hashlib
++import json
++import math
++import os
++from pathlib import Path
++import sys
++
++
++ROOT = Path("Iteration_01")
++FROZEN = ROOT / "code/configs/newsets/frozen_models_20261119.json"
++VECTOR_SCRIPT = ROOT / "code/scripts/newsets/caa_vector.py"
++MCQ = ROOT / "code/scripts/capability/cap_mcq_sweep.py"
++IDS = ROOT / "capability/sets/mmlu_14042_20261120.json"
++ITEMS = Path("data_external/mmlu_20261119/all/test-00000-of-00001.parquet")
++
++
++LEGACY_SCRIPT = "a10bfe66088711a159f12acbae64262b0ab29f3c467520bc704762dffb381f23"
++LEGACY_VECTOR = "e74559e75360a32e9e9d62e374bfa22b415de94bef6107222349d24cf9d6a420"
++LEGACY_SIDECAR = "774e3713a1fb64facf8232abd42f4541062cc4c4688fa9a359b9e33bf2c31343"
++LEGACY_CHECK = "13aafb8c94c0de8fdbf4e51c3f0560145b1d7151c310458917f7141e39d66626"
++LEGACY_MIRROR = "baa00c3438807befaba16b0ac3be5f6894fafcb25bec44b58b053eb4491d22a1"
++LEGACY_REPEAT = "398dc19826cd29a57bc4b7bf86f6b2aa9c504b618abd77618ffa8b93bc9db3d4"
++
++
++def require(flag, why):
++    if not flag:
++        raise SystemExit("CAA: " + why)
++
++
++def load(path):
++    return json.loads(path.read_bytes())
++
++
++def sha(path):
++    h = hashlib.sha256()
++    with path.open("rb") as f:
++        for block in iter(lambda: f.read(1 << 20), b""):
++            h.update(block)
++    return h.hexdigest()
++
++
++def check_acceptance(model, acceptance=False, layer=None, batches=None):
++    base = ROOT / "baselines/caa" / model
++    folder = base / "acceptance"
++    config = load(FROZEN)["models"][model]
++    engine = Path(config["code"]) / "scripts/e44_eval_extra.py"
++    fit = load(base / "vectors.pt.json")
++    check = load(folder / "check.json")
++    mirror = base / "run_caa"
++    mapping = load(mirror / "MIRROR.json")
++    identity = fit["identity_sha256"]
++    vd = sha(base / "vectors.pt")
++    require(check["passed_2_4"] is True and check["phase"] == "check" and check["model"] == fit["model"] == model,
++            "archived check did not pass for this model")
++    current = sha(VECTOR_SCRIPT)
++    old_fit = (model == "llama3.1-8b" and fit["script_sha256"] == LEGACY_SCRIPT and vd == LEGACY_VECTOR
++               and sha(base / "vectors.pt.json") == LEGACY_SIDECAR)
++    old_check = (old_fit and check["script_sha256"] == LEGACY_SCRIPT and sha(folder / "check.json") == LEGACY_CHECK)
++    require(fit["script_sha256"] == current or old_fit, "unrecognised fit or historical payload")
++    require(check["script_sha256"] == current or old_check, "unrecognised check or historical payload")
++    require(check["identity_sha256"] == identity and check["vectors_file_sha256"] == mapping["vectors_file_sha256"] == vd
++            and fit["engine_sha256"] == check["engine_sha256"] == sha(engine), "fit/check inputs changed")
++    require(mapping["model"] == model and mapping["kind"] == "caa" and check["mirror"] == str(mirror)
++            and mapping["source_run_dir"] == config["run_dir"], "foreign mirror")
++    require(load(base / "models_run_caa.json")["models"][model] == dict(config, run_dir=str(mirror)), "foreign mirror config")
++    for name, expected in mapping["frozen_files_sha256"].items():
++        require(sha(mirror/name) == expected == sha(Path(config["run_dir"])/name), "frozen split changed: " + name)
++    for key in fit["candidate_layers"]:
++        rec = mirror / "dirs" / ("E_L%d.pt" % key)
++        require(sha(rec) == mapping["layers"][str(key)]["file_sha256"], "direction record changed: " + str(key))
++    if acceptance:
++        require(batches > 0 and check["first_batches"] == batches and check["questions"] == batches * 8,
++                "requested and archived acceptance sizes differ")
++        zero=check["zero"]
++        require(set(zero)=={str(k) for k in fit["candidate_layers"]} and all(
++                z["amount"] == 0 and z["same_as_no_write"] == z["of"] == check["questions"]
++                and z["prefill_positions_written_per_row"] == [1] for z in zero.values()),
++                "zero check is incomplete for the candidate layers")
++        ids = load(mirror / "frozen_tune.json")["question_ids"][:batches*8]
++        rec = base / "mirror_e/dirs" / ("E_L%d.pt" % layer)
++        digest = sha(rec)
++        require(digest == sha(Path(config["run_dir"])/"dirs"/rec.name), "copied reference is stale")
++        reference = None
++        for run in ("A","B"):
++            a = load(folder / ("c1_run%s.json" % run))
++            require(a["execution_complete"] is True and a["baseline_reproduction_verified"] is True and
++                    a["frozen_file_sha256"] == mapping["frozen_files_sha256"]["frozen_tune.json"] and
++                    a["identity_sha256"] == identity and a["split"] == "tune" and a["arm"] == "x:E%d.md.p2" % layer and
++                    a["positions"] == "gen" and a["question_ids"] == ids and [r["pair_id"] for r in a["rows"]] == ids,
++                    "reference comparison has wrong run, arm, rows, or baseline status")
++            require(a["own_sha256"]["script"] == check["engine_sha256"]
++                    and all(r["write"]["prefill_positions"] == 1 for r in a["rows"]), "wrong reference engine or positions")
++            contents = [(r["text"],r["token_ids"],r["finished"],r["stop_id"]) for r in a["rows"]]
++            if reference is not None:
++                require(contents==reference, "archived repeats differ")
++            reference = contents
++            part, = a["parts"]
++            require(part["direction_file_sha256"] == digest and part["kind"] == "md" and part["layer"] == layer
++                    and part["beta"] == 2 and math.isfinite(part["amount"]) and part["amount"] > 0,
++                    "reference comparison was made with another direction or strength")
++        return
++    token = (folder/"ACCEPT_DONE").read_text().strip().split()
++    if not token and old_check and sha(mirror/"MIRROR.json") == LEGACY_MIRROR and all(
++            sha(folder/("c1_run%s.json"%r)) == LEGACY_REPEAT for r in ("A","B")):
++        token = ["16","2"]  # the audited pilot can be revalidated without GPU inference
++    require(len(token)==2 and all(x.isdecimal() for x in token),"unbound acceptance marker; rerun acceptance")
++    check_acceptance(model, True, int(token[0]), int(token[1]))
++    return mapping, fit
++
++
++def budget(model, layer, multipliers, mode):
++    base = ROOT / "baselines/caa" / model
++    meta = load(base / "run_caa/MIRROR.json")
++    tensor_sha = sha(base / "run_caa/dirs" / ("E_L%d.pt" % layer))
++    require(meta["layers"][str(layer)]["file_sha256"] == tensor_sha, "MMLU direction is stale")
++    path = base / "mmlu" / ("L%d.json" % layer)
++    d = load(path)
++    id_set = load(IDS)
++    roster = id_set["ids"]
++    item_sha = sha(ITEMS)
++    require(d["protocol"] == "cap_mcq_sweep_v1" and d["model"] == model and d["identity_sha256"] == load(base/"vectors.pt.json")["identity_sha256"]
++            and d["ids_file_sha256"] == sha(IDS) and d["items_file_sha256"] == id_set["source_file_sha256"] == item_sha
++            and d["script_sha256"] == sha(MCQ) and d["n"] == len(set(roster)) == len(roster) == 14042 and not d["skipped"],
++            "wrong MMLU sources, model, or dataset")
++    arm_names = ["x"] + ["x:E%d.md.p%s@gen" % (layer, s) for s in multipliers]
++    require(set(arm_names)==set(d["arms"]), "MMLU arm set differs from this run")
++    base_rows = d["arms"]["x"]["rows"]
++    truth = [r["gold"] for r in base_rows]
++    tables = []
++    for arm in arm_names:
++        rows = d["arms"][arm]["rows"]
++        require([r["id"] for r in rows] == roster and [r["gold"] for r in rows] == truth and
++                all(r["gold"] in ("A","B","C","D") and r["pick"] in ("A","B","C","D") for r in rows),
++                "MMLU row identity or labels differ")
++        if arm != "x":
++            require(d["arms"][arm]["positions"] == "gen", "wrong MMLU write positions")
++        tables.append({r["id"]:r["pick"] == r["gold"] for r in rows})
++    receipt = path.with_suffix(".receipt.json")
++    expected = {"direction_sha256":tensor_sha,"vectors_sha256":meta["vectors_file_sha256"],"output_sha256":sha(path)}
++    if mode == "fresh":
++        temp = receipt.with_name(receipt.name + ".%d.tmp"%os.getpid())
++        temp.write_text(json.dumps(expected)); temp.replace(receipt)
++    else:
++        require(receipt.is_file() and load(receipt)==expected, "cached MMLU has no matching CAA receipt")
++    sys.path.insert(0, "Iteration_01/diag")
++    import per_model_table as pm
++    selection, _ = pm.halves(roster)
++    for dose, correct in zip(multipliers,tables[1:]):
++        print(dose, 100*sum(correct[i]-tables[0][i] for i in selection)/len(selection))
++
++
++if __name__ == "__main__":
++    command, model, *args = sys.argv[1:]
++    if command=="accept":
++        check_acceptance(model, True, int(args[0]), int(args[1]))
++    elif command=="grid":
++        _,fit=check_acceptance(model)
++        layers=[int(s) for s in args[0].split()]
++        require(bool(layers) and len(set(layers))==len(layers) and set(layers)<=set(fit["candidate_layers"]), "undeclared or repeated layer")
++        if args[1] != "-":
++            values=args[1].split()
++            require(bool(values) and all(v in ("0.5","1","2","4") for v in values)
++                    and list(map(float,values))==sorted(set(map(float,values))), "invalid or unsorted multiplier grid")
++    elif command=="budget":
++        budget(model,int(args[0]),args[1].split(),args[2])
++    else:
++        raise SystemExit("unexpected CAA guard mode")
+--- a/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/caa_accept.sh
++++ b/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/caa_accept.sh
+@@ -62,6 +62,7 @@
+   "${DXR[@]}" $PY -I $CAA check --models $CFG --model $MODEL --mirror $B/run_caa --vectors $ROOT/$B/vectors.pt \
+       --out $ROOT/$A/check.json --first-batches $FB >> $LOG 2>&1 || die "check"
+ else say "check.json exists, kept"; fi
++GUARD=$HOST/Iteration_01/code/scripts/newsets/caa_run_guard.py
+ COMMON=(--source-run $ROOT/$SRC --e-on $E_ON --split tune --batch-size 8 --max-new-tokens 48 --max-target-tokens 24 --seed 42 --first-batches $FB)
+ NQ=$((FB * 8))
+ say "step 4: acceptance 1, real E$EL record, kind md at gen, twice"
+@@ -104,5 +105,6 @@
+         sum(x["n_tokens"] for x in r) / len(r), sum(x["baseline_refusal_rule"] for x in r), sum(x["refusal_rule"] for x in r),
+         d["summary"]["unfinished"]))
+ EOF
++python3 -B "$GUARD" accept "$MODEL" "$EL" "$FB" || die "acceptance identity and coverage"
+ say "done"
+-touch $HOST/$A/ACCEPT_DONE
++printf '%s %s\n' "$EL" "$FB" > "$HOST/$A/ACCEPT_DONE" || die "cannot record acceptance"
+--- a/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/caa_grid.sh
++++ b/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/caa_grid.sh
+@@ -36,6 +36,8 @@
+ B=Iteration_01/baselines/caa/$MODEL
+ [ -f $HOST/$B/acceptance/ACCEPT_DONE ] || { echo "no passed acceptance for $MODEL (caa_accept.sh)" >&2; exit 2; }
+ for f in vectors.pt models_run_caa.json run_caa/MIRROR.json; do [ -s $HOST/$B/$f ] || { echo "missing $B/$f" >&2; exit 2; }; done
++GUARD=$HOST/Iteration_01/code/scripts/newsets/caa_run_guard.py
++python3 -B "$GUARD" grid "$MODEL" "$LAYERS" "$MULTS" || exit 2
+ if [[ ",$GPU," == *",1,"* ]]; then
+   LOCK=$HOST/Iteration_01/newsets/selfjudge/.gpu1.lock
+   mkdir -p "$(dirname "$LOCK")" || { echo "cannot prepare GPU 1 reservation" >&2; exit 2; }
+@@ -79,6 +81,7 @@
+   mkdir -p $HOST/$W/judge2/cache && cp $HOST/$RUN/eval_extra/judge_tune/$name.json $HOST/$W/judge_input.json || return 1
+   "${DXC[@]}" python3 scripts/review_checks/judge_two_axis_run.py cells $ROOT/$W --generation judge_input.json >> $LOG 2>&1
+ }
++"${DXR[@]}" $PY -I $ROOT/Iteration_01/code/scripts/newsets/caa_vector.py verify --models "$CFG" --model "$MODEL" --mirror "$RUN" --vectors "$ROOT/$B/vectors.pt" >> "$LOG" 2>&1 || fail "CAA fit/mirror verification"
+ say "start on GPU $GPU: layers $LAYERS, multipliers $MULTS, STOP $STOP"
+ if [ "$MODE" = zero ]; then
+   "${DXR[@]}" $PY -I $ROOT/Iteration_01/code/scripts/newsets/caa_vector.py check --models $CFG --model $MODEL --mirror $RUN \
+@@ -93,26 +96,13 @@
+ FAILED=0
+ for l in $LAYERS; do
+   arms="x"; for s in $MULTS; do arms="$arms x:E$l.md.p$s@gen"; done
++  cache_mode=reuse
+   if [ ! -s $HOST/$B/mmlu/L$l.json ]; then
++    cache_mode=fresh
+     "${DXR[@]}" $PY -I $ROOT/Iteration_01/code/scripts/capability/cap_mcq_sweep.py run --models $CFG --model $MODEL \
+         --items $ITEMS --ids $IDS --out $ROOT/$B/mmlu/L$l.json --arms $arms >> $LOG 2>&1 || { say "mmlu L$l failed"; FAILED=1; continue; }
+   fi
+-  python3 -B - $HOST/$B/mmlu/L$l.json $l "$MULTS" > $HOST/$B/mmlu/L$l.budget 2>> $LOG <<'EOF' || { say "no MMLU reading for L$l"; FAILED=1; continue; }
+-import json, sys
+-sys.path.insert(0, "Iteration_01/diag")
+-import per_model_table as PM
+-d = json.load(open(sys.argv[1]))
+-if d["n"] != 14042 or d.get("skipped"):
+-    raise SystemExit("not a complete full-set pass")
+-base = {r["id"]: r["pick"] == r["gold"] for r in d["arms"]["x"]["rows"]}
+-dev, _ = PM.halves(list(base))
+-for s in sys.argv[3].split():
+-    arm = "x:E%s.md.p%s@gen" % (sys.argv[2], s)
+-    cor = {r["id"]: r["pick"] == r["gold"] for r in d["arms"][arm]["rows"]}
+-    if set(cor) != set(base) or d["arms"][arm]["positions"] != "gen":
+-        raise SystemExit("%s covers other items or another position rule" % arm)
+-    print(s, "%.4f" % PM.boot([cor[i] - base[i] for i in dev])[0])
+-EOF
++  python3 -B "$GUARD" budget "$MODEL" "$l" "$MULTS" "$cache_mode" > "$HOST/$B/mmlu/L$l.budget" 2>> "$LOG" || { say "no valid MMLU reading for L$l"; FAILED=1; continue; }
+   keep=""
+   while read -r s chg; do
+     if awk -v c="$chg" -v t="$STOP" 'BEGIN { exit !(c < -t) }'; then
