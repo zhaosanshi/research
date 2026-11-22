@@ -16,6 +16,10 @@
 # "prompt": "none") and test (the main table's question list, questions with an unresolved verdict in a cell left out).
 # usage (scoring container, from /workspace/Truth_Decoupling):
 #   python3 -B Iteration_01/diag/replacement_2x2.py dev|held   (repro: step 0 only)
+# --with-zero (added 2026-11-22 20:4x, queue H section 5): extra rows for cell 0 = plain prompt + honest sentence, no write
+# (x_E2; (QA)^2 work dir test_full570_h22z, TruthfulQA baseline_x_E2 of the h22c4 work dirs): its net and answers on the
+# same question sets as the four cells (cell 0 does not enter the "all four answer" set) and 4 - 0 (C's own effect when
+# honesty is the sentence). Without the flag the output is the earlier one, line for line.
 import json
 import sys
 from pathlib import Path
@@ -32,6 +36,7 @@ PILOT = set(json.loads((ROOT / "splits/qaqa_pilot_20261122.json").read_text())["
 BANK = ROOT / "bank/qaqa_full_bank_20261122.jsonl"
 WORK = ("test_full570", "test_full570_tuned", "test_full570_strong")
 GPT = {True: ((57, 16, 98), (3, -22, 30)), False: ((180, 104, 258), (60, 3, 115))}
+ZERO = "--with-zero" in sys.argv
 V = {"R": 1, "W": -1, "X": 0, "H": 0}
 CELLS = ("1", "2", "3", "4")
 CONTRASTS = (("E: 2 - 1", "21", lambda c: c["2"] - c["1"]), ("E: 3 - 4", "34", lambda c: c["3"] - c["4"]),
@@ -62,6 +67,14 @@ def qaqa(with4=True):
                 raise SystemExit("cell 4 is on another bank")
             for q in raw.ids:
                 d[q]["4"] = (r4.cell(a4, q), not r4.blank(a4, q))
+        if with4 and ZERO:
+            r0 = Q.Raw(model, "qaqafull", str(BANK), ["test_full570_h22z"])
+            r0.gdir = ROOT / "gen_prompt" / "h22" / "qaqafull" / model / "test"
+            r0.need("x_E2")
+            if r0.ids != raw.ids:
+                raise SystemExit("cell 0 is on another bank")
+            for q in raw.ids:
+                d[q]["0"] = (r0.cell("x_E2", q), not r0.blank("x_E2", q))
         out[model] = d
     ids = list(out[ORDER[0]])
     for pilot in (True, False):
@@ -92,6 +105,8 @@ def tqa(split):
         src = {"1": (D.m["d"][i], "baseline_conf_E2"),
                "3": (MP.work(run, split, "posprompt2" + tag), "X_x--E%d-w-p%s-and-C%d-w-m0-25-at-prompt" % (layer, s, cl)),
                "4": (MP.work(run, split, "h22c4"), "C_L%d_x_E2-w-m0-25" % cl)}
+        if ZERO:
+            src["0"] = (MP.work(run, split, "h22c4"), "baseline_x_E2")
         if i == 1:
             src["2"] = (MP.work(run, "test", "pospromptd" + tag), "E_L%d_conf-w-p%s" % (layer, s))
         loaded = {}
@@ -134,6 +149,11 @@ def table(title, data, qs, models):
             else:
                 parts.append("%s none" % name)
         print("        " + " | ".join(parts))
+        if ZERO and all("0" in data[m][q] for m in models for q in qs):
+            z = [sum(data[m][q]["4"][0] - data[m][q]["0"][0] for m in models if use(m, q)) for q in qs]
+            print("        extra: cell 0 (plain + honest sentence, no write) net %+d answers %d | 4 - 0 %+d [%+d, %+d]" % (
+                (sum(data[m][q]["0"][0] for m in models for q in qs if use(m, q)), sum(data[m][q]["0"][1] for m in models for q in qs if use(m, q)))
+                + tuple(S.joint_ci([z]))))
 
 
 def report(name, data, qs):
@@ -143,7 +163,8 @@ def report(name, data, qs):
 
 
 def main():
-    part = sys.argv[1] if len(sys.argv) > 1 else ""
+    args = [a for a in sys.argv[1:] if a != "--with-zero"]
+    part = args[0] if args else ""
     if part not in ("dev", "held", "repro"):
         raise SystemExit("usage: replacement_2x2.py dev|held|repro")
     q, ids = qaqa(part != "repro")

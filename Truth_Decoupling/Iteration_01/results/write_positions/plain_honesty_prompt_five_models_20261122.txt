@@ -1,0 +1,140 @@
+
+## TruthfulQA test (DeepSeek Pro; net, answers in brackets)
+    llama3.1-8b  523 q | no write -86 (467) | single E +40 (319) | N1 +62 (476) | cell 0 +33 (454) || single E minus cell 0 +7 [-33, +49] | N1 minus cell 0 +29 [-15, +73] | cell 0 minus no write +119 [+78, +157]
+    qwen3.5-9b   523 q | no write +73 (474) | single E +168 (408) | N1 +186 (444) | cell 0 +168 (464) || single E minus cell 0 +0 [-26, +26] | N1 minus cell 0 +18 [-9, +44] | cell 0 minus no write +95 [+63, +127]
+    qwen3.8-27b  521 q | no write +47 (361) | single E +142 (354) | N1 +175 (490) | cell 0 +162 (373) || single E minus cell 0 -20 [-46, +6] | N1 minus cell 0 +13 [-19, +47] | cell 0 minus no write +115 [+84, +145]
+    gemma3-12b   522 q | no write +12 (460) | single E +103 (323) | N1 +158 (489) | cell 0 +156 (501) || single E minus cell 0 -53 [-94, -13] | N1 minus cell 0 +2 [-42, +46] | cell 0 minus no write +144 [+103, +188]
+    gemma3-27b   523 q | no write +3 (456) | single E +105 (423) | N1 +144 (510) | cell 0 +186 (488) || single E minus cell 0 -81 [-120, -44] | N1 minus cell 0 -42 [-79, -5] | cell 0 minus no write +183 [+138, +227]
+    five models  520 q | no write +56 (2206) | single E +560 (1818) | N1 +729 (2398) | cell 0 +706 (2269) || single E minus cell 0 -146 [-237, -56] | N1 minus cell 0 +23 [-74, +118] | cell 0 minus no write +650 [+531, +769]
+
+## TruthfulQA tune (DeepSeek Pro; net, answers in brackets)
+    llama3.1-8b  192 q | no write -34 (169) | single E +6 (116) | N1 +27 (184) | cell 0 +18 (158) || single E minus cell 0 -12 [-39, +14] | N1 minus cell 0 +9 [-20, +36] | cell 0 minus no write +52 [+29, +75]
+    qwen3.5-9b   192 q | no write +35 (167) | single E +58 (142) | N1 +63 (155) | cell 0 +64 (162) || single E minus cell 0 -6 [-23, +11] | N1 minus cell 0 -1 [-18, +16] | cell 0 minus no write +29 [+13, +45]
+    qwen3.8-27b  192 q | no write +15 (119) | single E +56 (117) | N1 +80 (182) | cell 0 +63 (128) || single E minus cell 0 -7 [-21, +7] | N1 minus cell 0 +17 [-2, +35] | cell 0 minus no write +48 [+28, +68]
+    gemma3-12b   192 q | no write -6 (164) | single E +42 (110) | N1 +74 (180) | cell 0 +34 (178) || single E minus cell 0 +8 [-19, +34] | N1 minus cell 0 +40 [+12, +67] | cell 0 minus no write +40 [+16, +63]
+    gemma3-27b   192 q | no write -2 (167) | single E +38 (152) | N1 +53 (185) | cell 0 +65 (178) || single E minus cell 0 -27 [-48, -6] | N1 minus cell 0 -12 [-34, +9] | cell 0 minus no write +67 [+40, +93]
+    five models  192 q | no write +8 (786) | single E +200 (637) | N1 +297 (886) | cell 0 +244 (804) || single E minus cell 0 -44 [-99, +9] | N1 minus cell 0 +53 [-7, +112] | cell 0 minus no write +236 [+175, +296]
+    equal-answer-count readings: none (cell 0 has no confidence scores)
+# (QA)^2 llama3.1-8b: N1 at E 3.5, caps E's None / own 1; single E at 3.5 (tune choice with E fixed)
+# (QA)^2 qwen3.5-9b: N1 at E 2, caps E's 0.5 / own 1; single E at 2 (tune choice with E fixed)
+# (QA)^2 qwen3.8-27b: N1 at E 1.75, caps E's None / own 0.25; single E at 1.75 (tune choice with E fixed)
+# (QA)^2 gemma3-12b: N1 at E 2.5, caps E's 1 / own 1; single E at 2.5 (tune choice with E fixed)
+# (QA)^2 gemma3-27b: N1 at E 1, caps E's 0.5 / own 0.25; single E at 1 (tune choice with E fixed)
+
+## (QA)^2 100 pilot (tune) questions, all types (DeepSeek Pro)
+    llama3.1-8b  100 q | no write -10 (87) | single E +13 (57) | N1 +16 (64) | cell 0 -1 (90) || single E minus cell 0 +14 [-4, +31] | N1 minus cell 0 +17 [-1, +35] | cell 0 minus no write +9 [-3, +22]
+    qwen3.5-9b   100 q | no write -15 (96) | single E +5 (79) | N1 +10 (95) | cell 0 -2 (96) || single E minus cell 0 +7 [-8, +21] | N1 minus cell 0 +12 [-3, +27] | cell 0 minus no write +13 [+1, +26]
+    qwen3.8-27b  100 q | no write -6 (66) | single E +17 (74) | N1 +19 (92) | cell 0 +4 (70) || single E minus cell 0 +13 [+1, +26] | N1 minus cell 0 +15 [+2, +29] | cell 0 minus no write +10 [-1, +21]
+    gemma3-12b   100 q | no write -5 (91) | single E +18 (67) | N1 +24 (92) | cell 0 +2 (96) || single E minus cell 0 +16 [-4, +36] | N1 minus cell 0 +22 [+1, +43] | cell 0 minus no write +7 [-7, +22]
+    gemma3-27b   100 q | no write +2 (94) | single E +8 (89) | N1 +11 (95) | cell 0 +16 (95) || single E minus cell 0 -8 [-21, +4] | N1 minus cell 0 -5 [-18, +8] | cell 0 minus no write +14 [+1, +27]
+    five models  100 q | no write -34 (434) | single E +61 (366) | N1 +80 (438) | cell 0 +19 (447) || single E minus cell 0 +42 [+1, +80] | N1 minus cell 0 +61 [+16, +106] | cell 0 minus no write +53 [+20, +85]
+
+## (QA)^2 100 pilot (tune) questions, valid assumption (DeepSeek Pro)
+    llama3.1-8b   50 q | no write +14 (47) | single E +12 (32) | N1 +10 (34) | cell 0 +18 (48) || single E minus cell 0 -6 [-19, +6] | N1 minus cell 0 -8 [-21, +4] | cell 0 minus no write +4 [-6, +14]
+    qwen3.5-9b    50 q | no write +0 (49) | single E +2 (44) | N1 -2 (49) | cell 0 +0 (50) || single E minus cell 0 +2 [-7, +11] | N1 minus cell 0 -2 [-10, +6] | cell 0 minus no write +0 [-9, +9]
+    qwen3.8-27b   50 q | no write +8 (40) | single E +10 (42) | N1 +6 (46) | cell 0 +7 (41) || single E minus cell 0 +3 [-3, +10] | N1 minus cell 0 -1 [-8, +7] | cell 0 minus no write -1 [-7, +5]
+    gemma3-12b    50 q | no write +15 (47) | single E +4 (35) | N1 +0 (46) | cell 0 +8 (48) || single E minus cell 0 -4 [-17, +9] | N1 minus cell 0 -8 [-21, +4] | cell 0 minus no write -7 [-16, +2]
+    gemma3-27b    50 q | no write +20 (48) | single E +14 (46) | N1 +13 (48) | cell 0 +14 (50) || single E minus cell 0 +0 [-9, +8] | N1 minus cell 0 -1 [-10, +7] | cell 0 minus no write -6 [-12, -1]
+    five models   50 q | no write +57 (231) | single E +42 (199) | N1 +27 (223) | cell 0 +47 (237) || single E minus cell 0 -5 [-29, +19] | N1 minus cell 0 -20 [-45, +4] | cell 0 minus no write -10 [-33, +11]
+
+## (QA)^2 100 pilot (tune) questions, false assumption (DeepSeek Pro)
+    llama3.1-8b   40 q | no write -16 (32) | single E +3 (21) | N1 +7 (25) | cell 0 -11 (34) || single E minus cell 0 +14 [+4, +25] | N1 minus cell 0 +18 [+7, +29] | cell 0 minus no write +5 [-2, +13]
+    qwen3.5-9b    40 q | no write -8 (38) | single E +4 (30) | N1 +12 (38) | cell 0 +3 (37) || single E minus cell 0 +1 [-7, +9] | N1 minus cell 0 +9 [-1, +19] | cell 0 minus no write +11 [+3, +21]
+    qwen3.8-27b   40 q | no write -10 (18) | single E +4 (25) | N1 +11 (38) | cell 0 -3 (23) || single E minus cell 0 +7 [-2, +17] | N1 minus cell 0 +14 [+4, +24] | cell 0 minus no write +7 [-1, +15]
+    gemma3-12b    40 q | no write -15 (35) | single E +14 (26) | N1 +22 (38) | cell 0 -1 (39) || single E minus cell 0 +15 [+2, +29] | N1 minus cell 0 +23 [+9, +37] | cell 0 minus no write +14 [+5, +23]
+    gemma3-27b    40 q | no write -12 (38) | single E -1 (36) | N1 +2 (39) | cell 0 +4 (37) || single E minus cell 0 -5 [-14, +2] | N1 minus cell 0 -2 [-12, +7] | cell 0 minus no write +16 [+7, +26]
+    five models   40 q | no write -61 (161) | single E +24 (138) | N1 +54 (178) | cell 0 -8 (170) || single E minus cell 0 +32 [+6, +60] | N1 minus cell 0 +62 [+35, +90] | cell 0 minus no write +53 [+34, +73]
+
+## (QA)^2 100 pilot (tune) questions, unverifiable assumption (DeepSeek Pro)
+    llama3.1-8b   10 q | no write -8 (8) | single E -2 (4) | N1 -1 (5) | cell 0 -8 (8) || single E minus cell 0 +6 [+2, +10] | N1 minus cell 0 +7 [+3, +11] | cell 0 minus no write +0 [+0, +0]
+    qwen3.5-9b    10 q | no write -7 (9) | single E -1 (5) | N1 +0 (8) | cell 0 -5 (9) || single E minus cell 0 +4 [-3, +10] | N1 minus cell 0 +5 [-3, +12] | cell 0 minus no write +2 [+0, +6]
+    qwen3.8-27b   10 q | no write -4 (8) | single E +3 (7) | N1 +2 (8) | cell 0 +0 (6) || single E minus cell 0 +3 [+0, +7] | N1 minus cell 0 +2 [-2, +7] | cell 0 minus no write +4 [+0, +8]
+    gemma3-12b    10 q | no write -5 (9) | single E +0 (6) | N1 +2 (8) | cell 0 -5 (9) || single E minus cell 0 +5 [-2, +12] | N1 minus cell 0 +7 [-1, +14] | cell 0 minus no write +0 [-6, +6]
+    gemma3-27b    10 q | no write -6 (8) | single E -5 (7) | N1 -4 (8) | cell 0 -2 (8) || single E minus cell 0 -3 [-7, +0] | N1 minus cell 0 -2 [-7, +2] | cell 0 minus no write +4 [+0, +8]
+    five models   10 q | no write -30 (42) | single E -5 (29) | N1 -1 (37) | cell 0 -20 (40) || single E minus cell 0 +15 [+1, +28] | N1 minus cell 0 +19 [+2, +35] | cell 0 minus no write +10 [+4, +17]
+
+## (QA)^2 470 held-out questions, all types (DeepSeek Pro)
+    llama3.1-8b  470 q | no write -105 (376) | single E +17 (235) | N1 +37 (296) | cell 0 -60 (393) || single E minus cell 0 +77 [+40, +115] | N1 minus cell 0 +97 [+57, +136] | cell 0 minus no write +45 [+17, +73]
+    qwen3.5-9b   470 q | no write -24 (440) | single E +63 (353) | N1 +44 (439) | cell 0 +18 (427) || single E minus cell 0 +45 [+18, +72] | N1 minus cell 0 +26 [-2, +54] | cell 0 minus no write +42 [+10, +75]
+    qwen3.8-27b  470 q | no write -5 (276) | single E +63 (338) | N1 +65 (417) | cell 0 +26 (292) || single E minus cell 0 +37 [+11, +63] | N1 minus cell 0 +39 [+8, +70] | cell 0 minus no write +31 [+6, +58]
+    gemma3-12b   470 q | no write -59 (432) | single E +65 (295) | N1 +69 (447) | cell 0 -7 (457) || single E minus cell 0 +72 [+31, +112] | N1 minus cell 0 +76 [+33, +118] | cell 0 minus no write +52 [+18, +86]
+    gemma3-27b   470 q | no write -31 (430) | single E +40 (411) | N1 +39 (428) | cell 0 +63 (444) || single E minus cell 0 -23 [-56, +9] | N1 minus cell 0 -24 [-58, +8] | cell 0 minus no write +94 [+58, +131]
+    five models  470 q | no write -224 (1954) | single E +248 (1632) | N1 +254 (2027) | cell 0 +40 (2013) || single E minus cell 0 +208 [+127, +287] | N1 minus cell 0 +214 [+132, +296] | cell 0 minus no write +264 [+180, +351]
+
+## (QA)^2 470 held-out questions, valid assumption (DeepSeek Pro)
+    llama3.1-8b  235 q | no write +4 (210) | single E +36 (129) | N1 +33 (144) | cell 0 +2 (209) || single E minus cell 0 +34 [+8, +60] | N1 minus cell 0 +31 [+4, +57] | cell 0 minus no write -2 [-21, +16]
+    qwen3.5-9b   235 q | no write -18 (221) | single E +0 (182) | N1 -29 (225) | cell 0 -34 (215) || single E minus cell 0 +34 [+14, +54] | N1 minus cell 0 +5 [-15, +25] | cell 0 minus no write -16 [-36, +3]
+    qwen3.8-27b  235 q | no write +23 (168) | single E +3 (184) | N1 -15 (215) | cell 0 +4 (176) || single E minus cell 0 -1 [-19, +18] | N1 minus cell 0 -19 [-39, +2] | cell 0 minus no write -19 [-37, -2]
+    gemma3-12b   235 q | no write +9 (223) | single E -6 (147) | N1 -40 (217) | cell 0 -11 (227) || single E minus cell 0 +5 [-22, +32] | N1 minus cell 0 -29 [-56, -2] | cell 0 minus no write -20 [-43, +2]
+    gemma3-27b   235 q | no write +9 (224) | single E +14 (205) | N1 +12 (217) | cell 0 -9 (224) || single E minus cell 0 +23 [+6, +41] | N1 minus cell 0 +21 [+3, +40] | cell 0 minus no write -18 [-38, +1]
+    five models  235 q | no write +27 (1046) | single E +47 (847) | N1 -39 (1018) | cell 0 -48 (1051) || single E minus cell 0 +95 [+40, +152] | N1 minus cell 0 +9 [-46, +67] | cell 0 minus no write -75 [-122, -29]
+
+## (QA)^2 470 held-out questions, false assumption (DeepSeek Pro)
+    llama3.1-8b  190 q | no write -88 (138) | single E -17 (95) | N1 +2 (130) | cell 0 -50 (155) || single E minus cell 0 +33 [+9, +56] | N1 minus cell 0 +52 [+26, +76] | cell 0 minus no write +38 [+19, +57]
+    qwen3.5-9b   190 q | no write -3 (180) | single E +57 (141) | N1 +64 (175) | cell 0 +45 (173) || single E minus cell 0 +12 [-4, +29] | N1 minus cell 0 +19 [+1, +38] | cell 0 minus no write +48 [+27, +69]
+    qwen3.8-27b  190 q | no write -16 (90) | single E +57 (129) | N1 +71 (167) | cell 0 +25 (97) || single E minus cell 0 +32 [+15, +49] | N1 minus cell 0 +46 [+26, +65] | cell 0 minus no write +41 [+26, +58]
+    gemma3-12b   190 q | no write -51 (174) | single E +62 (123) | N1 +93 (185) | cell 0 +5 (187) || single E minus cell 0 +57 [+31, +84] | N1 minus cell 0 +88 [+60, +116] | cell 0 minus no write +56 [+34, +78]
+    gemma3-27b   190 q | no write -24 (174) | single E +30 (175) | N1 +29 (176) | cell 0 +65 (178) || single E minus cell 0 -35 [-58, -13] | N1 minus cell 0 -36 [-59, -14] | cell 0 minus no write +89 [+64, +114]
+    five models  190 q | no write -182 (756) | single E +189 (663) | N1 +259 (833) | cell 0 +90 (790) || single E minus cell 0 +99 [+48, +149] | N1 minus cell 0 +169 [+115, +220] | cell 0 minus no write +272 [+216, +327]
+
+## (QA)^2 470 held-out questions, unverifiable assumption (DeepSeek Pro)
+    llama3.1-8b   45 q | no write -21 (28) | single E -2 (11) | N1 +2 (22) | cell 0 -12 (29) || single E minus cell 0 +10 [-2, +22] | N1 minus cell 0 +14 [+1, +27] | cell 0 minus no write +9 [+0, +19]
+    qwen3.5-9b    45 q | no write -3 (39) | single E +6 (30) | N1 +9 (39) | cell 0 +7 (39) || single E minus cell 0 -1 [-10, +8] | N1 minus cell 0 +2 [-7, +11] | cell 0 minus no write +10 [-3, +23]
+    qwen3.8-27b   45 q | no write -12 (18) | single E +3 (25) | N1 +9 (35) | cell 0 -3 (19) || single E minus cell 0 +6 [-1, +14] | N1 minus cell 0 +12 [+3, +21] | cell 0 minus no write +9 [+2, +16]
+    gemma3-12b    45 q | no write -17 (35) | single E +9 (25) | N1 +16 (45) | cell 0 -1 (43) || single E minus cell 0 +10 [-3, +23] | N1 minus cell 0 +17 [+3, +30] | cell 0 minus no write +16 [+6, +27]
+    gemma3-27b    45 q | no write -16 (32) | single E -4 (31) | N1 -2 (35) | cell 0 +7 (42) || single E minus cell 0 -11 [-25, +4] | N1 minus cell 0 -9 [-23, +5] | cell 0 minus no write +23 [+10, +36]
+    five models   45 q | no write -69 (152) | single E +12 (122) | N1 +34 (176) | cell 0 -2 (172) || single E minus cell 0 +14 [-14, +43] | N1 minus cell 0 +36 [+12, +61] | cell 0 minus no write +67 [+39, +95]
+    equal-answer-count readings: none (cell 0 has no confidence scores)
+# popqa test llama3.1-8b: N1 F ('N1', '3-5', '1', '2'), N1 D ('N1', '3-5', None, '0-25')
+# popqa test qwen3.5-9b: N1 F ('N1', '2', '0-25', '0-5'), N1 D ('N1', '2', None, '0-25')
+# popqa test qwen3.8-27b: N1 F ('N1', '1-75', '0-5', '1'), N1 D ('N1', '1-75', '0-25', None)
+# popqa test gemma3-12b: N1 F ('N1', '2-5', '2', '2'), N1 D ('N1', '2-5', None, '0-25')
+# popqa test gemma3-27b: N1 F ('N1', '1', '1', '2'), N1 D ('N1', '1', None, '0-25')
+
+## popqa test (alias match; net, answers in brackets)
+    llama3.1-8b  500 q | no write -111 (365) | single E +15 (99) | N1 F -163 (333) | N1 D +14 (100) | cell 0 -120 (368) || cell 0 minus no write -9 [-30, +13] | single E minus cell 0 +135 [+104, +166] | N1 F minus cell 0 -43 [-78, -8] | N1 D minus cell 0 +134 [+103, +165]
+    qwen3.5-9b   500 q | no write -199 (417) | single E -57 (189) | N1 F -75 (207) | N1 D -57 (189) | cell 0 -121 (309) || cell 0 minus no write +78 [+54, +101] | single E minus cell 0 +64 [+41, +87] | N1 F minus cell 0 +46 [+23, +69] | N1 D minus cell 0 +64 [+41, +87]
+    qwen3.8-27b  500 q | no write -128 (316) | single E -69 (227) | N1 F -269 (455) | N1 D -109 (269) | cell 0 -76 (240) || cell 0 minus no write +52 [+30, +73] | single E minus cell 0 +7 [-10, +25] | N1 F minus cell 0 -193 [-221, -164] | N1 D minus cell 0 -33 [-53, -13]
+    gemma3-12b   500 q | no write -223 (449) | single E -23 (139) | N1 F -311 (443) | N1 D -24 (140) | cell 0 -249 (449) || cell 0 minus no write -26 [-48, -4] | single E minus cell 0 +226 [+195, +256] | N1 F minus cell 0 -62 [-91, -33] | N1 D minus cell 0 +225 [+194, +255]
+    gemma3-27b   500 q | no write -163 (449) | single E -125 (385) | N1 F -194 (462) | N1 D -127 (387) | cell 0 -161 (409) || cell 0 minus no write +2 [-24, +29] | single E minus cell 0 +36 [+12, +60] | N1 F minus cell 0 -33 [-60, -6] | N1 D minus cell 0 +34 [+11, +58]
+    five models  500 q | no write -824 (1996) | single E -259 (1039) | N1 F -1012 (1900) | N1 D -303 (1085) | cell 0 -727 (1775) || cell 0 minus no write +97 [+42, +154] | single E minus cell 0 +468 [+400, +533] | N1 F minus cell 0 -285 [-353, -218] | N1 D minus cell 0 +424 [+356, +489]
+# popqa test2 llama3.1-8b: N1 F ('N1', '3-5', '1', '2'), N1 D ('N1', '3-5', None, '0-25')
+# popqa test2 qwen3.5-9b: N1 F ('N1', '2', '0-25', '0-5'), N1 D ('N1', '2', None, '0-25')
+# popqa test2 qwen3.8-27b: N1 F ('N1', '1-75', '0-5', '1'), N1 D ('N1', '1-75', '0-25', None)
+# popqa test2 gemma3-12b: N1 F ('N1', '2-5', '2', '2'), N1 D ('N1', '2-5', None, '0-25')
+# popqa test2 gemma3-27b: N1 F ('N1', '1', '1', '2'), N1 D ('N1', '1', None, '0-25')
+
+## popqa test2 (alias match; net, answers in brackets)
+    llama3.1-8b  500 q | no write -97 (375) | single E +19 (99) | N1 F -121 (309) | N1 D +19 (99) | cell 0 -114 (378) || cell 0 minus no write -17 [-38, +5] | single E minus cell 0 +133 [+100, +166] | N1 F minus cell 0 -7 [-43, +29] | N1 D minus cell 0 +133 [+100, +166]
+    qwen3.5-9b   500 q | no write -216 (412) | single E -34 (200) | N1 F -51 (225) | N1 D -35 (201) | cell 0 -115 (299) || cell 0 minus no write +101 [+77, +124] | single E minus cell 0 +81 [+60, +102] | N1 F minus cell 0 +64 [+44, +84] | N1 D minus cell 0 +80 [+59, +101]
+    qwen3.8-27b  500 q | no write -116 (324) | single E -53 (231) | N1 F -258 (450) | N1 D -94 (272) | cell 0 -68 (250) || cell 0 minus no write +48 [+28, +68] | single E minus cell 0 +15 [+0, +30] | N1 F minus cell 0 -190 [-216, -163] | N1 D minus cell 0 -26 [-43, -9]
+    gemma3-12b   500 q | no write -239 (445) | single E -1 (139) | N1 F -291 (437) | N1 D -1 (139) | cell 0 -242 (446) || cell 0 minus no write -3 [-23, +17] | single E minus cell 0 +241 [+212, +271] | N1 F minus cell 0 -49 [-79, -19] | N1 D minus cell 0 +241 [+212, +271]
+    gemma3-27b   500 q | no write -170 (470) | single E -104 (398) | N1 F -161 (463) | N1 D -104 (398) | cell 0 -138 (414) || cell 0 minus no write +32 [+7, +57] | single E minus cell 0 +34 [+11, +58] | N1 F minus cell 0 -23 [-48, +3] | N1 D minus cell 0 +34 [+11, +58]
+    five models  500 q | no write -838 (2026) | single E -173 (1067) | N1 F -882 (1884) | N1 D -215 (1109) | cell 0 -677 (1787) || cell 0 minus no write +161 [+106, +212] | single E minus cell 0 +504 [+438, +569] | N1 F minus cell 0 -205 [-276, -134] | N1 D minus cell 0 +462 [+397, +526]
+# triviaqa test llama3.1-8b: N1 F ('N1', '3-5', '1', '2'), N1 D ('N1', '3-5', None, '0-25')
+# triviaqa test qwen3.5-9b: N1 F ('N1', '2', '0-25', '0-5'), N1 D ('N1', '2', None, '0-5')
+# triviaqa test qwen3.8-27b: N1 F ('N1', '1-75', '0-5', '1'), N1 D ('N1', '1-75', '0-25', None)
+# triviaqa test gemma3-12b: N1 F ('N1', '2-5', '2', '2'), N1 D ('N1', '2-5', None, '0-25')
+# triviaqa test gemma3-27b: N1 F ('N1', '1', '1', '2'), N1 D ('N1', '1', None, '0-25')
+
+## triviaqa test (alias match; net, answers in brackets)
+    llama3.1-8b  500 q | no write +140 (490) | single E +127 (263) | N1 F +55 (433) | N1 D +127 (263) | cell 0 +141 (479) || cell 0 minus no write +1 [-23, +25] | single E minus cell 0 -14 [-52, +24] | N1 F minus cell 0 -86 [-123, -47] | N1 D minus cell 0 -14 [-52, +24]
+    qwen3.5-9b   500 q | no write +74 (492) | single E +128 (376) | N1 F +105 (401) | N1 D +123 (381) | cell 0 +107 (449) || cell 0 minus no write +33 [+14, +54] | single E minus cell 0 +21 [-4, +45] | N1 F minus cell 0 -2 [-26, +21] | N1 D minus cell 0 +16 [-9, +39]
+    qwen3.8-27b  500 q | no write +121 (477) | single E +140 (436) | N1 F +107 (481) | N1 D +127 (457) | cell 0 +128 (450) || cell 0 minus no write +7 [-13, +28] | single E minus cell 0 +12 [-4, +28] | N1 F minus cell 0 -21 [-41, -2] | N1 D minus cell 0 -1 [-19, +16]
+    gemma3-12b   500 q | no write +159 (497) | single E +126 (356) | N1 F +32 (460) | N1 D +126 (356) | cell 0 +150 (494) || cell 0 minus no write -9 [-29, +11] | single E minus cell 0 -24 [-60, +10] | N1 F minus cell 0 -118 [-153, -85] | N1 D minus cell 0 -24 [-60, +10]
+    gemma3-27b   500 q | no write +259 (497) | single E +260 (488) | N1 F +255 (495) | N1 D +260 (488) | cell 0 +242 (482) || cell 0 minus no write -17 [-41, +8] | single E minus cell 0 +18 [-5, +41] | N1 F minus cell 0 +13 [-10, +37] | N1 D minus cell 0 +18 [-5, +41]
+    five models  500 q | no write +753 (2453) | single E +781 (1919) | N1 F +554 (2270) | N1 D +763 (1945) | cell 0 +768 (2354) || cell 0 minus no write +15 [-35, +64] | single E minus cell 0 +13 [-51, +78] | N1 F minus cell 0 -214 [-277, -153] | N1 D minus cell 0 -5 [-70, +60]
+# triviaqa test2 llama3.1-8b: N1 F ('N1', '3-5', '1', '2'), N1 D ('N1', '3-5', None, '0-25')
+# triviaqa test2 qwen3.5-9b: N1 F ('N1', '2', '0-25', '0-5'), N1 D ('N1', '2', None, '0-5')
+# triviaqa test2 qwen3.8-27b: N1 F ('N1', '1-75', '0-5', '1'), N1 D ('N1', '1-75', '0-25', None)
+# triviaqa test2 gemma3-12b: N1 F ('N1', '2-5', '2', '2'), N1 D ('N1', '2-5', None, '0-25')
+# triviaqa test2 gemma3-27b: N1 F ('N1', '1', '1', '2'), N1 D ('N1', '1', None, '0-25')
+
+## triviaqa test2 (alias match; net, answers in brackets)
+    llama3.1-8b  500 q | no write +196 (492) | single E +149 (251) | N1 F +72 (424) | N1 D +148 (252) | cell 0 +190 (482) || cell 0 minus no write -6 [-30, +17] | single E minus cell 0 -41 [-76, -6] | N1 F minus cell 0 -118 [-153, -83] | N1 D minus cell 0 -42 [-77, -7]
+    qwen3.5-9b   500 q | no write +116 (490) | single E +150 (386) | N1 F +129 (409) | N1 D +148 (388) | cell 0 +123 (459) || cell 0 minus no write +7 [-17, +31] | single E minus cell 0 +27 [+1, +54] | N1 F minus cell 0 +6 [-19, +32] | N1 D minus cell 0 +25 [-2, +52]
+    qwen3.8-27b  500 q | no write +149 (475) | single E +145 (453) | N1 F +118 (484) | N1 D +135 (463) | cell 0 +148 (450) || cell 0 minus no write -1 [-20, +18] | single E minus cell 0 -3 [-21, +15] | N1 F minus cell 0 -30 [-50, -10] | N1 D minus cell 0 -13 [-32, +6]
+    gemma3-12b   500 q | no write +166 (500) | single E +109 (377) | N1 F +27 (469) | N1 D +109 (377) | cell 0 +160 (494) || cell 0 minus no write -6 [-28, +15] | single E minus cell 0 -51 [-86, -14] | N1 F minus cell 0 -133 [-169, -96] | N1 D minus cell 0 -51 [-86, -14]
+    gemma3-27b   500 q | no write +277 (499) | single E +280 (494) | N1 F +278 (498) | N1 D +280 (494) | cell 0 +260 (488) || cell 0 minus no write -17 [-38, +4] | single E minus cell 0 +20 [+2, +39] | N1 F minus cell 0 +18 [+0, +38] | N1 D minus cell 0 +20 [+2, +39]
+    five models  500 q | no write +904 (2456) | single E +833 (1961) | N1 F +624 (2284) | N1 D +820 (1974) | cell 0 +881 (2373) || cell 0 minus no write -23 [-73, +26] | single E minus cell 0 -48 [-118, +21] | N1 F minus cell 0 -257 [-326, -189] | N1 D minus cell 0 -61 [-130, +7]
+    equal-answer-count readings: none (cell 0 has no confidence scores)

@@ -1,0 +1,212 @@
+# GPT reproduction, (QA)^2 pilot, 100 questions, three cells answered: 429 model x question | 2 - 1 (57, 16, 98) | 3 - 2 (3, -22, 30) | GPT: (57, 16, 98) (3, -22, 30) -> reproduced
+# GPT reproduction, (QA)^2 held-out, 470 questions, three cells answered: 1920 model x question | 2 - 1 (180, 104, 258) | 3 - 2 (60, 3, 115) | GPT: (180, 104, 258) (60, 3, 115) -> reproduced
+
+## (QA)^2 pilot / tune, 100, llama3.1-8b: 100 questions per model, one model
+    (a) all four answer, 72 model x question: cell 1 net -3 answers 72 | cell 2 net +8 answers 72 | cell 3 net +6 answers 72 | cell 4 net +5 answers 72
+        E: 2 - 1 +11 [-4, +26] | E: 3 - 4 +1 [-15, +18] | C: 3 - 2 -2 [-14, +10] | C: 4 - 1 +8 [-4, +20] | main: 2 - 4 +3 [-12, +18] | interaction (3-4)-(2-1) -10 [-28, +6]
+        extra: cell 0 (plain + honest sentence, no write) net +7 answers 72 | 4 - 0 -2 [-8, +4]
+    (b) every question, 100 model x question: cell 1 net -12 answers 100 | cell 2 net -2 answers 100 | cell 3 net +6 answers 72 | cell 4 net -3 answers 92
+        E: 2 - 1 +10 [-9, +28] | E: 3 - 4 +9 [-10, +28] | C: 3 - 2 +8 [-8, +23] | C: 4 - 1 +9 [-5, +24] | main: 2 - 4 +1 [-17, +20] | interaction (3-4)-(2-1) -1 [-22, +20]
+        extra: cell 0 (plain + honest sentence, no write) net -1 answers 90 | 4 - 0 -2 [-9, +5]
+
+## (QA)^2 pilot / tune, 100, qwen3.5-9b: 100 questions per model, one model
+    (a) all four answer, 93 model x question: cell 1 net -5 answers 93 | cell 2 net +11 answers 93 | cell 3 net +7 answers 93 | cell 4 net +3 answers 93
+        E: 2 - 1 +16 [+4, +30] | E: 3 - 4 +4 [-10, +18] | C: 3 - 2 -4 [-14, +4] | C: 4 - 1 +8 [-2, +20] | main: 2 - 4 +8 [-6, +22] | interaction (3-4)-(2-1) -12 [-28, +2]
+        extra: cell 0 (plain + honest sentence, no write) net +2 answers 92 | 4 - 0 +1 [-5, +7]
+    (b) every question, 100 model x question: cell 1 net -8 answers 100 | cell 2 net +12 answers 100 | cell 3 net +7 answers 93 | cell 4 net -1 answers 97
+        E: 2 - 1 +20 [+6, +34] | E: 3 - 4 +8 [-6, +22] | C: 3 - 2 -5 [-16, +5] | C: 4 - 1 +7 [-4, +19] | main: 2 - 4 +13 [-2, +28] | interaction (3-4)-(2-1) -12 [-28, +2]
+        extra: cell 0 (plain + honest sentence, no write) net -2 answers 96 | 4 - 0 +1 [-5, +7]
+
+## (QA)^2 pilot / tune, 100, qwen3.8-27b: 100 questions per model, one model
+    (a) all four answer, 89 model x question: cell 1 net +7 answers 89 | cell 2 net +19 answers 89 | cell 3 net +16 answers 89 | cell 4 net +9 answers 89
+        E: 2 - 1 +12 [-2, +26] | E: 3 - 4 +7 [-6, +20] | C: 3 - 2 -3 [-16, +9] | C: 4 - 1 +2 [-10, +14] | main: 2 - 4 +10 [-2, +24] | interaction (3-4)-(2-1) -5 [-21, +11]
+        extra: cell 0 (plain + honest sentence, no write) net +4 answers 70 | 4 - 0 +5 [-7, +17]
+    (b) every question, 100 model x question: cell 1 net +4 answers 100 | cell 2 net +20 answers 100 | cell 3 net +16 answers 95 | cell 4 net +9 answers 89
+        E: 2 - 1 +16 [+2, +32] | E: 3 - 4 +7 [-7, +21] | C: 3 - 2 -4 [-17, +9] | C: 4 - 1 +5 [-9, +19] | main: 2 - 4 +11 [-3, +26] | interaction (3-4)-(2-1) -9 [-26, +9]
+        extra: cell 0 (plain + honest sentence, no write) net +4 answers 70 | 4 - 0 +5 [-7, +17]
+
+## (QA)^2 pilot / tune, 100, gemma3-12b: 100 questions per model, one model
+    (a) all four answer, 77 model x question: cell 1 net -5 answers 77 | cell 2 net +11 answers 77 | cell 3 net +17 answers 77 | cell 4 net -1 answers 77
+        E: 2 - 1 +16 [-4, +36] | E: 3 - 4 +18 [+0, +37] | C: 3 - 2 +6 [-3, +16] | C: 4 - 1 +4 [-4, +12] | main: 2 - 4 +12 [-8, +32] | interaction (3-4)-(2-1) +2 [-10, +15]
+        extra: cell 0 (plain + honest sentence, no write) net +1 answers 77 | 4 - 0 -2 [-6, +0]
+    (b) every question, 100 model x question: cell 1 net -9 answers 100 | cell 2 net +16 answers 100 | cell 3 net +17 answers 77 | cell 4 net -1 answers 97
+        E: 2 - 1 +25 [+4, +46] | E: 3 - 4 +18 [-3, +39] | C: 3 - 2 +1 [-11, +14] | C: 4 - 1 +8 [-1, +18] | main: 2 - 4 +17 [-4, +39] | interaction (3-4)-(2-1) -7 [-24, +10]
+        extra: cell 0 (plain + honest sentence, no write) net +2 answers 96 | 4 - 0 -3 [-8, +0]
+
+## (QA)^2 pilot / tune, 100, gemma3-27b: 100 questions per model, one model
+    (a) all four answer, 90 model x question: cell 1 net +9 answers 90 | cell 2 net +9 answers 90 | cell 3 net +15 answers 90 | cell 4 net +18 answers 90
+        E: 2 - 1 +0 [-15, +14] | E: 3 - 4 -3 [-16, +11] | C: 3 - 2 +6 [-3, +16] | C: 4 - 1 +9 [-4, +22] | main: 2 - 4 -9 [-23, +5] | interaction (3-4)-(2-1) -3 [-20, +14]
+        extra: cell 0 (plain + honest sentence, no write) net +20 answers 90 | 4 - 0 -2 [-6, +0]
+    (b) every question, 100 model x question: cell 1 net +1 answers 100 | cell 2 net +5 answers 100 | cell 3 net +15 answers 92 | cell 4 net +16 answers 95
+        E: 2 - 1 +4 [-12, +19] | E: 3 - 4 -1 [-16, +14] | C: 3 - 2 +10 [-1, +22] | C: 4 - 1 +15 [-1, +30] | main: 2 - 4 -11 [-26, +5] | interaction (3-4)-(2-1) -5 [-24, +15]
+        extra: cell 0 (plain + honest sentence, no write) net +16 answers 95 | 4 - 0 +0 [-6, +6]
+
+## (QA)^2 pilot / tune, 100, the five models together: 100 questions per model, llama3.1-8b, qwen3.5-9b, qwen3.8-27b, gemma3-12b, gemma3-27b
+    (a) all four answer, 421 model x question: cell 1 net +3 answers 421 | cell 2 net +58 answers 421 | cell 3 net +61 answers 421 | cell 4 net +34 answers 421
+        E: 2 - 1 +55 [+15, +96] | E: 3 - 4 +27 [-6, +62] | C: 3 - 2 +3 [-22, +30] | C: 4 - 1 +31 [+7, +56] | main: 2 - 4 +24 [-16, +65] | interaction (3-4)-(2-1) -28 [-63, +7]
+        extra: cell 0 (plain + honest sentence, no write) net +34 answers 401 | 4 - 0 +0 [-17, +16]
+    (b) every question, 500 model x question: cell 1 net -24 answers 500 | cell 2 net +51 answers 500 | cell 3 net +61 answers 429 | cell 4 net +20 answers 470
+        E: 2 - 1 +75 [+27, +122] | E: 3 - 4 +41 [+0, +81] | C: 3 - 2 +10 [-21, +42] | C: 4 - 1 +44 [+15, +73] | main: 2 - 4 +31 [-19, +80] | interaction (3-4)-(2-1) -34 [-74, +6]
+        extra: cell 0 (plain + honest sentence, no write) net +19 answers 447 | 4 - 0 +1 [-16, +18]
+# TruthfulQA tune, llama3.1-8b: 192 questions of the main table's list, 0 left out (a cell without a verdict)
+# TruthfulQA tune, qwen3.5-9b: 192 questions of the main table's list, 0 left out (a cell without a verdict)
+# TruthfulQA tune, qwen3.8-27b: 192 questions of the main table's list, 0 left out (a cell without a verdict)
+# TruthfulQA tune, gemma3-12b: 192 questions of the main table's list, 0 left out (a cell without a verdict)
+# TruthfulQA tune, gemma3-27b: 192 questions of the main table's list, 0 left out (a cell without a verdict)
+
+## TruthfulQA tune, llama3.1-8b: 192 questions per model, one model
+    cells: 1 3 4; cell 2: none
+    (a) all four answer, 129 model x question: cell 1 net +11 answers 129 | cell 3 net +11 answers 129 | cell 4 net +25 answers 129
+        E: 2 - 1 none | E: 3 - 4 -14 [-38, +10] | C: 3 - 2 none | C: 4 - 1 +14 [-4, +33] | main: 2 - 4 none | interaction (3-4)-(2-1) none
+        extra: cell 0 (plain + honest sentence, no write) net +29 answers 128 | 4 - 0 -4 [-9, +0]
+    (b) every question, 192 model x question: cell 1 net +12 answers 192 | cell 3 net +12 answers 133 | cell 4 net +14 answers 167
+        E: 2 - 1 none | E: 3 - 4 -2 [-28, +25] | C: 3 - 2 none | C: 4 - 1 +2 [-20, +23] | main: 2 - 4 none | interaction (3-4)-(2-1) none
+        extra: cell 0 (plain + honest sentence, no write) net +18 answers 158 | 4 - 0 -4 [-12, +3]
+
+## TruthfulQA tune, qwen3.5-9b: 192 questions per model, one model
+    cells: 1 3 4; cell 2: none
+    (a) all four answer, 150 model x question: cell 1 net +68 answers 150 | cell 3 net +66 answers 150 | cell 4 net +71 answers 150
+        E: 2 - 1 none | E: 3 - 4 -5 [-22, +11] | C: 3 - 2 none | C: 4 - 1 +3 [-8, +15] | main: 2 - 4 none | interaction (3-4)-(2-1) none
+        extra: cell 0 (plain + honest sentence, no write) net +66 answers 147 | 4 - 0 +5 [-2, +13]
+    (b) every question, 192 model x question: cell 1 net +58 answers 190 | cell 3 net +66 answers 150 | cell 4 net +64 answers 172
+        E: 2 - 1 none | E: 3 - 4 +2 [-16, +21] | C: 3 - 2 none | C: 4 - 1 +6 [-10, +22] | main: 2 - 4 none | interaction (3-4)-(2-1) none
+        extra: cell 0 (plain + honest sentence, no write) net +64 answers 162 | 4 - 0 +0 [-9, +9]
+
+## TruthfulQA tune, qwen3.8-27b: 192 questions per model, one model
+    cells: 1 3 4; cell 2: none
+    (a) all four answer, 153 model x question: cell 1 net +61 answers 153 | cell 3 net +62 answers 153 | cell 4 net +70 answers 153
+        E: 2 - 1 none | E: 3 - 4 -8 [-23, +6] | C: 3 - 2 none | C: 4 - 1 +9 [-4, +23] | main: 2 - 4 none | interaction (3-4)-(2-1) none
+        extra: cell 0 (plain + honest sentence, no write) net +63 answers 127 | 4 - 0 +7 [-5, +19]
+    (b) every question, 192 model x question: cell 1 net +69 answers 192 | cell 3 net +66 answers 161 | cell 4 net +70 answers 157
+        E: 2 - 1 none | E: 3 - 4 -4 [-20, +12] | C: 3 - 2 none | C: 4 - 1 +1 [-17, +18] | main: 2 - 4 none | interaction (3-4)-(2-1) none
+        extra: cell 0 (plain + honest sentence, no write) net +63 answers 128 | 4 - 0 +7 [-6, +20]
+
+## TruthfulQA tune, gemma3-12b: 192 questions per model, one model
+    cells: 1 3 4; cell 2: none
+    (a) all four answer, 135 model x question: cell 1 net +13 answers 135 | cell 3 net +44 answers 135 | cell 4 net +26 answers 135
+        E: 2 - 1 none | E: 3 - 4 +18 [-6, +42] | C: 3 - 2 none | C: 4 - 1 +13 [+0, +26] | main: 2 - 4 none | interaction (3-4)-(2-1) none
+        extra: cell 0 (plain + honest sentence, no write) net +29 answers 134 | 4 - 0 -3 [-10, +2]
+    (b) every question, 192 model x question: cell 1 net +17 answers 192 | cell 3 net +44 answers 135 | cell 4 net +33 answers 184
+        E: 2 - 1 none | E: 3 - 4 +11 [-15, +38] | C: 3 - 2 none | C: 4 - 1 +16 [+0, +32] | main: 2 - 4 none | interaction (3-4)-(2-1) none
+        extra: cell 0 (plain + honest sentence, no write) net +34 answers 178 | 4 - 0 -1 [-10, +7]
+
+## TruthfulQA tune, gemma3-27b: 192 questions per model, one model
+    cells: 1 3 4; cell 2: none
+    (a) all four answer, 160 model x question: cell 1 net +27 answers 160 | cell 3 net +37 answers 160 | cell 4 net +52 answers 160
+        E: 2 - 1 none | E: 3 - 4 -15 [-34, +4] | C: 3 - 2 none | C: 4 - 1 +25 [+10, +41] | main: 2 - 4 none | interaction (3-4)-(2-1) none
+        extra: cell 0 (plain + honest sentence, no write) net +57 answers 158 | 4 - 0 -5 [-14, +3]
+    (b) every question, 192 model x question: cell 1 net +44 answers 192 | cell 3 net +37 answers 160 | cell 4 net +64 answers 185
+        E: 2 - 1 none | E: 3 - 4 -27 [-47, -6] | C: 3 - 2 none | C: 4 - 1 +20 [+2, +39] | main: 2 - 4 none | interaction (3-4)-(2-1) none
+        extra: cell 0 (plain + honest sentence, no write) net +65 answers 178 | 4 - 0 -1 [-11, +9]
+
+## TruthfulQA tune, the five models together: 192 questions per model, llama3.1-8b, qwen3.5-9b, qwen3.8-27b, gemma3-12b, gemma3-27b
+    cells: 1 3 4; cell 2: none
+    (a) all four answer, 727 model x question: cell 1 net +180 answers 727 | cell 3 net +220 answers 727 | cell 4 net +244 answers 727
+        E: 2 - 1 none | E: 3 - 4 -24 [-74, +24] | C: 3 - 2 none | C: 4 - 1 +64 [+31, +97] | main: 2 - 4 none | interaction (3-4)-(2-1) none
+        extra: cell 0 (plain + honest sentence, no write) net +244 answers 694 | 4 - 0 +0 [-18, +18]
+    (b) every question, 960 model x question: cell 1 net +200 answers 958 | cell 3 net +225 answers 739 | cell 4 net +245 answers 865
+        E: 2 - 1 none | E: 3 - 4 -20 [-74, +33] | C: 3 - 2 none | C: 4 - 1 +45 [+1, +88] | main: 2 - 4 none | interaction (3-4)-(2-1) none
+        extra: cell 0 (plain + honest sentence, no write) net +244 answers 804 | 4 - 0 +1 [-20, +23]
+# GPT reproduction, (QA)^2 pilot, 100 questions, three cells answered: 429 model x question | 2 - 1 (57, 16, 98) | 3 - 2 (3, -22, 30) | GPT: (57, 16, 98) (3, -22, 30) -> reproduced
+# GPT reproduction, (QA)^2 held-out, 470 questions, three cells answered: 1920 model x question | 2 - 1 (180, 104, 258) | 3 - 2 (60, 3, 115) | GPT: (180, 104, 258) (60, 3, 115) -> reproduced
+
+## (QA)^2 held-out, 470, llama3.1-8b: 470 questions per model, one model
+    (a) all four answer, 299 model x question: cell 1 net -54 answers 299 | cell 2 net -28 answers 299 | cell 3 net -3 answers 299 | cell 4 net -23 answers 299
+        E: 2 - 1 +26 [-5, +59] | E: 3 - 4 +20 [-13, +54] | C: 3 - 2 +25 [-2, +53] | C: 4 - 1 +31 [+7, +55] | main: 2 - 4 -5 [-38, +28] | interaction (3-4)-(2-1) -6 [-40, +29]
+        extra: cell 0 (plain + honest sentence, no write) net -26 answers 292 | 4 - 0 +3 [-5, +11]
+    (b) every question, 470 model x question: cell 1 net -96 answers 470 | cell 2 net -37 answers 464 | cell 3 net +0 answers 303 | cell 4 net -55 answers 410
+        E: 2 - 1 +59 [+18, +102] | E: 3 - 4 +55 [+17, +95] | C: 3 - 2 +37 [+1, +74] | C: 4 - 1 +41 [+9, +72] | main: 2 - 4 +18 [-24, +60] | interaction (3-4)-(2-1) -4 [-50, +42]
+        extra: cell 0 (plain + honest sentence, no write) net -60 answers 393 | 4 - 0 +5 [-8, +18]
+
+## (QA)^2 held-out, 470, qwen3.5-9b: 470 questions per model, one model
+    (a) all four answer, 410 model x question: cell 1 net -7 answers 410 | cell 2 net +26 answers 410 | cell 3 net +51 answers 410 | cell 4 net +37 answers 410
+        E: 2 - 1 +33 [+8, +58] | E: 3 - 4 +14 [-11, +39] | C: 3 - 2 +25 [+0, +50] | C: 4 - 1 +44 [+21, +68] | main: 2 - 4 -11 [-38, +17] | interaction (3-4)-(2-1) -19 [-53, +14]
+        extra: cell 0 (plain + honest sentence, no write) net +28 answers 399 | 4 - 0 +9 [-1, +20]
+    (b) every question, 470 model x question: cell 1 net -42 answers 468 | cell 2 net +3 answers 467 | cell 3 net +51 answers 411 | cell 4 net +18 answers 454
+        E: 2 - 1 +45 [+19, +72] | E: 3 - 4 +33 [+5, +60] | C: 3 - 2 +48 [+19, +76] | C: 4 - 1 +60 [+35, +87] | main: 2 - 4 -15 [-46, +15] | interaction (3-4)-(2-1) -12 [-48, +23]
+        extra: cell 0 (plain + honest sentence, no write) net +18 answers 427 | 4 - 0 +0 [-14, +14]
+
+## (QA)^2 held-out, 470, qwen3.8-27b: 470 questions per model, one model
+    (a) all four answer, 398 model x question: cell 1 net +11 answers 398 | cell 2 net +64 answers 398 | cell 3 net +52 answers 398 | cell 4 net +39 answers 398
+        E: 2 - 1 +53 [+28, +80] | E: 3 - 4 +13 [-7, +34] | C: 3 - 2 -12 [-35, +10] | C: 4 - 1 +28 [+6, +50] | main: 2 - 4 +25 [+1, +50] | interaction (3-4)-(2-1) -40 [-66, -14]
+        extra: cell 0 (plain + honest sentence, no write) net +26 answers 292 | 4 - 0 +13 [-11, +38]
+    (b) every question, 470 model x question: cell 1 net -1 answers 470 | cell 2 net +61 answers 470 | cell 3 net +59 answers 429 | cell 4 net +38 answers 401
+        E: 2 - 1 +62 [+34, +91] | E: 3 - 4 +21 [-3, +45] | C: 3 - 2 -2 [-29, +24] | C: 4 - 1 +39 [+12, +66] | main: 2 - 4 +23 [-8, +54] | interaction (3-4)-(2-1) -41 [-73, -11]
+        extra: cell 0 (plain + honest sentence, no write) net +26 answers 292 | 4 - 0 +12 [-12, +37]
+
+## (QA)^2 held-out, 470, gemma3-12b: 470 questions per model, one model
+    (a) all four answer, 349 model x question: cell 1 net -11 answers 349 | cell 2 net +58 answers 349 | cell 3 net +67 answers 349 | cell 4 net +12 answers 349
+        E: 2 - 1 +69 [+30, +108] | E: 3 - 4 +55 [+19, +91] | C: 3 - 2 +9 [-12, +31] | C: 4 - 1 +23 [+2, +44] | main: 2 - 4 +46 [+7, +85] | interaction (3-4)-(2-1) -14 [-43, +15]
+        extra: cell 0 (plain + honest sentence, no write) net +15 answers 347 | 4 - 0 -3 [-16, +10]
+    (b) every question, 470 model x question: cell 1 net -51 answers 470 | cell 2 net +40 answers 470 | cell 3 net +67 answers 351 | cell 4 net -14 answers 464
+        E: 2 - 1 +91 [+44, +137] | E: 3 - 4 +81 [+40, +121] | C: 3 - 2 +27 [-3, +57] | C: 4 - 1 +37 [+11, +63] | main: 2 - 4 +54 [+8, +99] | interaction (3-4)-(2-1) -10 [-48, +26]
+        extra: cell 0 (plain + honest sentence, no write) net -7 answers 457 | 4 - 0 -7 [-22, +8]
+
+## (QA)^2 held-out, 470, gemma3-27b: 470 questions per model, one model
+    (a) all four answer, 425 model x question: cell 1 net +37 answers 425 | cell 2 net +36 answers 425 | cell 3 net +43 answers 425 | cell 4 net +68 answers 425
+        E: 2 - 1 -1 [-34, +31] | E: 3 - 4 -25 [-55, +6] | C: 3 - 2 +7 [-16, +30] | C: 4 - 1 +31 [+5, +56] | main: 2 - 4 -32 [-64, +1] | interaction (3-4)-(2-1) -24 [-55, +7]
+        extra: cell 0 (plain + honest sentence, no write) net +64 answers 422 | 4 - 0 +4 [-8, +16]
+    (b) every question, 470 model x question: cell 1 net +31 answers 470 | cell 2 net +30 answers 470 | cell 3 net +40 answers 427 | cell 4 net +69 answers 457
+        E: 2 - 1 -1 [-34, +32] | E: 3 - 4 -29 [-62, +3] | C: 3 - 2 +10 [-16, +36] | C: 4 - 1 +38 [+10, +66] | main: 2 - 4 -39 [-73, -3] | interaction (3-4)-(2-1) -28 [-62, +6]
+        extra: cell 0 (plain + honest sentence, no write) net +63 answers 444 | 4 - 0 +6 [-8, +20]
+
+## (QA)^2 held-out, 470, the five models together: 470 questions per model, llama3.1-8b, qwen3.5-9b, qwen3.8-27b, gemma3-12b, gemma3-27b
+    (a) all four answer, 1881 model x question: cell 1 net -24 answers 1881 | cell 2 net +156 answers 1881 | cell 3 net +210 answers 1881 | cell 4 net +133 answers 1881
+        E: 2 - 1 +180 [+104, +258] | E: 3 - 4 +77 [+9, +142] | C: 3 - 2 +54 [-3, +110] | C: 4 - 1 +157 [+105, +211] | main: 2 - 4 +23 [-49, +96] | interaction (3-4)-(2-1) -103 [-170, -32]
+        extra: cell 0 (plain + honest sentence, no write) net +107 answers 1752 | 4 - 0 +26 [-7, +60]
+    (b) every question, 2350 model x question: cell 1 net -159 answers 2348 | cell 2 net +97 answers 2341 | cell 3 net +217 answers 1921 | cell 4 net +56 answers 2186
+        E: 2 - 1 +256 [+167, +348] | E: 3 - 4 +161 [+81, +238] | C: 3 - 2 +120 [+45, +191] | C: 4 - 1 +215 [+151, +279] | main: 2 - 4 +41 [-54, +131] | interaction (3-4)-(2-1) -95 [-178, -12]
+        extra: cell 0 (plain + honest sentence, no write) net +40 answers 2013 | 4 - 0 +16 [-22, +54]
+# TruthfulQA test, llama3.1-8b: 523 questions of the main table's list, 0 left out (a cell without a verdict)
+# TruthfulQA test, qwen3.5-9b: 523 questions of the main table's list, 0 left out (a cell without a verdict)
+# TruthfulQA test, qwen3.8-27b: 522 questions of the main table's list, 0 left out (a cell without a verdict)
+# TruthfulQA test, gemma3-12b: 522 questions of the main table's list, 0 left out (a cell without a verdict)
+# TruthfulQA test, gemma3-27b: 523 questions of the main table's list, 0 left out (a cell without a verdict)
+
+## TruthfulQA test, llama3.1-8b: 521 questions per model, one model
+    (a) all four answer, 369 model x question: cell 1 net +19 answers 369 | cell 2 net +28 answers 369 | cell 3 net +38 answers 369 | cell 4 net +45 answers 369
+        E: 2 - 1 +9 [-29, +46] | E: 3 - 4 -7 [-43, +27] | C: 3 - 2 +10 [-15, +36] | C: 4 - 1 +26 [-1, +53] | main: 2 - 4 -17 [-55, +19] | interaction (3-4)-(2-1) -16 [-51, +19]
+        extra: cell 0 (plain + honest sentence, no write) net +54 answers 363 | 4 - 0 -9 [-21, +2]
+    (b) every question, 521 model x question: cell 1 net +2 answers 521 | cell 2 net +13 answers 519 | cell 3 net +39 answers 377 | cell 4 net +25 answers 471
+        E: 2 - 1 +11 [-37, +56] | E: 3 - 4 +14 [-28, +55] | C: 3 - 2 +26 [-7, +59] | C: 4 - 1 +23 [-12, +57] | main: 2 - 4 -12 [-59, +32] | interaction (3-4)-(2-1) +3 [-43, +48]
+        extra: cell 0 (plain + honest sentence, no write) net +33 answers 452 | 4 - 0 -8 [-22, +5]
+
+## TruthfulQA test, qwen3.5-9b: 521 questions per model, one model
+    (a) all four answer, 444 model x question: cell 1 net +184 answers 444 | cell 2 net +175 answers 444 | cell 3 net +173 answers 444 | cell 4 net +170 answers 444
+        E: 2 - 1 -9 [-30, +13] | E: 3 - 4 +3 [-20, +26] | C: 3 - 2 -2 [-21, +16] | C: 4 - 1 -14 [-35, +8] | main: 2 - 4 +5 [-19, +30] | interaction (3-4)-(2-1) +12 [-14, +38]
+        extra: cell 0 (plain + honest sentence, no write) net +172 answers 433 | 4 - 0 -2 [-13, +9]
+    (b) every question, 521 model x question: cell 1 net +168 answers 520 | cell 2 net +156 answers 516 | cell 3 net +173 answers 447 | cell 4 net +163 answers 490
+        E: 2 - 1 -12 [-37, +13] | E: 3 - 4 +10 [-17, +37] | C: 3 - 2 +17 [-7, +41] | C: 4 - 1 -5 [-29, +19] | main: 2 - 4 -7 [-36, +21] | interaction (3-4)-(2-1) +22 [-9, +53]
+        extra: cell 0 (plain + honest sentence, no write) net +168 answers 462 | 4 - 0 -5 [-20, +9]
+
+## TruthfulQA test, qwen3.8-27b: 521 questions per model, one model
+    (a) all four answer, 438 model x question: cell 1 net +143 answers 438 | cell 2 net +151 answers 438 | cell 3 net +148 answers 438 | cell 4 net +165 answers 438
+        E: 2 - 1 +8 [-13, +30] | E: 3 - 4 -17 [-43, +9] | C: 3 - 2 -3 [-25, +18] | C: 4 - 1 +22 [+2, +42] | main: 2 - 4 -14 [-39, +12] | interaction (3-4)-(2-1) -25 [-50, +0]
+        extra: cell 0 (plain + honest sentence, no write) net +160 answers 371 | 4 - 0 +5 [-15, +24]
+    (b) every question, 521 model x question: cell 1 net +133 answers 521 | cell 2 net +160 answers 518 | cell 3 net +157 answers 455 | cell 4 net +167 answers 455
+        E: 2 - 1 +27 [+0, +54] | E: 3 - 4 -10 [-39, +18] | C: 3 - 2 -3 [-30, +22] | C: 4 - 1 +34 [+8, +60] | main: 2 - 4 -7 [-37, +24] | interaction (3-4)-(2-1) -37 [-69, -6]
+        extra: cell 0 (plain + honest sentence, no write) net +161 answers 372 | 4 - 0 +6 [-15, +26]
+
+## TruthfulQA test, gemma3-12b: 521 questions per model, one model
+    (a) all four answer, 399 model x question: cell 1 net +84 answers 399 | cell 2 net +125 answers 399 | cell 3 net +140 answers 399 | cell 4 net +124 answers 399
+        E: 2 - 1 +41 [+1, +80] | E: 3 - 4 +16 [-19, +51] | C: 3 - 2 +15 [-9, +39] | C: 4 - 1 +40 [+18, +63] | main: 2 - 4 +1 [-38, +41] | interaction (3-4)-(2-1) -25 [-57, +5]
+        extra: cell 0 (plain + honest sentence, no write) net +131 answers 399 | 4 - 0 -7 [-20, +6]
+    (b) every question, 521 model x question: cell 1 net +78 answers 519 | cell 2 net +169 answers 519 | cell 3 net +140 answers 402 | cell 4 net +155 answers 507
+        E: 2 - 1 +91 [+44, +137] | E: 3 - 4 -15 [-55, +25] | C: 3 - 2 -29 [-61, +4] | C: 4 - 1 +77 [+47, +108] | main: 2 - 4 +14 [-31, +58] | interaction (3-4)-(2-1) -106 [-148, -66]
+        extra: cell 0 (plain + honest sentence, no write) net +157 answers 500 | 4 - 0 -2 [-17, +12]
+
+## TruthfulQA test, gemma3-27b: 521 questions per model, one model
+    (a) all four answer, 450 model x question: cell 1 net +117 answers 450 | cell 2 net +77 answers 450 | cell 3 net +101 answers 450 | cell 4 net +157 answers 450
+        E: 2 - 1 -40 [-78, -2] | E: 3 - 4 -56 [-92, -22] | C: 3 - 2 +24 [-2, +51] | C: 4 - 1 +40 [+12, +68] | main: 2 - 4 -80 [-118, -44] | interaction (3-4)-(2-1) -16 [-54, +23]
+        extra: cell 0 (plain + honest sentence, no write) net +153 answers 444 | 4 - 0 +4 [-10, +18]
+    (b) every question, 521 model x question: cell 1 net +140 answers 519 | cell 2 net +96 answers 518 | cell 3 net +97 answers 455 | cell 4 net +196 answers 501
+        E: 2 - 1 -44 [-85, -4] | E: 3 - 4 -99 [-137, -62] | C: 3 - 2 +1 [-30, +33] | C: 4 - 1 +56 [+25, +86] | main: 2 - 4 -100 [-141, -61] | interaction (3-4)-(2-1) -55 [-98, -13]
+        extra: cell 0 (plain + honest sentence, no write) net +186 answers 486 | 4 - 0 +10 [-5, +25]
+
+## TruthfulQA test, the five models together: 521 questions per model, llama3.1-8b, qwen3.5-9b, qwen3.8-27b, gemma3-12b, gemma3-27b
+    (a) all four answer, 2100 model x question: cell 1 net +547 answers 2100 | cell 2 net +556 answers 2100 | cell 3 net +600 answers 2100 | cell 4 net +661 answers 2100
+        E: 2 - 1 +9 [-81, +92] | E: 3 - 4 -61 [-141, +18] | C: 3 - 2 +44 [-11, +97] | C: 4 - 1 +114 [+57, +169] | main: 2 - 4 -105 [-192, -23] | interaction (3-4)-(2-1) -70 [-142, +3]
+        extra: cell 0 (plain + honest sentence, no write) net +670 answers 2010 | 4 - 0 -9 [-43, +23]
+    (b) every question, 2605 model x question: cell 1 net +521 answers 2600 | cell 2 net +594 answers 2590 | cell 3 net +606 answers 2136 | cell 4 net +706 answers 2424
+        E: 2 - 1 +73 [-28, +170] | E: 3 - 4 -100 [-191, -13] | C: 3 - 2 +12 [-58, +86] | C: 4 - 1 +185 [+115, +253] | main: 2 - 4 -112 [-210, -14] | interaction (3-4)-(2-1) -173 [-263, -82]
+        extra: cell 0 (plain + honest sentence, no write) net +705 answers 2272 | 4 - 0 +1 [-37, +37]

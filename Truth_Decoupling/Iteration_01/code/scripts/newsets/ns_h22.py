@@ -10,6 +10,8 @@ ns_task.py takes over exactly as from its own command line (task registration, w
 
 usage (model interpreter, from /workspace/Truth_Decoupling):
   python -I ns_h22.py TASK none|prompt <newsets_gen arguments>        as ns_task.py, with the new prompt file
+        (TASK triviaqa / popqa, added 2026-11-22 20:4x for queue H section 5: pos none only, handed to newsets_gen.py
+        directly, since ns_task.py takes new task names only)
   python -I ns_h22.py check --models M --model MODEL --bank BANK --cl CL [--promptdiag FROZEN] --out REPORT.json
         GPU checks on the first 16 questions of the TruthfulQA tune split and of the bank (split test):
         (a) x_E2 + C at amount 0 at "prompt" equals the no-write x_E2 answers token for token;
@@ -170,6 +172,13 @@ def main():
         run_check(sys.argv[2:])
         return
     patch_context()
+    if sys.argv[1] in ("triviaqa", "popqa"):
+        # tasks newsets_gen.py knows itself (ns_task.py refuses them): no-write arms only, straight to newsets_gen
+        if sys.argv[2] != "none":
+            raise SystemExit("triviaqa / popqa: only no-write arms (pos none) through this entry")
+        sys.argv = [G.__file__] + sys.argv[3:]
+        G.main()
+        return
     sys.argv = [NT.__file__] + sys.argv[1:]
     NT.main()
 
