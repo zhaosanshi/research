@@ -4,7 +4,7 @@
 # only (K1); no generation, no judge call; existing answers and verdicts.
 #
 # Switches (no training, no threshold chosen anywhere):
-#   K0  (QA)^2 official question type: "failure" / "unverifiable" = trap, "no_failure" = normal. Upper bound only.
+#   K0  (QA)^2 official question type: "failure" / "unverifiable" = trap, "no_failure" = normal. Oracle type labels, diagnostic only.
 #   K1  the model judges the question itself. Fixed prompt (system prompt = the self-judge path's statement system prompt
 #       of E45's prompts file, configs/prompts/default_v1.json "statement"/"system"; user turn = K1_USER below, the
 #       question stripped); rendering = bundle.build_chat exactly as common.tf_prompt renders the self-judge prompt
@@ -56,6 +56,9 @@ FIVE = ("llama3.1-8b", "qwen3.5-9b", "qwen3.8-27b", "gemma3-12b", "gemma3-27b")
 WORKS = ["test_full570", "test_full570_tuned", "test_full570_strong"]
 CHOICE = "Iteration_01/newsets/splits/qaqa_tune_choice_fixedE_20261122.json"
 FACT = (("popqa", "test"), ("popqa", "test2"), ("triviaqa", "test"), ("triviaqa", "test2"))
+# Verified historical score payloads predate the payload digest in the metadata.
+K1_LEGACY_NPZ = {"llama3.1-8b": "9a557b0f710b0fa022f6bc380a842a2a36bd2bbc160794f55a6b702f02844810",
+                 "qwen3.5-9b": "6cec5687d8de5bec5683e86e9056c95f82cdfe7b364d2200064628111ab0e938"}
 K0_EXPECT = dict(gb="+87 [+24, +152]", gbg="+12 [-14, +38]", bg={"llama3.1-8b": 10, "qwen3.5-9b": -2},
                  n={"llama3.1-8b": 281, "qwen3.5-9b": 396})
 
@@ -104,7 +107,7 @@ def score_k1(model, n_show=5):
     out_dir = os.path.join(SP.OUT, model)
     ipath = os.path.join(out_dir, "k1_items.json")
     doc = SP.read_json(ipath)
-    if doc["user"] != K1_USER or doc["variants"] != K1_VARIANTS:
+    if doc["model"] != model or doc["user"] != K1_USER or doc["variants"] != K1_VARIANTS:
         raise SystemExit("k1_items.json was written with another prompt")
     stem = os.path.join(out_dir, "k1_probe")
     if os.path.exists(stem + ".npz"):
@@ -143,6 +146,7 @@ def score_k1(model, n_show=5):
     show = sorted(rng.choice(len(items), n_show, replace=False).tolist())
     meta = dict(model=model, code=cfg["code"], system=system, user=K1_USER, variants=K1_VARIANTS,
                 label_map={k: list(map(int, v)) for k, v in lmap.items()}, items_sha256=SP.sha256_file(ipath), n_items=len(items),
+                npz_sha256=SP.sha256_file(stem + ".npz"),
                 shown=[dict(key=items[k]["key"], prompt=texts[k], margin=float(ly[k] - ln[k])) for k in show])
     with open(stem + ".json", "w", encoding="utf-8") as f:
         json.dump(meta, f, ensure_ascii=False, indent=1)
@@ -154,13 +158,23 @@ def k1_margins(model):
     d = os.path.join(SP.OUT, model)
     doc = SP.read_json(d + "/k1_items.json")
     meta = SP.read_json(d + "/k1_probe.json")
-    if meta["items_sha256"] != SP.sha256_file(d + "/k1_items.json") or meta["user"] != K1_USER:
-        raise SystemExit("%s: k1 probe made from other items" % model)
-    z = np.load(d + "/k1_probe.npz")
-    if [str(k) for k in z["keys"]] != [x["key"] for x in doc["items"]] or \
-            [str(h) for h in z["question_sha1"]] != [SP.sha1(x["question"]) for x in doc["items"]]:
-        raise SystemExit("%s: k1 rows" % model)
-    return {str(k): float(m) for k, m in zip(z["keys"], z["margin"])}
+    keys = [x["key"] for x in doc["items"]]
+    payload = d + "/k1_probe.npz"
+    if (doc["model"] != model or meta["model"] != model or meta["code"] != SP.MODELS[model]["code"]
+            or doc["user"] != K1_USER or meta["user"] != K1_USER
+            or doc["variants"] != K1_VARIANTS or meta["variants"] != K1_VARIANTS
+            or meta["n_items"] != len(keys) or len(set(keys)) != len(keys)
+            or meta["items_sha256"] != SP.sha256_file(d + "/k1_items.json")
+            or meta.get("npz_sha256", K1_LEGACY_NPZ.get(model)) != SP.sha256_file(payload)):
+        raise SystemExit("%s: K1 model, protocol, item roster or score digest differs" % model)
+    with np.load(payload, allow_pickle=False) as z:
+        if list(z["keys"]) != keys or list(z["question_sha1"]) != [SP.sha1(x["question"]) for x in doc["items"]]:
+            raise SystemExit("%s: k1 rows" % model)
+        if any(z[k].shape != (len(keys),) or not np.isfinite(z[k]).all() for k in ("margin", "lpYes", "lpNo")):
+            raise SystemExit("%s: incomplete or nonfinite K1 scores" % model)
+        if not np.array_equal(z["margin"], z["lpYes"] - z["lpNo"]):
+            raise SystemExit("%s: K1 margin disagrees with the label log-probabilities" % model)
+        return dict(zip(keys, z["margin"].tolist()))
 
 
 # ------------------------------------------------------------------------------------------------------------------ #
@@ -255,9 +269,11 @@ def cells(r, ids):
 
 def show(label, ids, r, ci):
     net = lambda v: "n/c" if v is None else "%+d" % sum(v.values())
-    print("    %s: %d questions | answers E %d, N1 %d, G %d (B, Bg same), G+SJ %s | nets E %s, N1 %s, G %s, B %s, Bg %s, G+SJ %s, "
+    print("    %s: %d questions | answers E %d, N1 %d, G %d (B %s, Bg %s), G+SJ %s | nets E %s, N1 %s, G %s, B %s, Bg %s, G+SJ %s, "
           "B at G+SJ's count %s | releases %d (right %d, wrong %d), G keeps %d (right %d, wrong %d)" % (
-              (label, len(ids), r["n"]["E"], r["n"]["N1"], r["n"]["G"], r["n"]["GS"], net(r["E"]), net(r["N1"]), net(r["G"]),
+              (label, len(ids), r["n"]["E"], r["n"]["N1"], r["n"]["G"],
+               "n/c" if r["B"] is None else r["n"]["G"], "n/c" if r["Bg"] is None else r["n"]["G"],
+               r["n"]["GS"], net(r["E"]), net(r["N1"]), net(r["G"]),
                net(r["B"]), net(r["Bg"]), net(r["GS"]), net(r["BS"])) + r["released"] + r["kept"]))
     c = cells(r, ids)
     print("      " + " | ".join("%s %s" % (k, "not comparable" if c[k] is None else ci(c[k])) for k, _, _ in DIFF))

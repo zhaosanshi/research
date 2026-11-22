@@ -35,6 +35,7 @@ import os
 import sys
 
 sys.path[:0] = ["Iteration_01/diag", "Iteration_01/code/scripts/newsets"]
+import selfjudge_equal_n as EQ
 import selfjudge_probe as SP     # noqa: E402
 
 ORDER = ("llama3.1-8b", "qwen3.5-9b")
@@ -48,12 +49,9 @@ sha1 = SP.sha1
 
 def write_items(model, src, items, extra):
     path = os.path.join(SP.OUT, model, src + "_items.json")
-    if os.path.exists(path):
-        raise SystemExit("%s exists" % path)
     if len({x["id"] for x in items}) != len(items):
         raise SystemExit("%s: duplicate ids" % src)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(dict(model=model, source=src, items=items, **extra), f, ensure_ascii=False, indent=0)
+    SP.save_items(path, dict(model=model, source=src, items=items, **extra))
     a = [x for x in items if x["answered"]]
     print("%s %s: %d items, answered %d (right %d, wrong %d, other %d), negated-premise opening %d -> %s" % (
         model, src, len(items), len(a), sum(x["value"] == 1 for x in a), sum(x["value"] == -1 for x in a),
@@ -91,7 +89,10 @@ def export_tq(model):
         st2, na, recs = S.system(sp, tx, n1cfg)
         es, ea, _ = S.system(sp, tx, ("E", s))
         _, runs, _ = MP.usual(display, i)
+        by_path = {}
         for k, r in enumerate(recs):
+            if r["p"] != qs[k]:
+                raise ValueError("N1 record order differs from the frozen roster")
             if r["note"] != "released":
                 if ea[k] != na[k]:
                     raise SystemExit("%s: N1 answers %s without a release record (%s)" % (model, r["p"], r["note"]))
@@ -99,9 +100,14 @@ def export_tq(model):
             if ea[k] or not na[k] or not r["cond"].startswith("X_x--"):
                 raise SystemExit("%s: a released record that is not an answer to an E blank (%s)" % (model, r["p"]))
             gpath = "%s/eval_extra/gen/%s-at-prompt_%s.json" % (runs, r["cond"][2:], split)
-            g = SP.read_json(gpath)
-            gt = {x["pair_id"]: x["text"] for x in g["rows"]}
-            if g.get("positions") != "prompt" or g.get("split") != split or sha1(gt[r["p"]]) != sha1(r["text"]):
+            if gpath not in by_path:
+                g = SP.read_json(gpath)
+                gt = {x["pair_id"]: x["text"] for x in g["rows"]}
+                if (g.get("positions") != "prompt" or g.get("split") != split or not g.get("completed")
+                        or g.get("partial") or len(gt) != len(g["rows"])):
+                    raise ValueError(f"{gpath}: wrong, incomplete or duplicated source")
+                by_path[gpath] = gt
+            if sha1(by_path[gpath][r["p"]]) != sha1(r["text"]):
                 raise SystemExit("%s: released text of %s is not the generation file's (%s)" % (model, r["p"], gpath))
             items.append(dict(id=split + "|" + r["p"], split=split, question=qtext[(split, r["p"])], answer=r["text"],
                               answer_sha1=sha1(r["text"]), value=TQ.V[st2[k]], answered=True, cond=r["cond"],
@@ -116,6 +122,8 @@ def export_tq(model):
 def export_qq(model):
     import qaqa_pilot_table as qt
     ch = SP.read_json(CHOICE)[model]
+    if not ch["e_fixed"] or ch["n1_strength"] != qt.SET[model][1]:
+        raise ValueError(f"{model}: not the fixed-E choice")
     s = ch["n1_strength"]
     R = qt.Raw(model, "qaqafull", SP.QAQA_BANK, WORKS)
     with open(SP.QAQA_BANK, encoding="utf-8") as f:
@@ -162,18 +170,11 @@ def export_qq(model):
 
 # ------------------------------------------------------------------------------------------------------------------ #
 def margins(model, src, cond):
-    import numpy as np
-    d = os.path.join(SP.OUT, model)
-    doc = SP.read_json(d + "/%s_items.json" % src)
-    meta = SP.read_json(d + "/%s_probe.json" % src)
-    if meta["items_sha256"] != SP.sha256_file(d + "/%s_items.json" % src):
-        raise SystemExit("%s %s: probe made from other items" % (model, src))
-    z = np.load(d + "/%s_probe.npz" % src)
+    if src == "qaqa":
+        doc, _, z = SP.read_probe(model, qaqa=True)
+    else:
+        doc, _, z = SP.read_probe(model, source=src)
     a = [x for x in doc["items"] if x["answered"]]
-    if [str(i) for i in z["ids"]] != [x["id"] for x in a] or [str(h) for h in z["answer_sha1"]] != [x["answer_sha1"] for x in a]:
-        raise SystemExit("%s %s: probe rows" % (model, src))
-    if any(sha1(SP.statement(x["question"], x["answer"])) != str(h) for x, h in zip(a, z["statement_sha1"])):
-        raise SystemExit("%s %s: statements" % (model, src))
     return doc, {x["id"]: float(z[cond + "__margin"][j]) for j, x in enumerate(a)}
 
 
@@ -195,6 +196,14 @@ def ft(t):
 def compute(ids, d, t):
     """d[q]: e, eans, n1, issued, f, fans, conf, mE (E margin or None), negE, rel (released: (value, margin, neg) or None)."""
     pos = {q: i for i, q in enumerate(ids)}
+    if not ids or len(ids) != len(pos):
+        raise ValueError("empty or duplicate question IDs")
+    for q in ids:
+        r = d[q]
+        if ((r["rel"] is not None) != (r["issued"] and not r["eans"])
+                or r["eans"] and (not r["issued"] or r["n1"] != r["e"])
+                or r["rel"] is not None and r["rel"][0] != r["n1"]):
+            raise ValueError(f"{q}: inconsistent ordinary and released answers")
     dropE = {q: d[q]["eans"] and not d[q]["negE"] and d[q]["mE"] < t for q in ids}
     dropR = {q: d[q]["rel"] is not None and not d[q]["rel"][2] and d[q]["rel"][1] < t for q in ids}
     ranked = sorted([q for q in ids if d[q]["fans"] and d[q]["conf"] is not None], key=lambda q: (-d[q]["conf"], pos[q]))
@@ -221,7 +230,7 @@ def compute(ids, d, t):
     cells = {}
     for q in ids:
         c = {"S1-B": s1[q] - B["S1"][q] if B["S1"] else None, "S2-B2": s2[q] - B["S2"][q] if B["S2"] else None,
-             "S3-B3": s3[q] - B["S3"][q] if B["S3"] else None, "S3-S2": s3[q] - s2[q], "ref": d[q]["n1"] - B["N1"][q],
+             "S3-B3": s3[q] - B["S3"][q] if B["S3"] else None, "S3-S2": s3[q] - s2[q], "ref": d[q]["n1"] - B["N1"][q] if B["N1"] is not None else None,
              "S2-(S1+fill)": s2[q] - x[q] if x else None}
         cells[q] = c
     nets = {k: sum(v.values()) for k, v in sysv.items()}
@@ -253,7 +262,6 @@ def show(label, ids, cells, summ, ci, short=False):
 
 
 def table():
-    import numpy as np
     import tq_same_n_decomp as TQ
     import newsets_score as NS
     ci_tq = TQ.ps.ci
@@ -269,11 +277,8 @@ def table():
     print("# THRESHOLDS, TruthfulQA tune, source 'E plain-prompt answers', other class: rule P and P' (t, tune drops, tune gain)")
     T, data = {}, {}
     for model in ORDER:
-        st1 = SP.read_json(os.path.join(SP.OUT, model, "items.json"))
-        z = np.load(os.path.join(SP.OUT, model, "probe.npz"))
+        st1, _, z = SP.read_probe(model)
         ans = [x for x in st1["items"] if x["answered"]]
-        if [str(i) for i in z["ids"]] != [x["id"] for x in ans]:
-            raise SystemExit("step-1 probe rows")
         mE = {c: {(x["split"], x["id"]): float(z[c + "__margin"][j]) for j, x in enumerate(ans)} for c in SP.CONDS2}
         for cond in SP.CONDS2:
             rows = [(mE[cond][("tune", x["id"])], SP.V[x["state"]]) for x in ans if x["split"] == "tune" and not x["neg"]]
@@ -290,6 +295,8 @@ def table():
         ids, dat = TQ.load_model(model)
         _, layer, s, n1cfg, run, e, eans, n1, issued, F = dat
         neg1 = {x["id"]: x["neg"] for x in st1["items"] if x["split"] == "test"}
+        if set(neg1) != set(ids):
+            raise ValueError(f"{model}: native and probed test rosters differ")
         reld, rm = {}, {}
         rdoc = SP.read_json(os.path.join(SP.OUT, model, "tq_release_items.json"))
         for cond in SP.CONDS2:
@@ -297,6 +304,8 @@ def table():
         for x in rdoc["items"]:
             if x["split"] == "test":
                 reld[x["id"][5:]] = x
+        if set(reld) != {q for q in ids if issued[q] and not eans[q]} or list(n1cfg) != rdoc["n1_choice"]:
+            raise ValueError(f"{model}: wrong N1 choice or incomplete release roster")
         per = {}
         for cond in SP.CONDS2:
             dd = {}
@@ -309,8 +318,9 @@ def table():
                     raise SystemExit("%s: released value of %s" % (model, q))
             per[cond] = dd
         TQD[model] = (ids, per, (layer, s, n1cfg))
-        qe = SP.read_json(os.path.join(SP.OUT, model, "qaqa_equal_n.json"))
-        qitems = {x["id"]: x for x in SP.read_json(os.path.join(SP.OUT, model, "qaqa_items.json"))["items"]}
+        ordinary_doc, _, _ = SP.read_probe(model, qaqa=True)
+        qitems = {x["id"]: x for x in ordinary_doc["items"]}
+        qe = EQ.read_dump(model, qitems)
         qrel = {x["id"]: x for x in SP.read_json(os.path.join(SP.OUT, model, "qq_release_items.json"))["items"]}
         qperE, qperR = {}, {}
         for cond in SP.CONDS2:
@@ -324,7 +334,7 @@ def table():
             for r in qe["rows"]:
                 q = r["id"]
                 x = qitems[q]
-                if x["answer_sha1"] != r["e_sha1"] or x["answered"] != r["eans"]:
+                if x["answer_sha1"] != r["e_sha1"] or x["answered"] != r["eans"] or x["value"] != r["e"]:
                     raise SystemExit("%s: (QA)^2 E rows differ" % model)
                 rr = qrel.get(q)
                 if rr and rr["value"] != r["n1"]:
@@ -339,11 +349,15 @@ def table():
     for model in ORDER:
         ids, per, _ = TQD[model]
         c, _ = compute(ids, per["baseline"], T[(model, "baseline")][0][0])
+        if any(c[q]["ref"] is None or c[q]["S2-(S1+fill)"] is None for q in ids):
+            raise ValueError(f"{model}: registered TruthfulQA reference is unreachable")
         got = ci_tq([c[q]["ref"] for q in ids])
         fill = ci_tq([c[q]["S2-(S1+fill)"] for q in ids])
         qids, qper, _ = QQD[model]
         held = [q for q in qids if not qper["baseline"][q]["pilot"]]
         qc, _ = compute(held, qper["baseline"], T[(model, "baseline")][0][0])
+        if any(qc[q]["ref"] is None for q in held):
+            raise ValueError(f"{model}: registered QA2 reference is unreachable")
         qgot = sum(qc[q]["ref"] for q in held)
         print("# reference %s: N1 - strong TruthfulQA %s (expected %s) | S2 - (S1 first pass + fill) TruthfulQA %s (expected N1 - "
               "two-pass single E %s) | (QA)^2 470 N1 - strong %+d (expected %+d)" % (model, got, EXPECT_TQ[model], fill, EXPECT_FILL[model],
@@ -400,24 +414,26 @@ def table():
 #          D_all from every E answer, D_other from the "other" class only.
 # ------------------------------------------------------------------------------------------------------------------ #
 def load_all():
-    import numpy as np
     import tq_same_n_decomp as TQ
     out = {}
     for model in ORDER:
-        st1 = SP.read_json(os.path.join(SP.OUT, model, "items.json"))
-        z = np.load(os.path.join(SP.OUT, model, "probe.npz"))
+        st1, _, z = SP.read_probe(model)
         ans = [x for x in st1["items"] if x["answered"]]
-        if [str(i) for i in z["ids"]] != [x["id"] for x in ans] or [str(h) for h in z["answer_sha1"]] != [x["answer_sha1"] for x in ans]:
-            raise SystemExit("step-1 probe rows")
         mE = {c: {(x["split"], x["id"]): float(z[c + "__margin"][j]) for j, x in enumerate(ans)} for c in SP.CONDS2}
         tune_rows = {c: [(mE[c][("tune", x["id"])], SP.V[x["state"]]) for x in ans if x["split"] == "tune" and not x["neg"]]
                      for c in SP.CONDS2}
         ids, dat = TQ.load_model(model)
         _, layer, s, n1cfg, run, e, eans, n1, issued, F = dat
-        neg1 = {x["id"]: x["neg"] for x in st1["items"] if x["split"] == "test"}
+        native = {r["pair_id"]: r["text"] for r in SP.read_json(os.path.join(
+            run, "eval_extra/gen", f"x--E{layer}-w-p{s}-at-prompt_test.json"))["rows"]}
+        plain = {r["id"]: r for r in st1["items"] if r["split"] == "test"}
+        if (list(plain) != list(ids) or any(plain[q]["answer_sha1"] != SP.sha1(native[q]) or plain[q]["answered"] != eans[q]
+                or SP.V[plain[q]["state"]] != e[q] for q in ids)):
+            raise ValueError(f"{model}: native ordinary-E test source differs")
+        neg1 = {q: r["neg"] for q, r in plain.items()}
         rel = {x["id"][5:]: x for x in SP.read_json(os.path.join(SP.OUT, model, "tq_release_items.json"))["items"] if x["split"] == "test"}
         fdoc = {x["id"][5:]: x for x in SP.read_json(os.path.join(SP.OUT, model, "tq_forced_items.json"))["items"]}
-        if set(rel) != {q for q in ids if issued[q] and not eans[q]}:
+        if set(fdoc) != set(ids) or set(rel) != {q for q in ids if issued[q] and not eans[q]}:
             raise SystemExit("%s: released list" % model)
         tq = {}
         for c in SP.CONDS2:
@@ -434,11 +450,12 @@ def load_all():
                              mE=mE[c].get(("test", q)), negE=neg1[q], rel=(r["value"], rm["test|" + q], r["neg"]) if r else None,
                              mF=fm.get("test|" + q), negF=fx["neg"], lp=None)
             tq[c] = dd
-        qe = SP.read_json(os.path.join(SP.OUT, model, "qaqa_equal_n.json"))
-        qitems = {x["id"]: x for x in SP.read_json(os.path.join(SP.OUT, model, "qaqa_items.json"))["items"]}
+        ordinary_doc, _, _ = SP.read_probe(model, qaqa=True)
+        qitems = {x["id"]: x for x in ordinary_doc["items"]}
+        qe = EQ.read_dump(model, qitems)
         qrel = {x["id"]: x for x in SP.read_json(os.path.join(SP.OUT, model, "qq_release_items.json"))["items"]}
         qf = {x["id"]: x for x in SP.read_json(os.path.join(SP.OUT, model, "qq_forced_items.json"))["items"]}
-        if set(qrel) != {r["id"] for r in qe["rows"] if r["issued"] and not r["eans"]}:
+        if set(qf) != set(qitems) or set(qrel) != {r["id"] for r in qe["rows"] if r["issued"] and not r["eans"]}:
             raise SystemExit("%s: (QA)^2 released list" % model)
         lp, lpinfo = d_confidence(model, qe, qitems)
         qq = {}
@@ -448,7 +465,7 @@ def load_all():
             for r in qe["rows"]:
                 q = r["id"]
                 x, rr, fx = qitems[q], qrel.get(q), qf[q]
-                if x["answer_sha1"] != r["e_sha1"] or x["answered"] != r["eans"] or fx["answered"] != r["fans"] or fx["value"] != r["f"] \
+                if x["answer_sha1"] != r["e_sha1"] or x["answered"] != r["eans"] or x["value"] != r["e"] or fx["answered"] != r["fans"] or fx["value"] != r["f"] \
                         or (r["fans"] and fx["conf"] != r["conf"]):
                     raise SystemExit("%s: (QA)^2 rows differ (%s)" % (model, q))
                 if rr and rr["value"] != r["n1"]:
@@ -463,6 +480,7 @@ def load_all():
 
 def d_confidence(model, qe, qitems):
     """{question: mean log-prob of single E's answer} from our ns_conf_pos.py output, checked as Raw.confidence checks."""
+    import math
     tok = qe["ordinary"].replace(":", "--").replace(".", "-")     # newsets_gen.arm_token of a one-write arm
     path = os.path.join(SP.OUT, model, tok + "-at-prompt.json")
     if not os.path.exists(path):
@@ -471,7 +489,7 @@ def d_confidence(model, qe, qitems):
     gdir = "Iteration_01/newsets/gen_prompt/qaqafull/%s/test" % model
     rows = {r["id"]: r for r in d["rows"]}
     if (d.get("arm") != qe["ordinary"] or d.get("model") != model or d.get("task") != "qaqafull" or d.get("split") != "test"
-            or [r["id"] for r in d["rows"]] != [r["id"] for r in qe["rows"]]
+            or len(rows) != len(d["rows"]) or list(rows) != list(qitems) or list(rows) != [r["id"] for r in qe["rows"]]
             or d.get("generation_sha256") != SP.sha256_file(os.path.join(gdir, tok + ".json"))
             or not d.get("first_difference_check") or d.get("reference_sha256") != SP.sha256_file(os.path.join(gdir, "x.json"))):
         raise SystemExit("%s: %s does not belong to single E's pass" % (model, path))
@@ -479,10 +497,16 @@ def d_confidence(model, qe, qitems):
     for q, x in qitems.items():
         if rows[q]["text_sha1"] != x["answer_sha1"]:
             raise SystemExit("%s: confidence of %s was scored on another answer" % (model, q))
+        r = rows[q]
+        score = r.get("mean_logp")
+        if score is None:
+            if x["answered"] or r.get("n_tokens") != 0:
+                raise ValueError(f"{model}: missing answer confidence ({q})")
+        elif (not math.isfinite(score) or score > 0 or not isinstance(r.get("n_tokens"), int) or r["n_tokens"] < 1
+                or not math.isclose(score, r["sum_logp"] / r["n_tokens"], rel_tol=1e-6, abs_tol=1e-8)):
+            raise ValueError(f"{model}: invalid answer confidence ({q})")
         if x["answered"]:
-            if rows[q].get("mean_logp") is None:
-                raise SystemExit("%s: answered E text without a confidence (%s)" % (model, q))
-            out[q] = rows[q]["mean_logp"]
+            out[q] = score
     return out, "%s (%s)" % (os.path.basename(path), {k: d.get(k) for k in ("greedy_reproduction", "scoring_batch_size") if k in d})
 
 
@@ -493,13 +517,27 @@ def judged_false(m, neg, t, exempt):
 def computeZ(ids, d, tE, tF, exempt):
     """tE: threshold of single E's source (also used for the released answers); tF: of the strong arm (None = none)."""
     pos = {q: i for i, q in enumerate(ids)}
+    import math
+    if not ids or len(pos) != len(ids):
+        raise ValueError("empty or duplicated evaluation roster")
+    for q in ids:
+        r = d[q]
+        if ((r["rel"] is not None) != (r["issued"] and not r["eans"])
+                or r["eans"] and (not r["issued"] or r["n1"] != r["e"])
+                or r["rel"] is not None and r["rel"][0] != r["n1"]):
+            raise ValueError(f"{q}: inconsistent ordinary/released answer")
+        if r["eans"] and (r["mE"] is None or not math.isfinite(r["mE"])):
+            raise ValueError(f"{q}: missing or non-finite ordinary self-judgement")
+        if r["rel"] is not None and (r["rel"][1] is None or not math.isfinite(r["rel"][1])):
+            raise ValueError(f"{q}: missing or non-finite release self-judgement")
+        if r["fans"] and (r["conf"] is None or not math.isfinite(r["conf"]) or r["conf"] > 0
+                          or tF is not None and (r["mF"] is None or not math.isfinite(r["mF"]))):
+            raise ValueError(f"{q}: invalid strong answer confidence or self-judgement")
     dropE = {q: d[q]["eans"] and judged_false(d[q]["mE"], d[q]["negE"], tE, exempt) for q in ids}
     dropR = {q: d[q]["rel"] is not None and judged_false(d[q]["rel"][1], d[q]["rel"][2], tE, exempt) for q in ids}
     elig = [q for q in ids if d[q]["fans"] and d[q]["conf"] is not None]
     ranked = sorted(elig, key=lambda q: (-d[q]["conf"], pos[q]))
     fF = {q: judged_false(d[q]["mF"], d[q]["negF"], tF, exempt) for q in elig} if tF is not None else None
-    if fF is not None and any(d[q]["mF"] is None for q in elig):
-        raise ValueError("a strong answer without a self-judgement")
 
     def strong(n):
         if n > len(ranked):
@@ -539,7 +577,8 @@ def computeZ(ids, d, tE, tF, exempt):
             c3 = {q: (d[q]["f"] if q in fill else s1[q]) for q in ids}, 0
     opp["C3"] = c3
     eb = [q for q in ranked if not d[q]["eans"]]
-    x = {q: (d[q]["f"] if q in set(eb[:nrel]) else s1[q]) for q in ids} if len(eb) >= nrel else None
+    fill_n1 = set(eb[:nrel]) if len(eb) >= nrel else None
+    x = {q: (d[q]["f"] if q in fill_n1 else s1[q]) for q in ids} if fill_n1 is not None else None
     # D (where confidences exist)
     dd = {}
     if all(d[q]["lp"] is not None for q in ids if d[q]["eans"]) and any(d[q]["lp"] is not None for q in ids):
@@ -582,7 +621,7 @@ def showZ(label, ids, cells, summ, ci, short):
               (label, len(ids)) + summ["dropE"] + summ["released"] + summ["dropR"] +
               ("not judged" if sf is None else "%d (right %d, wrong %d, other %d)" % sf,)))
     if not short:
-        print("    answers: E %d, N1 %d, S1 %d, S2 %d, S3 %d (B, B+, C3, D have the same count as the system they face); strong answers "
+        print("    answers: E %d, N1 %d, S1 %d, S2 %d, S3 %d (for available opponents, counts match their comparator); strong answers "
               "with confidence %d" % (n["E"], n["N1"], n["S1"], n["S2"], n["S3"], summ["n_strong"]))
         print("    nets: E %+d, N1 %+d, S1 %+d, S2 %+d, S3 %+d" % (nets["E"], nets["N1"], nets["S1"], nets["S2"], nets["S3"]))
         print("    opponents: " + " | ".join("%s %s" % (k, "not comparable" if v is None else ("%+d" % v[0]) + (
@@ -612,10 +651,14 @@ def tableZ():
     for m in ORDER:
         ids, tq, _ = A[m]["tq"]
         c, _ = computeZ(ids, tq["baseline"], 0.0, 0.0, True)
+        if any(c[q]["ref"] is None or c[q]["S2-(S1+fill)"] is None for q in ids):
+            raise ValueError(f"{m}: registered reference count unreachable")
         got, fill = ci_tq([c[q]["ref"] for q in ids]), ci_tq([c[q]["S2-(S1+fill)"] for q in ids])
         qids, qq = A[m]["qq"]
         held = [q for q in qids if not qq["baseline"][q]["pilot"]]
         qc, _ = computeZ(held, qq["baseline"], 0.0, 0.0, True)
+        if any(qc[q]["ref"] is None for q in held):
+            raise ValueError(f"{m}: registered QA2 reference count unreachable")
         qgot = sum(qc[q]["ref"] for q in held)
         print("# reference %s: N1 - strong TruthfulQA %s (expected %s) | rule Z: S2 - (S1 first pass + fill) TruthfulQA %s (expected %s) | "
               "(QA)^2 470 N1 - strong %+d (expected %+d)" % (m, got, EXPECT_TQ[m], fill, EXPECT_FILL[m], qgot, EXPECT_QQ470[m]))

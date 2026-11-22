@@ -8,12 +8,18 @@
 # GPU 1 only; refuses to start when GPU 1 plus this model would exceed 65 GB.
 #   usage (host): selfjudge_d_1122.sh MODEL E_LAYER E_STRENGTH      e.g. selfjudge_d_1122.sh llama3.1-8b 16 3.5
 set -uo pipefail
-cd /data/sanshizhao/Truth_Decoupling
+cd /data/sanshizhao/Truth_Decoupling || exit 2
 ROOT=/workspace/Truth_Decoupling; HOST=/data/sanshizhao/Truth_Decoupling
 MODEL=${1:?model}; EL=${2:?layer}; S=${3:?strength}
 case "$MODEL" in llama3.1-8b) NEED=17000 ;; qwen3.5-9b) NEED=20000 ;; *) echo "unknown model" >&2; exit 2 ;; esac
-USED=$(nvidia-smi --query-gpu=index,memory.used --format=csv,noheader,nounits | awk -F', ' '$1 == 1 {print $2}')
-[ -n "$USED" ] || { echo "cannot read GPU 1 memory" >&2; exit 2; }
+# Queue D/E workers share physical card 1. Hold this descriptor until all attempts finish.
+LOCK=$HOST/Iteration_01/newsets/selfjudge/.gpu1.lock
+mkdir -p "$(dirname "$LOCK")" || { echo "cannot prepare GPU 1 reservation" >&2; exit 2; }
+command -v flock >/dev/null || { echo "flock unavailable on GPU host" >&2; exit 2; }
+exec 9>"$LOCK" || { echo "cannot open GPU 1 reservation" >&2; exit 2; }
+flock -n 9 || { echo "another self-judge worker holds GPU 1" >&2; exit 3; }
+USED=$(nvidia-smi --query-gpu=index,memory.used --format=csv,noheader,nounits | awk -F', ' '$1 == 1 {print $2}') || { echo "cannot query GPU 1 memory" >&2; exit 2; }
+[[ $USED =~ ^[0-9]+$ ]] || { echo "cannot read GPU 1 memory" >&2; exit 2; }
 if [ $((USED + NEED)) -gt 66560 ]; then echo "GPU 1 holds $USED MiB; with $NEED MiB more it exceeds 65 GB, not starting" >&2; exit 3; fi
 CODE=$ROOT/Iteration_01/code
 NCP=$CODE/scripts/newsets/ns_conf_pos.py

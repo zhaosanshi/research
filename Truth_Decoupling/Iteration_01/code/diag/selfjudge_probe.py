@@ -62,6 +62,8 @@ import json
 import os
 import re
 import sys
+import tempfile
+from pathlib import Path
 
 OUT = "Iteration_01/newsets/selfjudge"
 NEG_RE = re.compile(r"^[\s\"'*]*(no|none|nothing|nobody|never|neither|not|there(\s+(is|are|was|were)\s+no|['\u2019]s\s+no|"
@@ -134,6 +136,19 @@ def main_lists(A, model):
     return display, layer, s, tune, test
 
 
+def save_items(path, doc):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(dir=path.parent) as staging:
+        tmp = Path(staging) / "items.json"
+        tmp.write_text(json.dumps(doc, ensure_ascii=False, indent=0), encoding="utf-8")
+        try:
+            os.link(tmp, path)
+        except FileExistsError:
+            if read_json(path) != doc:
+                raise ValueError(f"{path}: existing export differs from source")
+
+
 def export(model):
     sys.path.insert(0, "Iteration_01/diag")
     import iti_table as A
@@ -163,6 +178,8 @@ def export(model):
         if g.get("completed") is not True or g.get("partial") or g.get("split") != split or g.get("positions") != "prompt":
             raise SystemExit("%s is not the complete prompt-rule generation of this split" % gpath)
         gtext = {r["pair_id"]: r["text"] for r in g["rows"]}
+        if len(gtext) != len(g["rows"]) or len(set(ids)) != len(ids):
+            raise ValueError(f"{model} {split}: duplicate question in roster or generation")
         n_ans = 0
         for k, q in enumerate(ids):
             if er[k]["p"] != q or nr[k]["p"] != q or er[k]["cond"] != econd:
@@ -187,12 +204,9 @@ def export(model):
     out_dir = os.path.join(OUT, model)
     os.makedirs(out_dir, exist_ok=True)
     path = os.path.join(out_dir, "items.json")
-    if os.path.exists(path):
-        raise SystemExit("%s exists" % path)
     doc = dict(model=model, display=display, e_layer=layer, e_strength=s, e_condition=S.shell(layer, 0).cE(s),
                n1_choice=list(n1cfg), splits=info, neg_re=NEG_RE.pattern, items=items)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(doc, f, ensure_ascii=False, indent=0)
+    save_items(path, doc)
     for split in ("tune", "test"):
         xs = [x for x in items if x["split"] == split]
         a = [x for x in xs if x["answered"]]
@@ -207,7 +221,117 @@ def export(model):
 # ------------------------------------------------------------------------------------------------------------------ #
 # score (container, GPU)
 # ------------------------------------------------------------------------------------------------------------------ #
+# The twelve reviewed legacy pairs predate the score-file hash in the commit marker.
+LEGACY_NPZ = {
+    ('llama3.1-8b', ''): 'db5c4c344ed17a961c40d368f6c630280049aa164412abf2d207da3299f8c80e',
+    ('llama3.1-8b', 'qaqa'): 'b63b390c9dd38b02d1aef05b0be6f52b5e6ed4c562a18fd82830706125e95dba',
+    ('llama3.1-8b', 'qq_forced'): '1bce4026298f69e1530efaeabc66165af4180f21727667527d3e3e291dd0f30f',
+    ('llama3.1-8b', 'qq_release'): '9cafb48fb3b57d36ceb914fb0076162b3e9cccb15df53cd1112deb052fe34888',
+    ('llama3.1-8b', 'tq_forced'): 'cf61e8e921bb08abbb9c5e10a55ee86c499d67a539455f78f1e49e368f50e300',
+    ('llama3.1-8b', 'tq_release'): 'c0229163424f191651dcff0c70088a69e8ca7cab4386d7b611df7e16f3353ec9',
+    ('qwen3.5-9b', ''): '584d076907a6d17d32c8cf8237c9bddba7bf0573b941126bdf1b6d8485bb5dc0',
+    ('qwen3.5-9b', 'qaqa'): '64faf1d9add2ac20f06317ed59a95c6c64d1dc9f85c7dd3f95982f1807f855a7',
+    ('qwen3.5-9b', 'qq_forced'): 'b0e72d65c377c98480afbd01a87b2238fbac6a707fe9df2a6f3907079f1720d9',
+    ('qwen3.5-9b', 'qq_release'): '7934658a9a51519179afeb53c9ba85d8828aca87af97f9374aa0da681c7ae6be',
+    ('qwen3.5-9b', 'tq_forced'): '341efbcf60245a61548fc63a7a0c9376435c54aba3e1d770dd744f3975970063',
+    ('qwen3.5-9b', 'tq_release'): '21a43d7fb0537ee6dc387574391bc0b57377f630a2f3999aea55beee089ef924',
+    ('llama3.1-8b', 'fq_e'): '5c64c7cbcdbcf0f87438a85aacf1a6545301af9276601958cba789bd367593ff',
+    ('llama3.1-8b', 'fq_rel'): '8765b074285e6a534472256eb5d4adeea6597ddae8a95a6ee13cef2fb0d0f07f',
+    ('qwen3.5-9b', 'fq_e'): 'd3758e6cf9e6e46982194f658b6900e9650569f5d5da9deaf6b1b500f108c3cf',
+    ('qwen3.5-9b', 'fq_rel'): 'e6b1afa81a58d23acb54bdf15b8411979a54c8e0ee492937739b1a20bcdddedf',
+}
+SOURCES = {"qaqa", "tq_forced", "tq_release", "qq_forced", "qq_release", "fq_e", "fq_rel"}
+
+
+def read_probe(model, qaqa=False, *, source=None):
+    """Bind score values, row identities, source texts and metadata before any threshold fit or read."""
+    import numpy as np
+    root = Path(OUT) / model
+    source = source or ("qaqa" if qaqa else "")
+    if source and source not in SOURCES:
+        raise ValueError("unknown source: %s" % source)
+    prefix = source + "_" if source else ""
+    path = root / (prefix + "items.json")
+    stem = root / (prefix + "probe")
+    doc, meta = read_json(path), read_json(stem.with_suffix(".json"))
+    expected = CONDS2 if source else CONDS
+    cfg = MODELS[model]
+    if (doc["model"] != model or meta["model"] != model or tuple(meta["conditions"]) != expected
+            or (source and source != "qaqa" and doc.get("source") != source)
+            or meta["tf_layer"] != cfg["tf_layer"] or meta["code"] != cfg["code"] or meta["das"] != cfg["das"]
+            or meta["items_sha256"] != sha256_file(path)):
+        raise ValueError(f"{stem}: model, setting or item source mismatch")
+    payload = stem.with_suffix(".npz")
+    if sha256_file(payload) != meta.get("npz_sha256", LEGACY_NPZ.get((model, source))):
+        raise ValueError(f"{stem}: score array digest mismatch")
+    items = doc["items"]
+    if (len({x["id"] for x in items}) != len(items) or
+            any(x["neg"] != bool(NEG_RE.match(x["answer"])) or sha1(x["answer"]) != x["answer_sha1"] for x in items)):
+        raise ValueError(f"{stem}: duplicate question, altered answer or opening flag")
+    if source in ("qaqa", "qq_forced") and (len(items) != 570 or sum(x["pilot"] for x in items) != 100):
+        raise ValueError(f"{stem}: unexpected pilot or evaluation roster")
+    ans = [x for x in items if x["answered"]]
+    with np.load(payload, allow_pickle=False) as f:
+        z = {key: f[key] for key in f.files}
+    bound = {"ids": [x["id"] for x in ans], "answer_sha1": [x["answer_sha1"] for x in ans],
+             "statement_sha1": [sha1(statement(x["question"], x["answer"])) for x in ans]}
+    if not source:
+        bound["split"] = [x["split"] for x in ans]
+    if meta["n_items"] != len(ans) or any(z[key].tolist() != values for key, values in bound.items()):
+        raise ValueError(f"{stem}: incomplete or foreign score rows")
+    for cond in expected:
+        values = [z[cond + "__" + k] for k in ("lpT", "lpF", "lpU")]
+        if any(a.shape != (len(ans),) or not np.isfinite(a).all() for a in values):
+            raise ValueError(f"{stem}: invalid label scores in {cond}")
+        true, false, abstain = values
+        pred = np.array(["True", "False", "Abstain"])[np.argmax(values, axis=0)]
+        if (not np.array_equal(z[cond + "__margin"], true - false)
+                or not np.array_equal(z[cond + "__gate"], np.maximum(true, false) - abstain)
+                or not np.array_equal(z[cond + "__choice"], pred)):
+            raise ValueError(f"{stem}: inconsistent margin, gate or decision in {cond}")
+    return doc, meta, z
+
+
+def save_probe(stem, values, meta):
+    """Publish scores first and metadata last. A crash leaves at most an uncommitted payload."""
+    target = Path(stem)
+    with tempfile.TemporaryDirectory(dir=target.parent) as staging:
+        data = Path(staging) / "scores.npz"
+        import numpy as np
+        np.savez(data, **values)
+        meta["npz_sha256"] = sha256_file(data)
+        record = Path(staging) / "metadata.json"
+        record.write_text(json.dumps(meta, ensure_ascii=False, indent=1), encoding="utf-8")
+        os.replace(data, target.with_suffix(".npz"))
+        os.replace(record, target.with_suffix(".json"))
+
+
 def score(model, regress_limit, regress_only, n_show, sources=()):
+    import fcntl
+    if regress_limit is not None and (not regress_only or regress_limit < 1):
+        raise SystemExit("--regress-limit requires positive N and --regress-only")
+    if len(set(sources)) != len(sources) or set(sources) - SOURCES:
+        raise SystemExit("duplicate or unknown probe source")
+    if sources and regress_only:
+        raise SystemExit("additional sources require a complete same-model TruthfulQA regression")
+    if regress_only:
+        return score_model(model, regress_limit, True, n_show)
+    root = Path(OUT) / model
+    with open(root / "probe.lock", "a") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        pending = []
+        for src in sources or ("",):
+            path = root / ((src + "_" if src else "") + "probe.json")
+            if path.exists():
+                read_probe(model, source=src)
+                print(f"{path}: complete validated score pair already exists")
+            else:
+                pending.append(src)
+        if pending:
+            score_model(model, None, False, n_show, sources=[s for s in pending if s])
+
+
+def score_model(model, regress_limit, regress_only, n_show, sources=()):
     import numpy as np
     cfg = MODELS[model]
     code = os.path.abspath(cfg["code"])
@@ -227,6 +351,12 @@ def score(model, regress_limit, regress_only, n_show, sources=()):
             and ref["das"]["variant"] == "tf-ce-bidir" and ref["das"]["dir"].rstrip("/").endswith(cfg["das"])
             and list(ref["alphas_E"]) == list(ALPHAS) == list(E45.ALPHAS_E) and ref["limit"] is None):
         raise SystemExit("%s: the E45 reference run is not the expected one" % cfg["ref"])
+    if sources:
+        _, accepted, _ = read_probe(model)
+        n_ref = len(refz["ids"])
+        if any(accepted["regression"][c]["n"] != n_ref or
+               not (accepted["regression"][c]["max_abs_margin_diff"] <= TOL) for c in CONDS):
+            raise SystemExit("this model lacks a passing full-size reference regression")
     for f, h in ref["code_sha256"].items():
         if sha256_file(os.path.join(code, "scripts", f)) != h:
             raise SystemExit("%s: %s differs from the file E45 ran with" % (code, f))
@@ -285,10 +415,24 @@ def score(model, regress_limit, regress_only, n_show, sources=()):
         lpF = np.array([d["False"] for d in lp], dtype=np.float64)
         lpU = np.array([d["Abstain"] for d in lp], dtype=np.float64)
         gate = np.maximum(lpT, lpF) - lpU
+        if not np.isfinite([lpT, lpF, lpU]).all():
+            raise ValueError("non-finite true/false/unknown label score")
         if not np.array_equal(pred != "Abstain", gate >= 0):
             raise RuntimeError("three-way arg-max and the gate disagree")
         return dict(margin=lpT - lpF, gate=gate, choice=pred, lpT=lpT, lpF=lpF, lpU=lpU)
 
+    if sources:
+        if accepted["label_map"] != {k: list(map(int, v)) for k, v in mI.items()} or not np.isclose(
+                shift, accepted["centre_shift_along_E_in_sd"], rtol=0, atol=1e-6):
+            raise ValueError("label tokens or intervention centre differ from the validated full pass")
+        # The stored regression belongs to an earlier process. Check the actual loaded weights, prompt and
+        # operator on one reference batch before reusing that full regression for all pending sources.
+        for c in CONDS2:
+            observed = run(tI[:bs], specs[c])
+            for measure in ("margin", "gate"):
+                ref_values = refz[c + "__" + measure][:bs]
+                if not np.allclose(observed[measure], ref_values, atol=TOL, rtol=0):
+                    raise ValueError(f"loaded score path fails the E45 reference batch: {c}/{measure}")
     for src in sources:
         # ---- step 2 (work queue d section 4, step 3) and queue e stage one: answers of another source (src_items.json:
         # qaqa = (QA)^2 single E; tq_forced / tq_release / qq_forced / qq_release from diag/selfjudge_stage1.py), the
@@ -300,13 +444,13 @@ def score(model, regress_limit, regress_only, n_show, sources=()):
                 raise SystemExit("%s_items.json: answer text of %s changed" % (src, x["id"]))
         stmts = [statement(x["question"], x["answer"]) for x in items]
         texts = [tf_prompt(bundle, prompts, t, allow_idk=True) for t in stmts]
-        if build_label_token_map(bundle.tokenizer, texts[0], st["label_variants"]) != mI:
+        if texts and build_label_token_map(bundle.tokenizer, texts[0], st["label_variants"]) != mI:
             raise SystemExit("the label map differs on the %s prompts" % src)
-        res = {c: run(texts, specs[c]) for c in CONDS2}
+        res = {c: run(texts, specs[c]) if texts else {k: np.array([], dtype=str if k == "choice" else np.float64)
+                                                     for k in ("choice", "margin", "gate", "lpT", "lpF", "lpU")}
+               for c in CONDS2}
         stem = os.path.join(OUT, model, src + "_probe")
-        if os.path.exists(stem + ".npz"):
-            raise SystemExit("%s.npz exists" % stem)
-        np.savez(stem + ".npz", ids=np.array([x["id"] for x in items]), answer_sha1=np.array([x["answer_sha1"] for x in items]),
+        values = dict(ids=np.array([x["id"] for x in items]), answer_sha1=np.array([x["answer_sha1"] for x in items]),
                  statement_sha1=np.array([sha1(t) for t in stmts]),
                  **{"%s__%s" % (c, k): v for c, r in res.items() for k, v in r.items()})
         rng = np.random.default_rng(20261122)
@@ -316,14 +460,13 @@ def score(model, regress_limit, regress_only, n_show, sources=()):
                     items_sha256=sha256_file(os.path.join(OUT, model, src + "_items.json")), n_items=len(items),
                     n_answers_with_newline=sum("\n" in x["answer"] for x in items),
                     shown_probe_prompts=[dict(id=items[k]["id"], value=items[k]["value"], prompt=texts[k]) for k in show])
-        with open(stem + ".json", "w", encoding="utf-8") as f:
-            json.dump(meta, f, ensure_ascii=False, indent=1)
+        save_probe(stem, values, meta)
         print("%s probe: %d answered statements x %d conditions -> %s.npz" % (src, len(items), len(CONDS2), stem), flush=True)
     if sources:
         return
 
     # ---- regression against E45's npz ----------------------------------------------------------------------------- #
-    n = regress_limit or len(recs)
+    n = len(recs) if regress_limit is None else min(regress_limit, len(recs))
     half_a = np.asarray(refz["half_a"])[:n]
     reg = {}
     for c in CONDS:
@@ -337,7 +480,7 @@ def score(model, regress_limit, regress_only, n_show, sources=()):
         print("regression %-9s %4d statements (test %4d): max |margin diff| %.5f (test %.5f), mean %.6f, max |gate diff| %.5f, "
               "answer flips %d" % (c, n, reg[c]["n_test"], reg[c]["max_abs_margin_diff"], reg[c]["max_abs_margin_diff_test"] or 0.0,
                                    reg[c]["mean_abs_margin_diff"], reg[c]["max_abs_gate_diff"], flips), flush=True)
-    if any(v["max_abs_margin_diff"] > TOL for v in reg.values()):
+    if any(not (v["max_abs_margin_diff"] <= TOL) for v in reg.values()):
         raise SystemExit("REGRESSION FAILED: some margin differs from E45 by more than %.2f" % TOL)
     print("REGRESSION OK (%d statements, tolerance %.2f)" % (n, TOL), flush=True)
     if regress_only:
@@ -356,9 +499,7 @@ def score(model, regress_limit, regress_only, n_show, sources=()):
     res = {c: run(texts, specs[c]) for c in CONDS}
     out_dir = os.path.join(OUT, model)
     stem = os.path.join(out_dir, "probe")
-    if os.path.exists(stem + ".npz"):
-        raise SystemExit("%s.npz exists" % stem)
-    np.savez(stem + ".npz", ids=np.array([x["id"] for x in items]), split=np.array([x["split"] for x in items]),
+    values = dict(ids=np.array([x["id"] for x in items]), split=np.array([x["split"] for x in items]),
              answer_sha1=np.array([x["answer_sha1"] for x in items]),
              statement_sha1=np.array([sha1(t) for t in stmts]),
              **{"%s__%s" % (c, k): v for c, r in res.items() for k, v in r.items()})
@@ -373,8 +514,7 @@ def score(model, regress_limit, regress_only, n_show, sources=()):
                 n_answers_with_newline=sum("\n" in x["answer"] for x in items),
                 shown_probe_prompts=[dict(id=items[k]["id"], state=items[k]["state"], prompt=texts[k]) for k in show],
                 shown_reference_prompts=[dict(id=recs[k]["id"], prompt=tI[k]) for k in ref_show[:4]])
-    with open(stem + ".json", "w", encoding="utf-8") as f:
-        json.dump(meta, f, ensure_ascii=False, indent=1)
+    save_probe(stem, values, meta)
     print("probe: %d answered statements x %d conditions -> %s.npz" % (len(items), len(CONDS), stem), flush=True)
 
 
@@ -447,24 +587,12 @@ def table():
     ci = ps.ci
     for model in ORDER:
         d = os.path.join(OUT, model)
-        if not (os.path.exists(d + "/items.json") and os.path.exists(d + "/probe.npz")):
+        if not any(os.path.exists(d + "/probe." + ext) for ext in ("json", "npz")):
             print("%s: no probe yet" % model)
             continue
-        doc = read_json(d + "/items.json")
-        meta = read_json(d + "/probe.json")
-        if meta["items_sha256"] != sha256_file(d + "/items.json"):
-            raise SystemExit("%s: probe.json was made from another items.json" % model)
-        z = np.load(d + "/probe.npz")
+        doc, meta, z = read_probe(model)
         items = doc["items"]
         ans = [x for x in items if x["answered"]]
-        if [str(i) for i in z["ids"]] != [x["id"] for x in ans] or [str(a) for a in z["answer_sha1"]] != [x["answer_sha1"] for x in ans] \
-                or [str(s) for s in z["split"]] != [x["split"] for x in ans]:
-            raise SystemExit("%s: probe rows are not the answered items" % model)
-        if any(sha1(statement(x["question"], x["answer"])) != str(h) for x, h in zip(ans, z["statement_sha1"])):
-            raise SystemExit("%s: statement texts differ" % model)
-        key = [(x["split"], x["id"]) for x in ans]
-        if len(set(key)) != len(key):
-            raise SystemExit("%s: duplicate rows" % model)
         mg = {}
         for j, x in enumerate(ans):
             mg[x["split"] + "|" + x["id"]] = {c: float(z[c + "__margin"][j]) for c in CONDS}
@@ -578,7 +706,7 @@ def export_qaqa(model):
     with open(QAQA_BANK, encoding="utf-8") as f:
         bank = {r["id"]: r for r in (json.loads(l) for l in f)}
     pilot = read_json(QAQA_PILOT)
-    if len(bank) != 570 or len(pilot["ids"]) != 100 or any(q not in bank or bank[q]["qtype"] != pilot["types"][q] for q in pilot["ids"]):
+    if len(bank) != 570 or len(R.ids) != 570 or len(set(pilot["ids"])) != 100 or len(pilot["ids"]) != 100 or any(q not in bank or bank[q]["qtype"] != pilot["types"][q] for q in pilot["ids"]):
         raise SystemExit("the pilot ids are not 100 questions of the 570-question bank")
     pset = set(pilot["ids"])
     cond = R.cond[arm]
@@ -591,13 +719,10 @@ def export_qaqa(model):
         items.append(dict(id=q, question=bank[q]["question"], answer=text, answer_sha1=sha1(text), value=R.cell(arm, q),
                           answered=answered, qtype=bank[q]["qtype"], pilot=q in pset, neg=bool(NEG_RE.match(text))))
     path = os.path.join(OUT, model, "qaqa_items.json")
-    if os.path.exists(path):
-        raise SystemExit("%s exists" % path)
     gpath = R.gdir / (qt.G.arm_token(arm) + ".json")
     doc = dict(model=model, arm=arm, condition=cond, works=QAQA_WORKS, bank=QAQA_BANK, bank_sha256=sha256_file(QAQA_BANK),
                generation=str(gpath), generation_sha256=sha256_file(str(gpath)), neg_re=NEG_RE.pattern, items=items)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(doc, f, ensure_ascii=False, indent=0)
+    save_items(path, doc)
     a = [x for x in items if x["answered"]]
     print("%s (QA)^2 %s: %d questions, E answered %d (right %d, wrong %d, other %d), negated-premise opening %d; pilot %d -> %s" % (
         model, arm, len(items), len(a), sum(x["value"] == 1 for x in a), sum(x["value"] == -1 for x in a),
@@ -673,14 +798,8 @@ def step2():
     print("# THRESHOLDS, chosen on the TruthfulQA tune split only (frozen for everything below): t, tune drops, tune net gain")
     for model in ORDER:
         d = os.path.join(OUT, model)
-        doc = read_json(d + "/items.json")
-        meta = read_json(d + "/probe.json")
-        if meta["items_sha256"] != sha256_file(d + "/items.json"):
-            raise SystemExit("%s: probe.json was made from another items.json" % model)
-        z = np.load(d + "/probe.npz")
+        doc, meta, z = read_probe(model)
         ans = [x for x in doc["items"] if x["answered"]]
-        if [str(i) for i in z["ids"]] != [x["id"] for x in ans] or [str(a) for a in z["answer_sha1"]] != [x["answer_sha1"] for x in ans]:
-            raise SystemExit("%s: probe rows are not the answered items" % model)
         mg = {x["split"] + "|" + x["id"]: {c: float(z[c + "__margin"][j]) for c in CONDS2} for j, x in enumerate(ans)}
         rows = {s: [dict(id=s + "|" + x["id"], answered=x["answered"], neg=x["neg"], v=V[x["state"]])
                     for x in doc["items"] if x["split"] == s] for s in ("tune", "test")}
@@ -697,19 +816,11 @@ def step2():
         print("%s | TruthfulQA (exploration: rules fixed after step 1 was seen)" % model)
         step2_read("TruthfulQA test", rows["test"], mg, thr, ci)
         d = os.path.join(OUT, model)
-        if not os.path.exists(d + "/qaqa_probe.npz"):
+        if not any(os.path.exists(d + "/qaqa_probe." + ext) for ext in ("json", "npz")):
             print("  (QA)^2: no probe yet")
             continue
-        qd = read_json(d + "/qaqa_items.json")
-        qm = read_json(d + "/qaqa_probe.json")
-        if qm["items_sha256"] != sha256_file(d + "/qaqa_items.json"):
-            raise SystemExit("%s: qaqa_probe.json was made from another qaqa_items.json" % model)
-        z = np.load(d + "/qaqa_probe.npz")
+        qd, qm, z = read_probe(model, qaqa=True)
         qa = [x for x in qd["items"] if x["answered"]]
-        if [str(i) for i in z["ids"]] != [x["id"] for x in qa] or [str(a) for a in z["answer_sha1"]] != [x["answer_sha1"] for x in qa]:
-            raise SystemExit("%s: (QA)^2 probe rows are not the answered items" % model)
-        if any(sha1(statement(x["question"], x["answer"])) != str(h) for x, h in zip(qa, z["statement_sha1"])):
-            raise SystemExit("%s: (QA)^2 statement texts differ" % model)
         qmg = {x["id"]: {c: float(z[c + "__margin"][j]) for c in CONDS2} for j, x in enumerate(qa)}
         qrows = [dict(id=x["id"], answered=x["answered"], neg=x["neg"], v=x["value"], qtype=x["qtype"], pilot=x["pilot"])
                  for x in qd["items"]]

@@ -1,0 +1,190 @@
+# selfjudge 1g (work queue 2026-11-22_queue_e): question-type switch, Llama-3.1-8B and Qwen3.5-9B; K1 prompt and label variants in the file head; no threshold chosen
+# K0 reference, five models, (QA)^2 470, policy_select2.ci in bank order: G-B +87 [+24, +152] (expected +87 [+24, +152]), G-Bg +12 [-14, +38] (expected +12 [-14, +38])
+#   llama3.1-8b  G-Bg +10, answers after gate 281, G-B +20
+#   qwen3.5-9b   G-Bg -2, answers after gate 396, G-B +28
+#   qwen3.8-27b  G-Bg +2, answers after gate 386, G-B -10
+#   gemma3-12b   G-Bg +2, answers after gate 377, G-B +53
+#   gemma3-27b   G-Bg +0, answers after gate 416, G-B -4
+# K0 reference reproduced
+====================================================================================================
+READING 1: switch accuracy (K1 trap = margin > 0)
+ llama3.1-8b
+   (QA)^2 570: K1 AUROC (trap = failure + unverifiable vs no_failure) 0.657 [0.613, 0.702] | accuracy at margin > 0 345 / 570 (60.5%) | judged trap: no_failure 130 / 285 | failure 142 / 230 | unverifiable 48 / 55
+     K2 on E's blanks (278): no_failure: E's (trap) 97, own (normal) 27 | failure: E's (trap) 61, own (normal) 53 | unverifiable: E's (trap) 22, own (normal) 18 | K2 accuracy on blanks 110 / 278
+     N1 releases (68): no_failure: E's 0, own 17 | failure: E's 0, own 39 | unverifiable: E's 0, own 12 | K1 on releases: no_failure trap 13 / 17 | failure trap 33 / 39 | unverifiable trap 12 / 12
+   (QA)^2 470 held out: K1 AUROC (trap = failure + unverifiable vs no_failure) 0.662 [0.612, 0.711] | accuracy at margin > 0 285 / 470 (60.6%) | judged trap: no_failure 109 / 235 | failure 119 / 190 | unverifiable 40 / 45
+     K2 on E's blanks (235): no_failure: E's (trap) 82, own (normal) 24 | failure: E's (trap) 48, own (normal) 47 | unverifiable: E's (trap) 18, own (normal) 16 | K2 accuracy on blanks 90 / 235
+     N1 releases (61): no_failure: E's 0, own 15 | failure: E's 0, own 35 | unverifiable: E's 0, own 11 | K1 on releases: no_failure trap 11 / 15 | failure trap 29 / 35 | unverifiable trap 11 / 11
+   TruthfulQA tune: K1 judged trap 96 / 192 (50.0%)
+   TruthfulQA test: K1 judged trap 264 / 523 (50.5%)
+   TruthfulQA test (main list 523): E's blanks 204: K2 E's (trap) 149, own 55; K1 trap among them 140
+   popqa test: K1 judged normal 469 / 500 (93.8%) | E's blanks 401: K2 E's (trap) 266, own 135; K1 trap among them 27
+   popqa test2: K1 judged normal 474 / 500 (94.8%) | E's blanks 401: K2 E's (trap) 276, own 125; K1 trap among them 22
+   triviaqa test: K1 judged normal 425 / 500 (85.0%) | E's blanks 237: K2 E's (trap) 227, own 10; K1 trap among them 49
+   triviaqa test2: K1 judged normal 422 / 500 (84.4%) | E's blanks 249: K2 E's (trap) 241, own 8; K1 trap among them 56
+ qwen3.5-9b
+   (QA)^2 570: K1 AUROC (trap = failure + unverifiable vs no_failure) 0.726 [0.683, 0.768] | accuracy at margin > 0 344 / 570 (60.4%) | judged trap: no_failure 51 / 285 | failure 91 / 230 | unverifiable 19 / 55
+     K2 on E's blanks (138): no_failure: E's (trap) 45, own (normal) 14 | failure: E's (trap) 49, own (normal) 10 | unverifiable: E's (trap) 14, own (normal) 6 | K2 accuracy on blanks 77 / 138
+     N1 releases (102): no_failure: E's 34, own 14 | failure: E's 33, own 9 | unverifiable: E's 9, own 3 | K1 on releases: no_failure trap 12 / 48 | failure trap 14 / 42 | unverifiable trap 3 / 12
+   (QA)^2 470 held out: K1 AUROC (trap = failure + unverifiable vs no_failure) 0.721 [0.674, 0.765] | accuracy at margin > 0 284 / 470 (60.4%) | judged trap: no_failure 42 / 235 | failure 75 / 190 | unverifiable 16 / 45
+     K2 on E's blanks (117): no_failure: E's (trap) 40, own (normal) 13 | failure: E's (trap) 41, own (normal) 8 | unverifiable: E's (trap) 10, own (normal) 5 | K2 accuracy on blanks 64 / 117
+     N1 releases (86): no_failure: E's 30, own 13 | failure: E's 27, own 7 | unverifiable: E's 6, own 3 | K1 on releases: no_failure trap 10 / 43 | failure trap 11 / 34 | unverifiable trap 2 / 9
+   TruthfulQA tune: K1 judged trap 70 / 192 (36.5%)
+   TruthfulQA test: K1 judged trap 200 / 523 (38.2%)
+   TruthfulQA test (main list 523): E's blanks 115: K2 E's (trap) 74, own 41; K1 trap among them 50
+   popqa test: K1 judged normal 451 / 500 (90.2%) | E's blanks 311: K2 E's (trap) 229, own 82; K1 trap among them 41
+   popqa test2: K1 judged normal 454 / 500 (90.8%) | E's blanks 300: K2 E's (trap) 212, own 88; K1 trap among them 34
+   triviaqa test: K1 judged normal 441 / 500 (88.2%) | E's blanks 124: K2 E's (trap) 116, own 8; K1 trap among them 40
+   triviaqa test2: K1 judged normal 441 / 500 (88.2%) | E's blanks 114: K2 E's (trap) 104, own 10; K1 trap among them 35
+====================================================================================================
+READING 2: G against B and Bg (same answer count); G-N1, G-E for context; G+SJ = G with rule Z (no write) on E's answers and on the kept releases, against B at its own count
+-- switch K0
+  llama3.1-8b (QA)^2
+    470 held out: 470 questions | answers E 235, N1 296, G 281 (B 281, Bg 281), G+SJ 190 | nets E +17, N1 +37, G +40, B +20, Bg +30, G+SJ +72, B at G+SJ's count +18 | releases 61 (right 39, wrong 19), G keeps 46 (right 33, wrong 10)
+      G-B +20 [-11, +54] | G-Bg +10 [-5, +26] | G-N1 +3 [-5, +11] | G-E +23 [+11, +36] | G+SJ-B(same n) +54 [+25, +85]
+    570: 570 questions | answers E 292, N1 360, G 343 (B 343, Bg 343), G+SJ 232 | nets E +30, N1 +53, G +58, B +30, Bg +45, G+SJ +98, B at G+SJ's count +29 | releases 68 (right 44, wrong 21), G keeps 51 (right 38, wrong 10)
+      G-B +28 [-9, +62] | G-Bg +13 [-3, +29] | G-N1 +5 [-3, +13] | G-E +28 [+15, +42] | G+SJ-B(same n) +69 [+36, +102]
+  qwen3.5-9b (QA)^2
+    470 held out: 470 questions | answers E 353, N1 439, G 396 (B 396, Bg 396), G+SJ 363 | nets E +63, N1 +44, G +73, B +45, Bg +75, G+SJ +90, B at G+SJ's count +63 | releases 86 (right 31, wrong 50), G keeps 43 (right 26, wrong 16)
+      G-B +28 [+0, +56] | G-Bg -2 [-14, +10] | G-N1 +29 [+17, +41] | G-E +10 [-2, +23] | G+SJ-B(same n) +27 [-1, +55]
+    570: 570 questions | answers E 432, N1 534, G 486 (B 486, Bg 486), G+SJ 448 | nets E +68, N1 +54, G +87, B +59, Bg +87, G+SJ +109, B at G+SJ's count +80 | releases 102 (right 41, wrong 55), G keeps 54 (right 36, wrong 17)
+      G-B +28 [-3, +58] | G-Bg +0 [-12, +12] | G-N1 +33 [+21, +46] | G-E +19 [+5, +33] | G+SJ-B(same n) +29 [-2, +59]
+  two models together:
+    470 held out, 470 questions: G-B +48 [+5, +92] | G-Bg +8 [-11, +28] | G-N1 +32 [+19, +46] | G-E +33 [+15, +52] | G+SJ-B(same n) +81 [+41, +124]
+    570, 570 questions: G-B +56 [+8, +103] | G-Bg +13 [-8, +34] | G-N1 +38 [+24, +53] | G-E +47 [+27, +67] | G+SJ-B(same n) +98 [+52, +141]
+-- switch K1
+  llama3.1-8b (QA)^2
+    470 held out: 470 questions | answers E 235, N1 296, G 286 (B 286, Bg 286), G+SJ 191 | nets E +17, N1 +37, G +32, B +19, Bg +29, G+SJ +65, B at G+SJ's count +17 | releases 61 (right 39, wrong 19), G keeps 51 (right 32, wrong 17)
+      G-B +13 [-19, +47] | G-Bg +3 [-12, +19] | G-N1 -5 [-11, +1] | G-E +15 [+2, +29] | G+SJ-B(same n) +48 [+19, +79]
+    570: 570 questions | answers E 292, N1 360, G 350 (B 350, Bg 350), G+SJ 233 | nets E +30, N1 +53, G +48, B +29, Bg +42, G+SJ +91, B at G+SJ's count +28 | releases 68 (right 44, wrong 21), G keeps 58 (right 37, wrong 19)
+      G-B +19 [-20, +54] | G-Bg +6 [-11, +24] | G-N1 -5 [-11, +1] | G-E +18 [+3, +33] | G+SJ-B(same n) +63 [+30, +96]
+  llama3.1-8b TruthfulQA test
+    TruthfulQA test: 523 questions | answers E 319, N1 476, G 432 (B 432, Bg 432), G+SJ 357 | nets E +40, N1 +62, G +75, B +25, Bg +52, G+SJ +91, B at G+SJ's count +41 | releases 157 (right 81, wrong 59), G keeps 113 (right 68, wrong 33)
+      G-B +50 [+14, +86] | G-Bg +23 [+2, +45] | G-N1 +13 [+0, +25] | G-E +35 [+15, +55] | G+SJ-B(same n) +50 [+14, +86]
+    popqa test N1 F ('N1', '3-5', '1', '2'): 500 questions | answers E 99, N1 333, G 118 (B n/c, Bg n/c), G+SJ 94 | nets E +15, N1 -163, G +2, B n/c, Bg n/c, G+SJ +18, B at G+SJ's count n/c | releases 234 (right 28, wrong 206), G keeps 19 (right 3, wrong 16)
+      G-B not comparable | G-Bg not comparable | G-N1 +165 [+140, +190] | G-E -13 [-22, -5] | G+SJ-B(same n) not comparable
+    popqa test N1 D ('N1', '3-5', None, '0-25'): 500 questions | answers E 99, N1 100, G 99 (B n/c, Bg n/c), G+SJ 85 | nets E +15, N1 +14, G +15, B n/c, Bg n/c, G+SJ +23, B at G+SJ's count n/c | releases 1 (right 0, wrong 1), G keeps 0 (right 0, wrong 0)
+      G-B not comparable | G-Bg not comparable | G-N1 +1 [+0, +3] | G-E +0 [+0, +0] | G+SJ-B(same n) not comparable
+    popqa test2 N1 F ('N1', '3-5', '1', '2'): 500 questions | answers E 99, N1 309, G 115 (B n/c, Bg n/c), G+SJ 92 | nets E +19, N1 -121, G +9, B n/c, Bg n/c, G+SJ +22, B at G+SJ's count n/c | releases 210 (right 35, wrong 175), G keeps 16 (right 3, wrong 13)
+      G-B not comparable | G-Bg not comparable | G-N1 +130 [+105, +155] | G-E -10 [-18, -2] | G+SJ-B(same n) not comparable
+    popqa test2 N1 D ('N1', '3-5', None, '0-25'): 500 questions | answers E 99, N1 99, G 99 (B n/c, Bg n/c), G+SJ 84 | nets E +19, N1 +19, G +19, B n/c, Bg n/c, G+SJ +26, B at G+SJ's count n/c | releases 0 (right 0, wrong 0), G keeps 0 (right 0, wrong 0)
+      G-B not comparable | G-Bg not comparable | G-N1 +0 [+0, +0] | G-E +0 [+0, +0] | G+SJ-B(same n) not comparable
+    triviaqa test N1 F ('N1', '3-5', '1', '2'): 500 questions | answers E 263, N1 433, G 295 (B n/c, Bg n/c), G+SJ 244 | nets E +127, N1 +55, G +103, B n/c, Bg n/c, G+SJ +128, B at G+SJ's count n/c | releases 170 (right 49, wrong 121), G keeps 32 (right 4, wrong 28)
+      G-B not comparable | G-Bg not comparable | G-N1 +48 [+24, +71] | G-E -24 [-36, -13] | G+SJ-B(same n) not comparable
+    triviaqa test N1 D ('N1', '3-5', None, '0-25'): 500 questions | answers E 263, N1 263, G 263 (B n/c, Bg n/c), G+SJ 223 | nets E +127, N1 +127, G +127, B n/c, Bg n/c, G+SJ +143, B at G+SJ's count n/c | releases 0 (right 0, wrong 0), G keeps 0 (right 0, wrong 0)
+      G-B not comparable | G-Bg not comparable | G-N1 +0 [+0, +0] | G-E +0 [+0, +0] | G+SJ-B(same n) not comparable
+    triviaqa test2 N1 F ('N1', '3-5', '1', '2'): 500 questions | answers E 251, N1 424, G 285 (B n/c, Bg n/c), G+SJ 255 | nets E +149, N1 +72, G +129, B n/c, Bg n/c, G+SJ +125, B at G+SJ's count n/c | releases 173 (right 48, wrong 125), G keeps 34 (right 7, wrong 27)
+      G-B not comparable | G-Bg not comparable | G-N1 +57 [+34, +79] | G-E -20 [-31, -9] | G+SJ-B(same n) not comparable
+    triviaqa test2 N1 D ('N1', '3-5', None, '0-25'): 500 questions | answers E 251, N1 252, G 251 (B n/c, Bg n/c), G+SJ 223 | nets E +149, N1 +148, G +149, B n/c, Bg n/c, G+SJ +143, B at G+SJ's count n/c | releases 1 (right 0, wrong 1), G keeps 0 (right 0, wrong 0)
+      G-B not comparable | G-Bg not comparable | G-N1 +1 [+0, +3] | G-E +0 [+0, +0] | G+SJ-B(same n) not comparable
+  qwen3.5-9b (QA)^2
+    470 held out: 470 questions | answers E 353, N1 439, G 376 (B 376, Bg 376), G+SJ 349 | nets E +63, N1 +44, G +62, B +56, Bg +66, G+SJ +75, B at G+SJ's count +65 | releases 86 (right 31, wrong 50), G keeps 23 (right 10, wrong 11)
+      G-B +6 [-22, +34] | G-Bg -4 [-12, +5] | G-N1 +18 [+3, +33] | G-E -1 [-10, +8] | G+SJ-B(same n) +10 [-18, +38]
+    570: 570 questions | answers E 432, N1 534, G 461 (B 461, Bg 461), G+SJ 429 | nets E +68, N1 +54, G +69, B +73, Bg +73, G+SJ +87, B at G+SJ's count +83 | releases 102 (right 41, wrong 55), G keeps 29 (right 14, wrong 13)
+      G-B -4 [-35, +26] | G-Bg -4 [-12, +4] | G-N1 +15 [-2, +32] | G-E +1 [-9, +11] | G+SJ-B(same n) +4 [-27, +34]
+  qwen3.5-9b TruthfulQA test
+    TruthfulQA test: 523 questions | answers E 408, N1 444, G 434 (B 434, Bg 434), G+SJ 414 | nets E +168, N1 +186, G +185, B +173, Bg +178, G+SJ +195, B at G+SJ's count +171 | releases 36 (right 26, wrong 7), G keeps 26 (right 20, wrong 3)
+      G-B +12 [-12, +37] | G-Bg +7 [-1, +15] | G-N1 -1 [-7, +5] | G-E +17 [+8, +27] | G+SJ-B(same n) +24 [-1, +48]
+    popqa test N1 F ('N1', '2', '0-25', '0-5'): 500 questions | answers E 189, N1 207, G 194 (B n/c, Bg n/c), G+SJ 177 | nets E -57, N1 -75, G -62, B n/c, Bg n/c, G+SJ -49, B at G+SJ's count n/c | releases 18 (right 0, wrong 18), G keeps 5 (right 0, wrong 5)
+      G-B not comparable | G-Bg not comparable | G-N1 +13 [+7, +20] | G-E -5 [-10, -1] | G+SJ-B(same n) not comparable
+    popqa test N1 D ('N1', '2', None, '0-25'): 500 questions | answers E 189, N1 189, G 189 (B n/c, Bg n/c), G+SJ 173 | nets E -57, N1 -57, G -57, B n/c, Bg n/c, G+SJ -45, B at G+SJ's count n/c | releases 0 (right 0, wrong 0), G keeps 0 (right 0, wrong 0)
+      G-B not comparable | G-Bg not comparable | G-N1 +0 [+0, +0] | G-E +0 [+0, +0] | G+SJ-B(same n) not comparable
+    popqa test2 N1 F ('N1', '2', '0-25', '0-5'): 500 questions | answers E 200, N1 225, G 207 (B n/c, Bg n/c), G+SJ 184 | nets E -34, N1 -51, G -39, B n/c, Bg n/c, G+SJ -28, B at G+SJ's count n/c | releases 25 (right 4, wrong 21), G keeps 7 (right 1, wrong 6)
+      G-B not comparable | G-Bg not comparable | G-N1 +12 [+4, +20] | G-E -5 [-11, +0] | G+SJ-B(same n) not comparable
+    popqa test2 N1 D ('N1', '2', None, '0-25'): 500 questions | answers E 200, N1 201, G 201 (B n/c, Bg n/c), G+SJ 178 | nets E -34, N1 -35, G -35, B n/c, Bg n/c, G+SJ -24, B at G+SJ's count n/c | releases 1 (right 0, wrong 1), G keeps 1 (right 0, wrong 1)
+      G-B not comparable | G-Bg not comparable | G-N1 +0 [+0, +0] | G-E -1 [-3, +0] | G+SJ-B(same n) not comparable
+    triviaqa test N1 F ('N1', '2', '0-25', '0-5'): 500 questions | answers E 376, N1 401, G 386 (B n/c, Bg n/c), G+SJ 355 | nets E +128, N1 +105, G +120, B n/c, Bg n/c, G+SJ +141, B at G+SJ's count n/c | releases 25 (right 1, wrong 24), G keeps 10 (right 1, wrong 9)
+      G-B not comparable | G-Bg not comparable | G-N1 +15 [+8, +23] | G-E -8 [-15, -2] | G+SJ-B(same n) not comparable
+    triviaqa test N1 D ('N1', '2', None, '0-5'): 500 questions | answers E 376, N1 381, G 381 (B n/c, Bg n/c), G+SJ 351 | nets E +128, N1 +123, G +123, B n/c, Bg n/c, G+SJ +143, B at G+SJ's count n/c | releases 5 (right 0, wrong 5), G keeps 5 (right 0, wrong 5)
+      G-B not comparable | G-Bg not comparable | G-N1 +0 [+0, +0] | G-E -5 [-10, -1] | G+SJ-B(same n) not comparable
+    triviaqa test2 N1 F ('N1', '2', '0-25', '0-5'): 500 questions | answers E 386, N1 409, G 390 (B n/c, Bg n/c), G+SJ 359 | nets E +150, N1 +129, G +146, B n/c, Bg n/c, G+SJ +161, B at G+SJ's count n/c | releases 23 (right 1, wrong 22), G keeps 4 (right 0, wrong 4)
+      G-B not comparable | G-Bg not comparable | G-N1 +17 [+9, +26] | G-E -4 [-8, -1] | G+SJ-B(same n) not comparable
+    triviaqa test2 N1 D ('N1', '2', None, '0-5'): 500 questions | answers E 386, N1 388, G 388 (B n/c, Bg n/c), G+SJ 357 | nets E +150, N1 +148, G +148, B n/c, Bg n/c, G+SJ +163, B at G+SJ's count n/c | releases 2 (right 0, wrong 2), G keeps 2 (right 0, wrong 2)
+      G-B not comparable | G-Bg not comparable | G-N1 +0 [+0, +0] | G-E -2 [-5, +0] | G+SJ-B(same n) not comparable
+  two models together:
+    470 held out, 470 questions: G-B +19 [-23, +63] | G-Bg -1 [-18, +18] | G-N1 +13 [-3, +29] | G-E +14 [-2, +32] | G+SJ-B(same n) +58 [+19, +100]
+    570, 570 questions: G-B +15 [-33, +62] | G-Bg +2 [-18, +21] | G-N1 +10 [-7, +27] | G-E +19 [+0, +38] | G+SJ-B(same n) +67 [+22, +111]
+    popqa test F, 500 questions: G-B not comparable | G-Bg not comparable | G-N1 +178 [+152, +203] | G-E -18 [-29, -8] | G+SJ-B(same n) not comparable
+    popqa test D, 500 questions: G-B not comparable | G-Bg not comparable | G-N1 +1 [+0, +3] | G-E +0 [+0, +0] | G+SJ-B(same n) not comparable
+    popqa test2 F, 500 questions: G-B not comparable | G-Bg not comparable | G-N1 +142 [+115, +169] | G-E -15 [-25, -6] | G+SJ-B(same n) not comparable
+    popqa test2 D, 500 questions: G-B not comparable | G-Bg not comparable | G-N1 +0 [+0, +0] | G-E -1 [-3, +0] | G+SJ-B(same n) not comparable
+    triviaqa test F, 500 questions: G-B not comparable | G-Bg not comparable | G-N1 +63 [+37, +87] | G-E -32 [-47, -19] | G+SJ-B(same n) not comparable
+    triviaqa test D, 500 questions: G-B not comparable | G-Bg not comparable | G-N1 +0 [+0, +0] | G-E -5 [-10, -1] | G+SJ-B(same n) not comparable
+    triviaqa test2 F, 500 questions: G-B not comparable | G-Bg not comparable | G-N1 +74 [+49, +98] | G-E -24 [-36, -12] | G+SJ-B(same n) not comparable
+    triviaqa test2 D, 500 questions: G-B not comparable | G-Bg not comparable | G-N1 +1 [+0, +3] | G-E -2 [-5, +0] | G+SJ-B(same n) not comparable
+    TruthfulQA test, 523 common questions: G-B +62 [+18, +106] | G-Bg +30 [+7, +53] | G-N1 +12 [-2, +26] | G-E +52 [+30, +75] | G+SJ-B(same n) +74 [+30, +117]
+-- switch K2
+  llama3.1-8b (QA)^2
+    470 held out: 470 questions | answers E 235, N1 296, G 235 (B 235, Bg 235), G+SJ 159 | nets E +17, N1 +37, G +17, B +15, Bg +17, G+SJ +51, B at G+SJ's count +21 | releases 61 (right 39, wrong 19), G keeps 0 (right 0, wrong 0)
+      G-B +2 [-30, +35] | G-Bg +0 [+0, +0] | G-N1 -20 [-35, -6] | G-E +0 [+0, +0] | G+SJ-B(same n) +30 [+1, +59]
+    570: 570 questions | answers E 292, N1 360, G 292 (B 292, Bg 292), G+SJ 197 | nets E +30, N1 +53, G +30, B +26, Bg +30, G+SJ +73, B at G+SJ's count +34 | releases 68 (right 44, wrong 21), G keeps 0 (right 0, wrong 0)
+      G-B +4 [-33, +38] | G-Bg +0 [+0, +0] | G-N1 -23 [-39, -7] | G-E +0 [+0, +0] | G+SJ-B(same n) +39 [+7, +70]
+  llama3.1-8b TruthfulQA test
+    TruthfulQA test: 523 questions | answers E 319, N1 476, G 426 (B 426, Bg 426), G+SJ 346 | nets E +40, N1 +62, G +33, B +23, Bg +27, G+SJ +58, B at G+SJ's count +40 | releases 157 (right 81, wrong 59), G keeps 107 (right 46, wrong 53)
+      G-B +10 [-24, +45] | G-Bg +6 [-15, +28] | G-N1 -29 [-42, -17] | G-E -7 [-26, +13] | G+SJ-B(same n) +18 [-18, +53]
+    popqa test N1 F ('N1', '3-5', '1', '2'): 500 questions | answers E 99, N1 333, G 252 (B n/c, Bg n/c), G+SJ 199 | nets E +15, N1 -163, G -90, B n/c, Bg n/c, G+SJ -55, B at G+SJ's count n/c | releases 234 (right 28, wrong 206), G keeps 153 (right 24, wrong 129)
+      G-B not comparable | G-Bg not comparable | G-N1 +73 [+57, +89] | G-E -105 [-127, -83] | G+SJ-B(same n) not comparable
+    popqa test N1 D ('N1', '3-5', None, '0-25'): 500 questions | answers E 99, N1 100, G 99 (B n/c, Bg n/c), G+SJ 85 | nets E +15, N1 +14, G +15, B n/c, Bg n/c, G+SJ +23, B at G+SJ's count n/c | releases 1 (right 0, wrong 1), G keeps 0 (right 0, wrong 0)
+      G-B not comparable | G-Bg not comparable | G-N1 +1 [+0, +3] | G-E +0 [+0, +0] | G+SJ-B(same n) not comparable
+    popqa test2 N1 F ('N1', '3-5', '1', '2'): 500 questions | answers E 99, N1 309, G 232 (B n/c, Bg n/c), G+SJ 189 | nets E +19, N1 -121, G -50, B n/c, Bg n/c, G+SJ -31, B at G+SJ's count n/c | releases 210 (right 35, wrong 175), G keeps 133 (right 32, wrong 101)
+      G-B not comparable | G-Bg not comparable | G-N1 +71 [+55, +88] | G-E -69 [-91, -47] | G+SJ-B(same n) not comparable
+    popqa test2 N1 D ('N1', '3-5', None, '0-25'): 500 questions | answers E 99, N1 99, G 99 (B n/c, Bg n/c), G+SJ 84 | nets E +19, N1 +19, G +19, B n/c, Bg n/c, G+SJ +26, B at G+SJ's count n/c | releases 0 (right 0, wrong 0), G keeps 0 (right 0, wrong 0)
+      G-B not comparable | G-Bg not comparable | G-N1 +0 [+0, +0] | G-E +0 [+0, +0] | G+SJ-B(same n) not comparable
+    triviaqa test N1 F ('N1', '3-5', '1', '2'): 500 questions | answers E 263, N1 433, G 427 (B n/c, Bg n/c), G+SJ 349 | nets E +127, N1 +55, G +59, B n/c, Bg n/c, G+SJ +97, B at G+SJ's count n/c | releases 170 (right 49, wrong 121), G keeps 164 (right 48, wrong 116)
+      G-B not comparable | G-Bg not comparable | G-N1 +4 [+0, +9] | G-E -68 [-92, -43] | G+SJ-B(same n) not comparable
+    triviaqa test N1 D ('N1', '3-5', None, '0-25'): 500 questions | answers E 263, N1 263, G 263 (B n/c, Bg n/c), G+SJ 223 | nets E +127, N1 +127, G +127, B n/c, Bg n/c, G+SJ +143, B at G+SJ's count n/c | releases 0 (right 0, wrong 0), G keeps 0 (right 0, wrong 0)
+      G-B not comparable | G-Bg not comparable | G-N1 +0 [+0, +0] | G-E +0 [+0, +0] | G+SJ-B(same n) not comparable
+    triviaqa test2 N1 F ('N1', '3-5', '1', '2'): 500 questions | answers E 251, N1 424, G 417 (B n/c, Bg n/c), G+SJ 352 | nets E +149, N1 +72, G +77, B n/c, Bg n/c, G+SJ +96, B at G+SJ's count n/c | releases 173 (right 48, wrong 125), G keeps 166 (right 47, wrong 119)
+      G-B not comparable | G-Bg not comparable | G-N1 +5 [+0, +11] | G-E -72 [-96, -48] | G+SJ-B(same n) not comparable
+    triviaqa test2 N1 D ('N1', '3-5', None, '0-25'): 500 questions | answers E 251, N1 252, G 251 (B n/c, Bg n/c), G+SJ 223 | nets E +149, N1 +148, G +149, B n/c, Bg n/c, G+SJ +143, B at G+SJ's count n/c | releases 1 (right 0, wrong 1), G keeps 0 (right 0, wrong 0)
+      G-B not comparable | G-Bg not comparable | G-N1 +1 [+0, +3] | G-E +0 [+0, +0] | G+SJ-B(same n) not comparable
+  qwen3.5-9b (QA)^2
+    470 held out: 470 questions | answers E 353, N1 439, G 416 (B 416, Bg 416), G+SJ 385 | nets E +63, N1 +44, G +55, B +37, Bg +58, G+SJ +70, B at G+SJ's count +50 | releases 86 (right 31, wrong 50), G keeps 63 (right 26, wrong 34)
+      G-B +18 [-10, +46] | G-Bg -3 [-17, +11] | G-N1 +11 [+2, +20] | G-E -8 [-23, +7] | G+SJ-B(same n) +20 [-8, +47]
+    570: 570 questions | answers E 432, N1 534, G 508 (B 508, Bg 508), G+SJ 472 | nets E +68, N1 +54, G +64, B +51, Bg +62, G+SJ +84, B at G+SJ's count +65 | releases 102 (right 41, wrong 55), G keeps 76 (right 34, wrong 38)
+      G-B +13 [-18, +42] | G-Bg +2 [-13, +17] | G-N1 +10 [+1, +19] | G-E -4 [-21, +12] | G+SJ-B(same n) +19 [-12, +49]
+  qwen3.5-9b TruthfulQA test
+    TruthfulQA test: 523 questions | answers E 408, N1 444, G 425 (B 425, Bg 425), G+SJ 404 | nets E +168, N1 +186, G +175, B +170, Bg +163, G+SJ +184, B at G+SJ's count +175 | releases 36 (right 26, wrong 7), G keeps 17 (right 12, wrong 5)
+      G-B +5 [-21, +30] | G-Bg +12 [+2, +22] | G-N1 -11 [-19, -4] | G-E +7 [-1, +15] | G+SJ-B(same n) +9 [-15, +33]
+    popqa test N1 F ('N1', '2', '0-25', '0-5'): 500 questions | answers E 189, N1 207, G 203 (B n/c, Bg n/c), G+SJ 186 | nets E -57, N1 -75, G -71, B n/c, Bg n/c, G+SJ -58, B at G+SJ's count n/c | releases 18 (right 0, wrong 18), G keeps 14 (right 0, wrong 14)
+      G-B not comparable | G-Bg not comparable | G-N1 +4 [+1, +8] | G-E -14 [-22, -7] | G+SJ-B(same n) not comparable
+    popqa test N1 D ('N1', '2', None, '0-25'): 500 questions | answers E 189, N1 189, G 189 (B n/c, Bg n/c), G+SJ 173 | nets E -57, N1 -57, G -57, B n/c, Bg n/c, G+SJ -45, B at G+SJ's count n/c | releases 0 (right 0, wrong 0), G keeps 0 (right 0, wrong 0)
+      G-B not comparable | G-Bg not comparable | G-N1 +0 [+0, +0] | G-E +0 [+0, +0] | G+SJ-B(same n) not comparable
+    popqa test2 N1 F ('N1', '2', '0-25', '0-5'): 500 questions | answers E 200, N1 225, G 218 (B n/c, Bg n/c), G+SJ 193 | nets E -34, N1 -51, G -44, B n/c, Bg n/c, G+SJ -31, B at G+SJ's count n/c | releases 25 (right 4, wrong 21), G keeps 18 (right 4, wrong 14)
+      G-B not comparable | G-Bg not comparable | G-N1 +7 [+3, +13] | G-E -10 [-18, -2] | G+SJ-B(same n) not comparable
+    popqa test2 N1 D ('N1', '2', None, '0-25'): 500 questions | answers E 200, N1 201, G 200 (B n/c, Bg n/c), G+SJ 177 | nets E -34, N1 -35, G -34, B n/c, Bg n/c, G+SJ -23, B at G+SJ's count n/c | releases 1 (right 0, wrong 1), G keeps 0 (right 0, wrong 0)
+      G-B not comparable | G-Bg not comparable | G-N1 +1 [+0, +3] | G-E +0 [+0, +0] | G+SJ-B(same n) not comparable
+    triviaqa test N1 F ('N1', '2', '0-25', '0-5'): 500 questions | answers E 376, N1 401, G 396 (B n/c, Bg n/c), G+SJ 364 | nets E +128, N1 +105, G +110, B n/c, Bg n/c, G+SJ +132, B at G+SJ's count n/c | releases 25 (right 1, wrong 24), G keeps 20 (right 1, wrong 19)
+      G-B not comparable | G-Bg not comparable | G-N1 +5 [+1, +10] | G-E -18 [-27, -10] | G+SJ-B(same n) not comparable
+    triviaqa test N1 D ('N1', '2', None, '0-5'): 500 questions | answers E 376, N1 381, G 376 (B n/c, Bg n/c), G+SJ 346 | nets E +128, N1 +123, G +128, B n/c, Bg n/c, G+SJ +148, B at G+SJ's count n/c | releases 5 (right 0, wrong 5), G keeps 0 (right 0, wrong 0)
+      G-B not comparable | G-Bg not comparable | G-N1 +5 [+1, +10] | G-E +0 [+0, +0] | G+SJ-B(same n) not comparable
+    triviaqa test2 N1 F ('N1', '2', '0-25', '0-5'): 500 questions | answers E 386, N1 409, G 407 (B n/c, Bg n/c), G+SJ 375 | nets E +150, N1 +129, G +131, B n/c, Bg n/c, G+SJ +147, B at G+SJ's count n/c | releases 23 (right 1, wrong 22), G keeps 21 (right 1, wrong 20)
+      G-B not comparable | G-Bg not comparable | G-N1 +2 [+0, +5] | G-E -19 [-28, -11] | G+SJ-B(same n) not comparable
+    triviaqa test2 N1 D ('N1', '2', None, '0-5'): 500 questions | answers E 386, N1 388, G 386 (B n/c, Bg n/c), G+SJ 355 | nets E +150, N1 +148, G +150, B n/c, Bg n/c, G+SJ +165, B at G+SJ's count n/c | releases 2 (right 0, wrong 2), G keeps 0 (right 0, wrong 0)
+      G-B not comparable | G-Bg not comparable | G-N1 +2 [+0, +5] | G-E +0 [+0, +0] | G+SJ-B(same n) not comparable
+  two models together:
+    470 held out, 470 questions: G-B +20 [-22, +63] | G-Bg -3 [-17, +11] | G-N1 -9 [-26, +8] | G-E -8 [-23, +7] | G+SJ-B(same n) +50 [+12, +89]
+    570, 570 questions: G-B +17 [-30, +63] | G-Bg +2 [-13, +17] | G-N1 -13 [-32, +6] | G-E -4 [-21, +12] | G+SJ-B(same n) +58 [+15, +100]
+    popqa test F, 500 questions: G-B not comparable | G-Bg not comparable | G-N1 +77 [+60, +94] | G-E -119 [-143, -96] | G+SJ-B(same n) not comparable
+    popqa test D, 500 questions: G-B not comparable | G-Bg not comparable | G-N1 +1 [+0, +3] | G-E +0 [+0, +0] | G+SJ-B(same n) not comparable
+    popqa test2 F, 500 questions: G-B not comparable | G-Bg not comparable | G-N1 +78 [+62, +96] | G-E -79 [-103, -54] | G+SJ-B(same n) not comparable
+    popqa test2 D, 500 questions: G-B not comparable | G-Bg not comparable | G-N1 +1 [+0, +3] | G-E +0 [+0, +0] | G+SJ-B(same n) not comparable
+    triviaqa test F, 500 questions: G-B not comparable | G-Bg not comparable | G-N1 +9 [+3, +17] | G-E -86 [-113, -58] | G+SJ-B(same n) not comparable
+    triviaqa test D, 500 questions: G-B not comparable | G-Bg not comparable | G-N1 +5 [+1, +10] | G-E +0 [+0, +0] | G+SJ-B(same n) not comparable
+    triviaqa test2 F, 500 questions: G-B not comparable | G-Bg not comparable | G-N1 +7 [+2, +13] | G-E -91 [-117, -65] | G+SJ-B(same n) not comparable
+    triviaqa test2 D, 500 questions: G-B not comparable | G-Bg not comparable | G-N1 +3 [+0, +7] | G-E +0 [+0, +0] | G+SJ-B(same n) not comparable
+    TruthfulQA test, 523 common questions: G-B +15 [-29, +58] | G-Bg +18 [-7, +43] | G-N1 -40 [-55, -26] | G-E +0 [-22, +22] | G+SJ-B(same n) +27 [-18, +70]
+====================================================================================================
+READING 3: (QA)^2, single E + self-judge (rule Z, no write) minus single E, on the normal questions (official type no_failure; and the questions K1 calls normal)
+  llama3.1-8b 470 held out official no_failure: 235 questions in the branch, E answers there 129, judged false 40 (right 12, wrong 28) | S1 - E +16 [+4, +29]
+  llama3.1-8b 570 official no_failure: 285 questions in the branch, E answers there 161, judged false 49 (right 15, wrong 34) | S1 - E +19 [+6, +32]
+  qwen3.5-9b 470 held out official no_failure: 235 questions in the branch, E answers there 182, judged false 14 (right 2, wrong 12) | S1 - E +10 [+3, +18]
+  qwen3.5-9b 570 official no_failure: 285 questions in the branch, E answers there 226, judged false 18 (right 2, wrong 16) | S1 - E +14 [+6, +22]
+  two models together, 470 held out, official no_failure: S1 - E +26 [+11, +41]
+  two models together, 570, official no_failure: S1 - E +33 [+17, +49]
+  llama3.1-8b 470 held out K1 normal: 202 questions in the branch, E answers there 143, judged false 43 (right 13, wrong 30) | S1 - E +17 [+4, +30]
+  llama3.1-8b 570 K1 normal: 250 questions in the branch, E answers there 177, judged false 54 (right 16, wrong 38) | S1 - E +22 [+7, +36]
+  qwen3.5-9b 470 held out K1 normal: 337 questions in the branch, E answers there 252, judged false 21 (right 5, wrong 16) | S1 - E +11 [+2, +20]
+  qwen3.5-9b 570 K1 normal: 409 questions in the branch, E answers there 313, judged false 26 (right 5, wrong 21) | S1 - E +16 [+6, +26]
+  two models together, 470 held out, K1 normal: S1 - E +28 [+12, +44]
+  two models together, 570, K1 normal: S1 - E +38 [+20, +55]

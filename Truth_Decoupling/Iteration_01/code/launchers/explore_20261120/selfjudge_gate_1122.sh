@@ -15,9 +15,15 @@ case "$MODEL" in
   qwen3.5-9b)  CODE=code_newmodels_20261112; NEED=20000 ;;
   *) echo "unknown model $MODEL" >&2; exit 2 ;;
 esac
+HOST=/data/sanshizhao/Truth_Decoupling
+LOCK=$HOST/Iteration_01/newsets/selfjudge/.gpu1.lock
+mkdir -p "$(dirname "$LOCK")" || { echo "cannot prepare GPU 1 reservation" >&2; exit 2; }
+command -v flock >/dev/null || { echo "flock unavailable on GPU host" >&2; exit 2; }
+exec 9>"$LOCK" || { echo "cannot open GPU 1 reservation" >&2; exit 2; }
+flock -n 9 || { echo "another self-judge worker holds GPU 1" >&2; exit 3; }
 check() {
-  USED=$(nvidia-smi --query-gpu=index,memory.used --format=csv,noheader,nounits | awk -F', ' '$1 == 1 {print $2}')
-  [ -n "$USED" ] || { echo "cannot read GPU 1 memory" >&2; exit 2; }
+  USED=$(nvidia-smi --query-gpu=index,memory.used --format=csv,noheader,nounits | awk -F', ' '$1 == 1 {print $2}') || { echo "cannot query GPU 1 memory" >&2; exit 2; }
+  [[ $USED =~ ^[0-9]+$ ]] || { echo "cannot read GPU 1 memory" >&2; exit 2; }
   if [ $((USED + NEED)) -gt 66560 ]; then echo "GPU 1 holds $USED MiB; with $NEED MiB more it exceeds 65 GB, not starting" >&2; exit 3; fi
 }
 PY=$(docker exec truth_dec python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('python', 'python3'))" "$ROOT/$CODE/configs/models/$MODEL.json")
