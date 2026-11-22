@@ -1,0 +1,28 @@
+# llama3.1-8b tune, one pass of P + E + C: E 3.5 C 0.25 +38 (143) | E 3.5 C 0.5 +47 (167) | E 3.5 C 1 +59 (188) | E 3.5 C 2 +58 (192) | E 1.75 C 0.25 +40 (157) | E 1.75 C 0.5 +43 (174) | E 1.75 C 1 +59 (186) | E 1.75 C 2 +66 (191) -> chosen E 1.75 C 2 (+66)
+    the chosen E strength is not s_sel (3.5): no test reading
+# qwen3.5-9b tune, one pass of P + E + C: E 2 C 0.25 +79 (160) | E 2 C 0.5 +71 (172) | E 2 C 1 +70 (184) | E 2 C 2 +74 (189) | E 1 C 0.25 +78 (165) | E 1 C 0.5 +75 (177) | E 1 C 1 +72 (187) | E 1 C 2 +66 (190) -> chosen E 2 C 0.25 (+79)
+# qwen3.8-27b tune, one pass of P + E + C: E 1.75 C 0.25 +88 (172) | E 1.75 C 0.5 +92 (184) | E 1.75 C 1 +81 (189) | E 1.75 C 2 +84 (192) | E 0.875 C 0.25 +88 (172) | E 0.875 C 0.5 +95 (184) | E 0.875 C 1 +91 (190) | E 0.875 C 2 +81 (192) -> chosen E 0.875 C 0.5 (+95)
+# gemma3-12b tune, one pass of P + E + C: E 2.5 C 0.25 +80 (181) | E 2.5 C 0.5 +80 (187) | E 2.5 C 1 +80 (191) | E 2.5 C 2 +73 (192) | E 1.25 C 0.25 +72 (184) | E 1.25 C 0.5 +75 (187) | E 1.25 C 1 +70 (189) | E 1.25 C 2 +59 (190) -> chosen E 2.5 C 0.25 (+80)
+    the chosen E strength is not s_sel (1.25): no test reading
+# gemma3-27b tune, one pass of P + E + C: E 1 C 0.25 +74 (186) | E 1 C 0.5 +77 (190) | E 1 C 1 +72 (192) | E 1 C 2 +57 (191) | E 0.5 C 0.25 +70 (187) | E 0.5 C 0.5 +67 (191) | E 0.5 C 1 +66 (190) | E 0.5 C 2 +55 (192) -> chosen E 1 C 0.5 (+77)
+
+# test: 3 of 5 models have a reading; the five-model total is over those models only
+
+## 7.5 TruthfulQA test: one pass of P + E + C (cell chosen on tune)
+    qwen3.5-9b   523 q | S0 +168 (464) | one pass +196 (445) | SN1 +200 (424) || one pass - S0 +28 [-3, +59] | SN1 - one pass +4 [-12, +20]
+    qwen3.8-27b  521 q | S0 +162 (373) | one pass +199 (501) | SN1 +217 (487) || one pass - S0 +37 [+5, +69] | SN1 - one pass +18 [+0, +37]
+    gemma3-27b   523 q | S0 +186 (488) | one pass +182 (521) | SN1 +209 (515) || one pass - S0 -4 [-37, +30] | SN1 - one pass +27 [+8, +48]
+    3 together   521 q | S0 +517 (1322) | one pass +577 (1465) | SN1 +625 (1423) || one pass - S0 +60 [-4, +120] | SN1 - one pass +48 [+18, +78]
+# llama3.1-8b tune SC by cap: 0.25 +17 | 0.5 +19 | 1 +24 | 2 +26 -> cap 2 (192 tune questions)
+# qwen3.5-9b tune SC by cap: 0.25 +62 | 0.5 +60 | 1 +56 | 2 +56 -> cap 0.25 (192 tune questions)
+# qwen3.8-27b tune SC by cap: 0.25 +71 | 0.5 +78 | 1 +81 | 2 +80 -> cap 1 (192 tune questions)
+# gemma3-12b tune SC by cap: 0.25 +34 | 0.5 +36 | 1 +37 | 2 +36 -> cap 1 (192 tune questions)
+# gemma3-27b tune SC by cap: 0.25 +67 | 0.5 +71 | 1 +70 | 2 +70 -> cap 0.5 (192 tune questions)
+
+## 7.2 TruthfulQA test: P + C only (SC), cap chosen on tune
+    llama3.1-8b  523 q | S0 +33 (454) | SC +52 (520) | SE +126 (353) | SN1 +130 (510) || SC - S0 +19 [+5, +33] | SN1 - SC +78 [+32, +124] | SE - SC +74 [+30, +118]
+    qwen3.5-9b   523 q | S0 +168 (464) | SC +167 (492) | SE +190 (403) | SN1 +200 (424) || SC - S0 -1 [-12, +10] | SN1 - SC +33 [+2, +64] | SE - SC +23 [-7, +53]
+    qwen3.8-27b  521 q | S0 +162 (373) | SC +185 (513) | SE +193 (384) | SN1 +217 (487) || SC - S0 +23 [+1, +46] | SN1 - SC +32 [+6, +59] | SE - SC +8 [-22, +37]
+    gemma3-12b   522 q | S0 +156 (501) | SC +161 (521) | SE +181 (488) | SN1 +194 (513) || SC - S0 +5 [-4, +14] | SN1 - SC +33 [-3, +69] | SE - SC +20 [-15, +54]
+    gemma3-27b   523 q | S0 +186 (488) | SC +194 (518) | SE +208 (506) | SN1 +209 (515) || SC - S0 +8 [-2, +18] | SN1 - SC +15 [-17, +48] | SE - SC +14 [-18, +48]
+    five models  520 q | S0 +706 (2269) | SC +759 (2552) | SE +894 (2126) | SN1 +947 (2438) || SC - S0 +53 [+17, +90] | SN1 - SC +188 [+92, +286] | SE - SC +135 [+35, +232]
