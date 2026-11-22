@@ -41,9 +41,15 @@ import selfjudge_probe as SP     # noqa: E402
 ORDER = ("llama3.1-8b", "qwen3.5-9b")
 CHOICE = "Iteration_01/newsets/splits/qaqa_tune_choice_fixedE_20261122.json"
 WORKS = ["test_full570", "test_full570_tuned", "test_full570_strong"]
-EXPECT_TQ = {"llama3.1-8b": "+51 [+17, +87]", "qwen3.5-9b": "+13 [-11, +37]"}
-EXPECT_FILL = {"llama3.1-8b": "+21 [-4, +46]", "qwen3.5-9b": "+14 [+2, +26]"}
-EXPECT_QQ470 = {"llama3.1-8b": 23, "qwen3.5-9b": 22}
+EXPECT_TQ = {"llama3.1-8b": "+51 [+17, +87]", "qwen3.5-9b": "+13 [-11, +37]",
+             # queue e 1d (2026-11-22 evening): tq_same_n_decomp.py's per-model "primary" / "N1_minus_Efill" rows
+             "qwen3.8-27b": "+18 [-8, +45]", "gemma3-12b": "-6 [-37, +24]", "gemma3-27b": "+52 [+22, +82]"}
+EXPECT_FILL = {"llama3.1-8b": "+21 [-4, +46]", "qwen3.5-9b": "+14 [+2, +26]",
+               "qwen3.8-27b": "+14 [-6, +34]", "gemma3-12b": "-3 [-27, +20]", "gemma3-27b": "+16 [+1, +31]"}
+EXPECT_QQ470 = {"llama3.1-8b": 23, "qwen3.5-9b": 22, "qwen3.8-27b": -23, "gemma3-12b": 23, "gemma3-27b": -3}
+# five models together (tq_same_n_decomp.py; ec_offline_checks.py anchor and recovery_pool_b): checked when tableZ
+# is read on all five
+EXPECT5 = {"tq_ref": "+128 [+58, +197]", "tq_fill": "+64 [+16, +110]", "qq_ref": 42, "qq_fill": 18}
 sha1 = SP.sha1
 
 
@@ -166,6 +172,66 @@ def export_qq(model):
         items.append(dict(id=q, question=bank[q]["question"], answer=t, answer_sha1=sha1(t), value=R.cell(arm, q), answered=True,
                           arm=arm, neg=bool(SP.NEG_RE.match(t)), pilot=q in pilot, qtype=bank[q]["qtype"]))
     write_items(model, "qq_release", items, dict(choice=ch, works=WORKS))
+
+
+# ------------------------------------------------------------------------------------------------------------------ #
+# queue g, G4 (2026-11-22 19:19): the original model's own answer (plain prompt, no write) as one more self-judged
+# source. TruthfulQA tune and test: the record "baseline_x" of final_records ("base" setting) in the main table's
+# judge dir of single E's pass, every text checked against the frozen no-write answer (frozen_<split>.json, prompt
+# system "x") of that run. (QA)^2 570: the arm "x" read with qaqa_pilot_table.Raw (WORKS), every answered text checked
+# to be the text DeepSeek Pro judged.
+def export_tq_orig(model):
+    import tq_same_n_decomp as TQ
+    A, MP, S = TQ.A, TQ.MP, TQ.S
+    step1 = SP.read_json(os.path.join(SP.OUT, model, "items.json"))
+    qtext = {(x["split"], x["id"]): x["question"] for x in step1["items"]}
+    display, layer, s, tune, test = SP.main_lists(A, model)
+    items, info = [], {}
+    for i, (split, (sp, tx, _, qs)) in enumerate((("tune", tune), ("test", test))):
+        st, an, recs = S.system(sp, tx, ("base",))
+        _, run, _ = MP.usual(display, i)
+        fpath = os.path.join(run, "frozen_%s.json" % split)
+        fz = SP.read_json(fpath)
+        # the Qwen3.8-27B main-table run is named "qwen3.8-27b-dm" (same weights, the config of a two-card load)
+        if fz.get("split") != split or fz.get("completed") is not True or fz.get("model") not in (model, model + "-dm"):
+            raise SystemExit("%s: %s is not the complete frozen pass of this split" % (model, fpath))
+        ftext = {r["pair_id"]: r["answers"]["x"]["text"] for r in fz["questions"]}
+        if len(ftext) != len(fz["questions"]) or len(set(qs)) != len(qs):
+            raise ValueError(f"{model} {split}: duplicate question in roster or frozen pass")
+        for k, q in enumerate(qs):
+            r = recs[k]
+            if r["p"] != q or r["cond"] != "baseline_x" or r["text"] is None:
+                raise SystemExit("%s %s: record order / condition differs at %s" % (model, split, q))
+            if sha1(r["text"]) != sha1(ftext[q]):
+                raise SystemExit("%s %s: the judged no-write text of %s is not the frozen pass's" % (model, split, q))
+            items.append(dict(id=split + "|" + q, split=split, question=qtext[(split, q)], answer=r["text"],
+                              answer_sha1=sha1(r["text"]), value=TQ.V[st[k]], state=st[k], answered=bool(an[k]),
+                              neg=bool(SP.NEG_RE.match(r["text"]))))
+        info[split] = dict(n=len(qs), answered=int(sum(bool(a) for a in an)), frozen=fpath, frozen_sha256=SP.sha256_file(fpath))
+        if fz["model"] != model:
+            info[split].update(frozen_model=fz["model"], frozen_model_path=fz["identity"]["model_path"])
+    write_items(model, "tq_orig", items, dict(condition="baseline_x", splits=info))
+
+
+def export_qq_orig(model):
+    import qaqa_pilot_table as qt
+    R = qt.Raw(model, "qaqafull", SP.QAQA_BANK, WORKS)
+    R.need("x")
+    with open(SP.QAQA_BANK, encoding="utf-8") as f:
+        bank = {r["id"]: r for r in (json.loads(l) for l in f)}
+    pilot = set(SP.read_json(SP.QAQA_PILOT)["ids"])
+    cond = R.cond["x"]
+    items = []
+    for q in R.ids:
+        t = R.text("x", q)
+        answered = not R.blank("x", q)
+        if answered and ((q, cond) not in R.pred or R.pred[(q, cond)].strip() != t.strip()):
+            raise SystemExit("%s: the no-write answer of %s is not the judged text" % (model, q))
+        items.append(dict(id=q, question=bank[q]["question"], answer=t, answer_sha1=sha1(t), value=R.cell("x", q),
+                          answered=answered, neg=bool(SP.NEG_RE.match(t)), pilot=q in pilot, qtype=bank[q]["qtype"]))
+    gpath = R.gdir / (qt.G.arm_token("x") + ".json")
+    write_items(model, "qq_orig", items, dict(arm="x", condition=cond, works=WORKS, generation=str(gpath),
+                                              generation_sha256=SP.sha256_file(str(gpath))))
 
 
 # ------------------------------------------------------------------------------------------------------------------ #
@@ -413,15 +479,16 @@ def table():
 #          "prompt"; newsets/selfjudge/<MODEL>/x--E<L>-w-p<S>-at-prompt.json), the k lowest dropped, k = S1's drops;
 #          D_all from every E answer, D_other from the "other" class only.
 # ------------------------------------------------------------------------------------------------------------------ #
-def load_all():
+def load_all(models=ORDER):
     import tq_same_n_decomp as TQ
     out = {}
-    for model in ORDER:
+    for model in models:
+        SC = SP.conds_of(model, "source")
         st1, _, z = SP.read_probe(model)
         ans = [x for x in st1["items"] if x["answered"]]
-        mE = {c: {(x["split"], x["id"]): float(z[c + "__margin"][j]) for j, x in enumerate(ans)} for c in SP.CONDS2}
+        mE = {c: {(x["split"], x["id"]): float(z[c + "__margin"][j]) for j, x in enumerate(ans)} for c in SC}
         tune_rows = {c: [(mE[c][("tune", x["id"])], SP.V[x["state"]]) for x in ans if x["split"] == "tune" and not x["neg"]]
-                     for c in SP.CONDS2}
+                     for c in SC}
         ids, dat = TQ.load_model(model)
         _, layer, s, n1cfg, run, e, eans, n1, issued, F = dat
         native = {r["pair_id"]: r["text"] for r in SP.read_json(os.path.join(
@@ -436,7 +503,7 @@ def load_all():
         if set(fdoc) != set(ids) or set(rel) != {q for q in ids if issued[q] and not eans[q]}:
             raise SystemExit("%s: released list" % model)
         tq = {}
-        for c in SP.CONDS2:
+        for c in SC:
             rm = margins(model, "tq_release", c)[1]
             fm = margins(model, "tq_forced", c)[1]
             dd = {}
@@ -459,7 +526,7 @@ def load_all():
             raise SystemExit("%s: (QA)^2 released list" % model)
         lp, lpinfo = d_confidence(model, qe, qitems)
         qq = {}
-        for c in SP.CONDS2:
+        for c in SC:
             em, rm, fm = margins(model, "qaqa", c)[1], margins(model, "qq_release", c)[1], margins(model, "qq_forced", c)[1]
             dd = {}
             for r in qe["rows"]:
@@ -630,7 +697,7 @@ def showZ(label, ids, cells, summ, ci, short):
                              for k in summ["keys"]))
 
 
-def tableZ():
+def tableZ(models=ORDER):
     import tq_same_n_decomp as TQ
     import newsets_score as NS
     ci_tq = TQ.ps.ci
@@ -639,16 +706,20 @@ def tableZ():
         tot, lo, hi = NS.joint_ci([list(v)])
         return "%+d [%+d, %+d]" % (tot, lo, hi)
 
-    A = load_all()
-    print("# selfjudge stage one, rule Z (work queue 2026-11-22_queue_e, '1 supplement', 17:16), Llama-3.1-8B and Qwen3.5-9B")
+    models = tuple(models)
+    A = load_all(models)
+    if models == ORDER:
+        print("# selfjudge stage one, rule Z (work queue 2026-11-22_queue_e, '1 supplement', 17:16), Llama-3.1-8B and Qwen3.5-9B")
+    else:
+        print("# selfjudge stage one, rule Z (work queue 2026-11-22_queue_e, '1 supplement', 17:16; 1d), models: %s" % ", ".join(models))
     print("# rule Z: 'other'-class answer judged false when margin < 0; negated-premise openings exempt (NEG_RE of selfjudge_probe.py)")
     print("# P' thresholds (no write, E source, TruthfulQA tune; for the P' version): " + " | ".join(
-        "%s %s" % (m, ft(choose(A[m]["tune_rows"]["baseline"])[1][0])) for m in ORDER))
-    for m in ORDER:
+        "%s %s" % (m, ft(choose(A[m]["tune_rows"]["baseline"])[1][0])) for m in models))
+    for m in models:
         print("# D confidence %s: %s" % (m, A[m]["d_info"]))
     # references (rule Z, no write)
     ok = True
-    for m in ORDER:
+    for m in models:
         ids, tq, _ = A[m]["tq"]
         c, _ = computeZ(ids, tq["baseline"], 0.0, 0.0, True)
         if any(c[q]["ref"] is None or c[q]["S2-(S1+fill)"] is None for q in ids):
@@ -671,10 +742,13 @@ def tableZ():
                 ("rule Z without the negated-premise exemption, no write", "baseline", lambda m: (0.0, 0.0), False, True),
                 ("rule P', no write (no must-answer + E threshold)", "baseline",
                  lambda m: (choose(A[m]["tune_rows"]["baseline"])[1][0], None), True, True)]
+    if any(SP.MODELS[m]["das"] is None for m in models):
+        versions = [v for v in versions if v[1] == "baseline"]
+        print("# a model without a true/false E is in the list: the written version is left out")
     for title, cond, th, exempt, short in versions:
         print("=" * 100)
         print("SELF-JUDGEMENT %s" % title)
-        for m in ORDER:
+        for m in models:
             tE, tF = th(m)
             ids, tq, (layer, s, n1cfg) = A[m]["tq"]
             print(" %s (E-source t=%s, strong-arm t=%s) TruthfulQA test, E L%d strength %s, N1 %s" % (
@@ -685,38 +759,53 @@ def tableZ():
             for lab, sub in (("(QA)^2 470 held out", [q for q in qids if not qq[cond][q]["pilot"]]), ("(QA)^2 570", qids)):
                 c, sm = computeZ(sub, qq[cond], tE, tF, exempt)
                 showZ(lab, sub, c, sm, ci_qq, short)
-        print(" two models together:")
-        common = sorted(set(A[ORDER[0]]["tq"][0]) & set(A[ORDER[1]]["tq"][0]))
-        cs = {m: computeZ(common, A[m]["tq"][1][cond], th(m)[0], th(m)[1], exempt) for m in ORDER}
-        keys = [k for k in cs[ORDER[0]][1]["keys"] if k in cs[ORDER[1]][1]["keys"]]
+        if len(models) < 2:
+            continue
+        print(" two models together:" if len(models) == 2 else " %d models together:" % len(models))
+        common = sorted(set.intersection(*(set(A[m]["tq"][0]) for m in models)))
+        cs = {m: computeZ(common, A[m]["tq"][1][cond], th(m)[0], th(m)[1], exempt) for m in models}
+        keys = [k for k in cs[models[0]][1]["keys"] if all(k in cs[m][1]["keys"] for m in models)]
+        tq_line = {k: (None if any(cs[m][0][common[0]][k] is None for m in models)
+                       else ci_tq([sum(cs[m][0][q][k] for m in models) for q in common])) for k in keys}
         print("  TruthfulQA test, %d common questions: " % len(common) + " | ".join(
-            "%s %s" % (k, "not comparable" if any(cs[m][0][common[0]][k] is None for m in ORDER)
-                       else ci_tq([sum(cs[m][0][q][k] for m in ORDER) for q in common])) for k in keys))
-        qids = A[ORDER[0]]["qq"][0]
-        if qids != A[ORDER[1]]["qq"][0]:
+            "%s %s" % (k, "not comparable" if tq_line[k] is None else tq_line[k]) for k in keys))
+        qids = A[models[0]]["qq"][0]
+        if any(qids != A[m]["qq"][0] for m in models):
             raise SystemExit("(QA)^2 lists differ")
-        for lab, sub in (("470 held out", [q for q in qids if not A[ORDER[0]]["qq"][1][cond][q]["pilot"]]), ("570", qids)):
-            cs = {m: computeZ(sub, A[m]["qq"][1][cond], th(m)[0], th(m)[1], exempt) for m in ORDER}
-            keys = [k for k in cs[ORDER[0]][1]["keys"] if k in cs[ORDER[1]][1]["keys"]]
-            line = []
+        for lab, sub in (("470 held out", [q for q in qids if not A[models[0]]["qq"][1][cond][q]["pilot"]]), ("570", qids)):
+            cs = {m: computeZ(sub, A[m]["qq"][1][cond], th(m)[0], th(m)[1], exempt) for m in models}
+            keys = [k for k in cs[models[0]][1]["keys"] if all(k in cs[m][1]["keys"] for m in models)]
+            line, pts = [], {}
             for k in keys:
-                if any(cs[m][0][sub[0]][k] is None for m in ORDER):
+                if any(cs[m][0][sub[0]][k] is None for m in models):
                     line.append("%s not comparable" % k)
                 else:
-                    tot, lo, hi = NS.joint_ci([[cs[m][0][q][k] for q in sub] for m in ORDER])
+                    tot, lo, hi = NS.joint_ci([[cs[m][0][q][k] for q in sub] for m in models])
+                    pts[k] = tot
                     line.append("%s %+d [%+d, %+d]" % (k, tot, lo, hi))
             print("  (QA)^2 %s, %d questions: %s" % (lab, len(sub), " | ".join(line)))
+            if len(models) == 5 and cond == "baseline" and exempt and lab.startswith("470") and title.endswith("(MAIN)"):
+                got5 = (tq_line["ref"], tq_line["S2-(S1+fill)"], pts.get("ref"), pts.get("S2-(S1+fill)"))
+                want5 = (EXPECT5["tq_ref"], EXPECT5["tq_fill"], EXPECT5["qq_ref"], EXPECT5["qq_fill"])
+                print("  # five-model references (no self-judge): N1 - strong TruthfulQA %s, (QA)^2 470 %+d; N1 - two-pass single E "
+                      "TruthfulQA %s, (QA)^2 470 %+d (expected %s, %+d, %s, %+d)" % (got5[0], got5[2], got5[1], got5[3],
+                                                                                   want5[0], want5[2], want5[1], want5[3]))
+                if got5 != want5:
+                    raise SystemExit("FIVE-MODEL REFERENCE MISMATCH")
 
 
 def main():
-    if len(sys.argv) == 3 and sys.argv[1] in ("export-tq", "export-qq") and sys.argv[2] in ORDER:
-        (export_tq if sys.argv[1] == "export-tq" else export_qq)(sys.argv[2])
+    ex = {"export-tq": export_tq, "export-qq": export_qq, "export-tq-orig": export_tq_orig, "export-qq-orig": export_qq_orig}
+    if len(sys.argv) == 3 and sys.argv[1] in ex and sys.argv[2] in SP.MODELS:
+        ex[sys.argv[1]](sys.argv[2])
+    elif len(sys.argv) > 2 and sys.argv[1] == "tableZ" and all(m in SP.MODELS for m in sys.argv[2:]):
+        tableZ(sys.argv[2:])
     elif sys.argv[1:] == ["table"]:
         table()
     elif sys.argv[1:] == ["tableZ"]:
         tableZ()
     else:
-        raise SystemExit("usage: selfjudge_stage1.py export-tq MODEL | export-qq MODEL | table | tableZ")
+        raise SystemExit("usage: selfjudge_stage1.py export-tq|export-qq|export-tq-orig|export-qq-orig MODEL | table | tableZ [MODEL ...]")
 
 
 if __name__ == "__main__":

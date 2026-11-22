@@ -1,0 +1,189 @@
+# Gemma-3-12B config check (64 E45 test statements, no write; code-copy config vs our copy Iteration_01/newsets/selfjudge/_configs/gemma3-12b.json):
+#   statements 64 same ids True same label map True config sha256 orig / copy ddf654d812780b6b37c614190849f13598d8b44353d2a4681b3cee2acb51c5e0 ddf654d812780b6b37c614190849f13598d8b44353d2a4681b3cee2acb51c5e0 max |margin diff| 0.0 identical True
+# g27 main probe: no-write check on the 192 estimation statements (true 96, false 96): right by margin sign 149, right by three-way choice 148, choices True/False/Unknown 85/106/1, AUROC of margin 0.8983
+# g12 main probe: no-write check on the 192 estimation statements (true 96, false 96): right by margin sign 149, right by three-way choice 146, choices True/False/Unknown 89/100/3, AUROC of margin 0.8792
+
+# selfjudge stage one, rule Z (work queue 2026-11-22_queue_e, '1 supplement', 17:16; 1d), models: llama3.1-8b, qwen3.5-9b, qwen3.8-27b, gemma3-12b, gemma3-27b
+# rule Z: 'other'-class answer judged false when margin < 0; negated-premise openings exempt (NEG_RE of selfjudge_probe.py)
+# P' thresholds (no write, E source, TruthfulQA tune; for the P' version): llama3.1-8b +0.2500 | qwen3.5-9b +0.3746 | qwen3.8-27b -4.3748 | gemma3-12b -10.0000 | gemma3-27b +14.2500
+# D confidence llama3.1-8b: x--E16-w-p3-5-at-prompt.json ({'greedy_reproduction': {'tokens': 4300, 'same': 4271, 'rate': 0.9932558139534884}, 'scoring_batch_size': 8})
+# D confidence qwen3.5-9b: x--E15-w-p2-at-prompt.json ({'greedy_reproduction': {'tokens': 3525, 'same': 3498, 'rate': 0.9923404255319149}, 'scoring_batch_size': 8})
+# D confidence qwen3.8-27b: no file x--E28-w-p1-75-at-prompt.json
+# D confidence gemma3-12b: no file x--E24-w-p2-5-at-prompt.json
+# D confidence gemma3-27b: no file x--E28-w-p1-at-prompt.json
+# reference llama3.1-8b: N1 - strong TruthfulQA +51 [+17, +87] (expected +51 [+17, +87]) | rule Z: S2 - (S1 first pass + fill) TruthfulQA +21 [-4, +46] (expected +21 [-4, +46]) | (QA)^2 470 N1 - strong +23 (expected +23)
+# reference qwen3.5-9b: N1 - strong TruthfulQA +13 [-11, +37] (expected +13 [-11, +37]) | rule Z: S2 - (S1 first pass + fill) TruthfulQA +14 [+2, +26] (expected +14 [+2, +26]) | (QA)^2 470 N1 - strong +22 (expected +22)
+# reference qwen3.8-27b: N1 - strong TruthfulQA +18 [-8, +45] (expected +18 [-8, +45]) | rule Z: S2 - (S1 first pass + fill) TruthfulQA +14 [-6, +34] (expected +14 [-6, +34]) | (QA)^2 470 N1 - strong -23 (expected -23)
+# reference gemma3-12b: N1 - strong TruthfulQA -6 [-37, +24] (expected -6 [-37, +24]) | rule Z: S2 - (S1 first pass + fill) TruthfulQA -3 [-27, +20] (expected -3 [-27, +20]) | (QA)^2 470 N1 - strong +23 (expected +23)
+# reference gemma3-27b: N1 - strong TruthfulQA +52 [+22, +82] (expected +52 [+22, +82]) | rule Z: S2 - (S1 first pass + fill) TruthfulQA +16 [+1, +31] (expected +16 [+1, +31]) | (QA)^2 470 N1 - strong -3 (expected -3)
+# references reproduced
+# a model without a true/false E is in the list: the written version is left out
+====================================================================================================
+SELF-JUDGEMENT rule Z, no write (MAIN)
+ llama3.1-8b (E-source t=+0.0000, strong-arm t=+0.0000) TruthfulQA test, E L16 strength 3-5, N1 ('N1', '3-5', '1', '2')
+  TruthfulQA test: 523 questions | E answers judged false 56 (right 24, wrong 31, other 1) | released 157 (right 81, wrong 59, other 17), judged false 29 (right 5, wrong 22, other 2) | strong answers judged false 114 (right 28, wrong 83, other 3)
+    answers: E 319, N1 476, S1 263, S2 420, S3 391 (for available opponents, counts match their comparator); strong answers with confidence 521
+    nets: E +40, N1 +62, S1 +47, S2 +69, S3 +86
+    opponents: B(S1) +28 | B+(S1) +64 (added back 0) | B(S2) +27 | B+(S2) +58 (added back 13) | B(S3) +31 | B+(S3) +69 (added back 0) | B(N1) +11 | C3 +65
+    S1-B +19 [-14, +50] | S2-B2 +42 [+7, +78] | S3-B3 +55 [+18, +92] | S1-B+ -17 [-48, +11] | S2-B+ +11 [-23, +45] | S3-B+ +17 [-14, +49] | S3-C3 +21 [-1, +43] | S3-S2 +17 [+7, +27] | ref +51 [+17, +87] | S2-(S1+fill) +21 [-4, +46]
+  (QA)^2 470 held out: 470 questions | E answers judged false 76 (right 21, wrong 55, other 0) | released 61 (right 39, wrong 19, other 3), judged false 22 (right 12, wrong 9, other 1) | strong answers judged false 187 (right 61, wrong 125, other 1)
+    answers: E 235, N1 296, S1 159, S2 220, S3 198 (for available opponents, counts match their comparator); strong answers with confidence 464
+    nets: E +17, N1 +37, S1 +51, S2 +71, S3 +68
+    opponents: B(S1) +21 | B+(S1) +44 (added back 0) | B(S2) +16 | B+(S2) +44 (added back 0) | B(S3) +16 | B+(S3) +43 (added back 0) | B(N1) +14 | C3 +62 | D_all +32 | D_other +40
+    S1-B +30 [+1, +59] | S2-B2 +55 [+25, +87] | S3-B3 +52 [+22, +84] | S1-B+ +7 [-19, +34] | S2-B+ +27 [+1, +55] | S3-B+ +25 [+0, +52] | S3-C3 +6 [-8, +21] | S3-S2 -3 [-12, +6] | ref +23 [-8, +57] | S1-D_all +19 [+0, +38] | S1-D_other +11 [-6, +28] | S2-(S1+fill) +12 [-5, +30]
+  (QA)^2 570: 570 questions | E answers judged false 95 (right 26, wrong 69, other 0) | released 68 (right 44, wrong 21, other 3), judged false 25 (right 13, wrong 11, other 1) | strong answers judged false 226 (right 74, wrong 150, other 2)
+    answers: E 292, N1 360, S1 197, S2 265, S3 240 (for available opponents, counts match their comparator); strong answers with confidence 564
+    nets: E +30, N1 +53, S1 +73, S2 +96, S3 +94
+    opponents: B(S1) +34 | B+(S1) +57 (added back 0) | B(S2) +27 | B+(S2) +59 (added back 0) | B(S3) +27 | B+(S3) +63 (added back 0) | B(N1) +27 | C3 +87 | D_all +54 | D_other +60
+    S1-B +39 [+7, +70] | S2-B2 +69 [+33, +102] | S3-B3 +67 [+32, +100] | S1-B+ +16 [-14, +44] | S2-B+ +37 [+5, +67] | S3-B+ +31 [+1, +59] | S3-C3 +7 [-8, +22] | S3-S2 -2 [-12, +8] | ref +26 [-12, +61] | S1-D_all +19 [-2, +39] | S1-D_other +13 [-6, +32] | S2-(S1+fill) +14 [-6, +33]
+ qwen3.5-9b (E-source t=+0.0000, strong-arm t=+0.0000) TruthfulQA test, E L15 strength 2, N1 ('N1', '2', '0-25', '0-5')
+  TruthfulQA test: 523 questions | E answers judged false 20 (right 5, wrong 15, other 0) | released 36 (right 26, wrong 7, other 3), judged false 1 (right 1, wrong 0, other 0) | strong answers judged false 39 (right 7, wrong 32, other 0)
+    answers: E 408, N1 444, S1 388, S2 424, S3 423 (for available opponents, counts match their comparator); strong answers with confidence 518
+    nets: E +168, N1 +186, S1 +178, S2 +196, S3 +195
+    opponents: B(S1) +173 | B+(S1) +181 (added back 0) | B(S2) +169 | B+(S2) +187 (added back 0) | B(S3) +170 | B+(S3) +186 (added back 0) | B(N1) +173 | C3 +183
+    S1-B +5 [-20, +30] | S2-B2 +27 [+1, +51] | S3-B3 +25 [-1, +50] | S1-B+ -3 [-26, +19] | S2-B+ +9 [-14, +31] | S3-B+ +9 [-14, +31] | S3-C3 +12 [+1, +23] | S3-S2 -1 [-3, +0] | ref +13 [-11, +37] | S2-(S1+fill) +14 [+2, +26]
+  (QA)^2 470 held out: 470 questions | E answers judged false 25 (right 7, wrong 18, other 0) | released 86 (right 31, wrong 50, other 5), judged false 11 (right 2, wrong 9, other 0) | strong answers judged false 37 (right 9, wrong 28, other 0)
+    answers: E 353, N1 439, S1 328, S2 414, S3 403 (for available opponents, counts match their comparator); strong answers with confidence 467
+    nets: E +63, N1 +44, S1 +74, S2 +55, S3 +62
+    opponents: B(S1) +72 | B+(S1) +76 (added back 0) | B(S2) +39 | B+(S2) +33 (added back 0) | B(S3) +42 | B+(S3) +41 (added back 0) | B(N1) +22 | C3 +70 | D_all +76 | D_other +76
+    S1-B +2 [-26, +29] | S2-B2 +16 [-13, +44] | S3-B3 +20 [-8, +48] | S1-B+ -2 [-28, +24] | S2-B+ +22 [-6, +49] | S3-B+ +21 [-5, +46] | S3-C3 -8 [-22, +6] | S3-S2 +7 [+1, +13] | ref +22 [-6, +49] | S1-D_all -2 [-15, +10] | S1-D_other -2 [-15, +11] | S2-(S1+fill) -8 [-23, +7]
+  (QA)^2 570: 570 questions | E answers judged false 30 (right 7, wrong 23, other 0) | released 102 (right 41, wrong 55, other 6), judged false 11 (right 2, wrong 9, other 0) | strong answers judged false 44 (right 10, wrong 34, other 0)
+    answers: E 432, N1 534, S1 402, S2 504, S3 493 (for available opponents, counts match their comparator); strong answers with confidence 567
+    nets: E +68, N1 +54, S1 +84, S2 +70, S3 +77
+    opponents: B(S1) +86 | B+(S1) +96 (added back 0) | B(S2) +53 | B+(S2) +51 (added back 0) | B(S3) +58 | B+(S3) +60 (added back 0) | B(N1) +37 | C3 +82 | D_all +84 | D_other +86
+    S1-B -2 [-33, +29] | S2-B2 +17 [-13, +47] | S3-B3 +19 [-11, +50] | S1-B+ -12 [-42, +18] | S2-B+ +19 [-9, +47] | S3-B+ +17 [-11, +44] | S3-C3 -5 [-20, +10] | S3-S2 +7 [+1, +14] | ref +17 [-12, +46] | S1-D_all +0 [-13, +14] | S1-D_other -2 [-15, +11] | S2-(S1+fill) -5 [-21, +11]
+ qwen3.8-27b (E-source t=+0.0000, strong-arm t=+0.0000) TruthfulQA test, E L28 strength 1-75, N1 ('N1', '1-75', '0-5', '1')
+  TruthfulQA test: 521 questions | E answers judged false 59 (right 24, wrong 35, other 0) | released 136 (right 79, wrong 46, other 11), judged false 33 (right 8, wrong 23, other 2) | strong answers judged false 96 (right 25, wrong 69, other 2)
+    answers: E 354, N1 490, S1 295, S2 431, S3 398 (for available opponents, counts match their comparator); strong answers with confidence 518
+    nets: E +142, N1 +175, S1 +153, S2 +186, S3 +201
+    opponents: B(S1) +134 | B+(S1) +163 (added back 0) | B(S2) +153 | B+(S2) +202 (added back 9) | B(S3) +155 | B+(S3) +194 (added back 0) | B(N1) +157 | C3 +187
+    S1-B +19 [-8, +46] | S2-B2 +33 [+5, +61] | S3-B3 +46 [+18, +74] | S1-B+ -10 [-33, +13] | S2-B+ -16 [-40, +9] | S3-B+ +7 [-16, +30] | S3-C3 +14 [-3, +31] | S3-S2 +15 [+4, +26] | ref +18 [-8, +45] | S2-(S1+fill) +14 [-6, +34]
+  (QA)^2 470 held out: 470 questions | E answers judged false 97 (right 34, wrong 63, other 0) | released 79 (right 40, wrong 38, other 1), judged false 33 (right 11, wrong 21, other 1) | strong answers judged false 140 (right 48, wrong 92, other 0)
+    answers: E 338, N1 417, S1 241, S2 320, S3 287 (for available opponents, counts match their comparator); strong answers with confidence 470
+    nets: E +63, N1 +65, S1 +92, S2 +94, S3 +104
+    opponents: B(S1) +103 | B+(S1) +121 (added back 0) | B(S2) +108 | B+(S2) +108 (added back 0) | B(S3) +113 | B+(S3) +116 (added back 0) | B(N1) +88 | C3 +104
+    S1-B -11 [-38, +16] | S2-B2 -14 [-42, +15] | S3-B3 -9 [-36, +19] | S1-B+ -29 [-52, -6] | S2-B+ -14 [-39, +10] | S3-B+ -12 [-35, +12] | S3-C3 +0 [-13, +14] | S3-S2 +10 [-1, +21] | ref -23 [-50, +4] | S2-(S1+fill) -1 [-17, +15]
+  (QA)^2 570: 570 questions | E answers judged false 119 (right 43, wrong 76, other 0) | released 97 (right 50, wrong 46, other 1), judged false 38 (right 13, wrong 24, other 1) | strong answers judged false 168 (right 59, wrong 109, other 0)
+    answers: E 412, N1 509, S1 293, S2 390, S3 352 (for available opponents, counts match their comparator); strong answers with confidence 570
+    nets: E +80, N1 +84, S1 +113, S2 +117, S3 +128
+    opponents: B(S1) +125 | B+(S1) +149 (added back 0) | B(S2) +130 | B+(S2) +136 (added back 0) | B(S3) +134 | B+(S3) +145 (added back 0) | B(N1) +110 | C3 +130
+    S1-B -12 [-43, +18] | S2-B2 -13 [-45, +19] | S3-B3 -6 [-37, +27] | S1-B+ -36 [-62, -10] | S2-B+ -19 [-46, +10] | S3-B+ -17 [-43, +9] | S3-C3 -2 [-18, +13] | S3-S2 +11 [-1, +23] | ref -26 [-56, +4] | S2-(S1+fill) -1 [-21, +18]
+ gemma3-12b (E-source t=+0.0000, strong-arm t=+0.0000) TruthfulQA test, E L24 strength 2-5, N1 ('N1', '2-5', '2', '2')
+  TruthfulQA test: 522 questions | E answers judged false 26 (right 5, wrong 20, other 1) | released 166 (right 101, wrong 46, other 19), judged false 21 (right 2, wrong 16, other 3) | strong answers judged false 42 (right 10, wrong 30, other 2)
+    answers: E 323, N1 489, S1 297, S2 463, S3 442 (for available opponents, counts match their comparator); strong answers with confidence 520
+    nets: E +103, N1 +158, S1 +118, S2 +173, S3 +187
+    opponents: B(S1) +143 | B+(S1) +151 (added back 0) | B(S2) +162 | B+(S2) +190 (added back 0) | B(S3) +156 | B+(S3) +181 (added back 0) | B(N1) +164 | C3 +175
+    S1-B -25 [-53, +2] | S2-B2 +11 [-19, +40] | S3-B3 +31 [+2, +59] | S1-B+ -33 [-60, -6] | S2-B+ -17 [-47, +12] | S3-B+ +6 [-22, +34] | S3-C3 +12 [-8, +32] | S3-S2 +14 [+6, +23] | ref -6 [-37, +24] | S2-(S1+fill) -3 [-27, +20]
+  (QA)^2 470 held out: 470 questions | E answers judged false 39 (right 19, wrong 20, other 0) | released 152 (right 71, wrong 67, other 14), judged false 17 (right 3, wrong 14, other 0) | strong answers judged false 39 (right 14, wrong 25, other 0)
+    answers: E 295, N1 447, S1 256, S2 408, S3 391 (for available opponents, counts match their comparator); strong answers with confidence 470
+    nets: E +65, N1 +69, S1 +66, S2 +70, S3 +81
+    opponents: B(S1) +53 | B+(S1) +57 (added back 0) | B(S2) +51 | B+(S2) +55 (added back 0) | B(S3) +48 | B+(S3) +53 (added back 0) | B(N1) +46 | C3 +62
+    S1-B +13 [-15, +41] | S2-B2 +19 [-6, +45] | S3-B3 +33 [+7, +59] | S1-B+ +9 [-19, +37] | S2-B+ +15 [-11, +41] | S3-B+ +28 [+3, +53] | S3-C3 +19 [+4, +35] | S3-S2 +11 [+3, +19] | ref +23 [-4, +49] | S2-(S1+fill) +15 [-1, +32]
+  (QA)^2 570: 570 questions | E answers judged false 51 (right 24, wrong 27, other 0) | released 177 (right 85, wrong 75, other 17), judged false 18 (right 3, wrong 15, other 0) | strong answers judged false 48 (right 16, wrong 32, other 0)
+    answers: E 362, N1 539, S1 311, S2 488, S3 470 (for available opponents, counts match their comparator); strong answers with confidence 570
+    nets: E +83, N1 +93, S1 +86, S2 +96, S3 +108
+    opponents: B(S1) +73 | B+(S1) +78 (added back 0) | B(S2) +70 | B+(S2) +73 (added back 0) | B(S3) +71 | B+(S3) +74 (added back 0) | B(N1) +61 | C3 +87
+    S1-B +13 [-17, +44] | S2-B2 +26 [-2, +55] | S3-B3 +37 [+10, +65] | S1-B+ +8 [-22, +38] | S2-B+ +23 [-6, +52] | S3-B+ +34 [+7, +61] | S3-C3 +21 [+4, +38] | S3-S2 +12 [+4, +21] | ref +32 [+3, +60] | S2-(S1+fill) +20 [+2, +39]
+ gemma3-27b (E-source t=+0.0000, strong-arm t=+0.0000) TruthfulQA test, E L28 strength 1, N1 ('N1', '1', '1', '2')
+  TruthfulQA test: 523 questions | E answers judged false 63 (right 22, wrong 39, other 2) | released 87 (right 60, wrong 21, other 6), judged false 9 (right 1, wrong 7, other 1) | strong answers judged false 93 (right 23, wrong 69, other 1)
+    answers: E 423, N1 510, S1 360, S2 447, S3 438 (for available opponents, counts match their comparator); strong answers with confidence 520
+    nets: E +105, N1 +144, S1 +122, S2 +161, S3 +167
+    opponents: B(S1) +66 | B+(S1) +121 (added back 0) | B(S2) +81 | B+(S2) +129 (added back 20) | B(S3) +79 | B+(S3) +134 (added back 11) | B(N1) +92 | C3 +162
+    S1-B +56 [+22, +89] | S2-B2 +80 [+47, +112] | S3-B3 +88 [+55, +120] | S1-B+ +1 [-29, +30] | S2-B+ +32 [+3, +60] | S3-B+ +33 [+5, +60] | S3-C3 +5 [-9, +19] | S3-S2 +6 [+1, +12] | ref +52 [+22, +82] | S2-(S1+fill) +16 [+1, +31]
+  (QA)^2 470 held out: 470 questions | E answers judged false 87 (right 20, wrong 66, other 1) | released 17 (right 8, wrong 9, other 0), judged false 5 (right 1, wrong 4, other 0) | strong answers judged false 113 (right 29, wrong 84, other 0)
+    answers: E 411, N1 428, S1 324, S2 341, S3 336 (for available opponents, counts match their comparator); strong answers with confidence 470
+    nets: E +40, N1 +39, S1 +86, S2 +85, S3 +88
+    opponents: B(S1) +37 | B+(S1) +86 (added back 0) | B(S2) +36 | B+(S2) +82 (added back 0) | B(S3) +37 | B+(S3) +84 (added back 0) | B(N1) +42 | C3 +86
+    S1-B +49 [+20, +79] | S2-B2 +49 [+19, +79] | S3-B3 +51 [+21, +81] | S1-B+ +0 [-26, +26] | S2-B+ +3 [-22, +28] | S3-B+ +4 [-22, +30] | S3-C3 +2 [-6, +10] | S3-S2 +3 [-1, +8] | ref -3 [-31, +25] | S2-(S1+fill) +0 [-10, +10]
+  (QA)^2 570: 570 questions | E answers judged false 102 (right 22, wrong 79, other 1) | released 23 (right 12, wrong 10, other 1), judged false 5 (right 1, wrong 4, other 0) | strong answers judged false 133 (right 32, wrong 101, other 0)
+    answers: E 500, N1 523, S1 398, S2 421, S3 416 (for available opponents, counts match their comparator); strong answers with confidence 570
+    nets: E +48, N1 +50, S1 +105, S2 +107, S3 +110
+    opponents: B(S1) +39 | B+(S1) +103 (added back 0) | B(S2) +42 | B+(S2) +100 (added back 0) | B(S3) +41 | B+(S3) +101 (added back 0) | B(N1) +49 | C3 +105
+    S1-B +66 [+34, +98] | S2-B2 +65 [+34, +97] | S3-B3 +69 [+37, +101] | S1-B+ +2 [-25, +30] | S2-B+ +7 [-20, +35] | S3-B+ +9 [-18, +37] | S3-C3 +5 [-5, +15] | S3-S2 +3 [-1, +8] | ref +1 [-28, +31] | S2-(S1+fill) +3 [-8, +15]
+ 5 models together:
+  TruthfulQA test, 520 common questions: S1-B +75 [+4, +145] | S2-B2 +195 [+121, +267] | S3-B3 +247 [+174, +320] | S1-B+ -65 [-131, +1] | S2-B+ +21 [-41, +85] | S3-B+ +73 [+14, +135] | S3-C3 +64 [+25, +105] | S3-S2 +50 [+32, +69] | ref +128 [+58, +197] | S2-(S1+fill) +64 [+16, +110]
+  (QA)^2 470 held out, 470 questions: S1-B +83 [+17, +149] | S2-B2 +125 [+60, +188] | S3-B3 +147 [+84, +210] | S1-B+ -15 [-79, +47] | S2-B+ +53 [-7, +113] | S3-B+ +66 [+7, +125] | S3-C3 +19 [-10, +49] | S3-S2 +28 [+9, +48] | ref +42 [-23, +107] | S2-(S1+fill) +18 [-16, +55]
+  # five-model references (no self-judge): N1 - strong TruthfulQA +128 [+58, +197], (QA)^2 470 +42; N1 - two-pass single E TruthfulQA +64 [+16, +110], (QA)^2 470 +18 (expected +128 [+58, +197], +42, +64 [+16, +110], +18)
+  (QA)^2 570, 570 questions: S1-B +104 [+31, +177] | S2-B2 +164 [+93, +235] | S3-B3 +186 [+116, +254] | S1-B+ -22 [-90, +45] | S2-B+ +67 [+3, +134] | S3-B+ +74 [+12, +137] | S3-C3 +26 [-7, +58] | S3-S2 +31 [+10, +52] | ref +50 [-20, +119] | S2-(S1+fill) +31 [-8, +70]
+====================================================================================================
+SELF-JUDGEMENT rule Z without the negated-premise exemption, no write
+ llama3.1-8b (E-source t=+0.0000, strong-arm t=+0.0000) TruthfulQA test, E L16 strength 3-5, N1 ('N1', '3-5', '1', '2')
+  TruthfulQA test: 523 questions | E answers judged false 121 (right 56, wrong 62, other 3) | released 157 (right 81, wrong 59, other 17), judged false 69 (right 21, wrong 40, other 8) | strong answers judged false 234 (right 88, wrong 139, other 7)
+    S1-B +15 [-14, +43] | S2-B2 +27 [-8, +65] | S3-B3 +56 [+24, +89] | S1-B+ -7 [-32, +17] | S2-B+ +15 [-18, +48] | S3-B+ +24 [-2, +50] | S3-C3 +20 [+3, +38] | S3-S2 +19 [+4, +35] | ref +51 [+17, +87] | S2-(S1+fill) +21 [-4, +46]
+  (QA)^2 470 held out: 470 questions | E answers judged false 86 (right 27, wrong 59, other 0) | released 61 (right 39, wrong 19, other 3), judged false 24 (right 12, wrong 11, other 1) | strong answers judged false 236 (right 82, wrong 150, other 4)
+    S1-B +24 [-4, +51] | S2-B2 +53 [+23, +84] | S3-B3 +46 [+18, +77] | S1-B+ +7 [-18, +33] | S2-B+ +30 [+5, +56] | S3-B+ +29 [+5, +54] | S3-C3 +8 [-6, +22] | S3-S2 -1 [-10, +8] | ref +23 [-8, +57] | S1-D_all +13 [-5, +31] | S1-D_other +5 [-14, +24] | S2-(S1+fill) +12 [-5, +30]
+  (QA)^2 570: 570 questions | E answers judged false 110 (right 34, wrong 76, other 0) | released 68 (right 44, wrong 21, other 3), judged false 27 (right 13, wrong 13, other 1) | strong answers judged false 290 (right 101, wrong 183, other 6)
+    S1-B +32 [+1, +61] | S2-B2 +70 [+35, +102] | S3-B3 +61 [+28, +93] | S1-B+ +16 [-13, +44] | S2-B+ +42 [+12, +71] | S3-B+ +39 [+11, +66] | S3-C3 +11 [-4, +26] | S3-S2 +0 [-10, +10] | ref +26 [-12, +61] | S1-D_all +19 [+0, +38] | S1-D_other +13 [-8, +34] | S2-(S1+fill) +14 [-6, +33]
+ qwen3.5-9b (E-source t=+0.0000, strong-arm t=+0.0000) TruthfulQA test, E L15 strength 2, N1 ('N1', '2', '0-25', '0-5')
+  TruthfulQA test: 523 questions | E answers judged false 67 (right 43, wrong 24, other 0) | released 36 (right 26, wrong 7, other 3), judged false 7 (right 3, wrong 1, other 3) | strong answers judged false 102 (right 52, wrong 47, other 3)
+    S1-B -1 [-28, +26] | S2-B2 +0 [-26, +27] | S3-B3 -1 [-28, +25] | S1-B+ -15 [-37, +7] | S2-B+ +3 [-19, +25] | S3-B+ +6 [-16, +27] | S3-C3 +11 [+0, +22] | S3-S2 -2 [-6, +2] | ref +13 [-11, +37] | S2-(S1+fill) +14 [+2, +26]
+  (QA)^2 470 held out: 470 questions | E answers judged false 29 (right 7, wrong 22, other 0) | released 86 (right 31, wrong 50, other 5), judged false 19 (right 4, wrong 13, other 2) | strong answers judged false 52 (right 11, wrong 39, other 2)
+    S1-B +6 [-22, +33] | S2-B2 +18 [-10, +46] | S3-B3 +20 [-7, +47] | S1-B+ -5 [-31, +21] | S2-B+ +23 [-4, +50] | S3-B+ +20 [-7, +45] | S3-C3 -9 [-23, +4] | S3-S2 +9 [+1, +17] | ref +22 [-6, +49] | S1-D_all +2 [-11, +14] | S1-D_other +0 [-14, +13] | S2-(S1+fill) -8 [-23, +7]
+  (QA)^2 570: 570 questions | E answers judged false 36 (right 9, wrong 27, other 0) | released 102 (right 41, wrong 55, other 6), judged false 19 (right 4, wrong 13, other 2) | strong answers judged false 61 (right 14, wrong 45, other 2)
+    S1-B +4 [-27, +36] | S2-B2 +17 [-14, +47] | S3-B3 +19 [-11, +48] | S1-B+ -15 [-44, +14] | S2-B+ +20 [-9, +48] | S3-B+ +15 [-12, +42] | S3-C3 -4 [-18, +10] | S3-S2 +9 [+1, +17] | ref +17 [-12, +46] | S1-D_all +0 [-14, +14] | S1-D_other -4 [-19, +11] | S2-(S1+fill) -5 [-21, +11]
+ qwen3.8-27b (E-source t=+0.0000, strong-arm t=+0.0000) TruthfulQA test, E L28 strength 1-75, N1 ('N1', '1-75', '0-5', '1')
+  TruthfulQA test: 521 questions | E answers judged false 129 (right 78, wrong 51, other 0) | released 136 (right 79, wrong 46, other 11), judged false 78 (right 40, wrong 34, other 4) | strong answers judged false 218 (right 114, wrong 99, other 5)
+    S1-B +8 [-17, +34] | S2-B2 -2 [-32, +28] | S3-B3 +14 [-14, +43] | S1-B+ -7 [-26, +13] | S2-B+ -3 [-31, +26] | S3-B+ +4 [-16, +24] | S3-C3 +7 [-7, +21] | S3-S2 -6 [-24, +11] | ref +18 [-8, +45] | S2-(S1+fill) +14 [-6, +34]
+  (QA)^2 470 held out: 470 questions | E answers judged false 122 (right 46, wrong 76, other 0) | released 79 (right 40, wrong 38, other 1), judged false 43 (right 16, wrong 26, other 1) | strong answers judged false 205 (right 76, wrong 128, other 1)
+    S1-B -3 [-29, +24] | S2-B2 -16 [-45, +13] | S3-B3 +1 [-26, +28] | S1-B+ -31 [-53, -9] | S2-B+ -18 [-43, +6] | S3-B+ -16 [-37, +5] | S3-C3 -2 [-12, +9] | S3-S2 +10 [-2, +22] | ref -23 [-50, +4] | S2-(S1+fill) -1 [-17, +15]
+  (QA)^2 570: 570 questions | E answers judged false 152 (right 61, wrong 90, other 1) | released 97 (right 50, wrong 46, other 1), judged false 52 (right 20, wrong 31, other 1) | strong answers judged false 251 (right 99, wrong 151, other 1)
+    S1-B -3 [-32, +26] | S2-B2 -20 [-52, +13] | S3-B3 -5 [-34, +25] | S1-B+ -39 [-64, -14] | S2-B+ -18 [-46, +9] | S3-B+ -18 [-42, +6] | S3-C3 -4 [-17, +9] | S3-S2 +11 [-3, +25] | ref -26 [-56, +4] | S2-(S1+fill) -1 [-21, +18]
+ gemma3-12b (E-source t=+0.0000, strong-arm t=+0.0000) TruthfulQA test, E L24 strength 2-5, N1 ('N1', '2-5', '2', '2')
+  TruthfulQA test: 522 questions | E answers judged false 95 (right 51, wrong 43, other 1) | released 166 (right 101, wrong 46, other 19), judged false 63 (right 29, wrong 28, other 6) | strong answers judged false 183 (right 102, wrong 74, other 7)
+    S1-B -23 [-52, +6] | S2-B2 -1 [-33, +31] | S3-B3 +0 [-30, +32] | S1-B+ -24 [-46, -2] | S2-B+ -6 [-35, +23] | S3-B+ +7 [-16, +29] | S3-C3 +4 [-13, +21] | S3-S2 -1 [-15, +14] | ref -6 [-37, +24] | S2-(S1+fill) -3 [-27, +20]
+  (QA)^2 470 held out: 470 questions | E answers judged false 96 (right 43, wrong 51, other 2) | released 152 (right 71, wrong 67, other 14), judged false 52 (right 11, wrong 35, other 6) | strong answers judged false 194 (right 70, wrong 110, other 14)
+    S1-B +15 [-15, +43] | S2-B2 +23 [-6, +52] | S3-B3 +53 [+21, +83] | S1-B+ +2 [-21, +24] | S2-B+ -2 [-28, +24] | S3-B+ +24 [+2, +45] | S3-C3 not comparable | S3-S2 +24 [+11, +37] | ref +23 [-4, +49] | S2-(S1+fill) +15 [-1, +32]
+  (QA)^2 570: 570 questions | E answers judged false 118 (right 52, wrong 63, other 3) | released 177 (right 85, wrong 75, other 17), judged false 60 (right 15, wrong 39, other 6) | strong answers judged false 230 (right 84, wrong 131, other 15)
+    S1-B +17 [-13, +48] | S2-B2 +27 [-7, +59] | S3-B3 +56 [+22, +91] | S1-B+ +0 [-25, +24] | S2-B+ +7 [-22, +35] | S3-B+ +26 [+2, +49] | S3-C3 +23 [+7, +39] | S3-S2 +24 [+10, +38] | ref +32 [+3, +60] | S2-(S1+fill) +20 [+2, +39]
+ gemma3-27b (E-source t=+0.0000, strong-arm t=+0.0000) TruthfulQA test, E L28 strength 1, N1 ('N1', '1', '1', '2')
+  TruthfulQA test: 523 questions | E answers judged false 69 (right 27, wrong 40, other 2) | released 87 (right 60, wrong 21, other 6), judged false 17 (right 7, wrong 9, other 1) | strong answers judged false 117 (right 42, wrong 74, other 1)
+    S1-B +51 [+16, +85] | S2-B2 +77 [+44, +110] | S3-B3 +80 [+47, +113] | S1-B+ +2 [-27, +31] | S2-B+ +36 [+7, +64] | S3-B+ +39 [+11, +66] | S3-C3 not comparable | S3-S2 +2 [-6, +10] | ref +52 [+22, +82] | S2-(S1+fill) +16 [+1, +31]
+  (QA)^2 470 held out: 470 questions | E answers judged false 93 (right 23, wrong 69, other 1) | released 17 (right 8, wrong 9, other 0), judged false 5 (right 1, wrong 4, other 0) | strong answers judged false 127 (right 36, wrong 91, other 0)
+    S1-B +53 [+24, +83] | S2-B2 +47 [+17, +77] | S3-B3 +53 [+23, +83] | S1-B+ +2 [-23, +27] | S2-B+ +2 [-23, +27] | S3-B+ +6 [-19, +31] | S3-C3 +2 [-6, +10] | S3-S2 +3 [-1, +8] | ref -3 [-31, +25] | S2-(S1+fill) +0 [-10, +10]
+  (QA)^2 570: 570 questions | E answers judged false 108 (right 25, wrong 82, other 1) | released 23 (right 12, wrong 10, other 1), judged false 5 (right 1, wrong 4, other 0) | strong answers judged false 147 (right 39, wrong 108, other 0)
+    S1-B +66 [+34, +98] | S2-B2 +67 [+36, +99] | S3-B3 +69 [+37, +101] | S1-B+ +3 [-23, +30] | S2-B+ +5 [-20, +32] | S3-B+ +9 [-16, +36] | S3-C3 +5 [-5, +15] | S3-S2 +3 [-1, +8] | ref +1 [-28, +31] | S2-(S1+fill) +3 [-8, +15]
+ 5 models together:
+  TruthfulQA test, 520 common questions: S1-B +50 [-19, +122] | S2-B2 +107 [+30, +183] | S3-B3 +151 [+80, +226] | S1-B+ -48 [-106, +11] | S2-B+ +47 [-18, +112] | S3-B+ +79 [+25, +133] | S3-C3 not comparable | S3-S2 +11 [-21, +44] | ref +128 [+58, +197] | S2-(S1+fill) +64 [+16, +110]
+  (QA)^2 470 held out, 470 questions: S1-B +95 [+28, +161] | S2-B2 +125 [+57, +193] | S3-B3 +173 [+107, +241] | S1-B+ -25 [-85, +31] | S2-B+ +35 [-22, +93] | S3-B+ +63 [+9, +116] | S3-C3 not comparable | S3-S2 +45 [+21, +69] | ref +42 [-23, +107] | S2-(S1+fill) +18 [-16, +55]
+  (QA)^2 570, 570 questions: S1-B +116 [+41, +188] | S2-B2 +161 [+87, +233] | S3-B3 +200 [+127, +272] | S1-B+ -35 [-99, +29] | S2-B+ +56 [-4, +118] | S3-B+ +71 [+14, +128] | S3-C3 +31 [+0, +62] | S3-S2 +47 [+22, +73] | ref +50 [-20, +119] | S2-(S1+fill) +31 [-8, +70]
+====================================================================================================
+SELF-JUDGEMENT rule P', no write (no must-answer + E threshold)
+ llama3.1-8b (E-source t=+0.2500, strong-arm t=none) TruthfulQA test, E L16 strength 3-5, N1 ('N1', '3-5', '1', '2')
+  TruthfulQA test: 523 questions | E answers judged false 59 (right 25, wrong 33, other 1) | released 157 (right 81, wrong 59, other 17), judged false 29 (right 5, wrong 22, other 2) | strong answers judged false not judged
+    S1-B +18 [-15, +49] | S2-B2 +44 [+8, +80] | S3-B3 +55 [+18, +91] | S1-B+ not comparable | S2-B+ not comparable | S3-B+ not comparable | S3-C3 not comparable | S3-S2 +17 [+7, +27] | ref +51 [+17, +87] | S2-(S1+fill) +21 [-4, +46]
+  (QA)^2 470 held out: 470 questions | E answers judged false 82 (right 25, wrong 57, other 0) | released 61 (right 39, wrong 19, other 3), judged false 24 (right 13, wrong 10, other 1) | strong answers judged false not judged
+    S1-B +26 [-3, +54] | S2-B2 +53 [+23, +85] | S3-B3 +48 [+20, +78] | S1-B+ not comparable | S2-B+ not comparable | S3-B+ not comparable | S3-C3 not comparable | S3-S2 -3 [-12, +6] | ref +23 [-8, +57] | S1-D_all +15 [-4, +34] | S1-D_other +7 [-10, +24] | S2-(S1+fill) +12 [-5, +30]
+  (QA)^2 570: 570 questions | E answers judged false 101 (right 30, wrong 71, other 0) | released 68 (right 44, wrong 21, other 3), judged false 27 (right 14, wrong 12, other 1) | strong answers judged false not judged
+    S1-B +33 [+2, +63] | S2-B2 +67 [+32, +99] | S3-B3 +63 [+29, +95] | S1-B+ not comparable | S2-B+ not comparable | S3-B+ not comparable | S3-C3 not comparable | S3-S2 -2 [-12, +8] | ref +26 [-12, +61] | S1-D_all +21 [+0, +41] | S1-D_other +11 [-8, +29] | S2-(S1+fill) +14 [-6, +33]
+ qwen3.5-9b (E-source t=+0.3746, strong-arm t=none) TruthfulQA test, E L15 strength 2, N1 ('N1', '2', '0-25', '0-5')
+  TruthfulQA test: 523 questions | E answers judged false 30 (right 7, wrong 23, other 0) | released 36 (right 26, wrong 7, other 3), judged false 1 (right 1, wrong 0, other 0) | strong answers judged false not judged
+    S1-B +18 [-8, +42] | S2-B2 +31 [+6, +55] | S3-B3 +31 [+6, +55] | S1-B+ not comparable | S2-B+ not comparable | S3-B+ not comparable | S3-C3 not comparable | S3-S2 -1 [-3, +0] | ref +13 [-11, +37] | S2-(S1+fill) +14 [+2, +26]
+  (QA)^2 470 held out: 470 questions | E answers judged false 39 (right 10, wrong 29, other 0) | released 86 (right 31, wrong 50, other 5), judged false 14 (right 3, wrong 11, other 0) | strong answers judged false not judged
+    S1-B +10 [-18, +38] | S2-B2 +20 [-8, +49] | S3-B3 +22 [-6, +49] | S1-B+ not comparable | S2-B+ not comparable | S3-B+ not comparable | S3-C3 not comparable | S3-S2 +8 [+1, +15] | ref +22 [-6, +49] | S1-D_all +4 [-11, +19] | S1-D_other +2 [-14, +17] | S2-(S1+fill) -8 [-23, +7]
+  (QA)^2 570: 570 questions | E answers judged false 46 (right 10, wrong 36, other 0) | released 102 (right 41, wrong 55, other 6), judged false 14 (right 3, wrong 11, other 0) | strong answers judged false not judged
+    S1-B +12 [-20, +45] | S2-B2 +21 [-10, +52] | S3-B3 +23 [-8, +53] | S1-B+ not comparable | S2-B+ not comparable | S3-B+ not comparable | S3-C3 not comparable | S3-S2 +8 [+1, +15] | ref +17 [-12, +46] | S1-D_all +4 [-13, +20] | S1-D_other +2 [-14, +19] | S2-(S1+fill) -5 [-21, +11]
+ qwen3.8-27b (E-source t=-4.3748, strong-arm t=none) TruthfulQA test, E L28 strength 1-75, N1 ('N1', '1-75', '0-5', '1')
+  TruthfulQA test: 521 questions | E answers judged false 2 (right 0, wrong 2, other 0) | released 136 (right 79, wrong 46, other 11), judged false 1 (right 0, wrong 1, other 0) | strong answers judged false not judged
+    S1-B -5 [-32, +23] | S2-B2 +22 [-5, +49] | S3-B3 +24 [-2, +51] | S1-B+ not comparable | S2-B+ not comparable | S3-B+ not comparable | S3-C3 not comparable | S3-S2 +1 [+0, +3] | ref +18 [-8, +45] | S2-(S1+fill) +14 [-6, +34]
+  (QA)^2 470 held out: 470 questions | E answers judged false 1 (right 0, wrong 1, other 0) | released 79 (right 40, wrong 38, other 1), judged false 0 (right 0, wrong 0, other 0) | strong answers judged false not judged
+    S1-B -39 [-67, -12] | S2-B2 -21 [-47, +5] | S3-B3 -21 [-47, +5] | S1-B+ not comparable | S2-B+ not comparable | S3-B+ not comparable | S3-C3 not comparable | S3-S2 +0 [+0, +0] | ref -23 [-50, +4] | S2-(S1+fill) -1 [-17, +15]
+  (QA)^2 570: 570 questions | E answers judged false 1 (right 0, wrong 1, other 0) | released 97 (right 50, wrong 46, other 1), judged false 0 (right 0, wrong 0, other 0) | strong answers judged false not judged
+    S1-B -42 [-73, -11] | S2-B2 -24 [-54, +6] | S3-B3 -24 [-54, +6] | S1-B+ not comparable | S2-B+ not comparable | S3-B+ not comparable | S3-C3 not comparable | S3-S2 +0 [+0, +0] | ref -26 [-56, +4] | S2-(S1+fill) -1 [-21, +18]
+ gemma3-12b (E-source t=-10.0000, strong-arm t=none) TruthfulQA test, E L24 strength 2-5, N1 ('N1', '2-5', '2', '2')
+  TruthfulQA test: 522 questions | E answers judged false 16 (right 3, wrong 12, other 1) | released 166 (right 101, wrong 46, other 19), judged false 15 (right 1, wrong 14, other 0) | strong answers judged false not judged
+    S1-B -32 [-60, -4] | S2-B2 +3 [-27, +32] | S3-B3 +23 [-6, +51] | S1-B+ not comparable | S2-B+ not comparable | S3-B+ not comparable | S3-C3 not comparable | S3-S2 +13 [+6, +21] | ref -6 [-37, +24] | S2-(S1+fill) -3 [-27, +20]
+  (QA)^2 470 held out: 470 questions | E answers judged false 18 (right 9, wrong 9, other 0) | released 152 (right 71, wrong 67, other 14), judged false 14 (right 3, wrong 11, other 0) | strong answers judged false not judged
+    S1-B +13 [-16, +42] | S2-B2 +26 [+0, +52] | S3-B3 +31 [+6, +56] | S1-B+ not comparable | S2-B+ not comparable | S3-B+ not comparable | S3-C3 not comparable | S3-S2 +8 [+1, +15] | ref +23 [-4, +49] | S2-(S1+fill) +15 [-1, +32]
+  (QA)^2 570: 570 questions | E answers judged false 27 (right 13, wrong 14, other 0) | released 177 (right 85, wrong 75, other 17), judged false 15 (right 3, wrong 12, other 0) | strong answers judged false not judged
+    S1-B +10 [-22, +41] | S2-B2 +31 [+2, +59] | S3-B3 +34 [+6, +62] | S1-B+ not comparable | S2-B+ not comparable | S3-B+ not comparable | S3-C3 not comparable | S3-S2 +9 [+2, +17] | ref +32 [+3, +60] | S2-(S1+fill) +20 [+2, +39]
+ gemma3-27b (E-source t=+14.2500, strong-arm t=none) TruthfulQA test, E L28 strength 1, N1 ('N1', '1', '1', '2')
+  TruthfulQA test: 523 questions | E answers judged false 115 (right 39, wrong 71, other 5) | released 87 (right 60, wrong 21, other 6), judged false 18 (right 3, wrong 14, other 1) | strong answers judged false not judged
+    S1-B +81 [+46, +116] | S2-B2 +101 [+66, +135] | S3-B3 +117 [+83, +151] | S1-B+ not comparable | S2-B+ not comparable | S3-B+ not comparable | S3-C3 not comparable | S3-S2 +11 [+3, +19] | ref +52 [+22, +82] | S2-(S1+fill) +16 [+1, +31]
+  (QA)^2 470 held out: 470 questions | E answers judged false 174 (right 58, wrong 115, other 1) | released 17 (right 8, wrong 9, other 0), judged false 10 (right 3, wrong 7, other 0) | strong answers judged false not judged
+    S1-B +69 [+40, +98] | S2-B2 +73 [+43, +104] | S3-B3 +75 [+45, +105] | S1-B+ not comparable | S2-B+ not comparable | S3-B+ not comparable | S3-C3 not comparable | S3-S2 +4 [-2, +10] | ref -3 [-31, +25] | S2-(S1+fill) +0 [-10, +10]
+  (QA)^2 570: 570 questions | E answers judged false 207 (right 65, wrong 141, other 1) | released 23 (right 12, wrong 10, other 1), judged false 13 (right 6, wrong 7, other 0) | strong answers judged false not judged
+    S1-B +94 [+63, +125] | S2-B2 +97 [+64, +130] | S3-B3 +101 [+69, +133] | S1-B+ not comparable | S2-B+ not comparable | S3-B+ not comparable | S3-C3 not comparable | S3-S2 +1 [-6, +8] | ref +1 [-28, +31] | S2-(S1+fill) +3 [-8, +15]
+ 5 models together:
+  TruthfulQA test, 520 common questions: S1-B +80 [+8, +150] | S2-B2 +203 [+135, +272] | S3-B3 +250 [+181, +322] | S1-B+ not comparable | S2-B+ not comparable | S3-B+ not comparable | S3-C3 not comparable | S3-S2 +40 [+26, +55] | ref +128 [+58, +197] | S2-(S1+fill) +64 [+16, +110]
+  (QA)^2 470 held out, 470 questions: S1-B +79 [+10, +148] | S2-B2 +151 [+87, +217] | S3-B3 +155 [+94, +216] | S1-B+ not comparable | S2-B+ not comparable | S3-B+ not comparable | S3-C3 not comparable | S3-S2 +17 [+1, +32] | ref +42 [-23, +107] | S2-(S1+fill) +18 [-16, +55]
+  (QA)^2 570, 570 questions: S1-B +107 [+30, +181] | S2-B2 +192 [+122, +260] | S3-B3 +197 [+129, +262] | S1-B+ not comparable | S2-B+ not comparable | S3-B+ not comparable | S3-C3 not comparable | S3-S2 +16 [+0, +32] | ref +50 [-20, +119] | S2-(S1+fill) +31 [-8, +70]

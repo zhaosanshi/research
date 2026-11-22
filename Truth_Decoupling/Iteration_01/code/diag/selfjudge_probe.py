@@ -84,8 +84,27 @@ MODELS = {
     "qwen3.5-9b": dict(display="Qwen3.5-9B", layer=15, s="2", code="code_newmodels_20261112",
                        das="results_newmodels_20261112/E1/qwen3.5-9b", tf_layer=31,
                        ref="results_e45_newmodels_20261119/E45/qwen3.5-9b/e45_nm_Cp"),
+    # queue g / e (2026-11-22 evening): the third model with a true/false E, and the two Gemma-3 without one (no write
+    # only; "code_ref" = an E45 run of the same code copy, used only to check the copy's file hashes; "config" = a
+    # model config outside the code copy, Iteration_01/code/configs/selfjudge/ in the repository)
+    "qwen3.8-27b": dict(display="Qwen3.8-27B", layer=28, s="1-75", code="code_newmodels_20261112",
+                        das="results_newmodels_20261112/E1/qwen3.8-27b", tf_layer=63,
+                        ref="results_e45_newmodels_20261119/E45/qwen3.8-27b/e45_nm_Cp"),
+    "gemma3-12b": dict(display="Gemma-3-12B", layer=24, s="2-5", code="code_newmodels_20261112", das=None, tf_layer=None,
+                       ref=None, code_ref="results_e45_newmodels_20261119/E45/qwen3.5-9b/e45_nm_Cp"),
+    "gemma3-27b": dict(display="Gemma-3-27B", layer=28, s="1", code="code_newmodels_20261112", das=None, tf_layer=None,
+                       ref=None, code_ref="results_e45_newmodels_20261119/E45/qwen3.5-9b/e45_nm_Cp",
+                       config="Iteration_01/newsets/selfjudge/_configs/gemma3-27b.json"),
 }
 ORDER = ("llama3.1-8b", "qwen3.5-9b")
+SANITY_N = 192          # no-write models: the 192 true/false estimation statements (calib + dev; 96 true, 96 false)
+
+
+def conds_of(model, source=""):
+    """Conditions scored for a model and answer source: models without a true/false E get the no-write pass only."""
+    if MODELS[model]["das"] is None:
+        return ("baseline",)
+    return CONDS2 if source else CONDS
 
 
 def sha1(text):
@@ -240,7 +259,8 @@ LEGACY_NPZ = {
     ('qwen3.5-9b', 'fq_e'): 'd3758e6cf9e6e46982194f658b6900e9650569f5d5da9deaf6b1b500f108c3cf',
     ('qwen3.5-9b', 'fq_rel'): 'e6b1afa81a58d23acb54bdf15b8411979a54c8e0ee492937739b1a20bcdddedf',
 }
-SOURCES = {"qaqa", "tq_forced", "tq_release", "qq_forced", "qq_release", "fq_e", "fq_rel"}
+SOURCES = {"qaqa", "tq_forced", "tq_release", "qq_forced", "qq_release", "fq_e", "fq_rel",
+           "tq_orig", "qq_orig"}     # queue g, G4: the no-write answer of the plain prompt (TruthfulQA tune + test, (QA)^2 570)
 
 
 def read_probe(model, qaqa=False, *, source=None):
@@ -254,7 +274,7 @@ def read_probe(model, qaqa=False, *, source=None):
     path = root / (prefix + "items.json")
     stem = root / (prefix + "probe")
     doc, meta = read_json(path), read_json(stem.with_suffix(".json"))
-    expected = CONDS2 if source else CONDS
+    expected = conds_of(model, source)
     cfg = MODELS[model]
     if (doc["model"] != model or meta["model"] != model or tuple(meta["conditions"]) != expected
             or (source and source != "qaqa" and doc.get("source") != source)
@@ -268,7 +288,7 @@ def read_probe(model, qaqa=False, *, source=None):
     if (len({x["id"] for x in items}) != len(items) or
             any(x["neg"] != bool(NEG_RE.match(x["answer"])) or sha1(x["answer"]) != x["answer_sha1"] for x in items)):
         raise ValueError(f"{stem}: duplicate question, altered answer or opening flag")
-    if source in ("qaqa", "qq_forced") and (len(items) != 570 or sum(x["pilot"] for x in items) != 100):
+    if source in ("qaqa", "qq_forced", "qq_orig") and (len(items) != 570 or sum(x["pilot"] for x in items) != 100):
         raise ValueError(f"{stem}: unexpected pilot or evaluation roster")
     ans = [x for x in items if x["answered"]]
     with np.load(payload, allow_pickle=False) as f:
@@ -314,6 +334,8 @@ def score(model, regress_limit, regress_only, n_show, sources=()):
         raise SystemExit("duplicate or unknown probe source")
     if sources and regress_only:
         raise SystemExit("additional sources require a complete same-model TruthfulQA regression")
+    if regress_only and MODELS[model]["das"] is None:
+        raise SystemExit("%s has no E45 reference to regress against" % model)
     if regress_only:
         return score_model(model, regress_limit, True, n_show)
     root = Path(OUT) / model
@@ -345,23 +367,36 @@ def score_model(model, regress_limit, regress_only, n_show, sources=()):
     from core.model_io import capture_last_token, load_model
     from core.readout import build_label_token_map, decide_label, label_logprobs_from_logits
 
-    ref = read_json(cfg["ref"] + ".json")
-    refz = np.load(cfg["ref"] + ".npz")
-    if not (ref.get("completed") and ref["model"] == model and ref["e_layer"] == cfg["tf_layer"] and ref["wording"] == "pik"
-            and ref["das"]["variant"] == "tf-ce-bidir" and ref["das"]["dir"].rstrip("/").endswith(cfg["das"])
-            and list(ref["alphas_E"]) == list(ALPHAS) == list(E45.ALPHAS_E) and ref["limit"] is None):
-        raise SystemExit("%s: the E45 reference run is not the expected one" % cfg["ref"])
+    write = cfg["das"] is not None
+    if write:
+        ref = read_json(cfg["ref"] + ".json")
+        refz = np.load(cfg["ref"] + ".npz")
+        if not (ref.get("completed") and ref["model"] == model and ref["e_layer"] == cfg["tf_layer"] and ref["wording"] == "pik"
+                and ref["das"]["variant"] == "tf-ce-bidir" and ref["das"]["dir"].rstrip("/").endswith(cfg["das"])
+                and list(ref["alphas_E"]) == list(ALPHAS) == list(E45.ALPHAS_E) and ref["limit"] is None):
+            raise SystemExit("%s: the E45 reference run is not the expected one" % cfg["ref"])
+    else:
+        # no true/false E for this model: only the code copy is checked against an E45 run of the same copy
+        ref, refz = read_json(cfg["code_ref"] + ".json"), None
+        if not ref.get("completed") or not ref.get("code_sha256"):
+            raise SystemExit("%s: not a completed E45 run with code hashes" % cfg["code_ref"])
     if sources:
         _, accepted, _ = read_probe(model)
-        n_ref = len(refz["ids"])
-        if any(accepted["regression"][c]["n"] != n_ref or
-               not (accepted["regression"][c]["max_abs_margin_diff"] <= TOL) for c in CONDS):
-            raise SystemExit("this model lacks a passing full-size reference regression")
+        if write:
+            n_ref = len(refz["ids"])
+            if any(accepted["regression"][c]["n"] != n_ref or
+                   not (accepted["regression"][c]["max_abs_margin_diff"] <= TOL) for c in CONDS):
+                raise SystemExit("this model lacks a passing full-size reference regression")
+        elif not (accepted.get("sanity") and accepted["sanity"]["n"] == SANITY_N
+                  and len(accepted["sanity"]["first_batch_margin"]) > 0):
+            raise SystemExit("this model lacks the stored no-write check on the estimation statements")
     for f, h in ref["code_sha256"].items():
         if sha256_file(os.path.join(code, "scripts", f)) != h:
             raise SystemExit("%s: %s differs from the file E45 ran with" % (code, f))
     exp = load_experiment("E2b_tqa")
-    mcfg = load_model_config(model)
+    mcfg = load_model_config(cfg.get("config", model))
+    if mcfg.get("name") != model:
+        raise SystemExit("model config %s is for %s" % (cfg.get("config", model), mcfg.get("name")))
     prompts = exp["prompts"]
     st = prompts["statement"]
     set_seed(exp.get("seed", 42))
@@ -372,7 +407,7 @@ def score_model(model, regress_limit, regress_only, n_show, sources=()):
     est = []
     for ds in exp["eval_datasets"]:
         est += load_split(ds, "calib") + load_split(ds, "dev")
-    if [r["id"] for r in recs] != [str(x) for x in refz["ids"]]:
+    if write and [r["id"] for r in recs] != [str(x) for x in refz["ids"]]:
         raise SystemExit("the E45 statements are not in the order of the reference npz")
     bad = [r["id"] for r in recs + est if statement(r["meta"]["question"], r["meta"]["answer"]) != r["text"]]
     if bad:
@@ -385,24 +420,28 @@ def score_model(model, regress_limit, regress_only, n_show, sources=()):
     mI = build_label_token_map(bundle.tokenizer, tI[0], st["label_variants"])
     if set(mI) != {"True", "False", "Abstain"}:
         raise SystemExit("label map %s" % sorted(mI))
-    eB = [tf_prompt(bundle, prompts, r["text"], allow_idk=False) for r in est]
     eI = [tf_prompt(bundle, prompts, r["text"], allow_idk=True) for r in est]
-    aB, _ = capture_last_token(bundle, eB, [EL], components=("resid",), batch_size=bs)
-    aI, _ = capture_last_token(bundle, eI, [EL], components=("resid",), batch_size=bs)
-    HB = aB[("resid", EL)].numpy().astype(np.float64)
-    HI = aI[("resid", EL)].numpy().astype(np.float64)
-    wMD, _ = mean_diff_direction(HB[y_est], HB[~y_est])
-    wE, das_meta = load_das_direction(cfg["das"], "E", EL, variant="tf-ce-bidir", align_to=wMD)
-    if wE is None:
-        raise SystemExit("no DAS direction at layer %d in %s" % (EL, cfg["das"]))
-    cI = (HI[y_est].mean(0) + HI[~y_est].mean(0)) / 2
-    proj = HI @ wE
-    shift = float(np.dot(cI - (HB[y_est].mean(0) + HB[~y_est].mean(0)) / 2, wE) / (proj.std() + 1e-12))
-    print("true/false E: layer %d, centre shift along E %+.6f sd (E45 json %+.6f)" % (
-        EL, shift, ref["E_diagnostics"]["centre_shift_along_E_in_sd"]), flush=True)
     specs = {"baseline": None}
-    for a in ALPHAS:
-        specs["E_a%g" % a] = [SteerSpec(wE, EL, mode="amplify", alpha=a, center=cI)]
+    shift, das_meta = None, None
+    if write:
+        eB = [tf_prompt(bundle, prompts, r["text"], allow_idk=False) for r in est]
+        aB, _ = capture_last_token(bundle, eB, [EL], components=("resid",), batch_size=bs)
+        aI, _ = capture_last_token(bundle, eI, [EL], components=("resid",), batch_size=bs)
+        HB = aB[("resid", EL)].numpy().astype(np.float64)
+        HI = aI[("resid", EL)].numpy().astype(np.float64)
+        wMD, _ = mean_diff_direction(HB[y_est], HB[~y_est])
+        wE, das_meta = load_das_direction(cfg["das"], "E", EL, variant="tf-ce-bidir", align_to=wMD)
+        if wE is None:
+            raise SystemExit("no DAS direction at layer %d in %s" % (EL, cfg["das"]))
+        cI = (HI[y_est].mean(0) + HI[~y_est].mean(0)) / 2
+        proj = HI @ wE
+        shift = float(np.dot(cI - (HB[y_est].mean(0) + HB[~y_est].mean(0)) / 2, wE) / (proj.std() + 1e-12))
+        print("true/false E: layer %d, centre shift along E %+.6f sd (E45 json %+.6f)" % (
+            EL, shift, ref["E_diagnostics"]["centre_shift_along_E_in_sd"]), flush=True)
+        for a in ALPHAS:
+            specs["E_a%g" % a] = [SteerSpec(wE, EL, mode="amplify", alpha=a, center=cI)]
+    else:
+        print("%s: no true/false E; no-write self-judgement only" % model, flush=True)
 
     def run(texts, sp):
         out = []
@@ -421,7 +460,7 @@ def score_model(model, regress_limit, regress_only, n_show, sources=()):
             raise RuntimeError("three-way arg-max and the gate disagree")
         return dict(margin=lpT - lpF, gate=gate, choice=pred, lpT=lpT, lpF=lpF, lpU=lpU)
 
-    if sources:
+    if sources and write:
         if accepted["label_map"] != {k: list(map(int, v)) for k, v in mI.items()} or not np.isclose(
                 shift, accepted["centre_shift_along_E_in_sd"], rtol=0, atol=1e-6):
             raise ValueError("label tokens or intervention centre differ from the validated full pass")
@@ -433,6 +472,14 @@ def score_model(model, regress_limit, regress_only, n_show, sources=()):
                 ref_values = refz[c + "__" + measure][:bs]
                 if not np.allclose(observed[measure], ref_values, atol=TOL, rtol=0):
                     raise ValueError(f"loaded score path fails the E45 reference batch: {c}/{measure}")
+    elif sources:
+        # no E45 reference for this model: the first batch of the stored no-write check must come back
+        if accepted["label_map"] != {k: list(map(int, v)) for k, v in mI.items()}:
+            raise ValueError("label tokens differ from the validated full pass")
+        stored = np.array(accepted["sanity"]["first_batch_margin"], dtype=np.float64)
+        observed = run(eI[:len(stored)], None)["margin"]
+        if not np.allclose(observed, stored, atol=TOL, rtol=0):
+            raise ValueError("loaded score path fails the stored first batch of the no-write check")
     for src in sources:
         # ---- step 2 (work queue d section 4, step 3) and queue e stage one: answers of another source (src_items.json:
         # qaqa = (QA)^2 single E; tq_forced / tq_release / qq_forced / qq_release from diag/selfjudge_stage1.py), the
@@ -446,24 +493,28 @@ def score_model(model, regress_limit, regress_only, n_show, sources=()):
         texts = [tf_prompt(bundle, prompts, t, allow_idk=True) for t in stmts]
         if texts and build_label_token_map(bundle.tokenizer, texts[0], st["label_variants"]) != mI:
             raise SystemExit("the label map differs on the %s prompts" % src)
+        sconds = conds_of(model, src)
         res = {c: run(texts, specs[c]) if texts else {k: np.array([], dtype=str if k == "choice" else np.float64)
                                                      for k in ("choice", "margin", "gate", "lpT", "lpF", "lpU")}
-               for c in CONDS2}
+               for c in sconds}
         stem = os.path.join(OUT, model, src + "_probe")
         values = dict(ids=np.array([x["id"] for x in items]), answer_sha1=np.array([x["answer_sha1"] for x in items]),
                  statement_sha1=np.array([sha1(t) for t in stmts]),
                  **{"%s__%s" % (c, k): v for c, r in res.items() for k, v in r.items()})
         rng = np.random.default_rng(20261122)
         show = sorted(rng.choice(len(items), min(n_show, len(items)), replace=False).tolist())
-        meta = dict(model=model, code=cfg["code"], das=cfg["das"], tf_layer=EL, conditions=list(CONDS2),
+        meta = dict(model=model, code=cfg["code"], das=cfg["das"], tf_layer=EL, conditions=list(sconds),
                     centre_shift_along_E_in_sd=shift, label_map={k: list(map(int, v)) for k, v in mI.items()},
                     items_sha256=sha256_file(os.path.join(OUT, model, src + "_items.json")), n_items=len(items),
                     n_answers_with_newline=sum("\n" in x["answer"] for x in items),
                     shown_probe_prompts=[dict(id=items[k]["id"], value=items[k]["value"], prompt=texts[k]) for k in show])
         save_probe(stem, values, meta)
-        print("%s probe: %d answered statements x %d conditions -> %s.npz" % (src, len(items), len(CONDS2), stem), flush=True)
+        print("%s probe: %d answered statements x %d conditions -> %s.npz" % (src, len(items), len(sconds), stem), flush=True)
     if sources:
         return
+    if not write:
+        return score_nowrite(model, cfg, bundle, prompts, st, tf_prompt, build_label_token_map, mI, run, est, y_est, eI,
+                             n_show)
 
     # ---- regression against E45's npz ----------------------------------------------------------------------------- #
     n = len(recs) if regress_limit is None else min(regress_limit, len(recs))
@@ -516,6 +567,101 @@ def score_model(model, regress_limit, regress_only, n_show, sources=()):
                 shown_reference_prompts=[dict(id=recs[k]["id"], prompt=tI[k]) for k in ref_show[:4]])
     save_probe(stem, values, meta)
     print("probe: %d answered statements x %d conditions -> %s.npz" % (len(items), len(CONDS), stem), flush=True)
+
+
+def score_nowrite(model, cfg, bundle, prompts, st, tf_prompt, build_label_token_map, mI, run, est, y_est, eI, n_show):
+    """Models without a true/false E (queue e 1d, queue g third step). There is no E45 run of this model to regress
+    against; instead the no-write self-judgement of the 192 true/false estimation statements (calib + dev, 96 true and
+    96 false) is read and stored (right by margin sign and by three-way choice, AUROC of margin), and its first batch is
+    re-checked before any later source is scored. Then the probe of items.json, no write only."""
+    import numpy as np
+    if len(est) != SANITY_N or int(y_est.sum()) != SANITY_N // 2:
+        raise SystemExit("estimation statements: %d (true %d), expected %d (true %d)" % (len(est), int(y_est.sum()), SANITY_N, SANITY_N // 2))
+    r = run(eI, None)
+    m = r["margin"]
+    first = [float(x) for x in run(eI[:8], None)["margin"]]
+    if not np.allclose(first, m[:8], atol=TOL, rtol=0):
+        raise ValueError("the first batch of the check does not reproduce within one process")
+    sanity = dict(n=len(est), n_true=int(y_est.sum()), n_false=int((~y_est).sum()), ids=[x["id"] for x in est],
+                  right_by_margin=int(((m > 0) == y_est).sum()),
+                  right_by_choice=int(((r["choice"] == "True") & y_est).sum() + ((r["choice"] == "False") & ~y_est).sum()),
+                  choice_counts={lab: int((r["choice"] == lab).sum()) for lab in ("True", "False", "Abstain")},
+                  auroc=auroc(m, y_est), first_batch_margin=[float(x) for x in m[:8]])
+    print("no-write check on the %d estimation statements (true %d, false %d): right by margin sign %d, right by three-way "
+          "choice %d, choices True/False/Unknown %s, AUROC of margin %.4f" % (
+              sanity["n"], sanity["n_true"], sanity["n_false"], sanity["right_by_margin"], sanity["right_by_choice"],
+              "/".join(str(sanity["choice_counts"][k]) for k in ("True", "False", "Abstain")), sanity["auroc"]), flush=True)
+    doc = read_json(os.path.join(OUT, model, "items.json"))
+    items = [x for x in doc["items"] if x["answered"]]
+    for x in items:
+        if sha1(x["answer"]) != x["answer_sha1"]:
+            raise SystemExit("items.json: answer text of %s changed" % x["id"])
+    stmts = [statement(x["question"], x["answer"]) for x in items]
+    texts = [tf_prompt(bundle, prompts, t, allow_idk=True) for t in stmts]
+    if build_label_token_map(bundle.tokenizer, texts[0], st["label_variants"]) != mI:
+        raise SystemExit("the label map differs on the probe prompts")
+    res = {"baseline": run(texts, None)}
+    stem = os.path.join(OUT, model, "probe")
+    values = dict(ids=np.array([x["id"] for x in items]), split=np.array([x["split"] for x in items]),
+                  answer_sha1=np.array([x["answer_sha1"] for x in items]),
+                  statement_sha1=np.array([sha1(t) for t in stmts]),
+                  **{"%s__%s" % (c, k): v for c, r_ in res.items() for k, v in r_.items()})
+    rng = np.random.default_rng(20261122)
+    test_idx = [i for i, x in enumerate(items) if x["split"] == "test"]
+    show = sorted(rng.choice(test_idx, min(n_show, len(test_idx)), replace=False).tolist())
+    meta = dict(model=model, code=cfg["code"], das=None, tf_layer=None, conditions=["baseline"], alphas=[],
+                config=cfg.get("config", model), centre_shift_along_E_in_sd=None,
+                label_map={k: list(map(int, v)) for k, v in mI.items()}, regression=None, sanity=sanity,
+                items_sha256=sha256_file(os.path.join(OUT, model, "items.json")), n_items=len(items),
+                n_answers_with_newline=sum("\n" in x["answer"] for x in items),
+                shown_probe_prompts=[dict(id=items[k]["id"], state=items[k]["state"], prompt=texts[k]) for k in show])
+    save_probe(stem, values, meta)
+    print("probe: %d answered statements x 1 condition -> %s.npz" % (len(items), stem), flush=True)
+
+
+def cfgcheck(model, config, tag, n=64):
+    """Queue g third step: the same E45 code path, no write, on the first n E45 test statements, loading the model from
+    the config file `config`; writes OUT/<model>/_cfgcheck_<tag>.npz (compared on the host between two loads)."""
+    import numpy as np
+    cfg = MODELS[model]
+    code = os.path.abspath(cfg["code"])
+    sys.path[:0] = [os.path.join(code, "scripts"), code]
+    from common import load_split, tf_prompt
+    from core.config import load_experiment, load_model_config, resolve_config_path
+    from core.intervene import next_token_logits
+    from core.io_utils import set_seed
+    from core.model_io import load_model
+    from core.readout import build_label_token_map, label_logprobs_from_logits
+    config = resolve_config_path("models", config)
+    ref = read_json((cfg["ref"] or cfg["code_ref"]) + ".json")
+    for f, h in ref["code_sha256"].items():
+        if sha256_file(os.path.join(code, "scripts", f)) != h:
+            raise SystemExit("%s: %s differs from the file E45 ran with" % (code, f))
+    exp = load_experiment("E2b_tqa")
+    prompts = exp["prompts"]
+    set_seed(exp.get("seed", 42))
+    bs = exp.get("batch_size", 8)
+    recs = []
+    for ds in exp["eval_datasets"]:
+        recs += load_split(ds, exp.get("eval_split", "test"))
+    recs = recs[:n]
+    mcfg = load_model_config(config)
+    if mcfg.get("name") != model:
+        raise SystemExit("model config %s is for %s" % (config, mcfg.get("name")))
+    bundle = load_model(mcfg)
+    tI = [tf_prompt(bundle, prompts, r["text"], allow_idk=True) for r in recs]
+    mI = build_label_token_map(bundle.tokenizer, tI[0], prompts["statement"]["label_variants"])
+    out = []
+    for i in range(0, len(tI), bs):
+        lg = next_token_logits(bundle, bundle.encode(tI[i:i + bs]), None).numpy()
+        for x in lg:
+            d = label_logprobs_from_logits(x, mI, use_abstain=True)
+            out.append(d["True"] - d["False"])
+    path = os.path.join(OUT, model, "_cfgcheck_%s.npz" % tag)
+    np.savez(path, ids=np.array([r["id"] for r in recs]), margin=np.array(out, dtype=np.float64),
+             config=np.array(os.path.abspath(config)), config_sha256=np.array(sha256_file(config)),
+             label_map=np.array(json.dumps({k: list(map(int, v)) for k, v in mI.items()}, sort_keys=True)))
+    print("cfgcheck %s: %d statements, config %s -> %s" % (model, len(out), config, path), flush=True)
 
 
 # ------------------------------------------------------------------------------------------------------------------ #
@@ -840,7 +986,9 @@ def step2():
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=("export", "score", "table", "export-qaqa", "step2"))
+    ap.add_argument("cmd", choices=("export", "score", "table", "export-qaqa", "step2", "cfgcheck"))
+    ap.add_argument("--config", default=None, help="cfgcheck: model config name or path")
+    ap.add_argument("--tag", default=None, help="cfgcheck: output tag")
     ap.add_argument("model", nargs="?")
     ap.add_argument("--regress-limit", type=int, default=None)
     ap.add_argument("--regress-only", action="store_true")
@@ -859,6 +1007,10 @@ def main():
         score(a.model, a.regress_limit, a.regress_only, a.show, sources=srcs)
     elif a.cmd == "step2":
         step2()
+    elif a.cmd == "cfgcheck":
+        if not a.config or not a.tag or not a.tag.isalnum():
+            raise SystemExit("cfgcheck needs --config and an alphanumeric --tag")
+        cfgcheck(a.model, a.config, a.tag)
     else:
         table()
 

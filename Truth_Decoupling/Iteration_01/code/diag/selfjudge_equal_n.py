@@ -306,7 +306,7 @@ def table():
 
 
 def main():
-    if len(sys.argv) >= 2 and sys.argv[1] == "qaqa-dump" and len(sys.argv) == 3 and sys.argv[2] in ORDER:
+    if len(sys.argv) >= 2 and sys.argv[1] == "qaqa-dump" and len(sys.argv) == 3 and sys.argv[2] in SP.MODELS:
         qaqa_dump(sys.argv[2])
     elif sys.argv[1:] == ["table"]:
         table()

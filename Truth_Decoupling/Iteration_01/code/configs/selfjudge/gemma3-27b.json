@@ -1,0 +1,14 @@
+{
+  "name": "gemma3-27b",
+  "family": "gemma3",
+  "path": "${TD_MODEL_ROOT:-/workspace/Truth_Decoupling/models}/gemma-3-27b-it",
+  "modelscope_repo": "google/gemma-3-27b-it",
+  "hidden_size": 5376,
+  "num_layers": 62,
+  "dtype": "bfloat16",
+  "device": "cuda",
+  "layers_attr": "model.language_model.layers",
+  "attn_attr": "self_attn",
+  "chat": {"supports_system": true, "thinking_stub": ""},
+  "notes": "Copy of code_newmodels_20261112/configs/models/gemma3-12b.json with the Gemma-3-27B model, sizes and layer count of the main-table generation record (Iteration_01/results/ff/gemma3/27b/e44/gemma3-27b frozen_test.json identity.model_config). Gemma3ForConditionalGeneration (vision tower loaded but unused). About 55 GB bf16, one 72 GB GPU for forward passes. Used only for the no-write self-judgement of queue e 1d / queue g (Claude Opus 5.5, 2026-11-22); not part of the code copy."
+}

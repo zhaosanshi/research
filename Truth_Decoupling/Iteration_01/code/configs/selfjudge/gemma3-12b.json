@@ -1,0 +1,14 @@
+{
+  "name": "gemma3-12b",
+  "family": "gemma3",
+  "path": "${TD_MODEL_ROOT:-/workspace/Truth_Decoupling/models}/gemma-3-12b-it",
+  "modelscope_repo": "google/gemma-3-12b-it",
+  "hidden_size": 3840,
+  "num_layers": 48,
+  "dtype": "bfloat16",
+  "device": "cuda",
+  "layers_attr": "model.language_model.layers",
+  "attn_attr": "self_attn",
+  "chat": {"supports_system": true, "thinking_stub": ""},
+  "notes": "Gemma3ForConditionalGeneration (vision tower loaded but unused); LM sizes live in config.text_config. ~24 GB bf16, one GPU."
+}

@@ -1,11 +1,21 @@
+start 2026-11-22 19:26:42
 TQA tqa:131 archive forced-minus-C native / written +0.999961944306 -1.49998834768 choices forced C
 QA2 e127 archive forced-minus-C native / written +0.499982430883 -0.625019929687 choices forced C
 TQA tqa:152 archive forced-minus-C native / written -9.5419071755e-08 +0.874984362922 choices C forced
-Traceback (most recent call last):
-  File "/data/sanshizhao/Truth_Decoupling/Iteration_01/diag/gpt_replay_20261122d/2026-11-22d_singleton_probe.py", line 201, in <module>
-    main()
-  File "/data/sanshizhao/Truth_Decoupling/Iteration_01/diag/gpt_replay_20261122d/2026-11-22d_singleton_probe.py", line 195, in main
-    reserved_run()
-  File "/data/sanshizhao/Truth_Decoupling/Iteration_01/diag/gpt_replay_20261122d/2026-11-22d_singleton_probe.py", line 169, in reserved_run
-    fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-BlockingIOError: [Errno 11] Resource temporarily unavailable
+TQA tqa:131 archive forced-minus-C native / written +0.999961944306 -1.49998834768 choices forced C
+QA2 e127 archive forced-minus-C native / written +0.499982430883 -0.625019929687 choices forced C
+TQA tqa:152 archive forced-minus-C native / written -9.5419071755e-08 +0.874984362922 choices C forced
+W1122 11:26:46.887000 1209793 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1122 11:26:46.907000 1209793 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00, 372.67it/s]
+TQA tqa:131 singleton round 1 forced-minus-C native / written +0.749979963846 -1.49997285545 choices forced C
+TQA tqa:131 singleton round 2 forced-minus-C native / written +0.749979963846 -1.49997285545 choices forced C
+TQA tqa:131 repeat choices agree True both preserve archive choices True max repeated score difference 0.0
+QA2 e127 singleton round 1 forced-minus-C native / written +0.124982189149 -0.87501054903 choices forced C
+QA2 e127 singleton round 2 forced-minus-C native / written +0.124982189149 -0.87501054903 choices forced C
+QA2 e127 repeat choices agree True both preserve archive choices True max repeated score difference 0.0
+TQA tqa:152 singleton round 1 forced-minus-C native / written -0.125003373862 +0.62499092953 choices C forced
+TQA tqa:152 singleton round 2 forced-minus-C native / written -0.125003373862 +0.62499092953 choices C forced
+TQA tqa:152 repeat choices agree True both preserve archive choices True max repeated score difference 0.0
+exit code 0
+end 2026-11-22 19:26:55

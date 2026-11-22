@@ -1,0 +1,71 @@
+# selfjudge stage one, rule Z (work queue 2026-11-22_queue_e, '1 supplement', 17:16; 1d), models: qwen3.8-27b
+# rule Z: 'other'-class answer judged false when margin < 0; negated-premise openings exempt (NEG_RE of selfjudge_probe.py)
+# P' thresholds (no write, E source, TruthfulQA tune; for the P' version): qwen3.8-27b -4.3748
+# D confidence qwen3.8-27b: no file x--E28-w-p1-75-at-prompt.json
+# reference qwen3.8-27b: N1 - strong TruthfulQA +18 [-8, +45] (expected +18 [-8, +45]) | rule Z: S2 - (S1 first pass + fill) TruthfulQA +14 [-6, +34] (expected +14 [-6, +34]) | (QA)^2 470 N1 - strong -23 (expected -23)
+# references reproduced
+====================================================================================================
+SELF-JUDGEMENT rule Z, no write (MAIN)
+ qwen3.8-27b (E-source t=+0.0000, strong-arm t=+0.0000) TruthfulQA test, E L28 strength 1-75, N1 ('N1', '1-75', '0-5', '1')
+  TruthfulQA test: 521 questions | E answers judged false 59 (right 24, wrong 35, other 0) | released 136 (right 79, wrong 46, other 11), judged false 33 (right 8, wrong 23, other 2) | strong answers judged false 96 (right 25, wrong 69, other 2)
+    answers: E 354, N1 490, S1 295, S2 431, S3 398 (for available opponents, counts match their comparator); strong answers with confidence 518
+    nets: E +142, N1 +175, S1 +153, S2 +186, S3 +201
+    opponents: B(S1) +134 | B+(S1) +163 (added back 0) | B(S2) +153 | B+(S2) +202 (added back 9) | B(S3) +155 | B+(S3) +194 (added back 0) | B(N1) +157 | C3 +187
+    S1-B +19 [-8, +46] | S2-B2 +33 [+5, +61] | S3-B3 +46 [+18, +74] | S1-B+ -10 [-33, +13] | S2-B+ -16 [-40, +9] | S3-B+ +7 [-16, +30] | S3-C3 +14 [-3, +31] | S3-S2 +15 [+4, +26] | ref +18 [-8, +45] | S2-(S1+fill) +14 [-6, +34]
+  (QA)^2 470 held out: 470 questions | E answers judged false 97 (right 34, wrong 63, other 0) | released 79 (right 40, wrong 38, other 1), judged false 33 (right 11, wrong 21, other 1) | strong answers judged false 140 (right 48, wrong 92, other 0)
+    answers: E 338, N1 417, S1 241, S2 320, S3 287 (for available opponents, counts match their comparator); strong answers with confidence 470
+    nets: E +63, N1 +65, S1 +92, S2 +94, S3 +104
+    opponents: B(S1) +103 | B+(S1) +121 (added back 0) | B(S2) +108 | B+(S2) +108 (added back 0) | B(S3) +113 | B+(S3) +116 (added back 0) | B(N1) +88 | C3 +104
+    S1-B -11 [-38, +16] | S2-B2 -14 [-42, +15] | S3-B3 -9 [-36, +19] | S1-B+ -29 [-52, -6] | S2-B+ -14 [-39, +10] | S3-B+ -12 [-35, +12] | S3-C3 +0 [-13, +14] | S3-S2 +10 [-1, +21] | ref -23 [-50, +4] | S2-(S1+fill) -1 [-17, +15]
+  (QA)^2 570: 570 questions | E answers judged false 119 (right 43, wrong 76, other 0) | released 97 (right 50, wrong 46, other 1), judged false 38 (right 13, wrong 24, other 1) | strong answers judged false 168 (right 59, wrong 109, other 0)
+    answers: E 412, N1 509, S1 293, S2 390, S3 352 (for available opponents, counts match their comparator); strong answers with confidence 570
+    nets: E +80, N1 +84, S1 +113, S2 +117, S3 +128
+    opponents: B(S1) +125 | B+(S1) +149 (added back 0) | B(S2) +130 | B+(S2) +136 (added back 0) | B(S3) +134 | B+(S3) +145 (added back 0) | B(N1) +110 | C3 +130
+    S1-B -12 [-43, +18] | S2-B2 -13 [-45, +19] | S3-B3 -6 [-37, +27] | S1-B+ -36 [-62, -10] | S2-B+ -19 [-46, +10] | S3-B+ -17 [-43, +9] | S3-C3 -2 [-18, +13] | S3-S2 +11 [-1, +23] | ref -26 [-56, +4] | S2-(S1+fill) -1 [-21, +18]
+====================================================================================================
+SELF-JUDGEMENT rule Z, true/false E strength 3
+ qwen3.8-27b (E-source t=+0.0000, strong-arm t=+0.0000) TruthfulQA test, E L28 strength 1-75, N1 ('N1', '1-75', '0-5', '1')
+  TruthfulQA test: 521 questions | E answers judged false 45 (right 16, wrong 29, other 0) | released 136 (right 79, wrong 46, other 11), judged false 18 (right 4, wrong 14, other 0) | strong answers judged false 65 (right 14, wrong 51, other 0)
+    S1-B +13 [-13, +39] | S2-B2 +37 [+10, +65] | S3-B3 +42 [+14, +69] | S1-B+ -10 [-34, +14] | S2-B+ -8 [-32, +17] | S3-B+ +10 [-13, +35] | S3-C3 +8 [-9, +25] | S3-S2 +10 [+2, +18] | ref +18 [-8, +45] | S2-(S1+fill) +14 [-6, +34]
+  (QA)^2 470 held out: 470 questions | E answers judged false 66 (right 25, wrong 41, other 0) | released 79 (right 40, wrong 38, other 1), judged false 13 (right 3, wrong 9, other 1) | strong answers judged false 82 (right 26, wrong 56, other 0)
+    S1-B -31 [-58, -4] | S2-B2 -14 [-42, +13] | S3-B3 -17 [-45, +11] | S1-B+ -35 [-59, -11] | S2-B+ -25 [-50, +1] | S3-B+ -16 [-41, +10] | S3-C3 -2 [-19, +14] | S3-S2 +6 [+0, +13] | ref -23 [-50, +4] | S2-(S1+fill) -1 [-17, +15]
+  (QA)^2 570: 570 questions | E answers judged false 82 (right 30, wrong 52, other 0) | released 97 (right 50, wrong 46, other 1), judged false 15 (right 4, wrong 10, other 1) | strong answers judged false 101 (right 33, wrong 68, other 0)
+    S1-B -32 [-61, +0] | S2-B2 -15 [-46, +17] | S3-B3 -10 [-41, +22] | S1-B+ -38 [-66, -10] | S2-B+ -24 [-52, +6] | S3-B+ -15 [-43, +14] | S3-C3 -4 [-23, +14] | S3-S2 +6 [-1, +14] | ref -26 [-56, +4] | S2-(S1+fill) -1 [-21, +18]
+====================================================================================================
+SELF-JUDGEMENT rule Z without the negated-premise exemption, no write
+ qwen3.8-27b (E-source t=+0.0000, strong-arm t=+0.0000) TruthfulQA test, E L28 strength 1-75, N1 ('N1', '1-75', '0-5', '1')
+  TruthfulQA test: 521 questions | E answers judged false 129 (right 78, wrong 51, other 0) | released 136 (right 79, wrong 46, other 11), judged false 78 (right 40, wrong 34, other 4) | strong answers judged false 218 (right 114, wrong 99, other 5)
+    S1-B +8 [-17, +34] | S2-B2 -2 [-32, +28] | S3-B3 +14 [-14, +43] | S1-B+ -7 [-26, +13] | S2-B+ -3 [-31, +26] | S3-B+ +4 [-16, +24] | S3-C3 +7 [-7, +21] | S3-S2 -6 [-24, +11] | ref +18 [-8, +45] | S2-(S1+fill) +14 [-6, +34]
+  (QA)^2 470 held out: 470 questions | E answers judged false 122 (right 46, wrong 76, other 0) | released 79 (right 40, wrong 38, other 1), judged false 43 (right 16, wrong 26, other 1) | strong answers judged false 205 (right 76, wrong 128, other 1)
+    S1-B -3 [-29, +24] | S2-B2 -16 [-45, +13] | S3-B3 +1 [-26, +28] | S1-B+ -31 [-53, -9] | S2-B+ -18 [-43, +6] | S3-B+ -16 [-37, +5] | S3-C3 -2 [-12, +9] | S3-S2 +10 [-2, +22] | ref -23 [-50, +4] | S2-(S1+fill) -1 [-17, +15]
+  (QA)^2 570: 570 questions | E answers judged false 152 (right 61, wrong 90, other 1) | released 97 (right 50, wrong 46, other 1), judged false 52 (right 20, wrong 31, other 1) | strong answers judged false 251 (right 99, wrong 151, other 1)
+    S1-B -3 [-32, +26] | S2-B2 -20 [-52, +13] | S3-B3 -5 [-34, +25] | S1-B+ -39 [-64, -14] | S2-B+ -18 [-46, +9] | S3-B+ -18 [-42, +6] | S3-C3 -4 [-17, +9] | S3-S2 +11 [-3, +25] | ref -26 [-56, +4] | S2-(S1+fill) -1 [-21, +18]
+====================================================================================================
+SELF-JUDGEMENT rule P', no write (no must-answer + E threshold)
+ qwen3.8-27b (E-source t=-4.3748, strong-arm t=none) TruthfulQA test, E L28 strength 1-75, N1 ('N1', '1-75', '0-5', '1')
+  TruthfulQA test: 521 questions | E answers judged false 2 (right 0, wrong 2, other 0) | released 136 (right 79, wrong 46, other 11), judged false 1 (right 0, wrong 1, other 0) | strong answers judged false not judged
+    S1-B -5 [-32, +23] | S2-B2 +22 [-5, +49] | S3-B3 +24 [-2, +51] | S1-B+ not comparable | S2-B+ not comparable | S3-B+ not comparable | S3-C3 not comparable | S3-S2 +1 [+0, +3] | ref +18 [-8, +45] | S2-(S1+fill) +14 [-6, +34]
+  (QA)^2 470 held out: 470 questions | E answers judged false 1 (right 0, wrong 1, other 0) | released 79 (right 40, wrong 38, other 1), judged false 0 (right 0, wrong 0, other 0) | strong answers judged false not judged
+    S1-B -39 [-67, -12] | S2-B2 -21 [-47, +5] | S3-B3 -21 [-47, +5] | S1-B+ not comparable | S2-B+ not comparable | S3-B+ not comparable | S3-C3 not comparable | S3-S2 +0 [+0, +0] | ref -23 [-50, +4] | S2-(S1+fill) -1 [-17, +15]
+  (QA)^2 570: 570 questions | E answers judged false 1 (right 0, wrong 1, other 0) | released 97 (right 50, wrong 46, other 1), judged false 0 (right 0, wrong 0, other 0) | strong answers judged false not judged
+    S1-B -42 [-73, -11] | S2-B2 -24 [-54, +6] | S3-B3 -24 [-54, +6] | S1-B+ not comparable | S2-B+ not comparable | S3-B+ not comparable | S3-C3 not comparable | S3-S2 +0 [+0, +0] | ref -26 [-56, +4] | S2-(S1+fill) -1 [-21, +18]
+
+# selfjudge G4 (work queue 2026-11-22_queue_g, '1 supplement', 19:19): models qwen3.8-27b; conditions per model {'qwen3.8-27b': ('baseline', 'E_a3')}
+# qwen3.8-27b original-answer source: {'tune': {'n': 192, 'answered': 119}, 'test': {'n': 521, 'answered': 361}}
+====================================================================================================
+qwen3.8-27b | E L28 strength 1-75, N1 ('N1', '1-75', '0-5', '1')
+  TruthfulQA test: 521 questions | answers: E 354, N1 490 | nets: E +142, N1 +175, strong at N1's count +157, two-pass single E +161
+    [baseline] G4a: pairs (both answered, statements differ) 109, switched to the original 73 | one right one wrong 56: picked right 27, always-E right 41 | nets G4a +114, G4c +129 (answers 303), S1 +153 (answers 295), N1+G4a +147
+    [E_a3] G4a: pairs (both answered, statements differ) 109, switched to the original 70 | one right one wrong 56: picked right 32, always-E right 41 | nets G4a +124, G4c +138 (answers 320), S1 +155 (answers 309), N1+G4a +157
+    G4b: pairs 136 (statements differ 54), one right one wrong 12: picked right baseline 9, E_a3 10 | direct C +33, baseline pick +42, E_a3 pick +43
+    G4a-E[baseline] -28 [-54, -4] | G4a-E[E_a3] -18 [-40, +4] | G4a written-no write +10 [+2, +20] | G4c-S1[baseline] -24 [-45, -3] | G4c-S1[E_a3] -17 [-37, +3] | ref N1-B(N1) +18 [-8, +45] | ref N1-TP +14 [-6, +34] | N1G4a-B(N1)[baseline] -10 [-42, +23] | N1G4a-B(N1)[E_a3] +0 [-32, +31] | N1G4a-TPG4a0[baseline] +14 [-6, +34] | N1G4a-TPG4a0[E_a3] +24 [+2, +46] | G4b N1G4b-N1[baseline] +9 [+0, +19] | G4b N1G4b-N1[E_a3] +10 [+3, +19] | G4b written-no write +1 [-3, +6] | G4b N1G4b-B(N1)[baseline] +27 [+3, +52] | G4b N1G4b-B(N1)[E_a3] +28 [+4, +53]
+  (QA)^2 470 held out: 470 questions | answers: E 338, N1 417 | nets: E +63, N1 +65, strong at N1's count +88, two-pass single E +66
+    [baseline] G4a: pairs (both answered, statements differ) 106, switched to the original 64 | one right one wrong 39: picked right 21, always-E right 30 | nets G4a +46, G4c +80 (answers 250), S1 +92 (answers 241), N1+G4a +48
+    [E_a3] G4a: pairs (both answered, statements differ) 106, switched to the original 53 | one right one wrong 39: picked right 28, always-E right 30 | nets G4a +59, G4c +75 (answers 278), S1 +79 (answers 272), N1+G4a +61
+    G4b: pairs 79 (statements differ 38), one right one wrong 10: picked right baseline 7, E_a3 7 | direct C +2, baseline pick +3, E_a3 pick +3
+    G4a-E[baseline] -17 [-36, +1] | G4a-E[E_a3] -4 [-20, +12] | G4a written-no write +13 [+4, +24] | G4c-S1[baseline] -12 [-27, +2] | G4c-S1[E_a3] -4 [-19, +10] | ref N1-B(N1) -23 [-50, +4] | ref N1-TP -1 [-17, +15] | N1G4a-B(N1)[baseline] -40 [-71, -10] | N1G4a-B(N1)[E_a3] -27 [-56, +1] | N1G4a-TPG4a0[baseline] -1 [-17, +15] | N1G4a-TPG4a0[E_a3] +12 [-7, +31] | G4b N1G4b-N1[baseline] +1 [-6, +8] | G4b N1G4b-N1[E_a3] +1 [-6, +8] | G4b written-no write +0 [+0, +0] | G4b N1G4b-B(N1)[baseline] -22 [-49, +4] | G4b N1G4b-B(N1)[E_a3] -22 [-49, +4]
+  (QA)^2 570: 570 questions | answers: E 412, N1 509 | nets: E +80, N1 +84, strong at N1's count +110, two-pass single E +85
+    [baseline] G4a: pairs (both answered, statements differ) 131, switched to the original 82 | one right one wrong 52: picked right 26, always-E right 40 | nets G4a +52, G4c +97 (answers 303), S1 +113 (answers 293), N1+G4a +56
+    [E_a3] G4a: pairs (both answered, statements differ) 131, switched to the original 70 | one right one wrong 52: picked right 34, always-E right 40 | nets G4a +67, G4c +93 (answers 338), S1 +102 (answers 330), N1+G4a +71
+    G4b: pairs 97 (statements differ 49), one right one wrong 14: picked right baseline 9, E_a3 9 | direct C +4, baseline pick +7, E_a3 pick +7
+    G4a-E[baseline] -28 [-50, -6] | G4a-E[E_a3] -13 [-32, +5] | G4a written-no write +15 [+5, +27] | G4c-S1[baseline] -16 [-33, +1] | G4c-S1[E_a3] -9 [-26, +7] | ref N1-B(N1) -26 [-56, +4] | ref N1-TP -1 [-21, +18] | N1G4a-B(N1)[baseline] -54 [-88, -21] | N1G4a-B(N1)[E_a3] -39 [-71, -7] | N1G4a-TPG4a0[baseline] -1 [-21, +18] | N1G4a-TPG4a0[E_a3] +14 [-9, +36] | G4b N1G4b-N1[baseline] +3 [-5, +12] | G4b N1G4b-N1[E_a3] +3 [-5, +12] | G4b written-no write +0 [+0, +0] | G4b N1G4b-B(N1)[baseline] -23 [-52, +7] | G4b N1G4b-B(N1)[E_a3] -23 [-52, +7]
