@@ -11,6 +11,8 @@
 # usage: iti_chain.sh MODEL FIT SIGMA GPU "K ..." "ALPHA ..." LIKE_NAME [LANE_TAG ...]
 #   e.g. iti_chain.sh llama3.1-8b traintune_seed42 endq 2 "16 32 48 64" "2.5 5 7.5 10 15 20 25 30" pospromptl16 tt1 tt2
 # Markers: ITI_CHAIN_<MODEL>_<FIT>_<SIGMA>_DONE / _FAILED. Log lines in iti_all.log.
+# After the read-only review of 2026-11-22 10 h: the declared grid is passed to the table, which refuses when a point
+# lacks its MMLU pass (unless the early stop of its K has been reached).
 cd /data/sanshizhao/Truth_Decoupling
 ROOT=/workspace/Truth_Decoupling; HOST=/data/sanshizhao/Truth_Decoupling
 L=Iteration_01/logs/newsets_20261119
@@ -53,7 +55,7 @@ for pid in "${pids[@]}"; do wait "$pid" || bad=1; done
 [ "$bad" -eq 0 ] || fail "a tune judging failed"
 say "tune judged"
 CH=$HOST/$B/$FIT/choice$SUF.json
-[ -e $CH ] || "${TB[@]}" tune $MODEL $FIT --sigma $SIGMA --write-choice > $D/out_iti_${MODEL}_${FIT}${SUF}_tune_20261122.txt 2>&1 || fail "tune table"
+[ -e $CH ] || "${TB[@]}" tune $MODEL $FIT --sigma $SIGMA --ks "$KS" --alphas "$ALPHAS" --write-choice > $D/out_iti_${MODEL}_${FIT}${SUF}_tune_20261122.txt 2>&1 || fail "tune table"
 read -r K A STEM <<< "$(python3 -c '
 import json, sys
 c = json.load(open(sys.argv[1]))

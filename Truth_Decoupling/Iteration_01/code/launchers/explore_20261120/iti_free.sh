@@ -16,6 +16,9 @@
 # usage: iti_free.sh MODEL FIT SIGMA GPU "K ..." "ALPHA ..." LIKE_NAME GSM_GPU_A GSM_GPU_B [GSM8K_TOKENS]
 #   e.g. iti_free.sh gemma3-12b train_seed42 endq 0 "16 32 48 64" "2.5 5 7.5 10 15 20 25 30" pospromptl24 0 2
 # Markers: ITI_FREE_<MODEL>_<FIT>_<SIGMA>_DONE / _FAILED. Log lines in iti_all.log.
+# After the read-only review of 2026-11-22 10 h: the declared grid is passed to the table (every point must have its
+# tune answers); when the choice among all points is the main reading's own point, its test answers are not judged a
+# second time (the table reads the main test work dir) and GSM8K is run once.
 cd /data/sanshizhao/Truth_Decoupling
 ROOT=/workspace/Truth_Decoupling; HOST=/data/sanshizhao/Truth_Decoupling
 L=Iteration_01/logs/newsets_20261119
@@ -60,7 +63,7 @@ for pid in "${pids[@]}"; do wait "$pid" || bad=1; done
 [ "$bad" -eq 0 ] || fail "a tune judging failed"
 say "every tune point judged"
 CH=$HOST/$B/$FIT/choice_all$SUF.json
-[ -e $CH ] || "${TB[@]}" tune $MODEL $FIT --sigma $SIGMA --all --write-choice > $D/out_iti_${MODEL}_${FIT}${SUF}_tune_all_20261122.txt 2>&1 || fail "tune table (all points)"
+[ -e $CH ] || "${TB[@]}" tune $MODEL $FIT --sigma $SIGMA --all --ks "$KS" --alphas "$ALPHAS" --write-choice > $D/out_iti_${MODEL}_${FIT}${SUF}_tune_all_20261122.txt 2>&1 || fail "tune table (all points)"
 read -r K A STEM <<< "$(python3 -c '
 import json, sys
 c = json.load(open(sys.argv[1]))
@@ -73,22 +76,24 @@ if [ ! -e $HOST/$B/$FIT/mmlu/$STEM.json ]; then
     --out $ROOT/$B/$FIT/mmlu/$STEM.json >> $log 2>&1 || fail "MMLU of the chosen point"
 fi
 "${TB[@]}" budget $MODEL $FIT --sigma $SIGMA > $D/out_iti_${MODEL}_${FIT}${SUF}_budget_20261122.txt 2>&1 || fail "budget table"
-if [ ! -e $HOST/$B/$FIT/gen/test_$STEM.json ]; then
-  DX $GPU $PY -I $IT gen --models $M --model $MODEL --fit $ROOT/$B/fit_$FIT.pt --sigma $SIGMA --k $K --alpha $A --split test \
-    --out $ROOT/$B/$FIT/gen/test_$STEM.json >> $log 2>&1 || fail "test generation"
-fi
-bash $L/iti_judge.sh $MODEL test iti_${FIT}${SUF}_all $LIKE $B/$FIT/gen/test_$STEM.json >> $log 2>&1 || fail "test judging"
-"${TB[@]}" test $MODEL $FIT --sigma $SIGMA --all > $D/out_iti_${MODEL}_${FIT}${SUF}_test_all_20261122.txt 2>&1 || fail "test table (all points)"
-say "test read; GSM8K at both choices on GPUs $GA and $GB"
 MAIN=$(python3 -c '
 import json, sys
 print(json.load(open(sys.argv[1]))["stem"])' $HOST/$B/$FIT/choice$SUF.json)
 [ -n "$MAIN" ] || fail "no main choice"
+if [ "$STEM" = "$MAIN" ]; then
+  say "the choice among all points is the main reading's own point ($STEM): its test verdicts are reused"
+elif [ ! -e $HOST/$B/$FIT/gen/test_$STEM.json ]; then
+  DX $GPU $PY -I $IT gen --models $M --model $MODEL --fit $ROOT/$B/fit_$FIT.pt --sigma $SIGMA --k $K --alpha $A --split test \
+    --out $ROOT/$B/$FIT/gen/test_$STEM.json >> $log 2>&1 || fail "test generation"
+fi
+[ "$STEM" = "$MAIN" ] || bash $L/iti_judge.sh $MODEL test iti_${FIT}${SUF}_all $LIKE $B/$FIT/gen/test_$STEM.json >> $log 2>&1 || fail "test judging"
+"${TB[@]}" test $MODEL $FIT --sigma $SIGMA --all > $D/out_iti_${MODEL}_${FIT}${SUF}_test_all_20261122.txt 2>&1 || fail "test table (all points)"
+say "test read; GSM8K at both choices on GPUs $GA and $GB"
 mkdir -p $HOST/$B/$FIT/gsm8k
 GS="--items $ROOT/data_external/gsm8k_20261119/main/test-00000-of-00001.parquet --ids $ROOT/Iteration_01/capability/sets/gsm8k_1319_20261119.json --max-new-tokens $TOK"
 gpids=()
 i=0
-for st in $MAIN $STEM; do
+for st in $(printf "%s\n" $MAIN $STEM | awk '!seen[$0]++'); do
   [ $i -eq 0 ] && g=$GA || g=$GB
   i=$((i + 1))
   [ ! -e $HOST/$B/$FIT/gsm8k/$st.json ] || continue
@@ -104,7 +109,7 @@ done
 bad=0
 for pid in "${gpids[@]}"; do wait "$pid" || bad=1; done
 [ "$bad" -eq 0 ] || fail "a GSM8K pass"
-docker exec -u 1000:1001 -e PYTHONDONTWRITEBYTECODE=1 -w $ROOT truth_dec python3 -B Iteration_01/diag/iti_gsm8k.py $MODEL $FIT $MAIN $STEM \
+docker exec -u 1000:1001 -e PYTHONDONTWRITEBYTECODE=1 -w $ROOT truth_dec python3 -B Iteration_01/diag/iti_gsm8k.py $MODEL $FIT $(printf "%s\n" $MAIN $STEM | awk '!seen[$0]++') \
   > $D/out_iti_${MODEL}_${FIT}${SUF}_gsm8k_20261122.txt 2>&1 || fail "GSM8K table"
 say "done"
 touch ${MK}_DONE

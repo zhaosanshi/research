@@ -29,8 +29,19 @@ The method as implemented here (every step follows the official code unless mark
                generation prompt is the project's plain chat prompt "x" (the official instruction prompt and few-shot
                primer belong to a completion-style evaluation that this project does not run).
 
+  faithful (fit --faithful, added 2026-11-22 10 h after the read-only review; earlier fits are unchanged and keep
+               their own rules, recorded in the fit file):
+               - probe texts: the reference answer gets a full stop when it ends without . ! or ?, because the
+                 official default probe bank (the multiple-choice targets of TruthfulQA) ends every choice with a
+                 full stop, so the official "last token" is mostly the full stop (checked on rows of the public
+                 dataset); the sigma bank keeps the answers as they are, as the official generation-split bank does;
+               - sigma bank: the random other question is drawn once per question and shared by all its answers
+                 (official tokenized_tqa_gen_end_q), from the fit questions only;
+               - head order: numpy argsort of the flattened [layer, head] accuracies, reversed (official
+                 get_top_heads), instead of "higher accuracy, then lower layer and head".
+
 Phases (model interpreter, from /workspace/Truth_Decoupling):
-  fit     --out FIT.pt [--fit-splits train[,tune]] [--val-ratio R] [--seed S]
+  fit     --out FIT.pt [--fit-splits train[,tune]] [--val-ratio R] [--seed S] [--faithful]
   check   --fit FIT.pt --k K --alpha A        acceptance of the intervention code on the first two tune batches
   gen     --fit FIT.pt --split tune|test --k K --alpha A --out GEN.json [--first-batches N]
   mmlu    --fit FIT.pt --k K --alpha A --items PARQUET --ids IDS.json --out OUT.json [--first-batches N]
@@ -44,6 +55,7 @@ import argparse
 import hashlib
 import json
 import math
+import os
 import sys
 import time
 from pathlib import Path
@@ -61,6 +73,21 @@ def sha_file(path):
         for chunk in iter(lambda: f.read(1 << 20), b""):
             h.update(chunk)
     return h.hexdigest()
+
+
+def write_new(out, text):
+    """Write a new file; never replace one (two lanes computing the same point used to race on the exists check).
+    The text goes to a temporary file first and is then linked to the final name, which fails if the name exists."""
+    out = Path(out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    tmp = out.with_name(".%s.%d.tmp" % (out.name, os.getpid()))
+    tmp.write_text(text, encoding="utf-8")
+    try:
+        os.link(tmp, out)
+    except FileExistsError:
+        raise SystemExit("%s exists" % out)
+    finally:
+        tmp.unlink()
 
 
 def open_run(a):
@@ -81,6 +108,11 @@ def head_shape(bundle):
     if proj.bias is not None or proj.in_features % heads:
         raise SystemExit("the attention output projection must be bias-free and split evenly into heads")
     return heads, proj.in_features // heads
+
+
+def with_stop(answer):
+    a = answer.rstrip()
+    return a if a.endswith((".", "!", "?")) else a + "."
 
 
 def pair_text(bundle, question, answer, next_question=None):
@@ -137,10 +169,13 @@ def run_fit(a):
     rows = []                                           # (question index, label, text, text of the sigma bank)
     other = np.random.RandomState(a.seed + 1)           # the official draw of the appended question has no seed
     for k, q in enumerate(questions):
+        if a.faithful:                                  # one random question per question, shared by its answers
+            nxt_q = questions[int(other.randint(len(questions)))]["question"]
         for label, key in ((1, "gold"), (0, "incorrect")):
             for ans in q[key]:
-                nxt = questions[int(other.randint(len(questions)))]["question"]
-                rows.append((k, label, pair_text(bundle, q["question"], ans), pair_text(bundle, q["question"], ans, nxt)))
+                nxt = nxt_q if a.faithful else questions[int(other.randint(len(questions)))]["question"]
+                probe = with_stop(ans) if a.faithful else ans
+                rows.append((k, label, pair_text(bundle, q["question"], probe), pair_text(bundle, q["question"], ans, nxt)))
     t0 = time.time()
     with torch.no_grad():
         acts = capture_last(X, bundle, [r[2] for r in rows]).numpy().reshape(len(rows), L, H, d)
@@ -171,7 +206,8 @@ def run_fit(a):
             sigma_pairs[l, h] = float(np.std(x @ u))
             sigma[l, h] = float(np.std(endq[:, l, h, :] @ u))
         print("layer %2d: best validation accuracy %.3f" % (l, acc[l].max()), flush=True)
-    rank = sorted(((float(acc[l, h]), l, h) for l in range(L) for h in range(H)), key=lambda t: (-t[0], t[1], t[2]))
+    rule = "numpy_argsort_desc" if a.faithful else "accuracy_then_layer_head"
+    rank = ranked(acc, rule)
     out = Path(a.out)
     if out.exists():
         raise SystemExit("%s exists" % out)
@@ -181,7 +217,10 @@ def run_fit(a):
             "questions": len(questions), "question_ids": [q["pair_id"] for q in questions],
             "validation_question_ids": [questions[k]["pair_id"] for k in sorted(val_q)],
             "pairs": len(rows), "pairs_true": int(y.sum()), "pairs_train": int(tr.sum()), "pairs_validation": int(va.sum()),
-            "text_format": "<bos>Q: {question} A: {answer}", "position": "last token", "site": "input of the attention output projection, split into heads",
+            "text_format": "<bos>Q: {question} A: {answer}" + (" (answer with a full stop added when it ends without . ! or ?)" if a.faithful else ""),
+            "faithful": bool(a.faithful), "rank_rule": rule,
+            "sigma_draw": "one random fit question per question" if a.faithful else "one random fit question per pair",
+            "position": "last token", "site": "input of the attention output projection, split into heads",
             "layers": L, "heads": H, "head_dim": d, "probe": "sklearn LogisticRegression(random_state=seed, max_iter=1000)",
             "direction": "mass mean shift (true minus false) over all fit pairs, normalised",
             "sigma": "std along the direction of the last-token activations of '<bos>Q: {question} A: {answer} Q: {random fit question}' over all fit pairs (the official code's bank, restricted to the fit questions)",
@@ -191,9 +230,16 @@ def run_fit(a):
     ratio = [sigma[l, h] / sigma_pairs[l, h] for l, h in top]
     meta["sigma_over_sigma_pairs_top48"] = {"min": float(min(ratio)), "median": float(sorted(ratio)[24]), "max": float(max(ratio)),
                                             "correlation": float(np.corrcoef([sigma[l, h] for l, h in top], [sigma_pairs[l, h] for l, h in top])[0, 1])}
+    tmp = out.with_name(".%s.%d.tmp" % (out.name, os.getpid()))
     torch.save({"meta": meta, "accuracy": torch.tensor(acc), "unit": torch.tensor(unit), "sigma": torch.tensor(sigma),
-                "sigma_pairs": torch.tensor(sigma_pairs)}, out)
-    Path(str(out) + ".json").write_text(json.dumps(meta, indent=1), encoding="utf-8")
+                "sigma_pairs": torch.tensor(sigma_pairs)}, tmp)
+    try:
+        os.link(tmp, out)
+    except FileExistsError:
+        raise SystemExit("%s exists" % out)
+    finally:
+        tmp.unlink()
+    write_new(str(out) + ".json", json.dumps(meta, indent=1))
     print("fit: %d questions (%d for validation), %d pairs (%d true), validation accuracy of the best head %.3f, of head no. 48 %.3f; "
           "sigma (end-of-next-question bank) over sigma (the pairs) on the top 48 heads: %s; %.0fs" % (
               len(questions), len(val_q), len(rows), int(y.sum()), rank[0][0], rank[47][0], meta["sigma_over_sigma_pairs_top48"], time.time() - t0), flush=True)
@@ -208,6 +254,19 @@ def load_fit(path, model, ident):
     return f
 
 
+def ranked(acc, rule):
+    """[(accuracy, layer, head)] best first. accuracy_then_layer_head: ties to the lower layer, then head (the first
+    fits); numpy_argsort_desc: the official get_top_heads, np.argsort of the flattened [layer, head] array, reversed."""
+    import numpy as np
+    a = np.asarray(acc, dtype=float)
+    L, H = a.shape
+    if rule == "numpy_argsort_desc":
+        return [(float(a[i // H, i % H]), int(i // H), int(i % H)) for i in np.argsort(a.reshape(L * H))[::-1]]
+    if rule == "accuracy_then_layer_head":
+        return sorted(((float(a[l, h]), l, h) for l in range(L) for h in range(H)), key=lambda t: (-t[0], t[1], t[2]))
+    raise SystemExit("unknown head order %r" % rule)
+
+
 def head_vectors(bundle, fit, k, alpha, which="endq"):
     """{layer: [heads * head_dim] float32 tensor} = alpha * sigma * direction on the slices of the chosen heads,
     and the list of (layer, head, validation accuracy) chosen. which: "endq" (the code's sigma) or "pairs"."""
@@ -215,7 +274,7 @@ def head_vectors(bundle, fit, k, alpha, which="endq"):
     acc, unit, sigma = fit["accuracy"], fit["unit"], fit[{"endq": "sigma", "pairs": "sigma_pairs"}[which]]
     L, H = acc.shape
     d = unit.shape[2]
-    rank = sorted(((float(acc[l, h]), l, h) for l in range(L) for h in range(H)), key=lambda t: (-t[0], t[1], t[2]))
+    rank = ranked(acc.numpy() if hasattr(acc, "numpy") else acc, fit["meta"].get("rank_rule", "accuracy_then_layer_head"))
     if not 0 <= k <= len(rank):
         raise SystemExit("K out of range")
     chosen = rank[:k]
@@ -314,8 +373,9 @@ def run_check(a):
     """Acceptance on the first two tune batches: (1) without hooks the function reproduces the run's frozen no-write
     answers token for token; (2) with alpha = 0 the answers are those of (1); (3) with the requested K and alpha the
     hooks fire on the prefill and on every decode forward, and the logits of the first new token equal, up to
-    rounding, those of the same shift written directly on the attention block's OUTPUT (o_proj is linear and has no
-    bias), which is the form in which the intervention is a fixed vector added to the residual stream."""
+    rounding, those of the same shift written directly on the attention module's OUTPUT, W_O times the vector (o_proj
+    is linear and has no bias; for models with a norm after attention, such as Gemma-3, that output is normed before
+    it reaches the residual stream, and the two forms are still the same computation)."""
     import torch
     NG, m, X, ctx = open_run(a)
     bundle = ctx.bundle
@@ -398,8 +458,7 @@ def run_gen(a):
                "question_ids": [q["pair_id"] for q in questions], "rows": rows,
                "summary": {"n": len(rows), "rule_abstain": sum(r["rule_abstain"] for r in rows),
                            "unfinished": sum(not r["finished"] for r in rows), "seconds": time.time() - t0}}
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(payload), encoding="utf-8")
+    write_new(out, json.dumps(payload))
     s = payload["summary"]
     print("%s %s %s: %d questions, rule abstain %d, unfinished %d, %.0fs" % (
         a.model, a.split, payload["condition"], s["n"], s["rule_abstain"], s["unfinished"], s["seconds"]), flush=True)
@@ -462,8 +521,7 @@ def run_mmlu(a):
                "identity_sha256": ctx.ident_sha, "script_sha256": sha_file(__file__), "items_file_sha256": sha_file(a.items),
                "ids_file_sha256": sha_file(a.ids), "letter_token_ids": letter_ids, "setting": st, "n": len(recs),
                "accuracy": acc, "rows": recs, "seconds": time.time() - t0}
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(payload), encoding="utf-8")
+    write_new(out, json.dumps(payload))
     print("%s mmlu K %d alpha %s: accuracy %.4f over %d items, %.0fs" % (a.model, a.k, a.alpha, acc, len(recs), time.time() - t0), flush=True)
 
 
@@ -495,8 +553,7 @@ def run_gsm8k(a):
                "system_text": systems["neutral"], "identity_sha256": ctx.ident_sha, "script_sha256": sha_file(__file__),
                "items_file_sha256": sha_file(a.items), "ids_file_sha256": sha_file(a.ids), "max_new_tokens": a.max_new_tokens,
                "batch_size": NG.BATCH, "setting": st, "ids": [i for i, _ in items], "rows": rows, "seconds": time.time() - t0}
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(payload), encoding="utf-8")
+    write_new(out, json.dumps(payload))
     print("%s gsm8k K %d alpha %s: %d items, rule abstain %d, unfinished %d, %.0fs" % (
         a.model, a.k, a.alpha, len(rows), sum(r["rule_abstain"] for r in rows), sum(not r["finished"] for r in rows), time.time() - t0), flush=True)
 
@@ -533,8 +590,7 @@ def run_export(a):
     out = Path(a.out)
     if out.exists():
         raise SystemExit("%s exists; never overwrite a judge input" % out)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")
+    write_new(out, json.dumps(payload, ensure_ascii=False, indent=1))
     print("exported %s: %d questions x %d conditions" % (out, len(rows), len(conds)), flush=True)
 
 
@@ -547,6 +603,7 @@ def main():
     ap.add_argument("--fit-splits", default="train")
     ap.add_argument("--val-ratio", type=float, default=0.2)
     ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--faithful", action="store_true", help="fit only: the official probe text, sigma draw and head order")
     ap.add_argument("--k", type=int, default=48)
     ap.add_argument("--alpha", type=float, default=15.0)
     ap.add_argument("--sigma", choices=["endq", "pairs"], default="endq")

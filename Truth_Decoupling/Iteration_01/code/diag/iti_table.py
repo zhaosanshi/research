@@ -21,6 +21,14 @@
 #                      judged tune work dir yet (for launchers/.../iti_free.sh).
 #   point MODEL FIT STEM   prints the selection-half MMLU change of one grid point (file stem, e.g. k48_a15), for the
 #                      launcher's early stop: once a K is far over the budget, its larger alphas are not run.
+# After the read-only review of 2026-11-22 10 h (no number changed):
+#   - verdicts of one (question, condition) arriving from two judge work dirs must agree (they used to be merged with
+#     the later one winning);
+#   - tune --ks "K ..." --alphas "A ..." declares the grid: every point must have its MMLU pass, unless an earlier
+#     alpha of the same K is already below -STOP (the launcher's early stop, STOP = 3), and with --all every point
+#     must have tune answers; without the two options the grid is whatever files exist (the earlier behaviour);
+#   - test --all at a choice that is the main reading's own point reads the main reading's test work dir (no second
+#     judging of the same answers).
 # Options: --sigma endq|pairs (which sigma of the fit; default endq, the official code's), --budget B.
 # Work dirs: <run>/eval_extra/judge_tune_iti_<FIT>[_sp]_k<K>_tune (one per K) and judge_test_iti_<FIT>[_sp]_test.
 # usage (host, from /data/sanshizhao/Truth_Decoupling): python3 -B Iteration_01/diag/iti_table.py budget llama3.1-8b train_seed42
@@ -133,6 +141,45 @@ def unjudged(model, fit, sigma):
     return sorted(out)
 
 
+def merged_verdicts(model, work_dirs):
+    """(states, blanks) of several judge work dirs; a (question, condition) seen twice must have the same verdict."""
+    st, bl, src = {}, {}, {}
+    for w in work_dirs:
+        if not MP.has(w):
+            continue
+        st1, bl1 = ps.load(w, "pro")
+        for key, v in st1.items():
+            if key in st and (st[key] != v or bl[key] != bl1[key]):
+                raise SystemExit("%s: %s and %s give different verdicts for %s %s" % (
+                    model, os.path.basename(src[key]), os.path.basename(w), key[0], key[1]))
+            src.setdefault(key, w)
+        st.update(st1)
+        bl.update(bl1)
+    return st, bl
+
+
+def grid_complete(rows_measured, model, fit, sigma, ks, alphas, every, stop=3.0):
+    """Refuse when a declared grid point lacks what the reading needs (see the header)."""
+    have_mmlu = {(r["k"], r["alpha"]): r for r in rows_measured}
+    suf = "_sp" if sigma == "pairs" else ""
+    missing = []
+    for k in ks:
+        stopped = False
+        for a in sorted(alphas):
+            stem = "k%d_a%s%s" % (k, ("%g" % a).replace(".", "-"), suf)
+            if every and not os.path.exists("%s/%s/%s/gen/tune_%s.json" % (BASE, model, fit, stem)):
+                missing.append("tune " + stem)
+            if stopped:
+                continue
+            r = have_mmlu.get((k, a))
+            if r is None:
+                missing.append("mmlu " + stem)
+            elif r["dev"][0] < -stop:
+                stopped = True
+    if missing:
+        raise SystemExit("the declared grid is not complete: %s" % " ".join(missing))
+
+
 def condition_of(model, fit, split, stem):
     g = read("%s/%s/%s/gen/%s_%s.json" % (BASE, model, fit, split, stem))
     if g.get("completed") is not True or g["model"] != model or g["split"] != split:
@@ -140,9 +187,11 @@ def condition_of(model, fit, split, stem):
     return g["condition"], g
 
 
-def tune_table(model, fit, sigma, budget, write, every=False):
+def tune_table(model, fit, sigma, budget, write, every=False, ks=None, alphas=None):
     display, layer, s = KEY[model]
     measured = budget_rows(model, fit, sigma, budget, show=False)
+    if ks and alphas:
+        grid_complete(measured, model, fit, sigma, ks, alphas, every)
     rows = [r for r in measured if r["within"]]
     if every:
         mm = {r["stem"]: r for r in measured}
@@ -161,14 +210,8 @@ def tune_table(model, fit, sigma, budget, write, every=False):
         raise SystemExit("the project's own tune split at the prompt rule is not complete (%s)" % why)
     tsp, ttx, _, qs = T
     _, run, _ = MP.usual(display, 0)
-    st, bl = {}, {}
     tag = "iti_%s%s" % (fit, "_sp" if sigma == "pairs" else "")
-    for w in sorted(glob.glob("%s/eval_extra/judge_tune_%s_k*_tune" % (run, tag))):
-        if not MP.has(w):
-            continue
-        st1, bl1 = ps.load(w, "pro")
-        st.update(st1)
-        bl.update(bl1)
+    st, bl = merged_verdicts(model, sorted(glob.glob("%s/eval_extra/judge_tune_%s_k*_tune" % (run, tag))))
     base = S.system(tsp, ttx, ("base",))[0]
     e = S.system(tsp, ttx, ("E", s))
     print("# ITI, %s, fit %s, sigma %s: TruthfulQA tune split, %d questions, DeepSeek Pro, score = right - wrong; %s" % (
@@ -216,6 +259,11 @@ def test_table(model, fit, sigma, every=False):
     tsp, ttx, _, _ = T
     _, run, _ = MP.usual(display, 1)
     w = MP.work(run, "test", "iti_%s%s%s" % (fit, "_sp" if sigma == "pairs" else "", "_all" if every else ""))
+    if every and not MP.has(w):
+        main = read("%s/%s/%s/choice%s.json" % (BASE, model, fit, "_sp" if sigma == "pairs" else ""))
+        if main["stem"] == ch["stem"]:
+            w = MP.work(run, "test", "iti_%s%s" % (fit, "_sp" if sigma == "pairs" else ""))
+            print("# the choice among all points is the main reading's own point: its test verdicts are read from %s" % os.path.basename(w))
     if not MP.has(w):
         raise SystemExit("no Pro verdicts yet in %s" % os.path.basename(w))
     cond, g = condition_of(model, fit, "test", ch["stem"])
@@ -244,7 +292,7 @@ def test_table(model, fit, sigma, every=False):
 
 def main():
     argv = sys.argv[1:]
-    opt = {"--sigma": "endq", "--budget": "1"}
+    opt = {"--sigma": "endq", "--budget": "1", "--ks": "", "--alphas": ""}
     write = every = False
     rest = []
     while argv:
@@ -278,7 +326,8 @@ def main():
     if mode == "budget":
         budget_rows(model, fit, opt["--sigma"], float(opt["--budget"]))
     elif mode == "tune":
-        tune_table(model, fit, opt["--sigma"], float(opt["--budget"]), write, every)
+        tune_table(model, fit, opt["--sigma"], float(opt["--budget"]), write, every,
+                   [int(x) for x in opt["--ks"].split()], [float(x) for x in opt["--alphas"].split()])
     else:
         test_table(model, fit, opt["--sigma"], every)
 

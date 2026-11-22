@@ -13,18 +13,18 @@
 # The fit file must exist: baselines/iti/<MODEL>/fit_<FIT>.pt (iti_baseline.py fit). Outputs: baselines/iti/<MODEL>/<FIT>/mmlu/
 # and .../gen/tune_*.json; the K = 0 pass is baselines/iti/<MODEL>/mmlu_k0.json.
 # usage: iti_grid.sh MODEL GPU FIT SIGMA "K ..." "ALPHA ..." TAG      e.g. iti_grid.sh llama3.1-8b 1 train_seed42 endq "16 32" "5 10 15" a
-# Markers: ITI_GRID_<MODEL>_<FIT>_<SIGMA>_<TAG>_DONE / _FAILED. Log: iti_<MODEL>_<TAG>.log, iti_all.log.
+# Markers: ITI_GRID_<MODEL>_<FIT>_<SIGMA>_<TAG>_DONE / _FAILED. Log: iti_<MODEL>_<FIT>_<SIGMA>_<TAG>.log, iti_all.log.
 cd /data/sanshizhao/Truth_Decoupling
 ROOT=/workspace/Truth_Decoupling; HOST=/data/sanshizhao/Truth_Decoupling
 L=Iteration_01/logs/newsets_20261119
 CODE=$ROOT/Iteration_01/code
-IT=$CODE/scripts/newsets/iti_baseline.py
+IT=${ITI_PROGRAM:-$CODE/scripts/newsets/iti_baseline.py}   # ITI_PROGRAM: another copy of the program (container path), e.g. a staged new version
 M=$CODE/configs/newsets/frozen_models_20261119.json
 MODEL=$1; GPU=$2; FIT=$3; SIGMA=$4; KS=$5; ALPHAS=$6; TAG=$7
 [ -n "$TAG" ] || { echo "usage: iti_grid.sh MODEL GPU FIT SIGMA \"K ...\" \"ALPHA ...\" TAG"; exit 2; }
 B=Iteration_01/baselines/iti/$MODEL
 MK=$L/ITI_GRID_${MODEL}_${FIT}_${SIGMA}_${TAG}
-log=$L/iti_${MODEL}_$TAG.log
+log=$L/iti_${MODEL}_${FIT}_${SIGMA}_$TAG.log         # FIT and SIGMA in the name since 2026-11-22 10 h (two fills shared one log)
 say() { echo "$(date '+%F %T') iti grid $MODEL $FIT $SIGMA $TAG: $*" >> $L/iti_all.log; }
 rm -f ${MK}_DONE ${MK}_FAILED
 fail() { say "FAILED: $*"; touch ${MK}_FAILED; exit 1; }
