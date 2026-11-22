@@ -16,6 +16,7 @@
 # --all (added 2026-11-22 06 h, after the first three tune readings were seen; the reading most favourable to ITI):
 #   tune --all   every grid point that has tune answers, whatever its MMLU change (shown when measured); the choice is
 #                saved as choice_all[_sp].json;   test --all   the test split at that choice (work dir ..._all_test).
+#   stems MODEL FIT    prints "K STEM" for every grid point within the budget (for launchers/.../iti_chain.sh).
 #   point MODEL FIT STEM   prints the selection-half MMLU change of one grid point (file stem, e.g. k48_a15), for the
 #                      launcher's early stop: once a K is far over the budget, its larger alphas are not run.
 # Options: --sigma endq|pairs (which sigma of the fit; default endq, the official code's), --budget B.
@@ -218,6 +219,11 @@ def main():
         if len(got) != 1:
             raise SystemExit("no complete MMLU pass for %s" % rest[3])
         print("%.3f" % got[0])
+        return
+    if rest[:1] == ["stems"] and len(rest) == 3 and rest[1] in KEY and opt["--sigma"] in ("endq", "pairs"):
+        for r in budget_rows(rest[1], rest[2], opt["--sigma"], float(opt["--budget"]), show=False):
+            if r["within"]:
+                print(r["k"], r["stem"])
         return
     if len(rest) != 3 or rest[0] not in ("budget", "tune", "test") or rest[1] not in KEY or opt["--sigma"] not in ("endq", "pairs"):
         raise SystemExit("usage: iti_table.py budget|tune|test MODEL FIT [--sigma endq|pairs] [--budget B] [--write-choice]")
