@@ -1,0 +1,47 @@
+# step 0, prefix x, llama3.1-8b: single E +40 (319), N1 +62 (476) [N1: E 3-5, own blanks up to 2, E's blanks up to 1]; reference +40 (319) / +62 (476) -> reproduced
+# step 0, prefix x, qwen3.5-9b: single E +168 (408), N1 +186 (444) [N1: E 2, own blanks up to 0.5, E's blanks up to 0.25]; reference +168 (408) / +186 (444) -> reproduced
+# step 0, prefix x, qwen3.8-27b: single E +142 (354), N1 +175 (490) [N1: E 1-75, own blanks up to 1, E's blanks up to 0.5]; reference +142 (354) / +175 (490) -> reproduced
+# step 0, prefix x, gemma3-12b: single E +103 (323), N1 +158 (489) [N1: E 2-5, own blanks up to 2, E's blanks up to 2]; reference +103 (323) / +158 (489) -> reproduced
+# step 0, prefix x, gemma3-27b: single E +105 (423), N1 +144 (510) [N1: E 1, own blanks up to 2, E's blanks up to 1]; reference +105 (423) / +144 (510) -> reproduced
+
+## TruthfulQA tune, P = x_E2, both E strengths (S0 = P, SE = P + E, SN1 = N1 on P with n1_pick's caps)
+  llama3.1-8b  E 3.5   192 tune q (0 left out) | S0 +18 (158) | SE +37 (125) | SN1 +56 (190) with ('N1', '3-5', '2', '2')
+  llama3.1-8b  E 1.75  192 tune q (0 left out) | S0 +18 (158) | SE +35 (141) | SN1 +53 (178) with ('N1', '1-75', '0-25', '2')
+  qwen3.5-9b   E 2     192 tune q (0 left out) | S0 +64 (162) | SE +72 (135) | SN1 +80 (151) with ('N1', '2', None, '0-5')
+  qwen3.5-9b   E 1     192 tune q (0 left out) | S0 +64 (162) | SE +66 (145) | SN1 +73 (166) with ('N1', '1', '0-5', '0-5')
+  qwen3.8-27b  E 1.75  192 tune q (0 left out) | S0 +63 (128) | SE +76 (145) | SN1 +93 (179) with ('N1', '1-75', None, '1')
+  qwen3.8-27b  E 0.875 192 tune q (0 left out) | S0 +63 (128) | SE +76 (132) | SN1 +97 (177) with ('N1', '0-875', None, '1')
+  gemma3-12b   E 2.5   192 tune q (0 left out) | S0 +34 (178) | SE +75 (170) | SN1 +83 (185) with ('N1', '2-5', '0-5', '0-5')
+  gemma3-12b   E 1.25  192 tune q (0 left out) | S0 +34 (178) | SE +79 (176) | SN1 +85 (187) with ('N1', '1-25', '0-5', '2')
+  gemma3-27b   E 1     192 tune q (0 left out) | S0 +65 (178) | SE +70 (180) | SN1 +73 (183) with ('N1', '1', None, '0-5')
+  gemma3-27b   E 0.5   192 tune q (0 left out) | S0 +65 (178) | SE +64 (181) | SN1 +68 (187) with ('N1', '0-5', None, '0-5')
+
+## TruthfulQA test, llama3.1-8b: E 3.5, ('N1', '3-5', '2', '2'), 523 questions (0 of the main table's list left out)
+    S0 +33 (454) | SE +126 (353) | SN1 +130 (510) | mainE +40 (319) | mainN1 +62 (476) | T2 +40 (523)
+    SN1 - S0 +97 [+52, +144] | SE - S0 +93 [+51, +134] | SN1 - SE +4 [-18, +28] | SN1 - mainN1 +68 [+24, +112] | SE - mainE +86 [+51, +123] | SN1 - T2 +90 [+43, +139]
+    S0 -> SN1: wrong->right 75 | wrong->none 9 | right->wrong 43 | right->none 15 | none->right 51 | none->wrong 12 | right->right 180 | wrong->wrong 121 | none->none 17 (none = blank or no information)
+
+## TruthfulQA test, qwen3.5-9b: E 2, ('N1', '2', None, '0-5'), 523 questions (0 of the main table's list left out)
+    S0 +168 (464) | SE +190 (403) | SN1 +200 (424) | mainE +168 (408) | mainN1 +186 (444) | T2 +159 (523)
+    SN1 - S0 +32 [+2, +62] | SE - S0 +22 [-7, +50] | SN1 - SE +10 [+1, +19] | SN1 - mainN1 +14 [-11, +40] | SE - mainE +22 [-3, +48] | SN1 - T2 +41 [+8, +73]
+    S0 -> SN1: wrong->right 18 | wrong->none 44 | right->wrong 19 | right->none 22 | none->right 19 | none->wrong 7 | right->right 272 | wrong->wrong 83 | none->none 39 (none = blank or no information)
+
+## TruthfulQA test, qwen3.8-27b: E 0.875, ('N1', '0-875', None, '1'), 521 questions (0 of the main table's list left out)
+    S0 +162 (373) | SE +193 (384) | SN1 +217 (487) | mainE +142 (354) | mainN1 +175 (490) | T2 +165 (521)
+    SN1 - S0 +55 [+23, +86] | SE - S0 +31 [+6, +56] | SN1 - SE +24 [+5, +43] | SN1 - mainN1 +42 [+13, +71] | SE - mainE +51 [+23, +79] | SN1 - T2 +52 [+23, +81]
+    S0 -> SN1: wrong->right 15 | wrong->none 14 | right->wrong 10 | right->none 9 | none->right 83 | none->wrong 43 | right->right 246 | wrong->wrong 74 | none->none 27 (none = blank or no information)
+
+## TruthfulQA test, gemma3-12b: E 1.25, ('N1', '1-25', '0-5', '2'), 522 questions (0 of the main table's list left out)
+    S0 +156 (501) | SE +181 (488) | SN1 +194 (513) | mainE +103 (323) | mainN1 +158 (489) | T2 +145 (521)
+    SN1 - S0 +38 [+3, +74] | SE - S0 +25 [-10, +60] | SN1 - SE +13 [+4, +23] | SN1 - mainN1 +36 [+1, +72] | SE - mainE +78 [+44, +112] | SN1 - T2 +49 [+12, +86]
+    S0 -> SN1: wrong->right 39 | wrong->none 10 | right->wrong 35 | right->none 6 | none->right 27 | none->wrong 1 | right->right 278 | wrong->wrong 114 | none->none 12 (none = blank or no information)
+
+## TruthfulQA test, gemma3-27b: E 1, ('N1', '1', None, '0-5'), 523 questions (0 of the main table's list left out)
+    S0 +186 (488) | SE +208 (506) | SN1 +209 (515) | mainE +105 (423) | mainN1 +144 (510) | T2 +178 (522)
+    SN1 - S0 +23 [-10, +56] | SE - S0 +22 [-11, +55] | SN1 - SE +1 [-4, +6] | SN1 - mainN1 +65 [+21, +108] | SE - mainE +103 [+61, +145] | SN1 - T2 +31 [-3, +65]
+    S0 -> SN1: wrong->right 32 | wrong->none 5 | right->wrong 27 | right->none 8 | none->right 27 | none->wrong 11 | right->right 292 | wrong->wrong 104 | none->none 17 (none = blank or no information)
+
+## TruthfulQA test, the five models together, 520 common questions
+    S0 +706 (2269) | SE +894 (2126) | SN1 +947 (2438) | mainE +560 (1818) | mainN1 +729 (2398) | T2 +689 (2598)
+    SN1 - S0 +241 [+142, +337] | SE - S0 +188 [+96, +279] | SN1 - SE +53 [+17, +91] | SN1 - mainN1 +218 [+134, +307] | SE - mainE +334 [+245, +419] | SN1 - T2 +258 [+158, +357]
+    S0 -> SN1: wrong->right 178 | wrong->none 81 | right->wrong 134 | right->none 60 | none->right 206 | none->wrong 74 | right->right 1263 | wrong->wrong 492 | none->none 112 (none = blank or no information)
