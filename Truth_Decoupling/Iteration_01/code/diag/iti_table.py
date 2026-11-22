@@ -17,6 +17,8 @@
 #   tune --all   every grid point that has tune answers, whatever its MMLU change (shown when measured); the choice is
 #                saved as choice_all[_sp].json;   test --all   the test split at that choice (work dir ..._all_test).
 #   stems MODEL FIT    prints "K STEM" for every grid point within the budget (for launchers/.../iti_chain.sh).
+#   unjudged MODEL FIT prints "K STEM" for every tune generation of the fit (and sigma) whose condition is in no
+#                      judged tune work dir yet (for launchers/.../iti_free.sh).
 #   point MODEL FIT STEM   prints the selection-half MMLU change of one grid point (file stem, e.g. k48_a15), for the
 #                      launcher's early stop: once a K is far over the budget, its larger alphas are not run.
 # Options: --sigma endq|pairs (which sigma of the fit; default endq, the official code's), --budget B.
@@ -87,6 +89,48 @@ def budget_rows(model, fit, sigma, budget, show=True):
                 r["k"], r["alpha"], r["dev"][0], r["dev"][1], r["dev"][2], r["rep"][0], r["rep"][1], r["rep"][2],
                 "within the budget" if r["within"] else "over the budget"))
     return rows
+
+
+def point_change(model, fit, stem):
+    """The selection-half MMLU change of one grid point, reading only the K = 0 pass and that point's file (the
+    launcher's early stop calls this after every pass; budget_rows reads every file of the model and takes minutes).
+    The halves are those of budget_rows: PM.halves depends only on the set of item ids, and budget mode checks that the
+    K = 0 pass and the usual no-write file have the same set."""
+    d0 = read("%s/%s/mmlu_k0.json" % (BASE, model))
+    if d0.get("completed") is not True or d0["n"] != 14042 or d0["setting"] != {"k": 0}:
+        raise SystemExit("the K = 0 pass is not a complete full-set pass")
+    base = {r["id"]: r["pick"] == r["gold"] for r in d0["rows"]}
+    d = read("%s/%s/%s/mmlu/%s.json" % (BASE, model, fit, stem))
+    st = d["setting"]
+    if (d.get("completed") is not True or d["model"] != model or d["n"] != 14042
+            or st["sigma"] != ("pairs" if stem.endswith("_sp") else "endq")):
+        raise SystemExit("%s is not a complete full-set MMLU pass of this model and sigma" % stem)
+    cor = {r["id"]: r["pick"] == r["gold"] for r in d["rows"]}
+    if set(cor) != set(base):
+        raise SystemExit("%s covers other items" % stem)
+    dev, _ = PM.halves(list(base))
+    return PM.boot([cor[i] - base[i] for i in dev])[0]
+
+
+def unjudged(model, fit, sigma):
+    display, _, _ = KEY[model]
+    _, run, _ = MP.usual(display, 0)
+    tag = "iti_%s%s" % (fit, "_sp" if sigma == "pairs" else "")
+    judged = set()
+    for w in sorted(glob.glob("%s/eval_extra/judge_tune_%s_k*_tune" % (run, tag))):
+        if MP.has(w):
+            judged |= set(read(w + "/judge_input.json")["conditions"])
+    out = []
+    for p in glob.glob("%s/%s/%s/gen/tune_k*_a*.json" % (BASE, model, fit)):
+        stem = os.path.basename(p)[len("tune_"):-5]
+        if stem.endswith("_sp") != (sigma == "pairs"):
+            continue
+        g = read(p)
+        if g.get("completed") is not True:
+            raise SystemExit("%s is not complete" % p)
+        if g["condition"] not in judged:
+            out.append((g["setting"]["k"], g["setting"]["alpha"], stem))
+    return sorted(out)
 
 
 def condition_of(model, fit, split, stem):
@@ -214,11 +258,14 @@ def main():
             rest.append(argv[0])
             argv = argv[1:]
     if rest[:1] == ["point"] and len(rest) == 4 and rest[1] in KEY:
-        sigma = "pairs" if rest[3].endswith("_sp") else "endq"
-        got = [r["dev"][0] for r in budget_rows(rest[1], rest[2], sigma, float(opt["--budget"]), show=False) if r["stem"] == rest[3]]
-        if len(got) != 1:
+        try:
+            print("%.3f" % point_change(rest[1], rest[2], rest[3]))
+        except FileNotFoundError:
             raise SystemExit("no complete MMLU pass for %s" % rest[3])
-        print("%.3f" % got[0])
+        return
+    if rest[:1] == ["unjudged"] and len(rest) == 3 and rest[1] in KEY and opt["--sigma"] in ("endq", "pairs"):
+        for k, _, stem in unjudged(rest[1], rest[2], opt["--sigma"]):
+            print(k, stem)
         return
     if rest[:1] == ["stems"] and len(rest) == 3 and rest[1] in KEY and opt["--sigma"] in ("endq", "pairs"):
         for r in budget_rows(rest[1], rest[2], opt["--sigma"], float(opt["--budget"]), show=False):
