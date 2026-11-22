@@ -49,6 +49,7 @@
 #   docker exec -u 1000:1001 -w /workspace/Truth_Decoupling truth_dec python3 -B Iteration_01/diag/qaqa_pilot_table.py llama3.1-8b
 import hashlib
 import json
+import math
 import sys
 from pathlib import Path
 from types import SimpleNamespace
@@ -114,7 +115,7 @@ class Raw:
                     new = 0
                 else:
                     raise SystemExit("%s: unresolved vote for %s %s" % (model, k[0], k[1]))
-                if self.val.get(k, new) != new:
+                if self.val.get(k, new) != new or self.pred.get(k, c["prediction"]) != c["prediction"]:
                     raise SystemExit("%s: two work dirs disagree on %s %s" % (model, k[0], k[1]))
                 self.val[k] = new
                 self.pred[k] = c["prediction"]
@@ -144,7 +145,8 @@ class Raw:
             return False
         for q in self.ids:
             t = rows[q]["text"].strip()
-            if t and self.pred[(q, k["condition"])].strip() != t:
+            key = (q, k["condition"])
+            if key in self.pred and self.pred[key].strip() != t:
                 raise SystemExit("%s: the judged answer of %s under %s is not the text now in %s" % (self.model, q, arm, p.name))
         self.rows[arm], self.cond[arm] = rows, k["condition"]
         return True
@@ -179,13 +181,17 @@ class Raw:
         self.need(arm)
         d = json.loads(p.read_text(encoding="utf-8"))
         rows = {r["id"]: r for r in d["rows"]}
-        if (d.get("arm") != arm or d.get("model") != self.model or list(rows) != self.ids
+        if (d.get("arm") != arm or d.get("model") != self.model or d.get("task") != task
+                or d.get("split") != "test" or len(rows) != len(d["rows"]) or list(rows) != self.ids
                 or d.get("generation_sha256") != G.sha_file(self.gdir / (G.arm_token(arm) + ".json"))):
             raise SystemExit("%s: the confidence file %s does not belong to the pass %s of this bank" % (self.model, p.name, arm))
         if write and (not d.get("first_difference_check")
                       or d.get("reference_sha256") != G.sha_file(self.gdir / (arm.split(":")[0] + ".json"))):
             raise SystemExit("%s: %s was scored without the first-difference check against its no-write pass" % (self.model, p.name))
         for q in self.ids:
+            lp = rows[q].get("mean_logp")
+            if lp is not None and (not isinstance(lp, (int, float)) or not math.isfinite(lp)):
+                raise SystemExit("%s: non-finite or invalid confidence of %s under %s" % (self.model, q, arm))
             if rows[q]["text_sha1"] != hashlib.sha1(self.text(arm, q).strip().encode("utf-8")).hexdigest():
                 raise SystemExit("%s: confidence of %s under %s was scored on another answer" % (self.model, q, arm))
         return {q: rows[q].get("mean_logp") for q in self.ids}
@@ -194,6 +200,9 @@ class Raw:
         """The answers of the pass arm, keeping the n most confident among the questions ids (ties in question order)."""
         pos = {q: k for k, q in enumerate(ids)}
         cand = sorted((q for q in ids if conf[q] is not None and not self.blank(arm, q)), key=lambda q: (-conf[q], pos[q]))
+        if len(cand) < n:
+            print("not comparable: %s has %d scored, answered items; %d required" % (arm, len(cand), n), file=sys.stderr)
+            return None
         keep = set(cand[:n])
         return {q: (self.cell(arm, q) if q in keep else 0) for q in self.ids}, {q: q in keep for q in self.ids}
 
@@ -328,7 +337,13 @@ def main():
             sk = json.load(f)
         if sk.get("bank_sha256") != G.sha_file(TUNE_BANK) or len(set(sk["ids"])) != len(sk["ids"]):
             raise SystemExit("--skip-ids is not the id list of the tune bank %s" % TUNE_BANK)
+        with open(TUNE_BANK, encoding="utf-8") as f:
+            pilot_ids = [json.loads(line)["id"] for line in f]
+        if sk["ids"] != pilot_ids:
+            raise SystemExit("--skip-ids list differs from the actual tune bank")
         skip = set(sk["ids"])
+    if opt["--choice"] and not list_arms and not skip:
+        raise SystemExit("reading a tune choice on the held-out split requires --skip-ids")
     chosen = {}
     if opt["--choice"]:
         with open(opt["--choice"], encoding="utf-8") as f:
@@ -376,13 +391,19 @@ def main():
             conf = R.confidence(opt["--task"])
             if conf is not None:
                 for name, ref in ((CONF_E, "single E"), (CONF_N, "N1")):
-                    systems[name] = R.top_conf(ids, conf, sum(systems[ref][1][q] for q in ids))
+                    selected = R.top_conf(ids, conf, sum(systems[ref][1][q] for q in ids))
+                    if selected is not None:
+                        systems[name] = selected
             strong_arm = "conf:E%d.w.p%s" % (el, s)          # must answer + E at N1's layer and strength
+            scored = 0
             for name, arm in ((STRONG_N, strong_arm), (MUST_N, "conf")):
                 cf = R.confidence(opt["--task"], arm)
                 if cf is not None:
-                    systems[name] = R.top_conf(ids, cf, sum(systems["N1"][1][q] for q in ids), arm)
-            if STRONG_N in systems and MUST_N in systems:
+                    scored += 1
+                    selected = R.top_conf(ids, cf, sum(systems["N1"][1][q] for q in ids), arm)
+                    if selected is not None:
+                        systems[name] = selected
+            if scored == 2:      # the every-answer pair needs both arms, not their N-matched selections
                 systems[STRONG_ALL], systems[MUST_ALL] = R.arm_system(strong_arm), R.arm_system("conf")
         except (FileNotFoundError, ValueError) as err:
             print("\n# %s: not ready (%s)\n" % (model, str(err)[:200]))

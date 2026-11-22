@@ -1,0 +1,39 @@
+llama3.1-8b layer 16 strength 3-5 | N1 choice ('N1', '3-5', '1', '2') | answers: E 319, N1 476 (released 157: right 81, wrong 59, other 17), E-fill 476 | forced answers with confidence 521 | every E answer kept by N1: True
+    forced answers on the same 157 released questions: right 65, wrong 74, other/blank 18 | E-fill's own 157 picks: right 71, wrong 70, other 16
+    primary +51 [+17, +87]  N1_minus_Efill +21 [-4, +46]  swap_diff +28 [+6, +50]
+qwen3.5-9b layer 15 strength 2 | N1 choice ('N1', '2', '0-25', '0-5') | answers: E 408, N1 444 (released 36: right 26, wrong 7, other 3), E-fill 444 | forced answers with confidence 518 | every E answer kept by N1: True
+    forced answers on the same 36 released questions: right 24, wrong 8, other/blank 4 | E-fill's own 36 picks: right 18, wrong 14, other 4
+    primary +13 [-11, +37]  N1_minus_Efill +14 [+2, +26]  swap_diff +1 [-5, +7]
+qwen3.8-27b layer 28 strength 1-75 | N1 choice ('N1', '1-75', '0-5', '1') | answers: E 354, N1 490 (released 136: right 79, wrong 46, other 11), E-fill 490 | forced answers with confidence 518 | every E answer kept by N1: True
+    forced answers on the same 136 released questions: right 78, wrong 49, other/blank 9 | E-fill's own 136 picks: right 73, wrong 54, other 9
+    primary +18 [-8, +45]  N1_minus_Efill +14 [-6, +34]  swap_diff -1 [-15, +13]
+gemma3-12b layer 24 strength 2-5 | N1 choice ('N1', '2-5', '2', '2') | answers: E 323, N1 489 (released 166: right 101, wrong 46, other 19), E-fill 489 | forced answers with confidence 520 | every E answer kept by N1: True
+    forced answers on the same 166 released questions: right 106, wrong 41, other/blank 19 | E-fill's own 166 picks: right 104, wrong 46, other 16
+    primary -6 [-37, +24]  N1_minus_Efill -3 [-27, +20]  swap_diff -8 [-29, +13]
+gemma3-27b layer 28 strength 1 | N1 choice ('N1', '1', '1', '2') | answers: E 423, N1 510 (released 87: right 60, wrong 21, other 6), E-fill 510 | forced answers with confidence 520 | every E answer kept by N1: True
+    forced answers on the same 87 released questions: right 59, wrong 25, other/blank 3 | E-fill's own 87 picks: right 54, wrong 31, other 2
+    primary +52 [+22, +82]  N1_minus_Efill +16 [+1, +31]  swap_diff +6 [-7, +20]
+3 models, 521 questions with every model
+  primary              +82 [+29, +134]
+  selection            +37 [+7, +67]
+  content              +43 [-2, +90]
+  boundary             +2 [+0, +5]
+  swap_N1              +41 [-2, +84]
+  swap_E               +13 [-19, +46]
+  swap_diff            +28 [+1, +54]
+  N1_minus_E           +75 [+37, +113]
+  N1_minus_Efill       +50 [+16, +84]
+  Efill_minus_E        +25 [-11, +64]
+  Efill_minus_strong   +32 [-7, +72]
+5 models, 520 questions with every model
+  primary              +128 [+58, +197]
+  selection            +55 [+19, +90]
+  content              +74 [+11, +137]
+  boundary             -1 [-5, +3]
+  swap_N1              +73 [+13, +133]
+  swap_E               +47 [+2, +95]
+  swap_diff            +26 [-10, +62]
+  N1_minus_E           +169 [+112, +226]
+  N1_minus_Efill       +63 [+16, +109]
+  Efill_minus_E        +106 [+52, +164]
+  Efill_minus_strong   +65 [+12, +119]

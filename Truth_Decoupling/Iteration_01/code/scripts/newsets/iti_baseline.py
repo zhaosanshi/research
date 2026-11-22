@@ -564,12 +564,15 @@ def run_export(a):
     like = json.loads(Path(a.like).read_text(encoding="utf-8"))
     gens = [json.loads(Path(p).read_text(encoding="utf-8")) for p in a.gen]
     ids = [r["pair_id"] for r in like["evaluations"]]
+    if len(set(ids)) != len(ids) or like.get("question_ids") != ids:
+        raise SystemExit("the reference export repeats or misorders the question IDs")
     conds = [g["condition"] for g in gens]
     if len(set(conds)) != len(conds):
         raise SystemExit("two generation files of the same setting")
     for g, p in zip(gens, a.gen):
         if g.get("protocol") != PROTOCOL or g.get("completed") is not True or g.get("model") != like.get("model") \
                 or g.get("split") != like.get("split") or g["question_ids"] != ids \
+                or [r["pair_id"] for r in g["rows"]] != ids \
                 or g.get("identity_sha256") != like.get("identity_sha256"):
             raise SystemExit("%s is not a complete ITI generation of the model, split, run and questions of --like" % p)
     by = [{r["pair_id"]: r for r in g["rows"]} for g in gens]

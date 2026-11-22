@@ -190,7 +190,10 @@ def condition_of(model, fit, split, stem):
 def tune_table(model, fit, sigma, budget, write, every=False, ks=None, alphas=None):
     display, layer, s = KEY[model]
     measured = budget_rows(model, fit, sigma, budget, show=False)
-    if ks and alphas:
+    if bool(ks) != bool(alphas):
+        raise SystemExit("declare both --ks and --alphas or neither")
+    declared = {(k, a) for k in ks or () for a in alphas or ()}
+    if declared:
         grid_complete(measured, model, fit, sigma, ks, alphas, every)
     rows = [r for r in measured if r["within"]]
     if every:
@@ -203,8 +206,10 @@ def tune_table(model, fit, sigma, budget, write, every=False, ks=None, alphas=No
             st0 = read(p)["setting"]
             rows.append(mm.get(stem) or {"k": st0["k"], "alpha": st0["alpha"], "stem": stem, "dev": None, "within": None})
         rows.sort(key=lambda r: (r["k"], r["alpha"]))
+    if declared:
+        rows = [r for r in rows if (r["k"], r["alpha"]) in declared]
     if not rows:
-        raise SystemExit("no grid point within the budget")
+        raise SystemExit("no eligible points in the requested grid")
     T, why = MP.prompt_split(display, layer, 0, s)
     if T is None:
         raise SystemExit("the project's own tune split at the prompt rule is not complete (%s)" % why)
