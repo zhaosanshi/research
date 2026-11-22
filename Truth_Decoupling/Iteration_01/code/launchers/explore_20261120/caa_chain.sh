@@ -16,13 +16,17 @@
 #      second is not exported and the table reads the first), DeepSeek Pro with the usual run's LIKE_TEST cache;
 #   7. the test tables (caa_table.py test, test --all) and the direction-check table (caa_table.py neg);
 #   8. GSM8K at each chosen point, rule gen (scripts/newsets/ns_positions.py gen gen, newsets_gen.py unchanged, token cap
-#      TOK, batch 8, neutral system prompt, on GSM_GPU), and the GSM8K table (diag/caa_gsm8k.py, in the container).
-# Card 1 is shared: the chain holds the card-1 lock (Iteration_01/newsets/selfjudge/.gpu1.lock) only around its own model
-# steps (6 and 8) and waits until the lock is free before each caa_grid.sh call (that script takes the lock itself);
-# every model step refuses to start when a card would exceed 65 GB (caa_grid.sh's NEED values).
+#      TOK = the model's gsm8k_max_new_tokens in code/configs/newsets/caa_grid_20261122.json, the cap of its no-write
+#      GSM8K reference capability/gen_main/gsm8k/<MODEL>/b8/neutral.json; batch 8, neutral system prompt, on GSM_GPU),
+#      and the GSM8K table (diag/caa_gsm8k.py, in the container).
+# Cards are shared: the chain holds the lock of each card it uses (Iteration_01/newsets/selfjudge/.gpu<card>.lock) only
+# around its own model steps (6 and 8) and waits until those locks are free before each caa_grid.sh call (that script
+# takes the locks itself); every model step refuses to start when a card would exceed 65 GB (caa_grid.sh's NEED values).
+# 2026-11-22 20 h (Claude Opus 5.5, GPT review f): per-card locks; TOK from the config (an explicit 9th argument must
+# equal it).
 # Tables: Iteration_01/diag/out_caa_<MODEL>_{budget,tune,tune_all,neg,test,test_all,gsm8k}_20261122.txt.
 # usage (host): caa_chain.sh MODEL GPU "LAYER ..." "MULT ..." TAG LIKE_TUNE LIKE_TEST GSM_GPU [TOK]
-#   e.g. caa_chain.sh llama3.1-8b 1 "8 10 12 14 16 18 20 22 24" "0.5 1 2 4" g1 pospromptl16 pospromptl16 1 512
+#   e.g. caa_chain.sh llama3.1-8b 1 "8 10 12 14 16 18 20 22 24" "0.5 1 2 4" g1 pospromptl16 pospromptl16 1
 #   (layer lists per model: Iteration_01/code/configs/newsets/caa_grid_20261122.json)
 # Markers: Iteration_01/logs/newsets_20261119/CAA_CHAIN_<MODEL>_DONE / _FAILED; log lines in caa_all.log there.
 set -uo pipefail
@@ -31,7 +35,7 @@ ROOT=/workspace/Truth_Decoupling; HOST=/data/sanshizhao/Truth_Decoupling
 L=Iteration_01/logs/newsets_20261119
 D=Iteration_01/diag
 MODEL=${1:?model}; GPU=${2:?gpu}; LAYERS=${3:?layers}; MULTS=${4:?multipliers}; TAG=${5:?tag}
-LT=${6:?like tune}; LX=${7:?like test}; GG=${8:?gsm8k gpu}; TOK=${9:-512}
+LT=${6:?like tune}; LX=${7:?like test}; GG=${8:?gsm8k gpu}; TOK_ARG=${9:-}
 case "$MODEL" in
   llama3.1-8b) NEED=17000 ;; qwen3.5-9b) NEED=20000 ;; gemma3-12b) NEED=26000 ;;
   gemma3-27b|qwen3.8-27b) NEED=58000 ;; *) echo "unknown model $MODEL" >&2; exit 2 ;;
@@ -40,11 +44,15 @@ B=Iteration_01/baselines/caa/$MODEL
 RUN=$B/run_caa
 MK=$HOST/$L/CAA_CHAIN_${MODEL}
 log=$HOST/$L/caa_chain_$MODEL.log
-LOCK=$HOST/Iteration_01/newsets/selfjudge/.gpu1.lock
 say() { echo "$(date '+%F %T') caa chain $MODEL: $*" >> $HOST/$L/caa_all.log; }
 rm -f ${MK}_DONE ${MK}_FAILED
 fail() { say "FAILED: $*"; touch ${MK}_FAILED; exit 1; }
 [ -f $HOST/$B/acceptance/ACCEPT_DONE ] || fail "no passed acceptance (caa_accept.sh)"
+TOK=$(python3 -c '
+import json, sys
+print(int(json.load(open(sys.argv[1]))["models"][sys.argv[2]]["gsm8k_max_new_tokens"]))' $HOST/Iteration_01/code/configs/newsets/caa_grid_20261122.json "$MODEL") || fail "no GSM8K token cap in caa_grid_20261122.json"
+[[ $TOK =~ ^[1-9][0-9]*$ ]] || fail "bad GSM8K token cap"
+[ -z "$TOK_ARG" ] || [ "$TOK_ARG" = "$TOK" ] || fail "the GSM8K token cap $TOK_ARG differs from the config's $TOK"
 read -r CODE PY SRC E_ON < <(python3 -c '
 import json, sys
 m = json.load(open(sys.argv[1]))["models"][sys.argv[2]]
@@ -54,10 +62,22 @@ CFG=$ROOT/$B/models_run_caa.json
 ENV=(-u 1000:1001 -e HOME=$ROOT/hf_cache -e HF_HOME=$ROOT/hf_cache -e TD_MODEL_ROOT=$ROOT/models -e TD_DATA_DIR=$ROOT/code/data/processed
      -e HF_HUB_OFFLINE=1 -e TRANSFORMERS_OFFLINE=1 -e PYTHONUNBUFFERED=1 -e PYTHONDONTWRITEBYTECODE=1
      -e PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True)
-on1() { [[ ",$1," == *",1,"* ]]; }
-wait_free() { on1 "$1" || return 0; until flock -n "$LOCK" true; do sleep 60; done; }
-lock_on() { on1 "$1" || return 0; mkdir -p "$(dirname "$LOCK")" && exec 8>"$LOCK" && flock -w 86400 8 || fail "cannot take the card-1 lock"; }
-lock_off() { exec 8>&-; }
+SJ=$HOST/Iteration_01/newsets/selfjudge
+FDS=()
+wait_free() {  # wait_free GPUS: every card's lock is free (checked once a minute)
+  local g
+  mkdir -p $SJ || fail "cannot prepare the card reservations"
+  for g in ${1//,/ }; do until flock -n $SJ/.gpu$g.lock true; do sleep 60; done; done
+}
+lock_on() {  # lock_on GPUS: take every card's lock (waits up to a day per card)
+  local g fd
+  FDS=()
+  for g in ${1//,/ }; do
+    mkdir -p $SJ && exec {fd}>"$SJ/.gpu$g.lock" && flock -w 86400 $fd || fail "cannot take the GPU $g lock"
+    FDS+=("$fd")
+  done
+}
+lock_off() { local fd; for fd in "${FDS[@]}"; do exec {fd}>&-; done; FDS=(); }
 mem_ok() {  # mem_ok GPUS: every card has room for NEED / number of cards
   local g used nc
   nc=$(echo "$1" | tr ',' '\n' | grep -c .)

@@ -18,11 +18,16 @@
 #      (run_caa/eval_extra/judge_tune/caa_L<l>_<TAG>.json) and its cells in judge_tune_caa_L<l>_<TAG>_tune/.
 # MODE=neg LAYER: the direction check of section 7, multiplier -1 at the chosen LAYER (tune answers, own judge input).
 # MODE=zero LAYER: multiplier 0 on the whole tune split (caa_vector.py check with 24 batches at LAYER).
-# Holds the card-1 lock (Iteration_01/newsets/selfjudge/.gpu1.lock, as discussion/validation_dataset/2026-11-22d_probe.patch)
-# and refuses to start when a card would exceed 65 GB.
+# Holds the lock of every card it uses (Iteration_01/newsets/selfjudge/.gpu<card>.lock, as discussion/validation_dataset/
+# 2026-11-22d_probe.patch); a held lock is waited for (retried every minute, never bypassed); exits 3 when a card would
+# exceed 65 GB (the caller retries).
+# 2026-11-22 20 h (Claude Opus 5.5, GPT review f): GPT's guard (scripts/newsets/caa_run_guard.py grid / budget,
+# caa_vector.py verify) applied; config key qwen3.8-27b; per-card locks; status lines in
+# Iteration_01/logs/newsets_20261119/caa_all.log.
 # usage (host): caa_grid.sh MODEL GPU "LAYER ..." "MULT ..." TAG       e.g. caa_grid.sh llama3.1-8b 1 "8 10 12 14 16 18 20 22 24" "0.5 1 2 4" g1
 #               MODE=neg caa_grid.sh MODEL GPU LAYER - TAG ;  MODE=zero caa_grid.sh MODEL GPU LAYER - TAG
-# Markers: Iteration_01/baselines/caa/<MODEL>/CAA_<MODE>_<TAG>_DONE / _FAILED; log caa_<MODE>_<TAG>.log there.
+# Markers: Iteration_01/baselines/caa/<MODEL>/CAA_<MODE>_<TAG>_DONE / _FAILED; log caa_<MODE>_<TAG>.log there; one-line
+# status in Iteration_01/logs/newsets_20261119/caa_all.log.
 set -uo pipefail
 cd /data/sanshizhao/Truth_Decoupling || exit 2
 ROOT=/workspace/Truth_Decoupling; HOST=/data/sanshizhao/Truth_Decoupling
@@ -30,19 +35,22 @@ MODEL=${1:?model}; GPU=${2:?gpu}; LAYERS=${3:?layers}; MULTS=${4:?multipliers}; 
 MODE=${MODE:-grid}; STOP=${STOP:-3}
 case "$MODEL" in
   llama3.1-8b) NEED=17000 ;; qwen3.5-9b) NEED=20000 ;; gemma3-12b) NEED=26000 ;;
-  gemma3-27b|qwen3.8-27b-dm) NEED=58000 ;; *) echo "unknown model $MODEL" >&2; exit 2 ;;
+  gemma3-27b|qwen3.8-27b) NEED=58000 ;; *) echo "unknown model $MODEL" >&2; exit 2 ;;
 esac
 case "$MODE" in grid|neg|zero) ;; *) echo "MODE is grid, neg or zero" >&2; exit 2 ;; esac
 B=Iteration_01/baselines/caa/$MODEL
 [ -f $HOST/$B/acceptance/ACCEPT_DONE ] || { echo "no passed acceptance for $MODEL (caa_accept.sh)" >&2; exit 2; }
 for f in vectors.pt models_run_caa.json run_caa/MIRROR.json; do [ -s $HOST/$B/$f ] || { echo "missing $B/$f" >&2; exit 2; }; done
-if [[ ",$GPU," == *",1,"* ]]; then
-  LOCK=$HOST/Iteration_01/newsets/selfjudge/.gpu1.lock
-  mkdir -p "$(dirname "$LOCK")" || { echo "cannot prepare GPU 1 reservation" >&2; exit 2; }
-  command -v flock >/dev/null || { echo "flock unavailable on GPU host" >&2; exit 2; }
-  exec 9>"$LOCK" || { echo "cannot open GPU 1 reservation" >&2; exit 2; }
-  flock -n 9 || { echo "another worker holds GPU 1" >&2; exit 3; }
-fi
+GUARD=$HOST/Iteration_01/code/scripts/newsets/caa_run_guard.py
+python3 -B "$GUARD" grid "$MODEL" "$LAYERS" "$MULTS" || exit 2
+[[ $GPU =~ ^[0-9](,[0-9])*$ ]] || { echo "GPU is a comma-separated list of card numbers" >&2; exit 2; }
+command -v flock >/dev/null || { echo "flock unavailable on GPU host" >&2; exit 2; }
+mkdir -p $HOST/Iteration_01/newsets/selfjudge || { echo "cannot prepare the card reservations" >&2; exit 2; }
+for g in ${GPU//,/ }; do
+  LOCK=$HOST/Iteration_01/newsets/selfjudge/.gpu$g.lock
+  exec {fd}>"$LOCK" || { echo "cannot open GPU $g reservation" >&2; exit 2; }
+  until flock -n $fd; do echo "$(date '+%F %T') another worker holds GPU $g ($LOCK); retry in 60 s" >&2; sleep 60; done
+done
 NC=$(echo "$GPU" | tr ',' '\n' | grep -c .)
 for g in ${GPU//,/ }; do
   USED=$(nvidia-smi --query-gpu=index,memory.used --format=csv,noheader,nounits | awk -F', ' -v g="$g" '$1 == g {print $2}') || { echo "cannot query GPU memory" >&2; exit 2; }
@@ -59,7 +67,7 @@ RUN=$B/run_caa
 MK=$HOST/$B/CAA_${MODE}_$TAG
 LOG=$HOST/$B/caa_${MODE}_$TAG.log
 rm -f ${MK}_DONE ${MK}_FAILED
-say() { echo "$(date '+%F %T') caa $MODE $MODEL $TAG: $*" | tee -a $LOG >> $HOST/$B/caa_all.log; }
+say() { echo "$(date '+%F %T') caa $MODE $MODEL $TAG: $*" | tee -a $LOG >> $HOST/Iteration_01/logs/newsets_20261119/caa_all.log; }
 fail() { say "FAILED: $*"; touch ${MK}_FAILED; exit 1; }
 ENV=(-u 1000:1001 -e HOME=$ROOT/hf_cache -e HF_HOME=$ROOT/hf_cache -e TD_MODEL_ROOT=$ROOT/models -e TD_DATA_DIR=$ROOT/code/data/processed
      -e HF_HUB_OFFLINE=1 -e TRANSFORMERS_OFFLINE=1 -e PYTHONUNBUFFERED=1 -e PYTHONDONTWRITEBYTECODE=1
@@ -79,6 +87,7 @@ tune_arms() {  # tune_arms LAYER NAME ARMS... : answers, judge input, cells
   mkdir -p $HOST/$W/judge2/cache && cp $HOST/$RUN/eval_extra/judge_tune/$name.json $HOST/$W/judge_input.json || return 1
   "${DXC[@]}" python3 scripts/review_checks/judge_two_axis_run.py cells $ROOT/$W --generation judge_input.json >> $LOG 2>&1
 }
+"${DXR[@]}" $PY -I $ROOT/Iteration_01/code/scripts/newsets/caa_vector.py verify --models "$CFG" --model "$MODEL" --mirror "$RUN" --vectors "$ROOT/$B/vectors.pt" >> "$LOG" 2>&1 || fail "CAA fit/mirror verification"
 say "start on GPU $GPU: layers $LAYERS, multipliers $MULTS, STOP $STOP"
 if [ "$MODE" = zero ]; then
   "${DXR[@]}" $PY -I $ROOT/Iteration_01/code/scripts/newsets/caa_vector.py check --models $CFG --model $MODEL --mirror $RUN \
@@ -93,26 +102,13 @@ mkdir -p $HOST/$B/mmlu
 FAILED=0
 for l in $LAYERS; do
   arms="x"; for s in $MULTS; do arms="$arms x:E$l.md.p$s@gen"; done
+  cache_mode=reuse
   if [ ! -s $HOST/$B/mmlu/L$l.json ]; then
+    cache_mode=fresh
     "${DXR[@]}" $PY -I $ROOT/Iteration_01/code/scripts/capability/cap_mcq_sweep.py run --models $CFG --model $MODEL \
         --items $ITEMS --ids $IDS --out $ROOT/$B/mmlu/L$l.json --arms $arms >> $LOG 2>&1 || { say "mmlu L$l failed"; FAILED=1; continue; }
   fi
-  python3 -B - $HOST/$B/mmlu/L$l.json $l "$MULTS" > $HOST/$B/mmlu/L$l.budget 2>> $LOG <<'EOF' || { say "no MMLU reading for L$l"; FAILED=1; continue; }
-import json, sys
-sys.path.insert(0, "Iteration_01/diag")
-import per_model_table as PM
-d = json.load(open(sys.argv[1]))
-if d["n"] != 14042 or d.get("skipped"):
-    raise SystemExit("not a complete full-set pass")
-base = {r["id"]: r["pick"] == r["gold"] for r in d["arms"]["x"]["rows"]}
-dev, _ = PM.halves(list(base))
-for s in sys.argv[3].split():
-    arm = "x:E%s.md.p%s@gen" % (sys.argv[2], s)
-    cor = {r["id"]: r["pick"] == r["gold"] for r in d["arms"][arm]["rows"]}
-    if set(cor) != set(base) or d["arms"][arm]["positions"] != "gen":
-        raise SystemExit("%s covers other items or another position rule" % arm)
-    print(s, "%.4f" % PM.boot([cor[i] - base[i] for i in dev])[0])
-EOF
+  python3 -B "$GUARD" budget "$MODEL" "$l" "$MULTS" "$cache_mode" > "$HOST/$B/mmlu/L$l.budget" 2>> "$LOG" || { say "no valid MMLU reading for L$l"; FAILED=1; continue; }
   keep=""
   while read -r s chg; do
     if awk -v c="$chg" -v t="$STOP" 'BEGIN { exit !(c < -t) }'; then

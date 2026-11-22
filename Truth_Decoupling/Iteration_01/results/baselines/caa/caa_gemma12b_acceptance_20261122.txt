@@ -1,0 +1,169 @@
+=== 2026-11-22 19:56:05 caa acceptance gemma3-12b on GPU 0 (3739 MiB used before start), code copy Iteration_01/code, interpreter python3, E layer 24, first 2 batches, template layer 24
+=== 2026-11-22 19:56:05 step 1: fit
+W1122 11:56:23.893000 1219073 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1122 11:56:23.912000 1219073 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:00<00:00, 132.03it/s]
+11:56:26 identity 0f2627f317b1 (parent run verified); 192 questions of tune
+pair 0 of 818, 1s
+pair 200 of 818, 19s
+pair 400 of 818, 38s
+pair 600 of 818, 57s
+pair 800 of 818, 75s
+fit: 96 questions, 409 pairs, 818 prompts per sign, prompts per question {'2': 6, '4': 10, '6': 19, '8': 24, '10': 18, '12': 9, '14': 5, '18': 1, '20': 2, '22': 2}; letter tokens {'A': 'A', 'B': 'B'}, stem ['(']; norm range 0.302 .. 23657.797 (layer 0 .. 47); 76s
+  layer  0 norm   0.3017 (half0   0.3868)
+  layer  1 norm   0.4713 (half0   0.5876)
+  layer  2 norm   0.5054 (half0   0.6506)
+  layer  3 norm   0.5812 (half0   0.7176)
+  layer  4 norm   0.5234 (half0   0.5543)
+  layer  5 norm   0.5820 (half0   0.7249)
+  layer  6 norm   2.5438 (half0   2.3714)
+  layer  7 norm   3.1291 (half0   3.2771)
+  layer  8 norm   3.5831 (half0   3.7890)
+  layer  9 norm   4.0306 (half0   3.6757)
+  layer 10 norm   4.4496 (half0   3.9725)
+  layer 11 norm  20.6707 (half0  19.3745)
+  layer 12 norm  10.7287 (half0  10.2342)  candidate
+  layer 13 norm  53.0306 (half0  40.0296)
+  layer 14 norm  41.8330 (half0  45.1718)  candidate
+  layer 15 norm 115.0240 (half0 120.5939)
+  layer 16 norm 240.8239 (half0 224.9695)  candidate
+  layer 17 norm 315.2494 (half0 304.6126)
+  layer 18 norm 415.9142 (half0 336.9635)  candidate
+  layer 19 norm 535.6528 (half0 520.6760)
+  layer 20 norm 645.8958 (half0 647.1379)  candidate
+  layer 21 norm 699.8730 (half0 725.1040)
+  layer 22 norm 1046.0046 (half0 1031.8059)  candidate
+  layer 23 norm 1749.0536 (half0 1751.3394)
+  layer 24 norm 1533.6787 (half0 1507.7905)  candidate
+  layer 25 norm 1760.9116 (half0 1712.8553)
+  layer 26 norm 2420.7166 (half0 2315.6414)  candidate
+  layer 27 norm 2687.9846 (half0 2579.1667)
+  layer 28 norm 3160.6072 (half0 3014.7444)  candidate
+  layer 29 norm 3101.3323 (half0 2971.8567)
+  layer 30 norm 3191.9661 (half0 3077.0806)  candidate
+  layer 31 norm 3847.6765 (half0 3713.3792)
+  layer 32 norm 4203.2910 (half0 4071.3823)  candidate
+  layer 33 norm 4534.7759 (half0 4380.3076)
+  layer 34 norm 4579.0610 (half0 4423.3838)  candidate
+  layer 35 norm 4824.9248 (half0 4657.0801)
+  layer 36 norm 5021.4619 (half0 4821.2202)  candidate
+  layer 37 norm 5036.3232 (half0 4859.3789)
+  layer 38 norm 5191.5928 (half0 5032.9844)
+  layer 39 norm 5473.1992 (half0 5340.4048)
+  layer 40 norm 5685.2261 (half0 5562.5996)
+  layer 41 norm 6013.8911 (half0 5883.8037)
+  layer 42 norm 8097.0464 (half0 7758.2549)
+  layer 43 norm 9646.9902 (half0 9238.3457)
+  layer 44 norm 11162.0801 (half0 10567.6680)
+  layer 45 norm 14267.4336 (half0 13618.7539)
+  layer 46 norm 15074.8555 (half0 14294.0312)
+  layer 47 norm 23657.7969 (half0 23082.2422)
+=== 2026-11-22 19:57:44 step 2: mirrors
+mirror run_caa (caa): 48 direction records, frozen files copied, models config models_run_caa.json
+mirror mirror_e (real): 1 direction records, frozen files copied, models config models_mirror_e.json
+=== 2026-11-22 19:57:48 step 3: check (acceptance 2 to 5)
+W1122 11:58:07.839000 1221398 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1122 11:58:07.858000 1221398 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:00<00:00, 130.23it/s]
+11:58:10 identity 0f2627f317b1 (parent run verified); 16 questions of tune [partial: first batches only]
+check 4 (question IDs): {"vector_questions": 96, "all_in_train": true, "equal_to_train": true, "in_frozen_train": true, "overlap_tune_ids": 0, "overlap_test_ids": 0, "overlap_dr100_ids": 0, "overlap_tune_question_text": 0, "overlap_test_question_text": 0, "tune": 192, "test": 529, "dr100": 100, "half0_half1_disjoint": true, "halves_cover_train": true} -> PASS
+check 5 (template): first write at the last prompt token '\n' (same token for all 16 questions: True); last five prompt tokens ['<end_of_turn>', '\n', '<start_of_turn>', 'model', '\n']; first decode step = the first generated token's position (index 60 for question 1)
+        candidate layers [12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36]; letter tokens {'A': 'A', 'B': 'B'}; stem ['(']
+The following generation flags are not valid and may be ignored: ['top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+check 2: no-write regeneration equals the frozen x answers on 16 of 16
+check 2: layer 12 multiplier 0 at gen: 16 of 16 answers equal no write token for token; prefill positions written per row [1]; record md write minus vector max 5.96e-08 -> PASS
+check 2: layer 14 multiplier 0 at gen: 16 of 16 answers equal no write token for token; prefill positions written per row [1]; record md write minus vector max 1.19e-07 -> PASS
+check 2: layer 16 multiplier 0 at gen: 16 of 16 answers equal no write token for token; prefill positions written per row [1]; record md write minus vector max 2.38e-07 -> PASS
+check 2: layer 18 multiplier 0 at gen: 16 of 16 answers equal no write token for token; prefill positions written per row [1]; record md write minus vector max 9.54e-07 -> PASS
+check 2: layer 20 multiplier 0 at gen: 16 of 16 answers equal no write token for token; prefill positions written per row [1]; record md write minus vector max 3.81e-06 -> PASS
+check 2: layer 22 multiplier 0 at gen: 16 of 16 answers equal no write token for token; prefill positions written per row [1]; record md write minus vector max 7.63e-06 -> PASS
+check 2: layer 24 multiplier 0 at gen: 16 of 16 answers equal no write token for token; prefill positions written per row [1]; record md write minus vector max 7.63e-06 -> PASS
+check 2: layer 26 multiplier 0 at gen: 16 of 16 answers equal no write token for token; prefill positions written per row [1]; record md write minus vector max 1.53e-05 -> PASS
+check 2: layer 28 multiplier 0 at gen: 16 of 16 answers equal no write token for token; prefill positions written per row [1]; record md write minus vector max 1.53e-05 -> PASS
+check 2: layer 30 multiplier 0 at gen: 16 of 16 answers equal no write token for token; prefill positions written per row [1]; record md write minus vector max 1.53e-05 -> PASS
+check 2: layer 32 multiplier 0 at gen: 16 of 16 answers equal no write token for token; prefill positions written per row [1]; record md write minus vector max 3.05e-05 -> PASS
+check 2: layer 34 multiplier 0 at gen: 16 of 16 answers equal no write token for token; prefill positions written per row [1]; record md write minus vector max 1.53e-05 -> PASS
+check 2: layer 36 multiplier 0 at gen: 16 of 16 answers equal no write token for token; prefill positions written per row [1]; record md write minus vector max 1.53e-05 -> PASS
+  sign layer  0 | P(correct) 0.8344: +1 -0.0004  -1 -0.0006 | share of A+B 0.8363: +1 -0.0001 (up in 23 of 48 questions)  -1 -0.0004 (up in 18)
+  sign layer  1 | P(correct) 0.8344: +1 -0.0004  -1 -0.0003 | share of A+B 0.8363: +1 -0.0001 (up in 17 of 48 questions)  -1 -0.0001 (up in 18)
+  sign layer  2 | P(correct) 0.8344: +1 -0.0004  -1 -0.0002 | share of A+B 0.8363: +1 -0.0002 (up in 21 of 48 questions)  -1 -0.0004 (up in 16)
+  sign layer  3 | P(correct) 0.8344: +1 -0.0007  -1 -0.0006 | share of A+B 0.8363: +1 -0.0005 (up in 14 of 48 questions)  -1 -0.0003 (up in 16)
+  sign layer  4 | P(correct) 0.8344: +1 -0.0003  -1 -0.0009 | share of A+B 0.8363: +1 -0.0002 (up in 19 of 48 questions)  -1 -0.0006 (up in 18)
+  sign layer  5 | P(correct) 0.8344: +1 -0.0002  -1 -0.0003 | share of A+B 0.8363: +1 -0.0001 (up in 20 of 48 questions)  -1 -0.0001 (up in 19)
+  sign layer  6 | P(correct) 0.8344: +1 -0.0002  -1 -0.0005 | share of A+B 0.8363: +1 -0.0003 (up in 14 of 48 questions)  -1 -0.0003 (up in 22)
+  sign layer  7 | P(correct) 0.8344: +1 -0.0003  -1 -0.0002 | share of A+B 0.8363: +1 -0.0001 (up in 16 of 48 questions)  -1 -0.0001 (up in 23)
+  sign layer  8 | P(correct) 0.8344: +1 -0.0001  -1 -0.0005 | share of A+B 0.8363: +1 -0.0001 (up in 22 of 48 questions)  -1 -0.0002 (up in 20)
+  sign layer  9 | P(correct) 0.8344: +1 -0.0004  -1 -0.0003 | share of A+B 0.8363: +1 -0.0002 (up in 16 of 48 questions)  -1 -0.0001 (up in 21)
+  sign layer 10 | P(correct) 0.8344: +1 -0.0010  -1 -0.0006 | share of A+B 0.8363: +1 -0.0005 (up in 20 of 48 questions)  -1 -0.0002 (up in 18)
+  sign layer 11 | P(correct) 0.8344: +1 -0.0003  -1 -0.0004 | share of A+B 0.8363: +1 -0.0004 (up in 19 of 48 questions)  -1 -0.0002 (up in 22)
+  sign layer 12 | P(correct) 0.8344: +1 +0.0003  -1 -0.0011 | share of A+B 0.8363: +1 +0.0001 (up in 18 of 48 questions)  -1 -0.0009 (up in 18)
+  sign layer 13 | P(correct) 0.8344: +1 -0.0002  -1 -0.0011 | share of A+B 0.8363: +1 -0.0004 (up in 26 of 48 questions)  -1 -0.0005 (up in 18)
+  sign layer 14 | P(correct) 0.8344: +1 +0.0005  -1 -0.0012 | share of A+B 0.8363: +1 +0.0001 (up in 23 of 48 questions)  -1 -0.0009 (up in 15)
+  sign layer 15 | P(correct) 0.8344: +1 +0.0018  -1 -0.0020 | share of A+B 0.8363: +1 +0.0006 (up in 25 of 48 questions)  -1 -0.0011 (up in 18)
+  sign layer 16 | P(correct) 0.8344: +1 +0.0015  -1 -0.0014 | share of A+B 0.8363: +1 +0.0003 (up in 23 of 48 questions)  -1 -0.0005 (up in 11)
+  sign layer 17 | P(correct) 0.8344: +1 +0.0057  -1 -0.0049 | share of A+B 0.8363: +1 +0.0044 (up in 22 of 48 questions)  -1 -0.0039 (up in 21)
+  sign layer 18 | P(correct) 0.8344: +1 +0.0029  -1 +0.0020 | share of A+B 0.8363: +1 +0.0015 (up in 14 of 48 questions)  -1 +0.0029 (up in 20)
+  sign layer 19 | P(correct) 0.8344: +1 -0.0009  -1 +0.0039 | share of A+B 0.8363: +1 -0.0005 (up in 14 of 48 questions)  -1 +0.0051 (up in 29)
+  sign layer 20 | P(correct) 0.8344: +1 +0.0117  -1 +0.0025 | share of A+B 0.8363: +1 +0.0099 (up in 28 of 48 questions)  -1 +0.0034 (up in 15)
+  sign layer 21 | P(correct) 0.8344: +1 +0.0164  -1 -0.0025 | share of A+B 0.8363: +1 +0.0148 (up in 32 of 48 questions)  -1 -0.0028 (up in 12)
+  sign layer 22 | P(correct) 0.8344: +1 +0.0195  -1 -0.0066 | share of A+B 0.8363: +1 +0.0177 (up in 34 of 48 questions)  -1 -0.0074 (up in 10)
+  sign layer 23 | P(correct) 0.8344: +1 +0.0212  -1 -0.0133 | share of A+B 0.8363: +1 +0.0193 (up in 37 of 48 questions)  -1 -0.0145 (up in 7)
+  sign layer 24 | P(correct) 0.8344: +1 +0.0220  -1 -0.0204 | share of A+B 0.8363: +1 +0.0202 (up in 35 of 48 questions)  -1 -0.0210 (up in 9)
+  sign layer 25 | P(correct) 0.8344: +1 +0.0171  -1 -0.0048 | share of A+B 0.8363: +1 +0.0175 (up in 37 of 48 questions)  -1 -0.0053 (up in 11)
+  sign layer 26 | P(correct) 0.8344: +1 -0.0023  -1 +0.0025 | share of A+B 0.8363: +1 -0.0011 (up in 33 of 48 questions)  -1 +0.0025 (up in 10)
+  sign layer 27 | P(correct) 0.8344: +1 +0.0018  -1 -0.0027 | share of A+B 0.8363: +1 +0.0012 (up in 32 of 48 questions)  -1 -0.0021 (up in 9)
+  sign layer 28 | P(correct) 0.8344: +1 -0.0033  -1 -0.0049 | share of A+B 0.8363: +1 -0.0026 (up in 33 of 48 questions)  -1 -0.0040 (up in 5)
+  sign layer 29 | P(correct) 0.8344: +1 +0.0024  -1 +0.0011 | share of A+B 0.8363: +1 +0.0023 (up in 31 of 48 questions)  -1 +0.0020 (up in 11)
+  sign layer 30 | P(correct) 0.8344: +1 +0.0014  -1 +0.0000 | share of A+B 0.8363: +1 +0.0018 (up in 32 of 48 questions)  -1 +0.0009 (up in 9)
+  sign layer 31 | P(correct) 0.8344: +1 +0.0023  -1 +0.0006 | share of A+B 0.8363: +1 +0.0026 (up in 32 of 48 questions)  -1 +0.0010 (up in 10)
+  sign layer 32 | P(correct) 0.8344: +1 -0.0001  -1 +0.0009 | share of A+B 0.8363: +1 +0.0004 (up in 32 of 48 questions)  -1 +0.0006 (up in 12)
+  sign layer 33 | P(correct) 0.8344: +1 +0.0004  -1 +0.0020 | share of A+B 0.8363: +1 +0.0011 (up in 32 of 48 questions)  -1 +0.0015 (up in 11)
+  sign layer 34 | P(correct) 0.8344: +1 -0.0004  -1 +0.0024 | share of A+B 0.8363: +1 +0.0006 (up in 33 of 48 questions)  -1 +0.0016 (up in 11)
+  sign layer 35 | P(correct) 0.8344: +1 -0.0005  -1 +0.0027 | share of A+B 0.8363: +1 +0.0004 (up in 32 of 48 questions)  -1 +0.0015 (up in 11)
+  sign layer 36 | P(correct) 0.8344: +1 -0.0013  -1 +0.0027 | share of A+B 0.8363: +1 -0.0004 (up in 32 of 48 questions)  -1 +0.0018 (up in 11)
+  sign layer 37 | P(correct) 0.8344: +1 -0.0019  -1 +0.0019 | share of A+B 0.8363: +1 -0.0011 (up in 32 of 48 questions)  -1 +0.0011 (up in 12)
+  sign layer 38 | P(correct) 0.8344: +1 -0.0018  -1 +0.0013 | share of A+B 0.8363: +1 -0.0009 (up in 32 of 48 questions)  -1 +0.0012 (up in 10)
+  sign layer 39 | P(correct) 0.8344: +1 -0.0006  -1 +0.0018 | share of A+B 0.8363: +1 -0.0001 (up in 32 of 48 questions)  -1 +0.0015 (up in 12)
+  sign layer 40 | P(correct) 0.8344: +1 -0.0003  -1 +0.0009 | share of A+B 0.8363: +1 -0.0003 (up in 31 of 48 questions)  -1 +0.0009 (up in 10)
+  sign layer 41 | P(correct) 0.8344: +1 +0.0001  -1 +0.0009 | share of A+B 0.8363: +1 -0.0003 (up in 33 of 48 questions)  -1 +0.0011 (up in 10)
+  sign layer 42 | P(correct) 0.8344: +1 +0.0031  -1 -0.0009 | share of A+B 0.8363: +1 +0.0030 (up in 34 of 48 questions)  -1 -0.0004 (up in 8)
+  sign layer 43 | P(correct) 0.8344: +1 +0.0021  -1 +0.0003 | share of A+B 0.8363: +1 +0.0019 (up in 32 of 48 questions)  -1 +0.0001 (up in 11)
+  sign layer 44 | P(correct) 0.8344: +1 +0.0023  -1 +0.0008 | share of A+B 0.8363: +1 +0.0024 (up in 33 of 48 questions)  -1 +0.0011 (up in 11)
+  sign layer 45 | P(correct) 0.8344: +1 +0.0013  -1 +0.0025 | share of A+B 0.8363: +1 +0.0007 (up in 32 of 48 questions)  -1 +0.0017 (up in 10)
+  sign layer 46 | P(correct) 0.8344: +1 +0.0002  -1 +0.0019 | share of A+B 0.8363: +1 +0.0006 (up in 32 of 48 questions)  -1 +0.0012 (up in 11)
+  sign layer 47 | P(correct) 0.8344: +1 -0.0013  -1 +0.0015 | share of A+B 0.8363: +1 -0.0006 (up in 34 of 48 questions)  -1 +0.0011 (up in 11)
+check 3: candidate layers with +1 raising / -1 lowering the correct letter: share of A+B 10 / 6, raw probability 8 / 6, of 13
+check 2 and 4: PASS (check 3 is reported, not gated)
+=== 2026-11-22 20:06:35 step 4: acceptance 1, real E24 record, kind md at gen, twice
+[positions] recompiled e44_eval_extra.run_export (source sha256 17e65aa16290 -> e134ed8daca7)
+[positions] writes at 'gen' instead of the training rule; e44_eval_extra.py sha256 4438a282d3e0c12c396e688e65daa2172297fc9a43fd407dd4b3e340869cab18 (unchanged file); wrapper sha256 1a8ae7861c1c103e350456a252850cad7cde7e50687f5156a764b5f6138beef4
+W1122 12:06:54.433000 1231308 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1122 12:06:54.453000 1231308 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:00<00:00, 127.41it/s]
+12:06:57 identity 0f2627f317b1 (parent run verified); 16 questions of tune [partial: first batches only]
+The following generation flags are not valid and may be ignored: ['top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+12:07:00 x:E24.md.p2: E24 md +2314.925 | changed 5 | refusals 5 -> 4 | sentence-end 16 -> 16 | words 2.6 -> 2.3
+[positions] recompiled e44_eval_extra.run_export (source sha256 17e65aa16290 -> e134ed8daca7)
+[positions] writes at 'gen' instead of the training rule; e44_eval_extra.py sha256 4438a282d3e0c12c396e688e65daa2172297fc9a43fd407dd4b3e340869cab18 (unchanged file); wrapper sha256 1a8ae7861c1c103e350456a252850cad7cde7e50687f5156a764b5f6138beef4
+W1122 12:07:20.498000 1232131 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1122 12:07:20.519000 1232131 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:00<00:00, 129.55it/s]
+12:07:23 identity 0f2627f317b1 (parent run verified); 16 questions of tune [partial: first batches only]
+The following generation flags are not valid and may be ignored: ['top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+12:07:26 x:E24.md.p2: E24 md +2314.925 | changed 5 | refusals 5 -> 4 | sentence-end 16 -> 16 | words 2.6 -> 2.3
+acceptance 1: x:E24.md.p2, positions {'gen'}, amount {2314.924804688}, prefill positions written per row [1]: 16 of 16 answers token for token the same in the two runs; 5 of 16 differ from no write; baseline reproduction verified True / True
+=== 2026-11-22 20:07:27 step 5: small look, CAA at layer 24, multipliers 1 / 2 / 4 (not a choice)
+[positions] recompiled e44_eval_extra.run_export (source sha256 17e65aa16290 -> e134ed8daca7)
+[positions] writes at 'gen' instead of the training rule; e44_eval_extra.py sha256 4438a282d3e0c12c396e688e65daa2172297fc9a43fd407dd4b3e340869cab18 (unchanged file); wrapper sha256 1a8ae7861c1c103e350456a252850cad7cde7e50687f5156a764b5f6138beef4
+W1122 12:07:46.279000 1232954 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1122 12:07:46.299000 1232954 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:00<00:00, 127.67it/s]
+12:07:49 identity 0f2627f317b1 (parent run verified); 16 questions of tune [partial: first batches only]
+The following generation flags are not valid and may be ignored: ['top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+12:07:51 x:E24.md.p1: E24 md +1533.679 | changed 3 | refusals 5 -> 5 | sentence-end 16 -> 16 | words 2.6 -> 2.4
+12:07:52 x:E24.md.p2: E24 md +3067.357 | changed 5 | refusals 5 -> 5 | sentence-end 16 -> 16 | words 2.6 -> 2.1
+12:07:53 x:E24.md.p4: E24 md +6134.715 | changed 6 | refusals 5 -> 6 | sentence-end 16 -> 16 | words 2.6 -> 2.1
+small look x:E24.md.p1: amount 1533.679 | changed 3 of 16 (normalized text 3) | mean words 2.6 -> 2.4 | mean tokens -> 4.1 | rule abstain 5 -> 5 | unfinished 0
+small look x:E24.md.p2: amount 3067.357 | changed 5 of 16 (normalized text 5) | mean words 2.6 -> 2.1 | mean tokens -> 3.9 | rule abstain 5 -> 5 | unfinished 0
+small look x:E24.md.p4: amount 6134.715 | changed 6 of 16 (normalized text 6) | mean words 2.6 -> 2.1 | mean tokens -> 3.9 | rule abstain 5 -> 6 | unfinished 0
+=== 2026-11-22 20:07:54 done

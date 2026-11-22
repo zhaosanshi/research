@@ -12,20 +12,31 @@
 #      earlier md-at-gen answer file of any model to compare with);
 #   5. a small look, not a choice: the CAA vector at the middle candidate layer, multipliers 1 / 2 / 4, same questions:
 #      answers changed and answer length against no write.
-# Holds the card-1 lock of the self-judge workers (Iteration_01/newsets/selfjudge/.gpu1.lock, as in
-# discussion/validation_dataset/2026-11-22d_probe.patch) and refuses to start when card GPU would exceed 65 GB.
-# usage (host): caa_accept.sh MODEL GPU EL [FB]       e.g. caa_accept.sh llama3.1-8b 1 16 2
+# Holds the lock of its card (Iteration_01/newsets/selfjudge/.gpu<GPU>.lock, the self-judge workers' file of that card,
+# as in discussion/validation_dataset/2026-11-22d_probe.patch); a held lock is waited for (retried every minute, never
+# bypassed); exits 3 when card GPU would exceed 65 GB (the caller retries).
+# 2026-11-22 20 h (Claude Opus 5.5, queue_f section 9, GPT review f): the two 27B models (config keys qwen3.8-27b,
+# gemma3-27b); the mirror's template record is the real E record of layer TL (default EL = the model's main-table E
+# layer: Llama-3.1-8B 16, Qwen3.5-9B 15, Qwen3.8-27B 28, Gemma-3-12B 24, Gemma-3-27B 28); GPT's guard
+# (scripts/newsets/caa_run_guard.py accept) decides ACCEPT_DONE, which records "EL FB".
+# usage (host): caa_accept.sh MODEL GPU EL [FB [TL]]       e.g. caa_accept.sh llama3.1-8b 1 16 2
 # Outputs: Iteration_01/baselines/caa/<MODEL>/ ; log Iteration_01/baselines/caa/<MODEL>/acceptance/acceptance.log
 set -uo pipefail
 cd /data/sanshizhao/Truth_Decoupling || exit 2
 ROOT=/workspace/Truth_Decoupling; HOST=/data/sanshizhao/Truth_Decoupling
-MODEL=${1:?model}; GPU=${2:?gpu}; EL=${3:?layer of the real E record for acceptance 1}; FB=${4:-2}
-case "$MODEL" in llama3.1-8b) NEED=17000 ;; qwen3.5-9b) NEED=20000 ;; gemma3-12b) NEED=26000 ;; *) echo "unknown model" >&2; exit 2 ;; esac
-LOCK=$HOST/Iteration_01/newsets/selfjudge/.gpu1.lock
-mkdir -p "$(dirname "$LOCK")" || { echo "cannot prepare GPU 1 reservation" >&2; exit 2; }
+MODEL=${1:?model}; GPU=${2:?gpu}; EL=${3:?layer of the real E record for acceptance 1}; FB=${4:-2}; TL=${5:-$EL}
+case "$MODEL" in
+  llama3.1-8b) NEED=17000 ;; qwen3.5-9b) NEED=20000 ;; gemma3-12b) NEED=26000 ;;
+  gemma3-27b|qwen3.8-27b) NEED=58000 ;; *) echo "unknown model $MODEL" >&2; exit 2 ;;
+esac
+[[ $GPU =~ ^[0-9]$ ]] || { echo "GPU is one card number" >&2; exit 2; }
+[[ $EL =~ ^[0-9]+$ && $TL =~ ^[0-9]+$ && $FB =~ ^[1-9][0-9]*$ ]] || { echo "EL, TL and FB are numbers" >&2; exit 2; }
+echo "caa_accept.sh: $MODEL on GPU $GPU, E layer $EL, template layer $TL, first $FB batches"
+LOCK=$HOST/Iteration_01/newsets/selfjudge/.gpu$GPU.lock
+mkdir -p "$(dirname "$LOCK")" || { echo "cannot prepare GPU $GPU reservation" >&2; exit 2; }
 command -v flock >/dev/null || { echo "flock unavailable on GPU host" >&2; exit 2; }
-exec 9>"$LOCK" || { echo "cannot open GPU 1 reservation" >&2; exit 2; }
-flock -n 9 || { echo "another worker holds GPU 1" >&2; exit 3; }
+exec 9>"$LOCK" || { echo "cannot open GPU $GPU reservation" >&2; exit 2; }
+until flock -n 9; do echo "$(date '+%F %T') another worker holds GPU $GPU ($LOCK); retry in 60 s" >&2; sleep 60; done
 USED=$(nvidia-smi --query-gpu=index,memory.used --format=csv,noheader,nounits | awk -F', ' -v g="$GPU" '$1 == g {print $2}') || { echo "cannot query GPU memory" >&2; exit 2; }
 [[ $USED =~ ^[0-9]+$ ]] || { echo "cannot read GPU memory" >&2; exit 2; }
 if [ $((USED + NEED)) -gt 66560 ]; then echo "GPU $GPU holds $USED MiB; with $NEED MiB more it exceeds 65 GB, not starting" >&2; exit 3; fi
@@ -49,19 +60,20 @@ DXC=(docker exec "${ENV[@]}" -e PYTHONPATH=$ROOT/$CODE -w $ROOT/$CODE truth_dec)
 say() { echo "=== $(date '+%F %T') $*" | tee -a $LOG; }
 die() { say "FAILED: $*"; touch $HOST/$A/ACCEPT_FAILED; exit 1; }
 rm -f $HOST/$A/ACCEPT_DONE $HOST/$A/ACCEPT_FAILED
-say "caa acceptance $MODEL on GPU $GPU ($USED MiB used before start), code copy $CODE, interpreter $PY, E layer $EL, first $FB batches"
+say "caa acceptance $MODEL on GPU $GPU ($USED MiB used before start), code copy $CODE, interpreter $PY, E layer $EL, first $FB batches, template layer $TL"
 say "step 1: fit"
 if [ ! -s $HOST/$B/vectors.pt ]; then
   "${DXR[@]}" $PY -I $CAA fit --models $CFG --model $MODEL --out $ROOT/$B/vectors.pt >> $LOG 2>&1 || die "fit"
 else say "vectors.pt exists, kept"; fi
 say "step 2: mirrors"
-[ -e $HOST/$B/run_caa ] || "${DXR[@]}" $PY -I $CAA mirror --models $CFG --model $MODEL --mirror $B/run_caa --kind caa --vectors $ROOT/$B/vectors.pt >> $LOG 2>&1 || die "mirror caa"
+[ -e $HOST/$B/run_caa ] || "${DXR[@]}" $PY -I $CAA mirror --models $CFG --model $MODEL --mirror $B/run_caa --kind caa --vectors $ROOT/$B/vectors.pt --template-layer $TL >> $LOG 2>&1 || die "mirror caa"
 [ -e $HOST/$B/mirror_e ] || "${DXR[@]}" $PY -I $CAA mirror --models $CFG --model $MODEL --mirror $B/mirror_e --kind real --layers $EL >> $LOG 2>&1 || die "mirror real"
 say "step 3: check (acceptance 2 to 5)"
 if [ ! -s $HOST/$A/check.json ]; then
   "${DXR[@]}" $PY -I $CAA check --models $CFG --model $MODEL --mirror $B/run_caa --vectors $ROOT/$B/vectors.pt \
       --out $ROOT/$A/check.json --first-batches $FB >> $LOG 2>&1 || die "check"
 else say "check.json exists, kept"; fi
+GUARD=$HOST/Iteration_01/code/scripts/newsets/caa_run_guard.py
 COMMON=(--source-run $ROOT/$SRC --e-on $E_ON --split tune --batch-size 8 --max-new-tokens 48 --max-target-tokens 24 --seed 42 --first-batches $FB)
 NQ=$((FB * 8))
 say "step 4: acceptance 1, real E$EL record, kind md at gen, twice"
@@ -104,5 +116,6 @@ for p in sys.argv[1:]:
         sum(x["n_tokens"] for x in r) / len(r), sum(x["baseline_refusal_rule"] for x in r), sum(x["refusal_rule"] for x in r),
         d["summary"]["unfinished"]))
 EOF
+python3 -B "$GUARD" accept "$MODEL" "$EL" "$FB" || die "acceptance identity and coverage"
 say "done"
-touch $HOST/$A/ACCEPT_DONE
+printf '%s %s\n' "$EL" "$FB" > "$HOST/$A/ACCEPT_DONE" || die "cannot record acceptance"

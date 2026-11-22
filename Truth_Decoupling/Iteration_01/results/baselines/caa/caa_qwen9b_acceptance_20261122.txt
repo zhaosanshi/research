@@ -1,0 +1,147 @@
+=== 2026-11-22 19:56:05 caa acceptance qwen3.5-9b on GPU 1 (43519 MiB used before start), code copy code_ff_explore_20261113b, interpreter /workspace/Truth_Decoupling/envs/tf519/bin/python, E layer 15, first 2 batches, template layer 15
+=== 2026-11-22 19:56:05 step 1: fit
+W1122 11:56:20.983000 1219079 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1122 11:56:21.001000 1219079 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading weights:   0%|          | 0/427 [00:00<?, ?it/s]Loading weights: 100%|██████████| 427/427 [00:00<00:00, 14499.77it/s]
+11:56:23 identity 7c08f9fa7fb4 (parent run verified); 192 questions of tune
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[transformers] `chunk_gated_delta_rule` is falling back to its reference PyTorch implementation because `flash-linear-attention` is not installed. This is correct but much slower; install `flash-linear-attention` for the optimized kernel.
+pair 0 of 818, 1s
+pair 200 of 818, 19s
+pair 400 of 818, 38s
+pair 600 of 818, 56s
+pair 800 of 818, 74s
+fit: 96 questions, 409 pairs, 818 prompts per sign, prompts per question {'2': 6, '4': 10, '6': 19, '8': 24, '10': 18, '12': 9, '14': 5, '18': 1, '20': 2, '22': 2}; letter tokens {'A': '(A', 'B': '(B'}, stem []; norm range 0.002 .. 49.574 (layer 0 .. 31); 76s
+  layer  0 norm   0.0021 (half0   0.0020)
+  layer  1 norm   0.0050 (half0   0.0061)
+  layer  2 norm   0.0111 (half0   0.0118)
+  layer  3 norm   0.0242 (half0   0.0218)
+  layer  4 norm   0.0362 (half0   0.0327)
+  layer  5 norm   0.0462 (half0   0.0412)
+  layer  6 norm   0.0582 (half0   0.0518)
+  layer  7 norm   0.5943 (half0   0.5252)
+  layer  8 norm   0.6157 (half0   0.5501)  candidate
+  layer  9 norm   0.7869 (half0   0.7073)
+  layer 10 norm   0.7418 (half0   0.6831)  candidate
+  layer 11 norm   1.9739 (half0   1.9015)
+  layer 12 norm   2.1686 (half0   2.1045)  candidate
+  layer 13 norm   2.5501 (half0   2.4597)
+  layer 14 norm   2.6423 (half0   2.5769)  candidate
+  layer 15 norm   5.3463 (half0   5.0715)
+  layer 16 norm   8.9189 (half0   8.3241)  candidate
+  layer 17 norm  11.1266 (half0  10.4541)
+  layer 18 norm  14.5692 (half0  13.6432)  candidate
+  layer 19 norm  16.1959 (half0  15.1899)
+  layer 20 norm  18.8856 (half0  17.7217)  candidate
+  layer 21 norm  21.8289 (half0  20.4643)
+  layer 22 norm  25.6452 (half0  24.0601)  candidate
+  layer 23 norm  27.1555 (half0  25.5398)
+  layer 24 norm  28.7326 (half0  27.0721)  candidate
+  layer 25 norm  30.2639 (half0  28.5313)
+  layer 26 norm  31.6750 (half0  29.8843)
+  layer 27 norm  33.4939 (half0  31.6119)
+  layer 28 norm  36.3880 (half0  34.3701)
+  layer 29 norm  38.6925 (half0  36.5974)
+  layer 30 norm  43.1113 (half0  40.8162)
+  layer 31 norm  49.5740 (half0  46.9340)
+=== 2026-11-22 19:57:40 step 2: mirrors
+mirror run_caa (caa): 32 direction records, frozen files copied, models config models_run_caa.json
+mirror mirror_e (real): 1 direction records, frozen files copied, models config models_mirror_e.json
+=== 2026-11-22 19:57:44 step 3: check (acceptance 2 to 5)
+W1122 11:58:00.336000 1221000 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1122 11:58:00.355000 1221000 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading weights:   0%|          | 0/427 [00:00<?, ?it/s]Loading weights: 100%|██████████| 427/427 [00:00<00:00, 13586.98it/s]
+11:58:02 identity 7c08f9fa7fb4 (parent run verified); 16 questions of tune [partial: first batches only]
+check 4 (question IDs): {"vector_questions": 96, "all_in_train": true, "equal_to_train": true, "in_frozen_train": true, "overlap_tune_ids": 0, "overlap_test_ids": 0, "overlap_dr100_ids": 0, "overlap_tune_question_text": 0, "overlap_test_question_text": 0, "tune": 192, "test": 529, "dr100": 100, "half0_half1_disjoint": true, "halves_cover_train": true} -> PASS
+check 5 (template): first write at the last prompt token '\n\n' (same token for all 16 questions: True); last five prompt tokens ['\n', '<think>', '\n\n', '</think>', '\n\n']; first decode step = the first generated token's position (index 66 for question 1)
+        candidate layers [8, 10, 12, 14, 16, 18, 20, 22, 24]; letter tokens {'A': '(A', 'B': '(B'}; stem []
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[transformers] `chunk_gated_delta_rule` is falling back to its reference PyTorch implementation because `flash-linear-attention` is not installed. This is correct but much slower; install `flash-linear-attention` for the optimized kernel.
+[transformers] `causal_conv1d_update` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[transformers] `fused_recurrent_gated_delta_rule` is falling back to its reference PyTorch implementation because `flash-linear-attention` is not installed. This is correct but much slower; install `flash-linear-attention` for the optimized kernel.
+check 2: no-write regeneration equals the frozen x answers on 16 of 16
+check 2: layer  8 multiplier 0 at gen: 16 of 16 answers equal no write token for token; prefill positions written per row [1]; record md write minus vector max 1.86e-09 -> PASS
+check 2: layer 10 multiplier 0 at gen: 16 of 16 answers equal no write token for token; prefill positions written per row [1]; record md write minus vector max 3.73e-09 -> PASS
+check 2: layer 12 multiplier 0 at gen: 16 of 16 answers equal no write token for token; prefill positions written per row [1]; record md write minus vector max 7.45e-09 -> PASS
+check 2: layer 14 multiplier 0 at gen: 16 of 16 answers equal no write token for token; prefill positions written per row [1]; record md write minus vector max 7.45e-09 -> PASS
+check 2: layer 16 multiplier 0 at gen: 16 of 16 answers equal no write token for token; prefill positions written per row [1]; record md write minus vector max 2.98e-08 -> PASS
+check 2: layer 18 multiplier 0 at gen: 16 of 16 answers equal no write token for token; prefill positions written per row [1]; record md write minus vector max 5.96e-08 -> PASS
+check 2: layer 20 multiplier 0 at gen: 16 of 16 answers equal no write token for token; prefill positions written per row [1]; record md write minus vector max 1.19e-07 -> PASS
+check 2: layer 22 multiplier 0 at gen: 16 of 16 answers equal no write token for token; prefill positions written per row [1]; record md write minus vector max 1.19e-07 -> PASS
+check 2: layer 24 multiplier 0 at gen: 16 of 16 answers equal no write token for token; prefill positions written per row [1]; record md write minus vector max 5.96e-08 -> PASS
+  sign layer  0 | P(correct) 0.0169: +1 -0.0000  -1 -0.0001 | share of A+B 0.6566: +1 +0.0004 (up in 29 of 48 questions)  -1 +0.0005 (up in 29)
+  sign layer  1 | P(correct) 0.0169: +1 -0.0000  -1 -0.0000 | share of A+B 0.6566: +1 +0.0001 (up in 22 of 48 questions)  -1 +0.0001 (up in 23)
+  sign layer  2 | P(correct) 0.0169: +1 -0.0000  -1 +0.0000 | share of A+B 0.6566: +1 -0.0001 (up in 25 of 48 questions)  -1 +0.0002 (up in 29)
+  sign layer  3 | P(correct) 0.0169: +1 -0.0000  -1 -0.0000 | share of A+B 0.6566: +1 +0.0003 (up in 28 of 48 questions)  -1 +0.0004 (up in 28)
+  sign layer  4 | P(correct) 0.0169: +1 -0.0001  -1 -0.0001 | share of A+B 0.6566: +1 +0.0004 (up in 32 of 48 questions)  -1 +0.0002 (up in 28)
+  sign layer  5 | P(correct) 0.0169: +1 -0.0000  -1 -0.0001 | share of A+B 0.6566: +1 +0.0002 (up in 31 of 48 questions)  -1 +0.0004 (up in 29)
+  sign layer  6 | P(correct) 0.0169: +1 -0.0000  -1 -0.0001 | share of A+B 0.6566: +1 +0.0003 (up in 27 of 48 questions)  -1 +0.0003 (up in 27)
+  sign layer  7 | P(correct) 0.0169: +1 -0.0001  -1 -0.0000 | share of A+B 0.6566: +1 -0.0000 (up in 26 of 48 questions)  -1 +0.0005 (up in 33)
+  sign layer  8 | P(correct) 0.0169: +1 -0.0003  -1 +0.0002 | share of A+B 0.6566: +1 -0.0001 (up in 24 of 48 questions)  -1 +0.0008 (up in 37)
+  sign layer  9 | P(correct) 0.0169: +1 -0.0002  -1 +0.0003 | share of A+B 0.6566: +1 -0.0009 (up in 18 of 48 questions)  -1 +0.0016 (up in 38)
+  sign layer 10 | P(correct) 0.0169: +1 -0.0003  -1 +0.0002 | share of A+B 0.6566: +1 -0.0012 (up in 16 of 48 questions)  -1 +0.0021 (up in 41)
+  sign layer 11 | P(correct) 0.0169: +1 -0.0001  -1 +0.0003 | share of A+B 0.6566: +1 -0.0006 (up in 21 of 48 questions)  -1 +0.0004 (up in 25)
+  sign layer 12 | P(correct) 0.0169: +1 -0.0013  -1 +0.0012 | share of A+B 0.6566: +1 -0.0015 (up in 21 of 48 questions)  -1 +0.0020 (up in 35)
+  sign layer 13 | P(correct) 0.0169: +1 -0.0008  -1 +0.0003 | share of A+B 0.6566: +1 -0.0012 (up in 21 of 48 questions)  -1 +0.0016 (up in 35)
+  sign layer 14 | P(correct) 0.0169: +1 -0.0007  -1 +0.0009 | share of A+B 0.6566: +1 -0.0025 (up in 16 of 48 questions)  -1 +0.0031 (up in 39)
+  sign layer 15 | P(correct) 0.0169: +1 -0.0000  -1 +0.0011 | share of A+B 0.6566: +1 -0.0007 (up in 23 of 48 questions)  -1 +0.0008 (up in 25)
+  sign layer 16 | P(correct) 0.0169: +1 -0.0032  -1 +0.0038 | share of A+B 0.6566: +1 -0.0063 (up in 13 of 48 questions)  -1 -0.0009 (up in 23)
+  sign layer 17 | P(correct) 0.0169: +1 -0.0027  -1 +0.0047 | share of A+B 0.6566: +1 +0.0075 (up in 30 of 48 questions)  -1 -0.0034 (up in 20)
+  sign layer 18 | P(correct) 0.0169: +1 -0.0010  -1 +0.0027 | share of A+B 0.6566: +1 +0.0156 (up in 37 of 48 questions)  -1 -0.0026 (up in 25)
+  sign layer 19 | P(correct) 0.0169: +1 +0.0001  -1 +0.0038 | share of A+B 0.6566: +1 +0.0169 (up in 31 of 48 questions)  -1 -0.0068 (up in 18)
+  sign layer 20 | P(correct) 0.0169: +1 -0.0012  -1 +0.0027 | share of A+B 0.6566: +1 +0.0170 (up in 33 of 48 questions)  -1 -0.0136 (up in 14)
+  sign layer 21 | P(correct) 0.0169: +1 +0.0000  -1 +0.0012 | share of A+B 0.6566: +1 +0.0160 (up in 37 of 48 questions)  -1 -0.0159 (up in 12)
+  sign layer 22 | P(correct) 0.0169: +1 -0.0027  -1 +0.0028 | share of A+B 0.6566: +1 +0.0117 (up in 34 of 48 questions)  -1 -0.0156 (up in 12)
+  sign layer 23 | P(correct) 0.0169: +1 -0.0037  -1 +0.0026 | share of A+B 0.6566: +1 +0.0094 (up in 35 of 48 questions)  -1 -0.0127 (up in 12)
+  sign layer 24 | P(correct) 0.0169: +1 -0.0032  -1 +0.0019 | share of A+B 0.6566: +1 +0.0133 (up in 35 of 48 questions)  -1 -0.0147 (up in 9)
+  sign layer 25 | P(correct) 0.0169: +1 -0.0009  -1 +0.0006 | share of A+B 0.6566: +1 +0.0164 (up in 36 of 48 questions)  -1 -0.0186 (up in 7)
+  sign layer 26 | P(correct) 0.0169: +1 -0.0015  -1 +0.0013 | share of A+B 0.6566: +1 +0.0138 (up in 37 of 48 questions)  -1 -0.0176 (up in 9)
+  sign layer 27 | P(correct) 0.0169: +1 -0.0016  -1 +0.0006 | share of A+B 0.6566: +1 +0.0075 (up in 32 of 48 questions)  -1 -0.0144 (up in 10)
+  sign layer 28 | P(correct) 0.0169: +1 -0.0013  -1 +0.0006 | share of A+B 0.6566: +1 +0.0167 (up in 34 of 48 questions)  -1 -0.0175 (up in 10)
+  sign layer 29 | P(correct) 0.0169: +1 -0.0018  -1 +0.0004 | share of A+B 0.6566: +1 +0.0143 (up in 35 of 48 questions)  -1 -0.0161 (up in 11)
+  sign layer 30 | P(correct) 0.0169: +1 -0.0039  -1 +0.0027 | share of A+B 0.6566: +1 +0.0111 (up in 30 of 48 questions)  -1 -0.0146 (up in 10)
+  sign layer 31 | P(correct) 0.0169: +1 -0.0089  -1 +0.0148 | share of A+B 0.6566: +1 -0.0004 (up in 17 of 48 questions)  -1 -0.0038 (up in 9)
+check 3: candidate layers with +1 raising / -1 lowering the correct letter: share of A+B 4 / 5, raw probability 0 / 0, of 9
+check 2 and 4: PASS (check 3 is reported, not gated)
+=== 2026-11-22 20:03:15 step 4: acceptance 1, real E15 record, kind md at gen, twice
+[positions] recompiled e44_eval_extra.run_export (source sha256 17e65aa16290 -> e134ed8daca7)
+[positions] writes at 'gen' instead of the training rule; e44_eval_extra.py sha256 4438a282d3e0c12c396e688e65daa2172297fc9a43fd407dd4b3e340869cab18 (unchanged file); wrapper sha256 1a8ae7861c1c103e350456a252850cad7cde7e50687f5156a764b5f6138beef4
+W1122 12:03:31.463000 1225653 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1122 12:03:31.480000 1225653 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading weights:   0%|          | 0/427 [00:00<?, ?it/s]Loading weights: 100%|██████████| 427/427 [00:00<00:00, 22061.69it/s]
+12:03:33 identity 7c08f9fa7fb4 (parent run verified); 16 questions of tune [partial: first batches only]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[transformers] `chunk_gated_delta_rule` is falling back to its reference PyTorch implementation because `flash-linear-attention` is not installed. This is correct but much slower; install `flash-linear-attention` for the optimized kernel.
+[transformers] `causal_conv1d_update` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[transformers] `fused_recurrent_gated_delta_rule` is falling back to its reference PyTorch implementation because `flash-linear-attention` is not installed. This is correct but much slower; install `flash-linear-attention` for the optimized kernel.
+12:03:35 x:E15.md.p2: E15 md +9.276 | changed 5 | refusals 2 -> 3 | sentence-end 14 -> 10 | words 3.9 -> 4.1
+[positions] recompiled e44_eval_extra.run_export (source sha256 17e65aa16290 -> e134ed8daca7)
+[positions] writes at 'gen' instead of the training rule; e44_eval_extra.py sha256 4438a282d3e0c12c396e688e65daa2172297fc9a43fd407dd4b3e340869cab18 (unchanged file); wrapper sha256 1a8ae7861c1c103e350456a252850cad7cde7e50687f5156a764b5f6138beef4
+W1122 12:03:52.959000 1226661 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1122 12:03:52.976000 1226661 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading weights:   0%|          | 0/427 [00:00<?, ?it/s]Loading weights: 100%|██████████| 427/427 [00:00<00:00, 12837.83it/s]
+12:03:55 identity 7c08f9fa7fb4 (parent run verified); 16 questions of tune [partial: first batches only]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[transformers] `chunk_gated_delta_rule` is falling back to its reference PyTorch implementation because `flash-linear-attention` is not installed. This is correct but much slower; install `flash-linear-attention` for the optimized kernel.
+[transformers] `causal_conv1d_update` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[transformers] `fused_recurrent_gated_delta_rule` is falling back to its reference PyTorch implementation because `flash-linear-attention` is not installed. This is correct but much slower; install `flash-linear-attention` for the optimized kernel.
+12:03:57 x:E15.md.p2: E15 md +9.276 | changed 5 | refusals 2 -> 3 | sentence-end 14 -> 10 | words 3.9 -> 4.1
+acceptance 1: x:E15.md.p2, positions {'gen'}, amount {9.275928497}, prefill positions written per row [1]: 16 of 16 answers token for token the same in the two runs; 5 of 16 differ from no write; baseline reproduction verified True / True
+=== 2026-11-22 20:03:58 step 5: small look, CAA at layer 16, multipliers 1 / 2 / 4 (not a choice)
+[positions] recompiled e44_eval_extra.run_export (source sha256 17e65aa16290 -> e134ed8daca7)
+[positions] writes at 'gen' instead of the training rule; e44_eval_extra.py sha256 4438a282d3e0c12c396e688e65daa2172297fc9a43fd407dd4b3e340869cab18 (unchanged file); wrapper sha256 1a8ae7861c1c103e350456a252850cad7cde7e50687f5156a764b5f6138beef4
+W1122 12:04:14.589000 1227254 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1122 12:04:14.605000 1227254 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Loading weights:   0%|          | 0/427 [00:00<?, ?it/s]Loading weights: 100%|██████████| 427/427 [00:00<00:00, 13465.42it/s]
+12:04:16 identity 7c08f9fa7fb4 (parent run verified); 16 questions of tune [partial: first batches only]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[transformers] `chunk_gated_delta_rule` is falling back to its reference PyTorch implementation because `flash-linear-attention` is not installed. This is correct but much slower; install `flash-linear-attention` for the optimized kernel.
+[transformers] `causal_conv1d_update` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[transformers] `fused_recurrent_gated_delta_rule` is falling back to its reference PyTorch implementation because `flash-linear-attention` is not installed. This is correct but much slower; install `flash-linear-attention` for the optimized kernel.
+12:04:19 x:E16.md.p1: E16 md +8.919 | changed 8 | refusals 2 -> 3 | sentence-end 14 -> 10 | words 3.9 -> 3.6
+12:04:19 x:E16.md.p2: E16 md +17.838 | changed 9 | refusals 2 -> 3 | sentence-end 14 -> 8 | words 3.9 -> 3.7
+12:04:20 x:E16.md.p4: E16 md +35.676 | changed 10 | refusals 2 -> 4 | sentence-end 14 -> 9 | words 3.9 -> 4.9
+small look x:E16.md.p1: amount 8.919 | changed 10 of 16 (normalized text 8) | mean words 3.9 -> 3.6 | mean tokens -> 4.8 | rule abstain 2 -> 3 | unfinished 0
+small look x:E16.md.p2: amount 17.838 | changed 13 of 16 (normalized text 9) | mean words 3.9 -> 3.7 | mean tokens -> 4.8 | rule abstain 2 -> 3 | unfinished 0
+small look x:E16.md.p4: amount 35.676 | changed 13 of 16 (normalized text 10) | mean words 3.9 -> 4.9 | mean tokens -> 5.9 | rule abstain 2 -> 4 | unfinished 0
+=== 2026-11-22 20:04:22 done
