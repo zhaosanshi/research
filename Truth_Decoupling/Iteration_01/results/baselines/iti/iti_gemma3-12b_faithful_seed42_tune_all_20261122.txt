@@ -1,0 +1,36 @@
+# ITI, gemma3-12b, fit faithful_seed42, sigma endq: TruthfulQA tune split, 192 questions, DeepSeek Pro, score = right - wrong; every grid point with tune answers, whatever its MMLU change
+    no write net -6 | the project's single E (layer 24, strength 2.5, prompt rule) net +42 (answers 110)
+    K  16 alpha   2.5 | net   -6 | answers 164 | right  75 | wrong  81 | MMLU selection half -0.01
+    K  16 alpha     5 | net   -3 | answers 170 | right  80 | wrong  83 | MMLU selection half -0.07
+    K  16 alpha   7.5 | net   -2 | answers 170 | right  81 | wrong  83 | MMLU selection half -0.07
+    K  16 alpha    10 | net   -4 | answers 173 | right  82 | wrong  86 | MMLU selection half -0.09
+    K  16 alpha    15 | net   +1 | answers 174 | right  85 | wrong  84 | MMLU selection half -0.13
+    K  16 alpha    20 | net   -7 | answers 177 | right  81 | wrong  88 | MMLU selection half -0.11
+    K  16 alpha    25 | net   -8 | answers 177 | right  82 | wrong  90 | MMLU selection half -0.26
+    K  16 alpha    30 | net  -17 | answers 178 | right  77 | wrong  94 | MMLU selection half -0.33
+    K  32 alpha   2.5 | net   -6 | answers 164 | right  75 | wrong  81 | MMLU selection half +0.09
+    K  32 alpha     5 | net   -1 | answers 168 | right  80 | wrong  81 | MMLU selection half +0.14
+    K  32 alpha   7.5 | net   -1 | answers 170 | right  82 | wrong  83 | MMLU selection half +0.17
+    K  32 alpha    10 | net   -3 | answers 171 | right  81 | wrong  84 | MMLU selection half +0.21
+    K  32 alpha    15 | net   -8 | answers 172 | right  79 | wrong  87 | MMLU selection half +0.26
+    K  32 alpha    20 | net  -33 | answers 171 | right  67 | wrong 100 | MMLU selection half +0.07
+    K  32 alpha    25 | net  -25 | answers 171 | right  73 | wrong  98 | MMLU selection half +0.24
+    K  32 alpha    30 | net  -58 | answers 171 | right  58 | wrong 116 | MMLU selection half +0.30
+    K  48 alpha   2.5 | net   +2 | answers 166 | right  80 | wrong  78 | MMLU selection half +0.11
+    K  48 alpha     5 | net  +12 | answers 167 | right  86 | wrong  74 | MMLU selection half +0.19
+    K  48 alpha   7.5 | net   +8 | answers 171 | right  86 | wrong  78 | MMLU selection half +0.16
+    K  48 alpha    10 | net   -3 | answers 172 | right  81 | wrong  84 | MMLU selection half +0.11
+    K  48 alpha    15 | net  -14 | answers 167 | right  75 | wrong  89 | MMLU selection half +0.13
+    K  48 alpha    20 | net  -51 | answers 168 | right  59 | wrong 110 | MMLU selection half -0.10
+    K  48 alpha    25 | net  -89 | answers 172 | right  43 | wrong 132 | MMLU selection half -0.26
+    K  48 alpha    30 | net -120 | answers 176 | right  30 | wrong 150 | MMLU selection half -0.10
+    K  64 alpha   2.5 | net   +3 | answers 164 | right  79 | wrong  76 | MMLU selection half +0.14
+    K  64 alpha     5 | net  +10 | answers 165 | right  84 | wrong  74 | MMLU selection half +0.21
+    K  64 alpha   7.5 | net  +16 | answers 164 | right  83 | wrong  67 | MMLU selection half +0.19
+    K  64 alpha    10 | net   -3 | answers 154 | right  73 | wrong  76 | MMLU selection half +0.09
+    K  64 alpha    15 | net  -13 | answers 123 | right  70 | wrong  83 | MMLU selection half -0.33
+    K  64 alpha    20 | net  -28 | answers 113 | right  65 | wrong  93 | MMLU selection half -0.58
+    K  64 alpha    25 | net  -72 | answers 154 | right  45 | wrong 117 | MMLU selection half -0.56
+    K  64 alpha    30 | net -104 | answers 173 | right  31 | wrong 135 | MMLU selection half -0.91
+    chosen on tune: K 64, alpha 7.5 (net +16, answers 164)
+    choice written to Iteration_01/baselines/iti/gemma3-12b/faithful_seed42/choice_all.json

@@ -1,0 +1,37 @@
+# ITI, llama3.1-8b, fit faithful_seed42, sigma endq: TruthfulQA tune split, 192 questions, DeepSeek Pro, score = right - wrong; every grid point with tune answers, whatever its MMLU change
+    no write net -34 | the project's single E (layer 16, strength 3.5, prompt rule) net +6 (answers 116)
+    K  16 alpha   2.5 | net  -34 | answers 169 | right  64 | wrong  98 | MMLU selection half -0.13
+    K  16 alpha     5 | net  -28 | answers 168 | right  67 | wrong  95 | MMLU selection half -0.23
+    K  16 alpha   7.5 | net  -29 | answers 169 | right  67 | wrong  96 | MMLU selection half -0.51
+    K  16 alpha    10 | net  -37 | answers 171 | right  64 | wrong 101 | MMLU selection half -1.01 (over the budget)
+    K  16 alpha    15 | net  -37 | answers 171 | right  63 | wrong 100 | MMLU selection half -1.38 (over the budget)
+    K  16 alpha    20 | net  -39 | answers 170 | right  60 | wrong  99 | MMLU selection half -1.85 (over the budget)
+    K  16 alpha    25 | net  -38 | answers 165 | right  57 | wrong  95 | MMLU selection half -2.44 (over the budget)
+    K  16 alpha    30 | net  -35 | answers 153 | right  50 | wrong  85 | MMLU selection half -3.05 (over the budget)
+    K  32 alpha   2.5 | net  -33 | answers 169 | right  65 | wrong  98 | MMLU selection half -0.09
+    K  32 alpha     5 | net  -39 | answers 171 | right  63 | wrong 102 | MMLU selection half -0.36
+    K  32 alpha   7.5 | net  -45 | answers 172 | right  60 | wrong 105 | MMLU selection half -0.87
+    K  32 alpha    10 | net  -47 | answers 172 | right  59 | wrong 106 | MMLU selection half -1.24 (over the budget)
+    K  32 alpha    15 | net  -50 | answers 172 | right  59 | wrong 109 | MMLU selection half -1.74 (over the budget)
+    K  32 alpha    20 | net  -55 | answers 171 | right  55 | wrong 110 | MMLU selection half -2.25 (over the budget)
+    K  32 alpha    25 | net  -77 | answers 168 | right  42 | wrong 119 | MMLU selection half -2.59 (over the budget)
+    K  32 alpha    30 | net -111 | answers 166 | right  28 | wrong 139 | MMLU selection half -3.10 (over the budget)
+    K  48 alpha   2.5 | net  -33 | answers 169 | right  64 | wrong  97 | MMLU selection half -0.14
+    K  48 alpha     5 | net  -36 | answers 171 | right  63 | wrong  99 | MMLU selection half -0.37
+    K  48 alpha   7.5 | net  -36 | answers 171 | right  63 | wrong  99 | MMLU selection half -0.91
+    K  48 alpha    10 | net  -34 | answers 170 | right  63 | wrong  97 | MMLU selection half -1.44 (over the budget)
+    K  48 alpha    15 | net  -38 | answers 168 | right  59 | wrong  97 | MMLU selection half -2.16 (over the budget)
+    K  48 alpha    20 | net  -54 | answers 167 | right  50 | wrong 104 | MMLU selection half -2.68 (over the budget)
+    K  48 alpha    25 | no net: the judge declined 1 of the 192 answers; net of the other 191 -68, so between -69 and -67 | answers 164 | MMLU selection half -3.29 (over the budget)
+    K  48 alpha    30 | no net: the judge declined 13 of the 192 answers; net of the other 179 -112, so between -125 and -99 | answers 181 | MMLU selection half not measured
+    K  64 alpha   2.5 | net  -38 | answers 170 | right  62 | wrong 100 | MMLU selection half -0.14
+    K  64 alpha     5 | net  -43 | answers 173 | right  59 | wrong 102 | MMLU selection half -0.71
+    K  64 alpha   7.5 | net  -37 | answers 172 | right  61 | wrong  98 | MMLU selection half -1.27 (over the budget)
+    K  64 alpha    10 | net  -31 | answers 173 | right  65 | wrong  96 | MMLU selection half -2.15 (over the budget)
+    K  64 alpha    15 | net  -40 | answers 173 | right  58 | wrong  98 | MMLU selection half -3.49 (over the budget)
+    K  64 alpha    20 | net  -78 | answers 166 | right  36 | wrong 114 | MMLU selection half not measured
+    K  64 alpha    25 | no net: the judge declined 12 of the 192 answers; net of the other 180 -128, so between -140 and -116 | answers 168 | MMLU selection half not measured
+    K  64 alpha    30 | no net: the judge declined 68 of the 192 answers; net of the other 124 -107, so between -175 and -39 | answers 191 | MMLU selection half not measured
+    4 point(s) with judge-declined answers are not eligible; each stays below the chosen point's net even with every declined answer counted as right
+    chosen on tune: K 16, alpha 5 (net -28, answers 168)
+    choice written to Iteration_01/baselines/iti/llama3.1-8b/faithful_seed42/choice_all.json

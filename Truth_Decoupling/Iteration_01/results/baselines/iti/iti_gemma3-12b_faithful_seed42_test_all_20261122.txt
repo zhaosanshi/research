@@ -1,0 +1,6 @@
+# the choice among all points is the main reading's own point: its test verdicts are read from judge_test_iti_faithful_seed42_test
+# ITI, gemma3-12b, fit faithful_seed42, sigma endq: TruthfulQA test split, 522 questions, DeepSeek Pro, score = right - wrong
+    chosen on tune among all grid points, whatever the MMLU change: K 64, alpha 7.5 (tune net +16); positions: the last prompt token and every generated token
+    no write net +12 | ITI net +36 (answers 469, right 234, wrong 198) | single E (layer 24, strength 2.5, prompt rule) net +103 (answers 323) | N1 net +158 (answers 489)
+    ITI minus no write +24 [-2, +50] | single E minus ITI +67 [+23, +110] | N1 minus ITI +122 [+74, +169] | single E minus no write +91 [+45, +136]
+    MMLU of the chosen point: selection half +0.19 [-0.10, +0.46], report half +0.00 [-0.28, +0.28]
