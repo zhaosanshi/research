@@ -1,0 +1,46 @@
+===== test
+llama3.1-8b  523 q | S0 net +33 ans 454 | T2 (S0 + blanks from must-answer+sentence) net +40 ans 523 | N1 net +62 ans 476
+     S0 wrong -> N1 right 50 / zero 25 / wrong 130 | S0 right -> N1 right 162 / zero 29 / wrong 47 | S0 zero -> N1 right 41 / zero 25 / wrong 14
+     S0 wrong -> E  right 28 / zero 89 / wrong 88 | S0 right -> E  right 137 / zero 61 / wrong 40 | S0 zero -> E  right 7 / zero 69 / wrong 4
+     oracle best of (S0, N1) net +199 | best of (S0, E) net +185
+qwen3.5-9b   523 q | S0 net +168 ans 464 | T2 (S0 + blanks from must-answer+sentence) net +159 ans 523 | N1 net +186 ans 444
+     S0 wrong -> N1 right 17 / zero 24 / wrong 104 | S0 right -> N1 right 283 / zero 14 / wrong 16 | S0 zero -> N1 right 10 / zero 51 / wrong 4
+     S0 wrong -> E  right 13 / zero 32 / wrong 100 | S0 right -> E  right 269 / zero 29 / wrong 15 | S0 zero -> E  right 3 / zero 60 / wrong 2
+     oracle best of (S0, N1) net +236 | best of (S0, E) net +229
+qwen3.8-27b  521 q | S0 net +162 ans 373 | T2 (S0 + blanks from must-answer+sentence) net +165 ans 521 | N1 net +175 ans 490
+     S0 wrong -> N1 right 13 / zero 4 / wrong 86 | S0 right -> N1 right 235 / zero 4 / wrong 26 | S0 zero -> N1 right 77 / zero 38 / wrong 38
+     S0 wrong -> E  right 10 / zero 13 / wrong 80 | S0 right -> E  right 222 / zero 25 / wrong 18 | S0 zero -> E  right 14 / zero 133 / wrong 6
+     oracle best of (S0, N1) net +269 | best of (S0, E) net +209
+gemma3-12b   522 q | S0 net +156 ans 501 | T2 (S0 + blanks from must-answer+sentence) net +145 ans 521 | N1 net +158 ans 489
+     S0 wrong -> N1 right 51 / zero 15 / wrong 97 | S0 right -> N1 right 241 / zero 29 / wrong 49 | S0 zero -> N1 right 20 / zero 12 / wrong 8
+     S0 wrong -> E  right 28 / zero 64 / wrong 71 | S0 right -> E  right 181 / zero 103 / wrong 35 | S0 zero -> E  right 2 / zero 36 / wrong 2
+     oracle best of (S0, N1) net +293 | best of (S0, E) net +278
+gemma3-27b   523 q | S0 net +186 ans 488 | T2 (S0 + blanks from must-answer+sentence) net +178 ans 522 | N1 net +144 ans 510
+     S0 wrong -> N1 right 33 / zero 3 / wrong 105 | S0 right -> N1 right 260 / zero 21 / wrong 46 | S0 zero -> N1 right 20 / zero 17 / wrong 18
+     S0 wrong -> E  right 33 / zero 10 / wrong 98 | S0 right -> E  right 212 / zero 75 / wrong 40 | S0 zero -> E  right 8 / zero 37 / wrong 10
+     oracle best of (S0, N1) net +275 | best of (S0, E) net +270
+five models, 520 common questions: S0 net +706 ans 2269 | T2 net +689 ans 2598 | conf net +524 ans 2595 | E net +560 ans 1818 | N1 net +729 ans 2398
+   N1 minus S0 +23 [-74, +118] | N1 minus T2 +40 [-59, +133] | T2 minus S0 -17 [-54, +20] | oracle best of (S0, N1) +1272
+===== tune
+llama3.1-8b  192 q | S0 net +18 ans 158 | T2 (S0 + blanks from must-answer+sentence) net +30 ans 192 | N1 net +27 ans 184
+     S0 wrong -> N1 right 21 / zero 7 / wrong 38 | S0 right -> N1 right 55 / zero 6 / wrong 23 | S0 zero -> N1 right 19 / zero 16 / wrong 7
+     S0 wrong -> E  right 12 / zero 29 / wrong 25 | S0 right -> E  right 45 / zero 16 / wrong 23 | S0 zero -> E  right 0 / zero 39 / wrong 3
+     oracle best of (S0, N1) net +86 | best of (S0, E) net +71
+qwen3.5-9b   192 q | S0 net +64 ans 162 | T2 (S0 + blanks from must-answer+sentence) net +58 ans 190 | N1 net +63 ans 155
+     S0 wrong -> N1 right 5 / zero 9 / wrong 33 | S0 right -> N1 right 97 / zero 6 / wrong 8 | S0 zero -> N1 right 6 / zero 24 / wrong 4
+     S0 wrong -> E  right 5 / zero 10 / wrong 32 | S0 right -> E  right 93 / zero 10 / wrong 8 | S0 zero -> E  right 1 / zero 32 / wrong 1
+     oracle best of (S0, N1) net +89 | best of (S0, E) net +85
+qwen3.8-27b  192 q | S0 net +63 ans 128 | T2 (S0 + blanks from must-answer+sentence) net +76 ans 192 | N1 net +80 ans 182
+     S0 wrong -> N1 right 1 / zero 3 / wrong 27 | S0 right -> N1 right 84 / zero 4 / wrong 6 | S0 zero -> N1 right 43 / zero 9 / wrong 15
+     S0 wrong -> E  right 1 / zero 7 / wrong 23 | S0 right -> E  right 75 / zero 15 / wrong 4 | S0 zero -> E  right 9 / zero 56 / wrong 2
+     oracle best of (S0, N1) net +111 | best of (S0, E) net +81
+gemma3-12b   192 q | S0 net +34 ans 178 | T2 (S0 + blanks from must-answer+sentence) net +32 ans 192 | N1 net +74 ans 180
+     S0 wrong -> N1 right 30 / zero 4 / wrong 32 | S0 right -> N1 right 83 / zero 3 / wrong 14 | S0 zero -> N1 right 10 / zero 13 / wrong 3
+     S0 wrong -> E  right 18 / zero 29 / wrong 19 | S0 right -> E  right 57 / zero 30 / wrong 13 | S0 zero -> E  right 0 / zero 25 / wrong 1
+     oracle best of (S0, N1) net +108 | best of (S0, E) net +99
+gemma3-27b   192 q | S0 net +65 ans 178 | T2 (S0 + blanks from must-answer+sentence) net +72 ans 192 | N1 net +53 ans 185
+     S0 wrong -> N1 right 9 / zero 2 / wrong 40 | S0 right -> N1 right 94 / zero 6 / wrong 16 | S0 zero -> N1 right 10 / zero 11 / wrong 4
+     S0 wrong -> E  right 6 / zero 8 / wrong 37 | S0 right -> E  right 83 / zero 18 / wrong 15 | S0 zero -> E  right 3 / zero 20 / wrong 2
+     oracle best of (S0, N1) net +95 | best of (S0, E) net +88
+five models, 192 common questions: S0 net +244 ans 804 | T2 net +268 ans 958 | conf net +200 ans 958 | E net +200 ans 637 | N1 net +297 ans 886
+   N1 minus S0 +53 [-7, +112] | N1 minus T2 +29 [-30, +88] | T2 minus S0 +24 [-4, +52] | oracle best of (S0, N1) +489
