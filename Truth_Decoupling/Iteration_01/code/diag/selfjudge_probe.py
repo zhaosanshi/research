@@ -53,6 +53,8 @@
 # step 2 (work queue section 4; see the block above export_qaqa):
 #   docker exec -u 1000:1001 -w /workspace/Truth_Decoupling truth_dec python3 -B Iteration_01/diag/selfjudge_probe.py export-qaqa MODEL
 #   launchers/explore_20261120/selfjudge_1122.sh MODEL --qaqa
+# queue e stage one: launchers/explore_20261120/selfjudge_1122.sh MODEL --sources SRC[,SRC] (SRC_items.json written by
+#   diag/selfjudge_stage1.py; --qaqa is the same as --sources qaqa)
 #   python3 -B Iteration_01/diag/selfjudge_probe.py step2
 import argparse
 import hashlib
@@ -205,7 +207,7 @@ def export(model):
 # ------------------------------------------------------------------------------------------------------------------ #
 # score (container, GPU)
 # ------------------------------------------------------------------------------------------------------------------ #
-def score(model, regress_limit, regress_only, n_show, qaqa=False):
+def score(model, regress_limit, regress_only, n_show, sources=()):
     import numpy as np
     cfg = MODELS[model]
     code = os.path.abspath(cfg["code"])
@@ -287,19 +289,21 @@ def score(model, regress_limit, regress_only, n_show, qaqa=False):
             raise RuntimeError("three-way arg-max and the gate disagree")
         return dict(margin=lpT - lpF, gate=gate, choice=pred, lpT=lpT, lpF=lpF, lpU=lpU)
 
-    if qaqa:
-        # ---- step 2 (work queue section 4, step 3): (QA)^2, same code path, no regression, two conditions --------- #
-        doc = read_json(os.path.join(OUT, model, "qaqa_items.json"))
+    for src in sources:
+        # ---- step 2 (work queue d section 4, step 3) and queue e stage one: answers of another source (src_items.json:
+        # qaqa = (QA)^2 single E; tq_forced / tq_release / qq_forced / qq_release from diag/selfjudge_stage1.py), the
+        # same code path, no regression (step 1's passed), conditions CONDS2 ------------------------------------------ #
+        doc = read_json(os.path.join(OUT, model, src + "_items.json"))
         items = [x for x in doc["items"] if x["answered"]]
         for x in items:
             if sha1(x["answer"]) != x["answer_sha1"]:
-                raise SystemExit("qaqa_items.json: answer text of %s changed" % x["id"])
+                raise SystemExit("%s_items.json: answer text of %s changed" % (src, x["id"]))
         stmts = [statement(x["question"], x["answer"]) for x in items]
         texts = [tf_prompt(bundle, prompts, t, allow_idk=True) for t in stmts]
         if build_label_token_map(bundle.tokenizer, texts[0], st["label_variants"]) != mI:
-            raise SystemExit("the label map differs on the (QA)^2 prompts")
+            raise SystemExit("the label map differs on the %s prompts" % src)
         res = {c: run(texts, specs[c]) for c in CONDS2}
-        stem = os.path.join(OUT, model, "qaqa_probe")
+        stem = os.path.join(OUT, model, src + "_probe")
         if os.path.exists(stem + ".npz"):
             raise SystemExit("%s.npz exists" % stem)
         np.savez(stem + ".npz", ids=np.array([x["id"] for x in items]), answer_sha1=np.array([x["answer_sha1"] for x in items]),
@@ -309,12 +313,13 @@ def score(model, regress_limit, regress_only, n_show, qaqa=False):
         show = sorted(rng.choice(len(items), min(n_show, len(items)), replace=False).tolist())
         meta = dict(model=model, code=cfg["code"], das=cfg["das"], tf_layer=EL, conditions=list(CONDS2),
                     centre_shift_along_E_in_sd=shift, label_map={k: list(map(int, v)) for k, v in mI.items()},
-                    items_sha256=sha256_file(os.path.join(OUT, model, "qaqa_items.json")), n_items=len(items),
+                    items_sha256=sha256_file(os.path.join(OUT, model, src + "_items.json")), n_items=len(items),
                     n_answers_with_newline=sum("\n" in x["answer"] for x in items),
                     shown_probe_prompts=[dict(id=items[k]["id"], value=items[k]["value"], prompt=texts[k]) for k in show])
         with open(stem + ".json", "w", encoding="utf-8") as f:
             json.dump(meta, f, ensure_ascii=False, indent=1)
-        print("(QA)^2 probe: %d answered statements x %d conditions -> %s.npz" % (len(items), len(CONDS2), stem), flush=True)
+        print("%s probe: %d answered statements x %d conditions -> %s.npz" % (src, len(items), len(CONDS2), stem), flush=True)
+    if sources:
         return
 
     # ---- regression against E45's npz ----------------------------------------------------------------------------- #
@@ -729,6 +734,7 @@ def main():
     ap.add_argument("--regress-limit", type=int, default=None)
     ap.add_argument("--regress-only", action="store_true")
     ap.add_argument("--qaqa", action="store_true", help="score: the (QA)^2 answers of qaqa_items.json (step 2)")
+    ap.add_argument("--sources", default="", help="score: comma list of answer sources SRC (SRC_items.json), e.g. tq_forced,tq_release")
     ap.add_argument("--show", type=int, default=5)
     a = ap.parse_args()
     if a.cmd not in ("table", "step2") and a.model not in MODELS:
@@ -738,7 +744,8 @@ def main():
     elif a.cmd == "export-qaqa":
         export_qaqa(a.model)
     elif a.cmd == "score":
-        score(a.model, a.regress_limit, a.regress_only, a.show, qaqa=a.qaqa)
+        srcs = (["qaqa"] if a.qaqa else []) + [x for x in a.sources.split(",") if x]
+        score(a.model, a.regress_limit, a.regress_only, a.show, sources=srcs)
     elif a.cmd == "step2":
         step2()
     else:
