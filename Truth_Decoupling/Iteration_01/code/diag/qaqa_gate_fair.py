@@ -20,8 +20,9 @@ new2 = '            if label in ("question_and_model_answers", "gold_type_diagno
 old3 = '                print("same question-type signal, single E filling the same number of blanks:",Q.S.ps.ci(fair))\n'
 new3 = ('                print("same gate (%s), single E filling the same number of blanks:" % label, Q.S.ps.ci(fair))\n'
         '                for name, r in zip(Q.SET, results):\n'
-        '                    print("   ", name, sum(r[3][label][2].values()), "| releases kept", r[3][label][0])\n')
+        '                    print("   ", name, sum(r[3][label][2].values()), "| total answered after gate", r[3][label][0])\n')
 for old, new in ((old1, new1), (old2, new2), (old3, new3)):
-    assert src.count(old) == 1, old
+    if src.count(old) != 1:
+        raise ValueError("source version differs from expected gate implementation")
     src = src.replace(old, new)
 exec(compile(src, str(src_path), "exec"), {"__name__": "__main__", "__file__": str(src_path)})

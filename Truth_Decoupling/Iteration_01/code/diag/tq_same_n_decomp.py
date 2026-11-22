@@ -12,6 +12,8 @@
 # usage (host, from /data/sanshizhao/Truth_Decoupling): python3 -B Iteration_01/diag/tq_same_n_decomp.py
 import hashlib
 import json
+import math
+from pathlib import Path
 import sys
 
 sys.path.insert(0, "Iteration_01/diag")
@@ -32,16 +34,25 @@ def forced(run, layer, s, qs):
     cond = "E_L%d_conf-w-p%s" % (layer, s)
     with open("%s/eval_extra/confidence_pospromptd%s_test.json" % (run, tag), encoding="utf-8") as f:
         d = json.load(f)
-    rows = {r["pair_id"]: r for r in d["targets"]["conf_E" + MP.DM.show(s)]["rows"]}
+    source = d["targets"]["conf_E" + MP.DM.show(s)]
+    generation = Path(run) / "eval_extra" / "gen" / source["source"]["file"]
+    if hashlib.sha256(generation.read_bytes()).hexdigest() != source["source"]["file_sha256"]:
+        raise ValueError("confidence scores belong to a different generation")
+    rows = {r["pair_id"]: r for r in source["rows"]}
+    if len(rows) != len(source["rows"]):
+        raise ValueError("duplicate confidence question ID")
     out = {}
     for q in qs:
         if st[(q, cond)] == "?" or hashlib.sha1(texts[(q, cond)].strip().encode("utf-8")).hexdigest() != rows[q]["text_sha1"]:
             raise SystemExit("forced arm: unresolved verdict or foreign confidence row for %s" % q)
-        out[q] = (V[st[(q, cond)]], not bl[(q, cond)], rows[q]["mean_logp"])
+        confidence = rows[q]["mean_logp"]
+        if confidence is None and not bl[q, cond] or confidence is not None and (not math.isfinite(confidence) or confidence > 0):
+            raise ValueError("invalid confidence for %s" % q)
+        out[q] = (V[st[(q, cond)]], not bl[(q, cond)], confidence)
     return out
 
 
-def one(model):
+def load_model(model):
     display, layer, s = A.KEY[model]
     tune, err = MP.prompt_split(display, layer, 0, s)
     if tune is None:
@@ -69,19 +80,24 @@ def one(model):
     es, ea = S.system(sp, tx, ("E", s))[:2]
     ns, na = S.system(sp, tx, n1cfg)[:2]
     F = forced(run, layer, s, ids)
-    n = sum(na)
-    sf, why = MP.strong_prompt(run, layer, s, ids, n)
-    if sf is None:
-        raise SystemExit("%s: %s" % (model, why))
     e = {q: V[x] for q, x in zip(ids, es)}
     eans = dict(zip(ids, ea))
     n1 = {q: V[x] for q, x in zip(ids, ns)}
     issued = dict(zip(ids, na))
+    return ids, (model, layer, s, n1cfg, run, e, eans, n1, issued, F)
+
+
+def score(ids, data, print_model=False):
+    model, layer, s, n1cfg, run, e, eans, n1, issued, F = data
+    n = sum(issued[q] for q in ids)
+    sf, why = MP.strong_prompt(run, layer, s, ids, n)
+    if sf is None:
+        raise SystemExit("%s: %s" % (model, why))
     pos = {q: i for i, q in enumerate(ids)}
     elig = [q for q in ids if F[q][1] and F[q][2] is not None]
     ranked = sorted(elig, key=lambda q: (-F[q][2], pos[q]))
     top = set(ranked[:n])
-    if [V[x] for x in sf[0]] != [F[q][0] if q in top else 0 for q in ids]:
+    if sf[1] != [q in top for q in ids] or [V[x] for x in sf[0]] != [F[q][0] if q in top else 0 for q in ids]:
         raise SystemExit("%s: the strong comparator rebuilt here differs from main_table_prompt.strong_prompt" % model)
     eset = set(elig)
     both = {q for q in ids if issued[q] and q in eset}
@@ -92,6 +108,8 @@ def one(model):
     if len(eb) < k:
         raise SystemExit("%s: E alone cannot fill %d blanks (%d candidates)" % (model, k, len(eb)))
     esel = set(eb[:k])
+    if any(eans[q] and not issued[q] for q in ids) or sum(eans[q] for q in ids) + len(esel) != n:
+        raise ValueError("reconstructed E-fill and N1 have different answer counts")
     cells = {}
     for q in ids:
         f = F[q][0]
@@ -105,28 +123,33 @@ def one(model):
         cells[q] = dict(primary=primary, selection=sel, content=con, boundary=primary - sel - con, swap_N1=sw_n1,
                         swap_E=sw_e, swap_diff=sw_n1 - sw_e, N1_minus_E=n1[q] - e[q], N1_minus_Efill=n1[q] - fill,
                         Efill_minus_E=fill - e[q], Efill_minus_strong=fill - strong)
+    if not print_model:
+        return cells
     rel = [q for q in blanks if issued[q]]
     print("%s layer %s strength %s | N1 choice %s | answers: E %d, N1 %d (released %d: right %d, wrong %d, other %d), "
           "E-fill %d | forced answers with confidence %d | every E answer kept by N1: %s" % (
-              model, layer, s, n1cfg, sum(ea), n, k, sum(n1[q] == 1 for q in rel), sum(n1[q] == -1 for q in rel),
-              sum(n1[q] == 0 for q in rel), sum(ea) + k, len(elig), all(issued[q] for q in ids if eans[q])))
+              model, layer, s, n1cfg, sum(eans[q] for q in ids), n, k, sum(n1[q] == 1 for q in rel), sum(n1[q] == -1 for q in rel),
+              sum(n1[q] == 0 for q in rel), sum(eans[q] for q in ids) + k, len(elig), all(issued[q] for q in ids if eans[q])))
     print("    forced answers on the same %d released questions: right %d, wrong %d, other/blank %d | E-fill's own %d picks: right %d, wrong %d, other %d" % (
         k, sum(F[q][0] == 1 and F[q][1] for q in rel), sum(F[q][0] == -1 and F[q][1] for q in rel),
         sum(F[q][0] == 0 or not F[q][1] for q in rel),
         k, sum(F[q][0] == 1 for q in esel), sum(F[q][0] == -1 for q in esel), sum(F[q][0] == 0 for q in esel)))
     print("    " + "  ".join("%s %s" % (key, ps.ci([cells[q][key] for q in ids])) for key in ("primary", "N1_minus_Efill", "swap_diff")))
-    return ids, cells
+    return cells
 
 
 def main():
-    data = {m: one(m) for m in ORDER}
+    data = {m: load_model(m) for m in ORDER}
+    for ids, model_data in data.values():
+        score(ids, model_data, print_model=True)
     for names in (ORDER[:3], ORDER):
         # sorted, as diag/main_table_prompt.py orders the common questions (the bootstrap stream is fixed, so the
         # order decides the interval's end points)
-        common = sorted(q for q in data[names[0]][0] if all(q in data[m][1] for m in names))
+        common = sorted(set.intersection(*(set(data[m][0]) for m in names)))
+        cells = {m: score(common, data[m][1]) for m in names}
         print("%d models, %d questions with every model" % (len(names), len(common)))
         for key in KEYS:
-            print("  %-20s %s" % (key, ps.ci([sum(data[m][1][q][key] for m in names) for q in common])))
+            print("  %-20s %s" % (key, ps.ci([sum(cells[m][q][key] for m in names) for q in common])))
 
 
 if __name__ == "__main__":
