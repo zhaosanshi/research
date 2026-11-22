@@ -1,0 +1,5 @@
+# ITI, llama3.1-8b, fit train_seed42, sigma endq: TruthfulQA test split, 523 questions, DeepSeek Pro, score = right - wrong
+    chosen on tune among all grid points, whatever the MMLU change: K 16, alpha 25 (tune net +29); positions: the last prompt token and every generated token
+    no write net -86 | ITI net +63 (answers 472, right 214, wrong 151) | single E (layer 16, strength 3.5, prompt rule) net +40 (answers 319) | N1 net +62 (answers 476)
+    ITI minus no write +149 [+106, +193] | single E minus ITI -23 [-65, +21] | N1 minus ITI -1 [-48, +49] | single E minus no write +126 [+80, +173]
+    MMLU of the chosen point: selection half -3.25 [-3.97, -2.48], report half -3.60 [-4.36, -2.86]
