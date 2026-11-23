@@ -1,0 +1,152 @@
+# llama3.1-8b: single-C cap on tune 2 (7.2: 2) -> OK
+# qwen3.5-9b: single-C cap on tune 0.25 (7.2: 0.25) -> OK
+# qwen3.8-27b: single-C cap on tune 1 (7.2: 1) -> OK
+# gemma3-12b: single-C cap on tune 1 (7.2: 1) -> OK
+# gemma3-27b: single-C cap on tune 0.5 (7.2: 0.5) -> OK
+# (QA)^2 llama3.1-8b: s_sel 3.5, SN1 caps None / 1; no-sentence N1 3.5 caps None / 1; must-answer + sentence (conf_E2) judged: yes
+# (QA)^2 qwen3.5-9b: s_sel 2, SN1 caps 0.25 / 1; no-sentence N1 2 caps 0.5 / 1; must-answer + sentence (conf_E2) judged: yes
+# (QA)^2 qwen3.8-27b: s_sel 0.875, SN1 caps 0.25 / 0.5; no-sentence N1 1.75 caps None / 0.25; must-answer + sentence (conf_E2) judged: yes
+# (QA)^2 gemma3-12b: s_sel 1.25, SN1 caps None / 0.25; no-sentence N1 2.5 caps 1 / 1; must-answer + sentence (conf_E2) judged: yes
+# (QA)^2 gemma3-27b: s_sel 1, SN1 caps None / None; no-sentence N1 1 caps 0.5 / 0.25; must-answer + sentence (conf_E2) judged: yes
+check test llama3.1-8b  523 q [ref 523]: fill N1 +55 (515) [F1 ref +55 (515)] | fill prompt +40 (523) [T2 ref +40 (523)] | fill C +52 (520) [ref +52 (520)] | SN1 +130 (510) [ref +130 (510)] -> OK
+check test qwen3.5-9b   523 q [ref 523]: fill N1 +172 (481) [F1 ref +172 (481)] | fill prompt +159 (523) [T2 ref +159 (523)] | fill C +167 (492) [ref +167 (492)] | SN1 +200 (424) [ref +200 (424)] -> OK
+check test qwen3.8-27b  521 q [ref 521]: fill N1 +201 (498) [F1 ref +201 (498)] | fill prompt +165 (521) [T2 ref +165 (521)] | fill C +185 (513) [ref +185 (513)] | SN1 +217 (487) [ref +217 (487)] -> OK
+check test gemma3-12b   522 q [ref 522]: fill N1 +163 (518) [F1 ref +163 (518)] | fill prompt +145 (521) [T2 ref +145 (521)] | fill C +161 (521) [ref +161 (521)] | SN1 +194 (513) [ref +194 (513)] -> OK
+check test gemma3-27b   523 q [ref 523]: fill N1 +188 (518) [F1 ref +188 (518)] | fill prompt +178 (522) [T2 ref +178 (522)] | fill C +194 (518) [ref +194 (518)] | SN1 +209 (515) [ref +209 (515)] -> OK
+check test five models 520 common q: S0 +706 (2269) [ref +706 (2269)] -> OK
+check test five models 520 common q: SN1 +947 (2438) [ref +947 (2438)] -> OK
+check test five models 520 common q: SE +894 (2126) [ref +894 (2126)] -> OK
+check test five models 520 common q: fill C +759 (2552) [ref +759 (2552)] -> OK
+check test five models 520 common q: fill prompt +689 (2598) [ref +689 (2598)] -> OK
+check test five models 520 common q: fill N1 +781 (2518) [ref +781 (2518)] -> OK
+check test S0 -> SN1 wrong->right 178 [ref 178] -> OK
+check test S0 -> SN1 wrong->none 81 [ref 81] -> OK
+check test S0 -> SN1 right->wrong 134 [ref 134] -> OK
+check test S0 -> SN1 right->none 60 [ref 60] -> OK
+check test S0 -> SN1 none->right 206 [ref 206] -> OK
+check test S0 -> SN1 none->wrong 74 [ref 74] -> OK
+note: test five models, S0 blank by the rule (B) 331; S0 value class none (blank or no information) 392
+check tune llama3.1-8b  192 q [ref 192]: fill N1 +32 (192) [F1 ref +32 (192)] | fill prompt +30 (192) [T2 ref +30 (192)] -> OK
+check tune qwen3.5-9b   192 q [ref 192]: fill N1 +66 (170) [F1 ref +66 (170)] | fill prompt +58 (190) [T2 ref +58 (190)] -> OK
+check tune qwen3.8-27b  192 q [ref 192]: fill N1 +93 (188) [F1 ref +93 (188)] | fill prompt +76 (192) [T2 ref +76 (192)] -> OK
+check tune gemma3-12b   192 q [ref 192]: fill N1 +42 (187) [F1 ref +42 (187)] | fill prompt +32 (192) [T2 ref +32 (192)] -> OK
+check tune gemma3-27b   192 q [ref 192]: fill N1 +68 (190) [F1 ref +68 (190)] | fill prompt +72 (192) [T2 ref +72 (192)] -> OK
+check tune five models 192 common q: S0 +244 (804) [ref +244 (804)] -> OK
+check tune five models 192 common q: fill prompt +268 (958) [ref +268 (958)] -> OK
+check tune five models 192 common q: fill N1 +301 (927) [ref +301 (927)] -> OK
+check (QA)^2 470 held out, five models, S0 +40 (2013) [ref +40 (2013)] -> OK
+check (QA)^2 470 held out, five models, SN1 +294 (2139) [ref +294 (2139)] -> OK
+check (QA)^2 470 held out, five models, SE +287 (1886) [ref +287 (1886)] -> OK
+section 3 checks: ALL OK
+
+==============================================================================================================
+TruthfulQA test (DeepSeek Pro)
+-- reading 1: nets (answers); B = S0 blank by the rule; fills = answered cells inside B: right / wrong / no information
+  llama3.1-8b   523 q | S0 +33 (454) | SN1 +130 (510) | SE +126 (353) | fill EC +66 (520) | fill E +41 (465) | fill C +52 (520) | fill prompt +40 (523) | fill N1 +55 (515)
+               B 69 (S0 value 0, i.e. blank or no information: 80) | fills fill EC 66: 45 / 11 / 10 | fill E 11: 10 / 1 / 0 | fill C 66: 37 / 18 / 11 | fill prompt 69: 34 / 26 / 9 | fill N1 61: 36 / 13 / 12
+  qwen3.5-9b    523 q | S0 +168 (464) | SN1 +200 (424) | SE +190 (403) | fill EC +181 (491) | fill E +171 (470) | fill C +167 (492) | fill prompt +159 (523) | fill N1 +172 (481)
+               B 59 (S0 value 0, i.e. blank or no information: 65) | fills fill EC 27: 20 / 6 / 1 | fill E 6: 5 / 1 / 0 | fill C 28: 14 / 14 / 0 | fill prompt 59: 21 / 29 / 9 | fill N1 17: 10 / 5 / 2
+  qwen3.8-27b   521 q | S0 +162 (373) | SN1 +217 (487) | SE +193 (384) | fill EC +202 (512) | fill E +178 (409) | fill C +185 (513) | fill prompt +165 (521) | fill N1 +201 (498)
+               B 148 (S0 value 0, i.e. blank or no information: 153) | fills fill EC 139: 83 / 43 / 13 | fill E 36: 25 / 9 / 2 | fill C 140: 78 / 55 / 7 | fill prompt 148: 70 / 67 / 11 | fill N1 125: 77 / 38 / 10
+  gemma3-12b    522 q | S0 +156 (501) | SN1 +194 (513) | SE +181 (488) | fill EC +173 (521) | fill E +162 (509) | fill C +161 (521) | fill prompt +145 (521) | fill N1 +163 (518)
+               B 21 (S0 value 0, i.e. blank or no information: 40) | fills fill EC 20: 18 / 0 / 2 | fill E 8: 7 / 0 / 1 | fill C 20: 12 / 6 / 2 | fill prompt 20: 4 / 14 / 2 | fill N1 17: 12 / 4 / 1
+  gemma3-27b    523 q | S0 +186 (488) | SN1 +209 (515) | SE +208 (506) | fill EC +197 (521) | fill E +196 (512) | fill C +194 (518) | fill prompt +178 (522) | fill N1 +188 (518)
+               B 35 (S0 value 0, i.e. blank or no information: 55) | fills fill EC 33: 19 / 7 / 7 | fill E 24: 15 / 4 / 5 | fill C 30: 17 / 8 / 5 | fill prompt 34: 12 / 19 / 3 | fill N1 30: 16 / 13 / 1
+  five models   520 q | S0 +706 (2269) | SN1 +947 (2438) | SE +894 (2126) | fill EC +819 (2553) | fill E +749 (2354) | fill C +759 (2552) | fill prompt +689 (2598) | fill N1 +781 (2518)
+               B 331 (S0 value 0, i.e. blank or no information: 392) | fills fill EC 284: 184 / 67 / 33 | fill E 85: 62 / 15 / 8 | fill C 283: 157 / 101 / 25 | fill prompt 329: 141 / 154 / 34 | fill N1 249: 151 / 72 / 26
+-- reading 2: each fill system minus S0 (paired interval)
+  llama3.1-8b  fill EC - S0 +33 [+19, +48] | fill E - S0 +8 [+2, +14] | fill C - S0 +19 [+5, +33] | fill prompt - S0 +7 [-9, +22] | fill N1 - S0 +22 [+8, +36]
+  qwen3.5-9b   fill EC - S0 +13 [+3, +23] | fill E - S0 +3 [-1, +8] | fill C - S0 -1 [-12, +10] | fill prompt - S0 -9 [-22, +5] | fill N1 - S0 +4 [-4, +12]
+  qwen3.8-27b  fill EC - S0 +40 [+18, +62] | fill E - S0 +16 [+5, +28] | fill C - S0 +23 [+1, +46] | fill prompt - S0 +3 [-20, +27] | fill N1 - S0 +39 [+19, +60]
+  gemma3-12b   fill EC - S0 +17 [+9, +26] | fill E - S0 +6 [+1, +12] | fill C - S0 +5 [-4, +14] | fill prompt - S0 -11 [-20, -3] | fill N1 - S0 +7 [-1, +15]
+  gemma3-27b   fill EC - S0 +11 [+1, +21] | fill E - S0 +10 [+2, +19] | fill C - S0 +8 [-2, +18] | fill prompt - S0 -8 [-20, +3] | fill N1 - S0 +2 [-8, +12]
+  five models  fill EC - S0 +113 [+76, +153] | fill E - S0 +43 [+25, +62] | fill C - S0 +53 [+17, +90] | fill prompt - S0 -17 [-54, +20] | fill N1 - S0 +75 [+42, +109]
+-- reading 3: fill EC minus the other fills; natural fill counts, then equal fill counts (per model the side with more fills drops its fills from the lowest self-judge margin up, baseline condition, batch size 1)
+  llama3.1-8b  natural: fill EC - fill E +25 [+13, +38] (fills 66 vs 11) | fill EC - fill C +14 [+0, +30] (fills 66 vs 66) | fill EC - fill prompt +26 [+8, +46] (fills 66 vs 69) | fill EC - fill N1 +11 [-4, +26] (fills 66 vs 61)
+               equal:   fill EC - fill E +1 [-6, +8] (at 11) | fill EC - fill C +14 [+0, +30] (at 66) | fill EC - fill prompt +23 [+6, +43] (at 66) | fill EC - fill N1 +12 [-1, +26] (at 61)
+  qwen3.5-9b   natural: fill EC - fill E +10 [+1, +19] (fills 27 vs 6) | fill EC - fill C +14 [+1, +28] (fills 27 vs 28) | fill EC - fill prompt +22 [+8, +36] (fills 27 vs 59) | fill EC - fill N1 +9 [+1, +18] (fills 27 vs 17)
+               equal:   fill EC - fill E +0 [-7, +7] (at 6) | fill EC - fill C +13 [+0, +26] (at 27) | fill EC - fill prompt +13 [+0, +26] (at 27) | fill EC - fill N1 +8 [+1, +16] (at 17)
+  qwen3.8-27b  natural: fill EC - fill E +24 [+5, +43] (fills 139 vs 36) | fill EC - fill C +17 [+1, +34] (fills 139 vs 140) | fill EC - fill prompt +37 [+17, +58] (fills 139 vs 148) | fill EC - fill N1 +1 [-11, +13] (fills 139 vs 125)
+               equal:   fill EC - fill E +3 [-10, +17] (at 36) | fill EC - fill C +16 [+0, +33] (at 139) | fill EC - fill prompt +30 [+11, +50] (at 139) | fill EC - fill N1 +3 [-11, +16] (at 125)
+  gemma3-12b   natural: fill EC - fill E +11 [+5, +18] (fills 20 vs 8) | fill EC - fill C +12 [+4, +22] (fills 20 vs 20) | fill EC - fill prompt +28 [+15, +43] (fills 20 vs 20) | fill EC - fill N1 +10 [+2, +20] (fills 20 vs 17)
+               equal:   fill EC - fill E +0 [-5, +5] (at 8) | fill EC - fill C +12 [+4, +22] (at 20) | fill EC - fill prompt +28 [+15, +43] (at 20) | fill EC - fill N1 +8 [+0, +17] (at 17)
+  gemma3-27b   natural: fill EC - fill E +1 [-4, +6] (fills 33 vs 24) | fill EC - fill C +3 [-4, +10] (fills 33 vs 30) | fill EC - fill prompt +19 [+6, +34] (fills 33 vs 34) | fill EC - fill N1 +9 [-1, +20] (fills 33 vs 30)
+               equal:   fill EC - fill E -4 [-11, +3] (at 24) | fill EC - fill C +2 [-6, +10] (at 30) | fill EC - fill prompt +18 [+5, +33] (at 33) | fill EC - fill N1 +8 [-2, +19] (at 30)
+  five models  natural: fill EC - fill E +70 [+40, +102] (fills 284 vs 85) | fill EC - fill C +60 [+30, +92] (fills 284 vs 283) | fill EC - fill prompt +130 [+90, +172] (fills 284 vs 329) | fill EC - fill N1 +38 [+11, +66] (fills 284 vs 249)
+               equal:   fill EC - fill E +0 [-20, +20] (at 85) | fill EC - fill C +57 [+27, +89] (at 281) | fill EC - fill prompt +110 [+70, +152] (at 284) | fill EC - fill N1 +37 [+11, +65] (at 249)
+-- reading 4: fill EC's fills by the C level that released them (0 = E alone): count right / wrong; and the no-sentence N1's answers on the questions the original model leaves blank
+  llama3.1-8b  fill EC on B          C 0: 11 (10 / 1) | C 0.25: 9 (5 / 3) | C 0.5: 15 (13 / 0) | C 1: 23 (14 / 6) | C 2: 8 (3 / 1)
+  llama3.1-8b  N1 on original-blank  C 0: 1 (0 / 0) | C 0.25: 6 (4 / 0) | C 0.5: 5 (5 / 0) | C 1: 22 (15 / 2) | C 2: 17 (11 / 4)
+  qwen3.5-9b   fill EC on B          C 0: 6 (5 / 1) | C 0.25: 10 (8 / 1) | C 0.5: 11 (7 / 4) | C 1: 0 (0 / 0) | C 2: 0 (0 / 0)
+  qwen3.5-9b   N1 on original-blank  C 0: 8 (7 / 1) | C 0.25: 7 (3 / 2) | C 0.5: 12 (11 / 0) | C 1: 0 (0 / 0) | C 2: 0 (0 / 0)
+  qwen3.8-27b  fill EC on B          C 0: 36 (25 / 9) | C 0.25: 55 (36 / 14) | C 0.5: 37 (19 / 13) | C 1: 11 (3 / 7) | C 2: 0 (0 / 0)
+  qwen3.8-27b  N1 on original-blank  C 0: 42 (33 / 9) | C 0.25: 60 (44 / 12) | C 0.5: 34 (17 / 13) | C 1: 15 (5 / 7) | C 2: 0 (0 / 0)
+  gemma3-12b   fill EC on B          C 0: 8 (7 / 0) | C 0.25: 4 (4 / 0) | C 0.5: 2 (2 / 0) | C 1: 4 (3 / 0) | C 2: 2 (2 / 0)
+  gemma3-12b   N1 on original-blank  C 0: 9 (8 / 1) | C 0.25: 8 (7 / 0) | C 0.5: 7 (6 / 1) | C 1: 20 (16 / 4) | C 2: 13 (6 / 2)
+  gemma3-27b   fill EC on B          C 0: 24 (15 / 4) | C 0.25: 6 (4 / 0) | C 0.5: 3 (0 / 3) | C 1: 0 (0 / 0) | C 2: 0 (0 / 0)
+  gemma3-27b   N1 on original-blank  C 0: 10 (9 / 0) | C 0.25: 13 (11 / 2) | C 0.5: 14 (10 / 3) | C 1: 19 (16 / 2) | C 2: 10 (6 / 4)
+  five models  fill EC on B          C 0: 85 (62 / 15) | C 0.25: 84 (57 / 18) | C 0.5: 67 (40 / 20) | C 1: 38 (20 / 13) | C 2: 10 (5 / 1)
+  five models  N1 on original-blank  C 0: 70 (57 / 11) | C 0.25: 94 (69 / 16) | C 0.5: 72 (49 / 17) | C 1: 76 (52 / 15) | C 2: 40 (23 / 10)
+-- reading 5: SN1 minus fill EC = SN1's changes on the questions S0 answered (value classes; none = blank or no information); right->wrong with a negated-premise opening (NEG_RE)
+  llama3.1-8b  SN1 - fill EC +64 [+20, +106] | wrong->right 75 | right->wrong 43 (negated opening 25) | wrong->none 9 | right->none 15 | none->right 7 | none->wrong 1 | unchanged class 304
+  qwen3.5-9b   SN1 - fill EC +19 [-9, +48] | wrong->right 18 | right->wrong 19 (negated opening 10) | wrong->none 44 | right->none 22 | none->right 0 | none->wrong 1 | unchanged class 360
+  qwen3.8-27b  SN1 - fill EC +15 [-7, +37] | wrong->right 15 | right->wrong 10 (negated opening 2) | wrong->none 14 | right->none 9 | none->right 0 | none->wrong 0 | unchanged class 325
+  gemma3-12b   SN1 - fill EC +21 [-14, +56] | wrong->right 39 | right->wrong 35 (negated opening 25) | wrong->none 10 | right->none 5 | none->right 9 | none->wrong 1 | unchanged class 402
+  gemma3-27b   SN1 - fill EC +12 [-20, +44] | wrong->right 32 | right->wrong 27 (negated opening 12) | wrong->none 5 | right->none 7 | none->right 8 | none->wrong 4 | unchanged class 405
+  five models  SN1 - fill EC +128 [+39, +216] | wrong->right 178 | right->wrong 134 (negated opening 74) | wrong->none 81 | right->none 58 | none->right 24 | none->wrong 7 | unchanged class 1787
+
+==============================================================================================================
+TruthfulQA tune (DeepSeek Pro)
+-- reading 1: nets (answers); B = S0 blank by the rule; fills = answered cells inside B: right / wrong / no information
+  llama3.1-8b   192 q | S0 +18 (158) | SN1 +56 (190) | SE +37 (125) | fill EC +38 (192) | fill E +20 (162) | fill C +26 (191) | fill prompt +30 (192) | fill N1 +32 (192)
+               B 34 (S0 value 0, i.e. blank or no information: 42) | fills fill EC 34: 25 / 5 / 4 | fill E 4: 3 / 1 / 0 | fill C 33: 18 / 10 / 5 | fill prompt 34: 21 / 9 / 4 | fill N1 34: 19 / 5 / 10
+  qwen3.5-9b    192 q | S0 +64 (162) | SN1 +80 (151) | SE +72 (135) | fill EC +72 (180) | fill E +64 (164) | fill C +62 (172) | fill prompt +58 (190) | fill N1 +66 (170)
+               B 30 (S0 value 0, i.e. blank or no information: 34) | fills fill EC 18: 13 / 5 / 0 | fill E 2: 1 / 1 / 0 | fill C 10: 4 / 6 / 0 | fill prompt 28: 10 / 16 / 2 | fill N1 8: 5 / 3 / 0
+  qwen3.8-27b   192 q | S0 +63 (128) | SN1 +97 (177) | SE +76 (132) | fill EC +94 (190) | fill E +73 (145) | fill C +81 (189) | fill prompt +76 (192) | fill N1 +93 (188)
+               B 64 (S0 value 0, i.e. blank or no information: 67) | fills fill EC 62: 43 / 12 / 7 | fill E 17: 13 / 3 / 1 | fill C 61: 36 / 18 / 7 | fill prompt 64: 35 / 22 / 7 | fill N1 60: 43 / 13 / 4
+  gemma3-12b    192 q | S0 +34 (178) | SN1 +85 (187) | SE +79 (176) | fill EC +44 (190) | fill E +40 (184) | fill C +37 (189) | fill prompt +32 (192) | fill N1 +42 (187)
+               B 14 (S0 value 0, i.e. blank or no information: 26) | fills fill EC 12: 10 / 0 / 2 | fill E 6: 6 / 0 / 0 | fill C 11: 6 / 3 / 2 | fill prompt 14: 4 / 6 / 4 | fill N1 9: 8 / 0 / 1
+  gemma3-27b    192 q | S0 +65 (178) | SN1 +73 (183) | SE +70 (180) | fill EC +75 (191) | fill E +72 (188) | fill C +71 (190) | fill prompt +72 (192) | fill N1 +68 (190)
+               B 14 (S0 value 0, i.e. blank or no information: 25) | fills fill EC 13: 10 / 0 / 3 | fill E 10: 7 / 0 / 3 | fill C 12: 8 / 2 / 2 | fill prompt 14: 9 / 2 / 3 | fill N1 12: 6 / 3 / 3
+  five models   192 q | S0 +244 (804) | SN1 +391 (888) | SE +334 (748) | fill EC +323 (943) | fill E +269 (843) | fill C +277 (931) | fill prompt +268 (958) | fill N1 +301 (927)
+               B 156 (S0 value 0, i.e. blank or no information: 194) | fills fill EC 139: 101 / 22 / 16 | fill E 39: 30 / 5 / 4 | fill C 127: 72 / 39 / 16 | fill prompt 154: 79 / 55 / 20 | fill N1 123: 81 / 24 / 18
+-- reading 2: each fill system minus S0 (paired interval)
+  llama3.1-8b  fill EC - S0 +20 [+10, +31] | fill E - S0 +2 [-2, +6] | fill C - S0 +8 [-2, +18] | fill prompt - S0 +12 [+2, +23] | fill N1 - S0 +14 [+5, +23]
+  qwen3.5-9b   fill EC - S0 +8 [+0, +16] | fill E - S0 +0 [-3, +3] | fill C - S0 -2 [-8, +4] | fill prompt - S0 -6 [-16, +4] | fill N1 - S0 +2 [-3, +8]
+  qwen3.8-27b  fill EC - S0 +31 [+17, +45] | fill E - S0 +10 [+3, +18] | fill C - S0 +18 [+3, +32] | fill prompt - S0 +13 [-2, +27] | fill N1 - S0 +30 [+16, +44]
+  gemma3-12b   fill EC - S0 +10 [+4, +16] | fill E - S0 +6 [+2, +11] | fill C - S0 +3 [-3, +9] | fill prompt - S0 -2 [-8, +4] | fill N1 - S0 +8 [+3, +14]
+  gemma3-27b   fill EC - S0 +10 [+5, +16] | fill E - S0 +7 [+3, +12] | fill C - S0 +6 [+0, +12] | fill prompt - S0 +7 [+1, +14] | fill N1 - S0 +3 [-3, +9]
+  five models  fill EC - S0 +79 [+52, +106] | fill E - S0 +25 [+13, +38] | fill C - S0 +33 [+8, +59] | fill prompt - S0 +24 [-4, +52] | fill N1 - S0 +57 [+34, +80]
+-- reading 3: fill EC minus the other fills; natural fill counts, then equal fill counts (per model the side with more fills drops its fills from the lowest self-judge margin up, baseline condition, batch size 1)
+  llama3.1-8b  natural: fill EC - fill E +18 [+8, +28] (fills 34 vs 4) | fill EC - fill C +12 [+1, +23] (fills 34 vs 33) | fill EC - fill prompt +8 [-3, +20] (fills 34 vs 34) | fill EC - fill N1 +6 [-2, +15] (fills 34 vs 34)
+               equal:   fill EC - fill E +1 [-3, +6] (at 4) | fill EC - fill C +13 [+2, +24] (at 33) | fill EC - fill prompt +8 [-3, +20] (at 34) | fill EC - fill N1 +6 [-2, +15] (at 34)
+  qwen3.5-9b   natural: fill EC - fill E +8 [+0, +16] (fills 18 vs 2) | fill EC - fill C +10 [+2, +19] (fills 18 vs 10) | fill EC - fill prompt +14 [+4, +25] (fills 18 vs 28) | fill EC - fill N1 +6 [-1, +14] (fills 18 vs 8)
+               equal:   fill EC - fill E +2 [-2, +6] (at 2) | fill EC - fill C +8 [+1, +16] (at 10) | fill EC - fill prompt +10 [+1, +20] (at 18) | fill EC - fill N1 +4 [+0, +9] (at 8)
+  qwen3.8-27b  natural: fill EC - fill E +21 [+9, +33] (fills 62 vs 17) | fill EC - fill C +13 [+3, +25] (fills 62 vs 61) | fill EC - fill prompt +18 [+3, +33] (fills 62 vs 64) | fill EC - fill N1 +1 [-9, +11] (fills 62 vs 60)
+               equal:   fill EC - fill E +2 [-7, +11] (at 17) | fill EC - fill C +12 [+2, +23] (at 61) | fill EC - fill prompt +19 [+4, +34] (at 62) | fill EC - fill N1 -1 [-11, +9] (at 60)
+  gemma3-12b   natural: fill EC - fill E +4 [+1, +8] (fills 12 vs 6) | fill EC - fill C +7 [+1, +15] (fills 12 vs 11) | fill EC - fill prompt +12 [+4, +22] (fills 12 vs 14) | fill EC - fill N1 +2 [+0, +5] (fills 12 vs 9)
+               equal:   fill EC - fill E -2 [-7, +3] (at 6) | fill EC - fill C +6 [+1, +13] (at 11) | fill EC - fill prompt +10 [+3, +19] (at 12) | fill EC - fill N1 -1 [-5, +4] (at 9)
+  gemma3-27b   natural: fill EC - fill E +3 [+0, +7] (fills 13 vs 10) | fill EC - fill C +4 [+0, +9] (fills 13 vs 12) | fill EC - fill prompt +3 [-2, +10] (fills 13 vs 14) | fill EC - fill N1 +7 [+2, +14] (fills 13 vs 12)
+               equal:   fill EC - fill E +2 [-2, +6] (at 10) | fill EC - fill C +4 [+0, +9] (at 12) | fill EC - fill prompt +2 [-2, +7] (at 13) | fill EC - fill N1 +7 [+2, +14] (at 12)
+  five models  natural: fill EC - fill E +54 [+32, +77] (fills 139 vs 39) | fill EC - fill C +46 [+25, +68] (fills 139 vs 127) | fill EC - fill prompt +55 [+28, +83] (fills 139 vs 154) | fill EC - fill N1 +22 [+4, +41] (fills 139 vs 123)
+               equal:   fill EC - fill E +5 [-9, +20] (at 39) | fill EC - fill C +43 [+23, +64] (at 127) | fill EC - fill prompt +49 [+24, +76] (at 139) | fill EC - fill N1 +15 [-2, +33] (at 123)
+-- reading 4: fill EC's fills by the C level that released them (0 = E alone): count right / wrong; and the no-sentence N1's answers on the questions the original model leaves blank
+  llama3.1-8b  fill EC on B          C 0: 4 (3 / 1) | C 0.25: 5 (5 / 0) | C 0.5: 8 (6 / 2) | C 1: 15 (10 / 2) | C 2: 2 (1 / 0)
+  llama3.1-8b  N1 on original-blank  C 0: 2 (1 / 0) | C 0.25: 1 (0 / 0) | C 0.5: 1 (0 / 0) | C 1: 9 (6 / 0) | C 2: 10 (4 / 1)
+  qwen3.5-9b   fill EC on B          C 0: 2 (1 / 1) | C 0.25: 10 (8 / 2) | C 0.5: 6 (4 / 2) | C 1: 0 (0 / 0) | C 2: 0 (0 / 0)
+  qwen3.5-9b   N1 on original-blank  C 0: 0 (0 / 0) | C 0.25: 1 (1 / 0) | C 0.5: 7 (5 / 2) | C 1: 0 (0 / 0) | C 2: 0 (0 / 0)
+  qwen3.8-27b  fill EC on B          C 0: 17 (13 / 3) | C 0.25: 27 (20 / 6) | C 0.5: 12 (7 / 2) | C 1: 6 (3 / 1) | C 2: 0 (0 / 0)
+  qwen3.8-27b  N1 on original-blank  C 0: 19 (15 / 3) | C 0.25: 25 (17 / 8) | C 0.5: 18 (11 / 6) | C 1: 8 (6 / 0) | C 2: 0 (0 / 0)
+  gemma3-12b   fill EC on B          C 0: 6 (6 / 0) | C 0.25: 2 (2 / 0) | C 0.5: 1 (1 / 0) | C 1: 2 (0 / 0) | C 2: 1 (1 / 0)
+  gemma3-12b   N1 on original-blank  C 0: 2 (2 / 0) | C 0.25: 2 (1 / 1) | C 0.5: 5 (4 / 0) | C 1: 8 (8 / 0) | C 2: 6 (5 / 0)
+  gemma3-27b   fill EC on B          C 0: 10 (7 / 0) | C 0.25: 2 (2 / 0) | C 0.5: 1 (1 / 0) | C 1: 0 (0 / 0) | C 2: 0 (0 / 0)
+  gemma3-27b   N1 on original-blank  C 0: 3 (3 / 0) | C 0.25: 1 (1 / 0) | C 0.5: 3 (2 / 1) | C 1: 10 (5 / 2) | C 2: 8 (6 / 1)
+  five models  fill EC on B          C 0: 39 (30 / 5) | C 0.25: 46 (37 / 8) | C 0.5: 28 (19 / 6) | C 1: 23 (13 / 3) | C 2: 3 (2 / 0)
+  five models  N1 on original-blank  C 0: 26 (21 / 3) | C 0.25: 30 (20 / 9) | C 0.5: 34 (22 / 9) | C 1: 35 (25 / 2) | C 2: 24 (15 / 2)
+-- reading 5: SN1 minus fill EC = SN1's changes on the questions S0 answered (value classes; none = blank or no information); right->wrong with a negated-premise opening (NEG_RE)
+  llama3.1-8b  SN1 - fill EC +18 [-10, +45] | wrong->right 30 | right->wrong 21 (negated opening 12) | wrong->none 3 | right->none 1 | none->right 1 | none->wrong 3 | unchanged class 99
+  qwen3.5-9b   SN1 - fill EC +8 [-9, +26] | wrong->right 8 | right->wrong 5 (negated opening 4) | wrong->none 14 | right->none 13 | none->right 1 | none->wrong 0 | unchanged class 121
+  qwen3.8-27b  SN1 - fill EC +3 [-7, +14] | wrong->right 2 | right->wrong 2 (negated opening 0) | wrong->none 8 | right->none 4 | none->right 0 | none->wrong 1 | unchanged class 111
+  gemma3-12b   SN1 - fill EC +41 [+16, +65] | wrong->right 28 | right->wrong 8 (negated opening 4) | wrong->none 2 | right->none 2 | none->right 3 | none->wrong 2 | unchanged class 133
+  gemma3-27b   SN1 - fill EC -2 [-22, +17] | wrong->right 11 | right->wrong 11 (negated opening 8) | wrong->none 3 | right->none 4 | none->right 3 | none->wrong 4 | unchanged class 142
+  five models  SN1 - fill EC +68 [+15, +120] | wrong->right 79 | right->wrong 47 (negated opening 28) | wrong->none 30 | right->none 24 | none->right 8 | none->wrong 10 | unchanged class 606

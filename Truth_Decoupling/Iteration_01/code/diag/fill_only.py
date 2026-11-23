@@ -199,8 +199,10 @@ def qq(model):
         R.need(a)
         alias = a.replace("x_E2:", "x:") if ":" in a else "x"
         R.rows[alias], R.cond[alias] = R.rows[a], R.cond[a]
-    if R.ids != base.ids:
-        raise SystemExit("banks differ")
+    if R.ids != base.ids or len(R.ids) != 570 or len(set(R.ids)) != 570:
+        raise SystemExit("inconsistent full evaluation bank")
+    if len(pilot) != 100 or not pilot.issubset(R.ids):
+        raise SystemExit("pilot must contain 100 distinct questions from the full bank")
     pq = [q for q in R.ids if q in pilot]
     grid = [((ce, co), sum(R.n1_system(ssel, ce, co)[0][q] for q in pq)) for ce in Q.CAPS for co in Q.CAPS]
     best = max(grid, key=lambda x: (x[1], -grid.index(x)))[0]
@@ -424,6 +426,9 @@ def check_tq(T):
 
 def check_qq(Q):
     ok = True
+    roster, _, info, _ = Q[ORDER[0]]
+    if any(Q[m][0] != roster or Q[m][2] != info for m in ORDER):
+        raise SystemExit("models disagree on question order, type or pilot flags")
     held = [q for q in Q[ORDER[0]][0] if not Q[ORDER[0]][2][q][1]]
     for k, ref in REF_QQ.items():
         got = (sum(Q[m][1][q][k][0] for m in ORDER for q in held), sum(Q[m][1][q][k][1] for m in ORDER for q in held))
@@ -437,7 +442,7 @@ def load_qq():
 
 
 def margins():
-    return {m: SKP.lookup(m) for m in ORDER}
+    return {m: SKP.lookup(m, extra_sources=("fo_items",)) for m in ORDER}
 
 
 def run_check():

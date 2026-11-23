@@ -268,15 +268,16 @@ def check1():
 
 
 # ------------------------------------------------------------------------------------------------------------------ #
-def lookup(model, extra=True):
+def lookup(model, extra=True, extra_sources=()):
     """{statement sha1: {cond: margin}} from the batch-1 sources (and sp_items when it exists)."""
     out = {}
     conds = [c for c in ("baseline", "E_a3") if c in SP.conds_of(model, "x")]
-    for src in REUSE + (("sp_items",) if extra else ()):
+    optional = (("sp_items",) if extra else ()) + tuple(extra_sources)
+    for src in REUSE + optional:
         if not os.path.exists(os.path.join(SP.OUT, model, src + "_probe.json")):
-            if src == "sp_items" or src == "st1_items":
-                if src == "st1_items":
-                    raise SystemExit("%s: st1_items (section 6) not scored yet" % model)
+            if src in optional:
+                if os.path.exists(os.path.join(SP.OUT, model, src + "_probe.npz")):
+                    raise SystemExit("%s: unfinished scores without metadata: %s" % (model, src))
                 continue
             raise SystemExit("%s: %s missing" % (model, src))
         _, meta, z = SP.read_probe(model, source=src)

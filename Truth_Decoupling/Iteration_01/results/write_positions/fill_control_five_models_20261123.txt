@@ -1,0 +1,182 @@
+# llama3.1-8b: single-C cap on tune 2 (7.2: 2) -> OK
+# qwen3.5-9b: single-C cap on tune 0.25 (7.2: 0.25) -> OK
+# qwen3.8-27b: single-C cap on tune 1 (7.2: 1) -> OK
+# gemma3-12b: single-C cap on tune 1 (7.2: 1) -> OK
+# gemma3-27b: single-C cap on tune 0.5 (7.2: 0.5) -> OK
+check test llama3.1-8b  523 q [ref 523]: fill N1 +55 (515) [F1 ref +55 (515)] | fill prompt +40 (523) [T2 ref +40 (523)] | fill C +52 (520) [ref +52 (520)] | SN1 +130 (510) [ref +130 (510)] -> OK
+check test qwen3.5-9b   523 q [ref 523]: fill N1 +172 (481) [F1 ref +172 (481)] | fill prompt +159 (523) [T2 ref +159 (523)] | fill C +167 (492) [ref +167 (492)] | SN1 +200 (424) [ref +200 (424)] -> OK
+check test qwen3.8-27b  521 q [ref 521]: fill N1 +201 (498) [F1 ref +201 (498)] | fill prompt +165 (521) [T2 ref +165 (521)] | fill C +185 (513) [ref +185 (513)] | SN1 +217 (487) [ref +217 (487)] -> OK
+check test gemma3-12b   522 q [ref 522]: fill N1 +163 (518) [F1 ref +163 (518)] | fill prompt +145 (521) [T2 ref +145 (521)] | fill C +161 (521) [ref +161 (521)] | SN1 +194 (513) [ref +194 (513)] -> OK
+check test gemma3-27b   523 q [ref 523]: fill N1 +188 (518) [F1 ref +188 (518)] | fill prompt +178 (522) [T2 ref +178 (522)] | fill C +194 (518) [ref +194 (518)] | SN1 +209 (515) [ref +209 (515)] -> OK
+check test five models 520 common q: S0 +706 (2269) [ref +706 (2269)] -> OK
+check test five models 520 common q: SN1 +947 (2438) [ref +947 (2438)] -> OK
+check test five models 520 common q: SE +894 (2126) [ref +894 (2126)] -> OK
+check test five models 520 common q: fill C +759 (2552) [ref +759 (2552)] -> OK
+check test five models 520 common q: fill prompt +689 (2598) [ref +689 (2598)] -> OK
+check test five models 520 common q: fill N1 +781 (2518) [ref +781 (2518)] -> OK
+check test S0 -> SN1 wrong->right 178 [ref 178] -> OK
+check test S0 -> SN1 wrong->none 81 [ref 81] -> OK
+check test S0 -> SN1 right->wrong 134 [ref 134] -> OK
+check test S0 -> SN1 right->none 60 [ref 60] -> OK
+check test S0 -> SN1 none->right 206 [ref 206] -> OK
+check test S0 -> SN1 none->wrong 74 [ref 74] -> OK
+note: test five models, S0 blank by the rule (B) 331; S0 value class none (blank or no information) 392
+check tune llama3.1-8b  192 q [ref 192]: fill N1 +32 (192) [F1 ref +32 (192)] | fill prompt +30 (192) [T2 ref +30 (192)] -> OK
+check tune qwen3.5-9b   192 q [ref 192]: fill N1 +66 (170) [F1 ref +66 (170)] | fill prompt +58 (190) [T2 ref +58 (190)] -> OK
+check tune qwen3.8-27b  192 q [ref 192]: fill N1 +93 (188) [F1 ref +93 (188)] | fill prompt +76 (192) [T2 ref +76 (192)] -> OK
+check tune gemma3-12b   192 q [ref 192]: fill N1 +42 (187) [F1 ref +42 (187)] | fill prompt +32 (192) [T2 ref +32 (192)] -> OK
+check tune gemma3-27b   192 q [ref 192]: fill N1 +68 (190) [F1 ref +68 (190)] | fill prompt +72 (192) [T2 ref +72 (192)] -> OK
+check tune five models 192 common q: S0 +244 (804) [ref +244 (804)] -> OK
+check tune five models 192 common q: fill prompt +268 (958) [ref +268 (958)] -> OK
+check tune five models 192 common q: fill N1 +301 (927) [ref +301 (927)] -> OK
+check test five models 520 common q: fill EC +819 (2553) [queue L progress +819 (2553)] -> OK
+check test five models 520 common q: fill prompt +689 (2598) [queue L progress +689 (2598)] -> OK
+check test llama3.1-8b  TE condition E_L16_conf_E2-w-p3-5 judged on 523 / 523 q; its baseline_conf_E2 verdict and flag = T2's on 523 q | B 69, SE answers in B 11: SN1 = SE there -> OK
+check test qwen3.5-9b   TE condition E_L15_conf_E2-w-p2 judged on 523 / 523 q; its baseline_conf_E2 verdict and flag = T2's on 523 q | B 59, SE answers in B 6: SN1 = SE there -> OK
+check test qwen3.8-27b  TE condition E_L28_conf_E2-w-p0-875 judged on 521 / 521 q; its baseline_conf_E2 verdict and flag = T2's on 521 q | B 148, SE answers in B 36: SN1 = SE there -> OK
+check test gemma3-12b   TE condition E_L24_conf_E2-w-p1-25 judged on 522 / 522 q; its baseline_conf_E2 verdict and flag = T2's on 522 q | B 21, SE answers in B 8: SN1 = SE there -> OK
+check test gemma3-27b   TE condition E_L28_conf_E2-w-p1 judged on 523 / 523 q; its baseline_conf_E2 verdict and flag = T2's on 523 q | B 35, SE answers in B 24: SN1 = SE there -> OK
+check tune five models 192 common q: fill EC +323 (943) [queue L progress +323 (943)] -> OK
+check tune llama3.1-8b  TE condition E_L16_conf_E2-w-p3-5 judged on 192 / 192 q; its baseline_conf_E2 verdict and flag = T2's on 192 q | B 34, SE answers in B 4: SN1 = SE there -> OK
+check tune qwen3.5-9b   TE condition E_L15_conf_E2-w-p2 judged on 192 / 192 q; its baseline_conf_E2 verdict and flag = T2's on 192 q | B 30, SE answers in B 2: SN1 = SE there -> OK
+check tune qwen3.8-27b  TE condition E_L28_conf_E2-w-p0-875 judged on 192 / 192 q; its baseline_conf_E2 verdict and flag = T2's on 192 q | B 64, SE answers in B 17: SN1 = SE there -> OK
+check tune gemma3-12b   TE condition E_L24_conf_E2-w-p1-25 judged on 192 / 192 q; its baseline_conf_E2 verdict and flag = T2's on 192 q | B 14, SE answers in B 6: SN1 = SE there -> OK
+check tune gemma3-27b   TE condition E_L28_conf_E2-w-p1 judged on 192 / 192 q; its baseline_conf_E2 verdict and flag = T2's on 192 q | B 14, SE answers in B 10: SN1 = SE there -> OK
+check fo llama3.1-8b: 16 statements, second pass max |diff| 0.000000, shuffled max |diff| 0.000000 -> OK
+check fo qwen3.5-9b: 16 statements, second pass max |diff| 0.000000, shuffled max |diff| 0.000000 -> OK
+check fo qwen3.8-27b: 16 statements, second pass max |diff| 0.000000, shuffled max |diff| 0.000000 -> OK
+check fo gemma3-12b: 16 statements, second pass max |diff| 0.000000, shuffled max |diff| 0.000000 -> OK
+check fo gemma3-27b: 16 statements, second pass max |diff| 0.000000, shuffled max |diff| 0.000000 -> OK
+section 9 checks: ALL OK
+
+==============================================================================================================
+TruthfulQA test (DeepSeek Pro): same-affordance fill control (queue L section 9 + 10.1)
+# B = S0 blank by the rule; P = B and SE blank by the rule; fills = answered cells: right / wrong / no information; net = right - wrong, a blank cell keeps its verdict value
+-- reading 1: TE (must-answer + sentence + E at s_sel, no C) as a condition alone; beside it conf_E2 alone (same prompt, no write), the fill prompt (= T2) and SE
+  llama3.1-8b   523 q | TE +135 (522) | conf +0 (523) | fill prompt +40 (523) | SE +126 (353) | S0 +33 (454)
+  qwen3.5-9b    523 q | TE +164 (518) | conf +168 (522) | fill prompt +159 (523) | SE +190 (403) | S0 +168 (464)
+  qwen3.8-27b   521 q | TE +184 (521) | conf +135 (521) | fill prompt +165 (521) | SE +193 (384) | S0 +162 (373)
+  gemma3-12b    522 q | TE +168 (521) | conf +77 (520) | fill prompt +145 (521) | SE +181 (488) | S0 +156 (501)
+  gemma3-27b    523 q | TE +169 (522) | conf +140 (521) | fill prompt +178 (522) | SE +208 (506) | S0 +186 (488)
+  five models   520 q | TE +819 (2592) | conf +524 (2595) | fill prompt +689 (2598) | SE +894 (2126) | S0 +706 (2269)
+-- reading 2: the two instruction fill systems (two steps: SE, then TE where SE is blank; one step: TE) against fill EC and fill prompt; each minus S0 (paired interval)
+  llama3.1-8b  fill pE2 +68 (522) | fill pE1 +69 (522) | fill EC +66 (520) | fill prompt +40 (523) | B 69, P 58
+               fills in B: fill pE2 68: 45 / 9 / 14 | fill pE1 68: 45 / 8 / 15 | fill EC 66: 45 / 11 / 10 | fill prompt 69: 34 / 26 / 9
+               minus S0: fill pE2 - S0 +35 [+22, +49] | fill pE1 - S0 +36 [+23, +50] | fill EC - S0 +33 [+19, +48] | fill prompt - S0 +7 [-9, +22]
+  qwen3.5-9b   fill pE2 +167 (518) | fill pE1 +167 (518) | fill EC +181 (491) | fill prompt +159 (523) | B 59, P 53
+               fills in B: fill pE2 54: 25 / 25 / 4 | fill pE1 54: 25 / 25 / 4 | fill EC 27: 20 / 6 / 1 | fill prompt 59: 21 / 29 / 9
+               minus S0: fill pE2 - S0 -1 [-14, +13] | fill pE1 - S0 -1 [-14, +13] | fill EC - S0 +13 [+3, +23] | fill prompt - S0 -9 [-22, +5]
+  qwen3.8-27b  fill pE2 +204 (521) | fill pE1 +202 (521) | fill EC +202 (512) | fill prompt +165 (521) | B 148, P 112
+               fills in B: fill pE2 148: 86 / 44 / 18 | fill pE1 148: 86 / 46 / 16 | fill EC 139: 83 / 43 / 13 | fill prompt 148: 70 / 67 / 11
+               minus S0: fill pE2 - S0 +42 [+19, +64] | fill pE1 - S0 +40 [+17, +63] | fill EC - S0 +40 [+18, +62] | fill prompt - S0 +3 [-20, +27]
+  gemma3-12b   fill pE2 +163 (521) | fill pE1 +162 (521) | fill EC +173 (521) | fill prompt +145 (521) | B 21, P 13
+               fills in B: fill pE2 20: 12 / 4 / 4 | fill pE1 20: 12 / 5 / 3 | fill EC 20: 18 / 0 / 2 | fill prompt 20: 4 / 14 / 2
+               minus S0: fill pE2 - S0 +7 [-1, +15] | fill pE1 - S0 +6 [-2, +14] | fill EC - S0 +17 [+9, +26] | fill prompt - S0 -11 [-20, -3]
+  gemma3-27b   fill pE2 +196 (522) | fill pE1 +200 (522) | fill EC +197 (521) | fill prompt +178 (522) | B 35, P 11
+               fills in B: fill pE2 34: 19 / 9 / 6 | fill pE1 34: 22 / 8 / 4 | fill EC 33: 19 / 7 / 7 | fill prompt 34: 12 / 19 / 3
+               minus S0: fill pE2 - S0 +10 [+0, +21] | fill pE1 - S0 +14 [+4, +25] | fill EC - S0 +11 [+1, +21] | fill prompt - S0 -8 [-20, +3]
+  five models  fill pE2 +798 (2592) | fill pE1 +800 (2592) | fill EC +819 (2553) | fill prompt +689 (2598) | B 331, P 246
+               fills in B: fill pE2 323: 186 / 91 / 46 | fill pE1 323: 189 / 92 / 42 | fill EC 284: 184 / 67 / 33 | fill prompt 329: 141 / 154 / 34
+               minus S0: fill pE2 - S0 +92 [+54, +132] | fill pE1 - S0 +94 [+55, +136] | fill EC - S0 +113 [+76, +153] | fill prompt - S0 -17 [-54, +20]
+-- reading 3: fill EC - fill pE2 (C ladder, up to four retries, against one instruction retry; shared SE first answers kept on both sides); equal fill counts only inside P (the side with more answered cells in P drops its answers from the lowest batch-1 self-judge margin up, baseline condition)
+  llama3.1-8b  natural fill EC - fill pE2 -2 [-9, +5] (answered in P 55 vs 57) | equal inside P: -4 [-12, +4] (at 55)
+  qwen3.5-9b   natural fill EC - fill pE2 +14 [+4, +25] (answered in P 21 vs 48) | equal inside P: +6 [-3, +15] (at 21)
+  qwen3.8-27b  natural fill EC - fill pE2 -2 [-14, +10] (answered in P 103 vs 112) | equal inside P: -6 [-19, +6] (at 103)
+  gemma3-12b   natural fill EC - fill pE2 +10 [+3, +19] (answered in P 12 vs 12) | equal inside P: +10 [+3, +19] (at 12)
+  gemma3-27b   natural fill EC - fill pE2 +1 [-2, +5] (answered in P 9 vs 10) | equal inside P: +0 [-3, +3] (at 9)
+  five models  natural fill EC - fill pE2 +21 [-1, +43] (answered in P 199 vs 238) | equal inside P: +6 [-14, +25] (at 199)
+-- reading 4: inside P, the C-ladder fills (fill EC) against the instruction fills (TE): count right / wrong / no information; net difference over P (paired interval)
+  llama3.1-8b  C ladder 55: 35 / 10 / 10 | instruction 57: 35 / 8 / 14 | net C ladder - instruction -2 [-9, +5]
+  qwen3.5-9b   C ladder 21: 15 / 5 / 1 | instruction 48: 20 / 24 / 4 | net C ladder - instruction +14 [+4, +25]
+  qwen3.8-27b  C ladder 103: 58 / 34 / 11 | instruction 112: 61 / 35 / 16 | net C ladder - instruction -2 [-14, +10]
+  gemma3-12b   C ladder 12: 11 / 0 / 1 | instruction 12: 5 / 4 / 3 | net C ladder - instruction +10 [+3, +19]
+  gemma3-27b   C ladder 9: 4 / 3 / 2 | instruction 10: 4 / 5 / 1 | net C ladder - instruction +1 [-2, +5]
+  five models  C ladder 199: 122 / 52 / 25 | instruction 238: 124 / 76 / 38 | net C ladder - instruction +21 [-1, +43]
+  check: C fills in P on test (199, 122, 52, 25) [queue L section 9: (199, 122, 52, 25)] -> OK
+-- reading 5: fill pE1 - fill prompt (both one step, the same must-answer + sentence prompt, with and without E); equal fill counts inside B
+  llama3.1-8b  natural fill pE1 - fill prompt +29 [+11, +49] (answered in B 68 vs 69) | equal inside B: +28 [+10, +48] (at 68)
+  qwen3.5-9b   natural fill pE1 - fill prompt +8 [-4, +21] (answered in B 54 vs 59) | equal inside B: +6 [-5, +19] (at 54)
+  qwen3.8-27b  natural fill pE1 - fill prompt +37 [+20, +55] (answered in B 148 vs 148) | equal inside B: +37 [+20, +55] (at 148)
+  gemma3-12b   natural fill pE1 - fill prompt +17 [+6, +30] (answered in B 20 vs 20) | equal inside B: +17 [+6, +30] (at 20)
+  gemma3-27b   natural fill pE1 - fill prompt +22 [+10, +36] (answered in B 34 vs 34) | equal inside B: +22 [+10, +36] (at 34)
+  five models  natural fill pE1 - fill prompt +111 [+76, +150] (answered in B 323 vs 329) | equal inside B: +108 [+73, +147] (at 323)
+-- reading 6: fill EC1 - fill pE2 (both one retry after SE where SE is blank: C at its first level 0.25 without a cap, against the instruction; the C ladder of fill EC allows up to four retries, the instruction one); equal fill counts inside P
+  llama3.1-8b  natural fill EC1 - fill pE2 -25 [-38, -13] (answered in P 9 vs 57) | equal inside P: -4 [-11, +3] (at 9)
+  qwen3.5-9b   natural fill EC1 - fill pE2 +11 [-1, +23] (answered in P 10 vs 48) | equal inside P: +4 [-4, +12] (at 10)
+  qwen3.8-27b  natural fill EC1 - fill pE2 -4 [-21, +12] (answered in P 55 vs 112) | equal inside P: +0 [-14, +14] (at 55)
+  gemma3-12b   natural fill EC1 - fill pE2 +3 [-3, +11] (answered in P 4 vs 12) | equal inside P: +1 [-4, +6] (at 4)
+  gemma3-27b   natural fill EC1 - fill pE2 +4 [+0, +9] (answered in P 6 vs 10) | equal inside P: +2 [-2, +6] (at 6)
+  five models  natural fill EC1 - fill pE2 -10 [-38, +18] (answered in P 84 vs 238) | equal inside P: +3 [-15, +21] (at 84)
+   side line (natural only): fill EC1c = SN1 truncated at C 0.25 with SN1's own caps
+  llama3.1-8b  fill EC1c +43 (474) | fills in P 9: 5 / 3 / 1 | fill EC1c - fill pE2 -25 [-38, -13] | fill EC1 fills in P 9: 5 / 3 / 1
+  qwen3.5-9b   fill EC1c +178 (480) | fills in P 10: 8 / 1 / 1 | fill EC1c - fill pE2 +11 [-1, +23] | fill EC1 fills in P 10: 8 / 1 / 1
+  qwen3.8-27b  fill EC1c +200 (464) | fills in P 55: 36 / 14 / 5 | fill EC1c - fill pE2 -4 [-21, +12] | fill EC1 fills in P 55: 36 / 14 / 5
+  gemma3-12b   fill EC1c +166 (513) | fills in P 4: 4 / 0 / 0 | fill EC1c - fill pE2 +3 [-3, +11] | fill EC1 fills in P 4: 4 / 0 / 0
+  gemma3-27b   fill EC1c +200 (518) | fills in P 6: 4 / 0 / 2 | fill EC1c - fill pE2 +4 [+0, +9] | fill EC1 fills in P 6: 4 / 0 / 2
+  five models  fill EC1c +788 (2438) | fills in P 84: 57 / 18 / 9 | fill EC1c - fill pE2 -10 [-38, +18] | fill EC1 fills in P 84: 57 / 18 / 9
+
+==============================================================================================================
+TruthfulQA tune (DeepSeek Pro): same-affordance fill control (queue L section 9 + 10.1)
+# B = S0 blank by the rule; P = B and SE blank by the rule; fills = answered cells: right / wrong / no information; net = right - wrong, a blank cell keeps its verdict value
+-- reading 1: TE (must-answer + sentence + E at s_sel, no C) as a condition alone; beside it conf_E2 alone (same prompt, no write), the fill prompt (= T2) and SE
+  llama3.1-8b   192 q | TE +45 (190) | conf +12 (192) | fill prompt +30 (192) | SE +37 (125) | S0 +18 (158)
+  qwen3.5-9b    192 q | TE +84 (189) | conf +58 (190) | fill prompt +58 (190) | SE +72 (135) | S0 +64 (162)
+  qwen3.8-27b   192 q | TE +82 (192) | conf +69 (192) | fill prompt +76 (192) | SE +76 (132) | S0 +63 (128)
+  gemma3-12b    192 q | TE +71 (192) | conf +17 (192) | fill prompt +32 (192) | SE +79 (176) | S0 +34 (178)
+  gemma3-27b    192 q | TE +78 (191) | conf +44 (192) | fill prompt +72 (192) | SE +70 (180) | S0 +65 (178)
+  five models   192 q | TE +360 (954) | conf +200 (958) | fill prompt +268 (958) | SE +334 (748) | S0 +244 (804)
+-- reading 2: the two instruction fill systems (two steps: SE, then TE where SE is blank; one step: TE) against fill EC and fill prompt; each minus S0 (paired interval)
+  llama3.1-8b  fill pE2 +36 (190) | fill pE1 +36 (190) | fill EC +38 (192) | fill prompt +30 (192) | B 34, P 30
+               fills in B: fill pE2 32: 24 / 5 / 3 | fill pE1 32: 24 / 5 / 3 | fill EC 34: 25 / 5 / 4 | fill prompt 34: 21 / 9 / 4
+               minus S0: fill pE2 - S0 +18 [+8, +29] | fill pE1 - S0 +18 [+8, +29] | fill EC - S0 +20 [+10, +31] | fill prompt - S0 +12 [+2, +23]
+  qwen3.5-9b   fill pE2 +71 (189) | fill pE1 +71 (189) | fill EC +72 (180) | fill prompt +58 (190) | B 30, P 28
+               fills in B: fill pE2 27: 16 / 9 / 2 | fill pE1 27: 16 / 9 / 2 | fill EC 18: 13 / 5 / 0 | fill prompt 28: 10 / 16 / 2
+               minus S0: fill pE2 - S0 +7 [-3, +17] | fill pE1 - S0 +7 [-3, +17] | fill EC - S0 +8 [+0, +16] | fill prompt - S0 -6 [-16, +4]
+  qwen3.8-27b  fill pE2 +89 (192) | fill pE1 +90 (192) | fill EC +94 (190) | fill prompt +76 (192) | B 64, P 47
+               fills in B: fill pE2 64: 41 / 15 / 8 | fill pE1 64: 41 / 14 / 9 | fill EC 62: 43 / 12 / 7 | fill prompt 64: 35 / 22 / 7
+               minus S0: fill pE2 - S0 +26 [+12, +40] | fill pE1 - S0 +27 [+14, +40] | fill EC - S0 +31 [+17, +45] | fill prompt - S0 +13 [-2, +27]
+  gemma3-12b   fill pE2 +42 (192) | fill pE1 +40 (192) | fill EC +44 (190) | fill prompt +32 (192) | B 14, P 8
+               fills in B: fill pE2 14: 9 / 1 / 4 | fill pE1 14: 8 / 2 / 4 | fill EC 12: 10 / 0 / 2 | fill prompt 14: 4 / 6 / 4
+               minus S0: fill pE2 - S0 +8 [+2, +14] | fill pE1 - S0 +6 [+0, +12] | fill EC - S0 +10 [+4, +16] | fill prompt - S0 -2 [-8, +4]
+  gemma3-27b   fill pE2 +75 (192) | fill pE1 +75 (192) | fill EC +75 (191) | fill prompt +72 (192) | B 14, P 4
+               fills in B: fill pE2 14: 10 / 0 / 4 | fill pE1 14: 11 / 1 / 2 | fill EC 13: 10 / 0 / 3 | fill prompt 14: 9 / 2 / 3
+               minus S0: fill pE2 - S0 +10 [+5, +16] | fill pE1 - S0 +10 [+4, +17] | fill EC - S0 +10 [+5, +16] | fill prompt - S0 +7 [+1, +14]
+  five models  fill pE2 +313 (955) | fill pE1 +312 (955) | fill EC +323 (943) | fill prompt +268 (958) | B 156, P 117
+               fills in B: fill pE2 151: 100 / 30 / 21 | fill pE1 151: 100 / 31 / 20 | fill EC 139: 101 / 22 / 16 | fill prompt 154: 79 / 55 / 20
+               minus S0: fill pE2 - S0 +69 [+40, +98] | fill pE1 - S0 +68 [+39, +97] | fill EC - S0 +79 [+52, +106] | fill prompt - S0 +24 [-4, +52]
+-- reading 3: fill EC - fill pE2 (C ladder, up to four retries, against one instruction retry; shared SE first answers kept on both sides); equal fill counts only inside P (the side with more answered cells in P drops its answers from the lowest batch-1 self-judge margin up, baseline condition)
+  llama3.1-8b  natural fill EC - fill pE2 +2 [-2, +6] (answered in P 30 vs 28) | equal inside P: +2 [-3, +7] (at 28)
+  qwen3.5-9b   natural fill EC - fill pE2 +1 [-5, +7] (answered in P 16 vs 25) | equal inside P: +2 [-4, +8] (at 16)
+  qwen3.8-27b  natural fill EC - fill pE2 +5 [-3, +14] (answered in P 45 vs 47) | equal inside P: +5 [-3, +14] (at 45)
+  gemma3-12b   natural fill EC - fill pE2 +2 [+0, +6] (answered in P 6 vs 8) | equal inside P: +1 [+0, +3] (at 6)
+  gemma3-27b   natural fill EC - fill pE2 +0 [+0, +0] (answered in P 3 vs 4) | equal inside P: +1 [+0, +3] (at 3)
+  five models  natural fill EC - fill pE2 +10 [-4, +24] (answered in P 100 vs 112) | equal inside P: +11 [-1, +23] (at 98)
+-- reading 4: inside P, the C-ladder fills (fill EC) against the instruction fills (TE): count right / wrong / no information; net difference over P (paired interval)
+  llama3.1-8b  C ladder 30: 22 / 4 / 4 | instruction 28: 21 / 4 / 3 | net C ladder - instruction +2 [-2, +6]
+  qwen3.5-9b   C ladder 16: 12 / 4 / 0 | instruction 25: 15 / 8 / 2 | net C ladder - instruction +1 [-5, +7]
+  qwen3.8-27b  C ladder 45: 30 / 9 / 6 | instruction 47: 28 / 12 / 7 | net C ladder - instruction +5 [-3, +14]
+  gemma3-12b   C ladder 6: 4 / 0 / 2 | instruction 8: 3 / 1 / 4 | net C ladder - instruction +2 [+0, +6]
+  gemma3-27b   C ladder 3: 3 / 0 / 0 | instruction 4: 3 / 0 / 1 | net C ladder - instruction +0 [+0, +0]
+  five models  C ladder 100: 71 / 17 / 12 | instruction 112: 70 / 25 / 17 | net C ladder - instruction +10 [-4, +24]
+-- reading 5: fill pE1 - fill prompt (both one step, the same must-answer + sentence prompt, with and without E); equal fill counts inside B
+  llama3.1-8b  natural fill pE1 - fill prompt +6 [-5, +17] (answered in B 32 vs 34) | equal inside B: +4 [-6, +14] (at 32)
+  qwen3.5-9b   natural fill pE1 - fill prompt +13 [+2, +24] (answered in B 27 vs 28) | equal inside B: +12 [+2, +23] (at 27)
+  qwen3.8-27b  natural fill pE1 - fill prompt +14 [+2, +27] (answered in B 64 vs 64) | equal inside B: +14 [+2, +27] (at 64)
+  gemma3-12b   natural fill pE1 - fill prompt +8 [-2, +18] (answered in B 14 vs 14) | equal inside B: +8 [-2, +18] (at 14)
+  gemma3-27b   natural fill pE1 - fill prompt +3 [-4, +11] (answered in B 14 vs 14) | equal inside B: +3 [-4, +11] (at 14)
+  five models  natural fill pE1 - fill prompt +44 [+19, +70] (answered in B 151 vs 154) | equal inside B: +41 [+17, +66] (at 151)
+-- reading 6: fill EC1 - fill pE2 (both one retry after SE where SE is blank: C at its first level 0.25 without a cap, against the instruction; the C ladder of fill EC allows up to four retries, the instruction one); equal fill counts inside P
+  llama3.1-8b  natural fill EC1 - fill pE2 -11 [-20, -3] (answered in P 5 vs 28) | equal inside P: +1 [-5, +7] (at 5)
+  qwen3.5-9b   natural fill EC1 - fill pE2 -1 [-8, +6] (answered in P 10 vs 25) | equal inside P: -1 [-7, +5] (at 10)
+  qwen3.8-27b  natural fill EC1 - fill pE2 -2 [-11, +7] (answered in P 27 vs 47) | equal inside P: +0 [-10, +10] (at 27)
+  gemma3-12b   natural fill EC1 - fill pE2 +0 [-3, +3] (answered in P 2 vs 8) | equal inside P: +1 [-2, +5] (at 2)
+  gemma3-27b   natural fill EC1 - fill pE2 -1 [-3, +0] (answered in P 2 vs 4) | equal inside P: +1 [-2, +5] (at 2)
+  five models  natural fill EC1 - fill pE2 -15 [-31, +2] (answered in P 46 vs 112) | equal inside P: +2 [-12, +16] (at 46)
+   side line (natural only): fill EC1c = SN1 truncated at C 0.25 with SN1's own caps
+  llama3.1-8b  fill EC1c +25 (167) | fills in P 5: 5 / 0 / 0 | fill EC1c - fill pE2 -11 [-20, -3] | fill EC1 fills in P 5: 5 / 0 / 0
+  qwen3.5-9b   fill EC1c +70 (174) | fills in P 10: 8 / 2 / 0 | fill EC1c - fill pE2 -1 [-8, +6] | fill EC1 fills in P 10: 8 / 2 / 0
+  qwen3.8-27b  fill EC1c +87 (172) | fills in P 27: 20 / 6 / 1 | fill EC1c - fill pE2 -2 [-11, +7] | fill EC1 fills in P 27: 20 / 6 / 1
+  gemma3-12b   fill EC1c +42 (186) | fills in P 2: 2 / 0 / 0 | fill EC1c - fill pE2 +0 [-3, +3] | fill EC1 fills in P 2: 2 / 0 / 0
+  gemma3-27b   fill EC1c +74 (190) | fills in P 2: 2 / 0 / 0 | fill EC1c - fill pE2 -1 [-3, +0] | fill EC1 fills in P 2: 2 / 0 / 0
+  five models  fill EC1c +298 (889) | fills in P 46: 37 / 8 / 1 | fill EC1c - fill pE2 -15 [-31, +2] | fill EC1 fills in P 46: 37 / 8 / 1
+EXIT 0
