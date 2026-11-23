@@ -1,0 +1,32 @@
+# CAA, gemma3-12b: TruthfulQA tune split, 192 questions, DeepSeek Pro, score = right - wrong; the best among the measured points (every point the early stop reached), whatever its MMLU change
+    no write net -6 | the project's single E (layer 24, strength 2.5, prompt rule) net +42 (answers 110)
+    L12  x 0.5   | net   -7 | answers 165 | right  74 | wrong  81 | MMLU selection half +0.01
+    L12  x 1     | net   -9 | answers 165 | right  73 | wrong  82 | MMLU selection half +0.00
+    L12  x 2     | net   -6 | answers 164 | right  74 | wrong  80 | MMLU selection half +0.03
+    L12  x 4     | net   -7 | answers 165 | right  74 | wrong  81 | MMLU selection half +0.00
+    L16  x 0.5   | net   -7 | answers 164 | right  74 | wrong  81 | MMLU selection half +0.03
+    L16  x 1     | net   -3 | answers 164 | right  76 | wrong  79 | MMLU selection half +0.03
+    L16  x 2     | net   -5 | answers 164 | right  75 | wrong  80 | MMLU selection half -0.01
+    L16  x 4     | net   -7 | answers 165 | right  74 | wrong  81 | MMLU selection half +0.00
+    L20  x 0.5   | net   -6 | answers 163 | right  74 | wrong  80 | MMLU selection half +0.03
+    L20  x 1     | net   -8 | answers 163 | right  74 | wrong  82 | MMLU selection half +0.07
+    L20  x 2     | net  -11 | answers 160 | right  71 | wrong  82 | MMLU selection half +0.17
+    L20  x 4     | net  -22 | answers 155 | right  63 | wrong  85 | MMLU selection half +0.30
+    L24  x 0.5   | net  -10 | answers 165 | right  73 | wrong  83 | MMLU selection half -0.01
+    L24  x 1     | net  -12 | answers 165 | right  72 | wrong  84 | MMLU selection half +0.20
+    L24  x 2     | net  -16 | answers 164 | right  70 | wrong  86 | MMLU selection half +0.27
+    L24  x 4     | net  -10 | answers 148 | right  65 | wrong  75 | MMLU selection half +0.26
+    L28  x 0.5   | net   -5 | answers 164 | right  75 | wrong  80 | MMLU selection half +0.31
+    L28  x 1     | net   -1 | answers 164 | right  78 | wrong  79 | MMLU selection half +0.48
+    L28  x 2     | net   -4 | answers 163 | right  76 | wrong  80 | MMLU selection half +0.73
+    L28  x 4     | net  -30 | answers 167 | right  65 | wrong  95 | MMLU selection half +0.61
+    L32  x 0.5   | net  -12 | answers 164 | right  72 | wrong  84 | MMLU selection half +0.10
+    L32  x 1     | net   -4 | answers 163 | right  76 | wrong  80 | MMLU selection half +0.21
+    L32  x 2     | net  -12 | answers 156 | right  69 | wrong  81 | MMLU selection half +0.26
+    L32  x 4     | net  -26 | answers 158 | right  58 | wrong  84 | MMLU selection half +0.24
+    L36  x 0.5   | net  -12 | answers 163 | right  71 | wrong  83 | MMLU selection half +0.11
+    L36  x 1     | net   -6 | answers 164 | right  75 | wrong  81 | MMLU selection half +0.16
+    L36  x 2     | net  -13 | answers 164 | right  72 | wrong  85 | MMLU selection half +0.27
+    L36  x 4     | net  -23 | answers 177 | right  64 | wrong  87 | MMLU selection half +0.41
+    chosen on tune: layer 28, multiplier 1 (net -1, answers 164) -- the best among the measured points
+    choice reproduced from the current grid: Iteration_01/baselines/caa/gemma3-12b/choice_all.json
