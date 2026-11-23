@@ -1,0 +1,31 @@
+
+## MMLU, the 13,042 items not seen before (accuracy %; differences in points, paired bootstrap)
+    llama3.1-8b  13042 items | base 66.47 | P 66.16 | P+E 64.05 | E (no sentence) 65.63 | P+E half 65.57 || P - base -0.31 [-0.75, +0.12] | (P+E) - base -2.42 [-3.08, -1.77] | (P+E) - P -2.11 [-2.66, -1.54] | E (no sentence) - base -0.84 [-1.35, -0.31] | (P+E half) - base -0.90 [-1.44, -0.35] | (P+E half) - (P+E) +1.52 [+1.10, +1.94]
+    qwen3.5-9b   13042 items | base 78.28 | P 77.98 | P+E 75.95 | E (no sentence) 77.59 | P+E half 77.63 || P - base -0.30 [-0.58, -0.01] | (P+E) - base -2.33 [-2.81, -1.85] | (P+E) - P -2.03 [-2.45, -1.61] | E (no sentence) - base -0.69 [-1.07, -0.34] | (P+E half) - base -0.64 [-1.02, -0.26] | (P+E half) - (P+E) +1.69 [+1.36, +2.01]
+    qwen3.8-27b  13042 items | base 83.71 | P 83.68 | P+E 83.03 | E (no sentence) 82.88 | P+E half 83.43 || P - base -0.03 [-0.29, +0.23] | (P+E) - base -0.68 [-1.01, -0.32] | (P+E) - P -0.65 [-0.90, -0.41] | E (no sentence) - base -0.84 [-1.18, -0.48] | (P+E half) - base -0.28 [-0.58, +0.02] | (P+E half) - (P+E) +0.40 [+0.23, +0.58]
+    gemma3-12b   13042 items | base 71.45 | P 70.62 | P+E 70.02 | E (no sentence) 70.83 | P+E half 70.46 || P - base -0.84 [-1.29, -0.38] | (P+E) - base -1.43 [-2.00, -0.87] | (P+E) - P -0.60 [-0.97, -0.22] | E (no sentence) - base -0.62 [-1.12, -0.11] | (P+E half) - base -1.00 [-1.50, -0.49] | (P+E half) - (P+E) +0.44 [+0.15, +0.72]
+    gemma3-27b   13042 items | base 76.93 | P 75.50 | P+E 71.46 | E (no sentence) 76.24 | P+E half 73.87 || P - base -1.43 [-1.91, -0.95] | (P+E) - base -5.47 [-6.11, -4.81] | (P+E) - P -4.04 [-4.51, -3.57] | E (no sentence) - base -0.69 [-1.08, -0.30] | (P+E half) - base -3.06 [-3.62, -2.51] | (P+E half) - (P+E) +2.41 [+2.04, +2.78]
+    five models, mean of the changes: P - base -0.58 [-0.77, -0.39]
+    five models, mean of the changes: (P+E) - base -2.47 [-2.76, -2.17]
+    five models, mean of the changes: (P+E) - P -1.89 [-2.10, -1.67]
+    five models, mean of the changes: E (no sentence) - base -0.73 [-0.95, -0.51]
+    five models, mean of the changes: (P+E half) - base -1.18 [-1.42, -0.93]
+    five models, mean of the changes: (P+E half) - (P+E) +1.29 [+1.14, +1.45]
+
+## GSM8K, 1,319 items, cap 512 (accuracy %; differences in points, paired bootstrap)
+    llama3.1-8b  1319 items | base 85.37 | P 86.96 | P+E 86.81 | E (no sentence) 86.50 | P+E half 86.20 || P - base +1.59 [-0.08, +3.26] | (P+E) - base +1.44 [-0.38, +3.18] | (P+E) - P -0.15 [-1.97, +1.67] | E (no sentence) - base +1.14 [-0.53, +2.88] | (P+E half) - base +0.83 [-0.83, +2.50] | (P+E half) - (P+E) -0.61 [-2.20, +0.99]
+        truncated at 512 tokens: base 27 | P 26 | P+E 17 | P+E half 21 | E (no sentence) 29
+    qwen3.5-9b   1319 items | base 87.72 | P 77.33 | P+E 59.29 | E (no sentence) 86.20 | P+E half 69.52 || P - base -10.39 [-12.43, -8.42] | (P+E) - base -28.43 [-31.16, -25.85] | (P+E) - P -18.04 [-20.55, -15.69] | E (no sentence) - base -1.52 [-2.88, -0.23] | (P+E half) - base -18.20 [-20.62, -15.77] | (P+E half) - (P+E) +10.24 [+7.81, +12.66]
+        truncated at 512 tokens: base 109 | P 252 | P+E 475 | P+E half 347 | E (no sentence) 130
+    qwen3.8-27b  1319 items | base 84.84 | P 82.26 | P+E 81.05 | E (no sentence) 83.85 | P+E half 81.05 || P - base -2.58 [-4.02, -1.14] | (P+E) - base -3.79 [-5.38, -2.20] | (P+E) - P -1.21 [-2.43, -0.08] | E (no sentence) - base -0.99 [-2.05, +0.15] | (P+E half) - base -3.79 [-5.38, -2.27] | (P+E half) - (P+E) +0.00 [-0.91, +0.91]
+        truncated at 512 tokens: base 177 | P 215 | P+E 225 | P+E half 226 | E (no sentence) 186
+    gemma3-12b   1319 items | base 92.65 | P 90.30 | P+E 89.46 | E (no sentence) 92.80 | P+E half 90.67 || P - base -2.35 [-3.71, -0.91] | (P+E) - base -3.18 [-4.70, -1.67] | (P+E) - P -0.83 [-2.20, +0.53] | E (no sentence) - base +0.15 [-0.83, +1.14] | (P+E half) - base -1.97 [-3.41, -0.53] | (P+E half) - (P+E) +1.21 [+0.08, +2.35]
+        truncated at 512 tokens: base 4 | P 9 | P+E 16 | P+E half 6 | E (no sentence) 14
+    gemma3-27b   1319 items | base 94.54 | P 92.80 | P+E 91.28 | E (no sentence) 94.54 | P+E half 91.21 || P - base -1.74 [-3.03, -0.45] | (P+E) - base -3.26 [-4.78, -1.82] | (P+E) - P -1.52 [-2.73, -0.30] | E (no sentence) - base +0.00 [-0.68, +0.68] | (P+E half) - base -3.34 [-4.70, -1.97] | (P+E half) - (P+E) -0.08 [-1.14, +0.99]
+        truncated at 512 tokens: base 4 | P 7 | P+E 9 | P+E half 9 | E (no sentence) 6
+    five models, mean of the changes: P - base -3.09 [-3.87, -2.40]
+    five models, mean of the changes: (P+E) - base -7.45 [-8.35, -6.55]
+    five models, mean of the changes: (P+E) - P -4.35 [-5.11, -3.62]
+    five models, mean of the changes: E (no sentence) - base -0.24 [-0.77, +0.30]
+    five models, mean of the changes: (P+E half) - base -5.29 [-6.14, -4.44]
+    five models, mean of the changes: (P+E half) - (P+E) +2.15 [+1.49, +2.84]
