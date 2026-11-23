@@ -1,0 +1,283 @@
+# TruthfulQA test llama3.1-8b: 523 questions (selfjudge_stack_pick 523, fill_only 523, SN1m 523); SN1m at E 1.75 (s_sel 3.5), ('N1', '1-75', '0-25', '2')
+# (QA)^2 llama3.1-8b: s_sel 3.5, SN1 caps None / 1; no-sentence single E 3.5, N1 3.5 caps None / 1
+# (QA)^2 llama3.1-8b: s_sel 3.5, SN1 caps None / 1; no-sentence N1 3.5 caps None / 1; must-answer + sentence (conf_E2) judged: yes
+# (QA)^2 llama3.1-8b: SN1m at E 1.75, caps 0.25 / 1
+# TruthfulQA test qwen3.5-9b: 523 questions (selfjudge_stack_pick 523, fill_only 523, SN1m 523); SN1m at E 2 (s_sel 2), ('N1', '2', None, '0-5')
+# (QA)^2 qwen3.5-9b: s_sel 2, SN1 caps 0.25 / 1; no-sentence single E 2, N1 2 caps 0.5 / 1
+# (QA)^2 qwen3.5-9b: s_sel 2, SN1 caps 0.25 / 1; no-sentence N1 2 caps 0.5 / 1; must-answer + sentence (conf_E2) judged: yes
+# (QA)^2 qwen3.5-9b: SN1m at E 2, caps 0.25 / 1
+# TruthfulQA test qwen3.8-27b: 521 questions (selfjudge_stack_pick 521, fill_only 521, SN1m 521); SN1m at E 0.875 (s_sel 0.875), ('N1', '0-875', None, '1')
+# (QA)^2 qwen3.8-27b: s_sel 0.875, SN1 caps 0.25 / 0.5; no-sentence single E 1.75, N1 1.75 caps None / 0.25
+# (QA)^2 qwen3.8-27b: s_sel 0.875, SN1 caps 0.25 / 0.5; no-sentence N1 1.75 caps None / 0.25; must-answer + sentence (conf_E2) judged: yes
+# (QA)^2 qwen3.8-27b: SN1m at E 0.875, caps 0.25 / 0.5
+# TruthfulQA test gemma3-12b: 522 questions (selfjudge_stack_pick 522, fill_only 522, SN1m 522); SN1m at E 1.25 (s_sel 1.25), ('N1', '1-25', '0-5', '2')
+# (QA)^2 gemma3-12b: s_sel 1.25, SN1 caps None / 0.25; no-sentence single E 2.5, N1 2.5 caps 1 / 1
+# (QA)^2 gemma3-12b: s_sel 1.25, SN1 caps None / 0.25; no-sentence N1 2.5 caps 1 / 1; must-answer + sentence (conf_E2) judged: yes
+# (QA)^2 gemma3-12b: SN1m at E 1.25, caps None / 0.25
+# TruthfulQA test gemma3-27b: 523 questions (selfjudge_stack_pick 523, fill_only 523, SN1m 523); SN1m at E 0.5 (s_sel 1), ('N1', '0-5', None, '0-5')
+# (QA)^2 gemma3-27b: s_sel 1, SN1 caps None / None; no-sentence single E 1, N1 1 caps 0.5 / 0.25
+# (QA)^2 gemma3-27b: s_sel 1, SN1 caps None / None; no-sentence N1 1 caps 0.5 / 0.25; must-answer + sentence (conf_E2) judged: yes
+# (QA)^2 gemma3-27b: SN1m at E 0.5, caps None / 0.25
+
+# checks
+check TruthfulQA test common questions: 520 [ref 520] -> OK
+check TruthfulQA test 520 S0: (706, 2269) [ref (706, 2269)] -> OK
+check TruthfulQA test 520 SN1: (947, 2438) [ref (947, 2438)] -> OK
+check TruthfulQA test 520 fill EC: (819, 2553) [ref (819, 2553)] -> OK
+check TruthfulQA test 520 single E: (560, 1818) [ref (560, 1818)] -> OK
+check TruthfulQA test 520 N1 - S0: 23 [ref 23] -> OK
+check TruthfulQA test 520 single E - S0: -146 [ref -146] -> OK
+check TruthfulQA test 520 SN1m net (GPT strength.txt): 956 [ref 956] -> OK
+check (QA)^2 held-out questions: 470 [ref 470] -> OK
+check (QA)^2 470 S0: (40, 2013) [ref (40, 2013)] -> OK
+check (QA)^2 470 SN1: (294, 2139) [ref (294, 2139)] -> OK
+check (QA)^2 470 fill EC: (80, 2312) [ref (80, 2312)] -> OK
+check (QA)^2 470 O: (-224, 1954) [ref (-224, 1954)] -> OK
+check (QA)^2 470 single E: (248, 1632) [ref (248, 1632)] -> OK
+check (QA)^2 470 N1: (254, 2027) [ref (254, 2027)] -> OK
+check (QA)^2 no_failure SN1 net (GPT strength.txt): -221 [ref -221] -> OK
+check (QA)^2 no_failure SN1m net (GPT strength.txt): -180 [ref -180] -> OK
+check (QA)^2 failure SN1 net (GPT strength.txt): 432 [ref 432] -> OK
+check (QA)^2 failure SN1m net (GPT strength.txt): 403 [ref 403] -> OK
+check (QA)^2 unverifiable SN1 net (GPT strength.txt): 83 [ref 83] -> OK
+check (QA)^2 unverifiable SN1m net (GPT strength.txt): 67 [ref 67] -> OK
+check (QA)^2 all SN1 net (GPT strength.txt): 294 [ref 294] -> OK
+check (QA)^2 all SN1m net (GPT strength.txt): 290 [ref 290] -> OK
+check popqa test common questions: 500 [ref 500] -> OK
+check popqa test five models O (n1_on_sentence_factqa): (-824, 1996) [ref (-824, 1996)] -> OK
+check popqa test five models single E (n1_on_sentence_factqa): (-259, 1039) [ref (-259, 1039)] -> OK
+check popqa test five models S0 (n1_on_sentence_factqa): (-727, 1775) [ref (-727, 1775)] -> OK
+check popqa test five models SE s_sel (n1_on_sentence_factqa): (-444, 1228) [ref (-444, 1228)] -> OK
+check popqa test five models SEm net (GPT strength.txt): -443 [ref -443] -> OK
+check popqa test llama3.1-8b N1 frozen transfer (ns_prompt_table F): (-163, 333) [ref (-163, 333)] -> OK
+check popqa test qwen3.5-9b N1 frozen transfer (ns_prompt_table F): (-75, 207) [ref (-75, 207)] -> OK
+check popqa test qwen3.8-27b N1 frozen transfer (ns_prompt_table F): (-269, 455) [ref (-269, 455)] -> OK
+check popqa test gemma3-12b N1 frozen transfer (ns_prompt_table F): (-311, 443) [ref (-311, 443)] -> OK
+check popqa test gemma3-27b N1 frozen transfer (ns_prompt_table F): (-194, 462) [ref (-194, 462)] -> OK
+check popqa test2 common questions: 500 [ref 500] -> OK
+check popqa test2 five models O (n1_on_sentence_factqa): (-838, 2026) [ref (-838, 2026)] -> OK
+check popqa test2 five models single E (n1_on_sentence_factqa): (-173, 1067) [ref (-173, 1067)] -> OK
+check popqa test2 five models S0 (n1_on_sentence_factqa): (-677, 1787) [ref (-677, 1787)] -> OK
+check popqa test2 five models SE s_sel (n1_on_sentence_factqa): (-371, 1257) [ref (-371, 1257)] -> OK
+check popqa test2 five models SEm net (GPT strength.txt): -370 [ref -370] -> OK
+check popqa test2 llama3.1-8b N1 frozen transfer (ns_prompt_table F): (-121, 309) [ref (-121, 309)] -> OK
+check popqa test2 qwen3.5-9b N1 frozen transfer (ns_prompt_table F): (-51, 225) [ref (-51, 225)] -> OK
+check popqa test2 qwen3.8-27b N1 frozen transfer (ns_prompt_table F): (-258, 450) [ref (-258, 450)] -> OK
+check popqa test2 gemma3-12b N1 frozen transfer (ns_prompt_table F): (-291, 437) [ref (-291, 437)] -> OK
+check popqa test2 gemma3-27b N1 frozen transfer (ns_prompt_table F): (-161, 463) [ref (-161, 463)] -> OK
+check triviaqa test common questions: 500 [ref 500] -> OK
+check triviaqa test five models O (n1_on_sentence_factqa): (753, 2453) [ref (753, 2453)] -> OK
+check triviaqa test five models single E (n1_on_sentence_factqa): (781, 1919) [ref (781, 1919)] -> OK
+check triviaqa test five models S0 (n1_on_sentence_factqa): (768, 2354) [ref (768, 2354)] -> OK
+check triviaqa test five models SE s_sel (n1_on_sentence_factqa): (579, 1941) [ref (579, 1941)] -> OK
+check triviaqa test five models SEm net (GPT strength.txt): 722 [ref 722] -> OK
+check triviaqa test llama3.1-8b N1 frozen transfer (ns_prompt_table F): (55, 433) [ref (55, 433)] -> OK
+check triviaqa test qwen3.5-9b N1 frozen transfer (ns_prompt_table F): (105, 401) [ref (105, 401)] -> OK
+check triviaqa test qwen3.8-27b N1 frozen transfer (ns_prompt_table F): (107, 481) [ref (107, 481)] -> OK
+check triviaqa test gemma3-12b N1 frozen transfer (ns_prompt_table F): (32, 460) [ref (32, 460)] -> OK
+check triviaqa test gemma3-27b N1 frozen transfer (ns_prompt_table F): (255, 495) [ref (255, 495)] -> OK
+check triviaqa test2 common questions: 500 [ref 500] -> OK
+check triviaqa test2 five models O (n1_on_sentence_factqa): (904, 2456) [ref (904, 2456)] -> OK
+check triviaqa test2 five models single E (n1_on_sentence_factqa): (833, 1961) [ref (833, 1961)] -> OK
+check triviaqa test2 five models S0 (n1_on_sentence_factqa): (881, 2373) [ref (881, 2373)] -> OK
+check triviaqa test2 five models SE s_sel (n1_on_sentence_factqa): (582, 1918) [ref (582, 1918)] -> OK
+check triviaqa test2 five models SEm net (GPT strength.txt): 743 [ref 743] -> OK
+check triviaqa test2 llama3.1-8b N1 frozen transfer (ns_prompt_table F): (72, 424) [ref (72, 424)] -> OK
+check triviaqa test2 qwen3.5-9b N1 frozen transfer (ns_prompt_table F): (129, 409) [ref (129, 409)] -> OK
+check triviaqa test2 qwen3.8-27b N1 frozen transfer (ns_prompt_table F): (118, 484) [ref (118, 484)] -> OK
+check triviaqa test2 gemma3-12b N1 frozen transfer (ns_prompt_table F): (27, 469) [ref (27, 469)] -> OK
+check triviaqa test2 gemma3-27b N1 frozen transfer (ns_prompt_table F): (278, 498) [ref (278, 498)] -> OK
+check ITI llama3.1-8b TruthfulQA test (iti_table test printout): (523, -86, -108, 468) [ref (523, -86, -108, 468)] -> OK
+check ITI llama3.1-8b no write equals O on shared questions: True [ref True] -> OK
+check ITI gemma3-12b TruthfulQA test (iti_table test printout): (522, 12, 36, 469) [ref (522, 12, 36, 469)] -> OK
+check ITI gemma3-12b no write equals O on shared questions: True [ref True] -> OK
+check ITI gemma3-27b TruthfulQA test (iti_table test printout): (523, 3, -6, 459) [ref (523, 3, -6, 459)] -> OK
+check ITI gemma3-27b no write equals O on shared questions: True [ref True] -> OK
+check MMLU five-model mean S0: -0.58 [ref -0.58] -> OK
+check MMLU five-model mean single E: -0.73 [ref -0.73] -> OK
+check MMLU five-model mean SN1: -2.47 [ref -2.47] -> OK
+check MMLU five-model mean SN1m: -1.68 [ref -1.68] -> OK
+check GSM8K five-model mean S0: -3.09 [ref -3.09] -> OK
+check GSM8K five-model mean single E: -0.24 [ref -0.24] -> OK
+check GSM8K five-model mean SN1: -7.45 [ref -7.45] -> OK
+check GSM8K five-model mean SN1m: -7.58 [ref -7.58] -> OK
+check GSM8K fill EC right-count gain over S0, five models (GPT capability.txt 10 to 14): (10, 14) [ref (10, 14)] -> OK
+check GSM8K fill EC five-model mean range (GPT capability.txt -2.94 to -2.88): (-2.94, -2.88) [ref (-2.94, -2.88)] -> OK
+check GSM8K llama3.1-8b N1 accuracy % at cap 512 (gsm8k_n1_prompt printout): 86.5 [ref 86.5] -> OK
+check GSM8K gemma3-12b N1 accuracy % at cap 512 (gsm8k_n1_prompt printout): 92.8 [ref 92.8] -> OK
+check GSM8K gemma3-27b N1 accuracy % at cap 512 (gsm8k_n1_prompt printout): 94.5 [ref 94.5] -> OK
+check GSM8K llama3.1-8b ITI change (iti_gsm8k printout): -1.2 [ref -1.2] -> OK
+check GSM8K gemma3-12b ITI change (iti_gsm8k printout): -11.5 [ref -11.5] -> OK
+check GSM8K gemma3-27b ITI change (iti_gsm8k printout): -0.2 [ref -0.2] -> OK
+checks: ALL OK
+
+# work queue 2026-11-23_queue_l section 5 summary table; DeepSeek Pro (TruthfulQA, (QA)^2), alias match (fact sets); MMLU / GSM8K = change against the original model in points (five models: mean of the per-model changes)
+# SN1m strengths: llama3.1-8b 1.75 (s_sel 3.5), qwen3.5-9b 2 (s_sel 2), qwen3.8-27b 0.875 (s_sel 0.875), gemma3-12b 1.25 (s_sel 1.25), gemma3-27b 0.5 (s_sel 1)
+
+==============================================================================================================
+five models together (common questions)
+-- nets (answers); question counts: TruthfulQA test 520 | (QA)^2 470 all 470 | (QA)^2 valid 235 | (QA)^2 false 190 | (QA)^2 unverifiable 45 | TriviaQA test 500 | TriviaQA test2 500 | PopQA test 500 | PopQA test2 500
+  O         TruthfulQA test +56 (2206) | (QA)^2 470 all -224 (1954) | (QA)^2 valid +27 (1046) | (QA)^2 false -182 (756) | (QA)^2 unverifiable -69 (152) | TriviaQA test +753 (2453) | TriviaQA test2 +904 (2456) | PopQA test -824 (1996) | PopQA test2 -838 (2026) || MMLU +0.00 [+0.00, +0.00] | GSM8K +0.00 [+0.00, +0.00]
+  S0        TruthfulQA test +706 (2269) | (QA)^2 470 all +40 (2013) | (QA)^2 valid -48 (1051) | (QA)^2 false +90 (790) | (QA)^2 unverifiable -2 (172) | TriviaQA test +768 (2354) | TriviaQA test2 +881 (2373) | PopQA test -727 (1775) | PopQA test2 -677 (1787) || MMLU -0.58 [-0.77, -0.39] | GSM8K -3.09 [-3.87, -2.40]
+  single E  TruthfulQA test +560 (1818) | (QA)^2 470 all +248 (1632) | (QA)^2 valid +47 (847) | (QA)^2 false +189 (663) | (QA)^2 unverifiable +12 (122) | TriviaQA test +781 (1919) | TriviaQA test2 +833 (1961) | PopQA test -259 (1039) | PopQA test2 -173 (1067) || MMLU -0.73 [-0.95, -0.51] | GSM8K -0.24 [-0.77, +0.30]
+  N1        TruthfulQA test +729 (2398) | (QA)^2 470 all +254 (2027) | (QA)^2 valid -39 (1018) | (QA)^2 false +259 (833) | (QA)^2 unverifiable +34 (176) | TriviaQA test +554 (2270) | TriviaQA test2 +624 (2284) | PopQA test -1012 (1900) | PopQA test2 -882 (1884) || MMLU -0.73 [-0.95, -0.51] | GSM8K -0.24 to -0.17 (range)
+  fill EC   TruthfulQA test +819 (2553) | (QA)^2 470 all +80 (2312) | (QA)^2 valid -114 (1152) | (QA)^2 false +176 (941) | (QA)^2 unverifiable +18 (219) | TriviaQA test none (no C pass on the fact sets; SE references below) | TriviaQA test2 none (no C pass on the fact sets; SE references below) | PopQA test none (no C pass on the fact sets; SE references below) | PopQA test2 none (no C pass on the fact sets; SE references below) || MMLU -0.58 [-0.77, -0.39] | GSM8K -2.94 to -2.88 (range)
+  SN1m      TruthfulQA test +956 (2409) | (QA)^2 470 all +290 (2190) | (QA)^2 valid -180 (1100) | (QA)^2 false +403 (876) | (QA)^2 unverifiable +67 (214) | TriviaQA test none (no C pass on the fact sets; SE references below) | TriviaQA test2 none (no C pass on the fact sets; SE references below) | PopQA test none (no C pass on the fact sets; SE references below) | PopQA test2 none (no C pass on the fact sets; SE references below) || MMLU -1.68 [-1.95, -1.41] | GSM8K -7.58 [-8.49, -6.73]
+  SN1       TruthfulQA test +947 (2438) | (QA)^2 470 all +294 (2139) | (QA)^2 valid -221 (1070) | (QA)^2 false +432 (860) | (QA)^2 unverifiable +83 (209) | TriviaQA test none (no C pass on the fact sets; SE references below) | TriviaQA test2 none (no C pass on the fact sets; SE references below) | PopQA test none (no C pass on the fact sets; SE references below) | PopQA test2 none (no C pass on the fact sets; SE references below) || MMLU -2.47 [-2.76, -2.17] | GSM8K -7.45 [-8.35, -6.55]
+-- row minus S0 (paired interval)
+  O         TruthfulQA test -650 [-769, -531] | (QA)^2 470 all -264 [-351, -180] | (QA)^2 valid +75 [+29, +122] | (QA)^2 false -272 [-327, -216] | (QA)^2 unverifiable -67 [-95, -39] | TriviaQA test -15 [-65, +35] | TriviaQA test2 +23 [-25, +73] | PopQA test -97 [-151, -42] | PopQA test2 -161 [-212, -107]
+  single E  TruthfulQA test -146 [-237, -56] | (QA)^2 470 all +208 [+127, +287] | (QA)^2 valid +95 [+40, +152] | (QA)^2 false +99 [+48, +149] | (QA)^2 unverifiable +14 [-14, +43] | TriviaQA test +13 [-55, +76] | TriviaQA test2 -48 [-116, +21] | PopQA test +468 [+403, +533] | PopQA test2 +504 [+438, +570]
+  N1        TruthfulQA test +23 [-74, +118] | (QA)^2 470 all +214 [+132, +296] | (QA)^2 valid +9 [-46, +67] | (QA)^2 false +169 [+115, +220] | (QA)^2 unverifiable +36 [+12, +61] | TriviaQA test -214 [-279, -151] | TriviaQA test2 -257 [-323, -186] | PopQA test -285 [-353, -216] | PopQA test2 -205 [-275, -133]
+  fill EC   TruthfulQA test +113 [+76, +153] | (QA)^2 470 all +40 [+0, +82] | (QA)^2 valid -66 [-89, -45] | (QA)^2 false +86 [+58, +114] | (QA)^2 unverifiable +20 [+5, +35] | TriviaQA test none | TriviaQA test2 none | PopQA test none | PopQA test2 none
+  SN1m      TruthfulQA test +250 [+165, +332] | (QA)^2 470 all +250 [+153, +350] | (QA)^2 valid -132 [-189, -73] | (QA)^2 false +313 [+253, +374] | (QA)^2 unverifiable +69 [+43, +96] | TriviaQA test none | TriviaQA test2 none | PopQA test none | PopQA test2 none
+  SN1       TruthfulQA test +241 [+142, +337] | (QA)^2 470 all +254 [+145, +364] | (QA)^2 valid -173 [-232, -113] | (QA)^2 false +342 [+274, +410] | (QA)^2 unverifiable +85 [+56, +114] | TriviaQA test none | TriviaQA test2 none | PopQA test none | PopQA test2 none
+
+==============================================================================================================
+llama3.1-8b
+-- nets (answers); question counts: TruthfulQA test 523 | (QA)^2 470 all 470 | (QA)^2 valid 235 | (QA)^2 false 190 | (QA)^2 unverifiable 45 | TriviaQA test 500 | TriviaQA test2 500 | PopQA test 500 | PopQA test2 500
+  O         TruthfulQA test -86 (467) | (QA)^2 470 all -105 (376) | (QA)^2 valid +4 (210) | (QA)^2 false -88 (138) | (QA)^2 unverifiable -21 (28) | TriviaQA test +140 (490) | TriviaQA test2 +196 (492) | PopQA test -111 (365) | PopQA test2 -97 (375) || MMLU +0.00 [+0.00, +0.00] | GSM8K +0.00 [+0.00, +0.00]
+  S0        TruthfulQA test +33 (454) | (QA)^2 470 all -60 (393) | (QA)^2 valid +2 (209) | (QA)^2 false -50 (155) | (QA)^2 unverifiable -12 (29) | TriviaQA test +141 (479) | TriviaQA test2 +190 (482) | PopQA test -120 (368) | PopQA test2 -114 (378) || MMLU -0.31 [-0.75, +0.12] | GSM8K +1.59 [-0.08, +3.26]
+  single E  TruthfulQA test +40 (319) | (QA)^2 470 all +17 (235) | (QA)^2 valid +36 (129) | (QA)^2 false -17 (95) | (QA)^2 unverifiable -2 (11) | TriviaQA test +127 (263) | TriviaQA test2 +149 (251) | PopQA test +15 (99) | PopQA test2 +19 (99) || MMLU -0.84 [-1.35, -0.31] | GSM8K +1.14 [-0.53, +2.88]
+  N1        TruthfulQA test +62 (476) | (QA)^2 470 all +37 (296) | (QA)^2 valid +33 (144) | (QA)^2 false +2 (130) | (QA)^2 unverifiable +2 (22) | TriviaQA test +55 (433) | TriviaQA test2 +72 (424) | PopQA test -163 (333) | PopQA test2 -121 (309) || MMLU -0.84 [-1.35, -0.31] | GSM8K +1.14 [-0.53, +2.88]
+  fill EC   TruthfulQA test +66 (520) | (QA)^2 470 all -33 (454) | (QA)^2 valid -4 (226) | (QA)^2 false -25 (186) | (QA)^2 unverifiable -4 (42) | TriviaQA test none (no C pass on the fact sets; SE references below) | TriviaQA test2 none (no C pass on the fact sets; SE references below) | PopQA test none (no C pass on the fact sets; SE references below) | PopQA test2 none (no C pass on the fact sets; SE references below) || MMLU -0.31 [-0.75, +0.12] | GSM8K +2.05 [+0.38, +3.71]
+  SN1m      TruthfulQA test +125 (478) | (QA)^2 470 all +43 (415) | (QA)^2 valid +3 (214) | (QA)^2 false +32 (162) | (QA)^2 unverifiable +8 (39) | TriviaQA test none (no C pass on the fact sets; SE references below) | TriviaQA test2 none (no C pass on the fact sets; SE references below) | PopQA test none (no C pass on the fact sets; SE references below) | PopQA test2 none (no C pass on the fact sets; SE references below) || MMLU -0.90 [-1.44, -0.35] | GSM8K +0.83 [-0.83, +2.50]
+  SN1       TruthfulQA test +130 (510) | (QA)^2 470 all +42 (362) | (QA)^2 valid -15 (185) | (QA)^2 false +43 (143) | (QA)^2 unverifiable +14 (34) | TriviaQA test none (no C pass on the fact sets; SE references below) | TriviaQA test2 none (no C pass on the fact sets; SE references below) | PopQA test none (no C pass on the fact sets; SE references below) | PopQA test2 none (no C pass on the fact sets; SE references below) || MMLU -2.42 [-3.08, -1.77] | GSM8K +1.44 [-0.38, +3.18]
+-- row minus S0 (paired interval)
+  O         TruthfulQA test -119 [-157, -78] | (QA)^2 470 all -45 [-73, -17] | (QA)^2 valid +2 [-16, +21] | (QA)^2 false -38 [-57, -19] | (QA)^2 unverifiable -9 [-19, +0] | TriviaQA test -1 [-25, +23] | TriviaQA test2 +6 [-17, +30] | PopQA test +9 [-13, +30] | PopQA test2 +17 [-5, +38]
+  single E  TruthfulQA test +7 [-33, +49] | (QA)^2 470 all +77 [+40, +115] | (QA)^2 valid +34 [+8, +60] | (QA)^2 false +33 [+9, +56] | (QA)^2 unverifiable +10 [-2, +22] | TriviaQA test -14 [-52, +24] | TriviaQA test2 -41 [-76, -6] | PopQA test +135 [+104, +166] | PopQA test2 +133 [+100, +166]
+  N1        TruthfulQA test +29 [-15, +73] | (QA)^2 470 all +97 [+57, +136] | (QA)^2 valid +31 [+4, +57] | (QA)^2 false +52 [+26, +76] | (QA)^2 unverifiable +14 [+1, +27] | TriviaQA test -86 [-123, -47] | TriviaQA test2 -118 [-153, -83] | PopQA test -43 [-78, -8] | PopQA test2 -7 [-43, +29]
+  fill EC   TruthfulQA test +33 [+19, +48] | (QA)^2 470 all +27 [+12, +43] | (QA)^2 valid -6 [-14, +2] | (QA)^2 false +25 [+15, +35] | (QA)^2 unverifiable +8 [+2, +14] | TriviaQA test none | TriviaQA test2 none | PopQA test none | PopQA test2 none
+  SN1m      TruthfulQA test +92 [+55, +130] | (QA)^2 470 all +103 [+69, +138] | (QA)^2 valid +1 [-23, +25] | (QA)^2 false +82 [+61, +102] | (QA)^2 unverifiable +20 [+10, +30] | TriviaQA test none | TriviaQA test2 none | PopQA test none | PopQA test2 none
+  SN1       TruthfulQA test +97 [+52, +144] | (QA)^2 470 all +102 [+62, +142] | (QA)^2 valid -17 [-42, +10] | (QA)^2 false +93 [+66, +119] | (QA)^2 unverifiable +26 [+16, +37] | TriviaQA test none | TriviaQA test2 none | PopQA test none | PopQA test2 none
+
+==============================================================================================================
+qwen3.5-9b
+-- nets (answers); question counts: TruthfulQA test 523 | (QA)^2 470 all 470 | (QA)^2 valid 235 | (QA)^2 false 190 | (QA)^2 unverifiable 45 | TriviaQA test 500 | TriviaQA test2 500 | PopQA test 500 | PopQA test2 500
+  O         TruthfulQA test +73 (474) | (QA)^2 470 all -24 (440) | (QA)^2 valid -18 (221) | (QA)^2 false -3 (180) | (QA)^2 unverifiable -3 (39) | TriviaQA test +74 (492) | TriviaQA test2 +116 (490) | PopQA test -199 (417) | PopQA test2 -216 (412) || MMLU +0.00 [+0.00, +0.00] | GSM8K +0.00 [+0.00, +0.00]
+  S0        TruthfulQA test +168 (464) | (QA)^2 470 all +18 (427) | (QA)^2 valid -34 (215) | (QA)^2 false +45 (173) | (QA)^2 unverifiable +7 (39) | TriviaQA test +107 (449) | TriviaQA test2 +123 (459) | PopQA test -121 (309) | PopQA test2 -115 (299) || MMLU -0.30 [-0.58, -0.01] | GSM8K -10.39 [-12.43, -8.42]
+  single E  TruthfulQA test +168 (408) | (QA)^2 470 all +63 (353) | (QA)^2 valid +0 (182) | (QA)^2 false +57 (141) | (QA)^2 unverifiable +6 (30) | TriviaQA test +128 (376) | TriviaQA test2 +150 (386) | PopQA test -57 (189) | PopQA test2 -34 (200) || MMLU -0.69 [-1.07, -0.34] | GSM8K -1.52 [-2.88, -0.23]
+  N1        TruthfulQA test +186 (444) | (QA)^2 470 all +44 (439) | (QA)^2 valid -29 (225) | (QA)^2 false +64 (175) | (QA)^2 unverifiable +9 (39) | TriviaQA test +105 (401) | TriviaQA test2 +129 (409) | PopQA test -75 (207) | PopQA test2 -51 (225) || MMLU -0.69 [-1.07, -0.34] | GSM8K -1.52 to -1.21 (range)
+  fill EC   TruthfulQA test +181 (491) | (QA)^2 470 all +5 (468) | (QA)^2 valid -50 (235) | (QA)^2 false +47 (189) | (QA)^2 unverifiable +8 (44) | TriviaQA test none (no C pass on the fact sets; SE references below) | TriviaQA test2 none (no C pass on the fact sets; SE references below) | PopQA test none (no C pass on the fact sets; SE references below) | PopQA test2 none (no C pass on the fact sets; SE references below) || MMLU -0.30 [-0.58, -0.01] | GSM8K -10.24 to -10.01 (range)
+  SN1m      TruthfulQA test +200 (424) | (QA)^2 470 all +46 (426) | (QA)^2 valid -61 (216) | (QA)^2 false +97 (168) | (QA)^2 unverifiable +10 (42) | TriviaQA test none (no C pass on the fact sets; SE references below) | TriviaQA test2 none (no C pass on the fact sets; SE references below) | PopQA test none (no C pass on the fact sets; SE references below) | PopQA test2 none (no C pass on the fact sets; SE references below) || MMLU -2.33 [-2.81, -1.85] | GSM8K -28.43 [-31.16, -25.85]
+  SN1       TruthfulQA test +200 (424) | (QA)^2 470 all +46 (426) | (QA)^2 valid -61 (216) | (QA)^2 false +97 (168) | (QA)^2 unverifiable +10 (42) | TriviaQA test none (no C pass on the fact sets; SE references below) | TriviaQA test2 none (no C pass on the fact sets; SE references below) | PopQA test none (no C pass on the fact sets; SE references below) | PopQA test2 none (no C pass on the fact sets; SE references below) || MMLU -2.33 [-2.81, -1.85] | GSM8K -28.43 [-31.16, -25.85]
+-- row minus S0 (paired interval)
+  O         TruthfulQA test -95 [-127, -63] | (QA)^2 470 all -42 [-75, -10] | (QA)^2 valid +16 [-3, +36] | (QA)^2 false -48 [-69, -27] | (QA)^2 unverifiable -10 [-23, +3] | TriviaQA test -33 [-54, -14] | TriviaQA test2 -7 [-31, +17] | PopQA test -78 [-101, -54] | PopQA test2 -101 [-124, -77]
+  single E  TruthfulQA test +0 [-26, +26] | (QA)^2 470 all +45 [+18, +72] | (QA)^2 valid +34 [+14, +54] | (QA)^2 false +12 [-4, +29] | (QA)^2 unverifiable -1 [-10, +8] | TriviaQA test +21 [-4, +45] | TriviaQA test2 +27 [+1, +54] | PopQA test +64 [+41, +87] | PopQA test2 +81 [+60, +102]
+  N1        TruthfulQA test +18 [-9, +44] | (QA)^2 470 all +26 [-2, +54] | (QA)^2 valid +5 [-15, +25] | (QA)^2 false +19 [+1, +38] | (QA)^2 unverifiable +2 [-7, +11] | TriviaQA test -2 [-26, +21] | TriviaQA test2 +6 [-19, +32] | PopQA test +46 [+23, +69] | PopQA test2 +64 [+44, +84]
+  fill EC   TruthfulQA test +13 [+3, +23] | (QA)^2 470 all -13 [-26, -1] | (QA)^2 valid -16 [-25, -8] | (QA)^2 false +2 [-6, +10] | (QA)^2 unverifiable +1 [-3, +5] | TriviaQA test none | TriviaQA test2 none | PopQA test none | PopQA test2 none
+  SN1m      TruthfulQA test +32 [+2, +62] | (QA)^2 470 all +28 [-7, +64] | (QA)^2 valid -27 [-53, -1] | (QA)^2 false +52 [+30, +73] | (QA)^2 unverifiable +3 [-7, +13] | TriviaQA test none | TriviaQA test2 none | PopQA test none | PopQA test2 none
+  SN1       TruthfulQA test +32 [+2, +62] | (QA)^2 470 all +28 [-7, +64] | (QA)^2 valid -27 [-53, -1] | (QA)^2 false +52 [+30, +73] | (QA)^2 unverifiable +3 [-7, +13] | TriviaQA test none | TriviaQA test2 none | PopQA test none | PopQA test2 none
+
+==============================================================================================================
+qwen3.8-27b
+-- nets (answers); question counts: TruthfulQA test 521 | (QA)^2 470 all 470 | (QA)^2 valid 235 | (QA)^2 false 190 | (QA)^2 unverifiable 45 | TriviaQA test 500 | TriviaQA test2 500 | PopQA test 500 | PopQA test2 500
+  O         TruthfulQA test +47 (361) | (QA)^2 470 all -5 (276) | (QA)^2 valid +23 (168) | (QA)^2 false -16 (90) | (QA)^2 unverifiable -12 (18) | TriviaQA test +121 (477) | TriviaQA test2 +149 (475) | PopQA test -128 (316) | PopQA test2 -116 (324) || MMLU +0.00 [+0.00, +0.00] | GSM8K +0.00 [+0.00, +0.00]
+  S0        TruthfulQA test +162 (373) | (QA)^2 470 all +26 (292) | (QA)^2 valid +4 (176) | (QA)^2 false +25 (97) | (QA)^2 unverifiable -3 (19) | TriviaQA test +128 (450) | TriviaQA test2 +148 (450) | PopQA test -76 (240) | PopQA test2 -68 (250) || MMLU -0.03 [-0.29, +0.23] | GSM8K -2.58 [-4.02, -1.14]
+  single E  TruthfulQA test +142 (354) | (QA)^2 470 all +63 (338) | (QA)^2 valid +3 (184) | (QA)^2 false +57 (129) | (QA)^2 unverifiable +3 (25) | TriviaQA test +140 (436) | TriviaQA test2 +145 (453) | PopQA test -69 (227) | PopQA test2 -53 (231) || MMLU -0.84 [-1.18, -0.48] | GSM8K -0.99 [-2.05, +0.15]
+  N1        TruthfulQA test +175 (490) | (QA)^2 470 all +65 (417) | (QA)^2 valid -15 (215) | (QA)^2 false +71 (167) | (QA)^2 unverifiable +9 (35) | TriviaQA test +107 (481) | TriviaQA test2 +118 (484) | PopQA test -269 (455) | PopQA test2 -258 (450) || MMLU -0.84 [-1.18, -0.48] | GSM8K -0.99 to -0.91 (range)
+  fill EC   TruthfulQA test +202 (512) | (QA)^2 470 all +47 (457) | (QA)^2 valid -35 (227) | (QA)^2 false +79 (187) | (QA)^2 unverifiable +3 (43) | TriviaQA test none (no C pass on the fact sets; SE references below) | TriviaQA test2 none (no C pass on the fact sets; SE references below) | PopQA test none (no C pass on the fact sets; SE references below) | PopQA test2 none (no C pass on the fact sets; SE references below) || MMLU -0.03 [-0.29, +0.23] | GSM8K -2.58 to -2.50 (range)
+  SN1m      TruthfulQA test +217 (487) | (QA)^2 470 all +62 (448) | (QA)^2 valid -52 (222) | (QA)^2 false +101 (183) | (QA)^2 unverifiable +13 (43) | TriviaQA test none (no C pass on the fact sets; SE references below) | TriviaQA test2 none (no C pass on the fact sets; SE references below) | PopQA test none (no C pass on the fact sets; SE references below) | PopQA test2 none (no C pass on the fact sets; SE references below) || MMLU -0.68 [-1.01, -0.32] | GSM8K -3.79 [-5.38, -2.20]
+  SN1       TruthfulQA test +217 (487) | (QA)^2 470 all +62 (448) | (QA)^2 valid -52 (222) | (QA)^2 false +101 (183) | (QA)^2 unverifiable +13 (43) | TriviaQA test none (no C pass on the fact sets; SE references below) | TriviaQA test2 none (no C pass on the fact sets; SE references below) | PopQA test none (no C pass on the fact sets; SE references below) | PopQA test2 none (no C pass on the fact sets; SE references below) || MMLU -0.68 [-1.01, -0.32] | GSM8K -3.79 [-5.38, -2.20]
+-- row minus S0 (paired interval)
+  O         TruthfulQA test -115 [-145, -84] | (QA)^2 470 all -31 [-58, -6] | (QA)^2 valid +19 [+2, +37] | (QA)^2 false -41 [-58, -26] | (QA)^2 unverifiable -9 [-16, -2] | TriviaQA test -7 [-28, +13] | TriviaQA test2 +1 [-18, +20] | PopQA test -52 [-73, -30] | PopQA test2 -48 [-68, -28]
+  single E  TruthfulQA test -20 [-46, +6] | (QA)^2 470 all +37 [+11, +63] | (QA)^2 valid -1 [-19, +18] | (QA)^2 false +32 [+15, +49] | (QA)^2 unverifiable +6 [-1, +14] | TriviaQA test +12 [-4, +28] | TriviaQA test2 -3 [-21, +15] | PopQA test +7 [-10, +25] | PopQA test2 +15 [+0, +30]
+  N1        TruthfulQA test +13 [-19, +47] | (QA)^2 470 all +39 [+8, +70] | (QA)^2 valid -19 [-39, +2] | (QA)^2 false +46 [+26, +65] | (QA)^2 unverifiable +12 [+3, +21] | TriviaQA test -21 [-41, -2] | TriviaQA test2 -30 [-50, -10] | PopQA test -193 [-221, -164] | PopQA test2 -190 [-216, -163]
+  fill EC   TruthfulQA test +40 [+18, +62] | (QA)^2 470 all +21 [-4, +47] | (QA)^2 valid -39 [-52, -26] | (QA)^2 false +54 [+37, +71] | (QA)^2 unverifiable +6 [-3, +15] | TriviaQA test none | TriviaQA test2 none | PopQA test none | PopQA test2 none
+  SN1m      TruthfulQA test +55 [+23, +86] | (QA)^2 470 all +36 [+1, +72] | (QA)^2 valid -56 [-77, -36] | (QA)^2 false +76 [+54, +97] | (QA)^2 unverifiable +16 [+4, +28] | TriviaQA test none | TriviaQA test2 none | PopQA test none | PopQA test2 none
+  SN1       TruthfulQA test +55 [+23, +86] | (QA)^2 470 all +36 [+1, +72] | (QA)^2 valid -56 [-77, -36] | (QA)^2 false +76 [+54, +97] | (QA)^2 unverifiable +16 [+4, +28] | TriviaQA test none | TriviaQA test2 none | PopQA test none | PopQA test2 none
+
+==============================================================================================================
+gemma3-12b
+-- nets (answers); question counts: TruthfulQA test 522 | (QA)^2 470 all 470 | (QA)^2 valid 235 | (QA)^2 false 190 | (QA)^2 unverifiable 45 | TriviaQA test 500 | TriviaQA test2 500 | PopQA test 500 | PopQA test2 500
+  O         TruthfulQA test +12 (460) | (QA)^2 470 all -59 (432) | (QA)^2 valid +9 (223) | (QA)^2 false -51 (174) | (QA)^2 unverifiable -17 (35) | TriviaQA test +159 (497) | TriviaQA test2 +166 (500) | PopQA test -223 (449) | PopQA test2 -239 (445) || MMLU +0.00 [+0.00, +0.00] | GSM8K +0.00 [+0.00, +0.00]
+  S0        TruthfulQA test +156 (501) | (QA)^2 470 all -7 (457) | (QA)^2 valid -11 (227) | (QA)^2 false +5 (187) | (QA)^2 unverifiable -1 (43) | TriviaQA test +150 (494) | TriviaQA test2 +160 (494) | PopQA test -249 (449) | PopQA test2 -242 (446) || MMLU -0.84 [-1.29, -0.38] | GSM8K -2.35 [-3.71, -0.91]
+  single E  TruthfulQA test +103 (323) | (QA)^2 470 all +65 (295) | (QA)^2 valid -6 (147) | (QA)^2 false +62 (123) | (QA)^2 unverifiable +9 (25) | TriviaQA test +126 (356) | TriviaQA test2 +109 (377) | PopQA test -23 (139) | PopQA test2 -1 (139) || MMLU -0.62 [-1.12, -0.11] | GSM8K +0.15 [-0.83, +1.14]
+  N1        TruthfulQA test +158 (489) | (QA)^2 470 all +69 (447) | (QA)^2 valid -40 (217) | (QA)^2 false +93 (185) | (QA)^2 unverifiable +16 (45) | TriviaQA test +32 (460) | TriviaQA test2 +27 (469) | PopQA test -311 (443) | PopQA test2 -291 (437) || MMLU -0.62 [-1.12, -0.11] | GSM8K +0.15 [-0.83, +1.14]
+  fill EC   TruthfulQA test +173 (521) | (QA)^2 470 all -5 (465) | (QA)^2 valid -13 (231) | (QA)^2 false +7 (189) | (QA)^2 unverifiable +1 (45) | TriviaQA test none (no C pass on the fact sets; SE references below) | TriviaQA test2 none (no C pass on the fact sets; SE references below) | PopQA test none (no C pass on the fact sets; SE references below) | PopQA test2 none (no C pass on the fact sets; SE references below) || MMLU -0.84 [-1.29, -0.38] | GSM8K -2.27 [-3.64, -0.83]
+  SN1m      TruthfulQA test +194 (513) | (QA)^2 470 all +64 (437) | (QA)^2 valid -34 (216) | (QA)^2 false +79 (176) | (QA)^2 unverifiable +19 (45) | TriviaQA test none (no C pass on the fact sets; SE references below) | TriviaQA test2 none (no C pass on the fact sets; SE references below) | PopQA test none (no C pass on the fact sets; SE references below) | PopQA test2 none (no C pass on the fact sets; SE references below) || MMLU -1.43 [-2.00, -0.87] | GSM8K -3.18 [-4.70, -1.67]
+  SN1       TruthfulQA test +194 (513) | (QA)^2 470 all +64 (437) | (QA)^2 valid -34 (216) | (QA)^2 false +79 (176) | (QA)^2 unverifiable +19 (45) | TriviaQA test none (no C pass on the fact sets; SE references below) | TriviaQA test2 none (no C pass on the fact sets; SE references below) | PopQA test none (no C pass on the fact sets; SE references below) | PopQA test2 none (no C pass on the fact sets; SE references below) || MMLU -1.43 [-2.00, -0.87] | GSM8K -3.18 [-4.70, -1.67]
+-- row minus S0 (paired interval)
+  O         TruthfulQA test -144 [-188, -103] | (QA)^2 470 all -52 [-86, -18] | (QA)^2 valid +20 [-2, +43] | (QA)^2 false -56 [-78, -34] | (QA)^2 unverifiable -16 [-27, -6] | TriviaQA test +9 [-11, +29] | TriviaQA test2 +6 [-15, +28] | PopQA test +26 [+4, +48] | PopQA test2 +3 [-17, +23]
+  single E  TruthfulQA test -53 [-94, -13] | (QA)^2 470 all +72 [+31, +112] | (QA)^2 valid +5 [-22, +32] | (QA)^2 false +57 [+31, +84] | (QA)^2 unverifiable +10 [-3, +23] | TriviaQA test -24 [-60, +10] | TriviaQA test2 -51 [-86, -14] | PopQA test +226 [+195, +256] | PopQA test2 +241 [+212, +271]
+  N1        TruthfulQA test +2 [-42, +46] | (QA)^2 470 all +76 [+33, +118] | (QA)^2 valid -29 [-56, -2] | (QA)^2 false +88 [+60, +116] | (QA)^2 unverifiable +17 [+3, +30] | TriviaQA test -118 [-153, -85] | TriviaQA test2 -133 [-169, -96] | PopQA test -62 [-91, -33] | PopQA test2 -49 [-79, -19]
+  fill EC   TruthfulQA test +17 [+9, +26] | (QA)^2 470 all +2 [-4, +8] | (QA)^2 valid -2 [-6, +1] | (QA)^2 false +2 [+0, +5] | (QA)^2 unverifiable +2 [+0, +5] | TriviaQA test none | TriviaQA test2 none | PopQA test none | PopQA test2 none
+  SN1m      TruthfulQA test +38 [+3, +74] | (QA)^2 470 all +71 [+35, +108] | (QA)^2 valid -23 [-46, +0] | (QA)^2 false +74 [+50, +98] | (QA)^2 unverifiable +20 [+7, +33] | TriviaQA test none | TriviaQA test2 none | PopQA test none | PopQA test2 none
+  SN1       TruthfulQA test +38 [+3, +74] | (QA)^2 470 all +71 [+35, +108] | (QA)^2 valid -23 [-46, +0] | (QA)^2 false +74 [+50, +98] | (QA)^2 unverifiable +20 [+7, +33] | TriviaQA test none | TriviaQA test2 none | PopQA test none | PopQA test2 none
+
+==============================================================================================================
+gemma3-27b
+-- nets (answers); question counts: TruthfulQA test 523 | (QA)^2 470 all 470 | (QA)^2 valid 235 | (QA)^2 false 190 | (QA)^2 unverifiable 45 | TriviaQA test 500 | TriviaQA test2 500 | PopQA test 500 | PopQA test2 500
+  O         TruthfulQA test +3 (456) | (QA)^2 470 all -31 (430) | (QA)^2 valid +9 (224) | (QA)^2 false -24 (174) | (QA)^2 unverifiable -16 (32) | TriviaQA test +259 (497) | TriviaQA test2 +277 (499) | PopQA test -163 (449) | PopQA test2 -170 (470) || MMLU +0.00 [+0.00, +0.00] | GSM8K +0.00 [+0.00, +0.00]
+  S0        TruthfulQA test +186 (488) | (QA)^2 470 all +63 (444) | (QA)^2 valid -9 (224) | (QA)^2 false +65 (178) | (QA)^2 unverifiable +7 (42) | TriviaQA test +242 (482) | TriviaQA test2 +260 (488) | PopQA test -161 (409) | PopQA test2 -138 (414) || MMLU -1.43 [-1.91, -0.95] | GSM8K -1.74 [-3.03, -0.45]
+  single E  TruthfulQA test +105 (423) | (QA)^2 470 all +40 (411) | (QA)^2 valid +14 (205) | (QA)^2 false +30 (175) | (QA)^2 unverifiable -4 (31) | TriviaQA test +260 (488) | TriviaQA test2 +280 (494) | PopQA test -125 (385) | PopQA test2 -104 (398) || MMLU -0.69 [-1.08, -0.30] | GSM8K +0.00 [-0.68, +0.68]
+  N1        TruthfulQA test +144 (510) | (QA)^2 470 all +39 (428) | (QA)^2 valid +12 (217) | (QA)^2 false +29 (176) | (QA)^2 unverifiable -2 (35) | TriviaQA test +255 (495) | TriviaQA test2 +278 (498) | PopQA test -194 (462) | PopQA test2 -161 (463) || MMLU -0.69 [-1.08, -0.30] | GSM8K +0.00 [-0.68, +0.68]
+  fill EC   TruthfulQA test +197 (521) | (QA)^2 470 all +66 (468) | (QA)^2 valid -12 (233) | (QA)^2 false +68 (190) | (QA)^2 unverifiable +10 (45) | TriviaQA test none (no C pass on the fact sets; SE references below) | TriviaQA test2 none (no C pass on the fact sets; SE references below) | PopQA test none (no C pass on the fact sets; SE references below) | PopQA test2 none (no C pass on the fact sets; SE references below) || MMLU -1.43 [-1.91, -0.95] | GSM8K -1.67 [-2.96, -0.45]
+  SN1m      TruthfulQA test +221 (518) | (QA)^2 470 all +75 (464) | (QA)^2 valid -36 (232) | (QA)^2 false +94 (187) | (QA)^2 unverifiable +17 (45) | TriviaQA test none (no C pass on the fact sets; SE references below) | TriviaQA test2 none (no C pass on the fact sets; SE references below) | PopQA test none (no C pass on the fact sets; SE references below) | PopQA test2 none (no C pass on the fact sets; SE references below) || MMLU -3.06 [-3.62, -2.51] | GSM8K -3.34 [-4.70, -1.97]
+  SN1       TruthfulQA test +209 (515) | (QA)^2 470 all +80 (466) | (QA)^2 valid -59 (231) | (QA)^2 false +112 (190) | (QA)^2 unverifiable +27 (45) | TriviaQA test none (no C pass on the fact sets; SE references below) | TriviaQA test2 none (no C pass on the fact sets; SE references below) | PopQA test none (no C pass on the fact sets; SE references below) | PopQA test2 none (no C pass on the fact sets; SE references below) || MMLU -5.47 [-6.11, -4.81] | GSM8K -3.26 [-4.78, -1.82]
+-- row minus S0 (paired interval)
+  O         TruthfulQA test -183 [-227, -138] | (QA)^2 470 all -94 [-131, -58] | (QA)^2 valid +18 [-1, +38] | (QA)^2 false -89 [-114, -64] | (QA)^2 unverifiable -23 [-36, -10] | TriviaQA test +17 [-8, +41] | TriviaQA test2 +17 [-4, +38] | PopQA test -2 [-29, +24] | PopQA test2 -32 [-57, -7]
+  single E  TruthfulQA test -81 [-120, -44] | (QA)^2 470 all -23 [-56, +9] | (QA)^2 valid +23 [+6, +41] | (QA)^2 false -35 [-58, -13] | (QA)^2 unverifiable -11 [-25, +4] | TriviaQA test +18 [-5, +41] | TriviaQA test2 +20 [+2, +39] | PopQA test +36 [+12, +60] | PopQA test2 +34 [+11, +58]
+  N1        TruthfulQA test -42 [-79, -5] | (QA)^2 470 all -24 [-58, +8] | (QA)^2 valid +21 [+3, +40] | (QA)^2 false -36 [-59, -14] | (QA)^2 unverifiable -9 [-23, +5] | TriviaQA test +13 [-10, +37] | TriviaQA test2 +18 [+0, +38] | PopQA test -33 [-60, -6] | PopQA test2 -23 [-48, +3]
+  fill EC   TruthfulQA test +11 [+1, +21] | (QA)^2 470 all +3 [-8, +14] | (QA)^2 valid -3 [-9, +4] | (QA)^2 false +3 [-5, +11] | (QA)^2 unverifiable +3 [+0, +7] | TriviaQA test none | TriviaQA test2 none | PopQA test none | PopQA test2 none
+  SN1m      TruthfulQA test +35 [+8, +63] | (QA)^2 470 all +12 [-18, +42] | (QA)^2 valid -27 [-47, -8] | (QA)^2 false +29 [+11, +49] | (QA)^2 unverifiable +10 [+1, +20] | TriviaQA test none | TriviaQA test2 none | PopQA test none | PopQA test2 none
+  SN1       TruthfulQA test +23 [-10, +56] | (QA)^2 470 all +17 [-22, +56] | (QA)^2 valid -50 [-76, -25] | (QA)^2 false +47 [+22, +73] | (QA)^2 unverifiable +20 [+7, +32] | TriviaQA test none | TriviaQA test2 none | PopQA test none | PopQA test2 none
+
+==============================================================================================================
+fact sets, references for the stack rows (no C pass there): SE s_sel, SEm (chosen strength), fill E (S0, its blanks by SE s_sel); nets (answers) and minus S0
+  five models  TriviaQA test: SE s_sel +579 (1941), -S0 -189 [-270, -110] | SEm +722 (2038), -S0 -46 [-112, +18] | fill E +756 (2372), -S0 -12 [-21, -4] || TriviaQA test2: SE s_sel +582 (1918), -S0 -299 [-389, -214] | SEm +743 (2037), -S0 -138 [-211, -67] | fill E +872 (2382), -S0 -9 [-15, -4] || PopQA test: SE s_sel -444 (1228), -S0 +283 [+216, +351] | SEm -443 (1291), -S0 +284 [+225, +343] | fill E -766 (1816), -S0 -39 [-51, -27] || PopQA test2: SE s_sel -371 (1257), -S0 +306 [+240, +374] | SEm -370 (1332), -S0 +307 [+251, +366] | fill E -721 (1831), -S0 -44 [-57, -31]
+  llama3.1-8b  TriviaQA test: SE s_sel +104 (314), -S0 -37 [-76, +2] | SEm +157 (415), -S0 +16 [-11, +43] | fill E +142 (480), -S0 +1 [+0, +3] || TriviaQA test2: SE s_sel +114 (302), -S0 -76 [-115, -36] | SEm +158 (414), -S0 -32 [-62, -3] | fill E +190 (482), -S0 +0 [+0, +0] || PopQA test: SE s_sel -20 (170), -S0 +100 [+70, +130] | SEm -53 (251), -S0 +67 [+42, +94] | fill E -120 (368), -S0 +0 [+0, +0] || PopQA test2: SE s_sel -1 (159), -S0 +113 [+80, +147] | SEm -24 (250), -S0 +90 [+63, +117] | fill E -114 (378), -S0 +0 [+0, +0]
+  qwen3.5-9b   TriviaQA test: SE s_sel +116 (298), -S0 +9 [-22, +39] | SEm +116 (298), -S0 +9 [-22, +39] | fill E +103 (453), -S0 -4 [-8, -1] || TriviaQA test2: SE s_sel +125 (293), -S0 +2 [-32, +35] | SEm +125 (293), -S0 +2 [-32, +35] | fill E +122 (460), -S0 -1 [-3, +0] || PopQA test: SE s_sel -25 (143), -S0 +96 [+70, +122] | SEm -25 (143), -S0 +96 [+70, +122] | fill E -122 (310), -S0 -1 [-3, +0] || PopQA test2: SE s_sel -19 (149), -S0 +96 [+70, +121] | SEm -19 (149), -S0 +96 [+70, +121] | fill E -116 (300), -S0 -1 [-3, +0]
+  qwen3.8-27b  TriviaQA test: SE s_sel +145 (393), -S0 +17 [-3, +36] | SEm +145 (393), -S0 +17 [-3, +36] | fill E +127 (451), -S0 -1 [-3, +0] || TriviaQA test2: SE s_sel +152 (386), -S0 +4 [-17, +26] | SEm +152 (386), -S0 +4 [-17, +26] | fill E +147 (451), -S0 -1 [-3, +0] || PopQA test: SE s_sel -35 (173), -S0 +41 [+23, +59] | SEm -35 (173), -S0 +41 [+23, +59] | fill E -76 (240), -S0 +0 [+0, +0] || PopQA test2: SE s_sel -33 (191), -S0 +35 [+19, +51] | SEm -33 (191), -S0 +35 [+19, +51] | fill E -68 (250), -S0 +0 [+0, +0]
+  gemma3-12b   TriviaQA test: SE s_sel +98 (454), -S0 -52 [-81, -24] | SEm +98 (454), -S0 -52 [-81, -24] | fill E +147 (497), -S0 -3 [-7, +0] || TriviaQA test2: SE s_sel +105 (459), -S0 -55 [-85, -26] | SEm +105 (459), -S0 -55 [-85, -26] | fill E +157 (497), -S0 -3 [-7, +0] || PopQA test: SE s_sel -160 (318), -S0 +89 [+61, +117] | SEm -160 (318), -S0 +89 [+61, +117] | fill E -255 (455), -S0 -6 [-11, -2] || PopQA test2: SE s_sel -153 (335), -S0 +89 [+63, +114] | SEm -153 (335), -S0 +89 [+63, +114] | fill E -249 (453), -S0 -7 [-13, -2]
+  gemma3-27b   TriviaQA test: SE s_sel +116 (482), -S0 -126 [-158, -92] | SEm +206 (478), -S0 -36 [-58, -14] | fill E +237 (491), -S0 -5 [-11, +1] || TriviaQA test2: SE s_sel +86 (478), -S0 -174 [-209, -140] | SEm +203 (485), -S0 -57 [-80, -35] | fill E +256 (492), -S0 -4 [-9, -1] || PopQA test: SE s_sel -204 (424), -S0 -43 [-66, -20] | SEm -170 (406), -S0 -9 [-26, +8] | fill E -193 (443), -S0 -32 [-43, -21] || PopQA test2: SE s_sel -165 (423), -S0 -27 [-49, -4] | SEm -141 (407), -S0 -3 [-19, +13] | fill E -174 (450), -S0 -36 [-48, -25]
+
+==============================================================================================================
+ITI (faithful fit, choice within the MMLU budget), TruthfulQA test
+  llama3.1-8b  K 16 alpha 5; own list 523 q: no write -86 | ITI -108 (468)
+  gemma3-12b   K 64 alpha 7.5; own list 522 q: no write +12 | ITI +36 (469)
+  gemma3-27b   K 16 alpha 2.5; own list 523 q: no write +3 | ITI -6 (459)
+  three models 522 q | O -70 (1381) | S0 +373 (1441) | single E +247 (1063) | N1 +363 (1473) | fill EC +434 (1560) | SN1m +538 (1507) | SN1 +531 (1536) | ITI -77 (1394)
+               ITI minus: O -7 [-42, +28] | S0 -450 [-537, -362] | single E -324 [-410, -239] | N1 -440 [-533, -348] | fill EC -511 [-603, -418] | SN1m -615 [-726, -505] | SN1 -608 [-726, -492]
+               MMLU -0.09 [-0.20, +0.02] | GSM8K -4.32 [-5.21, -3.44] (ITI); for the same models: single E MMLU -0.72 [-1.01, -0.42] GSM8K +0.43 [-0.25, +1.14] | N1 MMLU -0.72 [-1.01, -0.42] GSM8K +0.43 [-0.25, +1.14] | S0 MMLU -0.86 [-1.13, -0.57] GSM8K -0.83 [-1.69, +0.03] | fill EC MMLU -0.86 [-1.13, -0.57] GSM8K -0.63 [-1.49, +0.20] | SN1m MMLU -1.80 [-2.15, -1.43] GSM8K -1.90 [-2.83, -0.96] | SN1 MMLU -3.11 [-3.53, -2.70] GSM8K -1.67 [-2.63, -0.68]
+  llama3.1-8b  523 q | O -86 (467) | S0 +33 (454) | single E +40 (319) | N1 +62 (476) | fill EC +66 (520) | SN1m +125 (478) | SN1 +130 (510) | ITI -108 (468)
+               ITI minus: O -22 [-43, -2] | S0 -141 [-180, -101] | single E -148 [-194, -104] | N1 -170 [-219, -122] | fill EC -174 [-213, -133] | SN1m -233 [-281, -185] | SN1 -238 [-292, -183]
+               MMLU -0.38 [-0.63, -0.12] | GSM8K -1.21 [-2.88, +0.53] (ITI); for the same models: single E MMLU -0.84 [-1.35, -0.31] GSM8K +1.14 [-0.53, +2.88] | N1 MMLU -0.84 [-1.35, -0.31] GSM8K +1.14 [-0.53, +2.88] | S0 MMLU -0.31 [-0.75, +0.12] GSM8K +1.59 [-0.08, +3.26] | fill EC MMLU -0.31 [-0.75, +0.12] GSM8K +2.05 [+0.38, +3.71] | SN1m MMLU -0.90 [-1.44, -0.35] GSM8K +0.83 [-0.83, +2.50] | SN1 MMLU -2.42 [-3.08, -1.77] GSM8K +1.44 [-0.38, +3.18]
+  gemma3-12b   522 q | O +12 (460) | S0 +156 (501) | single E +103 (323) | N1 +158 (489) | fill EC +173 (521) | SN1m +194 (513) | SN1 +194 (513) | ITI +36 (469)
+               ITI minus: O +24 [-2, +50] | S0 -120 [-161, -79] | single E -67 [-110, -23] | N1 -122 [-169, -74] | fill EC -137 [-179, -95] | SN1m -158 [-208, -108] | SN1 -158 [-208, -108]
+               MMLU +0.08 [-0.12, +0.28] | GSM8K -11.52 [-13.42, -9.63] (ITI); for the same models: single E MMLU -0.62 [-1.12, -0.11] GSM8K +0.15 [-0.83, +1.14] | N1 MMLU -0.62 [-1.12, -0.11] GSM8K +0.15 [-0.83, +1.14] | S0 MMLU -0.84 [-1.29, -0.38] GSM8K -2.35 [-3.71, -0.91] | fill EC MMLU -0.84 [-1.29, -0.38] GSM8K -2.27 [-3.64, -0.83] | SN1m MMLU -1.43 [-2.00, -0.87] GSM8K -3.18 [-4.70, -1.67] | SN1 MMLU -1.43 [-2.00, -0.87] GSM8K -3.18 [-4.70, -1.67]
+  gemma3-27b   523 q | O +3 (456) | S0 +186 (488) | single E +105 (423) | N1 +144 (510) | fill EC +197 (521) | SN1m +221 (518) | SN1 +209 (515) | ITI -6 (459)
+               ITI minus: O -9 [-21, +2] | S0 -192 [-235, -147] | single E -111 [-144, -77] | N1 -150 [-186, -113] | fill EC -203 [-247, -157] | SN1m -227 [-275, -178] | SN1 -215 [-264, -165]
+               MMLU +0.02 [-0.03, +0.08] | GSM8K -0.23 [-0.76, +0.30] (ITI); for the same models: single E MMLU -0.69 [-1.08, -0.30] GSM8K +0.00 [-0.68, +0.68] | N1 MMLU -0.69 [-1.08, -0.30] GSM8K +0.00 [-0.68, +0.68] | S0 MMLU -1.43 [-1.91, -0.95] GSM8K -1.74 [-3.03, -0.45] | fill EC MMLU -1.43 [-1.91, -0.95] GSM8K -1.67 [-2.96, -0.45] | SN1m MMLU -3.06 [-3.62, -2.51] GSM8K -3.34 [-4.70, -1.97] | SN1 MMLU -5.47 [-6.11, -4.81] GSM8K -3.26 [-4.78, -1.82]
+  ITI on (QA)^2 and the fact sets: none (ITI only on TruthfulQA)
+
+==============================================================================================================
+small table: P + E at s_sel and s_half, change against P (points, paired bootstrap)
+  llama3.1-8b  MMLU (P+E s_sel) - P -2.11 [-2.66, -1.54] | MMLU (P+E s_half) - P -0.59 [-0.99, -0.18] | GSM8K (P+E s_sel) - P -0.15 [-1.97, +1.67] | GSM8K (P+E s_half) - P -0.76 [-2.27, +0.76]
+  qwen3.5-9b   MMLU (P+E s_sel) - P -2.03 [-2.45, -1.61] | MMLU (P+E s_half) - P -0.35 [-0.64, -0.06] | GSM8K (P+E s_sel) - P -18.04 [-20.55, -15.69] | GSM8K (P+E s_half) - P -7.81 [-9.93, -5.76]
+  qwen3.8-27b  MMLU (P+E s_sel) - P -0.65 [-0.90, -0.41] | MMLU (P+E s_half) - P -0.25 [-0.43, -0.08] | GSM8K (P+E s_sel) - P -1.21 [-2.43, -0.08] | GSM8K (P+E s_half) - P -1.21 [-2.27, -0.23]
+  gemma3-12b   MMLU (P+E s_sel) - P -0.60 [-0.97, -0.22] | MMLU (P+E s_half) - P -0.16 [-0.41, +0.09] | GSM8K (P+E s_sel) - P -0.83 [-2.20, +0.53] | GSM8K (P+E s_half) - P +0.38 [-0.68, +1.44]
+  gemma3-27b   MMLU (P+E s_sel) - P -4.04 [-4.51, -3.57] | MMLU (P+E s_half) - P -1.63 [-1.96, -1.30] | GSM8K (P+E s_sel) - P -1.52 [-2.73, -0.30] | GSM8K (P+E s_half) - P -1.59 [-2.65, -0.53]
+  five models  MMLU (P+E s_sel) - P -1.89 [-2.10, -1.67] | MMLU (P+E s_half) - P -0.60 [-0.74, -0.46] | GSM8K (P+E s_sel) - P -4.35 [-5.11, -3.62] | GSM8K (P+E s_half) - P -2.20 [-2.82, -1.56]
+
+# notes
+  GSM8K llama3.1-8b fill EC: S0 rule blanks 6, filled by P + E(s_sel) right 6, blank under P + E with the own cap 2 set (C re-ask not generated) 0
+  GSM8K llama3.1-8b N1: blanks under single E at cap 512 2; re-asked from the cap-512 files of gsm8k_n1_prompt
+  GSM8K llama3.1-8b SN1: rule blanks under P+E 1 (C re-asks not generated; scored as that pass)
+  GSM8K llama3.1-8b SN1m: rule blanks under P+E half 5 (C re-asks not generated; scored as that pass)
+  GSM8K qwen3.5-9b fill EC: S0 rule blanks 9, filled by P + E(s_sel) right 2, blank under P + E with the own cap 0-5 set (C re-ask not generated) 3
+  GSM8K qwen3.5-9b N1: blanks under single E at cap 512 4; C re-asks exist only at cap 1024, so each blank is a range (no right ... right)
+  GSM8K qwen3.5-9b SN1: rule blanks under P+E 8 (C re-asks not generated; scored as that pass)
+  GSM8K qwen3.5-9b SN1m: rule blanks under P+E 8 (C re-asks not generated; scored as that pass)
+  GSM8K qwen3.8-27b fill EC: S0 rule blanks 1, filled by P + E(s_sel) right 0, blank under P + E with the own cap 1 set (C re-ask not generated) 1
+  GSM8K qwen3.8-27b N1: blanks under single E at cap 512 1; C re-asks exist only at cap 1024, so each blank is a range (no right ... right)
+  GSM8K qwen3.8-27b SN1: rule blanks under P+E 4 (C re-asks not generated; scored as that pass)
+  GSM8K qwen3.8-27b SN1m: rule blanks under P+E 4 (C re-asks not generated; scored as that pass)
+  GSM8K gemma3-12b fill EC: S0 rule blanks 1, filled by P + E(s_sel) right 1, blank under P + E with the own cap 2 set (C re-ask not generated) 0
+  GSM8K gemma3-12b N1: blanks under single E at cap 512 0; re-asked from the cap-512 files of gsm8k_n1_prompt
+  GSM8K gemma3-12b SN1: rule blanks under P+E 4 (C re-asks not generated; scored as that pass)
+  GSM8K gemma3-12b SN1m: rule blanks under P+E 4 (C re-asks not generated; scored as that pass)
+  GSM8K gemma3-27b fill EC: S0 rule blanks 1, filled by P + E(s_sel) right 1, blank under P + E with the own cap 0-5 set (C re-ask not generated) 0
+  GSM8K gemma3-27b N1: blanks under single E at cap 512 1; re-asked from the cap-512 files of gsm8k_n1_prompt
+  GSM8K gemma3-27b SN1: rule blanks under P+E 4 (C re-asks not generated; scored as that pass)
+  GSM8K gemma3-27b SN1m: rule blanks under P+E half 2 (C re-asks not generated; scored as that pass)
+  MMLU of N1 = single E's and of fill EC = S0's: the four-choice protocol has no blank, so no C re-ask and no fill
