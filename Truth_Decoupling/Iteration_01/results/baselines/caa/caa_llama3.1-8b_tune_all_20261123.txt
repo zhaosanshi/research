@@ -1,0 +1,37 @@
+# CAA, llama3.1-8b: TruthfulQA tune split, 192 questions, DeepSeek Pro, score = right - wrong; the best among the measured points (every point the early stop reached), whatever its MMLU change
+    no write net -34 | the project's single E (layer 16, strength 3.5, prompt rule) net +6 (answers 116)
+    L8   x 0.5   | net  -33 | answers 169 | right  65 | wrong  98 | MMLU selection half -0.03
+    L8   x 1     | net  -33 | answers 169 | right  65 | wrong  98 | MMLU selection half +0.09
+    L8   x 2     | net  -33 | answers 169 | right  65 | wrong  98 | MMLU selection half +0.03
+    L8   x 4     | net  -37 | answers 169 | right  63 | wrong 100 | MMLU selection half -0.10
+    L10  x 0.5   | net  -27 | answers 169 | right  68 | wrong  95 | MMLU selection half -0.09
+    L10  x 1     | net  -30 | answers 168 | right  66 | wrong  96 | MMLU selection half -0.09
+    L10  x 2     | net  -37 | answers 166 | right  62 | wrong  99 | MMLU selection half -0.46
+    L10  x 4     | net  -39 | answers 164 | right  58 | wrong  97 | MMLU selection half -1.15 (over the budget)
+    L12  x 0.5   | net  -36 | answers 169 | right  63 | wrong  99 | MMLU selection half -0.13
+    L12  x 1     | net  -37 | answers 166 | right  61 | wrong  98 | MMLU selection half -0.31
+    L12  x 2     | net  -30 | answers 167 | right  64 | wrong  94 | MMLU selection half -0.77
+    L14  x 0.5   | net  -33 | answers 169 | right  65 | wrong  98 | MMLU selection half -0.17
+    L14  x 1     | net  -27 | answers 166 | right  67 | wrong  94 | MMLU selection half -0.48
+    L14  x 2     | net  -39 | answers 165 | right  60 | wrong  99 | MMLU selection half -1.07 (over the budget)
+    L16  x 0.5   | net  -30 | answers 167 | right  65 | wrong  95 | MMLU selection half +0.04
+    L16  x 1     | net  -31 | answers 167 | right  64 | wrong  95 | MMLU selection half -0.13
+    L16  x 2     | net  -39 | answers 167 | right  61 | wrong 100 | MMLU selection half -0.88
+    L18  x 0.5   | net  -25 | answers 166 | right  67 | wrong  92 | MMLU selection half +0.03
+    L18  x 1     | net  -27 | answers 164 | right  65 | wrong  92 | MMLU selection half +0.07
+    L18  x 2     | net  -32 | answers 164 | right  61 | wrong  93 | MMLU selection half +0.14
+    L18  x 4     | net  -52 | answers 162 | right  50 | wrong 102 | MMLU selection half +0.07
+    L20  x 0.5   | net  -28 | answers 168 | right  67 | wrong  95 | MMLU selection half -0.11
+    L20  x 1     | net  -31 | answers 165 | right  64 | wrong  95 | MMLU selection half +0.13
+    L20  x 2     | net  -33 | answers 166 | right  62 | wrong  95 | MMLU selection half -0.03
+    L20  x 4     | net  -56 | answers 157 | right  47 | wrong 103 | MMLU selection half -0.46
+    L22  x 0.5   | net  -23 | answers 167 | right  69 | wrong  92 | MMLU selection half -0.10
+    L22  x 1     | net  -23 | answers 164 | right  68 | wrong  91 | MMLU selection half -0.03
+    L22  x 2     | net  -31 | answers 161 | right  62 | wrong  93 | MMLU selection half -0.09
+    L22  x 4     | net  -50 | answers 155 | right  47 | wrong  97 | MMLU selection half -0.61
+    L24  x 0.5   | net  -26 | answers 166 | right  67 | wrong  93 | MMLU selection half +0.00
+    L24  x 1     | net  -21 | answers 164 | right  69 | wrong  90 | MMLU selection half -0.03
+    L24  x 2     | net  -21 | answers 164 | right  68 | wrong  89 | MMLU selection half +0.07
+    L24  x 4     | net  -41 | answers 159 | right  56 | wrong  97 | MMLU selection half +0.03
+    chosen on tune: layer 24, multiplier 1 (net -21, answers 164) -- the best among the measured points
+    choice written to Iteration_01/baselines/caa/llama3.1-8b/choice_all.json
