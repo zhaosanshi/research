@@ -1,0 +1,110 @@
+--- a/Truth_Decoupling/Iteration_01/code/scripts/newsets/caa_vector.py
++++ b/Truth_Decoupling/Iteration_01/code/scripts/newsets/caa_vector.py
+@@ -303,11 +303,13 @@
+             or listing["vectors_file_sha256"] != digest or src == dst
+             or (root / model_config["run_dir"]).resolve() not in (src, dst)):
+         raise SystemExit("wrong CAA mirror, model or vector source")
++    from caa_run_guard import engine_identity_matches
++    bank_file = root / model_config["source_run"] / "bank.json"
+     for split, roster in ids.items():
+         name = "frozen_" + split + ".json"
+         f = json.loads((dst / name).read_text(encoding="utf-8"))
+         if (listing["frozen_files_sha256"][name] != sha_file(dst / name) or sha_file(src / name) != sha_file(dst / name)
+-                or f["identity_sha256"] != meta["identity_sha256"] or f["model"] != a.model or not f["completed"]
++                or not engine_identity_matches(f, meta["identity_sha256"], bank_file) or not f["completed"]
+                 or f["split"] != split or f["question_ids"] != roster):
+             raise SystemExit("wrong frozen CAA inputs in " + name)
+     for l in (a.layers or meta["candidate_layers"]):
+--- a/Truth_Decoupling/Iteration_01/code/scripts/newsets/caa_run_guard.py
++++ b/Truth_Decoupling/Iteration_01/code/scripts/newsets/caa_run_guard.py
+@@ -21,6 +21,40 @@
+ LEGACY_CHECK = "13aafb8c94c0de8fdbf4e51c3f0560145b1d7151c310458917f7141e39d66626"
+ LEGACY_MIRROR = "baa00c3438807befaba16b0ac3be5f6894fafcb25bec44b58b053eb4491d22a1"
+ LEGACY_REPEAT = "398dc19826cd29a57bc4b7bf86f6b2aa9c504b618abd77618ffa8b93bc9db3d4"
++
++# This revision only changed acceptance and readers. Preceding fit/check files
++# remain valid for these exact archived payloads, after the usual source checks.
++PRE_ALIAS_SCRIPT = "ef185badca118054642302abfcef019087828d780413b87e80998ff4007c906f"
++# vectors.pt, its JSON sidecar, successful check.json (None for the failed 27B check)
++PRE_ALIAS = {
++    "qwen3.5-9b": (
++        "7127dc723660e550057b2e2201914723645eb3349a567eec71d03dbd43be5899",
++        "8637bcd1a2bff8f9bc102b6662c588566f82a422b76d6b2ad1c96ab1dfe38f9e",
++        "8ead63558bf8fb4916db0bd246d5aee515e554532a4581b23256f3cd9de5b5bd"),
++    "qwen3.8-27b": (
++        "ebacf7921bf95d9ae01c9d3ae6828abd1beac1d5915ea767faf7b891ca7cf2a7",
++        "c8b35d4464ebc88dd7df005ee67671f3a2a316bbd702eb24fe8376f262c00d17",
++        None),
++    "gemma3-12b": (
++        "19d75edb07b12dac2aadefeffc9c4686a1d7b3219aa847c9e752194ebb4a43ea",
++        "5ea122d500e364d6821a92199bf1c86f4fab44203e9602d09281b6479b943d8c",
++        "48c3f8098873793d5841b21719ee1e1337f48c99a4748aec474783f24be32af2"),
++    "gemma3-27b": (
++        "51cac40e028d6f11f3b70917408dabc408ee6de4f008a6b79c27c1048e866462",
++        "057bd37459193891534b782aff62df9d6b859afa198ff8c1c7a6ea734202936b",
++        "fee8d47f4ab7fe47d018498601d3f724e6d7dccb1fcf0891bb22f4ad49751471"),
++}
++
++
++def engine_identity_matches(record, expected, bank_file):
++    """E44 writes the model specified by its source bank, which may be a device-map alias."""
++    identity = record["identity"]
++    digest = hashlib.sha256(json.dumps(identity, sort_keys=True, ensure_ascii=False,
++                                       separators=(",", ":"), allow_nan=False).encode()).hexdigest()
++    source = Path(bank_file)
++    return (digest == record["identity_sha256"] == expected
++            and identity["source_files_sha256"]["bank.json"] == sha(source)
++            and record["model"] == identity["model"] == load(source)["model"])
+
+
+ def require(flag, why):
+@@ -57,8 +91,13 @@
+     old_fit = (model == "llama3.1-8b" and fit["script_sha256"] == LEGACY_SCRIPT and vd == LEGACY_VECTOR
+                and sha(base / "vectors.pt.json") == LEGACY_SIDECAR)
+     old_check = (old_fit and check["script_sha256"] == LEGACY_SCRIPT and sha(folder / "check.json") == LEGACY_CHECK)
+-    require(fit["script_sha256"] == current or old_fit, "unrecognised fit or historical payload")
+-    require(check["script_sha256"] == current or old_check, "unrecognised check or historical payload")
++    previous = PRE_ALIAS.get(model)
++    prior_fit = (previous is not None and fit["script_sha256"] == PRE_ALIAS_SCRIPT
++                 and (vd, sha(base / "vectors.pt.json")) == previous[:2])
++    prior_check = (prior_fit and check["script_sha256"] == PRE_ALIAS_SCRIPT
++                   and sha(folder / "check.json") == previous[2])
++    require(fit["script_sha256"] == current or old_fit or prior_fit, "unrecognised fit or historical payload")
++    require(check["script_sha256"] == current or old_check or prior_check, "unrecognised check or historical payload")
+     require(check["identity_sha256"] == identity and check["vectors_file_sha256"] == mapping["vectors_file_sha256"] == vd
+             and fit["engine_sha256"] == check["engine_sha256"] == sha(engine), "fit/check inputs changed")
+     require(mapping["model"] == model and mapping["kind"] == "caa" and check["mirror"] == str(mirror)
+--- a/Truth_Decoupling/Iteration_01/code/diag/caa_table.py
++++ b/Truth_Decoupling/Iteration_01/code/diag/caa_table.py
+@@ -36,7 +36,8 @@
+ import re
+ import sys
+
+-sys.path.insert(0, "Iteration_01/diag")
++sys.path[:0] = ["Iteration_01/diag", "Iteration_01/code/scripts/newsets"]
++from caa_run_guard import FROZEN, engine_identity_matches
+ import iti_table as IT
+
+ MP, PM, S, ps, ML, DM = IT.MP, IT.PM, IT.S, IT.ps, IT.ML, IT.DM
+@@ -211,7 +212,9 @@
+     exp_path = os.path.join(work, "judge_input.json")
+     exp = read(exp_path)
+     source = exp["sources"]
+-    if exp["model"] != mi.model or not exp["completed"] or exp["identity_sha256"] != mi.meta["identity_sha256"]:
++    registry = read(str(FROZEN))["models"][mi.model]
++    bank_file = os.path.join(registry["source_run"], "bank.json")
++    if not exp["completed"] or not engine_identity_matches(exp, mi.meta["identity_sha256"], bank_file):
+         raise SystemExit("judge input belongs to a different CAA model or identity: " + work)
+     files = source["gen"]
+     if not files or len(set(files)) != len(files):
+--- a/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/caa_night2_1122.sh
++++ b/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/caa_night2_1122.sh
+@@ -81,7 +81,7 @@
+     if [ -z "$t0" ]; then
+       mp=$(pgrep -f "^[^ ]*python[^ ]* .*cap_mcq_sweep.py run .*baselines/caa/$m/" | head -1)
+       [ -n "$mp" ] && { t0=$(date +%s); say "$m: first MMLU pass started (pid $mp) on GPU $g"; }
+-    elif [ $(( $(date +%s) - t0 )) -le 900 ]; then
++    elif [[ "$t0" != done ]] && [ $(( $(date +%s) - t0 )) -le 900 ]; then
+       u=$(nvidia-smi --query-compute-apps=pid,used_memory --format=csv,noheader,nounits | awk -F', ' -v p="$mp" '$1 == p {print $2}')
+       c=$(card_used $g)
+       [[ $u =~ ^[0-9]+$ ]] && [ $u -gt $peak ] && peak=$u

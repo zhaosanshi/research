@@ -1,0 +1,25 @@
+# (QA)^2 llama3.1-8b: s_sel 3.5, SN1 caps None / 1; no-sentence single E 3.5, N1 3.5 caps None / 1
+# (QA)^2 qwen3.5-9b: s_sel 2, SN1 caps 0.25 / 1; no-sentence single E 2, N1 2 caps 0.5 / 1
+# (QA)^2 qwen3.8-27b: s_sel 0.875, SN1 caps 0.25 / 0.5; no-sentence single E 1.75, N1 1.75 caps None / 0.25
+# (QA)^2 gemma3-12b: s_sel 1.25, SN1 caps None / 0.25; no-sentence single E 2.5, N1 2.5 caps 1 / 1
+# (QA)^2 gemma3-27b: s_sel 1, SN1 caps None / None; no-sentence single E 1, N1 1 caps 0.5 / 0.25
+models ['llama3.1-8b', 'qwen3.5-9b', 'qwen3.8-27b'] arms ('S0', 'N1') quota [296, 427, 292] total 1015 scores [26, 184]
+  ('N1', 'S0') +158 [+103, +215]
+models ['llama3.1-8b', 'qwen3.5-9b', 'qwen3.8-27b'] arms ('S0', 'E', 'N1') quota [235, 353, 292] total 880 scores [84, 161, 239]
+  ('E', 'S0') +77 [+26, +129]
+  ('N1', 'S0') +155 [+105, +206]
+  ('N1', 'E') +78 [+46, +112]
+models ['llama3.1-8b', 'qwen3.5-9b', 'qwen3.8-27b'] arms ('S0z', 'Ez', 'N1z') quota [157, 326, 200] total 683 scores [148, 214, 257]
+  ('Ez', 'S0z') +66 [+21, +109]
+  ('N1z', 'S0z') +109 [+65, +152]
+  ('N1z', 'Ez') +43 [+16, +70]
+models ['llama3.1-8b', 'qwen3.5-9b', 'qwen3.8-27b', 'gemma3-12b', 'gemma3-27b'] arms ('S0', 'N1') quota [296, 427, 292, 447, 428] total 1890 scores [98, 292]
+  ('N1', 'S0') +194 [+117, +272]
+models ['llama3.1-8b', 'qwen3.5-9b', 'qwen3.8-27b', 'gemma3-12b', 'gemma3-27b'] arms ('S0', 'E', 'N1') quota [235, 353, 292, 295, 411] total 1586 scores [225, 266, 382]
+  ('E', 'S0') +41 [-31, +112]
+  ('N1', 'S0') +157 [+89, +223]
+  ('N1', 'E') +116 [+70, +163]
+models ['llama3.1-8b', 'qwen3.5-9b', 'qwen3.8-27b', 'gemma3-12b', 'gemma3-27b'] arms ('S0z', 'Ez', 'N1z') quota [157, 326, 200, 255, 324] total 1262 scores [320, 367, 456]
+  ('Ez', 'S0z') +47 [-19, +110]
+  ('N1z', 'S0z') +136 [+75, +198]
+  ('N1z', 'Ez') +89 [+50, +128]
