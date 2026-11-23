@@ -1,0 +1,229 @@
+bank Iteration_01/newsets/falseqa/falseqa_full_bank_20261123.jsonl (sha256 cb42cf131fed8ccf): 700 rows | dev {'false': 50, 'valid': 50} | held-out {'false': 300, 'valid': 300} | gold lengths {('dev', 'false', 1): 50, ('dev', 'valid', 1): 50, ('heldout', 'false', 3): 300, ('heldout', 'valid', 1): 300} | id file sha256 1a5c0df6b74c858e
+# FalseQA, the 100 development questions only (50 pairs); the held-out questions are not read
+# N1, SN1, Conly and SC have their caps chosen on these same questions (they lean upwards); intervals resample pairs
+# llama3.1-8b: E16 main 3.5, s_sel 3.5, C19; chosen on the 100 development questions:
+    N1 caps E's blanks none / own blanks 2 (dev net +36); grid rows cap for E's blanks none..2, columns own: +22 +23 +27 +34 +36 / +17 +18 +22 +29 +31 / +18 +19 +23 +30 +32 / +18 +19 +23 +30 +32 / +17 +18 +22 +29 +31
+    SN1 caps E's blanks none / own blanks 1 (dev net +27); grid rows cap for E's blanks none..2, columns own: +15 +19 +22 +27 +27 / +15 +19 +22 +27 +27 / +14 +18 +21 +26 +26 / +14 +18 +21 +26 +26 / +14 +18 +21 +26 +26
+    Conly cap 2 (dev nets 0.25 +13 | 0.5 +13 | 1 +19 | 2 +24)
+    SC cap 2 (dev nets 0.25 +34 | 0.5 +36 | 1 +37 | 2 +42)
+# qwen3.5-9b: E15 main 2, s_sel 2, C16; chosen on the 100 development questions:
+    N1 caps E's blanks 0.25 / own blanks 0.5 (dev net +51); grid rows cap for E's blanks none..2, columns own: +45 +48 +49 +48 +47 / +47 +50 +51 +50 +49 / +46 +49 +50 +49 +48 / +46 +49 +50 +49 +48 / +47 +50 +51 +50 +49
+    SN1 caps E's blanks none / own blanks 1 (dev net +30); grid rows cap for E's blanks none..2, columns own: +28 +29 +29 +30 +30 / +26 +27 +27 +28 +28 / +27 +28 +28 +29 +29 / +27 +28 +28 +29 +29 / +28 +29 +29 +30 +30
+    Conly cap 1 (dev nets 0.25 +38 | 0.5 +43 | 1 +44 | 2 +44)
+    SC cap 0.5 (dev nets 0.25 +44 | 0.5 +46 | 1 +46 | 2 +46)
+# qwen3.8-27b: E28 main 1.75, s_sel 0.875, C33; chosen on the 100 development questions:
+    N1 caps E's blanks none / own blanks 1 (dev net +43); grid rows cap for E's blanks none..2, columns own: +31 +37 +41 +43 +43 / +29 +35 +39 +41 +41 / +29 +35 +39 +41 +41 / +29 +35 +39 +41 +41 / +29 +35 +39 +41 +41
+    SN1 caps E's blanks none / own blanks 1 (dev net +52); grid rows cap for E's blanks none..2, columns own: +42 +46 +49 +52 +52 / +42 +46 +49 +52 +52 / +41 +45 +48 +51 +51 / +41 +45 +48 +51 +51 / +41 +45 +48 +51 +51
+    Conly cap 1 (dev nets 0.25 +40 | 0.5 +42 | 1 +43 | 2 +41)
+    SC cap 1 (dev nets 0.25 +47 | 0.5 +50 | 1 +52 | 2 +52)
+# gemma3-12b: E24 main 2.5, s_sel 1.25, C25; chosen on the 100 development questions:
+    N1 caps E's blanks none / own blanks 1 (dev net +29); grid rows cap for E's blanks none..2, columns own: +17 +20 +21 +29 +27 / +15 +18 +19 +27 +25 / +16 +19 +20 +28 +26 / +15 +18 +19 +27 +25 / +17 +20 +21 +29 +27
+    SN1 caps E's blanks 0.5 / own blanks 0.25 (dev net +39); grid rows cap for E's blanks none..2, columns own: +35 +36 +36 +36 +35 / +36 +37 +37 +37 +36 / +38 +39 +39 +39 +38 / +38 +39 +39 +39 +38 / +38 +39 +39 +39 +38
+    Conly cap 2 (dev nets 0.25 +18 | 0.5 +19 | 1 +21 | 2 +23)
+    SC cap 0.25 (dev nets 0.25 +38 | 0.5 +37 | 1 +37 | 2 +37)
+# gemma3-27b: E28 main 1, s_sel 1, C31; chosen on the 100 development questions:
+    N1 caps E's blanks none / own blanks 2 (dev net +49); grid rows cap for E's blanks none..2, columns own: +43 +45 +47 +47 +49 / +42 +44 +46 +46 +48 / +42 +44 +46 +46 +48 / +40 +42 +44 +44 +46 / +40 +42 +44 +44 +46
+    SN1 caps E's blanks 0.25 / own blanks 0.5 (dev net +32); grid rows cap for E's blanks none..2, columns own: +30 +30 +31 +31 +31 / +31 +31 +32 +32 +32 / +30 +30 +31 +31 +31 / +30 +30 +31 +31 +31 / +30 +30 +31 +31 +31
+    Conly cap 0.25 (dev nets 0.25 +25 | 0.5 +25 | 1 +25 | 2 +25)
+    SC cap 0.25 (dev nets 0.25 +40 | 0.5 +39 | 1 +40 | 2 +40)
+
+====================================================================================================
+## dev, premise false (50 questions per model, 50 pairs)
+-- every system: net (answers)
+  llama3.1-8b  O -6 (20) | E +12 (22) | N1 +29 (45) | Conly +3 (48) | S0 +9 (27) | SE +19 (30) | SN1 +34 (45) | SC +24 (50) | T2 +10 (50) | TE +30 (50) | fill EC +29 (47) | fill E +14 (32) | fill C +24 (50) | fill prompt +12 (50) | fill pE2 +24 (50)
+  qwen3.5-9b   O +11 (41) | E +20 (36) | N1 +25 (44) | Conly +17 (50) | S0 +22 (43) | SE +26 (43) | SN1 +30 (49) | SC +21 (50) | T2 +13 (50) | TE +24 (50) | fill EC +25 (50) | fill E +21 (44) | fill C +21 (50) | fill prompt +19 (50) | fill pE2 +24 (50)
+  qwen3.8-27b  O +5 (13) | E +8 (18) | N1 +24 (46) | Conly +17 (49) | S0 +10 (16) | SE +20 (24) | SN1 +35 (47) | SC +28 (50) | T2 +24 (50) | TE +36 (50) | fill EC +36 (50) | fill E +21 (27) | fill C +28 (50) | fill prompt +24 (50) | fill pE2 +36 (50)
+  gemma3-12b   O -9 (31) | E +1 (17) | N1 +13 (32) | Conly -2 (50) | S0 +8 (44) | SE +19 (37) | SN1 +23 (43) | SC +10 (46) | T2 +1 (50) | TE +23 (50) | fill EC +11 (47) | fill E +10 (46) | fill C +10 (46) | fill prompt +9 (50) | fill pE2 +9 (50)
+  gemma3-27b   O -10 (26) | E +14 (30) | N1 +20 (43) | Conly -5 (35) | S0 +17 (42) | SE +26 (48) | SN1 +28 (50) | SC +20 (46) | T2 +12 (50) | TE +21 (50) | fill EC +24 (50) | fill E +23 (49) | fill C +20 (46) | fill prompt +14 (50) | fill pE2 +24 (50)
+  5 models     O -9 (131) | E +55 (123) | N1 +111 (210) | Conly +30 (232) | S0 +66 (172) | SE +110 (182) | SN1 +150 (234) | SC +103 (242) | T2 +60 (250) | TE +134 (250) | fill EC +125 (244) | fill E +89 (198) | fill C +103 (242) | fill prompt +78 (250) | fill pE2 +117 (250)
+-- fills inside B (S0 blank by the rule): count right / wrong / no information
+  llama3.1-8b  B 23 | fill EC 20: 20 / 0 / 0 | fill E 5: 5 / 0 / 0 | fill C 23: 19 / 4 / 0 | fill prompt 23: 13 / 10 / 0 | fill pE2 23: 19 / 4 / 0
+  qwen3.5-9b   B 7 | fill EC 7: 5 / 2 / 0 | fill E 1: 0 / 1 / 0 | fill C 7: 3 / 4 / 0 | fill prompt 7: 2 / 5 / 0 | fill pE2 7: 4 / 2 / 1
+  qwen3.8-27b  B 34 | fill EC 34: 30 / 4 / 0 | fill E 11: 11 / 0 / 0 | fill C 34: 26 / 8 / 0 | fill prompt 34: 24 / 10 / 0 | fill pE2 34: 30 / 4 / 0
+  gemma3-12b   B 6 | fill EC 3: 3 / 0 / 0 | fill E 2: 2 / 0 / 0 | fill C 2: 2 / 0 / 0 | fill prompt 6: 3 / 2 / 1 | fill pE2 6: 3 / 2 / 1
+  gemma3-27b   B 8 | fill EC 8: 7 / 1 / 0 | fill E 7: 6 / 1 / 0 | fill C 4: 3 / 1 / 0 | fill prompt 8: 2 / 6 / 0 | fill pE2 8: 7 / 1 / 0
+  5 models     B 78 | fill EC 72: 65 / 7 / 0 | fill E 26: 24 / 2 / 0 | fill C 70: 53 / 17 / 0 | fill prompt 78: 44 / 33 / 1 | fill pE2 78: 63 / 13 / 2
+-- 1 confirmation one: N1 - S0
+  llama3.1-8b  natural +20 [+6, +33] | equal answers +13 [+0, +26] (pool answers 45 vs 27 -> 27 each)
+  qwen3.5-9b   natural +3 [-7, +13] | equal answers +4 [-5, +14] (pool answers 44 vs 43 -> 43 each)
+  qwen3.8-27b  natural +14 [+3, +25] | equal answers +6 [-3, +15] (pool answers 46 vs 16 -> 16 each)
+  gemma3-12b   natural +5 [-6, +17] | equal answers -3 [-12, +7] (pool answers 32 vs 44 -> 32 each)
+  gemma3-27b   natural +3 [-8, +14] | equal answers +4 [-7, +15] (pool answers 43 vs 42 -> 42 each)
+  5 models     natural +45 [+12, +77] | equal answers +24 [-3, +50] (pool answers 210 vs 172 -> 160 each)
+-- 2 confirmation two: fill EC - S0
+  llama3.1-8b  +20 [+13, +27]
+  qwen3.5-9b   +3 [-2, +8]
+  qwen3.8-27b  +26 [+17, +34]
+  gemma3-12b   +3 [+0, +7]
+  gemma3-27b   +7 [+1, +14]
+  5 models     +59 [+44, +74]
+-- 3 confirmation three: fill EC minus fill C / fill E / fill pE2; natural, then equal fills inside the pool
+  llama3.1-8b  fill EC - fill C   natural +5 [-3, +14] | equal in B +2 [-4, +8] (pool answers 20 vs 23 -> 20 each)
+               fill EC - fill E   natural +15 [+9, +22] | equal in B +0 [-5, +5] (pool answers 20 vs 5 -> 5 each)
+               fill EC - fill pE2 natural +5 [+0, +12] | equal in B and SE blank (SE first answers kept) +4 [-1, +10] (pool answers 15 vs 18 -> 15 each)
+  qwen3.5-9b   fill EC - fill C   natural +4 [-4, +12] | equal in B +4 [-4, +12] (pool answers 7 vs 7 -> 7 each)
+               fill EC - fill E   natural +4 [+0, +9] | equal in B +2 [+0, +5] (pool answers 7 vs 1 -> 1 each)
+               fill EC - fill pE2 natural +1 [+0, +3] | equal in B and SE blank (SE first answers kept) +1 [+0, +3] (pool answers 6 vs 6 -> 6 each)
+  qwen3.8-27b  fill EC - fill C   natural +8 [+2, +16] | equal in B +8 [+2, +16] (pool answers 34 vs 34 -> 34 each)
+               fill EC - fill E   natural +15 [+6, +23] | equal in B +0 [-6, +6] (pool answers 34 vs 11 -> 11 each)
+               fill EC - fill pE2 natural +0 [+0, +0] | equal in B and SE blank (SE first answers kept) +0 [+0, +0] (pool answers 23 vs 23 -> 23 each)
+  gemma3-12b   fill EC - fill C   natural +1 [+0, +3] | equal in B +0 [+0, +0] (pool answers 3 vs 2 -> 2 each)
+               fill EC - fill E   natural +1 [+0, +3] | equal in B +0 [+0, +0] (pool answers 3 vs 2 -> 2 each)
+               fill EC - fill pE2 natural +2 [-2, +6] | equal in B and SE blank (SE first answers kept) +1 [+0, +3] (pool answers 1 vs 4 -> 1 each)
+  gemma3-27b   fill EC - fill C   natural +4 [+1, +8] | equal in B +2 [-2, +6] (pool answers 8 vs 4 -> 4 each)
+               fill EC - fill E   natural +1 [+0, +3] | equal in B +0 [-3, +3] (pool answers 8 vs 7 -> 7 each)
+               fill EC - fill pE2 natural +0 [+0, +0] | equal in B and SE blank (SE first answers kept) +0 [+0, +0] (pool answers 1 vs 1 -> 1 each)
+  5 models     fill EC - fill C   natural +22 [+7, +38] | equal in B +16 [+4, +30] (pool answers 72 vs 70 -> 67 each)
+               fill EC - fill E   natural +36 [+23, +49] | equal in B +2 [-8, +13] (pool answers 72 vs 26 -> 26 each)
+               fill EC - fill pE2 natural +8 [+1, +16] | equal in B and SE blank (SE first answers kept) +6 [+1, +13] (pool answers 46 vs 52 -> 46 each)
+-- 4 the main sentence on new questions (no honest sentence): equal answer counts
+  llama3.1-8b  N1 - E +5 [-5, +15] (pool answers 45 vs 22 -> 22 each) | N1 - Conly +25 [+13, +38] (pool answers 45 vs 48 -> 45 each) || natural N1 - E +17 [+9, +25], N1 - Conly +26 [+14, +40]
+  qwen3.5-9b   N1 - E +4 [-2, +10] (pool answers 44 vs 36 -> 36 each) | N1 - Conly +6 [-5, +17] (pool answers 44 vs 50 -> 44 each) || natural N1 - E +5 [+0, +10], N1 - Conly +8 [-3, +19]
+  qwen3.8-27b  N1 - E +8 [-2, +17] (pool answers 46 vs 18 -> 18 each) | N1 - Conly +4 [-6, +15] (pool answers 46 vs 49 -> 46 each) || natural N1 - E +16 [+7, +25], N1 - Conly +7 [-4, +19]
+  gemma3-12b   N1 - E +13 [+5, +21] (pool answers 32 vs 17 -> 17 each) | N1 - Conly -1 [-10, +9] (pool answers 32 vs 50 -> 32 each) || natural N1 - E +12 [+6, +19], N1 - Conly +15 [+4, +27]
+  gemma3-27b   N1 - E +8 [-1, +17] (pool answers 43 vs 30 -> 30 each) | N1 - Conly +27 [+19, +36] (pool answers 43 vs 35 -> 35 each) || natural N1 - E +6 [-1, +13], N1 - Conly +25 [+15, +35]
+  5 models     N1 - E +38 [+17, +60] (pool answers 210 vs 123 -> 123 each) | N1 - Conly +61 [+35, +88] (pool answers 210 vs 232 -> 202 each) || natural N1 - E +56 [+37, +76], N1 - Conly +81 [+51, +113]
+-- 5 SN1 - S0; E - S0 (natural, equal answers)
+  llama3.1-8b  SN1 - S0 +25 [+12, +37] | E - S0 natural +3 [-9, +16], equal +4 [-7, +15] (pool answers 22 vs 27 -> 22 each)
+  qwen3.5-9b   SN1 - S0 +8 [-4, +20] | E - S0 natural -2 [-12, +8], equal -6 [-15, +3] (pool answers 36 vs 43 -> 36 each)
+  qwen3.8-27b  SN1 - S0 +25 [+15, +34] | E - S0 natural -2 [-9, +5], equal -2 [-8, +4] (pool answers 18 vs 16 -> 16 each)
+  gemma3-12b   SN1 - S0 +15 [+2, +28] | E - S0 natural -7 [-20, +7], equal -12 [-22, -2] (pool answers 17 vs 44 -> 17 each)
+  gemma3-27b   SN1 - S0 +11 [+0, +22] | E - S0 natural -3 [-12, +6], equal -7 [-16, +2] (pool answers 30 vs 42 -> 30 each)
+  5 models     SN1 - S0 +84 [+47, +119] | E - S0 natural -11 [-41, +21], equal -23 [-48, +1] (pool answers 123 vs 172 -> 121 each)
+
+====================================================================================================
+## dev, premise valid (50 questions per model, 50 pairs)
+-- every system: net (answers)
+  llama3.1-8b  O +20 (46) | E +10 (39) | N1 +7 (43) | Conly +21 (50) | S0 +20 (46) | SE -4 (44) | SN1 -7 (47) | SC +18 (50) | T2 +20 (50) | TE -17 (50) | fill EC +17 (49) | fill E +20 (46) | fill C +18 (50) | fill prompt +16 (50) | fill pE2 +16 (50)
+  qwen3.5-9b   O +25 (48) | E +25 (42) | N1 +26 (45) | Conly +27 (50) | S0 +25 (45) | SE +2 (42) | SN1 +0 (46) | SC +25 (50) | T2 +23 (50) | TE -6 (50) | fill EC +22 (50) | fill E +24 (46) | fill C +25 (50) | fill prompt +25 (50) | fill pE2 +20 (50)
+  qwen3.8-27b  O +31 (41) | E +23 (35) | N1 +19 (43) | Conly +26 (49) | S0 +26 (42) | SE +22 (38) | SN1 +17 (45) | SC +24 (50) | T2 +24 (50) | TE +14 (50) | fill EC +22 (50) | fill E +27 (43) | fill C +24 (50) | fill prompt +24 (50) | fill pE2 +21 (50)
+  gemma3-12b   O +27 (48) | E +16 (34) | N1 +16 (34) | Conly +25 (50) | S0 +28 (50) | SE +16 (47) | SN1 +16 (49) | SC +28 (50) | T2 +20 (50) | TE +12 (50) | fill EC +28 (50) | fill E +28 (50) | fill C +28 (50) | fill prompt +28 (50) | fill pE2 +28 (50)
+  gemma3-27b   O +29 (48) | E +29 (46) | N1 +29 (48) | Conly +30 (49) | S0 +20 (50) | SE +4 (49) | SN1 +4 (49) | SC +20 (50) | T2 +22 (50) | TE +4 (50) | fill EC +20 (50) | fill E +20 (50) | fill C +20 (50) | fill prompt +20 (50) | fill pE2 +20 (50)
+  5 models     O +132 (231) | E +103 (196) | N1 +97 (213) | Conly +129 (248) | S0 +119 (233) | SE +40 (220) | SN1 +30 (236) | SC +115 (250) | T2 +109 (250) | TE +7 (250) | fill EC +109 (249) | fill E +119 (235) | fill C +115 (250) | fill prompt +113 (250) | fill pE2 +105 (250)
+-- fills inside B (S0 blank by the rule): count right / wrong / no information
+  llama3.1-8b  B 4 | fill EC 3: 0 / 3 / 0 | fill E 0: 0 / 0 / 0 | fill C 4: 1 / 3 / 0 | fill prompt 4: 0 / 4 / 0 | fill pE2 4: 0 / 4 / 0
+  qwen3.5-9b   B 5 | fill EC 5: 1 / 4 / 0 | fill E 1: 0 / 1 / 0 | fill C 5: 2 / 2 / 1 | fill prompt 5: 2 / 2 / 1 | fill pE2 5: 0 / 5 / 0
+  qwen3.8-27b  B 8 | fill EC 8: 1 / 5 / 2 | fill E 1: 1 / 0 / 0 | fill C 8: 2 / 4 / 2 | fill prompt 8: 3 / 5 / 0 | fill pE2 8: 1 / 6 / 1
+  gemma3-12b   B 0 | fill EC 0: 0 / 0 / 0 | fill E 0: 0 / 0 / 0 | fill C 0: 0 / 0 / 0 | fill prompt 0: 0 / 0 / 0 | fill pE2 0: 0 / 0 / 0
+  gemma3-27b   B 0 | fill EC 0: 0 / 0 / 0 | fill E 0: 0 / 0 / 0 | fill C 0: 0 / 0 / 0 | fill prompt 0: 0 / 0 / 0 | fill pE2 0: 0 / 0 / 0
+  5 models     B 17 | fill EC 16: 2 / 12 / 2 | fill E 2: 1 / 1 / 0 | fill C 17: 5 / 9 / 3 | fill prompt 17: 5 / 11 / 1 | fill pE2 17: 1 / 15 / 1
+-- 1 confirmation one: N1 - S0
+  llama3.1-8b  natural -13 [-25, -1] | equal answers -14 [-26, -3] (pool answers 43 vs 46 -> 43 each)
+  qwen3.5-9b   natural +1 [-5, +7] | equal answers +1 [-5, +7] (pool answers 45 vs 45 -> 45 each)
+  qwen3.8-27b  natural -7 [-17, +2] | equal answers -6 [-16, +3] (pool answers 43 vs 42 -> 42 each)
+  gemma3-12b   natural -12 [-22, -2] | equal answers -11 [-21, -1] (pool answers 34 vs 50 -> 34 each)
+  gemma3-27b   natural +9 [-2, +20] | equal answers +7 [-3, +17] (pool answers 48 vs 50 -> 48 each)
+  5 models     natural -22 [-45, +0] | equal answers -23 [-46, -2] (pool answers 213 vs 233 -> 212 each)
+-- 2 confirmation two: fill EC - S0
+  llama3.1-8b  -3 [-7, +0]
+  qwen3.5-9b   -3 [-8, +1]
+  qwen3.8-27b  -4 [-9, +0]
+  gemma3-12b   +0 [+0, +0]
+  gemma3-27b   +0 [+0, +0]
+  5 models     -10 [-19, -3]
+-- 3 confirmation three: fill EC minus fill C / fill E / fill pE2; natural, then equal fills inside the pool
+  llama3.1-8b  fill EC - fill C   natural -1 [-6, +3] | equal in B -2 [-7, +2] (pool answers 3 vs 4 -> 3 each)
+               fill EC - fill E   natural -3 [-7, +0] | equal in B +0 [+0, +0] (pool answers 3 vs 0 -> 0 each)
+               fill EC - fill pE2 natural +1 [+0, +3] | equal in B and SE blank (SE first answers kept) +0 [+0, +0] (pool answers 3 vs 4 -> 3 each)
+  qwen3.5-9b   fill EC - fill C   natural -3 [-8, +0] | equal in B -3 [-8, +0] (pool answers 5 vs 5 -> 5 each)
+               fill EC - fill E   natural -2 [-6, +2] | equal in B +2 [+0, +5] (pool answers 5 vs 1 -> 1 each)
+               fill EC - fill pE2 natural +2 [+0, +6] | equal in B and SE blank (SE first answers kept) +2 [+0, +6] (pool answers 4 vs 4 -> 4 each)
+  qwen3.8-27b  fill EC - fill C   natural -2 [-6, +0] | equal in B -2 [-6, +0] (pool answers 8 vs 8 -> 8 each)
+               fill EC - fill E   natural -5 [-9, -1] | equal in B -1 [-3, +0] (pool answers 8 vs 1 -> 1 each)
+               fill EC - fill pE2 natural +1 [+0, +3] | equal in B and SE blank (SE first answers kept) +1 [+0, +3] (pool answers 7 vs 7 -> 7 each)
+  gemma3-12b   fill EC - fill C   natural +0 [+0, +0] | equal in B +0 [+0, +0] (pool answers 0 vs 0 -> 0 each)
+               fill EC - fill E   natural +0 [+0, +0] | equal in B +0 [+0, +0] (pool answers 0 vs 0 -> 0 each)
+               fill EC - fill pE2 natural +0 [+0, +0] | equal in B and SE blank (SE first answers kept) +0 [+0, +0] (pool answers 0 vs 0 -> 0 each)
+  gemma3-27b   fill EC - fill C   natural +0 [+0, +0] | equal in B +0 [+0, +0] (pool answers 0 vs 0 -> 0 each)
+               fill EC - fill E   natural +0 [+0, +0] | equal in B +0 [+0, +0] (pool answers 0 vs 0 -> 0 each)
+               fill EC - fill pE2 natural +0 [+0, +0] | equal in B and SE blank (SE first answers kept) +0 [+0, +0] (pool answers 0 vs 0 -> 0 each)
+  5 models     fill EC - fill C   natural -6 [-19, +2] | equal in B -7 [-21, +1] (pool answers 16 vs 17 -> 16 each)
+               fill EC - fill E   natural -10 [-19, -3] | equal in B +1 [-2, +4] (pool answers 16 vs 2 -> 2 each)
+               fill EC - fill pE2 natural +4 [+0, +9] | equal in B and SE blank (SE first answers kept) +3 [+0, +8] (pool answers 14 vs 15 -> 14 each)
+-- 4 the main sentence on new questions (no honest sentence): equal answer counts
+  llama3.1-8b  N1 - E -1 [-6, +3] (pool answers 43 vs 39 -> 39 each) | N1 - Conly -15 [-26, -4] (pool answers 43 vs 50 -> 43 each) || natural N1 - E -3 [-7, +0], N1 - Conly -14 [-27, -2]
+  qwen3.5-9b   N1 - E +4 [+0, +9] (pool answers 45 vs 42 -> 42 each) | N1 - Conly -2 [-9, +4] (pool answers 45 vs 50 -> 45 each) || natural N1 - E +1 [-2, +4], N1 - Conly -1 [-7, +5]
+  qwen3.8-27b  N1 - E +0 [-6, +6] (pool answers 43 vs 35 -> 35 each) | N1 - Conly -9 [-19, +0] (pool answers 43 vs 49 -> 43 each) || natural N1 - E -4 [-9, +0], N1 - Conly -7 [-18, +3]
+  gemma3-12b   N1 - E +0 [+0, +0] (pool answers 34 vs 34 -> 34 each) | N1 - Conly -8 [-19, +3] (pool answers 34 vs 50 -> 34 each) || natural N1 - E +0 [+0, +0], N1 - Conly -9 [-20, +2]
+  gemma3-27b   N1 - E +2 [-2, +6] (pool answers 48 vs 46 -> 46 each) | N1 - Conly -2 [-10, +5] (pool answers 48 vs 49 -> 48 each) || natural N1 - E +0 [-3, +3], N1 - Conly -1 [-9, +7]
+  5 models     N1 - E +5 [-4, +14] (pool answers 213 vs 196 -> 196 each) | N1 - Conly -36 [-61, -9] (pool answers 213 vs 248 -> 213 each) || natural N1 - E -6 [-14, +1], N1 - Conly -32 [-59, -5]
+-- 5 SN1 - S0; E - S0 (natural, equal answers)
+  llama3.1-8b  SN1 - S0 -27 [-43, -11] | E - S0 natural -10 [-23, +2], equal -11 [-22, +0] (pool answers 39 vs 46 -> 39 each)
+  qwen3.5-9b   SN1 - S0 -25 [-38, -13] | E - S0 natural +0 [-7, +7], equal +1 [-7, +9] (pool answers 42 vs 45 -> 42 each)
+  qwen3.8-27b  SN1 - S0 -9 [-21, +2] | E - S0 natural -3 [-12, +6], equal -4 [-12, +4] (pool answers 35 vs 42 -> 35 each)
+  gemma3-12b   SN1 - S0 -12 [-23, -2] | E - S0 natural -12 [-22, -2], equal -11 [-21, -1] (pool answers 34 vs 50 -> 34 each)
+  gemma3-27b   SN1 - S0 -16 [-27, -7] | E - S0 natural +9 [-2, +20], equal +5 [-5, +14] (pool answers 46 vs 50 -> 46 each)
+  5 models     SN1 - S0 -89 [-120, -59] | E - S0 natural -16 [-41, +7], equal -20 [-45, +2] (pool answers 196 vs 233 -> 196 each)
+
+====================================================================================================
+## dev, all (100 questions per model, 50 pairs)
+-- every system: net (answers)
+  llama3.1-8b  O +14 (66) | E +22 (61) | N1 +36 (88) | Conly +24 (98) | S0 +29 (73) | SE +15 (74) | SN1 +27 (92) | SC +42 (100) | T2 +30 (100) | TE +13 (100) | fill EC +46 (96) | fill E +34 (78) | fill C +42 (100) | fill prompt +28 (100) | fill pE2 +40 (100)
+  qwen3.5-9b   O +36 (89) | E +45 (78) | N1 +51 (89) | Conly +44 (100) | S0 +47 (88) | SE +28 (85) | SN1 +30 (95) | SC +46 (100) | T2 +36 (100) | TE +18 (100) | fill EC +47 (100) | fill E +45 (90) | fill C +46 (100) | fill prompt +44 (100) | fill pE2 +44 (100)
+  qwen3.8-27b  O +36 (54) | E +31 (53) | N1 +43 (89) | Conly +43 (98) | S0 +36 (58) | SE +42 (62) | SN1 +52 (92) | SC +52 (100) | T2 +48 (100) | TE +50 (100) | fill EC +58 (100) | fill E +48 (70) | fill C +52 (100) | fill prompt +48 (100) | fill pE2 +57 (100)
+  gemma3-12b   O +18 (79) | E +17 (51) | N1 +29 (66) | Conly +23 (100) | S0 +36 (94) | SE +35 (84) | SN1 +39 (92) | SC +38 (96) | T2 +21 (100) | TE +35 (100) | fill EC +39 (97) | fill E +38 (96) | fill C +38 (96) | fill prompt +37 (100) | fill pE2 +37 (100)
+  gemma3-27b   O +19 (74) | E +43 (76) | N1 +49 (91) | Conly +25 (84) | S0 +37 (92) | SE +30 (97) | SN1 +32 (99) | SC +40 (96) | T2 +34 (100) | TE +25 (100) | fill EC +44 (100) | fill E +43 (99) | fill C +40 (96) | fill prompt +34 (100) | fill pE2 +44 (100)
+  5 models     O +123 (362) | E +158 (319) | N1 +208 (423) | Conly +159 (480) | S0 +185 (405) | SE +150 (402) | SN1 +180 (470) | SC +218 (492) | T2 +169 (500) | TE +141 (500) | fill EC +234 (493) | fill E +208 (433) | fill C +218 (492) | fill prompt +191 (500) | fill pE2 +222 (500)
+-- fills inside B (S0 blank by the rule): count right / wrong / no information
+  llama3.1-8b  B 27 | fill EC 23: 20 / 3 / 0 | fill E 5: 5 / 0 / 0 | fill C 27: 20 / 7 / 0 | fill prompt 27: 13 / 14 / 0 | fill pE2 27: 19 / 8 / 0
+  qwen3.5-9b   B 12 | fill EC 12: 6 / 6 / 0 | fill E 2: 0 / 2 / 0 | fill C 12: 5 / 6 / 1 | fill prompt 12: 4 / 7 / 1 | fill pE2 12: 4 / 7 / 1
+  qwen3.8-27b  B 42 | fill EC 42: 31 / 9 / 2 | fill E 12: 12 / 0 / 0 | fill C 42: 28 / 12 / 2 | fill prompt 42: 27 / 15 / 0 | fill pE2 42: 31 / 10 / 1
+  gemma3-12b   B 6 | fill EC 3: 3 / 0 / 0 | fill E 2: 2 / 0 / 0 | fill C 2: 2 / 0 / 0 | fill prompt 6: 3 / 2 / 1 | fill pE2 6: 3 / 2 / 1
+  gemma3-27b   B 8 | fill EC 8: 7 / 1 / 0 | fill E 7: 6 / 1 / 0 | fill C 4: 3 / 1 / 0 | fill prompt 8: 2 / 6 / 0 | fill pE2 8: 7 / 1 / 0
+  5 models     B 95 | fill EC 88: 67 / 19 / 2 | fill E 28: 25 / 3 / 0 | fill C 87: 58 / 26 / 3 | fill prompt 95: 49 / 44 / 2 | fill pE2 95: 64 / 28 / 3
+-- 1 confirmation one: N1 - S0
+  llama3.1-8b  natural +7 [-14, +27] | equal answers +6 [-14, +25] (pool answers 88 vs 73 -> 73 each)
+  qwen3.5-9b   natural +4 [-8, +16] | equal answers +5 [-7, +17] (pool answers 89 vs 88 -> 88 each)
+  qwen3.8-27b  natural +7 [-6, +21] | equal answers +8 [-3, +20] (pool answers 89 vs 58 -> 58 each)
+  gemma3-12b   natural -7 [-23, +10] | equal answers -18 [-31, -5] (pool answers 66 vs 94 -> 66 each)
+  gemma3-27b   natural +12 [-2, +27] | equal answers +11 [-3, +25] (pool answers 91 vs 92 -> 91 each)
+  5 models     natural +23 [-19, +63] | equal answers +12 [-28, +48] (pool answers 423 vs 405 -> 376 each)
+-- 2 confirmation two: fill EC - S0
+  llama3.1-8b  +17 [+10, +24]
+  qwen3.5-9b   +0 [-6, +6]
+  qwen3.8-27b  +22 [+12, +31]
+  gemma3-12b   +3 [+0, +7]
+  gemma3-27b   +7 [+1, +14]
+  5 models     +49 [+35, +63]
+-- 3 confirmation three: fill EC minus fill C / fill E / fill pE2; natural, then equal fills inside the pool
+  llama3.1-8b  fill EC - fill C   natural +4 [-2, +12] | equal in B +0 [-5, +5] (pool answers 23 vs 27 -> 23 each)
+               fill EC - fill E   natural +12 [+6, +18] | equal in B +0 [-5, +5] (pool answers 23 vs 5 -> 5 each)
+               fill EC - fill pE2 natural +6 [+1, +12] | equal in B and SE blank (SE first answers kept) +6 [+2, +12] (pool answers 18 vs 22 -> 18 each)
+  qwen3.5-9b   fill EC - fill C   natural +1 [-8, +10] | equal in B +1 [-8, +10] (pool answers 12 vs 12 -> 12 each)
+               fill EC - fill E   natural +2 [-3, +8] | equal in B +4 [+1, +8] (pool answers 12 vs 2 -> 2 each)
+               fill EC - fill pE2 natural +3 [+0, +8] | equal in B and SE blank (SE first answers kept) +3 [+0, +8] (pool answers 10 vs 10 -> 10 each)
+  qwen3.8-27b  fill EC - fill C   natural +6 [+0, +14] | equal in B +6 [+0, +14] (pool answers 42 vs 42 -> 42 each)
+               fill EC - fill E   natural +10 [+1, +19] | equal in B -2 [-8, +5] (pool answers 42 vs 12 -> 12 each)
+               fill EC - fill pE2 natural +1 [+0, +3] | equal in B and SE blank (SE first answers kept) +1 [+0, +3] (pool answers 30 vs 30 -> 30 each)
+  gemma3-12b   fill EC - fill C   natural +1 [+0, +3] | equal in B +0 [+0, +0] (pool answers 3 vs 2 -> 2 each)
+               fill EC - fill E   natural +1 [+0, +3] | equal in B +0 [+0, +0] (pool answers 3 vs 2 -> 2 each)
+               fill EC - fill pE2 natural +2 [-2, +6] | equal in B and SE blank (SE first answers kept) +1 [+0, +3] (pool answers 1 vs 4 -> 1 each)
+  gemma3-27b   fill EC - fill C   natural +4 [+1, +8] | equal in B +2 [-2, +6] (pool answers 8 vs 4 -> 4 each)
+               fill EC - fill E   natural +1 [+0, +3] | equal in B +0 [-3, +3] (pool answers 8 vs 7 -> 7 each)
+               fill EC - fill pE2 natural +0 [+0, +0] | equal in B and SE blank (SE first answers kept) +0 [+0, +0] (pool answers 1 vs 1 -> 1 each)
+  5 models     fill EC - fill C   natural +16 [+3, +30] | equal in B +9 [-3, +21] (pool answers 88 vs 87 -> 83 each)
+               fill EC - fill E   natural +26 [+14, +37] | equal in B +2 [-9, +14] (pool answers 88 vs 28 -> 28 each)
+               fill EC - fill pE2 natural +12 [+4, +23] | equal in B and SE blank (SE first answers kept) +11 [+4, +21] (pool answers 60 vs 67 -> 60 each)
+-- 4 the main sentence on new questions (no honest sentence): equal answer counts
+  llama3.1-8b  N1 - E +16 [+5, +28] (pool answers 88 vs 61 -> 61 each) | N1 - Conly +5 [-11, +21] (pool answers 88 vs 98 -> 88 each) || natural N1 - E +14 [+5, +22], N1 - Conly +12 [-5, +29]
+  qwen3.5-9b   N1 - E +7 [-1, +16] (pool answers 89 vs 78 -> 78 each) | N1 - Conly +4 [-9, +16] (pool answers 89 vs 100 -> 89 each) || natural N1 - E +6 [+1, +12], N1 - Conly +7 [-6, +19]
+  qwen3.8-27b  N1 - E +10 [-1, +22] (pool answers 89 vs 53 -> 53 each) | N1 - Conly -7 [-21, +8] (pool answers 89 vs 98 -> 89 each) || natural N1 - E +12 [+1, +23], N1 - Conly +0 [-16, +16]
+  gemma3-12b   N1 - E +19 [+11, +27] (pool answers 66 vs 51 -> 51 each) | N1 - Conly -16 [-29, -3] (pool answers 66 vs 100 -> 66 each) || natural N1 - E +12 [+6, +19], N1 - Conly +6 [-10, +22]
+  gemma3-27b   N1 - E +9 [+0, +18] (pool answers 91 vs 76 -> 76 each) | N1 - Conly +29 [+19, +39] (pool answers 91 vs 84 -> 84 each) || natural N1 - E +6 [+0, +13], N1 - Conly +24 [+14, +35]
+  5 models     N1 - E +61 [+36, +87] (pool answers 423 vs 319 -> 319 each) | N1 - Conly +15 [-20, +52] (pool answers 423 vs 480 -> 416 each) || natural N1 - E +50 [+27, +72], N1 - Conly +49 [+9, +91]
+-- 5 SN1 - S0; E - S0 (natural, equal answers)
+  llama3.1-8b  SN1 - S0 -2 [-24, +18] | E - S0 natural -7 [-27, +13], equal -5 [-23, +13] (pool answers 61 vs 73 -> 61 each)
+  qwen3.5-9b   SN1 - S0 -17 [-36, +2] | E - S0 natural -2 [-15, +10], equal -5 [-18, +7] (pool answers 78 vs 88 -> 78 each)
+  qwen3.8-27b  SN1 - S0 +16 [+2, +30] | E - S0 natural -5 [-18, +7], equal -6 [-17, +5] (pool answers 53 vs 58 -> 53 each)
+  gemma3-12b   SN1 - S0 +3 [-12, +20] | E - S0 natural -19 [-36, +0], equal -23 [-36, -10] (pool answers 51 vs 94 -> 51 each)
+  gemma3-27b   SN1 - S0 -5 [-23, +11] | E - S0 natural +6 [-7, +19], equal -2 [-15, +11] (pool answers 76 vs 92 -> 76 each)
+  5 models     SN1 - S0 -5 [-58, +44] | E - S0 natural -27 [-72, +17], equal -41 [-81, -5] (pool answers 319 vs 405 -> 319 each)
+
+====================================================================================================
+## dev, premise valid: every system minus the original model O (natural)
+  llama3.1-8b  E -10 [-22, +1] | N1 -13 [-25, -1] | Conly +1 [-2, +5] | S0 +0 [-13, +14] | SE -24 [-40, -9] | SN1 -27 [-43, -11] | SC -2 [-15, +12] | T2 +0 [-12, +12] | TE -37 [-52, -22] | fill EC -3 [-16, +11] | fill E +0 [-13, +14] | fill C -2 [-15, +12] | fill prompt -4 [-17, +10] | fill pE2 -4 [-17, +10]
+  qwen3.5-9b   E +0 [-6, +6] | N1 +1 [-5, +6] | Conly +2 [+0, +5] | S0 +0 [-7, +7] | SE -23 [-36, -10] | SN1 -25 [-38, -12] | SC +0 [-8, +7] | T2 -2 [-8, +3] | TE -31 [-45, -17] | fill EC -3 [-11, +4] | fill E -1 [-9, +6] | fill C +0 [-8, +7] | fill prompt +0 [-8, +7] | fill pE2 -5 [-12, +2]
+  qwen3.8-27b  E -8 [-18, +2] | N1 -12 [-23, -2] | Conly -5 [-10, +0] | S0 -5 [-11, -1] | SE -9 [-21, +2] | SN1 -14 [-27, -3] | SC -7 [-13, -1] | T2 -7 [-14, -1] | TE -17 [-27, -8] | fill EC -9 [-16, -2] | fill E -4 [-10, +1] | fill C -7 [-13, -1] | fill prompt -7 [-14, -1] | fill pE2 -10 [-17, -3]
+  gemma3-12b   E -11 [-22, +0] | N1 -11 [-22, +0] | Conly -2 [-5, +0] | S0 +1 [-5, +7] | SE -11 [-22, -1] | SN1 -11 [-22, +0] | SC +1 [-5, +7] | T2 -7 [-17, +2] | TE -15 [-27, -4] | fill EC +1 [-5, +7] | fill E +1 [-5, +7] | fill C +1 [-5, +7] | fill prompt +1 [-5, +7] | fill pE2 +1 [-5, +7]
+  gemma3-27b   E +0 [-7, +7] | N1 +0 [-8, +7] | Conly +1 [+0, +3] | S0 -9 [-22, +4] | SE -25 [-39, -12] | SN1 -25 [-39, -12] | SC -9 [-22, +4] | T2 -7 [-20, +6] | TE -25 [-39, -13] | fill EC -9 [-22, +4] | fill E -9 [-22, +4] | fill C -9 [-22, +4] | fill prompt -9 [-22, +4] | fill pE2 -9 [-22, +4]
+  5 models     E -29 [-53, -4] | N1 -35 [-60, -10] | Conly -3 [-12, +7] | S0 -13 [-40, +16] | SE -92 [-131, -54] | SN1 -102 [-141, -64] | SC -17 [-45, +14] | T2 -23 [-51, +5] | TE -125 [-162, -90] | fill EC -23 [-52, +9] | fill E -13 [-40, +17] | fill C -17 [-45, +14] | fill prompt -19 [-47, +12] | fill pE2 -27 [-57, +6]
