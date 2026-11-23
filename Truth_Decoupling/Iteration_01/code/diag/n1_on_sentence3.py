@@ -50,12 +50,12 @@ def tq_build(model, i, s_dot, qs):
     D = MP.MT.Data(display, i)
     split = ("tune", "test")[i]
     run = D.m["ec"][i].split("/eval_extra/")[0]
-    _, _, s_main = A.KEY[model]
-    if s in (s_main, N.half(s_main)):                 # step one has this strength in its n1s dirs
+    w3 = MP.work(run, split, "n1s3")
+    cond = "E_L%d_x_E2-w-p%s" % (layer, s)
+    in3 = MP.has(w3) and cond in json.load(open(w3 + "/judge_input.json"))["conditions"]
+    if not in3:                                      # step one's n1s dirs hold this strength on this split
         return N.build(model, i, "x_E2", s, qs)
-    if not MP.has(MP.work(run, split, "n1s3")):
-        raise FileNotFoundError("%s: no n1s3 verdicts for E %s on %s" % (model, s_dot, split))
-    # the n1s dir lacks this strength: read the n1s3 dir in its place (same names, same renaming)
+    # this section's n1s3 dir holds the strength (step one's n1s dir lacks it): read it in place of n1s (same renaming)
     MP.work = lambda r, sp, name: old(r, sp, "n1s3" if name == "n1s" else name)
     try:
         return N.build(model, i, "x_E2", s, qs)

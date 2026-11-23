@@ -9,7 +9,9 @@
 #   file exists.
 # Readings: P - base, (P + E) - base, (P + E) - P, and (E) - base for reference, in accuracy points with a paired
 # bootstrap over items (4000, seed 20261119); five models: the mean of the five changes, items resampled jointly.
-# Modes: mmlucheck MODEL | gsmcheck MODEL (the checks of the launcher) | table
+# Modes: mmlucheck MODEL [DIR] | gsmcheck MODEL | mmluparts MODEL S_HALF (the checks of the launchers) | table [--half]
+# --half (section 9, 2026-11-23 05:2x): adds P + E(s_half) (capability/full_h22s, gsm8k_h22) and the GSM8K truncation counts;
+# Qwen3.5-9B's no-sentence GSM8K E at "prompt" is read from gsm8k_h22 when the usual directory has none.
 # usage (scoring container, from /workspace/Truth_Decoupling): python3 -B Iteration_01/diag/sentence_capability.py MODE [MODEL]
 import glob
 import json
@@ -36,13 +38,54 @@ def sel(model):
     return read(N.CHOICE % model)["strength_dot"]
 
 
-def mmlucheck(model):
-    c = read("%s/full_h22/%s_check.json" % (CAP, model))["arms"]["x"]["rows"]
+HALF = "--half" in sys.argv       # section 9: add P + E(s_half) (and, for GSM8K, the truncation counts)
+TRUNC = {}
+
+
+def half(model):
+    h = float(sel(model)) / 2
+    return ("%.4f" % h).rstrip("0").rstrip(".")
+
+
+def trunc(p):
+    """Rows that hit the token cap without an explicit final answer (cap_score reason "truncated")."""
+    if not os.path.exists(p):
+        alt = p.replace("/gsm8k/", "/gsm8k_h22/")
+        if not os.path.exists(alt):
+            return None
+        p = alt
+    gold = CS.gold_of("gsm8k")
+    return sum(CS.judge_row("gsm8k", r, gold(r["id"]))[1] == "truncated" for r in read(p)["rows"])
+
+
+def mmlucheck(model, d="full_h22"):
+    c = read("%s/%s/%s_check.json" % (CAP, d, model))["arms"]["x"]["rows"]
     f = read("%s/full/%s.json" % (CAP, model))["arms"]["x"]["rows"][:len(c)]
     same = sum(a["id"] == b["id"] and a["pick"] == b["pick"] for a, b in zip(c, f))
     gap = max(abs(a["logp"][L] - b["logp"][L]) for a, b in zip(c, f) for L in "ABCD")
     print("mmlu check %s: x on %d items vs the existing full-set file: same pick %d, largest log-prob difference %.2e" % (model, len(c), same, gap))
     if same != len(c) or gap > 1e-3:
+        raise SystemExit(1)
+
+
+def mmluparts(model, sh):
+    """Section 9: the E write of full_h22s against the main-table E arm of the existing full-set files (same layer and kind;
+    amount = main amount x s_half / main strength)."""
+    display, layer, s_main = N.A.KEY[model]
+    main_arm = "x:E%d.w.p%s" % (layer, N.dot(s_main))
+    ref = None
+    for d in MAIN_MMLU:
+        p = "%s/%s/%s.json" % (CAP, d, model)
+        if os.path.exists(p):
+            j = read(p)
+            if main_arm in j["arms"]:
+                ref = j["arms"][main_arm]["writes"][0]
+                break
+    w = read("%s/full_h22s/%s.json" % (CAP, model))["arms"]["x_E2:E%d.w.p%s" % (layer, sh)]["writes"][0]
+    ratio = float(sh) / float(N.dot(s_main))
+    ok = ref is not None and all(w[k] == ref[k] for k in ("family", "layer", "kind", "gap")) and abs(w["amount"] - ref["amount"] * ratio) <= 1e-6 * abs(ref["amount"])
+    print("mmlu write record %s: E%d amount %.6g, main %.6g x %.4g -> %s" % (model, layer, w["amount"], ref["amount"] if ref else float("nan"), ratio, "identical" if ok else "DIFFERS"))
+    if not ok:
         raise SystemExit(1)
 
 
@@ -86,7 +129,12 @@ def mmlu_model(model, seen):
     P = {r["id"]: r["pick"] == r["gold"] for r in h[p_arm]["rows"]}
     PE = {r["id"]: r["pick"] == r["gold"] for r in h[pe_arm]["rows"]}
     ids = [i for i in base if i not in seen]
-    return ids, {"base": base, "P": P, "P+E": PE, "E (no sentence)": emain}
+    out = {"base": base, "P": P, "P+E": PE, "E (no sentence)": emain}
+    if HALF:
+        p = "%s/full_h22s/%s.json" % (CAP, model)
+        hs = read(p)["arms"].get("x_E2:E%d.w.p%s" % (layer, half(model))) if os.path.exists(p) else None
+        out["P+E half"] = {r["id"]: r["pick"] == r["gold"] for r in hs["rows"]} if hs else None
+    return ids, out
 
 
 def gsm_model(model, gold):
@@ -104,6 +152,15 @@ def gsm_model(model, gold):
          "P": score("%s/gen_main/gsm8k_h22/%s/b8/neutral_E2.json" % (CAP, model)),
          "P+E": score("%s/gen_main/gsm8k_h22/%s/b8/neutral_E2--E%d-w-p%s-at-prompt.json" % (CAP, model, layer, tok(sel(model)))),
          "E (no sentence)": score("%s/gen_main/gsm8k/%s/b8/neutral--E%d-w-p%s-at-prompt.json" % (CAP, model, layer, s_main))}
+    if HALF:
+        d["P+E half"] = score("%s/gen_main/gsm8k_h22/%s/b8/neutral_E2--E%d-w-p%s-at-prompt.json" % (CAP, model, layer, tok(half(model))))
+        if d["E (no sentence)"] is None:      # section 9: the reference made for Qwen3.5-9B
+            d["E (no sentence)"] = score("%s/gen_main/gsm8k_h22/%s/b8/neutral--E%d-w-p%s-at-prompt.json" % (CAP, model, layer, s_main))
+        TRUNC[model] = {k: trunc("%s/gen_main/%s/%s/b8/%s.json" % (CAP, dd, model, f)) for k, dd, f in (
+            ("base", "gsm8k", "neutral"), ("P", "gsm8k_h22", "neutral_E2"),
+            ("P+E", "gsm8k_h22", "neutral_E2--E%d-w-p%s-at-prompt" % (layer, tok(sel(model)))),
+            ("P+E half", "gsm8k_h22", "neutral_E2--E%d-w-p%s-at-prompt" % (layer, tok(half(model)))),
+            ("E (no sentence)", "gsm8k", "neutral--E%d-w-p%s-at-prompt" % (layer, s_main)))}
     return list(d["base"]), d
 
 
@@ -124,6 +181,8 @@ def table():
                 continue
             acc = " | ".join("%s %.2f" % (k, 100 * sum(v[i] for i in ids) / len(ids)) if v is not None else "%s none" % k for k, v in d.items())
             diffs = [("P - base", "P", "base"), ("(P+E) - base", "P+E", "base"), ("(P+E) - P", "P+E", "P"), ("E (no sentence) - base", "E (no sentence)", "base")]
+            if HALF:
+                diffs += [("(P+E half) - base", "P+E half", "base"), ("(P+E half) - (P+E)", "P+E half", "P+E")]
             parts = []
             for name, a, b in diffs:
                 if d[a] is None or d[b] is None:
@@ -133,6 +192,8 @@ def table():
                 allv.setdefault(name, {})[model] = (ids, v)
                 parts.append("%s %s" % (name, boot([v])))
             print("    %-12s %d items | %s || %s" % (model, len(ids), acc, " | ".join(parts)))
+            if model in TRUNC:
+                print("        truncated at 512 tokens: " + " | ".join("%s %s" % (k, "none" if v is None else v) for k, v in TRUNC.pop(model).items()))
         for name, per in allv.items():
             if len(per) == len(ORDER) and len({tuple(x[0]) for x in per.values()}) == 1:
                 print("    five models, mean of the changes: %s %s" % (name, boot([per[m][1] for m in ORDER])))
@@ -141,9 +202,13 @@ def table():
 
 
 def main():
+    argv = [a for a in sys.argv if a != "--half"]
+    sys.argv[:] = argv
     mode = sys.argv[1] if len(sys.argv) > 1 else ""
     if mode == "mmlucheck":
-        mmlucheck(sys.argv[2])
+        mmlucheck(sys.argv[2], *sys.argv[3:4])
+    elif mode == "mmluparts":
+        mmluparts(sys.argv[2], sys.argv[3])
     elif mode == "gsmcheck":
         gsmcheck(sys.argv[2])
     elif mode == "table":
