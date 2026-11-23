@@ -1,0 +1,8 @@
+# the choice among the measured points is the budget reading's own point: its test verdicts are read from judge_test_caa_main_test
+# CAA, qwen3.5-9b: TruthfulQA test split, 523 questions, DeepSeek Pro, score = right - wrong
+    chosen on tune as the best among the measured points, whatever the MMLU change: layer 14, multiplier 4 (tune net +36); positions: the last prompt token and every generated token
+    no write net +73 | CAA net +63 (answers 445, right 251, wrong 188) | single E (layer 15, strength 2, prompt rule) net +168 (answers 408) | N1 net +186 (answers 444)
+    CAA minus no write -10 [-31, +11] | single E minus CAA +105 [+71, +140] | N1 minus CAA +123 [+86, +160] | single E minus no write +95 [+61, +128]
+    N1 minus CAA with both keeping 444 answers: between +122 and +124 (N1 keeps 444 of 444, CAA 444 of 445)
+    single E minus CAA with both keeping 408 answers: between +67 and +141 (single E keeps 408 of 408, CAA 408 of 445)
+    MMLU of the chosen point: selection half +0.03 [-0.16, +0.23], report half +0.04 [-0.17, +0.26]
