@@ -1,0 +1,127 @@
+--- a/Truth_Decoupling/Iteration_01/code/diag/sentence_capability.py
++++ b/Truth_Decoupling/Iteration_01/code/diag/sentence_capability.py
+@@ -11,6 +11,7 @@
+ # bootstrap over items (4000, seed 20261119); five models: the mean of the five changes, items resampled jointly.
+ # Modes: mmlucheck MODEL | gsmcheck MODEL (the checks of the launcher) | table
+ # usage (scoring container, from /workspace/Truth_Decoupling): python3 -B Iteration_01/diag/sentence_capability.py MODE [MODEL]
++from functools import lru_cache
+ import glob
+ import json
+ import os
+@@ -38,6 +39,8 @@
+
+ def mmlucheck(model):
+     c = read("%s/full_h22/%s_check.json" % (CAP, model))["arms"]["x"]["rows"]
++    if len(c) != 16:
++        raise SystemExit("MMLU check must contain the first 16 items")
+     f = read("%s/full/%s.json" % (CAP, model))["arms"]["x"]["rows"][:len(c)]
+     same = sum(a["id"] == b["id"] and a["pick"] == b["pick"] for a, b in zip(c, f))
+     gap = max(abs(a["logp"][L] - b["logp"][L]) for a, b in zip(c, f) for L in "ABCD")
+@@ -52,6 +55,8 @@
+     if len(sub) != 1:
+         raise SystemExit("gsm check: one subset neutral file expected")
+     a = read(sub[0])["rows"]
++    if len(a) != 16:
++        raise SystemExit("GSM8K check must contain the first 16 items")
+     b = read("%s/gen_main/gsm8k/%s/b8/neutral.json" % (CAP, model))["rows"][:len(a)]
+     same = sum(x["id"] == y["id"] and all(x[k] == y[k] for k in ("text", "token_ids", "finished", "stop_id")) for x, y in zip(a, b))
+     print("gsm8k check %s: neutral on %d items vs the existing no-write pass: identical %d" % (model, len(a), same))
+@@ -66,6 +71,30 @@
+     rng = random.Random(seed)
+     bs = sorted(sum(per_item[rng.randrange(n)] for _ in range(n)) / n for _ in range(n_boot))
+     return "%+.2f [%+.2f, %+.2f]" % (100 * sum(per_item) / n, 100 * bs[int(0.025 * n_boot)], 100 * bs[int(0.975 * n_boot) - 1])
++
++
++HALF = "--half" in sys.argv
++
++
++def half(model):
++    return ("%0.4f" % (float(sel(model)) / 2)).rstrip("0").rstrip(".")
++
++
++@lru_cache(maxsize=None)
++def frozen_ids(task):
++    filename = {"mmlu": "mmlu_14042_20261120.json", "gsm8k": "gsm8k_1319_20261119.json"}[task]
++    roster = read(CAP + "/sets/" + filename)["ids"]
++    if len(roster) != {"mmlu": 14042, "gsm8k": 1319}[task] or len(set(roster)) != len(roster):
++        raise SystemExit("incomplete frozen %s roster" % task)
++    return roster
++
++
++def mc_rows(doc, model, arm):
++    rows = doc["arms"][arm]["rows"]
++    if (doc.get("model") != model or doc.get("n") != len(rows)
++            or [r["id"] for r in rows] != frozen_ids("mmlu")):
++        raise SystemExit("incomplete, foreign or reordered MMLU table for %s %s" % (model, arm))
++    return rows
+
+
+ def mmlu_model(model, seen):
+@@ -78,15 +107,24 @@
+             continue
+         j = read(p)
+         if base is None:
+-            base = {r["id"]: r["pick"] == r["gold"] for r in j["arms"]["x"]["rows"]}
++            base = {r["id"]: r["pick"] == r["gold"] for r in mc_rows(j, model, "x")}
+         if main_arm in j["arms"] and emain is None:
+-            emain = {r["id"]: r["pick"] == r["gold"] for r in j["arms"][main_arm]["rows"]}
+-    h = read("%s/full_h22/%s.json" % (CAP, model))["arms"]
++            emain = {r["id"]: r["pick"] == r["gold"] for r in mc_rows(j, model, main_arm)}
++    h = read("%s/full_h22/%s.json" % (CAP, model))
+     p_arm, pe_arm = "x_E2", "x_E2:E%d.w.p%s" % (layer, sel(model))
+-    P = {r["id"]: r["pick"] == r["gold"] for r in h[p_arm]["rows"]}
+-    PE = {r["id"]: r["pick"] == r["gold"] for r in h[pe_arm]["rows"]}
++    P = {r["id"]: r["pick"] == r["gold"] for r in mc_rows(h, model, p_arm)}
++    PE = {r["id"]: r["pick"] == r["gold"] for r in mc_rows(h, model, pe_arm)}
++    if len(seen) != 1000 or not seen.issubset(base):
++        raise SystemExit("invalid MMLU evaluation mask")
+     ids = [i for i in base if i not in seen]
+-    return ids, {"base": base, "P": P, "P+E": PE, "E (no sentence)": emain}
++    out = {"base": base, "P": P, "P+E": PE, "E (no sentence)": emain}
++    if HALF:
++        p = "%s/full_h22s/%s.json" % (CAP, model)
++        hs = read(p) if os.path.exists(p) else None
++        key = "x_E2:E%d.w.p%s" % (layer, half(model))
++        out["P+E half"] = ({r["id"]: r["pick"] == r["gold"] for r in mc_rows(hs, model, key)}
++                           if hs is not None else None)
++    return ids, out
+
+
+ def gsm_model(model, gold):
+@@ -96,14 +134,25 @@
+         if not os.path.exists(p):
+             return None
+         g = read(p)
+-        if g["contract"]["max_new_tokens"] != 512 or g["contract"]["batch_size"] != 8 or not g["contract"]["full_pass"]:
+-            raise SystemExit("%s: not a full 512-token batch-8 pass" % p)
++        c = g["contract"]
++        arm = c["arm"]
++        name = arm.replace(":", "--").replace(".", "-") + ("-at-prompt" if ":" in arm else "") + ".json"
++        ids = frozen_ids("gsm8k")
++        if (not g.get("completed") or c.get("model") != model or c.get("task") != "gsm8k" or c.get("split") != "all"
++                or c.get("max_new_tokens") != 512 or c.get("batch_size") != 8 or not c.get("full_pass")
++                or c.get("positions") != ("prompt" if ":" in arm else None) or name != os.path.basename(p)
++                or c.get("ids") != ids or [r["id"] for r in g["rows"]] != ids):
++            raise SystemExit("%s: wrong GSM8K model, arm, positions, roster or generation contract" % p)
+         return {r["id"]: CS.judge_row("gsm8k", r, gold(r["id"]))[0] == "R" for r in g["rows"]}
+     tok = lambda s: s.replace(".", "-")  # noqa: E731
+     d = {"base": score("%s/gen_main/gsm8k/%s/b8/neutral.json" % (CAP, model)),
+          "P": score("%s/gen_main/gsm8k_h22/%s/b8/neutral_E2.json" % (CAP, model)),
+          "P+E": score("%s/gen_main/gsm8k_h22/%s/b8/neutral_E2--E%d-w-p%s-at-prompt.json" % (CAP, model, layer, tok(sel(model)))),
+          "E (no sentence)": score("%s/gen_main/gsm8k/%s/b8/neutral--E%d-w-p%s-at-prompt.json" % (CAP, model, layer, s_main))}
++    if d["E (no sentence)"] is None:
++        d["E (no sentence)"] = score("%s/gen_main/gsm8k_h22/%s/b8/neutral--E%d-w-p%s-at-prompt.json" % (CAP, model, layer, s_main))
++    if HALF:
++        d["P+E half"] = score("%s/gen_main/gsm8k_h22/%s/b8/neutral_E2--E%d-w-p%s-at-prompt.json" % (CAP, model, layer, tok(half(model))))
+     return list(d["base"]), d
+
+
+@@ -124,6 +173,8 @@
+                 continue
+             acc = " | ".join("%s %.2f" % (k, 100 * sum(v[i] for i in ids) / len(ids)) if v is not None else "%s none" % k for k, v in d.items())
+             diffs = [("P - base", "P", "base"), ("(P+E) - base", "P+E", "base"), ("(P+E) - P", "P+E", "P"), ("E (no sentence) - base", "E (no sentence)", "base")]
++            if HALF:
++                diffs += [("half - base", "P+E half", "base"), ("half - full", "P+E half", "P+E")]
+             parts = []
+             for name, a, b in diffs:
+                 if d[a] is None or d[b] is None:

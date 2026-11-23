@@ -1,0 +1,90 @@
+--- a/Truth_Decoupling/Iteration_01/code/diag/selfjudge_stack.py
++++ b/Truth_Decoupling/Iteration_01/code/diag/selfjudge_stack.py
+@@ -118,26 +118,42 @@
+     TA.score1(model, list(SRC))
+
+
++def read_single(model, source):
++    doc, meta, z = SP.read_probe(model, source=source)
++    if meta.get("batch_size") != 1 or meta.get("path_identity_batch8_first") != 64:
++        raise ValueError(f"{model} {source}: score is not a verified singleton pass")
++    return doc, meta, z
++
++
++def repeat_check(model, source, *, test_only):
++    """Check identity, split, ordering and margins against the main scored statements."""
++    import numpy as np
++    main, _, data = read_single(model, source + "_items")
++    issued = [x for x in main["items"] if x["answered"]]
++    positions = [i for i, x in enumerate(issued) if not test_only or x["split"] == "test"]
++    if len(positions) < 16:
++        raise ValueError(f"{model} {source}: fewer than 16 eligible checks")
++    selected = sorted(np.random.default_rng(20261122).choice(len(positions), 16, replace=False).tolist())
++    chosen = [positions[j] for j in selected]
++    order = np.random.default_rng(20261123).permutation(16)
++    for suffix, idx in (("_chk", chosen), ("_chka", chosen), ("_chkb", [chosen[j] for j in order])):
++        doc, _, z = read_single(model, source + suffix)
++        if doc["items"] != [issued[i] for i in idx]:
++            raise ValueError(f"{model} {source}{suffix}: wrong repeat rows or order")
++        for c in SP.conds_of(model, "x"):
++            if not np.array_equal(z[c + "__margin"], data[c + "__margin"][idx]):
++                raise ValueError(f"{model} {source}{suffix}: repeat differs from main score")
++    return True, f"check (b) {model}: 16 main scores, both repeats and shuffle matched"
++
++
+ def check_b(model):
+-    import numpy as np
+-    maps = {}
+-    for s in ("st1_chk", "st1_chka", "st1_chkb"):
+-        doc, _, z = SP.read_probe(model, source=s)
+-        maps[s] = {x["id"]: {c: float(z[c + "__margin"][j]) for c in SP.conds_of(model, "x")}
+-                   for j, x in enumerate([x for x in doc["items"] if x["answered"]])}
+-    base = maps["st1_chk"]
+-    if len(base) != 16 or any(set(maps[s]) != set(base) for s in maps):
+-        raise SystemExit("%s: check items differ" % model)
+-    d = {s: max(abs(maps[s][k][c] - base[k][c]) for k in base for c in base[k]) for s in ("st1_chka", "st1_chkb")}
+-    _, _, z = SP.read_probe(model, source="st1_items")
+-    return d["st1_chka"] == 0 and d["st1_chkb"] == 0, "check (b) %s: 16 statements, second pass max |diff| %.6f, shuffled max |diff| %.6f" % (
+-        model, d["st1_chka"], d["st1_chkb"])
++    return repeat_check(model, "st1", test_only=True)
+
+
+ # ------------------------------------------------------------------------------------------------------------------ #
+ def load(model, base):
+     """{split: (qs, {q: {sys: {cond: (v, a, margin)}}})} for S0z / A1z (from base) and SN1 / SN1z / SE / SEz."""
+-    doc, _, z = SP.read_probe(model, source="st1_items")
++    doc, _, z = read_single(model, "st1_items")
+     conds = [c for c in ("baseline", "E_a3") if c in SP.conds_of(model, "x")]
+     ans = [x for x in doc["items"] if x["answered"]]
+     mg = {x["id"]: ({c: float(z[c + "__margin"][j]) for c in conds}, x["neg"], x["answer_sha1"]) for j, x in enumerate(ans)}
+--- a/Truth_Decoupling/Iteration_01/code/diag/selfjudge_stack_pick.py
++++ b/Truth_Decoupling/Iteration_01/code/diag/selfjudge_stack_pick.py
+@@ -279,9 +279,7 @@
+                     raise SystemExit("%s: st1_items (section 6) not scored yet" % model)
+                 continue
+             raise SystemExit("%s: %s missing" % (model, src))
+-        _, meta, z = SP.read_probe(model, source=src)
+-        if meta.get("batch_size") != 1:
+-            raise SystemExit("%s: %s is not a batch-1 score" % (model, src))
++        _, meta, z = SK.read_single(model, src)
+         for j, h in enumerate(z["statement_sha1"]):
+             m = {c: float(z[c + "__margin"][j]) for c in conds}
+             if str(h) in out and out[str(h)] != m:
+@@ -338,16 +336,7 @@
+
+
+ def check_b(model):
+-    maps = {}
+-    conds = SP.conds_of(model, "x")
+-    for s in ("sp_chk", "sp_chka", "sp_chkb"):
+-        doc, _, z = SP.read_probe(model, source=s)
+-        maps[s] = {x["id"]: {c: float(z[c + "__margin"][j]) for c in conds} for j, x in enumerate(doc["items"])}
+-    b = maps["sp_chk"]
+-    d = {s: max(abs(maps[s][k][c] - b[k][c]) for k in b for c in b[k]) for s in ("sp_chka", "sp_chkb")}
+-    ok = len(b) == 16 and all(set(maps[s]) == set(b) for s in maps) and d["sp_chka"] == 0 and d["sp_chkb"] == 0
+-    return ok, "check 2 %s: 16 statements, second pass max |diff| %.6f, shuffled max |diff| %.6f -> %s" % (
+-        model, d["sp_chka"], d["sp_chkb"], "OK" if ok else "FAILED")
++    return SK.repeat_check(model, "sp", test_only=False)
+
+
+ # ------------------------------------------------------------------------------------------------------------------ #

@@ -1,0 +1,64 @@
+--- a/Truth_Decoupling/Iteration_01/code/keepfix_20261123/scripts/e44_keepfix.py
++++ b/Truth_Decoupling/Iteration_01/code/keepfix_20261123/scripts/e44_keepfix.py
+@@ -128,6 +128,11 @@
+     if not (math.isfinite(a) and a > 0) or not math.isclose(a, float(p["beta"]) * float(p["gap"]), rel_tol=1e-9):
+         raise SystemExit("%s: amount %r is not beta * gap" % (path, a))
+     rows = g.get("rows", [])
++    ids = g.get("question_ids")
++    if (g.get("completed") is not True or g.get("partial") or g.get("split") != "tune"
++            or len(parts) != 1 or not ids or len(set(ids)) != len(ids)
++            or [r.get("pair_id") for r in rows] != ids):
++        raise SystemExit("%s: incomplete source or ambiguous fixed write" % path)
+     for r in rows:
+         w = r["write"][0] if isinstance(r["write"], list) else r["write"]
+         if not math.isclose(float(w["amount"]), a, rel_tol=1e-6):
+@@ -710,7 +715,12 @@
+            "keep_loss_no_write": dg.get("keep_loss_no_write")}
+     ok = (math.isfinite(gap) and gap >= a.min_gap and math.isclose(out["gap_from_values"], gap, rel_tol=1e-6)
+           and sc.get("same_side") is True and sc.get("saved_gap") == gap
+-          and dg["keep_loss_trained_at_A"]["all"] < dg["keep_loss_opposite_side"]["all"])
++          and math.isfinite(dg["keep_loss_trained_at_A"]["all"])
++          and math.isfinite(dg["keep_loss_opposite_side"]["all"]))
++    # A zero-weight reference never optimized the keep term. Its two losses are diagnostics.
++    loss_improved = dg["keep_loss_trained_at_A"]["all"] < dg["keep_loss_opposite_side"]["all"]
++    out["keep_loss_lower_on_written_side"] = loss_improved
++    ok = ok and (k["lambda"] == 0 or loss_improved)
+     if a.l0:
+         r0 = torch.load(a.l0, map_location="cpu", weights_only=False)
+         k0 = r0.get("keep") or {}
+@@ -720,7 +730,7 @@
+                 "init": r0["training"]["init_sha256"] == r["training"]["init_sha256"], "amount": k0.get("amount") == k.get("amount")}
+         out["lambda0_vs_lambda1_same"] = same
+         out["lambdas"] = [k0.get("lambda"), k.get("lambda")]
+-        ok = ok and all(same.values())
++        ok = ok and k0.get("lambda") == 0 and all(same.values())
+     out["pass"] = bool(ok)
+     print(json.dumps(out))
+     if not ok:
+--- a/Truth_Decoupling/Iteration_01/code/keepfix_20261123/keepfix_qaqa_pilot.py
++++ b/Truth_Decoupling/Iteration_01/code/keepfix_20261123/keepfix_qaqa_pilot.py
+@@ -26,7 +26,10 @@
+     if d.get("completed") is not True or d.get("task") != "qaqafull" or len(d.get("evaluations", [])) != 570:
+         raise SystemExit("%s is not a complete 570-question qaqafull export" % src)
+     rows = [r for r in d["evaluations"] if r["pair_id"] in want]
+-    if len(rows) != 100 or len(want) != 100:
++    all_ids = [r["pair_id"] for r in d["evaluations"]]
++    if all_ids != d.get("question_ids") or len(set(all_ids)) != 570:
++        raise SystemExit("source question ids are repeated or out of order")
++    if len(rows) != 100 or len(want) != 100 or {r["pair_id"] for r in rows} != want:
+         raise SystemExit("expected the 100 pilot questions, found %d" % len(rows))
+     keep = dict(d)
+     keep["evaluations"] = rows
+--- a/Truth_Decoupling/Iteration_01/code/keepfix_20261123/keepfix_table.py
++++ b/Truth_Decoupling/Iteration_01/code/keepfix_20261123/keepfix_table.py
+@@ -236,8 +236,8 @@
+     st, bl, tx = {}, {}, {}
+
+     def put(k, v, b, t):
+-        if k in st and st[k] != v:
+-            raise SystemExit("condition %s %s appears twice with different verdicts" % (k[0], k[1]))
++        if k in st and (st[k], bl[k], tx[k]) != (v, b, t):
++            raise SystemExit("condition %s %s appears twice with a different verdict, submission or answer" % k)
+         st[k], bl[k], tx[k] = v, b, t
+
+     def rename(c):
