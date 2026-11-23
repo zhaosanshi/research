@@ -81,7 +81,7 @@ watch_grid() {  # watch_grid MODEL GPU PID OFFSET: memory of the first MMLU pass
     if [ -z "$t0" ]; then
       mp=$(pgrep -f "^[^ ]*python[^ ]* .*cap_mcq_sweep.py run .*baselines/caa/$m/" | head -1)
       [ -n "$mp" ] && { t0=$(date +%s); say "$m: first MMLU pass started (pid $mp) on GPU $g"; }
-    elif [ $(( $(date +%s) - t0 )) -le 900 ]; then
+    elif [[ "$t0" != done ]] && [ $(( $(date +%s) - t0 )) -le 900 ]; then
       u=$(nvidia-smi --query-compute-apps=pid,used_memory --format=csv,noheader,nounits | awk -F', ' -v p="$mp" '$1 == p {print $2}')
       c=$(card_used $g)
       [[ $u =~ ^[0-9]+$ ]] && [ $u -gt $peak ] && peak=$u

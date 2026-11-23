@@ -36,7 +36,8 @@ import os
 import re
 import sys
 
-sys.path.insert(0, "Iteration_01/diag")
+sys.path[:0] = ["Iteration_01/diag", "Iteration_01/code/scripts/newsets"]
+from caa_run_guard import FROZEN, engine_identity_matches
 import iti_table as IT
 
 MP, PM, S, ps, ML, DM = IT.MP, IT.PM, IT.S, IT.ps, IT.ML, IT.DM
@@ -211,7 +212,9 @@ def verify_work(mi, work, judged=True):
     exp_path = os.path.join(work, "judge_input.json")
     exp = read(exp_path)
     source = exp["sources"]
-    if exp["model"] != mi.model or not exp["completed"] or exp["identity_sha256"] != mi.meta["identity_sha256"]:
+    registry = read(str(FROZEN))["models"][mi.model]
+    bank_file = os.path.join(registry["source_run"], "bank.json")
+    if not exp["completed"] or not engine_identity_matches(exp, mi.meta["identity_sha256"], bank_file):
         raise SystemExit("judge input belongs to a different CAA model or identity: " + work)
     files = source["gen"]
     if not files or len(set(files)) != len(files):

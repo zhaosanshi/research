@@ -22,6 +22,40 @@ LEGACY_CHECK = "13aafb8c94c0de8fdbf4e51c3f0560145b1d7151c310458917f7141e39d66626
 LEGACY_MIRROR = "baa00c3438807befaba16b0ac3be5f6894fafcb25bec44b58b053eb4491d22a1"
 LEGACY_REPEAT = "398dc19826cd29a57bc4b7bf86f6b2aa9c504b618abd77618ffa8b93bc9db3d4"
 
+# This revision only changed acceptance and readers. Preceding fit/check files
+# remain valid for these exact archived payloads, after the usual source checks.
+PRE_ALIAS_SCRIPT = "ef185badca118054642302abfcef019087828d780413b87e80998ff4007c906f"
+# vectors.pt, its JSON sidecar, successful check.json (None for the failed 27B check)
+PRE_ALIAS = {
+    "qwen3.5-9b": (
+        "7127dc723660e550057b2e2201914723645eb3349a567eec71d03dbd43be5899",
+        "8637bcd1a2bff8f9bc102b6662c588566f82a422b76d6b2ad1c96ab1dfe38f9e",
+        "8ead63558bf8fb4916db0bd246d5aee515e554532a4581b23256f3cd9de5b5bd"),
+    "qwen3.8-27b": (
+        "ebacf7921bf95d9ae01c9d3ae6828abd1beac1d5915ea767faf7b891ca7cf2a7",
+        "c8b35d4464ebc88dd7df005ee67671f3a2a316bbd702eb24fe8376f262c00d17",
+        None),
+    "gemma3-12b": (
+        "19d75edb07b12dac2aadefeffc9c4686a1d7b3219aa847c9e752194ebb4a43ea",
+        "5ea122d500e364d6821a92199bf1c86f4fab44203e9602d09281b6479b943d8c",
+        "48c3f8098873793d5841b21719ee1e1337f48c99a4748aec474783f24be32af2"),
+    "gemma3-27b": (
+        "51cac40e028d6f11f3b70917408dabc408ee6de4f008a6b79c27c1048e866462",
+        "057bd37459193891534b782aff62df9d6b859afa198ff8c1c7a6ea734202936b",
+        "fee8d47f4ab7fe47d018498601d3f724e6d7dccb1fcf0891bb22f4ad49751471"),
+}
+
+
+def engine_identity_matches(record, expected, bank_file):
+    """E44 writes the model specified by its source bank, which may be a device-map alias."""
+    identity = record["identity"]
+    digest = hashlib.sha256(json.dumps(identity, sort_keys=True, ensure_ascii=False,
+                                       separators=(",", ":"), allow_nan=False).encode()).hexdigest()
+    source = Path(bank_file)
+    return (digest == record["identity_sha256"] == expected
+            and identity["source_files_sha256"]["bank.json"] == sha(source)
+            and record["model"] == identity["model"] == load(source)["model"])
+
 
 def require(flag, why):
     if not flag:
@@ -57,8 +91,13 @@ def check_acceptance(model, acceptance=False, layer=None, batches=None):
     old_fit = (model == "llama3.1-8b" and fit["script_sha256"] == LEGACY_SCRIPT and vd == LEGACY_VECTOR
                and sha(base / "vectors.pt.json") == LEGACY_SIDECAR)
     old_check = (old_fit and check["script_sha256"] == LEGACY_SCRIPT and sha(folder / "check.json") == LEGACY_CHECK)
-    require(fit["script_sha256"] == current or old_fit, "unrecognised fit or historical payload")
-    require(check["script_sha256"] == current or old_check, "unrecognised check or historical payload")
+    previous = PRE_ALIAS.get(model)
+    prior_fit = (previous is not None and fit["script_sha256"] == PRE_ALIAS_SCRIPT
+                 and (vd, sha(base / "vectors.pt.json")) == previous[:2])
+    prior_check = (prior_fit and check["script_sha256"] == PRE_ALIAS_SCRIPT
+                   and sha(folder / "check.json") == previous[2])
+    require(fit["script_sha256"] == current or old_fit or prior_fit, "unrecognised fit or historical payload")
+    require(check["script_sha256"] == current or old_check or prior_check, "unrecognised check or historical payload")
     require(check["identity_sha256"] == identity and check["vectors_file_sha256"] == mapping["vectors_file_sha256"] == vd
             and fit["engine_sha256"] == check["engine_sha256"] == sha(engine), "fit/check inputs changed")
     require(mapping["model"] == model and mapping["kind"] == "caa" and check["mirror"] == str(mirror)

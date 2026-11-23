@@ -303,11 +303,13 @@ def verify_bundle(root, a, model_config):
             or listing["vectors_file_sha256"] != digest or src == dst
             or (root / model_config["run_dir"]).resolve() not in (src, dst)):
         raise SystemExit("wrong CAA mirror, model or vector source")
+    from caa_run_guard import engine_identity_matches
+    bank_file = root / model_config["source_run"] / "bank.json"
     for split, roster in ids.items():
         name = "frozen_" + split + ".json"
         f = json.loads((dst / name).read_text(encoding="utf-8"))
         if (listing["frozen_files_sha256"][name] != sha_file(dst / name) or sha_file(src / name) != sha_file(dst / name)
-                or f["identity_sha256"] != meta["identity_sha256"] or f["model"] != a.model or not f["completed"]
+                or not engine_identity_matches(f, meta["identity_sha256"], bank_file) or not f["completed"]
                 or f["split"] != split or f["question_ids"] != roster):
             raise SystemExit("wrong frozen CAA inputs in " + name)
     for l in (a.layers or meta["candidate_layers"]):
