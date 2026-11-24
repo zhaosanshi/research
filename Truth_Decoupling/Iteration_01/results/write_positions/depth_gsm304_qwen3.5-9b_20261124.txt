@@ -1,0 +1,10 @@
+# Plan N, GSM8K on the first 304 frozen items, qwen3.5-9b: single E at the prompt rule, cap 1024, batch 8 (depth_gsm.py)
+Reference: the archived no-write full pass on the same items (same batches). Change = arm minus no write, in points;
+interval: bootstrap over items (cap_score.ci). 'not right' = wrong, refusal or unparsed.
+| arm | source | right of 304 | accuracy | change against no write [95%] | refusals | unparsed / unfinished | mean new tokens |
+|---|---|---|---|---|---|---|---|
+| no write | archived full pass | 289 | 95.1% | +0.0 [+0.0, +0.0] | 0 | 2 | 335 |
+| neutral:E15.w.p2 | archived full pass | 288 | 94.7% | -0.3 [-2.6, +2.0] | 0 | 2 | 342 |
+| neutral:E17.w.p8 | this run | 224 | 73.7% | -21.4 [-26.3, -16.1] | 2 | 58 | 309 |
+| neutral:E20.w.p12 | this run | 81 | 26.6% | -68.4 [-73.7, -62.8] | 0 | 214 | 103 |
+| neutral:E22.w.p16 | this run | 78 | 25.7% | -69.4 [-74.3, -63.8] | 0 | 222 | 92 |

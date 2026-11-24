@@ -1,0 +1,22 @@
+# Plan N, Qwen3.5-9B: the late single E (layer 20, strength 12) on the test split against N1 (depth_test.py)
+N1 = E15 at 2, blanks re-asked with E + C16, caps chosen on tune (N1: E 2, own blanks up to 0.5, E's blanks up to 0.25). Checks passed: N1 on tune +63; on the 523 test questions N1 (444 answers, net +186) and single E (408 answers, net +168) equal the archived main table.
+Read on 523 questions: 0 left out because the judge declined to grade the new arm's answer (none); each could move the new arm's net by at most 1, so every difference below by at most 0.
+Score right +1 / no answer 0 / wrong -1; paired bootstrap 10,000 resamples, seed 20261111; natural answer counts.
+
+| system | answers | right | wrong | net |
+|---|---|---|---|---|
+| no write | 474 | 268 | 195 | +73 |
+| single E, layer 15 at 2 (main table) | 408 | 285 | 117 | +168 |
+| N1 | 444 | 310 | 124 | +186 |
+| single E, layer 20 at 12 | 515 | 301 | 125 | +176 |
+
+| difference | net [95%] |
+|---|---|
+| late single E minus N1 | -10 [-54, +33] |
+| late single E minus single E at the main-table setting | +8 [-36, +52] |
+| late single E minus no write | +103 [+49, +155] |
+| N1 minus single E at the main-table setting | +18 [+7, +29] |
+| N1 minus no write | +113 [+78, +149] |
+
+answered by both 442; only by the late single E 73 (right 32, wrong 22); only by N1 2 (right 2, wrong 0)
+on the 442 questions both answer: late single E right 269 wrong 103; N1 right 308 wrong 124
