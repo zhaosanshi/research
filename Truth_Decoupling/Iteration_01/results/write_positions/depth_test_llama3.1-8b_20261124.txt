@@ -1,0 +1,22 @@
+# Plan N, Llama-3.1-8B: the late single E (layer 17, strength 8) on the test split against N1 (depth_test.py)
+N1 = E16 at 3.5, blanks re-asked with E + C19, caps chosen on tune (N1: E 3-5, own blanks up to 2, E's blanks up to 1). Checks passed: N1 on tune +27; on the 523 test questions N1 (476 answers, net +62) and single E (319 answers, net +40) equal the archived main table.
+Read on 521 questions: 2 left out because the judge declined to grade the new arm's answer (tqa:10, tqa:440); each could move the new arm's net by at most 1, so every difference below by at most 2.
+Score right +1 / no answer 0 / wrong -1; paired bootstrap 10,000 resamples, seed 20261111; natural answer counts.
+
+| system | answers | right | wrong | net |
+|---|---|---|---|---|
+| no write | 465 | 180 | 266 | -86 |
+| single E, layer 16 at 3.5 (main table) | 317 | 171 | 131 | +40 |
+| N1 | 474 | 252 | 190 | +62 |
+| single E, layer 17 at 8 | 486 | 227 | 195 | +32 |
+
+| difference | net [95%] |
+|---|---|
+| late single E minus N1 | -30 [-70, +10] |
+| late single E minus single E at the main-table setting | -8 [-48, +33] |
+| late single E minus no write | +118 [+64, +173] |
+| N1 minus single E at the main-table setting | +22 [-1, +45] |
+| N1 minus no write | +148 [+101, +196] |
+
+answered by both 447; only by the late single E 39 (right 9, wrong 18); only by N1 27 (right 17, wrong 3)
+on the 447 questions both answer: late single E right 218 wrong 177; N1 right 235 wrong 187

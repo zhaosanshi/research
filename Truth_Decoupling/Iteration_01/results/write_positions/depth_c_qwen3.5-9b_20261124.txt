@@ -1,0 +1,11 @@
+# Plan N stage 2, Qwen3.5-9B: C after E. E at layer 15, strength 2, prompt rule; N1's two caps chosen on tune by main_table_layers.n1_pick for each C layer (depth_scan.py c)
+Check: N1 at the current C layer 16 on the 192 usual tune questions = +63 (archived main table +63). Questions read: 192 (every C layer has every verdict). Every C layer is chosen and read on the same tune questions: comparable with each other, optimistic in level. Paired bootstrap 10,000 resamples, seed 20261111.
+
+single E (layer 15, 2): answers 142 | right 99 wrong 41 | net +58
+
+| C layer | position (l+1)/32 | C minus E | N1 caps (chosen on tune) | answers | right | wrong | net | released right / wrong | minus current C layer 16 [95%] |
+|---|---|---|---|---|---|---|---|---|---|
+| 16 | 0.531 | +1 | N1: E 2, own blanks up to 0.5, E's blanks up to 0.25 | 155 | 108 | 45 | +63 | 9 / 4 | current |
+| 17 | 0.562 | +2 | N1: E 2, own blanks up to 0.5, E's blanks up to 0.5 | 165 | 113 | 49 | +64 | 14 / 8 | +1 [-5, +7] |
+| 18 | 0.594 | +3 | N1: E 2, own blanks up to 0.5, E's blanks up to 0.5 | 166 | 114 | 48 | +66 | 15 / 7 | +3 [-3, +9] |
+| 19 | 0.625 | +4 | N1: E 2, own blanks up to 0.25, E's blanks up to 1 | 160 | 109 | 47 | +62 | 10 / 6 | -1 [-9, +7] |

@@ -1,0 +1,14 @@
+# Plan N, GSM8K on the first 304 frozen items, llama3.1-8b: single E at the prompt rule, cap 512, batch 8 (depth_gsm.py)
+Reference: the archived no-write full pass on the same items (same batches). Change = arm minus no write, in points;
+interval: bootstrap over items (cap_score.ci). 'not right' = wrong, refusal or unparsed.
+| arm | source | right of 304 | accuracy | change against no write [95%] | refusals | unparsed / unfinished | mean new tokens |
+|---|---|---|---|---|---|---|---|
+| no write | archived full pass | 265 | 87.2% | +0.0 [+0.0, +0.0] | 0 | 6 | 239 |
+| neutral:E16.w.p3.5 | archived full pass | 263 | 86.5% | -0.7 [-3.9, +2.6] | 0 | 11 | 236 |
+| neutral:E16.w.p3 | this run | 277 | 91.1% | +3.9 [+0.7, +7.2] | 0 | 9 | 235 |
+| neutral:E17.w.p8 | this run | 269 | 88.5% | +1.3 [-2.3, +4.9] | 0 | 5 | 233 |
+| neutral:E18.w.p8 | this run | 157 | 51.6% | -35.5 [-41.4, -29.6] | 118 | 3 | 230 |
+| neutral:E20.w.p6 | this run | 263 | 86.5% | -0.7 [-4.3, +3.0] | 4 | 3 | 221 |
+| neutral:E22.w.p8 | this run | 263 | 86.5% | -0.7 [-4.3, +3.3] | 3 | 7 | 224 |
+| neutral:E24.w.p12 | this run | 268 | 88.2% | +1.0 [-2.6, +4.6] | 2 | 9 | 224 |
+| neutral:E26.w.p16 | this run | 266 | 87.5% | +0.3 [-3.3, +3.9] | 0 | 10 | 227 |

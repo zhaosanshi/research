@@ -18,7 +18,9 @@ sys.path.insert(0, "Iteration_01/diag")
 N = 304
 FULL_IDS = "Iteration_01/capability/sets/gsm8k_1319_20261119.json"
 SUB_IDS = "Iteration_01/capability/sets/gsm8k_first304_20261124.json"
-MAIN = "Iteration_01/capability/gen_main/gsm8k/%s/b8"
+MAIN = "Iteration_01/capability/%s/gsm8k/%s/b8"
+# (cap of new tokens, directory of the archived full passes): the cap each model was measured at in the main table
+CAPS = {"llama3.1-8b": (512, "gen_main"), "qwen3.5-9b": (1024, "gen_main1024")}
 OUT = "Iteration_01/capability/depthscan_gsm8k/%s/b8"
 REF_ARM = {"llama3.1-8b": "neutral--E16-w-p3-5-at-prompt.json", "qwen3.5-9b": "neutral--E15-w-p2-at-prompt.json"}
 
@@ -38,13 +40,13 @@ def write_ids():
     return 0
 
 
-def load(path, model, ids, positions, full):
+def load(path, model, ids, positions, full, cap):
     g = json.load(open(path, encoding="utf-8"))
     c = g.get("contract") or {}
     bad = []
     if g.get("completed") is not True:
         bad.append("not completed")
-    if c.get("model") != model or c.get("task") != "gsm8k" or c.get("max_new_tokens") != 512 or c.get("batch_size") != 8:
+    if c.get("model") != model or c.get("task") != "gsm8k" or c.get("max_new_tokens") != cap or c.get("batch_size") != 8:
         bad.append("contract model / task / cap / batch: %s %s %s %s" % (c.get("model"), c.get("task"), c.get("max_new_tokens"), c.get("batch_size")))
     if g.get("positions") != positions or c.get("positions") != positions:
         bad.append("positions %s / %s, wanted %s" % (g.get("positions"), c.get("positions"), positions))
@@ -62,13 +64,16 @@ def table(model):
     if len(ids) != N or ids != json.load(open(FULL_IDS, encoding="utf-8"))["ids"][:N]:
         die("%s is not the first %d ids of the frozen list" % (SUB_IDS, N))
     gold = CS.gold_of("gsm8k")
-    main = MAIN % model
-    base, _ = load(main + "/neutral.json", model, ids, None, True)
+    if model not in CAPS:
+        die("no cap registered for %s" % model)
+    cap, mdir = CAPS[model]
+    main = MAIN % (mdir, model)
+    base, _ = load(main + "/neutral.json", model, ids, None, True, cap)
     def states(rows):
         return [CS.judge_row("gsm8k", rows[i], gold(i)) for i in ids]
     sb = states(base)
     rb = [int(s == "R") for s, _ in sb]
-    print("# Plan N, GSM8K on the first %d frozen items, %s: single E at the prompt rule, cap 512, batch 8 (depth_gsm.py)" % (N, model))
+    print("# Plan N, GSM8K on the first %d frozen items, %s: single E at the prompt rule, cap %d, batch 8 (depth_gsm.py)" % (N, model, cap))
     print("Reference: the archived no-write full pass on the same items (same batches). Change = arm minus no write, in points;")
     print("interval: bootstrap over items (cap_score.ci). 'not right' = wrong, refusal or unparsed.")
     print("| arm | source | right of %d | accuracy | change against no write [95%%] | refusals | unparsed / unfinished | mean new tokens |" % N)
@@ -85,14 +90,14 @@ def table(model):
     row("no write", "archived full pass", base)
     rf = main + "/" + REF_ARM.get(model, "")
     if REF_ARM.get(model) and os.path.exists(rf):
-        rows, arm = load(rf, model, ids, "prompt", True)
+        rows, arm = load(rf, model, ids, "prompt", True, cap)
         row(arm, "archived full pass", rows)
     files = sorted(glob.glob((OUT % model) + "/neutral--E*-at-prompt.json"),
                    key=lambda p: [int(x) if x.isdigit() else x for x in os.path.basename(p).replace("-", " ").split()])
     if not files:
         die("no arm files in %s" % (OUT % model))
     for p in files:
-        rows, arm = load(p, model, ids, "prompt", False)
+        rows, arm = load(p, model, ids, "prompt", False, cap)
         row(arm, "this run", rows)
     return 0
 

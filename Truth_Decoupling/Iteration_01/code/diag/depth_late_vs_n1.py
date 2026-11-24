@@ -25,7 +25,20 @@ def main():
     owner = {}
     DS.add_dir(DS.work(k, "posprompt%s_tune" % k["tag"]), st, bl, tx, False, owner)
     DS.add_dir(DS.work(k, "posprompt2%s_tune" % k["tag"]), st, bl, tx, True, owner)
-    DS.add_dir(DS.work(k, DS.NAME_E), st, bl, tx, False, owner)
+    # the depth-scan dir may repeat a condition of the main-table dir (the rule can choose the main-table arm itself):
+    # read it apart and merge; a repeated cell must carry the same verdict, blank flag and text
+    st2 = {kk: v for kk, v in st.items() if kk[1] == "baseline_x"}
+    bl2 = {kk: v for kk, v in bl.items() if kk[1] == "baseline_x"}
+    tx2 = {kk: v for kk, v in tx.items() if kk[1] == "baseline_x"}
+    DS.add_dir(DS.work(k, DS.NAME_E), st2, bl2, tx2, False, {})
+    rep = 0
+    for kk in st2:
+        if kk in st:
+            if (st[kk], bl[kk], tx[kk]) != (st2[kk], bl2[kk], tx2[kk]):
+                DS.die("cell %s differs between the main-table dir and the depth-scan dir" % (kk,))
+            rep += kk[1] != "baseline_x"
+        else:
+            st[kk], bl[kk], tx[kk] = st2[kk], bl2[kk], tx2[kk]
     s = DS.hy(k["es"])
     txs = fr.Texts(tx, tx)
     sh = S.shell(k["el"], k["cl"])
@@ -42,6 +55,8 @@ def main():
     print("%d tune questions with every verdict. N1 = E%d at %s, blanks re-asked with E + C%d, caps chosen on these questions (%s)."
           % (len(qs), k["el"], k["es"], k["cl"], ro.name_of(pick)))
     print("Score right +1 / no answer 0 / wrong -1; paired bootstrap 10,000 resamples, seed 20261111; natural answer counts.\n")
+    if rep:
+        print("(%d cells of the depth-scan dir repeat a main-table condition; identical in verdict, blank flag and text)\n" % rep)
     print("| system | answers | right | wrong | net |")
     print("|---|---|---|---|---|")
     for name, (x, a) in (("no write", base), ("single E, layer %d at %s (main table)" % (k["el"], k["es"]), (es, ea)), ("N1", (n1s, n1a))):
