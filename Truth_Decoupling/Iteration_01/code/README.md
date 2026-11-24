@@ -273,7 +273,7 @@
 | `launchers/explore_20261120/depth_test_judge_1124.sh` | 排期 N：Llama-3.1-8B 测试集那个判分目录的 DeepSeek Pro 判分；函数由程序从 `depth_queue3_1124.sh` 抄出，改三处（目录名、失败标记、防重目录） | 主会话新写，探索，已运行；未经 GPT 审 | 9b925c7be8e26576 |
 | `launchers/explore_20261120/depth_late_q9_1124.sh` | 排期 N：Qwen3.5-9B 靠后的三个单 E 设置在测试集上的生成与导出，加 GSM8K 前 304 题的筛查（上限 1,024）；由程序从 `depth_confirm_1124.sh` 改出 | 主会话新写，探索，20:44 起在 0 号卡；每条命令空跑过；未经 GPT 审 | 781ad7768c028654 |
 | `launchers/explore_20261120/depth_test_judge_q9_1124.sh` | 排期 N：Qwen3.5-9B 测试集那个判分目录的 DeepSeek Pro 判分；`depth_test_judge_1124.sh` 的同款，只换模型与等待的标记 | 主会话新写，探索，已运行；未经 GPT 审 | f2d0a3a0e919a50d |
-| `launchers/explore_20261120/depth_late2_q9_1124.sh` | 排期 N：Qwen3.5-9B 下一批靠后单 E 候选（七个设置）的 GSM8K 前 304 题筛查，加四个设置的测试集生成（不导出）；由程序从 `depth_late_q9_1124.sh` 改出 | 主会话新写，探索，21:24 起在 1 号卡；未经 GPT 审 | 1b2242bbbd27f28b |
+| `launchers/explore_20261120/depth_late2_q9_1124.sh` | 排期 N：Qwen3.5-9B 下一批靠后单 E 候选（七个设置）的 GSM8K 前 304 题筛查，加四个设置的测试集生成（不导出）；由程序从 `depth_late_q9_1124.sh` 改出 | 主会话新写，探索；21:24 起在 1 号卡，21:55 因这一主张取消而停掉，七个筛查做完两个；未经 GPT 审 | 1b2242bbbd27f28b |
 | `configs/capability/gsm8k_1319_20261119.json` | GSM8K 测试集 1,319 题的题号清单（不含题目文字） | 现行配置，补登记 | f8158017f1fcbdde |
 | `configs/newsets/popqa_splits_20261119.json` | PopQA 的划分题号：拟合 300、调参 192、测试 500（其中 Pro 判的 100），种子 20261119 | 同上 | 992f2e1181eb50e2 |
 | `configs/newsets/popqa_test2_20261120.json` | PopQA 第二批新题的题号：500 题（其中 Pro 判的 100），种子 20261120 | 同上 | 18ea733ad9bc0a37 |
