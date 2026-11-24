@@ -28,6 +28,8 @@
 #     and on valid-premise questions every system minus O.
 #   Equal counts: per model the side with more answered cells in the pool drops them from the lowest batch-1 self-judge
 #   margin up (baseline condition, selfjudge_stack_pick.equal; ties by question order); a missing margin makes that line n/a.
+# A cell the judge declined to grade (basis pro_declined; rule of 2026-11-24, written before any held-out verdict was
+# read) is read as value 0 and stays answered; run_table lists these cells and the systems that hand one in.
 # Self-judge items (export-margins MODEL smoke|full): every answered answer a system can hand in (O, E, S0, SE, T2, TE
 # everywhere; E + C rungs where E is blank; C-only rungs where O is blank; sentence E + C rungs where SE is blank;
 # sentence C-only rungs where S0 is blank), one item per statement (sha1 of selfjudge_probe.statement), statements
@@ -222,6 +224,10 @@ def run_status(models):
 # ---- answers and verdicts ---------------------------------------------------------------------------------------- #
 class FRaw(Q.Raw):
     """Raw on the FalseQA bank; verdicts are required only on the questions `keep` (dev or held-out)."""
+    # 2026-11-24, written before any held-out verdict was read: a cell the judge declined to grade ("D" on the truth or
+    # the information axis; 3 of the 66,000 held-out cells, all Gemma-3-12B, none in the development set) is read as
+    # value 0 and listed by declined_note, with the systems that hand it in (each such cell moves a net by at most 1).
+    DECLINED_OK = True
 
     def __init__(self, model, keep, works=WORKS):
         Q.Raw.__init__(self, model, TASK, BANK, works)
@@ -472,6 +478,29 @@ def readings(data, models, qt, pair_of, groups, M):
     sys.stdout.flush()
 
 
+def declined_note(model, raws, systems, keep, label):
+    """Prints the cells of the questions `keep` that the judge declined to grade (read as value 0) and, when the systems
+    are given, which of them hand such an answer in (matched on question and answer text: one verdict per pair)."""
+    decl = {}
+    for RR in raws:
+        for (q, c), t in RR.declined.items():
+            if q in keep:
+                decl[(q, c)] = t
+    if not decl:
+        return
+    print("# %s: %d %s cells without a verdict (the judge declined; read as value 0): %s" % (
+        model, len(decl), label, ", ".join("%s %s" % k for k in sorted(decl))))
+    if systems is None:
+        return
+    pairs = {(q, t.strip()) for (q, c), t in decl.items()}
+    used = []
+    for n in SYS_ORDER:
+        hit = sorted(q for q, c in systems[n].items() if c[1] and (q, c[2].strip()) in pairs)
+        if hit:
+            used.append("%s %d (%s)" % (n, len(hit), " ".join(hit)))
+    print("#   handed in by: %s" % ("; ".join(used) if used else "no system"))
+
+
 def run_table(models):
     ok, rows = check_bank()
     if not ok:
@@ -493,12 +522,14 @@ def run_table(models):
         print("# %s: E%d main %s, s_sel %s, C%d; chosen on the %d development questions:" % (m, st[0], st[1], st[3], st[2], len(R.ids)))
         for x in lines:
             print("    " + x)
+        declined_note(m, (R, R2), None, dev, "development")
         try:
             H, H2 = load_rows(m, held)
         except FileNotFoundError as err:
             print("# %s: held-out set not judged yet (%s)" % (m, str(err)[:200]))
             continue
         data[m] = systems_of(H, H2, st, caps, H.ids)
+        declined_note(m, (H, H2), data[m], held, "held-out")
         M[m] = margins_of(m)
         done.append(m)
     if not done:
@@ -632,7 +663,7 @@ def fake(model, ids, arms):
     R.model, R.el, R.cl = model, 16, 19
     R.ids, R.all_ids = list(ids), list(ids)
     R.qtype = {q: "failure" for q in ids}
-    R.rows, R.cond, R.val, R.pred = {}, {}, {}, {}
+    R.rows, R.cond, R.val, R.pred, R.declined = {}, {}, {}, {}, {}
     for arm, d in arms.items():
         c = "cond_" + G.arm_token(arm)
         R.rows[arm] = {q: {"text": t, "rule_abstain": bl, "finished": True} for q, (v, t, bl) in d.items()}

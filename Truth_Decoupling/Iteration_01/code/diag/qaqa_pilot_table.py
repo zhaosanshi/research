@@ -88,9 +88,14 @@ PAIRS = (("N1", "single E"), ("N1", "no write"), ("N1", "single C"), ("N1", "pro
 
 class Raw:
     """The answers and verdicts of one model on one bank: every arm that has a complete file and verdicts."""
+    # 2026-11-24: a cell on which the judge answered "D" (cannot decide) on one axis has no verdict (basis pro_declined).
+    # By default that stops the load, as before. A subclass that sets DECLINED_OK reads such a cell as value 0 and gets
+    # it in self.declined = {(question, condition): answer text}, so that its table can list where it is handed in.
+    DECLINED_OK = False
 
     def __init__(self, model, task, bank_path, works):
         self.model = model
+        self.declined = {}
         el, _, cl = SET[model][:3]
         self.el, self.cl = el, cl
         with open(bank_path, encoding="utf-8") as f:
@@ -113,6 +118,9 @@ class Raw:
                     new = VALUE[v["label"]]
                 elif v.get("basis") == "empty_output_no_judge_vote":
                     new = 0
+                elif self.DECLINED_OK and v.get("basis") == "pro_declined":
+                    new = 0
+                    self.declined[k] = c["prediction"]
                 else:
                     raise SystemExit("%s: unresolved vote for %s %s" % (model, k[0], k[1]))
                 if self.val.get(k, new) != new or self.pred.get(k, c["prediction"]) != c["prediction"]:

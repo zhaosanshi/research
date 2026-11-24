@@ -44,6 +44,7 @@ def main():
         for x in lines:
             print("    " + x)
         data[m] = F.systems_of(R, R2, st, caps, R.ids)
+        F.declined_note(m, (R, R2), data[m], dev, "development")   # prints nothing when the judge declined no cell
         M[m] = F.margins_of(m)
         done.append(m)
     if not done:
