@@ -1,0 +1,7 @@
+# CAA, gemma3-27b: TruthfulQA test split, 523 questions, DeepSeek Pro, score = right - wrong
+    chosen on tune within the MMLU budget: layer 36, multiplier 0.5 (tune net +2); positions: the last prompt token and every generated token
+    no write net +3 | CAA net -2 (answers 450, right 215, wrong 217) | single E (layer 28, strength 1, prompt rule) net +105 (answers 423) | N1 net +144 (answers 510)
+    CAA minus no write -5 [-19, +9] | single E minus CAA +107 [+74, +142] | N1 minus CAA +146 [+111, +182] | single E minus no write +102 [+69, +135]
+    N1 minus CAA with both keeping 450 answers: between +85 and +205 (N1 keeps 450 of 510, CAA 450 of 450)
+    single E minus CAA with both keeping 423 answers: between +79 and +133 (single E keeps 423 of 423, CAA 423 of 450)
+    MMLU of the chosen point: selection half +0.00 [-0.14, +0.14], report half +0.03 [-0.07, +0.14]
