@@ -1,0 +1,54 @@
+# four pre-run checks, gemma3-27b, split kinds (plan queue_m 2026-11-25 22:11, rules v4; second version, entry 2026-11-26 00:48); start 2026-11-26 01:19:12 Beijing
+code copy Iteration_01/code_splitkinds2_20261126: core/qa_context.py 5f0cd7b55befa139 core/qa_prompt_das.py 295b3a2bc69d71ac core/qa_factorial_das.py 366c6da05a46df18 scripts/e44_factorial_das.py 6bbd9ec52d668102 
+source copied from Iteration_01/results/ff/gemma3/27b/source/gemma3-27b: bank.json 952bcc537311afb0, questions.json b61184c3fb015bce
+card 3 obtained 2026-11-26 01:19:12 Beijing, 0 MiB in use
+check 1: freeze + readout 145 s
+frozen split train: questions 96, prompts 11; records compared 1056; token ids identical 1056; text identical 1056; whole record identical 1056; header fields differing none; identity_sha256 0029cc400dbe64f1 vs 3a583ba817d3e056
+frozen split tune: questions 192, prompts 11; records compared 2112; token ids identical 2112; text identical 2112; whole record identical 2112; header fields differing none; identity_sha256 0029cc400dbe64f1 vs 3a583ba817d3e056
+baseline readout prompt x split tune: rows 192; rows identical in every field 192; largest top-level float difference 0; header fields differing none
+check 1: passed (frozen train, frozen tune, baseline x tune identical)
+check 2: layer 0 trained with the switch in 879 s (call incl. model load); train log seconds 818
+training_contract: 21 / 20 keys; differing ['backward', 'frozen_file_sha256', 'frozen_record_sha256', 'layer']
+check 2 contract: differing keys vs main root layer 19 ['backward', 'frozen_file_sha256', 'frozen_record_sha256', 'layer'] (allowed ['backward', 'frozen_file_sha256', 'frozen_record_sha256', 'layer']); backward by_kind_full_width; identity = new root frozen: True
+check 2: passed
+check 3: layer 31 without the switch trained in 731 s (call incl. model load)
+cosine layer 31 vs layer 31: w 1.000000; w_md 1.000000; backward - vs -
+final losses (first file / second file): epoch 10 / 10; hist_train_cause 0.018505 / 0.018505 (diff 0); hist_train_isolate 0.000721 / 0.000721 (diff 0); hist_val_cause 0.030095 / 0.030095 (diff 0); hist_val_isolate 0.002522 / 0.002522 (diff 0); trained_train_cause 0.018268 / 0.018268 (diff 0); trained_train_isolate 0.000688 / 0.000688 (diff 0); trained_val_cause 0.030095 / 0.030095 (diff 0); trained_val_isolate 0.002522 / 0.002522 (diff 0); all equal: yes
+training_contract: 20 / 20 keys; differing ['frozen_file_sha256', 'frozen_record_sha256']
+check 3: recorded (no threshold)
+check 4: layers 18 20 31 trained with the switch in 2254 s (one call incl. model load)
+training_contract: 21 / 21 keys; differing ['layer']
+cosine layer 18 vs layer 18: w 0.996882; w_md 1.000000; backward by_kind_full_width vs -
+check 4: L18 cosine 0.996882 >= 0.99
+new:    L18 x.w.p0.25: first 16 questions answered 10 -> 10; all 192 questions 167 -> 167 [ok]
+new:    L18 x.w.m0.25: first 16 questions answered 10 -> 10; all 192 questions 167 -> 167 [ok]
+stored: L18 x.w.p0.25: first 16 questions answered 10 -> 10; all 192 questions 167 -> 165 [ok]
+stored: L18 x.w.m0.25: first 16 questions answered 10 -> 10; all 192 questions 167 -> 167 [ok]
+check 4: L18 x.w.p0.25 answered stored 165 new 167 (diff 2, within 3)
+answers C_L18_x-w-p0-25_tune.json: rows 192; identical as text 184; answered (crow_sign rule) first 167 second 165; baseline text identical 192
+check 4: L18 x.w.m0.25 answered stored 167 new 167 (diff 0, within 3)
+answers C_L18_x-w-m0-25_tune.json: rows 192; identical as text 185; answered (crow_sign rule) first 167 second 167; baseline text identical 192
+training_contract: 21 / 21 keys; differing ['layer']
+cosine layer 20 vs layer 20: w 0.995887; w_md 1.000000; backward by_kind_full_width vs -
+check 4: L20 cosine 0.995887 >= 0.99
+new:    L20 x.w.p0.25: first 16 questions answered 10 -> 10; all 192 questions 167 -> 163 [ok]
+new:    L20 x.w.m0.25: first 16 questions answered 10 -> 10; all 192 questions 167 -> 168 [ok]
+stored: L20 x.w.p0.25: first 16 questions answered 10 -> 10; all 192 questions 167 -> 163 [ok]
+stored: L20 x.w.m0.25: first 16 questions answered 10 -> 10; all 192 questions 167 -> 167 [ok]
+check 4: L20 x.w.p0.25 answered stored 163 new 163 (diff 0, within 3)
+answers C_L20_x-w-p0-25_tune.json: rows 192; identical as text 185; answered (crow_sign rule) first 163 second 163; baseline text identical 192
+check 4: L20 x.w.m0.25 answered stored 167 new 168 (diff 1, within 3)
+answers C_L20_x-w-m0-25_tune.json: rows 192; identical as text 180; answered (crow_sign rule) first 168 second 167; baseline text identical 192
+training_contract: 21 / 21 keys; differing ['layer']
+cosine layer 31 vs layer 31: w 0.992379; w_md 1.000000; backward by_kind_full_width vs -
+check 4: L31 cosine 0.992379 >= 0.99
+new:    L31 x.w.p0.25: first 16 questions answered 10 -> 10; all 192 questions 167 -> 159 [ok]
+new:    L31 x.w.m0.25: first 16 questions answered 10 -> 10; all 192 questions 167 -> 172 [ok]
+stored: L31 x.w.p0.25: first 16 questions answered 10 -> 10; all 192 questions 167 -> 159 [ok]
+stored: L31 x.w.m0.25: first 16 questions answered 10 -> 10; all 192 questions 167 -> 172 [ok]
+check 4: L31 x.w.p0.25 answered stored 159 new 159 (diff 0, within 3)
+answers C_L31_x-w-p0-25_tune.json: rows 192; identical as text 186; answered (crow_sign rule) first 159 second 159; baseline text identical 192
+check 4: L31 x.w.m0.25 answered stored 172 new 172 (diff 0, within 3)
+answers C_L31_x-w-m0-25_tune.json: rows 192; identical as text 184; answered (crow_sign rule) first 172 second 172; baseline text identical 192
+check 4: passed
+ALL FOUR CHECKS PASSED 2026-11-26 02:30:28 Beijing; card 3 released
