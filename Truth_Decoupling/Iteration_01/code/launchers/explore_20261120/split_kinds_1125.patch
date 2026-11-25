@@ -1,0 +1,115 @@
+--- a/core/qa_factorial_das.py	2026-11-25 06:09:46
++++ b/core/qa_factorial_das.py	2026-11-25 06:09:46
+@@ -351,10 +351,42 @@
+         total = total + per_row[isolate].mean()
+     return total
+ 
++
++def backward_by_kind(bundle, layer, rows, kinds, w, *, loss="jsd", positions="content"):
++    """Gradient of question_loss with the cause rows and the isolate rows back-propagated one after the other.
+ 
++    question_loss is the mean over the cause rows plus the mean over the isolate rows. The gradient of a sum is the sum
++    of the gradients, so each part is run forward and backward on its own and the two gradients add up in w.grad; only
++    one part's rows are held with their activations at a time (a write layer close to the input otherwise needs more
++    memory than one card has). Returns (per_row [B] detached, in the order of `rows`; value detached): the quantities
++    the single pass computes.
++    """
++    if len(kinds) != len(rows) or any(k not in ("cause", "isolate") for k in kinds):
++        raise ValueError('each loss row needs an explicit cause/isolate kind')
++    if "cause" not in kinds:
++        raise ValueError("a training question needs at least one cause row")
++    per_row = None
++    value = None
++    for kind in ("cause", "isolate"):
++        index = [i for i, k in enumerate(kinds) if k == kind]
++        if not index:
++            continue
++        part, _ = rows_loss(bundle, layer, [rows[i] for i in index], w=w, loss=loss, positions=positions, grad=True)
++        term = part.mean()
++        if not torch.isfinite(term):
++            raise RuntimeError("nonfinite training loss at layer %d" % layer)
++        term.backward()
++        if per_row is None:
++            per_row = part.detach().new_zeros(len(rows))
++        per_row[index] = part.detach()
++        value = term.detach() if value is None else value + term.detach()
++        del part, term
++    return per_row, value
++
++
+ # ----------------------------------------------------------------------------- training
+ def train_direction(bundle, layer, questions, *, epochs=10, lr=1e-3, clip=1.0, seed=42, init=None, loss="jsd",
+-                    positions="content", val_questions=(), log=None):
++                    positions="content", val_questions=(), log=None, split_kinds=False):
+     """Learn one unit direction at `layer`.
+ 
+     questions      list of {"pair_id", "rows": [row, ...]}; row = {"kind": "cause" | "isolate", "encoded",
+@@ -363,6 +395,8 @@
+     init           None = random unit vector from the seed; or a vector to start from (e.g. the mean difference).
+     Adam, learning rate decayed linearly to zero, gradient clipping, w renormalized after every step.
+     The model is frozen; only w has gradients.
++    split_kinds    False = one forward and backward pass on all rows of a question; True = backward_by_kind (the same
++                   gradient, the cause rows and the isolate rows one after the other).
+     """
+     if not questions:
+         raise ValueError("training needs at least one question")
+@@ -391,11 +425,14 @@
+             for group in opt.param_groups:
+                 group["lr"] = lr * (1.0 - step / total_steps)
+             opt.zero_grad(set_to_none=True)
+-            per_row, _ = rows_loss(bundle, layer, q["rows"], w=w, loss=loss, positions=positions, grad=True)
+-            value = question_loss(per_row, kinds)
+-            if not torch.isfinite(value):
+-                raise RuntimeError("nonfinite training loss at layer %d" % layer)
+-            value.backward()
++            if split_kinds:
++                per_row, value = backward_by_kind(bundle, layer, q["rows"], kinds, w, loss=loss, positions=positions)
++            else:
++                per_row, _ = rows_loss(bundle, layer, q["rows"], w=w, loss=loss, positions=positions, grad=True)
++                value = question_loss(per_row, kinds)
++                if not torch.isfinite(value):
++                    raise RuntimeError("nonfinite training loss at layer %d" % layer)
++                value.backward()
+             if w.grad is None or not torch.isfinite(w.grad).all():
+                 raise RuntimeError("direction received no finite gradient at layer %d" % layer)
+             grad_norms.append(float(torch.nn.utils.clip_grad_norm_([w], clip)))
+--- a/scripts/e44_factorial_das.py	2026-11-25 06:09:46
++++ b/scripts/e44_factorial_das.py	2026-11-25 06:09:46
+@@ -400,13 +400,16 @@
+ 
+ 
+ def training_contract(args, spec, layer, train_q, val_q, frozen, frozen_file):
+-    return {"family": spec["family"], "e_on": spec["e_on"], "e_off": spec["e_off"], "layer": layer, "seed": args.seed, "epochs": args.epochs,
++    contract = {"family": spec["family"], "e_on": spec["e_on"], "e_off": spec["e_off"], "layer": layer, "seed": args.seed, "epochs": args.epochs,
+             "lr": args.lr, "clip": args.clip, "loss": args.loss, "positions": args.positions, "init": args.init,
+             "val_n": args.val_n, 'split_seed': getattr(args, 'split_seed', 42), "pilot": is_pilot(args),
+             "rows": {k: [list(r) for r in spec[k]] for k in ("cause", "isolate", "plus_minus")},
+             "train_ids": [q["pair_id"] for q in train_q], "val_ids": [q["pair_id"] for q in val_q],
+             "targets_sha256": pd.fingerprint([[r["encoded"] for r in q["rows"]] for q in train_q + val_q]),
+             "frozen_record_sha256": frozen["artifact_sha256"], "frozen_file_sha256": file_sha(frozen_file)}
++    if getattr(args, "split_kinds", False):          # recorded only when used: a direction trained this way says so
++        contract["backward"] = "by_kind"
++    return contract
+ 
+ 
+ def validate_direction(record, family, layer, identity_sha, pilot, contract=None):
+@@ -522,7 +525,8 @@
+             if args.init == 'md':
+                 raise ValueError('mean-difference initialization is undefined at this layer (zero mean)')
+         w, info = fd.train_direction(bundle, layer, train_q, epochs=args.epochs, lr=args.lr, clip=args.clip, seed=args.seed,
+-                                     init=(w_md if args.init == "md" else None), val_questions=val_q, log=log, **kw)
++                                     init=(w_md if args.init == "md" else None), val_questions=val_q, log=log,
++                                     split_kinds=getattr(args, "split_kinds", False), **kw)
+         stats = fd.difference_stats(plus, minus, w)
+         if stats["mean"] < 0:                            # orientation only: the write (d . w) w does not depend on the sign
+             w = -w
+@@ -1110,6 +1114,9 @@
+     p.add_argument("--seed", type=int, default=42)
+     p.add_argument('--split-seed', type=int, default=42, help='fixed holdout partition seed, independent of optimization seed')
+     p.add_argument("--batch-size", type=int, default=8)
++    p.add_argument("--split-kinds", action="store_true",
++                   help="train: back-propagate the cause rows and the isolate rows of a question one after the other "
++                        "(the same gradient; half the rows held in memory at a time)")
+     p.add_argument("--mc-batch-size", type=int, default=16)
+     p.add_argument("--max-new-tokens", type=int, default=48)
+     p.add_argument("--max-target-tokens", type=int, default=24)
