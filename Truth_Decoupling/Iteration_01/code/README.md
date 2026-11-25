@@ -278,7 +278,7 @@
 | `launchers/explore_20261120/crow2_gen_sk_1125.sh` | 同上：第 1–17 层带开关训练与四臂（`crow2_gen_from_1125.sh` 的副本：只留一个键，换代码副本与结果目录，训练命令加 `--split-kinds`，每层一次调用，等核对的标记） | 新写（Opus 5.5，执行人寅），探索；不给卡的试运行过；未经 GPT 审 | 847a43b5fb033256 |
 | `launchers/explore_20261120/crow2_judge_sk_1125.sh` | 同上：新结果目录上的判分准备与 Pro 判分（`crow2_judge.sh` 的副本：只留一个键，换运行与题库目录，缓存取自主目录的 `judge_tune_crow2_C_from18`，花费上限 5 元） | 新写（Opus 5.5，执行人寅），探索；还没有运行；未经 GPT 审 | fc5b12298b5d4320 |
 | `launchers/explore_20261120/crow2_after_sk_1125.sh` | 同上：等生成完成后判分（空闲时段、余额下限 10 元）并出第 0–17 层加三层重叠的表 | 新写（Opus 5.5，执行人寅），探索；11-26 05:31 按自身条件停下（结果文件没有"四项都过"），没有判分；未经 GPT 审 | 7cdc1b162976d501 |
-| `launchers/explore_20261120/crow2_after_sk_released_1126.sh` | 排期 M 2026-11-26 05:38：`crow2_after_sk_1125.sh` 的副本，由程序改出，只改一处——四项核对的结果文件没有"四项都过"时，标记 `CROW2_gemma3-27b_SK_CHECK_DONE` 里有主会话的放行说明才继续（第一版的第 4 项没全过，00:20 按事先的读法放行）；用于第一版的判分与出表，第一版的行只作对照 | 主会话新写，探索；未经 GPT 审 | d1977ff6ba1913c4 |
+| `launchers/explore_20261120/crow2_after_sk_released_1126.sh` | 排期 M 2026-11-26 05:36：`crow2_after_sk_1125.sh` 的副本，由程序改出，只改一处——四项核对的结果文件没有"四项都过"时，标记 `CROW2_gemma3-27b_SK_CHECK_DONE` 里有主会话的放行说明才继续（第一版的第 4 项没全过，00:20 按事先的读法放行）；用于第一版的判分与出表，第一版的行只作对照 | 主会话新写，探索；未经 GPT 审 | d1977ff6ba1913c4 |
 | `launchers/explore_20261120/crow2_checks_sk2_1126.sh` | 排期 M 2026-11-26 00:48：补丁第二版的四项核对（`crow2_checks_sk_1125.sh` 的副本，由程序改名生成：第二版代码副本与结果目录、标记 `SK2_*`、3 号卡；新增等门槛标记 `SK2_GRADGATE_DONE`、核对四个打过补丁的文件的摘要、训练约定须为 `by_kind_full_width`；门槛不变） | 新写（Opus 5.5，执行人辰），探索；不给卡的试运行过；未经 GPT 审 | 9ac39b93faa49152 |
 | `launchers/explore_20261120/crow2_gen_sk2_1126.sh` | 同上：第二版的第 1–17 层训练与四臂（`crow2_gen_sk_1125.sh` 的副本：键 `g27sk2`，每层的训练约定须为 `by_kind_full_width`） | 新写（Opus 5.5，执行人辰），探索；不给卡的试运行过；未经 GPT 审 | bf43419e5f924063 |
 | `launchers/explore_20261120/crow2_judge_sk2_1126.sh` | 同上：第二版结果目录上的判分准备与 Pro 判分（`crow2_judge_sk_1125.sh` 的副本；缓存另可只读地并入第一版的判分缓存） | 新写（Opus 5.5，执行人辰），探索；还没有运行；未经 GPT 审 | 6fa382f88c9011f6 |
@@ -387,4 +387,4 @@
 | 2026-11-26 | 00 时 48 分：登记 `split_kinds2_1126.patch`；`diag/split_kinds_check.py` 与 `split_kinds_gradcheck_1125.sh` 改后的摘要；目录个数 201 | 赵磊（Fable 5.2 代笔） |
 | 2026-11-26 | 01 时 18 分：登记执行人辰的四个第二版脚本与一个读表副本；目录个数 205 | 赵磊（Fable 5.2 代笔） |
 | 2026-11-26 | 02 时 20 分：登记排期 O 的三个文件（`run_capilot_1126.sh`、`diag/table_capilot_1126.py`、`scripts/review_checks/e44_positions_capilot_1126.py`）；目录个数 206 | 赵磊（Fable 5.2 代笔） |
-| 2026-11-26 | 05 时 38 分：登记 `crow2_after_sk_released_1126.sh`；`crow2_after_sk_1125.sh` 的状态；目录个数 207 | 赵磊（Fable 5.2 代笔） |
+| 2026-11-26 | 05 时 36 分：登记 `crow2_after_sk_released_1126.sh`；`crow2_after_sk_1125.sh` 的状态；目录个数 207 | 赵磊（Fable 5.2 代笔） |
