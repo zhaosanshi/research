@@ -40,6 +40,7 @@ def record(out, argv):
 
     torch.nn.utils.clip_grad_norm_ = listening
     sys.argv = [script] + list(argv)
+    sys.path.insert(0, os.path.dirname(script))      # as when the script is started directly: its own directory first
     rc = 0
     try:
         runpy.run_path(script, run_name="__main__")
