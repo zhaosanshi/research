@@ -363,4 +363,4 @@
 | 2026-11-25 | 17 时：登记 `crow2_gen_from_1125.sh` 与 `crow2_g27_walkdown_1125.sh`；目录个数 193 | 赵磊（Fable 5.2 代笔） |
 | 2026-11-25 | 20 时：登记 `crow2_from_after_1125.sh`；`crow2_g27_walkdown_1125.sh` 的状态补上运行结果；目录个数 194 | 赵磊（Fable 5.2 代笔） |
 | 2026-11-25 | 22 时：登记 `split_kinds_1125.patch`（训练一步的省显存补丁，仓库里的 core 未打）与 `diag/split_kinds_check.py`；目录个数 195 | 赵磊（Fable 5.2 代笔） |
-| 2026-11-25 | 22 时 30 分：登记 `diag/tfg3_rule_variants.py` | 赵磊（Fable 5.2 代笔） |
+| 2026-11-25 | 22 时 29 分：登记 `diag/tfg3_rule_variants.py` | 赵磊（Fable 5.2 代笔） |
