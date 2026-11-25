@@ -1,0 +1,119 @@
+# C row of the free-form 2x2 by layer, PARTIAL second stage: plain prompt, C at 0.25, DeepSeek Pro (c_row_layers2_from.py over c_row_layers2.py / c_row_layers.py; tune work dir judge_tune_crow2_C_from18 where it holds the layer)
+
+Gemma-3-27B: layers 0-17 were NOT TRAINED (one card cannot hold the training of these layers; plan queue_m, 2026-11-24 21:35). Their rows below say so; they are not results.
+
+Tolerance 3% of the questions (tune: 6 of 192 beyond, 5 inside; test: 16 of 523 beyond). Paired bootstrap 10000 resamples, seed 20261111. 'status' = met / not_met / incomplete (incomplete = no random arm, nothing else failed).
+
+## tune split (192 questions)
+
+### Gemma-3-27B (N1 uses C layer 31)
+
+| model | layer | arm | N | no write: answered / net | d answered [95%] | d net [95%] | d abstained | answered both: n, right-rate change pp [95%] | moved answers (Pro) | answered->hedge | effect A / B | beats random A / B | retention A / B | status A / B | arm minus random, d answered [95%] |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gemma-3-27B | 0 | - | - | NOT TRAINED (one card cannot hold the training) |
+| Gemma-3-27B | 1 | - | - | NOT TRAINED (one card cannot hold the training) |
+| Gemma-3-27B | 2 | - | - | NOT TRAINED (one card cannot hold the training) |
+| Gemma-3-27B | 3 | - | - | NOT TRAINED (one card cannot hold the training) |
+| Gemma-3-27B | 4 | - | - | NOT TRAINED (one card cannot hold the training) |
+| Gemma-3-27B | 5 | - | - | NOT TRAINED (one card cannot hold the training) |
+| Gemma-3-27B | 6 | - | - | NOT TRAINED (one card cannot hold the training) |
+| Gemma-3-27B | 7 | - | - | NOT TRAINED (one card cannot hold the training) |
+| Gemma-3-27B | 8 | - | - | NOT TRAINED (one card cannot hold the training) |
+| Gemma-3-27B | 9 | - | - | NOT TRAINED (one card cannot hold the training) |
+| Gemma-3-27B | 10 | - | - | NOT TRAINED (one card cannot hold the training) |
+| Gemma-3-27B | 11 | - | - | NOT TRAINED (one card cannot hold the training) |
+| Gemma-3-27B | 12 | - | - | NOT TRAINED (one card cannot hold the training) |
+| Gemma-3-27B | 13 | - | - | NOT TRAINED (one card cannot hold the training) |
+| Gemma-3-27B | 14 | - | - | NOT TRAINED (one card cannot hold the training) |
+| Gemma-3-27B | 15 | - | - | NOT TRAINED (one card cannot hold the training) |
+| Gemma-3-27B | 16 | - | - | NOT TRAINED (one card cannot hold the training) |
+| Gemma-3-27B | 17 | - | - | NOT TRAINED (one card cannot hold the training) |
+| Gemma-3-27B | 18 | caution | 192 | 162 / -2 | -1 [-3, +0] | -1 [-3, +0] | +1 | 161, +0.0 [-1.8, +1.8] | suppressed R 1 / W 0 | 0 | no / no | yes / no | yes / yes | not_met / not_met | vs rand p -1 [-3, +0]; vs rand m -1 [-3, +0] |
+| Gemma-3-27B | 18 | answering | 192 | 162 / -2 | +0 [+0, +0] | -2 [-6, +0] | +0 | 162, -0.6 [-1.9, +0.0] | released R 0 / W 0 | 0 | no / no | no / no | yes / yes | not_met / not_met | vs rand p +0 [+0, +0]; vs rand m +0 [+0, +0] |
+| Gemma-3-27B | 19 | caution | 192 | 162 / -2 | -2 [-5, +0] | +2 [-2, +7] | +2 | 160, +0.6 [+0.0, +2.0] | suppressed R 1 / W 1 | 0 | no / no | yes / no | yes / yes | not_met / not_met | vs rand p -2 [-5, +0]; vs rand m -2 [-5, +0] |
+| Gemma-3-27B | 19 | answering | 192 | 162 / -2 | +0 [+0, +0] | +0 [+0, +0] | +0 | 162, +0.0 [-1.8, +1.8] | released R 0 / W 0 | 0 | no / no | no / no | yes / yes | not_met / not_met | vs rand p +0 [+0, +0]; vs rand m +0 [+0, +0] |
+| Gemma-3-27B | 20 | caution | 192 | 162 / -2 | -3 [-7, +0] | +1 [-2, +5] | +3 | 159, +0.0 [-1.9, +1.9] | suppressed R 1 / W 2 | 0 | no / no | yes / no | yes / yes | not_met / not_met | vs rand p -3 [-7, +0]; vs rand m -3 [-7, +0] |
+| Gemma-3-27B | 20 | answering | 192 | 162 / -2 | +0 [+0, +0] | -2 [-6, +0] | +0 | 162, -0.6 [-1.9, +0.0] | released R 0 / W 0 | 0 | no / no | no / no | yes / yes | not_met / not_met | vs rand p +0 [+0, +0]; vs rand m +0 [+0, +0] |
+| Gemma-3-27B | 21 | caution | 192 | 162 / -2 | -3 [-7, +0] | +3 [-2, +9] | +3 | 159, +0.6 [+0.0, +2.0] | suppressed R 1 / W 2 | 0 | no / no | yes / no | yes / yes | not_met / not_met | vs rand p -3 [-7, +0]; vs rand m -3 [-7, +0] |
+| Gemma-3-27B | 21 | answering | 192 | 162 / -2 | +1 [+0, +3] | +1 [-3, +6] | -1 | 162, +0.6 [+0.0, +1.9] | released R 0 / W 1 | 0 | no / no | yes / no | yes / yes | not_met / not_met | vs rand p +1 [+0, +3]; vs rand m +1 [+0, +3] |
+| Gemma-3-27B | 22 | caution | 192 | 162 / -2 | -3 [-7, +0] | +3 [-2, +9] | +3 | 159, +0.6 [+0.0, +2.0] | suppressed R 1 / W 2 | 0 | no / no | yes / no | yes / yes | not_met / not_met | vs rand p -3 [-7, +0]; vs rand m -3 [-7, +0] |
+| Gemma-3-27B | 22 | answering | 192 | 162 / -2 | +1 [+0, +3] | +1 [-3, +6] | -1 | 162, +0.6 [+0.0, +1.9] | released R 0 / W 1 | 0 | no / no | yes / no | yes / yes | not_met / not_met | vs rand p +1 [+0, +3]; vs rand m +1 [+0, +3] |
+| Gemma-3-27B | 23 | caution | 192 | 162 / -2 | -3 [-7, +0] | +3 [-2, +9] | +3 | 159, +0.6 [+0.0, +2.0] | suppressed R 1 / W 2 | 0 | no / no | yes / no | yes / yes | not_met / not_met | vs rand p -3 [-7, +0]; vs rand m -3 [-7, +0] |
+| Gemma-3-27B | 23 | answering | 192 | 162 / -2 | +1 [+0, +3] | +1 [-3, +6] | -1 | 162, +0.6 [+0.0, +1.9] | released R 0 / W 1 | 0 | no / no | yes / no | yes / yes | not_met / not_met | vs rand p +1 [+0, +3]; vs rand m +1 [+0, +3] |
+| Gemma-3-27B | 24 | caution | 192 | 162 / -2 | -3 [-7, +0] | -1 [-9, +6] | +3 | 159, -0.6 [-3.0, +1.3] | suppressed R 1 / W 2 | 0 | no / no | yes / no | yes / yes | not_met / not_met | vs rand p -3 [-7, +0]; vs rand m -3 [-7, +0] |
+| Gemma-3-27B | 24 | answering | 192 | 162 / -2 | +2 [+0, +5] | +2 [-2, +7] | -2 | 162, +0.6 [+0.0, +1.9] | released R 1 / W 1 | 0 | no / no | yes / no | yes / yes | not_met / not_met | vs rand p +2 [+0, +5]; vs rand m +2 [+0, +5] |
+| Gemma-3-27B | 25 | caution | 192 | 162 / -2 | -5 [-10, -1] | +1 [-6, +8] | +5 | 157, +0.0 [-1.9, +1.9] | suppressed R 2 / W 3 | 0 | no / no | yes / yes | yes / yes | not_met / not_met | vs rand p -5 [-10, -1]; vs rand m -5 [-10, -1] |
+| Gemma-3-27B | 25 | answering | 192 | 162 / -2 | +2 [+0, +5] | +2 [-2, +7] | -2 | 162, +0.6 [+0.0, +1.9] | released R 1 / W 1 | 0 | no / no | yes / no | yes / yes | not_met / not_met | vs rand p +2 [+0, +5]; vs rand m +2 [+0, +5] |
+| Gemma-3-27B | 26 | caution | 192 | 162 / -2 | -6 [-11, -2] | +6 [-3, +16] | +7 | 156, +1.3 [-1.2, +3.9] | suppressed R 2 / W 4 | 0 | yes / yes | yes / yes | yes / no | met / not_met | vs rand p -6 [-11, -2]; vs rand m -6 [-11, -2] |
+| Gemma-3-27B | 26 | answering | 192 | 162 / -2 | +2 [+0, +5] | +0 [-8, +8] | -2 | 162, +0.0 [-2.5, +2.5] | released R 1 / W 1 | 0 | no / no | yes / no | yes / yes | not_met / not_met | vs rand p +2 [+0, +5]; vs rand m +2 [+0, +5] |
+| Gemma-3-27B | 27 | caution | 192 | 162 / -2 | -7 [-12, -2] | +7 [-2, +17] | +8 | 155, +1.3 [-1.2, +4.0] | suppressed R 2 / W 5 | 0 | yes / yes | yes / yes | yes / no | met / not_met | vs rand p -7 [-12, -2]; vs rand m -7 [-12, -2] |
+| Gemma-3-27B | 27 | answering | 192 | 162 / -2 | +6 [+2, +11] | -6 [-16, +3] | -6 | 162, -1.2 [-3.8, +1.2] | released R 2 / W 4 | 0 | yes / yes | yes / yes | yes / no | met / not_met | vs rand p +6 [+2, +11]; vs rand m +6 [+2, +11] |
+| Gemma-3-27B | 28 | caution | 192 | 162 / -2 | -6 [-11, -2] | +2 [-5, +10] | +7 | 156, +0.0 [-1.9, +1.9] | suppressed R 2 / W 4 | 0 | yes / yes | yes / yes | yes / yes | met / met | vs rand p -6 [-11, -2]; vs rand m -6 [-11, -2] |
+| Gemma-3-27B | 28 | answering | 192 | 162 / -2 | +5 [+1, +10] | -7 [-17, +2] | -5 | 162, -1.9 [-4.8, +0.6] | released R 2 / W 3 | 0 | no / no | yes / yes | yes / no | not_met / not_met | vs rand p +5 [+1, +10]; vs rand m +5 [+1, +10] |
+| Gemma-3-27B | 29 | caution | 192 | 162 / -2 | -7 [-12, -2] | +3 [-5, +11] | +8 | 155, +0.0 [-1.9, +1.9] | suppressed R 2 / W 5 | 0 | yes / yes | yes / yes | yes / yes | met / met | vs rand p -7 [-12, -2]; vs rand m -7 [-12, -2] |
+| Gemma-3-27B | 29 | answering | 192 | 162 / -2 | +6 [+2, +11] | -4 [-13, +4] | -6 | 162, -0.6 [-2.9, +1.3] | released R 2 / W 4 | 0 | yes / yes | yes / yes | yes / yes | met / met | vs rand p +6 [+2, +11]; vs rand m +6 [+2, +11] |
+| Gemma-3-27B | 30 | caution | 192 | 162 / -2 | -8 [-14, -3] | +2 [-7, +11] | +8 | 154, -0.6 [-3.1, +1.4] | suppressed R 2 / W 6 | 1 | yes / yes | yes / yes | yes / no | met / not_met | vs rand p -8 [-14, -3]; vs rand m -8 [-14, -3] |
+| Gemma-3-27B | 30 | answering | 192 | 162 / -2 | +3 [+0, +7] | -1 [-10, +8] | -3 | 162, +0.0 [-2.5, +2.5] | released R 1 / W 2 | 0 | no / no | yes / no | yes / yes | not_met / not_met | vs rand p +3 [+0, +7]; vs rand m +3 [+0, +7] |
+| Gemma-3-27B | 31 | caution | 192 | 162 / -2 | -7 [-12, -2] | +5 [-1, +12] | +7 | 155, +0.6 [+0.0, +2.0] | suppressed R 2 / W 5 | 1 | yes / yes | yes / yes | yes / yes | met / met | vs rand p -7 [-12, -2]; vs rand m -7 [-12, -2] |
+| Gemma-3-27B | 31 | answering | 192 | 162 / -2 | +5 [+1, +10] | -5 [-14, +3] | -5 | 162, -1.2 [-3.7, +1.2] | released R 2 / W 3 | 0 | no / no | yes / yes | yes / no | not_met / not_met | vs rand p +5 [+1, +10]; vs rand m +5 [+1, +10] |
+| Gemma-3-27B | 32 | caution | 192 | 162 / -2 | -7 [-12, -2] | +1 [-8, +9] | +7 | 155, -0.6 [-3.1, +1.3] | suppressed R 2 / W 5 | 1 | yes / yes | yes / yes | yes / no | met / not_met | vs rand p -7 [-12, -2]; vs rand m -7 [-12, -2] |
+| Gemma-3-27B | 32 | answering | 192 | 162 / -2 | +4 [+1, +8] | -4 [-11, +2] | -4 | 162, -1.2 [-3.1, +0.0] | released R 2 / W 2 | 0 | no / no | yes / yes | yes / no | not_met / not_met | vs rand p +4 [+1, +8]; vs rand m +4 [+1, +8] |
+| Gemma-3-27B | 33 | caution | 192 | 162 / -2 | -7 [-12, -2] | +7 [+0, +15] | +7 | 155, +1.3 [+0.0, +3.3] | suppressed R 2 / W 5 | 1 | yes / yes | yes / yes | yes / no | met / not_met | vs rand p -7 [-12, -2]; vs rand m -6 [-11, -2] |
+| Gemma-3-27B | 33 | answering | 192 | 162 / -2 | +4 [+1, +8] | +0 [-7, +7] | -4 | 162, +0.0 [-1.8, +1.9] | released R 2 / W 2 | 0 | no / no | yes / yes | yes / yes | not_met / not_met | vs rand p +4 [+1, +8]; vs rand m +5 [+1, +10] |
+| Gemma-3-27B | 34 | caution | 192 | 162 / -2 | -7 [-12, -2] | +3 [-5, +11] | +7 | 155, +0.0 [-1.9, +1.9] | suppressed R 2 / W 5 | 1 | yes / yes | yes / yes | yes / yes | met / met | vs rand p -7 [-12, -2]; vs rand m -7 [-12, -2] |
+| Gemma-3-27B | 34 | answering | 192 | 162 / -2 | +4 [+1, +8] | -6 [-15, +1] | -4 | 162, -1.9 [-4.3, +0.0] | released R 2 / W 2 | 0 | no / no | yes / yes | yes / no | not_met / not_met | vs rand p +4 [+1, +8]; vs rand m +4 [+1, +8] |
+| Gemma-3-27B | 35 | caution | 192 | 162 / -2 | -7 [-12, -2] | +3 [-5, +11] | +7 | 155, +0.0 [-1.9, +1.9] | suppressed R 2 / W 5 | 1 | yes / yes | yes / yes | yes / yes | met / met | vs rand p -7 [-12, -2]; vs rand m -7 [-12, -2] |
+| Gemma-3-27B | 35 | answering | 192 | 162 / -2 | +3 [+0, +7] | -3 [-12, +5] | -3 | 162, -1.2 [-3.8, +1.2] | released R 2 / W 1 | 0 | no / no | yes / no | yes / no | not_met / not_met | vs rand p +3 [+0, +7]; vs rand m +3 [+0, +7] |
+| Gemma-3-27B | 36 | caution | 192 | 162 / -2 | -5 [-10, -1] | +3 [-2, +9] | +5 | 157, +0.6 [+0.0, +2.0] | suppressed R 2 / W 3 | 1 | no / no | yes / yes | yes / yes | not_met / not_met | vs rand p -5 [-10, -1]; vs rand m -5 [-10, -1] |
+| Gemma-3-27B | 36 | answering | 192 | 162 / -2 | +3 [+0, +7] | -5 [-13, +2] | -3 | 162, -1.9 [-4.3, +0.0] | released R 2 / W 1 | 0 | no / no | yes / no | yes / no | not_met / not_met | vs rand p +3 [+0, +7]; vs rand m +3 [+0, +7] |
+| Gemma-3-27B | 37 | caution | 192 | 162 / -2 | -5 [-10, -1] | -1 [-9, +7] | +5 | 157, -0.6 [-3.1, +1.3] | suppressed R 2 / W 3 | 1 | no / no | yes / yes | yes / no | not_met / not_met | vs rand p -5 [-10, -1]; vs rand m -5 [-10, -1] |
+| Gemma-3-27B | 37 | answering | 192 | 162 / -2 | +2 [-2, +6] | -4 [-13, +4] | -2 | 161, -1.2 [-3.8, +1.2] | released R 2 / W 1 | 0 | no / no | yes / no | yes / no | not_met / not_met | vs rand p +2 [-2, +6]; vs rand m +2 [-2, +6] |
+| Gemma-3-27B | 38 | caution | 192 | 162 / -2 | -4 [-8, -1] | +2 [-3, +8] | +5 | 158, +0.6 [+0.0, +2.0] | suppressed R 2 / W 2 | 0 | no / no | yes / yes | yes / yes | not_met / not_met | vs rand p -4 [-8, -1]; vs rand m -4 [-8, -1] |
+| Gemma-3-27B | 38 | answering | 192 | 162 / -2 | +2 [+0, +5] | -6 [-14, +0] | -2 | 162, -1.9 [-4.3, +0.0] | released R 1 / W 1 | 0 | no / no | yes / no | yes / no | not_met / not_met | vs rand p +2 [+0, +5]; vs rand m +2 [+0, +5] |
+| Gemma-3-27B | 39 | caution | 192 | 162 / -2 | -4 [-8, -1] | +0 [-7, +7] | +5 | 158, +0.0 [-1.9, +1.9] | suppressed R 2 / W 2 | 0 | no / no | yes / yes | yes / yes | not_met / not_met | vs rand p -4 [-8, -1]; vs rand m -4 [-8, -1] |
+| Gemma-3-27B | 39 | answering | 192 | 162 / -2 | +3 [+0, +7] | -5 [-13, +2] | -3 | 162, -1.9 [-4.2, +0.0] | released R 2 / W 1 | 0 | no / no | yes / no | yes / no | not_met / not_met | vs rand p +3 [+0, +7]; vs rand m +3 [+0, +7] |
+| Gemma-3-27B | 40 | caution | 192 | 162 / -2 | -4 [-8, -1] | +2 [-3, +8] | +5 | 158, +0.6 [+0.0, +2.0] | suppressed R 2 / W 2 | 0 | no / no | yes / yes | yes / yes | not_met / not_met | vs rand p -4 [-8, -1]; vs rand m -4 [-8, -1] |
+| Gemma-3-27B | 40 | answering | 192 | 162 / -2 | +3 [+0, +7] | -3 [-12, +5] | -3 | 162, -1.2 [-3.8, +1.2] | released R 2 / W 1 | 0 | no / no | yes / no | yes / no | not_met / not_met | vs rand p +3 [+0, +7]; vs rand m +3 [+0, +7] |
+| Gemma-3-27B | 41 | caution | 192 | 162 / -2 | -4 [-8, -1] | +2 [-3, +8] | +5 | 158, +0.6 [+0.0, +2.0] | suppressed R 2 / W 2 | 0 | no / no | yes / yes | yes / yes | not_met / not_met | vs rand p -4 [-8, -1]; vs rand m -4 [-8, -1] |
+| Gemma-3-27B | 41 | answering | 192 | 162 / -2 | +2 [+0, +5] | -6 [-14, +0] | -2 | 162, -1.9 [-4.3, +0.0] | released R 1 / W 1 | 0 | no / no | yes / no | yes / no | not_met / not_met | vs rand p +2 [+0, +5]; vs rand m +2 [+0, +5] |
+| Gemma-3-27B | 42 | caution | 192 | 162 / -2 | -4 [-8, -1] | +2 [-3, +8] | +5 | 158, +0.6 [+0.0, +2.0] | suppressed R 2 / W 2 | 0 | no / no | yes / yes | yes / yes | not_met / not_met | vs rand p -4 [-8, -1]; vs rand m -4 [-8, -1] |
+| Gemma-3-27B | 42 | answering | 192 | 162 / -2 | +2 [+0, +5] | -4 [-11, +1] | -2 | 162, -1.2 [-3.1, +0.0] | released R 1 / W 1 | 0 | no / no | yes / no | yes / no | not_met / not_met | vs rand p +2 [+0, +5]; vs rand m +2 [+0, +5] |
+| Gemma-3-27B | 43 | caution | 192 | 162 / -2 | -4 [-8, -1] | +2 [-6, +10] | +5 | 158, +0.6 [-1.3, +3.0] | suppressed R 2 / W 2 | 0 | no / no | yes / yes | yes / no | not_met / not_met | vs rand p -4 [-8, -1]; vs rand m -4 [-8, -1] |
+| Gemma-3-27B | 43 | answering | 192 | 162 / -2 | +2 [+0, +5] | -4 [-11, +1] | -2 | 162, -1.2 [-3.1, +0.0] | released R 1 / W 1 | 0 | no / no | yes / no | yes / no | not_met / not_met | vs rand p +2 [+0, +5]; vs rand m +2 [+0, +5] |
+| Gemma-3-27B | 44 | caution | 192 | 162 / -2 | -4 [-8, -1] | -2 [-10, +6] | +5 | 158, -0.6 [-2.8, +1.3] | suppressed R 2 / W 2 | 0 | no / no | yes / yes | yes / yes | not_met / not_met | vs rand p -4 [-8, -1]; vs rand m -4 [-8, -1] |
+| Gemma-3-27B | 44 | answering | 192 | 162 / -2 | +2 [+0, +5] | -2 [-7, +2] | -2 | 162, -0.6 [-1.9, +0.0] | released R 1 / W 1 | 0 | no / no | yes / no | yes / yes | not_met / not_met | vs rand p +2 [+0, +5]; vs rand m +2 [+0, +5] |
+| Gemma-3-27B | 45 | caution | 192 | 162 / -2 | -4 [-8, -1] | +2 [-6, +10] | +5 | 158, +0.6 [-1.3, +3.0] | suppressed R 2 / W 2 | 0 | no / no | yes / yes | yes / no | not_met / not_met | vs rand p -4 [-8, -1]; vs rand m -4 [-8, -1] |
+| Gemma-3-27B | 45 | answering | 192 | 162 / -2 | +2 [+0, +5] | -2 [-7, +2] | -2 | 162, -0.6 [-1.9, +0.0] | released R 1 / W 1 | 0 | no / no | yes / no | yes / yes | not_met / not_met | vs rand p +2 [+0, +5]; vs rand m +2 [+0, +5] |
+| Gemma-3-27B | 46 | caution | 192 | 162 / -2 | -4 [-8, -1] | +0 [-9, +9] | +5 | 158, +0.0 [-2.5, +2.5] | suppressed R 2 / W 2 | 0 | no / no | yes / yes | yes / yes | not_met / not_met | vs rand p -4 [-8, -1]; vs rand m -4 [-8, -1] |
+| Gemma-3-27B | 46 | answering | 192 | 162 / -2 | +2 [-2, +6] | -2 [-8, +3] | -2 | 161, -0.6 [-1.9, +0.0] | released R 2 / W 1 | 0 | no / no | yes / no | yes / yes | not_met / not_met | vs rand p +2 [-2, +6]; vs rand m +2 [-2, +6] |
+| Gemma-3-27B | 47 | caution | 192 | 162 / -2 | -5 [-10, -1] | -1 [-9, +7] | +6 | 157, -0.6 [-2.8, +1.3] | suppressed R 2 / W 3 | 0 | no / no | yes / yes | yes / yes | not_met / not_met | vs rand p -5 [-10, -1]; vs rand m -4 [-8, -1] |
+| Gemma-3-27B | 47 | answering | 192 | 162 / -2 | +4 [+1, +8] | -8 [-17, +0] | -4 | 162, -2.5 [-5.1, -0.6] | released R 2 / W 2 | 0 | no / no | yes / yes | yes / no | not_met / not_met | vs rand p +4 [+1, +8]; vs rand m +5 [+1, +10] |
+| Gemma-3-27B | 48 | caution | 192 | 162 / -2 | -4 [-8, -1] | -4 [-11, +2] | +5 | 158, -1.3 [-3.2, +0.0] | suppressed R 2 / W 2 | 0 | no / no | yes / yes | yes / no | not_met / not_met | vs rand p -4 [-8, -1]; vs rand m -4 [-8, -1] |
+| Gemma-3-27B | 48 | answering | 192 | 162 / -2 | +3 [+0, +7] | -7 [-15, -1] | -3 | 162, -1.9 [-4.3, +0.0] | released R 1 / W 2 | 0 | no / no | yes / no | yes / no | not_met / not_met | vs rand p +3 [+0, +7]; vs rand m +3 [+0, +7] |
+| Gemma-3-27B | 49 | caution | 192 | 162 / -2 | -4 [-8, -1] | +0 [-9, +9] | +5 | 158, +0.0 [-2.5, +2.5] | suppressed R 2 / W 2 | 0 | no / no | yes / yes | yes / yes | not_met / not_met | vs rand p -4 [-8, -1]; vs rand m -4 [-8, -1] |
+| Gemma-3-27B | 49 | answering | 192 | 162 / -2 | +2 [+0, +5] | -6 [-14, +0] | -2 | 162, -1.9 [-4.3, +0.0] | released R 1 / W 1 | 0 | no / no | yes / no | yes / no | not_met / not_met | vs rand p +2 [+0, +5]; vs rand m +2 [+0, +5] |
+| Gemma-3-27B | 50 | caution | 192 | 162 / -2 | -4 [-8, -1] | -2 [-8, +3] | +5 | 158, -0.6 [-2.0, +0.0] | suppressed R 2 / W 2 | 0 | no / no | yes / yes | yes / yes | not_met / not_met | vs rand p -4 [-8, -1]; vs rand m -4 [-8, -1] |
+| Gemma-3-27B | 50 | answering | 192 | 162 / -2 | +3 [+0, +7] | -7 [-15, -1] | -3 | 162, -1.9 [-4.3, +0.0] | released R 1 / W 2 | 0 | no / no | yes / no | yes / no | not_met / not_met | vs rand p +3 [+0, +7]; vs rand m +3 [+0, +7] |
+| Gemma-3-27B | 51 | caution | 192 | 162 / -2 | -4 [-8, -1] | -4 [-13, +4] | +5 | 158, -1.3 [-3.8, +1.2] | suppressed R 2 / W 2 | 0 | no / no | yes / yes | yes / no | not_met / not_met | vs rand p -4 [-8, -1]; vs rand m -4 [-8, -1] |
+| Gemma-3-27B | 51 | answering | 192 | 162 / -2 | +3 [+0, +7] | -7 [-15, -1] | -3 | 162, -1.9 [-4.3, +0.0] | released R 1 / W 2 | 0 | no / no | yes / no | yes / no | not_met / not_met | vs rand p +3 [+0, +7]; vs rand m +3 [+0, +7] |
+| Gemma-3-27B | 52 | caution | 192 | 162 / -2 | -4 [-8, -1] | -2 [-10, +6] | +5 | 158, -0.6 [-2.8, +1.3] | suppressed R 2 / W 2 | 0 | no / no | yes / yes | yes / yes | not_met / not_met | vs rand p -4 [-8, -1]; vs rand m -4 [-8, -1] |
+| Gemma-3-27B | 52 | answering | 192 | 162 / -2 | +3 [+0, +7] | -5 [-12, +1] | -3 | 162, -1.2 [-3.1, +0.0] | released R 1 / W 2 | 0 | no / no | yes / no | yes / no | not_met / not_met | vs rand p +3 [+0, +7]; vs rand m +3 [+0, +7] |
+| Gemma-3-27B | 53 | caution | 192 | 162 / -2 | -5 [-10, -1] | +1 [-8, +10] | +5 | 157, +0.0 [-2.5, +2.6] | suppressed R 2 / W 3 | 0 | no / no | yes / yes | yes / yes | not_met / not_met | vs rand p -5 [-10, -1]; vs rand m -5 [-10, -1] |
+| Gemma-3-27B | 53 | answering | 192 | 162 / -2 | +3 [-1, +8] | -3 [-9, +2] | -3 | 161, -0.6 [-1.9, +0.0] | released R 2 / W 2 | 0 | no / no | yes / no | yes / yes | not_met / not_met | vs rand p +3 [-1, +8]; vs rand m +3 [-1, +8] |
+| Gemma-3-27B | 54 | caution | 192 | 162 / -2 | -4 [-8, -1] | -2 [-10, +6] | +5 | 158, -0.6 [-2.8, +1.3] | suppressed R 2 / W 2 | 0 | no / no | yes / no | yes / yes | not_met / not_met | vs rand p -4 [-8, -1]; vs rand m -3 [-7, +0] |
+| Gemma-3-27B | 54 | answering | 192 | 162 / -2 | +2 [-2, +6] | -4 [-10, +1] | -2 | 161, -0.6 [-1.9, +0.0] | released R 1 / W 2 | 0 | no / no | yes / no | yes / yes | not_met / not_met | vs rand p +2 [-2, +6]; vs rand m +3 [-1, +8] |
+| Gemma-3-27B | 55 | caution | 192 | 162 / -2 | -4 [-8, -1] | +2 [-3, +8] | +5 | 158, +0.6 [+0.0, +2.0] | suppressed R 2 / W 2 | 0 | no / no | yes / yes | yes / yes | not_met / not_met | vs rand p -4 [-8, -1]; vs rand m -4 [-8, -1] |
+| Gemma-3-27B | 55 | answering | 192 | 162 / -2 | +3 [-1, +8] | -3 [-9, +2] | -3 | 161, -0.6 [-1.9, +0.0] | released R 2 / W 2 | 0 | no / no | yes / no | yes / yes | not_met / not_met | vs rand p +3 [-1, +8]; vs rand m +3 [-1, +8] |
+| Gemma-3-27B | 56 | caution | 192 | 162 / -2 | -4 [-8, -1] | +2 [-3, +8] | +5 | 158, +0.6 [+0.0, +2.0] | suppressed R 2 / W 2 | 0 | no / no | yes / yes | yes / yes | not_met / not_met | vs rand p -4 [-8, -1]; vs rand m -4 [-8, -1] |
+| Gemma-3-27B | 56 | answering | 192 | 162 / -2 | +2 [-2, +6] | -4 [-12, +4] | -2 | 161, -0.6 [-3.0, +1.3] | released R 1 / W 2 | 0 | no / no | yes / no | yes / no | not_met / not_met | vs rand p +2 [-2, +6]; vs rand m +2 [-2, +6] |
+| Gemma-3-27B | 57 | caution | 192 | 162 / -2 | -4 [-8, -1] | +2 [-3, +8] | +5 | 158, +0.6 [+0.0, +2.0] | suppressed R 2 / W 2 | 0 | no / no | yes / yes | yes / yes | not_met / not_met | vs rand p -4 [-8, -1]; vs rand m -4 [-8, -1] |
+| Gemma-3-27B | 57 | answering | 192 | 162 / -2 | +3 [-1, +8] | -3 [-9, +2] | -3 | 161, -0.6 [-1.9, +0.0] | released R 2 / W 2 | 0 | no / no | yes / no | yes / yes | not_met / not_met | vs rand p +3 [-1, +8]; vs rand m +3 [-1, +8] |
+| Gemma-3-27B | 58 | caution | 192 | 162 / -2 | -4 [-8, -1] | -2 [-8, +3] | +5 | 158, -0.6 [-2.0, +0.0] | suppressed R 2 / W 2 | 0 | no / no | yes / yes | yes / yes | not_met / not_met | vs rand p -4 [-8, -1]; vs rand m -4 [-8, -1] |
+| Gemma-3-27B | 58 | answering | 192 | 162 / -2 | +3 [-1, +8] | -1 [-5, +3] | -3 | 161, +0.0 [-1.8, +1.8] | released R 2 / W 2 | 0 | no / no | yes / no | yes / yes | not_met / not_met | vs rand p +3 [-1, +8]; vs rand m +3 [-1, +8] |
+| Gemma-3-27B | 59 | caution | 192 | 162 / -2 | -4 [-8, -1] | -2 [-8, +3] | +5 | 158, -0.6 [-2.0, +0.0] | suppressed R 2 / W 2 | 0 | no / no | yes / yes | yes / yes | not_met / not_met | vs rand p -4 [-8, -1]; vs rand m -4 [-8, -1] |
+| Gemma-3-27B | 59 | answering | 192 | 162 / -2 | +3 [-1, +8] | -1 [-5, +3] | -3 | 161, +0.0 [-1.8, +1.8] | released R 2 / W 2 | 0 | no / no | yes / no | yes / yes | not_met / not_met | vs rand p +3 [-1, +8]; vs rand m +3 [-1, +8] |
+| Gemma-3-27B | 60 | caution | 192 | 162 / -2 | -4 [-8, -1] | +0 [-7, +7] | +5 | 158, +0.0 [-1.9, +1.9] | suppressed R 2 / W 2 | 0 | no / no | yes / yes | yes / yes | not_met / not_met | vs rand p -4 [-8, -1]; vs rand m -4 [-8, -1] |
+| Gemma-3-27B | 60 | answering | 192 | 162 / -2 | +4 [+0, +9] | -2 [-7, +3] | -4 | 161, +0.0 [-1.8, +1.8] | released R 2 / W 3 | 0 | no / no | yes / no | yes / yes | not_met / not_met | vs rand p +4 [+0, +9]; vs rand m +4 [+0, +9] |
+| Gemma-3-27B | 61 | caution | 192 | 162 / -2 | -4 [-8, -1] | -2 [-8, +3] | +5 | 158, -0.6 [-2.0, +0.0] | suppressed R 2 / W 2 | 0 | no / no | yes / yes | yes / yes | not_met / not_met | vs rand p -4 [-8, -1]; vs rand m -4 [-8, -1] |
+| Gemma-3-27B | 61 | answering | 192 | 162 / -2 | +5 [+0, +10] | -5 [-12, +1] | -5 | 161, -0.6 [-1.9, +0.0] | released R 2 / W 4 | 0 | no / no | yes / no | yes / yes | not_met / not_met | vs rand p +5 [+0, +10]; vs rand m +5 [+0, +10] |
+
