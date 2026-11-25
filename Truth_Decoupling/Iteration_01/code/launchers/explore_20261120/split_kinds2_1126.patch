@@ -1,0 +1,192 @@
+--- a/core/qa_context.py	2026-11-25 08:46:27
++++ c/core/qa_context.py	2026-11-25 08:46:28
+@@ -164,12 +164,16 @@
+     }
+ 
+ 
+-def pack_answers(encoded, pad_token_id, device):
++def pack_answers(encoded, pad_token_id, device, width=None):
+     """Left-pad encoded sequences and mark target/content vs predictor positions.
+ 
+     For an unpadded prompt of P tokens and answer of M tokens, target/answer
+     positions are P..P+M-1; predictors are P-1..P+M-2. The final prompt token
+     therefore participates in first-answer-token prediction.
++
++    width  None = the longest sequence of this batch (the behaviour without the argument); an integer not below
++           it = pad on the left to that width instead, so that rows packed in parts get the padding they would
++           have in the full batch.
+     """
+     encoded = list(encoded)
+     if not encoded:
+@@ -187,7 +191,11 @@
+             raise ValueError("encoded prefix/answer lengths disagree")
+         if any(type(i) is not int or i < 0 for i in ids):
+             raise ValueError("encoded token IDs must be nonnegative integers")
+-    batch, width = len(encoded), max(len(item["full_ids"]) for item in encoded)
++    batch, longest = len(encoded), max(len(item["full_ids"]) for item in encoded)
++    if width is None:
++        width = longest
++    elif type(width) is not int or width < longest:
++        raise ValueError("width must be an integer not below the longest sequence of the batch")
+     ids = torch.full((batch, width), pad_token_id, dtype=torch.long, device=device)
+     attention = torch.zeros((batch, width), dtype=torch.long, device=device)
+     target = torch.zeros((batch, width), dtype=torch.bool, device=device)
+--- a/core/qa_prompt_das.py	2026-11-25 08:46:28
++++ c/core/qa_prompt_das.py	2026-11-25 08:46:28
+@@ -171,9 +171,12 @@
+     }
+ 
+ 
+-def pack_with_content_mask(encoded, pad_token_id, device):
+-    """pack_answers plus a boolean [B, T] mask of the content positions (user content .. end)."""
+-    packed = pack_answers(encoded, pad_token_id, device)
++def pack_with_content_mask(encoded, pad_token_id, device, width=None):
++    """pack_answers plus a boolean [B, T] mask of the content positions (user content .. end).
++
++    width: see pack_answers (None = the longest sequence of this batch).
++    """
++    packed = pack_answers(encoded, pad_token_id, device, width)
+     width = packed["inputs"]["input_ids"].shape[1]
+     content = torch.zeros_like(packed["target_mask"])
+     for row, item in enumerate(encoded):
+--- a/core/qa_factorial_das.py	2026-11-25 06:09:46
++++ c/core/qa_factorial_das.py	2026-11-25 08:46:28
+@@ -285,7 +285,7 @@
+     return out
+ 
+ 
+-def rows_loss(bundle, layer, rows, *, w=None, mode="direction", loss="jsd", positions="content", grad=False):
++def rows_loss(bundle, layer, rows, *, w=None, mode="direction", loss="jsd", positions="content", grad=False, width=None):
+     """Per-row loss of a batch of interchange rows.
+ 
+     rows  list of {"encoded": base prompt + the target prompt's answer, "difference": [hidden] h_src - h_base
+@@ -293,11 +293,12 @@
+     mode  "direction": write (difference . w) w        (the trained operator)
+           "vectors":   write the whole difference      (diagnostic; not a bound on predictive performance)
+           "none":      no write                        (reference: the gap to close; 0 for isolate rows)
++    width None = pad to the longest of these rows; an integer = pad on the left to that width (backward_by_kind).
+     Returns (per_row [B] tensor, hook stats or None).
+     """
+     if loss not in LOSSES:
+         raise ValueError("loss must be one of %s" % (LOSSES,))
+-    packed = pd.pack_with_content_mask([r["encoded"] for r in rows], bundle.tokenizer.pad_token_id, bundle.device)
++    packed = pd.pack_with_content_mask([r["encoded"] for r in rows], bundle.tokenizer.pad_token_id, bundle.device, width)
+     hook = None
+     if mode == "none":
+         logits = forward_logits(bundle, packed["inputs"], grad=False)
+@@ -351,10 +352,45 @@
+         total = total + per_row[isolate].mean()
+     return total
+ 
++
++def backward_by_kind(bundle, layer, rows, kinds, w, *, loss="jsd", positions="content"):
++    """Gradient of question_loss with the cause rows and the isolate rows back-propagated one after the other.
+ 
++    question_loss is the mean over the cause rows plus the mean over the isolate rows. The gradient of a sum is the sum
++    of the gradients, so each part is run forward and backward on its own and the two gradients add up in w.grad; only
++    one part's rows are held with their activations at a time (a write layer close to the input otherwise needs more
++    memory than one card has). Both parts are padded on the left to the width of the full batch of all rows, so every
++    row has the padding it has in the single pass (in half precision a row's numbers depend on its padding).
++    Returns (per_row [B] detached, in the order of `rows`; value detached): the quantities the single pass computes.
++    """
++    if len(kinds) != len(rows) or any(k not in ("cause", "isolate") for k in kinds):
++        raise ValueError('each loss row needs an explicit cause/isolate kind')
++    if "cause" not in kinds:
++        raise ValueError("a training question needs at least one cause row")
++    per_row = None
++    value = None
++    width = max(r["encoded"]["prompt_length"] + r["encoded"]["answer_length"] for r in rows)
++    for kind in ("cause", "isolate"):
++        index = [i for i, k in enumerate(kinds) if k == kind]
++        if not index:
++            continue
++        part, _ = rows_loss(bundle, layer, [rows[i] for i in index], w=w, loss=loss, positions=positions, grad=True,
++                            width=width)
++        term = part.mean()
++        if not torch.isfinite(term):
++            raise RuntimeError("nonfinite training loss at layer %d" % layer)
++        term.backward()
++        if per_row is None:
++            per_row = part.detach().new_zeros(len(rows))
++        per_row[index] = part.detach()
++        value = term.detach() if value is None else value + term.detach()
++        del part, term
++    return per_row, value
++
++
+ # ----------------------------------------------------------------------------- training
+ def train_direction(bundle, layer, questions, *, epochs=10, lr=1e-3, clip=1.0, seed=42, init=None, loss="jsd",
+-                    positions="content", val_questions=(), log=None):
++                    positions="content", val_questions=(), log=None, split_kinds=False):
+     """Learn one unit direction at `layer`.
+ 
+     questions      list of {"pair_id", "rows": [row, ...]}; row = {"kind": "cause" | "isolate", "encoded",
+@@ -363,6 +399,8 @@
+     init           None = random unit vector from the seed; or a vector to start from (e.g. the mean difference).
+     Adam, learning rate decayed linearly to zero, gradient clipping, w renormalized after every step.
+     The model is frozen; only w has gradients.
++    split_kinds    False = one forward and backward pass on all rows of a question; True = backward_by_kind (the same
++                   gradient, the cause rows and the isolate rows one after the other).
+     """
+     if not questions:
+         raise ValueError("training needs at least one question")
+@@ -391,11 +429,14 @@
+             for group in opt.param_groups:
+                 group["lr"] = lr * (1.0 - step / total_steps)
+             opt.zero_grad(set_to_none=True)
+-            per_row, _ = rows_loss(bundle, layer, q["rows"], w=w, loss=loss, positions=positions, grad=True)
+-            value = question_loss(per_row, kinds)
+-            if not torch.isfinite(value):
+-                raise RuntimeError("nonfinite training loss at layer %d" % layer)
+-            value.backward()
++            if split_kinds:
++                per_row, value = backward_by_kind(bundle, layer, q["rows"], kinds, w, loss=loss, positions=positions)
++            else:
++                per_row, _ = rows_loss(bundle, layer, q["rows"], w=w, loss=loss, positions=positions, grad=True)
++                value = question_loss(per_row, kinds)
++                if not torch.isfinite(value):
++                    raise RuntimeError("nonfinite training loss at layer %d" % layer)
++                value.backward()
+             if w.grad is None or not torch.isfinite(w.grad).all():
+                 raise RuntimeError("direction received no finite gradient at layer %d" % layer)
+             grad_norms.append(float(torch.nn.utils.clip_grad_norm_([w], clip)))
+--- a/scripts/e44_factorial_das.py	2026-11-25 06:09:46
++++ c/scripts/e44_factorial_das.py	2026-11-25 08:46:28
+@@ -400,13 +400,16 @@
+ 
+ 
+ def training_contract(args, spec, layer, train_q, val_q, frozen, frozen_file):
+-    return {"family": spec["family"], "e_on": spec["e_on"], "e_off": spec["e_off"], "layer": layer, "seed": args.seed, "epochs": args.epochs,
++    contract = {"family": spec["family"], "e_on": spec["e_on"], "e_off": spec["e_off"], "layer": layer, "seed": args.seed, "epochs": args.epochs,
+             "lr": args.lr, "clip": args.clip, "loss": args.loss, "positions": args.positions, "init": args.init,
+             "val_n": args.val_n, 'split_seed': getattr(args, 'split_seed', 42), "pilot": is_pilot(args),
+             "rows": {k: [list(r) for r in spec[k]] for k in ("cause", "isolate", "plus_minus")},
+             "train_ids": [q["pair_id"] for q in train_q], "val_ids": [q["pair_id"] for q in val_q],
+             "targets_sha256": pd.fingerprint([[r["encoded"] for r in q["rows"]] for q in train_q + val_q]),
+             "frozen_record_sha256": frozen["artifact_sha256"], "frozen_file_sha256": file_sha(frozen_file)}
++    if getattr(args, "split_kinds", False):          # recorded only when used: a direction trained this way says so
++        contract["backward"] = "by_kind_full_width"
++    return contract
+ 
+ 
+ def validate_direction(record, family, layer, identity_sha, pilot, contract=None):
+@@ -522,7 +525,8 @@
+             if args.init == 'md':
+                 raise ValueError('mean-difference initialization is undefined at this layer (zero mean)')
+         w, info = fd.train_direction(bundle, layer, train_q, epochs=args.epochs, lr=args.lr, clip=args.clip, seed=args.seed,
+-                                     init=(w_md if args.init == "md" else None), val_questions=val_q, log=log, **kw)
++                                     init=(w_md if args.init == "md" else None), val_questions=val_q, log=log,
++                                     split_kinds=getattr(args, "split_kinds", False), **kw)
+         stats = fd.difference_stats(plus, minus, w)
+         if stats["mean"] < 0:                            # orientation only: the write (d . w) w does not depend on the sign
+             w = -w
+@@ -1110,6 +1114,9 @@
+     p.add_argument("--seed", type=int, default=42)
+     p.add_argument('--split-seed', type=int, default=42, help='fixed holdout partition seed, independent of optimization seed')
+     p.add_argument("--batch-size", type=int, default=8)
++    p.add_argument("--split-kinds", action="store_true",
++                   help="train: back-propagate the cause rows and the isolate rows of a question one after the other, "
++                        "each padded to the width of the full batch (the same gradient; half the rows held in memory)")
+     p.add_argument("--mc-batch-size", type=int, default=16)
+     p.add_argument("--max-new-tokens", type=int, default=48)
+     p.add_argument("--max-target-tokens", type=int, default=24)

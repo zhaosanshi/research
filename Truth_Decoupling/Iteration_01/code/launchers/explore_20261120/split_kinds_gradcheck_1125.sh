@@ -16,6 +16,11 @@
 # SK_TAG=<suffix> (added 2026-11-26 00 h): a second run under other names (scratch directories gradcheck<suffix>_*,
 # result file and markers with the suffix); after each layer the batch widths recorded by the listening program are
 # read too (split_kinds_grad_check.py widths).
+# Added 2026-11-26 01 h for the second version of the patch (split_kinds2_1126.patch): SK_CODE (code copy, default
+# Iteration_01/code_splitkinds_20261125), SK_ROOT (results root, default .../27b_splitkinds), SK_CODESUM (sha256, first
+# 16 hex digits, of the copy's core/qa_factorial_das.py; default that of the first version), and SK_FREEZE=1: when
+# the results root has no frozen answers yet, copy the source run of the main root into it and produce the frozen
+# train and tune answers with the code copy first (the runner's own freeze command, as crow2_checks_sk_1125.sh does).
 # usage (host): ( nohup setsid bash Iteration_01/logs/newsets_20261119/split_kinds_gradcheck_1125.sh \
 #                 > Iteration_01/logs/newsets_20261119/split_kinds_gradcheck_1125.out 2>&1 < /dev/null & )
 set -uo pipefail
@@ -29,8 +34,11 @@ DRY=${SK_DRY:-0}
 LAYERS=${SK_LAYERS:-31 18}
 TAG=${SK_TAG:-}
 case "$TAG" in ""|_[a-z0-9]*) ;; *) echo "SK_TAG must be empty or _name"; exit 2 ;; esac
-CODE=Iteration_01/code_splitkinds_20261125
-NEWR=Iteration_01/results/ff/gemma3/27b_splitkinds
+CODE=${SK_CODE:-Iteration_01/code_splitkinds_20261125}
+NEWR=${SK_ROOT:-Iteration_01/results/ff/gemma3/27b_splitkinds}
+CODESUM=${SK_CODESUM:-77a6ed37a0ff2478}
+FREEZE=${SK_FREEZE:-0}
+MAINSRC=Iteration_01/results/ff/gemma3/27b/source/$MODEL
 SRC=$NEWR/source/$MODEL
 RUN=$NEWR/e44/$MODEL
 PROG=Iteration_01/diag/split_kinds_grad_check.py
@@ -40,8 +48,11 @@ log=$L/split_kinds_gradcheck${TAG}_$MODEL.log
 say() { echo "$(date '+%F %T') sk gradcheck: $*" >> $L/crow_all.log; }
 fail() { say "FAILED: $*"; [ "$DRY" = 1 ] || touch ${MK}_FAILED; exit 1; }
 case "$CARD" in 0|1|2|3) ;; *) echo "SK_CARD must be one card"; exit 2 ;; esac
-for f in $PROG $CODE/scripts/e44_factorial_das.py $SRC/bank.json $RUN/frozen_train.json; do [ -s $f ] || { echo "missing $f"; exit 2; }; done
-[ "$(sha256sum $CODE/core/qa_factorial_das.py | cut -c1-16)" = 77a6ed37a0ff2478 ] || { echo "the code copy is not the patched one"; exit 2; }
+case "$CODE" in Iteration_01/code_splitkinds*) ;; *) echo "SK_CODE must be a split-kinds code copy"; exit 2 ;; esac
+case "$NEWR" in Iteration_01/results/ff/gemma3/27b_splitkinds*) ;; *) echo "SK_ROOT must be a split-kinds results root"; exit 2 ;; esac
+for f in $PROG $CODE/scripts/e44_factorial_das.py $MAINSRC/bank.json $MAINSRC/questions.json; do [ -s $f ] || { echo "missing $f"; exit 2; }; done
+[ "$(sha256sum $CODE/core/qa_factorial_das.py | cut -c1-16)" = "$CODESUM" ] || { echo "the code copy is not the expected one"; exit 2; }
+if [ "$FREEZE" != 1 ]; then for f in $SRC/bank.json $RUN/frozen_train.json; do [ -s $f ] || { echo "missing $f (SK_FREEZE=1 creates it)"; exit 2; }; done; fi
 if [ "$DRY" = 1 ]; then CVD=""; TO=(timeout 90); else
   mkdir $L/.sk_gradcheck${TAG}_running 2>/dev/null || { echo "already running ($L/.sk_gradcheck${TAG}_running)"; exit 3; }
   trap 'rmdir $L/.sk_gradcheck${TAG}_running 2>/dev/null' EXIT
@@ -60,6 +71,16 @@ DX=(docker exec -u 1000:1001 -e HOME=$W/hf_cache -e HF_HOME=$W/hf_cache -e TD_MO
     -e PYTHONUNBUFFERED=1 -e PYTHONDONTWRITEBYTECODE=1 -e PYTHONPATH=$W/$CODE -e PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
     -w $W/$CODE truth_dec)
 COMMON=(--source-run $W/$SRC --batch-size 8 --max-new-tokens 48 --max-target-tokens 24)
+if [ "$FREEZE" = 1 ] && [ ! -s $RUN/frozen_train.json ]; then
+  mkdir -p $SRC && cp -p $MAINSRC/bank.json $MAINSRC/questions.json $SRC/ && cmp -s $MAINSRC/bank.json $SRC/bank.json || fail "cannot copy the source run"
+  echo "=== $(date '+%F %T') freeze train tune ===" >> $log
+  "${TO[@]}" "${DX[@]}" python3 -B scripts/e44_factorial_das.py freeze "${COMMON[@]}" --run-dir $W/$RUN --splits train tune >> $log 2>&1
+  rc=$?
+  if [ "$DRY" = 1 ]; then echo "dry freeze rc $rc: $(tail -n 1 $log | cut -c1-160)"; else
+    [ $rc = 0 ] && [ -s $RUN/frozen_train.json ] && [ -s $RUN/frozen_tune.json ] || fail "freeze: rc $rc (see $log)"
+    say "frozen train and tune answers written in $RUN"
+  fi
+fi
 for l in $LAYERS; do
   for mode in single split; do
     D=$NEWR/e44/gradcheck${TAG}_${mode}_L$l
