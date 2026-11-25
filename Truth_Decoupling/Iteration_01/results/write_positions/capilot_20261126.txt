@@ -1,0 +1,102 @@
+# Plan O pilot (2026-11-26): E + C toward caution as a filter, TruthfulQA tune, DeepSeek Pro; net = right - wrong
+
+## llama3.1-8b (display Llama-3.1-8B), E layer 16 strength 3.5, C layer 19; tune questions 192
+    N1 setting on tune ('N1', '3-5', '1', '2') (qaqa_pilot_table SET: ('N1', '3-5', '1', '2')) | N1 tune net +27, reference +27
+    no write                           answers 169 | right  64 wrong  98 | net  -34
+    single E                           answers 116 | right  57 wrong  51 | net   +6
+    N1                                 answers 184 | right  95 wrong  68 | net  +27
+    answered under E: 116 (changed text 100, same text 16); blank under E 76
+    E + C toward caution 0.25 (as is) answers  89 | right  47 wrong  38 | net   +9
+    E + C toward caution 0.5  (as is) answers  70 | right  37 wrong  31 | net   +6
+  reading 1: among answers of single E (right or wrong), share blank under E + caution, wrong minus right [95%, questions resampled]
+    caution 0.25 changed wrong  45 -> blank  12 ( 26.7%) | right  48 -> blank  10 ( 20.8%) | other answered  7 | wrong minus right +5.8 [-10.9, +23.4] points
+    caution 0.25 same    wrong   6 -> blank   0 (  0.0%) | right   9 -> blank   1 ( 11.1%) | other answered  1 | wrong minus right -11.1 [-37.5, +0.0] points (4 resamples skipped)
+    caution 0.5  changed wrong  45 -> blank  19 ( 42.2%) | right  48 -> blank  16 ( 33.3%) | other answered  7 | wrong minus right +8.9 [-10.8, +28.2] points
+    caution 0.5  same    wrong   6 -> blank   2 ( 33.3%) | right   9 -> blank   3 ( 33.3%) | other answered  1 | wrong minus right +0.0 [-50.0, +55.6] points (4 resamples skipped)
+  reading 2: rule minus N1, net [95%, paired, questions resampled]
+    caution 0.25 rule A (changed and blank)  answers 159 | right  85 wrong  56 | net  +29 | filtered  25 (right  10, wrong  12, other  3) | minus N1 +2 [-7, +11]
+    caution 0.25 rule B (blank)              answers 157 | right  84 wrong  56 | net  +28 | filtered  27 (right  11, wrong  12, other  4) | minus N1 +1 [-8, +10]
+    caution 0.5  rule A (changed and blank)  answers 144 | right  79 wrong  49 | net  +30 | filtered  40 (right  16, wrong  19, other  5) | minus N1 +3 [-8, +14]
+    caution 0.5  rule B (blank)              answers 138 | right  76 wrong  47 | net  +29 | filtered  46 (right  19, wrong  21, other  6) | minus N1 +2 [-10, +14]
+
+## qwen3.5-9b (display Qwen3.5-9B), E layer 15 strength 2, C layer 16; tune questions 192
+    N1 setting on tune ('N1', '2', '0-25', '0-5') (qaqa_pilot_table SET: ('N1', '2', '0-25', '0-5')) | N1 tune net +63, reference +63
+    no write                           answers 167 | right  99 wrong  64 | net  +35
+    single E                           answers 142 | right  99 wrong  41 | net  +58
+    N1                                 answers 155 | right 108 wrong  45 | net  +63
+    answered under E: 142 (changed text 53, same text 89); blank under E 50
+    E + C toward caution 0.25 (as is) answers 121 | right  83 wrong  34 | net  +49
+    E + C toward caution 0.5  (as is) answers  99 | right  70 wrong  26 | net  +44
+  reading 1: among answers of single E (right or wrong), share blank under E + caution, wrong minus right [95%, questions resampled]
+    caution 0.25 changed wrong  16 -> blank   3 ( 18.8%) | right  36 -> blank   5 ( 13.9%) | other answered  1 | wrong minus right +4.9 [-16.2, +28.6] points
+    caution 0.25 same    wrong  25 -> blank   5 ( 20.0%) | right  63 -> blank   8 ( 12.7%) | other answered  1 | wrong minus right +7.3 [-9.1, +25.9] points
+    caution 0.5  changed wrong  16 -> blank   8 ( 50.0%) | right  36 -> blank  10 ( 27.8%) | other answered  1 | wrong minus right +22.2 [-7.6, +51.3] points
+    caution 0.5  same    wrong  25 -> blank   8 ( 32.0%) | right  63 -> blank  16 ( 25.4%) | other answered  1 | wrong minus right +6.6 [-13.7, +29.1] points
+  reading 2: rule minus N1, net [95%, paired, questions resampled]
+    caution 0.25 rule A (changed and blank)  answers 147 | right 103 wrong  42 | net  +61 | filtered   8 (right   5, wrong   3, other  0) | minus N1 -2 [-8, +3]
+    caution 0.25 rule B (blank)              answers 134 | right  95 wrong  37 | net  +58 | filtered  21 (right  13, wrong   8, other  0) | minus N1 -5 [-14, +3]
+    caution 0.5  rule A (changed and blank)  answers 136 | right  98 wrong  37 | net  +61 | filtered  19 (right  10, wrong   8, other  1) | minus N1 -2 [-11, +6]
+    caution 0.5  rule B (blank)              answers 112 | right  82 wrong  29 | net  +53 | filtered  43 (right  26, wrong  16, other  1) | minus N1 -10 [-23, +2]
+
+## qwen3.8-27b (display Qwen3.8-27B), E layer 28 strength 1.75, C layer 33; tune questions 192
+    N1 setting on tune ('N1', '1-75', '0-5', '1') (qaqa_pilot_table SET: ('N1', '1-75', '0-5', '1')) | N1 tune net +80, reference +80
+    no write                           answers 119 | right  66 wrong  51 | net  +15
+    single E                           answers 117 | right  85 wrong  29 | net  +56
+    N1                                 answers 182 | right 128 wrong  48 | net  +80
+    answered under E: 117 (changed text 61, same text 56); blank under E 75
+    E + C toward caution 0.25 (as is) answers  64 | right  48 wrong  15 | net  +33
+    E + C toward caution 0.5  (as is) answers  26 | right  19 wrong   7 | net  +12
+  reading 1: among answers of single E (right or wrong), share blank under E + caution, wrong minus right [95%, questions resampled]
+    caution 0.25 changed wrong   8 -> blank   5 ( 62.5%) | right  51 -> blank  28 ( 54.9%) | other answered  2 | wrong minus right +7.6 [-32.7, +45.5] points (1 resamples skipped)
+    caution 0.25 same    wrong  21 -> blank   9 ( 42.9%) | right  34 -> blank   9 ( 26.5%) | other answered  1 | wrong minus right +16.4 [-10.1, +42.7] points
+    caution 0.5  changed wrong   8 -> blank   7 ( 87.5%) | right  51 -> blank  43 ( 84.3%) | other answered  2 | wrong minus right +3.2 [-25.7, +23.5] points (1 resamples skipped)
+    caution 0.5  same    wrong  21 -> blank  16 ( 76.2%) | right  34 -> blank  22 ( 64.7%) | other answered  1 | wrong minus right +11.5 [-12.9, +35.6] points
+  reading 2: rule minus N1, net [95%, paired, questions resampled]
+    caution 0.25 rule A (changed and blank)  answers 147 | right 100 wrong  43 | net  +57 | filtered  35 (right  28, wrong   5, other  2) | minus N1 -23 [-34, -12]
+    caution 0.25 rule B (blank)              answers 129 | right  91 wrong  34 | net  +57 | filtered  53 (right  37, wrong  14, other  2) | minus N1 -23 [-37, -9]
+    caution 0.5  rule A (changed and blank)  answers 130 | right  85 wrong  41 | net  +44 | filtered  52 (right  43, wrong   7, other  2) | minus N1 -36 [-49, -23]
+    caution 0.5  rule B (blank)              answers  91 | right  63 wrong  25 | net  +38 | filtered  91 (right  65, wrong  23, other  3) | minus N1 -42 [-59, -24]
+
+## gemma3-12b (display Gemma-3-12B), E layer 24 strength 2.5, C layer 25; tune questions 192
+    N1 setting on tune ('N1', '2-5', '2', '2') (qaqa_pilot_table SET: ('N1', '2-5', '2', '2')) | N1 tune net +74, reference +74
+    no write                           answers 164 | right  74 wrong  80 | net   -6
+    single E                           answers 110 | right  75 wrong  33 | net  +42
+    N1                                 answers 180 | right 123 wrong  49 | net  +74
+    answered under E: 110 (changed text 79, same text 31); blank under E 82
+    E + C toward caution 0.25 (as is) answers  87 | right  59 wrong  27 | net  +32
+    E + C toward caution 0.5  (as is) answers  62 | right  40 wrong  21 | net  +19
+  reading 1: among answers of single E (right or wrong), share blank under E + caution, wrong minus right [95%, questions resampled]
+    caution 0.25 changed wrong  24 -> blank   6 ( 25.0%) | right  53 -> blank  13 ( 24.5%) | other answered  2 | wrong minus right +0.5 [-20.0, +22.5] points
+    caution 0.25 same    wrong   9 -> blank   1 ( 11.1%) | right  22 -> blank   2 (  9.1%) | other answered  0 | wrong minus right +2.0 [-18.5, +30.4] points
+    caution 0.5  changed wrong  24 -> blank   9 ( 37.5%) | right  53 -> blank  28 ( 52.8%) | other answered  2 | wrong minus right -15.3 [-38.2, +7.9] points
+    caution 0.5  same    wrong   9 -> blank   4 ( 44.4%) | right  22 -> blank   6 ( 27.3%) | other answered  0 | wrong minus right +17.2 [-22.4, +56.1] points
+  reading 2: rule minus N1, net [95%, paired, questions resampled]
+    caution 0.25 rule A (changed and blank)  answers 160 | right 110 wrong  43 | net  +67 | filtered  20 (right  13, wrong   6, other  1) | minus N1 -7 [-15, +1]
+    caution 0.25 rule B (blank)              answers 157 | right 108 wrong  42 | net  +66 | filtered  23 (right  15, wrong   7, other  1) | minus N1 -8 [-17, +1]
+    caution 0.5  rule A (changed and blank)  answers 142 | right  95 wrong  40 | net  +55 | filtered  38 (right  28, wrong   9, other  1) | minus N1 -19 [-30, -7]
+    caution 0.5  rule B (blank)              answers 132 | right  89 wrong  36 | net  +53 | filtered  48 (right  34, wrong  13, other  1) | minus N1 -21 [-34, -8]
+
+## gemma3-27b (display Gemma-3-27B), E layer 28 strength 1, C layer 31; tune questions 192
+    N1 setting on tune ('N1', '1', '1', '2') (qaqa_pilot_table SET: ('N1', '1', '1', '2')) | N1 tune net +53, reference +53
+    no write                           answers 167 | right  80 wrong  82 | net   -2
+    single E                           answers 152 | right  92 wrong  54 | net  +38
+    N1                                 answers 185 | right 113 wrong  60 | net  +53
+    answered under E: 152 (changed text 77, same text 75); blank under E 40
+    E + C toward caution 0.25 (as is) answers 144 | right  83 wrong  52 | net  +31
+    E + C toward caution 0.5  (as is) answers 126 | right  73 wrong  45 | net  +28
+  reading 1: among answers of single E (right or wrong), share blank under E + caution, wrong minus right [95%, questions resampled]
+    caution 0.25 changed wrong  22 -> blank   2 (  9.1%) | right  53 -> blank   6 ( 11.3%) | other answered  2 | wrong minus right -2.2 [-16.3, +14.5] points
+    caution 0.25 same    wrong  32 -> blank   0 (  0.0%) | right  39 -> blank   0 (  0.0%) | other answered  4 | wrong minus right +0.0 [+0.0, +0.0] points
+    caution 0.5  changed wrong  22 -> blank   5 ( 22.7%) | right  53 -> blank  11 ( 20.8%) | other answered  2 | wrong minus right +2.0 [-18.3, +23.3] points
+    caution 0.5  same    wrong  32 -> blank   4 ( 12.5%) | right  39 -> blank   5 ( 12.8%) | other answered  4 | wrong minus right -0.3 [-16.4, +15.9] points
+  reading 2: rule minus N1, net [95%, paired, questions resampled]
+    caution 0.25 rule A (changed and blank)  answers 177 | right 107 wrong  58 | net  +49 | filtered   8 (right   6, wrong   2, other  0) | minus N1 -4 [-10, +1]
+    caution 0.25 rule B (blank)              answers 177 | right 107 wrong  58 | net  +49 | filtered   8 (right   6, wrong   2, other  0) | minus N1 -4 [-10, +1]
+    caution 0.5  rule A (changed and blank)  answers 169 | right 102 wrong  55 | net  +47 | filtered  16 (right  11, wrong   5, other  0) | minus N1 -6 [-14, +2]
+    caution 0.5  rule B (blank)              answers 159 | right  97 wrong  51 | net  +46 | filtered  26 (right  16, wrong   9, other  1) | minus N1 -7 [-17, +3]
+
+## five models together (per question the differences are summed; 192 questions all five have)
+    caution 0.25 rule A (changed and blank)  minus N1 -34 [-56, -14]
+    caution 0.25 rule B (blank)              minus N1 -39 [-64, -15]
+    caution 0.5  rule A (changed and blank)  minus N1 -60 [-88, -33]
+    caution 0.5  rule B (blank)              minus N1 -78 [-112, -44]
