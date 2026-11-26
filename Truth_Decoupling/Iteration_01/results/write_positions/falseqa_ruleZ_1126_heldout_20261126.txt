@@ -1,0 +1,67 @@
+bank Iteration_01/newsets/falseqa/falseqa_full_bank_20261123.jsonl (sha256 cb42cf131fed8ccf): 700 rows | dev {'false': 50, 'valid': 50} | held-out {'false': 300, 'valid': 300} | gold lengths {('dev', 'false', 1): 50, ('dev', 'valid', 1): 50, ('heldout', 'false', 3): 300, ('heldout', 'valid', 1): 300} | id file sha256 1a5c0df6b74c858e
+## llama3.1-8b: E16 strength 3.5, C19; caps chosen on the development questions: N1 (None, '2'), Conly 2
+   answered cells without a self-judge margin (kept): O 0, E 0, N1 0, Conly 0
+   premise false  (300 questions) nets: O -60 (138 answers), +Z -2 | E +42 (113 answers), +Z +44 | N1 +150 (250 answers), +Z +134 | Conly +23 (289 answers), +Z +81
+       N1+Z - N1 -16 [-30, -2] | E+Z - E +2 [-8, +12] | N1 - E +108 [+89, +127] | N1+Z - E+Z +90 [+73, +108] | N1 - Conly +127 [+98, +158] | N1+Z - Conly+Z +53 [+30, +77] | N1+Z - O +194 [+170, +219]
+   premise valid  (300 questions) nets: O +160 (290 answers), +Z +153 | E +95 (250 answers), +Z +86 | N1 +90 (259 answers), +Z +82 | Conly +156 (300 answers), +Z +153
+       N1+Z - N1 -8 [-22, +5] | E+Z - E -9 [-22, +4] | N1 - E -5 [-10, +0] | N1+Z - E+Z -4 [-9, +0] | N1 - Conly -66 [-97, -35] | N1+Z - Conly+Z -71 [-98, -45] | N1+Z - O -78 [-110, -48]
+   all            (600 questions) nets: O +100 (428 answers), +Z +151 | E +137 (363 answers), +Z +130 | N1 +240 (509 answers), +Z +216 | Conly +179 (589 answers), +Z +234
+       N1+Z - N1 -24 [-44, -4] | E+Z - E -7 [-24, +9] | N1 - E +103 [+84, +123] | N1+Z - E+Z +86 [+69, +104] | N1 - Conly +61 [+17, +107] | N1+Z - Conly+Z -18 [-52, +17] | N1+Z - O +116 [+74, +158]
+   rule Z drops in O    : premise false, first answers: right 3, wrong 61, other 1; premise valid, first answers: right 41, wrong 34, other 1
+   rule Z drops in E    : premise false, first answers: right 11, wrong 13, other 1; premise valid, first answers: right 27, wrong 18, other 2
+   rule Z drops in N1   : premise false, first answers: right 11, wrong 13, other 1; premise false, released answers: right 22, wrong 4, other 1; premise valid, first answers: right 27, wrong 18, other 2; premise valid, released answers: right 0, wrong 1, other 0
+   rule Z drops in Conly: premise false, first answers: right 3, wrong 61, other 1; premise false, released answers: right 19, wrong 19, other 0; premise valid, first answers: right 41, wrong 34, other 1; premise valid, released answers: right 0, wrong 4, other 0
+## qwen3.5-9b: E15 strength 2, C16; caps chosen on the development questions: N1 ('0.25', '0.5'), Conly 1
+   answered cells without a self-judge margin (kept): O 0, E 0, N1 0, Conly 0
+   premise false  (300 questions) nets: O +132 (248 answers), +Z +137 | E +176 (222 answers), +Z +177 | N1 +202 (256 answers), +Z +203 | Conly +153 (298 answers), +Z +164
+       N1+Z - N1 +1 [-6, +8] | E+Z - E +1 [-5, +7] | N1 - E +26 [+15, +37] | N1+Z - E+Z +26 [+16, +36] | N1 - Conly +49 [+24, +76] | N1+Z - Conly+Z +39 [+16, +64] | N1+Z - O +71 [+48, +96]
+   premise valid  (300 questions) nets: O +180 (284 answers), +Z +184 | E +137 (252 answers), +Z +143 | N1 +132 (267 answers), +Z +141 | Conly +180 (295 answers), +Z +186
+       N1+Z - N1 +9 [+2, +17] | E+Z - E +6 [-1, +13] | N1 - E -5 [-12, +2] | N1+Z - E+Z -2 [-9, +4] | N1 - Conly -48 [-73, -24] | N1+Z - Conly+Z -45 [-69, -23] | N1+Z - O -39 [-63, -16]
+   all            (600 questions) nets: O +312 (532 answers), +Z +321 | E +313 (474 answers), +Z +320 | N1 +334 (523 answers), +Z +344 | Conly +333 (593 answers), +Z +350
+       N1+Z - N1 +10 [+0, +20] | E+Z - E +7 [-2, +16] | N1 - E +21 [+8, +34] | N1+Z - E+Z +24 [+13, +36] | N1 - Conly +1 [-35, +39] | N1+Z - Conly+Z -6 [-39, +28] | N1+Z - O +32 [-1, +66]
+   rule Z drops in O    : premise false, first answers: right 4, wrong 9, other 0; premise valid, first answers: right 3, wrong 7, other 0
+   rule Z drops in E    : premise false, first answers: right 4, wrong 5, other 0; premise valid, first answers: right 3, wrong 9, other 0
+   rule Z drops in N1   : premise false, first answers: right 4, wrong 5, other 0; premise false, released answers: right 2, wrong 2, other 0; premise valid, first answers: right 3, wrong 9, other 0; premise valid, released answers: right 0, wrong 3, other 0
+   rule Z drops in Conly: premise false, first answers: right 4, wrong 9, other 0; premise false, released answers: right 0, wrong 6, other 0; premise valid, first answers: right 3, wrong 7, other 0; premise valid, released answers: right 0, wrong 2, other 0
+## qwen3.8-27b: E28 strength 1.75, C33; caps chosen on the development questions: N1 (None, '1'), Conly 1
+   answered cells without a self-judge margin (kept): O 0, E 0, N1 0, Conly 0
+   premise false  (300 questions) nets: O +6 (72 answers), +Z +17 | E +69 (95 answers), +Z +66 | N1 +205 (281 answers), +Z +204 | Conly +100 (298 answers), +Z +144
+       N1+Z - N1 -1 [-13, +11] | E+Z - E -3 [-9, +3] | N1 - E +136 [+113, +158] | N1+Z - E+Z +138 [+119, +157] | N1 - Conly +105 [+79, +133] | N1+Z - Conly+Z +60 [+41, +80] | N1+Z - O +198 [+176, +220]
+   premise valid  (300 questions) nets: O +191 (248 answers), +Z +182 | E +154 (218 answers), +Z +151 | N1 +136 (263 answers), +Z +147 | Conly +188 (298 answers), +Z +186
+       N1+Z - N1 +11 [-3, +25] | E+Z - E -3 [-14, +8] | N1 - E -18 [-31, -5] | N1+Z - E+Z -4 [-13, +5] | N1 - Conly -52 [-74, -30] | N1+Z - Conly+Z -39 [-57, -22] | N1+Z - O -44 [-63, -24]
+   all            (600 questions) nets: O +197 (320 answers), +Z +199 | E +223 (313 answers), +Z +217 | N1 +341 (544 answers), +Z +351 | Conly +288 (596 answers), +Z +330
+       N1+Z - N1 +10 [-8, +27] | E+Z - E -6 [-18, +6] | N1 - E +118 [+93, +143] | N1+Z - E+Z +134 [+113, +154] | N1 - Conly +53 [+19, +90] | N1+Z - Conly+Z +21 [-5, +48] | N1+Z - O +154 [+124, +184]
+   rule Z drops in O    : premise false, first answers: right 4, wrong 15, other 0; premise valid, first answers: right 17, wrong 8, other 1
+   rule Z drops in E    : premise false, first answers: right 6, wrong 3, other 0; premise valid, first answers: right 16, wrong 13, other 1
+   rule Z drops in N1   : premise false, first answers: right 6, wrong 3, other 0; premise false, released answers: right 15, wrong 17, other 0; premise valid, first answers: right 16, wrong 13, other 1; premise valid, released answers: right 4, wrong 18, other 0
+   rule Z drops in Conly: premise false, first answers: right 4, wrong 15, other 0; premise false, released answers: right 11, wrong 44, other 1; premise valid, first answers: right 17, wrong 8, other 1; premise valid, released answers: right 5, wrong 12, other 0
+## gemma3-12b: E24 strength 2.5, C25; caps chosen on the development questions: N1 (None, '1'), Conly 2
+   answered cells without a self-judge margin (kept): O 0, E 0, N1 0, Conly 0
+   premise false  (300 questions) nets: O -43 (171 answers), +Z -10 | E +75 (111 answers), +Z +77 | N1 +138 (183 answers), +Z +140 | Conly +9 (296 answers), +Z +62
+       N1+Z - N1 +2 [-4, +9] | E+Z - E +2 [-3, +8] | N1 - E +63 [+48, +79] | N1+Z - E+Z +63 [+49, +78] | N1 - Conly +129 [+96, +161] | N1+Z - Conly+Z +78 [+50, +106] | N1+Z - O +183 [+156, +210]
+   premise valid  (300 questions) nets: O +195 (286 answers), +Z +177 | E +94 (209 answers), +Z +98 | N1 +90 (215 answers), +Z +95 | Conly +193 (299 answers), +Z +176
+       N1+Z - N1 +5 [-4, +15] | E+Z - E +4 [-5, +13] | N1 - E -4 [-9, +0] | N1+Z - E+Z -3 [-8, +1] | N1 - Conly -103 [-132, -73] | N1+Z - Conly+Z -81 [-106, -55] | N1+Z - O -100 [-127, -72]
+   all            (600 questions) nets: O +152 (457 answers), +Z +167 | E +169 (320 answers), +Z +175 | N1 +228 (398 answers), +Z +235 | Conly +202 (595 answers), +Z +238
+       N1+Z - N1 +7 [-4, +18] | E+Z - E +6 [-4, +16] | N1 - E +59 [+44, +74] | N1+Z - E+Z +60 [+46, +75] | N1 - Conly +26 [-16, +69] | N1+Z - Conly+Z -3 [-41, +35] | N1+Z - O +83 [+46, +121]
+   rule Z drops in O    : premise false, first answers: right 2, wrong 35, other 0; premise valid, first answers: right 30, wrong 12, other 0
+   rule Z drops in E    : premise false, first answers: right 3, wrong 5, other 0; premise valid, first answers: right 9, wrong 13, other 0
+   rule Z drops in N1   : premise false, first answers: right 3, wrong 5, other 0; premise false, released answers: right 2, wrong 2, other 0; premise valid, first answers: right 9, wrong 13, other 0; premise valid, released answers: right 0, wrong 1, other 0
+   rule Z drops in Conly: premise false, first answers: right 2, wrong 35, other 0; premise false, released answers: right 4, wrong 24, other 0; premise valid, first answers: right 30, wrong 12, other 0; premise valid, released answers: right 0, wrong 1, other 1
+## gemma3-27b: E28 strength 1, C31; caps chosen on the development questions: N1 (None, '2'), Conly 0.25
+   answered cells without a self-judge margin (kept): O 0, E 0, N1 0, Conly 0
+   premise false  (300 questions) nets: O -12 (176 answers), +Z +17 | E +91 (183 answers), +Z +100 | N1 +149 (273 answers), +Z +162 | Conly -8 (202 answers), +Z +29
+       N1+Z - N1 +13 [+3, +23] | E+Z - E +9 [+1, +17] | N1 - E +58 [+41, +75] | N1+Z - E+Z +62 [+46, +78] | N1 - Conly +157 [+132, +182] | N1+Z - Conly+Z +133 [+111, +157] | N1+Z - O +174 [+151, +198]
+   premise valid  (300 questions) nets: O +199 (287 answers), +Z +192 | E +184 (278 answers), +Z +176 | N1 +179 (290 answers), +Z +172 | Conly +198 (290 answers), +Z +192
+       N1+Z - N1 -7 [-17, +2] | E+Z - E -8 [-17, +1] | N1 - E -5 [-11, +0] | N1+Z - E+Z -4 [-9, +0] | N1 - Conly -19 [-35, -3] | N1+Z - Conly+Z -20 [-36, -5] | N1+Z - O -27 [-44, -9]
+   all            (600 questions) nets: O +187 (463 answers), +Z +209 | E +275 (461 answers), +Z +276 | N1 +328 (563 answers), +Z +334 | Conly +190 (492 answers), +Z +221
+       N1+Z - N1 +6 [-7, +19] | E+Z - E +1 [-11, +12] | N1 - E +53 [+35, +71] | N1+Z - E+Z +58 [+42, +74] | N1 - Conly +138 [+108, +168] | N1+Z - Conly+Z +113 [+87, +139] | N1+Z - O +147 [+119, +175]
+   rule Z drops in O    : premise false, first answers: right 6, wrong 35, other 0; premise valid, first answers: right 18, wrong 11, other 1
+   rule Z drops in E    : premise false, first answers: right 4, wrong 13, other 0; premise valid, first answers: right 15, wrong 7, other 1
+   rule Z drops in N1   : premise false, first answers: right 4, wrong 13, other 0; premise false, released answers: right 3, wrong 7, other 1; premise valid, first answers: right 15, wrong 7, other 1; premise valid, released answers: right 1, wrong 2, other 0
+   rule Z drops in Conly: premise false, first answers: right 6, wrong 35, other 0; premise false, released answers: right 0, wrong 8, other 0; premise valid, first answers: right 18, wrong 11, other 1; premise valid, released answers: right 0, wrong 1, other 0
+## five models together (per question sums; reference only), all 600 questions
+   N1z-N1   +9 [-30, +47]
+   N1-E     +354 [+304, +404]
+   N1z-Ez   +362 [+320, +406]
+   N1-C     +279 [+172, +390]
+   N1z-Cz   +107 [+21, +195]
