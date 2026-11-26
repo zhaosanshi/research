@@ -1,0 +1,111 @@
+# gate_1126 fit report (work queue 2026-11-26_queue_p, section 2): linear switch on the last prompt token, per model and training pool; CV = StratifiedGroupKFold(5, shuffle, random_state 0), groups = FalseQA pairs
+
+## llama3.1-8b, pool A (FalseQA train only): 2374 rows, trap 1187, plain 1187; sha256 4e80bdef02fc158e
+   by source (trap / plain): fqa_train 1187 / 1187
+   folds (train / test / test trap): 1898 / 476 / 238 | 1898 / 476 / 238 | 1900 / 474 / 237 | 1900 / 474 / 237 | 1900 / 474 / 237
+   chosen layer 14, mean 5-fold AUROC 0.9110 | E layer 16 0.9094 | C layer 19 0.8995
+   CV mean by layer: L0 0.573 L1 0.584 L2 0.585 L3 0.615 L4 0.673 L5 0.707 L6 0.725 L7 0.765 L8 0.809 L9 0.830 L10 0.855 L11 0.877 L12 0.894 L13 0.907 L14 0.911 L15 0.905 L16 0.909 L17 0.905 L18 0.904 L19 0.900 L20 0.901 L21 0.892 L22 0.884 L23 0.892 L24 0.884 L25 0.880 L26 0.882 L27 0.885 L28 0.890 L29 0.885 L30 0.881 L31 0.873
+   CV pooled by layer: L0 0.573 L1 0.583 L2 0.584 L3 0.615 L4 0.672 L5 0.707 L6 0.725 L7 0.764 L8 0.808 L9 0.829 L10 0.854 L11 0.877 L12 0.894 L13 0.907 L14 0.911 L15 0.905 L16 0.909 L17 0.905 L18 0.904 L19 0.899 L20 0.901 L21 0.892 L22 0.884 L23 0.891 L24 0.884 L25 0.880 L26 0.882 L27 0.885 L28 0.889 L29 0.885 L30 0.880 L31 0.872
+   convergence warnings in CV (of 160 fits): 0
+   refit on the whole pool, chosen layer 14: train accuracy 0.998, train AUROC 1.000, liblinear iterations 22, convergence warnings 0
+   refit on the whole pool, E layer 16: train accuracy 0.998, train AUROC 1.000, liblinear iterations 34, convergence warnings 0
+   refit on the whole pool, C layer 19: train accuracy 0.998, train AUROC 1.000, liblinear iterations 26, convergence warnings 0
+
+## llama3.1-8b, pool B (FalseQA train + other unused training questions): 4546 rows, trap 1525, plain 3021; sha256 7a0c22796357baec
+   by source (trap / plain): fqa_train 1187 / 1187, tq_train 96 / 0, tq_tune 192 / 0, qaqa:pilot_trap 50 / 0, qaqa:pilot_plain 0 / 50, popqa_train 0 / 300, popqa_tune 0 / 192, triviaqa_train 0 / 300, triviaqa_tune 0 / 192, mmlu_extra 0 / 500, gsm8k_train 0 / 300
+   folds (train / test / test trap): 3637 / 909 / 305 | 3637 / 909 / 305 | 3636 / 910 / 305 | 3638 / 908 / 305 | 3636 / 910 / 305
+   chosen layer 14, mean 5-fold AUROC 0.9339 | E layer 16 0.9239 | C layer 19 0.9142
+   CV mean by layer: L0 0.803 L1 0.809 L2 0.803 L3 0.815 L4 0.833 L5 0.854 L6 0.858 L7 0.872 L8 0.890 L9 0.904 L10 0.914 L11 0.925 L12 0.927 L13 0.930 L14 0.934 L15 0.929 L16 0.924 L17 0.921 L18 0.917 L19 0.914 L20 0.916 L21 0.906 L22 0.899 L23 0.899 L24 0.898 L25 0.893 L26 0.896 L27 0.895 L28 0.895 L29 0.896 L30 0.890 L31 0.884
+   CV pooled by layer: L0 0.803 L1 0.809 L2 0.802 L3 0.815 L4 0.833 L5 0.854 L6 0.858 L7 0.872 L8 0.890 L9 0.904 L10 0.915 L11 0.925 L12 0.928 L13 0.930 L14 0.934 L15 0.928 L16 0.924 L17 0.921 L18 0.917 L19 0.914 L20 0.915 L21 0.906 L22 0.899 L23 0.899 L24 0.898 L25 0.893 L26 0.896 L27 0.895 L28 0.895 L29 0.895 L30 0.890 L31 0.884
+   convergence warnings in CV (of 160 fits): 0
+   refit on the whole pool, chosen layer 14: train accuracy 0.999, train AUROC 1.000, liblinear iterations 17, convergence warnings 0
+   refit on the whole pool, E layer 16: train accuracy 0.999, train AUROC 1.000, liblinear iterations 23, convergence warnings 0
+   refit on the whole pool, C layer 19: train accuracy 0.999, train AUROC 1.000, liblinear iterations 23, convergence warnings 0
+
+## qwen3.5-9b, pool A (FalseQA train only): 2374 rows, trap 1187, plain 1187; sha256 b2ebd5fd34e8d56c
+   by source (trap / plain): fqa_train 1187 / 1187
+   folds (train / test / test trap): 1898 / 476 / 238 | 1898 / 476 / 238 | 1900 / 474 / 237 | 1900 / 474 / 237 | 1900 / 474 / 237
+   chosen layer 18, mean 5-fold AUROC 0.9314 | E layer 15 0.9182 | C layer 16 0.9237
+   CV mean by layer: L0 0.538 L1 0.564 L2 0.592 L3 0.606 L4 0.621 L5 0.650 L6 0.699 L7 0.714 L8 0.772 L9 0.816 L10 0.825 L11 0.829 L12 0.849 L13 0.894 L14 0.910 L15 0.918 L16 0.924 L17 0.926 L18 0.931 L19 0.931 L20 0.929 L21 0.927 L22 0.929 L23 0.926 L24 0.922 L25 0.919 L26 0.915 L27 0.913 L28 0.913 L29 0.911 L30 0.909 L31 0.906
+   CV pooled by layer: L0 0.538 L1 0.564 L2 0.593 L3 0.606 L4 0.620 L5 0.650 L6 0.699 L7 0.714 L8 0.772 L9 0.816 L10 0.825 L11 0.829 L12 0.848 L13 0.894 L14 0.910 L15 0.918 L16 0.924 L17 0.926 L18 0.932 L19 0.931 L20 0.929 L21 0.927 L22 0.929 L23 0.926 L24 0.921 L25 0.919 L26 0.914 L27 0.913 L28 0.912 L29 0.911 L30 0.908 L31 0.905
+   convergence warnings in CV (of 160 fits): 0
+   refit on the whole pool, chosen layer 18: train accuracy 0.998, train AUROC 1.000, liblinear iterations 18, convergence warnings 0
+   refit on the whole pool, E layer 15: train accuracy 0.998, train AUROC 1.000, liblinear iterations 18, convergence warnings 0
+   refit on the whole pool, C layer 16: train accuracy 0.998, train AUROC 1.000, liblinear iterations 21, convergence warnings 0
+
+## qwen3.5-9b, pool B (FalseQA train + other unused training questions): 4546 rows, trap 1525, plain 3021; sha256 c975d5ab475e1b60
+   by source (trap / plain): fqa_train 1187 / 1187, tq_train 96 / 0, tq_tune 192 / 0, qaqa:pilot_trap 50 / 0, qaqa:pilot_plain 0 / 50, popqa_train 0 / 300, popqa_tune 0 / 192, triviaqa_train 0 / 300, triviaqa_tune 0 / 192, mmlu_extra 0 / 500, gsm8k_train 0 / 300
+   folds (train / test / test trap): 3637 / 909 / 305 | 3637 / 909 / 305 | 3636 / 910 / 305 | 3638 / 908 / 305 | 3636 / 910 / 305
+   chosen layer 18, mean 5-fold AUROC 0.9439 | E layer 15 0.9387 | C layer 16 0.9405
+   CV mean by layer: L0 0.787 L1 0.794 L2 0.816 L3 0.818 L4 0.822 L5 0.832 L6 0.837 L7 0.850 L8 0.868 L9 0.882 L10 0.889 L11 0.896 L12 0.903 L13 0.928 L14 0.936 L15 0.939 L16 0.940 L17 0.941 L18 0.944 L19 0.938 L20 0.936 L21 0.934 L22 0.937 L23 0.933 L24 0.928 L25 0.921 L26 0.921 L27 0.920 L28 0.917 L29 0.919 L30 0.918 L31 0.918
+   CV pooled by layer: L0 0.787 L1 0.794 L2 0.815 L3 0.818 L4 0.822 L5 0.832 L6 0.836 L7 0.850 L8 0.868 L9 0.882 L10 0.889 L11 0.895 L12 0.903 L13 0.928 L14 0.936 L15 0.939 L16 0.941 L17 0.941 L18 0.944 L19 0.938 L20 0.936 L21 0.934 L22 0.937 L23 0.933 L24 0.928 L25 0.921 L26 0.921 L27 0.920 L28 0.917 L29 0.919 L30 0.918 L31 0.918
+   convergence warnings in CV (of 160 fits): 4
+   refit on the whole pool, chosen layer 18: train accuracy 0.999, train AUROC 1.000, liblinear iterations 33, convergence warnings 0
+   refit on the whole pool, E layer 15: train accuracy 0.999, train AUROC 1.000, liblinear iterations 34, convergence warnings 0
+   refit on the whole pool, C layer 16: train accuracy 0.999, train AUROC 1.000, liblinear iterations 38, convergence warnings 0
+
+## qwen3.8-27b, pool A (FalseQA train only): 2374 rows, trap 1187, plain 1187; sha256 ecb645704c9cf190
+   by source (trap / plain): fqa_train 1187 / 1187
+   folds (train / test / test trap): 1898 / 476 / 238 | 1898 / 476 / 238 | 1900 / 474 / 237 | 1900 / 474 / 237 | 1900 / 474 / 237
+   chosen layer 47, mean 5-fold AUROC 0.9559 | E layer 28 0.8757 | C layer 33 0.9398
+   CV mean by layer: L0 0.562 L1 0.558 L2 0.584 L3 0.585 L4 0.606 L5 0.628 L6 0.624 L7 0.639 L8 0.670 L9 0.698 L10 0.711 L11 0.711 L12 0.716 L13 0.771 L14 0.778 L15 0.792 L16 0.827 L17 0.842 L18 0.850 L19 0.852 L20 0.849 L21 0.852 L22 0.854 L23 0.851 L24 0.857 L25 0.857 L26 0.860 L27 0.866 L28 0.876 L29 0.904 L30 0.917 L31 0.927 L32 0.937 L33 0.940 L34 0.946 L35 0.946 L36 0.947 L37 0.946 L38 0.947 L39 0.948 L40 0.948 L41 0.949 L42 0.950 L43 0.953 L44 0.954 L45 0.954 L46 0.954 L47 0.956 L48 0.954 L49 0.953 L50 0.955 L51 0.953 L52 0.951 L53 0.950 L54 0.950 L55 0.950 L56 0.947 L57 0.944 L58 0.944 L59 0.944 L60 0.943 L61 0.943 L62 0.942 L63 0.939
+   CV pooled by layer: L0 0.562 L1 0.558 L2 0.584 L3 0.584 L4 0.606 L5 0.628 L6 0.623 L7 0.639 L8 0.670 L9 0.698 L10 0.711 L11 0.710 L12 0.716 L13 0.770 L14 0.778 L15 0.792 L16 0.826 L17 0.841 L18 0.849 L19 0.850 L20 0.848 L21 0.851 L22 0.853 L23 0.850 L24 0.857 L25 0.856 L26 0.859 L27 0.865 L28 0.875 L29 0.904 L30 0.916 L31 0.926 L32 0.937 L33 0.940 L34 0.945 L35 0.945 L36 0.947 L37 0.946 L38 0.947 L39 0.947 L40 0.948 L41 0.948 L42 0.949 L43 0.952 L44 0.953 L45 0.954 L46 0.954 L47 0.956 L48 0.954 L49 0.952 L50 0.954 L51 0.952 L52 0.950 L53 0.950 L54 0.950 L55 0.949 L56 0.947 L57 0.944 L58 0.943 L59 0.943 L60 0.942 L61 0.942 L62 0.942 L63 0.938
+   convergence warnings in CV (of 320 fits): 0
+   refit on the whole pool, chosen layer 47: train accuracy 0.998, train AUROC 1.000, liblinear iterations 15, convergence warnings 0
+   refit on the whole pool, E layer 28: train accuracy 0.998, train AUROC 1.000, liblinear iterations 12, convergence warnings 0
+   refit on the whole pool, C layer 33: train accuracy 0.998, train AUROC 1.000, liblinear iterations 15, convergence warnings 0
+
+## qwen3.8-27b, pool B (FalseQA train + other unused training questions): 4546 rows, trap 1525, plain 3021; sha256 39170fa875a2bbc5
+   by source (trap / plain): fqa_train 1187 / 1187, tq_train 96 / 0, tq_tune 192 / 0, qaqa:pilot_trap 50 / 0, qaqa:pilot_plain 0 / 50, popqa_train 0 / 300, popqa_tune 0 / 192, triviaqa_train 0 / 300, triviaqa_tune 0 / 192, mmlu_extra 0 / 500, gsm8k_train 0 / 300
+   folds (train / test / test trap): 3637 / 909 / 305 | 3637 / 909 / 305 | 3636 / 910 / 305 | 3638 / 908 / 305 | 3636 / 910 / 305
+   chosen layer 41, mean 5-fold AUROC 0.9623 | E layer 28 0.9226 | C layer 33 0.9522
+   CV mean by layer: L0 0.783 L1 0.787 L2 0.794 L3 0.801 L4 0.806 L5 0.809 L6 0.802 L7 0.806 L8 0.816 L9 0.835 L10 0.843 L11 0.843 L12 0.846 L13 0.859 L14 0.865 L15 0.872 L16 0.893 L17 0.899 L18 0.905 L19 0.906 L20 0.908 L21 0.906 L22 0.905 L23 0.906 L24 0.908 L25 0.910 L26 0.911 L27 0.916 L28 0.923 L29 0.932 L30 0.941 L31 0.946 L32 0.950 L33 0.952 L34 0.958 L35 0.960 L36 0.961 L37 0.960 L38 0.962 L39 0.962 L40 0.961 L41 0.962 L42 0.962 L43 0.961 L44 0.961 L45 0.962 L46 0.961 L47 0.961 L48 0.962 L49 0.961 L50 0.961 L51 0.958 L52 0.959 L53 0.955 L54 0.951 L55 0.948 L56 0.942 L57 0.938 L58 0.938 L59 0.937 L60 0.938 L61 0.939 L62 0.939 L63 0.935
+   CV pooled by layer: L0 0.783 L1 0.785 L2 0.793 L3 0.801 L4 0.806 L5 0.810 L6 0.801 L7 0.806 L8 0.816 L9 0.836 L10 0.843 L11 0.843 L12 0.846 L13 0.858 L14 0.864 L15 0.871 L16 0.892 L17 0.899 L18 0.905 L19 0.906 L20 0.907 L21 0.906 L22 0.904 L23 0.906 L24 0.907 L25 0.909 L26 0.911 L27 0.916 L28 0.922 L29 0.932 L30 0.941 L31 0.946 L32 0.951 L33 0.952 L34 0.958 L35 0.960 L36 0.961 L37 0.960 L38 0.962 L39 0.962 L40 0.961 L41 0.962 L42 0.962 L43 0.961 L44 0.961 L45 0.961 L46 0.961 L47 0.961 L48 0.962 L49 0.961 L50 0.961 L51 0.958 L52 0.959 L53 0.955 L54 0.951 L55 0.948 L56 0.942 L57 0.938 L58 0.938 L59 0.937 L60 0.938 L61 0.939 L62 0.939 L63 0.935
+   convergence warnings in CV (of 320 fits): 4
+   refit on the whole pool, chosen layer 41: train accuracy 0.999, train AUROC 1.000, liblinear iterations 20, convergence warnings 0
+   refit on the whole pool, E layer 28: train accuracy 0.999, train AUROC 1.000, liblinear iterations 21, convergence warnings 0
+   refit on the whole pool, C layer 33: train accuracy 0.999, train AUROC 1.000, liblinear iterations 22, convergence warnings 0
+
+## gemma3-12b, pool A (FalseQA train only): 2374 rows, trap 1187, plain 1187; sha256 d50d723c600fec75
+   by source (trap / plain): fqa_train 1187 / 1187
+   folds (train / test / test trap): 1898 / 476 / 238 | 1898 / 476 / 238 | 1900 / 474 / 237 | 1900 / 474 / 237 | 1900 / 474 / 237
+   chosen layer 26, mean 5-fold AUROC 0.9284 | E layer 24 0.9207 | C layer 25 0.9231
+   CV mean by layer: L0 0.510 L1 0.517 L2 0.547 L3 0.586 L4 0.608 L5 0.611 L6 0.620 L7 0.631 L8 0.665 L9 0.681 L10 0.719 L11 0.729 L12 0.755 L13 0.763 L14 0.796 L15 0.834 L16 0.864 L17 0.877 L18 0.891 L19 0.893 L20 0.910 L21 0.916 L22 0.921 L23 0.916 L24 0.921 L25 0.923 L26 0.928 L27 0.926 L28 0.920 L29 0.920 L30 0.912 L31 0.904 L32 0.905 L33 0.907 L34 0.909 L35 0.911 L36 0.909 L37 0.904 L38 0.901 L39 0.906 L40 0.908 L41 0.903 L42 0.905 L43 0.905 L44 0.901 L45 0.907 L46 0.906 L47 0.903
+   CV pooled by layer: L0 0.510 L1 0.517 L2 0.547 L3 0.587 L4 0.608 L5 0.611 L6 0.620 L7 0.630 L8 0.665 L9 0.681 L10 0.718 L11 0.728 L12 0.754 L13 0.763 L14 0.796 L15 0.834 L16 0.864 L17 0.876 L18 0.890 L19 0.892 L20 0.910 L21 0.915 L22 0.920 L23 0.916 L24 0.921 L25 0.923 L26 0.928 L27 0.925 L28 0.919 L29 0.920 L30 0.911 L31 0.904 L32 0.905 L33 0.907 L34 0.908 L35 0.911 L36 0.908 L37 0.903 L38 0.901 L39 0.905 L40 0.908 L41 0.902 L42 0.905 L43 0.904 L44 0.900 L45 0.905 L46 0.905 L47 0.903
+   convergence warnings in CV (of 240 fits): 0
+   refit on the whole pool, chosen layer 26: train accuracy 0.998, train AUROC 1.000, liblinear iterations 14, convergence warnings 0
+   refit on the whole pool, E layer 24: train accuracy 0.998, train AUROC 1.000, liblinear iterations 16, convergence warnings 0
+   refit on the whole pool, C layer 25: train accuracy 0.998, train AUROC 1.000, liblinear iterations 14, convergence warnings 0
+
+## gemma3-12b, pool B (FalseQA train + other unused training questions): 4546 rows, trap 1525, plain 3021; sha256 05b185cf6f2c43f9
+   by source (trap / plain): fqa_train 1187 / 1187, tq_train 96 / 0, tq_tune 192 / 0, qaqa:pilot_trap 50 / 0, qaqa:pilot_plain 0 / 50, popqa_train 0 / 300, popqa_tune 0 / 192, triviaqa_train 0 / 300, triviaqa_tune 0 / 192, mmlu_extra 0 / 500, gsm8k_train 0 / 300
+   folds (train / test / test trap): 3637 / 909 / 305 | 3637 / 909 / 305 | 3636 / 910 / 305 | 3638 / 908 / 305 | 3636 / 910 / 305
+   chosen layer 23, mean 5-fold AUROC 0.9427 | E layer 24 0.9421 | C layer 25 0.9427
+   CV mean by layer: L0 0.737 L1 0.766 L2 0.770 L3 0.792 L4 0.801 L5 0.807 L6 0.814 L7 0.808 L8 0.817 L9 0.831 L10 0.846 L11 0.857 L12 0.865 L13 0.872 L14 0.879 L15 0.898 L16 0.909 L17 0.915 L18 0.925 L19 0.927 L20 0.930 L21 0.937 L22 0.940 L23 0.943 L24 0.942 L25 0.943 L26 0.939 L27 0.940 L28 0.935 L29 0.933 L30 0.926 L31 0.922 L32 0.924 L33 0.921 L34 0.919 L35 0.918 L36 0.917 L37 0.912 L38 0.909 L39 0.907 L40 0.905 L41 0.905 L42 0.908 L43 0.908 L44 0.907 L45 0.912 L46 0.917 L47 0.915
+   CV pooled by layer: L0 0.736 L1 0.766 L2 0.771 L3 0.792 L4 0.802 L5 0.807 L6 0.814 L7 0.808 L8 0.816 L9 0.830 L10 0.845 L11 0.856 L12 0.864 L13 0.871 L14 0.880 L15 0.898 L16 0.909 L17 0.915 L18 0.924 L19 0.926 L20 0.930 L21 0.937 L22 0.940 L23 0.943 L24 0.942 L25 0.943 L26 0.939 L27 0.940 L28 0.935 L29 0.933 L30 0.925 L31 0.921 L32 0.924 L33 0.921 L34 0.919 L35 0.918 L36 0.917 L37 0.912 L38 0.909 L39 0.907 L40 0.905 L41 0.905 L42 0.908 L43 0.908 L44 0.906 L45 0.912 L46 0.916 L47 0.915
+   convergence warnings in CV (of 240 fits): 0
+   refit on the whole pool, chosen layer 23: train accuracy 0.999, train AUROC 1.000, liblinear iterations 22, convergence warnings 0
+   refit on the whole pool, E layer 24: train accuracy 0.999, train AUROC 1.000, liblinear iterations 16, convergence warnings 0
+   refit on the whole pool, C layer 25: train accuracy 0.999, train AUROC 1.000, liblinear iterations 18, convergence warnings 0
+
+## gemma3-27b, pool A (FalseQA train only): 2374 rows, trap 1187, plain 1187; sha256 1908e60ba6d66c9e
+   by source (trap / plain): fqa_train 1187 / 1187
+   folds (train / test / test trap): 1898 / 476 / 238 | 1898 / 476 / 238 | 1900 / 474 / 237 | 1900 / 474 / 237 | 1900 / 474 / 237
+   chosen layer 38, mean 5-fold AUROC 0.9447 | E layer 28 0.9314 | C layer 31 0.9394
+   CV mean by layer: L0 0.496 L1 0.519 L2 0.520 L3 0.513 L4 0.508 L5 0.511 L6 0.530 L7 0.528 L8 0.597 L9 0.622 L10 0.640 L11 0.652 L12 0.669 L13 0.700 L14 0.700 L15 0.715 L16 0.732 L17 0.751 L18 0.765 L19 0.796 L20 0.820 L21 0.836 L22 0.879 L23 0.884 L24 0.899 L25 0.912 L26 0.923 L27 0.922 L28 0.931 L29 0.933 L30 0.939 L31 0.939 L32 0.943 L33 0.940 L34 0.943 L35 0.942 L36 0.942 L37 0.942 L38 0.945 L39 0.944 L40 0.943 L41 0.940 L42 0.937 L43 0.939 L44 0.940 L45 0.939 L46 0.938 L47 0.938 L48 0.938 L49 0.936 L50 0.936 L51 0.936 L52 0.933 L53 0.932 L54 0.931 L55 0.932 L56 0.932 L57 0.933 L58 0.934 L59 0.933 L60 0.934 L61 0.934
+   CV pooled by layer: L0 0.495 L1 0.519 L2 0.520 L3 0.513 L4 0.509 L5 0.510 L6 0.529 L7 0.528 L8 0.597 L9 0.621 L10 0.640 L11 0.652 L12 0.668 L13 0.699 L14 0.700 L15 0.715 L16 0.732 L17 0.751 L18 0.765 L19 0.795 L20 0.820 L21 0.837 L22 0.880 L23 0.884 L24 0.899 L25 0.912 L26 0.922 L27 0.922 L28 0.931 L29 0.932 L30 0.938 L31 0.939 L32 0.942 L33 0.939 L34 0.942 L35 0.941 L36 0.941 L37 0.941 L38 0.944 L39 0.943 L40 0.942 L41 0.940 L42 0.937 L43 0.938 L44 0.939 L45 0.938 L46 0.938 L47 0.938 L48 0.938 L49 0.936 L50 0.936 L51 0.936 L52 0.933 L53 0.932 L54 0.931 L55 0.932 L56 0.932 L57 0.933 L58 0.934 L59 0.933 L60 0.934 L61 0.933
+   convergence warnings in CV (of 310 fits): 0
+   refit on the whole pool, chosen layer 38: train accuracy 0.998, train AUROC 1.000, liblinear iterations 11, convergence warnings 0
+   refit on the whole pool, E layer 28: train accuracy 0.998, train AUROC 1.000, liblinear iterations 17, convergence warnings 0
+   refit on the whole pool, C layer 31: train accuracy 0.998, train AUROC 1.000, liblinear iterations 15, convergence warnings 0
+
+## gemma3-27b, pool B (FalseQA train + other unused training questions): 4546 rows, trap 1525, plain 3021; sha256 8934bcaaa93dc421
+   by source (trap / plain): fqa_train 1187 / 1187, tq_train 96 / 0, tq_tune 192 / 0, qaqa:pilot_trap 50 / 0, qaqa:pilot_plain 0 / 50, popqa_train 0 / 300, popqa_tune 0 / 192, triviaqa_train 0 / 300, triviaqa_tune 0 / 192, mmlu_extra 0 / 500, gsm8k_train 0 / 300
+   folds (train / test / test trap): 3637 / 909 / 305 | 3637 / 909 / 305 | 3636 / 910 / 305 | 3638 / 908 / 305 | 3636 / 910 / 305
+   chosen layer 30, mean 5-fold AUROC 0.9497 | E layer 28 0.9478 | C layer 31 0.9455
+   CV mean by layer: L0 0.701 L1 0.753 L2 0.758 L3 0.762 L4 0.753 L5 0.765 L6 0.777 L7 0.779 L8 0.802 L9 0.809 L10 0.819 L11 0.821 L12 0.827 L13 0.835 L14 0.834 L15 0.840 L16 0.848 L17 0.856 L18 0.859 L19 0.876 L20 0.888 L21 0.898 L22 0.910 L23 0.916 L24 0.925 L25 0.935 L26 0.937 L27 0.945 L28 0.948 L29 0.949 L30 0.950 L31 0.946 L32 0.947 L33 0.946 L34 0.948 L35 0.946 L36 0.946 L37 0.944 L38 0.941 L39 0.940 L40 0.937 L41 0.935 L42 0.932 L43 0.933 L44 0.934 L45 0.934 L46 0.933 L47 0.933 L48 0.934 L49 0.932 L50 0.931 L51 0.932 L52 0.930 L53 0.931 L54 0.930 L55 0.933 L56 0.933 L57 0.933 L58 0.932 L59 0.931 L60 0.932 L61 0.930
+   CV pooled by layer: L0 0.701 L1 0.748 L2 0.757 L3 0.761 L4 0.753 L5 0.763 L6 0.777 L7 0.778 L8 0.802 L9 0.808 L10 0.818 L11 0.820 L12 0.826 L13 0.835 L14 0.834 L15 0.840 L16 0.847 L17 0.856 L18 0.859 L19 0.875 L20 0.888 L21 0.898 L22 0.910 L23 0.916 L24 0.925 L25 0.935 L26 0.937 L27 0.945 L28 0.948 L29 0.949 L30 0.950 L31 0.946 L32 0.947 L33 0.946 L34 0.949 L35 0.946 L36 0.946 L37 0.943 L38 0.942 L39 0.940 L40 0.937 L41 0.934 L42 0.932 L43 0.933 L44 0.934 L45 0.934 L46 0.933 L47 0.933 L48 0.934 L49 0.932 L50 0.931 L51 0.932 L52 0.930 L53 0.931 L54 0.930 L55 0.933 L56 0.933 L57 0.934 L58 0.932 L59 0.931 L60 0.932 L61 0.930
+   convergence warnings in CV (of 310 fits): 13
+   refit on the whole pool, chosen layer 30: train accuracy 0.999, train AUROC 1.000, liblinear iterations 28, convergence warnings 0
+   refit on the whole pool, E layer 28: train accuracy 0.999, train AUROC 1.000, liblinear iterations 25, convergence warnings 0
+   refit on the whole pool, C layer 31: train accuracy 0.999, train AUROC 1.000, liblinear iterations 19, convergence warnings 0
