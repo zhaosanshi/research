@@ -1,0 +1,55 @@
+## llama3.1-8b: E layer 16, main strength 3-5 (write rule prompt); classes: WW= 20, WW~ 76, RR= 29, RR~ 74, RW 35, WR 58
+   dose 2.0   layerprobe         rule old    all: net  -14, answers 382 | WW=: R   2 W  18 N   0 | WW~: R   7 W  69 N   0 | RR=: R  26 W   2 N   1 | RR~: R  65 W   6 N   3 |
+   dose 2.5   l16                rule old    all: net  +22, answers 346 | WW=: R   3 W  17 N   0 | WW~: R  13 W  61 N   2 | RR=: R  26 W   2 N   1 | RR~: R  63 W   8 N   3 |
+   dose 3.0   l16                rule old    all: net  +37, answers 325 | WW=: R   2 W  18 N   0 | WW~: R  15 W  57 N   4 | RR=: R  26 W   2 N   1 | RR~: R  60 W  14 N   0 |
+   dose 3.0   layerprobe         rule old    all: net  +33, answers 325 | WW=: R   2 W  18 N   0 | WW~: R  14 W  58 N   4 | RR=: R  26 W   2 N   1 | RR~: R  60 W  14 N   0 |
+   dose 3.5   l16                rule old    all: net  +51, answers 307 | WW=: R   2 W  18 N   0 | WW~: R  25 W  47 N   4 | RR=: R  27 W   1 N   1 | RR~: R  52 W  21 N   1 |
+   dose 3.5   pospromptl16       rule prompt all: net  +40, answers 304 | WW=: R   0 W  20 N   0 | WW~: R   0 W  76 N   0 | RR=: R  29 W   0 N   0 | RR~: R  74 W   0 N   0 |
+   dose 4.0   l16                rule old    all: net  +54, answers 302 | WW=: R   4 W  13 N   3 | WW~: R  29 W  37 N  10 | RR=: R  19 W   8 N   2 | RR~: R  50 W  23 N   1 |
+   dose 4.0   layerprobe         rule old    all: net  +52, answers 302 | WW=: R   4 W  13 N   3 | WW~: R  29 W  37 N  10 | RR=: R  19 W   8 N   2 | RR~: R  50 W  23 N   1 |
+   dose 4.0   pospromptl16s4     rule prompt all: net  +62, answers 296 | WW=: R   0 W  17 N   3 | WW~: R   7 W  62 N   7 | RR=: R  25 W   3 N   1 | RR~: R  72 W   2 N   0 |
+   dose 5.0   pospromptl16       rule prompt all: net  +69, answers 291 | WW=: R   2 W  10 N   8 | WW~: R  13 W  51 N  12 | RR=: R  20 W   6 N   3 | RR~: R  66 W   5 N   3 |
+   dose 6.0   layerprobe         rule old    all: net   -1, answers 305 | WW=: R   7 W   6 N   7 | WW~: R  27 W  34 N  15 | RR=: R  14 W  10 N   5 | RR~: R  35 W  32 N   7 |
+   dose 7.0   pospromptl16       rule prompt all: net  +70, answers 296 | WW=: R   6 W   8 N   6 | WW~: R  15 W  42 N  19 | RR=: R  16 W   7 N   6 | RR~: R  65 W   6 N   3 |
+## qwen3.5-9b: E layer 15, main strength 2 (write rule prompt); classes: WW= 76, WW~ 25, RR= 174, RR~ 60, RW 15, WR 42
+   dose 1.0   posgen             rule old    all: net  +75, answers 455 | WW=: R   0 W  76 N   0 | WW~: R   1 W  24 N   0 | RR=: R 172 W   1 N   1 | RR~: R  56 W   2 N   2 |
+   dose 1.0   t9b16              rule old    all: net +137, answers 439 | WW=: R   0 W  76 N   0 | WW~: R   2 W  23 N   0 | RR=: R 174 W   0 N   0 | RR~: R  58 W   2 N   0 |
+   dose 1.25  dosemid            rule old    all: net +154, answers 430 | WW=: R   1 W  75 N   0 | WW~: R   2 W  23 N   0 | RR=: R 173 W   1 N   0 | RR~: R  59 W   1 N   0 |
+   dose 1.5   dosemid            rule old    all: net +164, answers 424 | WW=: R   1 W  75 N   0 | WW~: R   2 W  23 N   0 | RR=: R 174 W   0 N   0 | RR~: R  60 W   0 N   0 |
+   dose 1.75  dosemid            rule old    all: net +177, answers 415 | WW=: R   1 W  75 N   0 | WW~: R   1 W  24 N   0 | RR=: R 174 W   0 N   0 | RR~: R  59 W   1 N   0 |
+   dose 2.0   posgen             rule old    all: net  +87, answers 453 | WW=: R   1 W  75 N   0 | WW~: R   1 W  24 N   0 | RR=: R 171 W   2 N   1 | RR~: R  58 W   0 N   2 |
+   dose 2.0   pospromptl15       rule prompt all: net +168, answers 402 | WW=: R   0 W  76 N   0 | WW~: R   0 W  25 N   0 | RR=: R 174 W   0 N   0 | RR~: R  60 W   0 N   0 |
+   dose 2.0   t9b16              rule old    all: net +171, answers 403 | WW=: R   2 W  74 N   0 | WW~: R   1 W  24 N   0 | RR=: R 173 W   1 N   0 | RR~: R  58 W   2 N   0 |
+   dose 2.5   dosehigh           rule old    all: net +179, answers 381 | WW=: R   4 W  59 N  13 | WW~: R   1 W  21 N   3 | RR=: R 165 W   2 N   7 | RR~: R  58 W   1 N   1 |
+   dose 3.0   dosehigh           rule old    all: net +163, answers 367 | WW=: R   4 W  53 N  19 | WW~: R   3 W  17 N   5 | RR=: R 151 W  10 N  13 | RR~: R  55 W   3 N   2 |
+   dose 3.0   posgen             rule old    all: net  +86, answers 448 | WW=: R   1 W  75 N   0 | WW~: R   1 W  24 N   0 | RR=: R 170 W   2 N   2 | RR~: R  57 W   1 N   2 |
+   dose 3.5   dosehigh2          rule old    all: net +165, answers 355 | WW=: R   8 W  40 N  28 | WW~: R   4 W  16 N   5 | RR=: R 145 W  13 N  16 | RR~: R  52 W   5 N   3 |
+   dose 4.0   dosehigh2          rule old    all: net +161, answers 351 | WW=: R  10 W  36 N  30 | WW~: R   5 W  15 N   5 | RR=: R 138 W  17 N  19 | RR~: R  50 W   7 N   3 |
+   dose 4.0   posgen             rule old    all: net  +92, answers 448 | WW=: R   2 W  74 N   0 | WW~: R   1 W  24 N   0 | RR=: R 168 W   4 N   2 | RR~: R  58 W   1 N   1 |
+   dose 6.0   posgen2            rule old    all: net +107, answers 449 | WW=: R   4 W  72 N   0 | WW~: R   4 W  21 N   0 | RR=: R 162 W  10 N   2 | RR~: R  58 W   2 N   0 |
+   dose 8.0   posgen2            rule old    all: net +101, answers 449 | WW=: R   5 W  71 N   0 | WW~: R   6 W  19 N   0 | RR=: R 160 W  11 N   3 | RR~: R  57 W   3 N   0 |
+   dose 12.0  posgen2            rule old    all: net +106, answers 460 | WW=: R  11 W  65 N   0 | WW~: R   5 W  20 N   0 | RR=: R 158 W  12 N   4 | RR~: R  55 W   5 N   0 |
+   dose 16.0  posgen2            rule old    all: net  +83, answers 459 | WW=: R  12 W  64 N   0 | WW~: R   8 W  17 N   0 | RR=: R 151 W  15 N   8 | RR~: R  50 W   9 N   1 |
+## qwen3.8-27b: E layer 28, main strength 1-75 (write rule prompt); classes: WW= 58, WW~ 22, RR= 143, RR~ 29, RW 15, WR 41
+   dose 1.0   t2733              rule old    all: net +106, answers 336 | WW=: R   0 W  57 N   1 | WW~: R   0 W  21 N   1 | RR=: R 141 W   0 N   2 | RR~: R  29 W   0 N   0 |
+   dose 1.0   t2733q1m           rule old    all: net +106, answers 336 | WW=: R   0 W  57 N   1 | WW~: R   0 W  21 N   1 | RR=: R 141 W   0 N   2 | RR~: R  29 W   0 N   0 |
+   dose 1.25  dosemid            rule old    all: net +111, answers 325 | WW=: R   0 W  57 N   1 | WW~: R   0 W  21 N   1 | RR=: R 139 W   2 N   2 | RR~: R  29 W   0 N   0 |
+   dose 1.5   dosemid            rule old    all: net +132, answers 332 | WW=: R   0 W  56 N   2 | WW~: R   0 W  21 N   1 | RR=: R 142 W   0 N   1 | RR~: R  29 W   0 N   0 |
+   dose 1.75  dosemid            rule old    all: net +150, answers 350 | WW=: R   1 W  57 N   0 | WW~: R   2 W  20 N   0 | RR=: R 143 W   0 N   0 | RR~: R  29 W   0 N   0 |
+   dose 1.75  pospromptl28       rule prompt all: net +142, answers 350 | WW=: R   0 W  58 N   0 | WW~: R   0 W  22 N   0 | RR=: R 143 W   0 N   0 | RR~: R  29 W   0 N   0 |
+   dose 2.0   t2733              rule old    all: net +162, answers 362 | WW=: R   2 W  55 N   1 | WW~: R   3 W  16 N   3 | RR=: R 142 W   1 N   0 | RR~: R  29 W   0 N   0 |
+   dose 2.5   dosehigh           rule old    all: net +175, answers 391 | WW=: R   5 W  48 N   5 | WW~: R   5 W  14 N   3 | RR=: R 137 W   6 N   0 | RR~: R  28 W   1 N   0 |
+   dose 3.0   dosehigh           rule old    all: net +200, answers 398 | WW=: R   9 W  41 N   8 | WW~: R   8 W  10 N   4 | RR=: R 133 W   8 N   2 | RR~: R  27 W   2 N   0 |
+## gemma3-12b: E layer 24, main strength 2-5 (write rule prompt); classes: WW= 34, WW~ 35, RR= 77, RR~ 61, RW 35, WR 63
+   dose 1.5   l24                rule old    all: net  +91, answers 373 | WW=: R   0 W  34 N   0 | WW~: R   0 W  31 N   4 | RR=: R  77 W   0 N   0 | RR~: R  60 W   1 N   0 |
+   dose 2.0   l24                rule old    all: net  +92, answers 342 | WW=: R   0 W  34 N   0 | WW~: R   0 W  31 N   4 | RR=: R  75 W   2 N   0 | RR~: R  56 W   4 N   1 |
+   dose 2.5   l24                rule old    all: net  +95, answers 315 | WW=: R   0 W  34 N   0 | WW~: R   1 W  33 N   1 | RR=: R  74 W   2 N   1 | RR~: R  58 W   2 N   1 |
+   dose 2.5   pospromptl24       rule prompt all: net +103, answers 319 | WW=: R   0 W  34 N   0 | WW~: R   0 W  35 N   0 | RR=: R  77 W   0 N   0 | RR~: R  61 W   0 N   0 |
+   dose 3.0   l24                rule old    all: net +111, answers 305 | WW=: R   6 W  20 N   8 | WW~: R   3 W  22 N  10 | RR=: R  62 W   8 N   7 | RR~: R  53 W   4 N   4 |
+   dose 4.0   pospromptl24       rule prompt all: net  +76, answers 274 | WW=: R   9 W  11 N  14 | WW~: R   2 W  21 N  12 | RR=: R  40 W  17 N  20 | RR~: R  44 W   5 N  12 |
+   dose 6.0   pospromptl24       rule prompt all: net  +12, answers 208 | WW=: R   7 W   8 N  19 | WW~: R   3 W  13 N  19 | RR=: R  22 W  20 N  35 | RR~: R  29 W   7 N  25 |
+## gemma3-27b: E layer 28, main strength 1 (write rule prompt); classes: WW= 96, WW~ 38, RR= 121, RR~ 75, RW 13, WR 43
+   dose 1.0   l28                rule old    all: net +107, answers 405 | WW=: R   3 W  93 N   0 | WW~: R   2 W  35 N   1 | RR=: R 120 W   1 N   0 | RR~: R  73 W   2 N   0 |
+   dose 1.0   pospromptl28       rule prompt all: net +105, answers 401 | WW=: R   0 W  96 N   0 | WW~: R   0 W  38 N   0 | RR=: R 121 W   0 N   0 | RR~: R  75 W   0 N   0 |
+   dose 1.5   l28                rule old    all: net +141, answers 395 | WW=: R  13 W  71 N  12 | WW~: R   5 W  27 N   6 | RR=: R 107 W   5 N   9 | RR~: R  69 W   2 N   4 |
+   dose 2.0   l28                rule old    all: net +178, answers 402 | WW=: R  27 W  47 N  22 | WW~: R   7 W  21 N  10 | RR=: R  95 W  14 N  12 | RR~: R  66 W   3 N   6 |

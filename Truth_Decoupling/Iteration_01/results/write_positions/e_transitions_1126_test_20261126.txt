@@ -1,0 +1,27 @@
+llama3.1-8b (523 questions): no write right 181 wrong 267 none 75 (net -86) | E right 172 wrong 132 none 219 (net +40)
+    no write -> E: right->right 103, right->wrong 35, right->none 43, wrong->right 58, wrong->wrong 96, wrong->none 113, none->right 11, none->wrong 1, none->none 63
+    forced work dir conditions: ['baseline_conf', 'E_L16_conf-w-p3-5']
+    must-answer baseline_conf: right 192 wrong 311 none 20 (net -119) | must-answer + E: right 252 wrong 240 none 31 (net +12)
+    must-answer -> must-answer + E: right->right 135, right->wrong 49, right->none 8, wrong->right 108, wrong->wrong 189, wrong->none 14, none->right 9, none->wrong 2, none->none 9
+qwen3.5-9b (523 questions): no write right 268 wrong 195 none 60 (net +73) | E right 285 wrong 117 none 121 (net +168)
+    no write -> E: right->right 234, right->wrong 15, right->none 19, wrong->right 42, wrong->wrong 101, wrong->none 52, none->right 9, none->wrong 1, none->none 50
+    forced work dir conditions: ['baseline_conf', 'E_L15_conf-w-p2']
+    must-answer baseline_conf: right 290 wrong 218 none 15 (net +72) | must-answer + E: right 330 wrong 174 none 19 (net +156)
+    must-answer -> must-answer + E: right->right 264, right->wrong 20, right->none 6, wrong->right 64, wrong->wrong 151, wrong->none 3, none->right 2, none->wrong 3, none->none 10
+qwen3.8-27b (521 questions): no write right 202 wrong 155 none 164 (net +47) | E right 246 wrong 104 none 171 (net +142)
+    no write -> E: right->right 172, right->wrong 15, right->none 15, wrong->right 41, wrong->wrong 80, wrong->none 34, none->right 33, none->wrong 9, none->none 122
+    forced work dir conditions: ['baseline_conf', 'E_L28_conf-w-p1-75']
+    must-answer baseline_conf: right 262 wrong 247 none 12 (net +15) | must-answer + E: right 334 wrong 172 none 15 (net +162)
+    must-answer -> must-answer + E: right->right 237, right->wrong 20, right->none 5, wrong->right 94, wrong->wrong 149, wrong->none 4, none->right 3, none->wrong 3, none->none 6
+gemma3-12b (522 questions): no write right 228 wrong 216 none 78 (net +12) | E right 211 wrong 108 none 203 (net +103)
+    no write -> E: right->right 138, right->wrong 35, right->none 55, wrong->right 63, wrong->wrong 69, wrong->none 84, none->right 10, none->wrong 4, none->none 64
+    forced work dir conditions: ['baseline_conf', 'E_L24_conf-w-p2-5']
+    must-answer baseline_conf: right 233 wrong 274 none 15 (net -41) | must-answer + E: right 332 wrong 162 none 28 (net +170)
+    must-answer -> must-answer + E: right->right 175, right->wrong 49, right->none 9, wrong->right 148, wrong->wrong 112, wrong->none 14, none->right 9, none->wrong 1, none->none 5
+gemma3-27b (523 questions): no write right 221 wrong 218 none 84 (net +3) | E right 253 wrong 148 none 122 (net +105)
+    no write -> E: right->right 196, right->wrong 13, right->none 12, wrong->right 43, wrong->wrong 134, wrong->none 41, none->right 14, none->wrong 1, none->none 69
+    forced work dir conditions: ['baseline_conf', 'E_L28_conf-w-p1']
+    must-answer baseline_conf: right 235 wrong 265 none 23 (net -30) | must-answer + E: right 301 wrong 207 none 15 (net +94)
+    must-answer -> must-answer + E: right->right 209, right->wrong 21, right->none 5, wrong->right 79, wrong->wrong 184, wrong->none 2, none->right 13, none->wrong 2, none->none 8
+FIVE MODELS, normal prompt, no write -> E: right->right 843, right->wrong 113, right->none 144, wrong->right 247, wrong->wrong 480, wrong->none 324, none->right 77, none->wrong 16, none->none 368
+FIVE MODELS, must-answer -> must-answer + E: right->right 1020, right->wrong 159, right->none 33, wrong->right 493, wrong->wrong 785, wrong->none 37, none->right 36, none->wrong 11, none->none 38

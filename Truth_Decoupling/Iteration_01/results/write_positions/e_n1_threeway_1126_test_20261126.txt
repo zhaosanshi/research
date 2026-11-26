@@ -1,0 +1,37 @@
+llama3.1-8b (523 questions) N1 setting ('N1', '3-5', '1', '2'): no write net -86 | E net +40 | N1 net +62
+    E's blanks that were RIGHT with no write       n  43 -> N1: right  12, wrong   7, still blank  24 (net +5) | {'released': 21, 'above the cap': 4, 'not a candidate': 6, 'vetoed: the original answer came back': 12}
+    E's blanks that were WRONG with no write       n 113 -> N1: right  33, wrong  46, still blank  34 (net -13) | {'released': 83, 'not a candidate': 5, 'above the cap': 6, 'vetoed: the original answer came back': 19}
+    own blanks (blank with no write and under E)   n  63 -> N1: right  36, wrong   6, still blank  21 (net +30) | {'blank at every dose': 5, 'released': 53, 'not a candidate': 4, 'above the cap': 1}
+    wrong answers after N1: 191 = N->N->W 6, N->W->W 1, R->N->W 7, R->W->W 35, W->N->W 46, W->W->W 96
+    answered both times, SAME text: 49 (R->R 29, R->W 0, W->R 0, W->W 20) | DIFFERENT text: 243 (R->R 74, R->W 35, W->R 58, W->W 76)
+qwen3.5-9b (523 questions) N1 setting ('N1', '2', '0-25', '0-5'): no write net +73 | E net +168 | N1 net +186
+    E's blanks that were RIGHT with no write       n  19 -> N1: right   3, wrong   1, still blank  15 (net +2) | {'vetoed: the original answer came back': 6, 'released': 4, 'above the cap': 7, 'not a candidate': 2}
+    E's blanks that were WRONG with no write       n  52 -> N1: right   8, wrong   4, still blank  40 (net +4) | {'released': 12, 'vetoed: the original answer came back': 9, 'above the cap': 31}
+    own blanks (blank with no write and under E)   n  50 -> N1: right  14, wrong   2, still blank  34 (net +12) | {'not a candidate': 5, 'blank at every dose': 3, 'released': 19, 'above the cap': 22, 'vetoed: the original answer came back': 1}
+    wrong answers after N1: 124 = N->N->W 2, N->W->W 1, R->N->W 1, R->W->W 15, W->N->W 4, W->W->W 101
+    answered both times, SAME text: 250 (R->R 174, R->W 0, W->R 0, W->W 76) | DIFFERENT text: 142 (R->R 60, R->W 15, W->R 42, W->W 25)
+qwen3.8-27b (521 questions) N1 setting ('N1', '1-75', '0-5', '1'): no write net +47 | E net +142 | N1 net +175
+    E's blanks that were RIGHT with no write       n  15 -> N1: right   4, wrong   7, still blank   4 (net -3) | {'vetoed: the original answer came back': 4, 'released': 11}
+    E's blanks that were WRONG with no write       n  34 -> N1: right   9, wrong   7, still blank  18 (net +2) | {'not a candidate': 1, 'vetoed: the original answer came back': 17, 'released': 16}
+    own blanks (blank with no write and under E)   n 122 -> N1: right  66, wrong  32, still blank  24 (net +34) | {'not a candidate': 3, 'above the cap': 8, 'released': 109, 'blank at every dose': 1, 'vetoed: the original answer came back': 1}
+    wrong answers after N1: 150 = N->N->W 32, N->W->W 9, R->N->W 7, R->W->W 15, W->N->W 7, W->W->W 80
+    answered both times, SAME text: 201 (R->R 143, R->W 0, W->R 0, W->W 58) | DIFFERENT text: 107 (R->R 29, R->W 15, W->R 41, W->W 22)
+gemma3-12b (522 questions) N1 setting ('N1', '2-5', '2', '2'): no write net +12 | E net +103 | N1 net +158
+    E's blanks that were RIGHT with no write       n  55 -> N1: right  21, wrong  12, still blank  22 (net +9) | {'vetoed: the original answer came back': 14, 'released': 39, 'blank at every dose': 1, 'not a candidate': 1}
+    E's blanks that were WRONG with no write       n  84 -> N1: right  39, wrong  25, still blank  20 (net +14) | {'vetoed: the original answer came back': 11, 'released': 69, 'not a candidate': 4}
+    own blanks (blank with no write and under E)   n  64 -> N1: right  41, wrong   9, still blank  14 (net +32) | {'blank at every dose': 6, 'released': 58}
+    wrong answers after N1: 154 = N->N->W 9, N->W->W 4, R->N->W 12, R->W->W 35, W->N->W 25, W->W->W 69
+    answered both times, SAME text: 111 (R->R 77, R->W 0, W->R 0, W->W 34) | DIFFERENT text: 194 (R->R 61, R->W 35, W->R 63, W->W 35)
+gemma3-27b (523 questions) N1 setting ('N1', '1', '1', '2'): no write net +3 | E net +105 | N1 net +144
+    E's blanks that were RIGHT with no write       n  12 -> N1: right   5, wrong   1, still blank   6 (net +4) | {'not a candidate': 3, 'released': 7, 'vetoed: the original answer came back': 1, 'above the cap': 1}
+    E's blanks that were WRONG with no write       n  41 -> N1: right  12, wrong  10, still blank  19 (net +2) | {'released': 25, 'vetoed: the original answer came back': 9, 'not a candidate': 6, 'above the cap': 1}
+    own blanks (blank with no write and under E)   n  69 -> N1: right  43, wrong  10, still blank  16 (net +33) | {'released': 55, 'not a candidate': 13, 'blank at every dose': 1}
+    wrong answers after N1: 169 = N->N->W 10, N->W->W 1, R->N->W 1, R->W->W 13, W->N->W 10, W->W->W 134
+    answered both times, SAME text: 217 (R->R 121, R->W 0, W->R 0, W->W 96) | DIFFERENT text: 169 (R->R 75, R->W 13, W->R 43, W->W 38)
+FIVE MODELS
+    E's blanks that were RIGHT with no write       -> N1: right 45, wrong 28, still blank 71
+    E's blanks that were WRONG with no write       -> N1: right 101, wrong 92, still blank 131
+    own blanks (blank with no write and under E)   -> N1: right 200, wrong 59, still blank 109
+    wrong answers after N1 by origin: N->N->W 59, N->W->W 16, R->N->W 28, R->W->W 113, W->N->W 92, W->W->W 480
+    answered both times, same text: R->R 544, R->W 0, W->R 0, W->W 284
+    answered both times, diff text: R->R 299, R->W 113, W->R 247, W->W 196

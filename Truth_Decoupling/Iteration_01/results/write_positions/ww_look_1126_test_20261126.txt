@@ -1,0 +1,562 @@
+## llama3.1-8b (523 questions; E layer 16 strength 3-5; N1 ('N1', '3-5', '1', '2'))
+  A. net on all questions: no write -86 | E +40 | E + C(answering) on ALL questions at 0.25 / 0.5 / 1 / 2: +39 (answers 359) / +41 (answers 409) / +61 (answers 461) / +68 (answers 476) | N1 +62
+  B. classes (no write, E; = same text, ~ different text): NN 63, NR 11, NW 1, RN 43, RR= 29, RR~ 74, RW 35, WN 113, WR 58, WW= 20, WW~ 76
+  C. E + C(answering) at each dose on the answered classes: verdicts | text equals the no-write answer / the E answer / neither (among answered)
+     WW= n  20 dose 0-25: R   0 W  20 N   0 | = no-write  20, = E   0, neither   0
+     WW= n  20 dose 0-5 : R   0 W  20 N   0 | = no-write  20, = E   0, neither   0
+     WW= n  20 dose 1   : R   0 W  20 N   0 | = no-write  20, = E   0, neither   0
+     WW= n  20 dose 2   : R   0 W  20 N   0 | = no-write  20, = E   0, neither   0
+     WW~ n  76 dose 0-25: R   1 W  74 N   1 | = no-write   2, = E  65, neither   8
+     WW~ n  76 dose 0-5 : R   3 W  72 N   1 | = no-write   2, = E  62, neither  11
+     WW~ n  76 dose 1   : R   9 W  67 N   0 | = no-write   3, = E  52, neither  21
+     WW~ n  76 dose 2   : R  13 W  62 N   1 | = no-write   5, = E  36, neither  34
+     RW  n  35 dose 0-25: R   1 W  34 N   0 | = no-write   1, = E  31, neither   3
+     RW  n  35 dose 0-5 : R   1 W  34 N   0 | = no-write   1, = E  30, neither   4
+     RW  n  35 dose 1   : R   2 W  33 N   0 | = no-write   1, = E  29, neither   5
+     RW  n  35 dose 2   : R   4 W  31 N   0 | = no-write   2, = E  22, neither  11
+     WR  n  58 dose 0-25: R  57 W   1 N   0 | = no-write   0, = E  52, neither   6
+     WR  n  58 dose 0-5 : R  56 W   2 N   0 | = no-write   1, = E  48, neither   9
+     WR  n  58 dose 1   : R  54 W   4 N   0 | = no-write   2, = E  45, neither  11
+     WR  n  58 dose 2   : R  51 W   7 N   0 | = no-write   2, = E  33, neither  23
+     RR= n  29 dose 0-25: R  29 W   0 N   0 | = no-write  28, = E   0, neither   1
+     RR= n  29 dose 0-5 : R  29 W   0 N   0 | = no-write  28, = E   0, neither   1
+     RR= n  29 dose 1   : R  29 W   0 N   0 | = no-write  27, = E   0, neither   2
+     RR= n  29 dose 2   : R  27 W   2 N   0 | = no-write  24, = E   0, neither   5
+     RR~ n  74 dose 0-25: R  72 W   2 N   0 | = no-write   3, = E  63, neither   8
+     RR~ n  74 dose 0-5 : R  71 W   3 N   0 | = no-write   3, = E  60, neither  11
+     RR~ n  74 dose 1   : R  71 W   3 N   0 | = no-write   3, = E  56, neither  15
+     RR~ n  74 dose 2   : R  67 W   6 N   1 | = no-write   4, = E  41, neither  28
+  D. other judged conditions on the classes (verdicts): 
+     fillctl      E_L16_conf_E2-w-p3-5         all: net +135 | WW(96): R  38 W  58 N   0 | RR(103): R  92 W  10 N   1 | RW(35): R  12 W  22 N   1 | WR(58): R  51 W   5 N   2 |
+     fillctl      baseline_conf_E2             all: net   +0 | WW(96): R  14 W  82 N   0 | RR(103): R  91 W  11 N   1 | RW(35): R  23 W  12 N   0 | WR(58): R  30 W  28 N   0 |
+     h22c4        baseline_x_E2                all: net  +33 | WW(96): R  19 W  74 N   3 | RR(103): R  94 W   7 N   2 | RW(35): R  21 W  13 N   1 | WR(58): R  35 W  19 N   4 |
+     n1s          E_L16_x_E2-w-p3-5            all: net +126 | WW(96): R  41 W  48 N   7 | RR(103): R  86 W  15 N   2 | RW(35): R  10 W  24 N   1 | WR(58): R  47 W   3 N   8 |
+     n1s3         E_L16_x_E2-w-p1-75           all: net +101 | WW(96): R  29 W  62 N   5 | RR(103): R  94 W   7 N   2 | RW(35): R   9 W  24 N   2 | WR(58): R  48 W   6 N   4 |
+     pfam         baseline_x_E1_E2             all: net  -16 | WW(96): R  13 W  81 N   2 | RR(103): R  96 W   5 N   2 | RW(35): R  20 W  15 N   0 | WR(58): R  27 W  29 N   2 |
+     pfam         baseline_x_E2_H              all: net  +23 | WW(96): R  23 W  66 N   7 | RR(103): R  88 W   8 N   7 | RW(35): R  21 W  12 N   2 | WR(58): R  26 W  21 N  11 |
+     pfam         baseline_x_H                 all: net  -43 | WW(96): R   8 W  79 N   9 | RR(103): R  86 W   7 N  10 | RW(35): R  23 W  11 N   1 | WR(58): R  15 W  34 N   9 |
+     pospromptdl16 E_L16_conf-w-p3-5            all: net  +12 | WW(96): R  10 W  86 N   0 | RR(103): R  93 W  10 N   0 | RW(35): R   5 W  30 N   0 | WR(58): R  49 W   9 N   0 |
+     pospromptdl16 baseline_conf                all: net -119 | WW(96): R   7 W  89 N   0 | RR(103): R  90 W  11 N   2 | RW(35): R  27 W   7 N   1 | WR(58): R   4 W  54 N   0 |
+     promptsweep  baseline_caut                all: net -117 | WW(96): R   2 W  93 N   1 | RR(103): R  94 W   4 N   5 | RW(35): R  31 W   4 N   0 | WR(58): R   0 W  57 N   1 |
+     promptsweep  baseline_caut_E1             all: net  -32 | WW(96): R  11 W  85 N   0 | RR(103): R  94 W   4 N   5 | RW(35): R  26 W   9 N   0 | WR(58): R  20 W  36 N   2 |
+     promptsweep  baseline_caut_E2             all: net  +36 | WW(96): R  19 W  72 N   5 | RR(103): R  92 W   7 N   4 | RW(35): R  24 W  11 N   0 | WR(58): R  34 W  20 N   4 |
+     promptsweep  baseline_caut_M              all: net -243 | WW(96): R   3 W  92 N   1 | RR(103): R  62 W  38 N   3 | RW(35): R  21 W  12 N   2 | WR(58): R   4 W  53 N   1 |
+     promptsweep  baseline_conf_E1             all: net  -47 | WW(96): R  11 W  85 N   0 | RR(103): R  96 W   7 N   0 | RW(35): R  26 W   9 N   0 | WR(58): R  17 W  40 N   1 |
+     promptsweep  baseline_conf_M              all: net -217 | WW(96): R   4 W  92 N   0 | RR(103): R  67 W  35 N   1 | RW(35): R  24 W  11 N   0 | WR(58): R   6 W  52 N   0 |
+     promptsweep  baseline_x_E1                all: net  -42 | WW(96): R  10 W  86 N   0 | RR(103): R  98 W   4 N   1 | RW(35): R  26 W   9 N   0 | WR(58): R  19 W  37 N   2 |
+     promptsweep  baseline_x_F                 all: net  -20 | WW(96): R  22 W  73 N   1 | RR(103): R  92 W  10 N   1 | RW(35): R  22 W  13 N   0 | WR(58): R  20 W  37 N   1 |
+  E. WW (96): right under at least one of the E + C doses: 15; blank under at least one: 3
+  E. WW (96): right under at least one of the other conditions: 64; blank under at least one: 24
+  F. questions answered under E: 304 (right 172, wrong 132). Share right when the E answer text equals the answer of another condition:
+     no write                       same text  49 (right  59.2%) | different text 243 (right  54.3%) | other is blank  12 (right  91.7%)
+     E + C 0-25                     same text 270 (right  56.7%) | different text  32 (right  56.2%) | other is blank   2 (right  50.0%)
+     E + C 0-5                      same text 258 (right  56.2%) | different text  45 (right  60.0%) | other is blank   1 (right   0.0%)
+     E + C 1                        same text 237 (right  57.0%) | different text  67 (right  55.2%) | other is blank   0
+     E + C 2                        same text 183 (right  56.8%) | different text 119 (right  56.3%) | other is blank   2 (right  50.0%)
+     E_L16_conf_E2-w-p3-5           same text  89 (right  66.3%) | different text 210 (right  51.9%) | other is blank   5 (right  80.0%)
+     baseline_conf_E2               same text  50 (right  58.0%) | different text 251 (right  55.8%) | other is blank   3 (right 100.0%)
+     baseline_x_E2                  same text  57 (right  63.2%) | different text 236 (right  54.7%) | other is blank  11 (right  63.6%)
+     E_L16_x_E2-w-p3-5              same text  74 (right  63.5%) | different text 212 (right  54.2%) | other is blank  18 (right  55.6%)
+     E_L16_x_E2-w-p1-75             same text  83 (right  59.0%) | different text 207 (right  56.0%) | other is blank  14 (right  50.0%)
+     baseline_x_E1_E2               same text  60 (right  58.3%) | different text 238 (right  55.9%) | other is blank   6 (right  66.7%)
+     baseline_x_E2_H                same text  41 (right  56.1%) | different text 235 (right  55.3%) | other is blank  28 (right  67.9%)
+     baseline_x_H                   same text  39 (right  51.3%) | different text 231 (right  55.4%) | other is blank  34 (right  70.6%)
+     E_L16_conf-w-p3-5              same text 140 (right  52.9%) | different text 163 (right  59.5%) | other is blank   1 (right 100.0%)
+     baseline_conf                  same text  34 (right  52.9%) | different text 260 (right  55.8%) | other is blank  10 (right  90.0%)
+     baseline_caut                  same text  42 (right  59.5%) | different text 248 (right  54.0%) | other is blank  14 (right  92.9%)
+     baseline_caut_E1               same text  49 (right  61.2%) | different text 248 (right  54.4%) | other is blank   7 (right 100.0%)
+     baseline_caut_E2               same text  58 (right  58.6%) | different text 232 (right  55.6%) | other is blank  14 (right  64.3%)
+     baseline_caut_M                same text  29 (right  51.7%) | different text 264 (right  56.4%) | other is blank  11 (right  72.7%)
+     baseline_conf_E1               same text  45 (right  60.0%) | different text 256 (right  55.5%) | other is blank   3 (right 100.0%)
+     baseline_conf_M                same text  29 (right  41.4%) | different text 269 (right  57.6%) | other is blank   6 (right  83.3%)
+     baseline_x_E1                  same text  55 (right  61.8%) | different text 246 (right  54.9%) | other is blank   3 (right 100.0%)
+     baseline_x_F                   same text   6 (right  33.3%) | different text 293 (right  56.7%) | other is blank   5 (right  80.0%)
+## qwen3.5-9b (523 questions; E layer 15 strength 2; N1 ('N1', '2', '0-25', '0-5'))
+  A. net on all questions: no write +73 | E +168 | E + C(answering) on ALL questions at 0.25 / 0.5 / 1 / 2: +174 (answers 440) / +168 (answers 468) / +156 (answers 498) / +140 (answers 510) | N1 +186
+  B. classes (no write, E; = same text, ~ different text): NN 50, NR 9, NW 1, RN 19, RR= 174, RR~ 60, RW 15, WN 52, WR 42, WW= 76, WW~ 25
+  C. E + C(answering) at each dose on the answered classes: verdicts | text equals the no-write answer / the E answer / neither (among answered)
+     WW= n  76 dose 0-25: R   0 W  76 N   0 | = no-write  75, = E   0, neither   1
+     WW= n  76 dose 0-5 : R   0 W  76 N   0 | = no-write  74, = E   0, neither   2
+     WW= n  76 dose 1   : R   2 W  74 N   0 | = no-write  70, = E   0, neither   6
+     WW= n  76 dose 2   : R   2 W  74 N   0 | = no-write  65, = E   0, neither  11
+     WW~ n  25 dose 0-25: R   1 W  24 N   0 | = no-write   1, = E  22, neither   2
+     WW~ n  25 dose 0-5 : R   2 W  23 N   0 | = no-write   2, = E  21, neither   2
+     WW~ n  25 dose 1   : R   2 W  23 N   0 | = no-write   3, = E  14, neither   8
+     WW~ n  25 dose 2   : R   2 W  23 N   0 | = no-write   6, = E   7, neither  12
+     RW  n  15 dose 0-25: R   0 W  14 N   1 | = no-write   0, = E  14, neither   0
+     RW  n  15 dose 0-5 : R   0 W  14 N   1 | = no-write   0, = E  13, neither   1
+     RW  n  15 dose 1   : R   0 W  14 N   1 | = no-write   0, = E  11, neither   3
+     RW  n  15 dose 2   : R   5 W  10 N   0 | = no-write   1, = E   8, neither   6
+     WR  n  42 dose 0-25: R  41 W   1 N   0 | = no-write   1, = E  40, neither   1
+     WR  n  42 dose 0-5 : R  40 W   2 N   0 | = no-write   2, = E  37, neither   3
+     WR  n  42 dose 1   : R  40 W   2 N   0 | = no-write   2, = E  33, neither   7
+     WR  n  42 dose 2   : R  36 W   6 N   0 | = no-write   5, = E  28, neither   9
+     RR= n 174 dose 0-25: R 173 W   1 N   0 | = no-write 171, = E   0, neither   3
+     RR= n 174 dose 0-5 : R 172 W   2 N   0 | = no-write 164, = E   0, neither  10
+     RR= n 174 dose 1   : R 172 W   2 N   0 | = no-write 157, = E   0, neither  17
+     RR= n 174 dose 2   : R 170 W   3 N   1 | = no-write 150, = E   0, neither  23
+     RR~ n  60 dose 0-25: R  60 W   0 N   0 | = no-write   3, = E  49, neither   8
+     RR~ n  60 dose 0-5 : R  60 W   0 N   0 | = no-write   7, = E  45, neither   8
+     RR~ n  60 dose 1   : R  59 W   1 N   0 | = no-write  10, = E  35, neither  15
+     RR~ n  60 dose 2   : R  56 W   4 N   0 | = no-write  10, = E  24, neither  26
+  D. other judged conditions on the classes (verdicts): 
+     fillctl      E_L15_conf_E2-w-p2           all: net +164 | WW(101): R  18 W  83 N   0 | RR(234): R 213 W  21 N   0 | RW(15): R   3 W  12 N   0 | WR(42): R  42 W   0 N   0 |
+     fillctl      baseline_conf_E2             all: net +168 | WW(101): R   8 W  93 N   0 | RR(234): R 230 W   4 N   0 | RW(15): R   8 W   7 N   0 | WR(42): R  35 W   7 N   0 |
+     h22c4        baseline_x_E2                all: net +168 | WW(101): R   9 W  91 N   1 | RR(234): R 226 W   6 N   2 | RW(15): R   6 W   9 N   0 | WR(42): R  36 W   6 N   0 |
+     n1s          E_L15_x_E2-w-p2              all: net +190 | WW(101): R  13 W  70 N  18 | RR(234): R 210 W  12 N  12 | RW(15): R   1 W  14 N   0 | WR(42): R  42 W   0 N   0 |
+     pfam         baseline_x_E1_E2             all: net +190 | WW(101): R  18 W  80 N   3 | RR(234): R 217 W  14 N   3 | RW(15): R   8 W   7 N   0 | WR(42): R  35 W   7 N   0 |
+     pfam         baseline_x_E2_H              all: net +153 | WW(101): R   7 W  89 N   5 | RR(234): R 217 W   9 N   8 | RW(15): R  10 W   5 N   0 | WR(42): R  30 W  11 N   1 |
+     pfam         baseline_x_H                 all: net +142 | WW(101): R  10 W  87 N   4 | RR(234): R 222 W   7 N   5 | RW(15): R  13 W   2 N   0 | WR(42): R  20 W  22 N   0 |
+     pospromptdl15 E_L15_conf-w-p2              all: net +156 | WW(101): R   5 W  96 N   0 | RR(234): R 229 W   3 N   2 | RW(15): R   4 W  10 N   1 | WR(42): R  39 W   3 N   0 |
+     pospromptdl15 baseline_conf                all: net  +72 | WW(101): R   8 W  92 N   1 | RR(234): R 219 W  15 N   0 | RW(15): R  12 W   3 N   0 | WR(42): R   9 W  33 N   0 |
+     promptsweep  baseline_caut                all: net  +72 | WW(101): R   6 W  95 N   0 | RR(234): R 215 W   8 N  11 | RW(15): R  13 W   1 N   1 | WR(42): R   5 W  37 N   0 |
+     promptsweep  baseline_caut_E1             all: net +172 | WW(101): R  12 W  86 N   3 | RR(234): R 225 W   8 N   1 | RW(15): R   8 W   7 N   0 | WR(42): R  31 W  11 N   0 |
+     promptsweep  baseline_caut_E2             all: net +166 | WW(101): R   6 W  92 N   3 | RR(234): R 224 W   4 N   6 | RW(15): R   6 W   9 N   0 | WR(42): R  37 W   5 N   0 |
+     promptsweep  baseline_caut_M              all: net  -72 | WW(101): R   8 W  92 N   1 | RR(234): R 162 W  54 N  18 | RW(15): R   5 W  10 N   0 | WR(42): R   4 W  37 N   1 |
+     promptsweep  baseline_conf_E1             all: net +128 | WW(101): R  12 W  87 N   2 | RR(234): R 219 W  14 N   1 | RW(15): R  11 W   4 N   0 | WR(42): R  23 W  19 N   0 |
+     promptsweep  baseline_conf_M              all: net  -78 | WW(101): R   6 W  95 N   0 | RR(234): R 179 W  54 N   1 | RW(15): R   5 W  10 N   0 | WR(42): R   6 W  36 N   0 |
+     promptsweep  baseline_x_E1                all: net +166 | WW(101): R  17 W  82 N   2 | RR(234): R 223 W   9 N   2 | RW(15): R   8 W   7 N   0 | WR(42): R  27 W  14 N   1 |
+     promptsweep  baseline_x_F                 all: net +167 | WW(101): R  30 W  71 N   0 | RR(234): R 214 W  16 N   4 | RW(15): R  13 W   2 N   0 | WR(42): R  17 W  25 N   0 |
+  E. WW (101): right under at least one of the E + C doses: 6; blank under at least one: 0
+  E. WW (101): right under at least one of the other conditions: 56; blank under at least one: 23
+  F. questions answered under E: 402 (right 285, wrong 117). Share right when the E answer text equals the answer of another condition:
+     no write                       same text 250 (right  69.6%) | different text 142 (right  71.8%) | other is blank  10 (right  90.0%)
+     E + C 0-25                     same text 381 (right  70.6%) | different text  20 (right  80.0%) | other is blank   1 (right   0.0%)
+     E + C 0-5                      same text 364 (right  70.1%) | different text  37 (right  81.1%) | other is blank   1 (right   0.0%)
+     E + C 1                        same text 329 (right  70.8%) | different text  72 (right  72.2%) | other is blank   1 (right   0.0%)
+     E + C 2                        same text 289 (right  72.0%) | different text 112 (right  67.9%) | other is blank   1 (right 100.0%)
+     E_L15_conf_E2-w-p2             same text 261 (right  76.6%) | different text 140 (right  60.0%) | other is blank   1 (right 100.0%)
+     baseline_conf_E2               same text 283 (right  72.8%) | different text 119 (right  66.4%) | other is blank   0
+     baseline_x_E2                  same text 275 (right  70.9%) | different text 122 (right  71.3%) | other is blank   5 (right  60.0%)
+     E_L15_x_E2-w-p2                same text 277 (right  77.6%) | different text  94 (right  60.6%) | other is blank  31 (right  41.9%)
+     baseline_x_E1_E2               same text 141 (right  69.5%) | different text 254 (right  72.0%) | other is blank   7 (right  57.1%)
+     baseline_x_E2_H                same text 219 (right  71.2%) | different text 165 (right  70.9%) | other is blank  18 (right  66.7%)
+     baseline_x_H                   same text 208 (right  71.6%) | different text 179 (right  70.4%) | other is blank  15 (right  66.7%)
+     E_L15_conf-w-p2                same text 316 (right  72.2%) | different text  82 (right  65.9%) | other is blank   4 (right  75.0%)
+     baseline_conf                  same text 228 (right  70.2%) | different text 172 (right  72.1%) | other is blank   2 (right  50.0%)
+     baseline_caut                  same text 232 (right  69.4%) | different text 150 (right  70.7%) | other is blank  20 (right  90.0%)
+     baseline_caut_E1               same text 178 (right  70.8%) | different text 219 (right  71.7%) | other is blank   5 (right  40.0%)
+     baseline_caut_E2               same text 287 (right  69.7%) | different text 102 (right  74.5%) | other is blank  13 (right  69.2%)
+     baseline_caut_M                same text 184 (right  67.4%) | different text 191 (right  71.2%) | other is blank  27 (right  92.6%)
+     baseline_conf_E1               same text 136 (right  66.9%) | different text 263 (right  73.4%) | other is blank   3 (right  33.3%)
+     baseline_conf_M                same text 203 (right  68.0%) | different text 198 (right  73.7%) | other is blank   1 (right 100.0%)
+     baseline_x_E1                  same text 129 (right  69.8%) | different text 267 (right  71.5%) | other is blank   6 (right  66.7%)
+     baseline_x_F                   same text  10 (right  90.0%) | different text 387 (right  70.0%) | other is blank   5 (right 100.0%)
+## qwen3.8-27b (521 questions; E layer 28 strength 1-75; N1 ('N1', '1-75', '0-5', '1'))
+  A. net on all questions: no write +47 | E +142 | E + C(answering) on ALL questions at 0.25 / 0.5 / 1 / 2: +159 (answers 447) / +160 (answers 486) / +148 (answers 500) / +141 (answers 509) | N1 +175
+  B. classes (no write, E; = same text, ~ different text): NN 122, NR 33, NW 9, RN 15, RR= 143, RR~ 29, RW 15, WN 34, WR 41, WW= 58, WW~ 22
+  C. E + C(answering) at each dose on the answered classes: verdicts | text equals the no-write answer / the E answer / neither (among answered)
+     WW= n  58 dose 0-25: R   0 W  58 N   0 | = no-write  57, = E   0, neither   1
+     WW= n  58 dose 0-5 : R   0 W  58 N   0 | = no-write  55, = E   0, neither   3
+     WW= n  58 dose 1   : R   0 W  58 N   0 | = no-write  54, = E   0, neither   4
+     WW= n  58 dose 2   : R   2 W  56 N   0 | = no-write  50, = E   0, neither   8
+     WW~ n  22 dose 0-25: R   0 W  22 N   0 | = no-write   0, = E  18, neither   4
+     WW~ n  22 dose 0-5 : R   2 W  20 N   0 | = no-write   2, = E  16, neither   4
+     WW~ n  22 dose 1   : R   0 W  22 N   0 | = no-write   3, = E  17, neither   2
+     WW~ n  22 dose 2   : R   1 W  21 N   0 | = no-write   3, = E  11, neither   8
+     RW  n  15 dose 0-25: R   0 W  15 N   0 | = no-write   0, = E  14, neither   1
+     RW  n  15 dose 0-5 : R   0 W  15 N   0 | = no-write   0, = E  14, neither   1
+     RW  n  15 dose 1   : R   1 W  14 N   0 | = no-write   1, = E  13, neither   1
+     RW  n  15 dose 2   : R   5 W  10 N   0 | = no-write   3, = E   6, neither   6
+     WR  n  41 dose 0-25: R  40 W   1 N   0 | = no-write   0, = E  37, neither   4
+     WR  n  41 dose 0-5 : R  39 W   2 N   0 | = no-write   1, = E  34, neither   6
+     WR  n  41 dose 1   : R  37 W   4 N   0 | = no-write   2, = E  32, neither   7
+     WR  n  41 dose 2   : R  34 W   7 N   0 | = no-write   1, = E  23, neither  17
+     RR= n 143 dose 0-25: R 141 W   2 N   0 | = no-write 139, = E   0, neither   4
+     RR= n 143 dose 0-5 : R 141 W   2 N   0 | = no-write 135, = E   0, neither   8
+     RR= n 143 dose 1   : R 139 W   4 N   0 | = no-write 127, = E   0, neither  16
+     RR= n 143 dose 2   : R 138 W   5 N   0 | = no-write 107, = E   0, neither  36
+     RR~ n  29 dose 0-25: R  29 W   0 N   0 | = no-write   0, = E  29, neither   0
+     RR~ n  29 dose 0-5 : R  29 W   0 N   0 | = no-write   0, = E  27, neither   2
+     RR~ n  29 dose 1   : R  29 W   0 N   0 | = no-write   3, = E  21, neither   5
+     RR~ n  29 dose 2   : R  29 W   0 N   0 | = no-write   7, = E   9, neither  13
+  D. other judged conditions on the classes (verdicts): 
+     fillctl      E_L28_conf_E2-w-p0-875       all: net +184 | WW(80): R  12 W  68 N   0 | RR(172): R 157 W  14 N   1 | RW(15): R   8 W   7 N   0 | WR(41): R  37 W   4 N   0 |
+     fillctl      baseline_conf_E2             all: net +135 | WW(80): R   4 W  76 N   0 | RR(172): R 163 W   8 N   1 | RW(15): R   9 W   6 N   0 | WR(41): R  32 W   9 N   0 |
+     h22c4        baseline_x_E2                all: net +162 | WW(80): R   7 W  72 N   1 | RR(172): R 168 W   4 N   0 | RW(15): R   9 W   4 N   2 | WR(41): R  31 W   6 N   4 |
+     n1s          E_L28_x_E2-w-p0-875          all: net +193 | WW(80): R  14 W  55 N  11 | RR(172): R 164 W   6 N   2 | RW(15): R   7 W   8 N   0 | WR(41): R  36 W   4 N   1 |
+     pfam         baseline_x_E1_E2             all: net +172 | WW(80): R  12 W  62 N   6 | RR(172): R 167 W   5 N   0 | RW(15): R   8 W   6 N   1 | WR(41): R  30 W   8 N   3 |
+     pfam         baseline_x_E2_H              all: net +100 | WW(80): R   4 W  42 N  34 | RR(172): R 132 W   5 N  35 | RW(15): R   6 W   1 N   8 | WR(41): R   6 W   4 N  31 |
+     pfam         baseline_x_H                 all: net  +66 | WW(80): R   0 W  46 N  34 | RR(172): R 107 W   6 N  59 | RW(15): R   7 W   1 N   7 | WR(41): R   6 W   3 N  32 |
+     pospromptdl28 E_L28_conf-w-p1-75           all: net +162 | WW(80): R   3 W  77 N   0 | RR(172): R 165 W   6 N   1 | RW(15): R   7 W   8 N   0 | WR(41): R  36 W   5 N   0 |
+     pospromptdl28 baseline_conf                all: net  +15 | WW(80): R   2 W  78 N   0 | RR(172): R 161 W  10 N   1 | RW(15): R  13 W   2 N   0 | WR(41): R   1 W  39 N   1 |
+     promptsweep  baseline_caut                all: net  +32 | WW(80): R   2 W  72 N   6 | RR(172): R 146 W   5 N  21 | RW(15): R  14 W   1 N   0 | WR(41): R   1 W  36 N   4 |
+     promptsweep  baseline_caut_E1             all: net +105 | WW(80): R   3 W  65 N  12 | RR(172): R 156 W   5 N  11 | RW(15): R   9 W   3 N   3 | WR(41): R  13 W  15 N  13 |
+     promptsweep  baseline_caut_E2             all: net +109 | WW(80): R   4 W  63 N  13 | RR(172): R 154 W   6 N  12 | RW(15): R   8 W   4 N   3 | WR(41): R  16 W   6 N  19 |
+     promptsweep  baseline_caut_M              all: net  -31 | WW(80): R   3 W  76 N   1 | RR(172): R 137 W  24 N  11 | RW(15): R  10 W   5 N   0 | WR(41): R   5 W  35 N   1 |
+     promptsweep  baseline_conf_E1             all: net  +96 | WW(80): R   5 W  75 N   0 | RR(172): R 163 W   8 N   1 | RW(15): R  11 W   4 N   0 | WR(41): R  20 W  21 N   0 |
+     promptsweep  baseline_conf_M              all: net  -70 | WW(80): R   2 W  78 N   0 | RR(172): R 139 W  33 N   0 | RW(15): R  11 W   4 N   0 | WR(41): R   4 W  37 N   0 |
+     promptsweep  baseline_x_E1                all: net +130 | WW(80): R   6 W  69 N   5 | RR(172): R 162 W   7 N   3 | RW(15): R   8 W   6 N   1 | WR(41): R  18 W  14 N   9 |
+     promptsweep  baseline_x_F                 all: net  +78 | WW(80): R   8 W  70 N   2 | RR(172): R 165 W   5 N   2 | RW(15): R   9 W   5 N   1 | WR(41): R   8 W  32 N   1 |
+  E. WW (80): right under at least one of the E + C doses: 4; blank under at least one: 0
+  E. WW (80): right under at least one of the other conditions: 28; blank under at least one: 42
+  F. questions answered under E: 350 (right 246, wrong 104). Share right when the E answer text equals the answer of another condition:
+     no write                       same text 201 (right  71.1%) | different text 107 (right  65.4%) | other is blank  42 (right  78.6%)
+     E + C 0-25                     same text 332 (right  70.8%) | different text  18 (right  61.1%) | other is blank   0
+     E + C 0-5                      same text 319 (right  70.8%) | different text  31 (right  64.5%) | other is blank   0
+     E + C 1                        same text 299 (right  69.2%) | different text  51 (right  76.5%) | other is blank   0
+     E + C 2                        same text 240 (right  68.8%) | different text 110 (right  73.6%) | other is blank   0
+     E_L28_conf_E2-w-p0-875         same text 240 (right  71.7%) | different text 109 (right  67.0%) | other is blank   1 (right 100.0%)
+     baseline_conf_E2               same text 224 (right  68.8%) | different text 125 (right  72.8%) | other is blank   1 (right 100.0%)
+     baseline_x_E2                  same text 236 (right  72.9%) | different text  94 (right  63.8%) | other is blank  20 (right  70.0%)
+     E_L28_x_E2-w-p0-875            same text 241 (right  75.1%) | different text  88 (right  63.6%) | other is blank  21 (right  42.9%)
+     baseline_x_E1_E2               same text 194 (right  69.6%) | different text 133 (right  75.2%) | other is blank  23 (right  47.8%)
+     baseline_x_E2_H                same text 154 (right  74.7%) | different text  48 (right  70.8%) | other is blank 148 (right  65.5%)
+     baseline_x_H                   same text 139 (right  70.5%) | different text  38 (right  65.8%) | other is blank 173 (right  71.1%)
+     E_L28_conf-w-p1-75             same text 264 (right  70.5%) | different text  85 (right  69.4%) | other is blank   1 (right 100.0%)
+     baseline_conf                  same text 143 (right  61.5%) | different text 203 (right  76.4%) | other is blank   4 (right  75.0%)
+     baseline_caut                  same text 172 (right  70.3%) | different text 109 (right  64.2%) | other is blank  69 (right  79.7%)
+     baseline_caut_E1               same text 175 (right  69.7%) | different text 108 (right  74.1%) | other is blank  67 (right  65.7%)
+     baseline_caut_E2               same text 190 (right  70.5%) | different text  81 (right  67.9%) | other is blank  79 (right  72.2%)
+     baseline_caut_M                same text 187 (right  66.3%) | different text 126 (right  72.2%) | other is blank  37 (right  83.8%)
+     baseline_conf_E1               same text 159 (right  61.6%) | different text 187 (right  78.1%) | other is blank   4 (right  50.0%)
+     baseline_conf_M                same text 159 (right  61.0%) | different text 191 (right  78.0%) | other is blank   0
+     baseline_x_E1                  same text 182 (right  68.1%) | different text 138 (right  74.6%) | other is blank  30 (right  63.3%)
+     baseline_x_F                   same text   7 (right  42.9%) | different text 320 (right  70.6%) | other is blank  23 (right  73.9%)
+## gemma3-12b (522 questions; E layer 24 strength 2-5; N1 ('N1', '2-5', '2', '2'))
+  A. net on all questions: no write +12 | E +103 | E + C(answering) on ALL questions at 0.25 / 0.5 / 1 / 2: +139 (answers 395) / +151 (answers 435) / +162 (answers 480) / +162 (answers 498) | N1 +158
+  B. classes (no write, E; = same text, ~ different text): NN 64, NR 10, NW 4, RN 55, RR= 77, RR~ 61, RW 35, WN 84, WR 63, WW= 34, WW~ 35
+  C. E + C(answering) at each dose on the answered classes: verdicts | text equals the no-write answer / the E answer / neither (among answered)
+     WW= n  34 dose 0-25: R   0 W  34 N   0 | = no-write  34, = E   0, neither   0
+     WW= n  34 dose 0-5 : R   0 W  34 N   0 | = no-write  34, = E   0, neither   0
+     WW= n  34 dose 1   : R   0 W  34 N   0 | = no-write  33, = E   0, neither   1
+     WW= n  34 dose 2   : R   1 W  33 N   0 | = no-write  30, = E   0, neither   4
+     WW~ n  35 dose 0-25: R   0 W  35 N   0 | = no-write   0, = E  33, neither   2
+     WW~ n  35 dose 0-5 : R   0 W  35 N   0 | = no-write   1, = E  32, neither   2
+     WW~ n  35 dose 1   : R   0 W  35 N   0 | = no-write   2, = E  28, neither   5
+     WW~ n  35 dose 2   : R   1 W  34 N   0 | = no-write   4, = E  21, neither  10
+     RW  n  35 dose 0-25: R   2 W  33 N   0 | = no-write   1, = E  34, neither   0
+     RW  n  35 dose 0-5 : R   2 W  33 N   0 | = no-write   1, = E  31, neither   3
+     RW  n  35 dose 1   : R   5 W  30 N   0 | = no-write   2, = E  26, neither   7
+     RW  n  35 dose 2   : R   9 W  26 N   0 | = no-write   5, = E  23, neither   7
+     WR  n  63 dose 0-25: R  62 W   0 N   1 | = no-write   0, = E  60, neither   2
+     WR  n  63 dose 0-5 : R  61 W   1 N   1 | = no-write   0, = E  60, neither   2
+     WR  n  63 dose 1   : R  60 W   2 N   1 | = no-write   0, = E  53, neither   9
+     WR  n  63 dose 2   : R  57 W   6 N   0 | = no-write   1, = E  50, neither  12
+     RR= n  77 dose 0-25: R  77 W   0 N   0 | = no-write  77, = E   0, neither   0
+     RR= n  77 dose 0-5 : R  77 W   0 N   0 | = no-write  75, = E   0, neither   2
+     RR= n  77 dose 1   : R  75 W   2 N   0 | = no-write  73, = E   0, neither   4
+     RR= n  77 dose 2   : R  72 W   4 N   1 | = no-write  67, = E   0, neither   9
+     RR~ n  61 dose 0-25: R  61 W   0 N   0 | = no-write   0, = E  56, neither   5
+     RR~ n  61 dose 0-5 : R  61 W   0 N   0 | = no-write   0, = E  55, neither   6
+     RR~ n  61 dose 1   : R  59 W   2 N   0 | = no-write   2, = E  49, neither  10
+     RR~ n  61 dose 2   : R  58 W   3 N   0 | = no-write   2, = E  45, neither  14
+  D. other judged conditions on the classes (verdicts): 
+     fillctl      E_L24_conf_E2-w-p1-25        all: net +168 | WW(69): R  12 W  57 N   0 | RR(138): R 125 W  12 N   1 | RW(35): R  14 W  21 N   0 | WR(63): R  55 W   8 N   0 |
+     fillctl      baseline_conf_E2             all: net  +77 | WW(69): R   9 W  59 N   1 | RR(138): R 128 W   8 N   2 | RW(35): R  23 W  11 N   1 | WR(63): R  28 W  33 N   2 |
+     h22c4        baseline_x_E2                all: net +156 | WW(69): R   9 W  59 N   1 | RR(138): R 133 W   5 N   0 | RW(35): R  23 W  11 N   1 | WR(63): R  38 W  23 N   2 |
+     n1s          E_L24_x_E2-w-p1-25           all: net +181 | WW(69): R  10 W  57 N   2 | RR(138): R 127 W  11 N   0 | RW(35): R  12 W  23 N   0 | WR(63): R  58 W   5 N   0 |
+     pfam         baseline_x_E1_E2             all: net +163 | WW(69): R   9 W  59 N   1 | RR(138): R 134 W   4 N   0 | RW(35): R  22 W  12 N   1 | WR(63): R  36 W  25 N   2 |
+     pfam         baseline_x_E2_H              all: net  +80 | WW(69): R   7 W  54 N   8 | RR(138): R 106 W   3 N  29 | RW(35): R  23 W   8 N   4 | WR(63): R  21 W  17 N  25 |
+     pfam         baseline_x_H                 all: net   +8 | WW(69): R   3 W  64 N   2 | RR(138): R  90 W   4 N  44 | RW(35): R  29 W   5 N   1 | WR(63): R   9 W  29 N  25 |
+     pospromptdl24 E_L24_conf-w-p2-5            all: net +170 | WW(69): R   8 W  61 N   0 | RR(138): R 133 W   3 N   2 | RW(35): R   3 W  31 N   1 | WR(63): R  56 W   7 N   0 |
+     pospromptdl24 baseline_conf                all: net  -41 | WW(69): R   6 W  63 N   0 | RR(138): R 127 W   9 N   2 | RW(35): R  30 W   5 N   0 | WR(63): R   2 W  61 N   0 |
+     promptsweep  baseline_caut                all: net   -5 | WW(69): R   4 W  65 N   0 | RR(138): R 126 W   2 N  10 | RW(35): R  32 W   3 N   0 | WR(63): R   1 W  61 N   1 |
+     promptsweep  baseline_caut_E1             all: net  +93 | WW(69): R   6 W  63 N   0 | RR(138): R 134 W   3 N   1 | RW(35): R  26 W   9 N   0 | WR(63): R  19 W  42 N   2 |
+     promptsweep  baseline_caut_E2             all: net +139 | WW(69): R  10 W  58 N   1 | RR(138): R 134 W   4 N   0 | RW(35): R  23 W  11 N   1 | WR(63): R  37 W  26 N   0 |
+     promptsweep  baseline_caut_M              all: net -161 | WW(69): R   6 W  63 N   0 | RR(138): R  99 W  37 N   2 | RW(35): R  24 W  11 N   0 | WR(63): R   2 W  61 N   0 |
+     promptsweep  baseline_conf_E1             all: net  +74 | WW(69): R  10 W  58 N   1 | RR(138): R 130 W   7 N   1 | RW(35): R  27 W   8 N   0 | WR(63): R  19 W  44 N   0 |
+     promptsweep  baseline_conf_M              all: net -151 | WW(69): R   4 W  65 N   0 | RR(138): R 103 W  35 N   0 | RW(35): R  23 W  12 N   0 | WR(63): R   1 W  62 N   0 |
+     promptsweep  baseline_x_E1                all: net +114 | WW(69): R   8 W  60 N   1 | RR(138): R 136 W   2 N   0 | RW(35): R  28 W   6 N   1 | WR(63): R  19 W  41 N   3 |
+     promptsweep  baseline_x_F                 all: net  +47 | WW(69): R   7 W  61 N   1 | RR(138): R 122 W   9 N   7 | RW(35): R  28 W   4 N   3 | WR(63): R  14 W  46 N   3 |
+  E. WW (69): right under at least one of the E + C doses: 2; blank under at least one: 0
+  E. WW (69): right under at least one of the other conditions: 23; blank under at least one: 10
+  F. questions answered under E: 319 (right 211, wrong 108). Share right when the E answer text equals the answer of another condition:
+     no write                       same text 111 (right  69.4%) | different text 194 (right  63.9%) | other is blank  14 (right  71.4%)
+     E + C 0-25                     same text 307 (right  66.1%) | different text  11 (right  63.6%) | other is blank   1 (right 100.0%)
+     E + C 0-5                      same text 300 (right  66.7%) | different text  18 (right  55.6%) | other is blank   1 (right 100.0%)
+     E + C 1                        same text 272 (right  67.3%) | different text  46 (right  58.7%) | other is blank   1 (right 100.0%)
+     E + C 2                        same text 246 (right  69.1%) | different text  72 (right  55.6%) | other is blank   1 (right 100.0%)
+     E_L24_conf_E2-w-p1-25          same text 192 (right  73.4%) | different text 126 (right  54.8%) | other is blank   1 (right 100.0%)
+     baseline_conf_E2               same text 144 (right  74.3%) | different text 169 (right  59.2%) | other is blank   6 (right  66.7%)
+     baseline_x_E2                  same text 162 (right  75.9%) | different text 153 (right  56.2%) | other is blank   4 (right  50.0%)
+     E_L24_x_E2-w-p1-25             same text 197 (right  72.6%) | different text 120 (right  56.7%) | other is blank   2 (right   0.0%)
+     baseline_x_E1_E2               same text 150 (right  75.3%) | different text 164 (right  58.5%) | other is blank   5 (right  40.0%)
+     baseline_x_E2_H                same text 121 (right  70.2%) | different text 123 (right  52.8%) | other is blank  75 (right  81.3%)
+     baseline_x_H                   same text  94 (right  61.7%) | different text 140 (right  52.9%) | other is blank  85 (right  92.9%)
+     E_L24_conf-w-p2-5              same text 248 (right  68.1%) | different text  68 (right  58.8%) | other is blank   3 (right  66.7%)
+     baseline_conf                  same text 112 (right  67.9%) | different text 203 (right  64.5%) | other is blank   4 (right 100.0%)
+     baseline_caut                  same text 100 (right  68.0%) | different text 195 (right  63.1%) | other is blank  24 (right  83.3%)
+     baseline_caut_E1               same text 125 (right  74.4%) | different text 187 (right  60.4%) | other is blank   7 (right  71.4%)
+     baseline_caut_E2               same text 163 (right  73.6%) | different text 153 (right  59.5%) | other is blank   3 (right   0.0%)
+     baseline_caut_M                same text  91 (right  69.2%) | different text 225 (right  64.9%) | other is blank   3 (right  66.7%)
+     baseline_conf_E1               same text 125 (right  70.4%) | different text 191 (right  63.9%) | other is blank   3 (right  33.3%)
+     baseline_conf_M                same text  97 (right  68.0%) | different text 221 (right  65.2%) | other is blank   1 (right 100.0%)
+     baseline_x_E1                  same text 124 (right  74.2%) | different text 188 (right  61.7%) | other is blank   7 (right  42.9%)
+     baseline_x_F                   same text   5 (right  60.0%) | different text 293 (right  65.9%) | other is blank  21 (right  71.4%)
+## gemma3-27b (523 questions; E layer 28 strength 1; N1 ('N1', '1', '1', '2'))
+  A. net on all questions: no write +3 | E +105 | E + C(answering) on ALL questions at 0.25 / 0.5 / 1 / 2: +97 (answers 433) / +104 (answers 466) / +112 (answers 494) / +78 (answers 508) | N1 +144
+  B. classes (no write, E; = same text, ~ different text): NN 69, NR 14, NW 1, RN 12, RR= 121, RR~ 75, RW 13, WN 41, WR 43, WW= 96, WW~ 38
+  C. E + C(answering) at each dose on the answered classes: verdicts | text equals the no-write answer / the E answer / neither (among answered)
+     WW= n  96 dose 0-25: R   0 W  96 N   0 | = no-write  92, = E   0, neither   4
+     WW= n  96 dose 0-5 : R   0 W  96 N   0 | = no-write  88, = E   0, neither   8
+     WW= n  96 dose 1   : R   2 W  94 N   0 | = no-write  78, = E   0, neither  18
+     WW= n  96 dose 2   : R   6 W  90 N   0 | = no-write  55, = E   0, neither  41
+     WW~ n  38 dose 0-25: R   0 W  38 N   0 | = no-write   0, = E  35, neither   3
+     WW~ n  38 dose 0-5 : R   0 W  38 N   0 | = no-write   2, = E  31, neither   5
+     WW~ n  38 dose 1   : R   1 W  37 N   0 | = no-write   3, = E  18, neither  17
+     WW~ n  38 dose 2   : R   1 W  37 N   0 | = no-write   4, = E   9, neither  25
+     RW  n  13 dose 0-25: R   0 W  13 N   0 | = no-write   0, = E  13, neither   0
+     RW  n  13 dose 0-5 : R   1 W  12 N   0 | = no-write   1, = E  11, neither   1
+     RW  n  13 dose 1   : R   3 W  10 N   0 | = no-write   2, = E   9, neither   2
+     RW  n  13 dose 2   : R   5 W   8 N   0 | = no-write   2, = E   6, neither   5
+     WR  n  43 dose 0-25: R  40 W   3 N   0 | = no-write   2, = E  37, neither   4
+     WR  n  43 dose 0-5 : R  38 W   5 N   0 | = no-write   2, = E  32, neither   9
+     WR  n  43 dose 1   : R  34 W   9 N   0 | = no-write   3, = E  22, neither  18
+     WR  n  43 dose 2   : R  21 W  21 N   1 | = no-write   7, = E  10, neither  25
+     RR= n 121 dose 0-25: R 120 W   1 N   0 | = no-write 117, = E   0, neither   4
+     RR= n 121 dose 0-5 : R 118 W   3 N   0 | = no-write 113, = E   0, neither   8
+     RR= n 121 dose 1   : R 118 W   3 N   0 | = no-write 106, = E   0, neither  15
+     RR= n 121 dose 2   : R 110 W  10 N   1 | = no-write  82, = E   0, neither  38
+     RR~ n  75 dose 0-25: R  70 W   3 N   2 | = no-write   3, = E  60, neither  10
+     RR~ n  75 dose 0-5 : R  72 W   3 N   0 | = no-write  10, = E  48, neither  17
+     RR~ n  75 dose 1   : R  72 W   3 N   0 | = no-write  10, = E  37, neither  28
+     RR~ n  75 dose 2   : R  71 W   2 N   2 | = no-write  15, = E  22, neither  36
+  D. other judged conditions on the classes (verdicts): 
+     fillctl      E_L28_conf_E2-w-p1           all: net +169 | WW(134): R  40 W  89 N   5 | RR(196): R 157 W  34 N   5 | RW(13): R   3 W  10 N   0 | WR(43): R  28 W  13 N   2 |
+     fillctl      baseline_conf_E2             all: net +140 | WW(134): R  27 W 101 N   6 | RR(196): R 167 W  25 N   4 | RW(13): R   6 W   7 N   0 | WR(43): R  26 W  15 N   2 |
+     h22c4        baseline_x_E2                all: net +186 | WW(134): R  36 W  88 N  10 | RR(196): R 168 W  21 N   7 | RW(13): R   4 W   9 N   0 | WR(43): R  31 W  12 N   0 |
+     n1s          E_L28_x_E2-w-p1              all: net +208 | WW(134): R  50 W  75 N   9 | RR(196): R 162 W  28 N   6 | RW(13): R   4 W   9 N   0 | WR(43): R  35 W   7 N   1 |
+     n1s3         E_L28_x_E2-w-p0-5            all: net +213 | WW(134): R  46 W  80 N   8 | RR(196): R 167 W  22 N   7 | RW(13): R   3 W  10 N   0 | WR(43): R  34 W   8 N   1 |
+     pfam         baseline_x_E1_E2             all: net +201 | WW(134): R  36 W  90 N   8 | RR(196): R 171 W  18 N   7 | RW(13): R   5 W   8 N   0 | WR(43): R  32 W  11 N   0 |
+     pfam         baseline_x_E2_H              all: net  +25 | WW(134): R   4 W  23 N 107 | RR(196): R  46 W   4 N 146 | RW(13): R   0 W   1 N  12 | WR(43): R   4 W   1 N  38 |
+     pfam         baseline_x_H                 all: net  +14 | WW(134): R   1 W  12 N 121 | RR(196): R  23 W   1 N 172 | RW(13): R   1 W   0 N  12 | WR(43): R   2 W   0 N  41 |
+     pospromptdl28 E_L28_conf-w-p1              all: net  +94 | WW(134): R   8 W 125 N   1 | RR(196): R 180 W  13 N   3 | RW(13): R   3 W  10 N   0 | WR(43): R  26 W  17 N   0 |
+     pospromptdl28 baseline_conf                all: net  -30 | WW(134): R   8 W 125 N   1 | RR(196): R 169 W  24 N   3 | RW(13): R  11 W   2 N   0 | WR(43): R   6 W  37 N   0 |
+     promptsweep  baseline_caut                all: net   +4 | WW(134): R   3 W 128 N   3 | RR(196): R 182 W   2 N  12 | RW(13): R  11 W   2 N   0 | WR(43): R   5 W  37 N   1 |
+     promptsweep  baseline_caut_E1             all: net +136 | WW(134): R  17 W 116 N   1 | RR(196): R 186 W   8 N   2 | RW(13): R   9 W   4 N   0 | WR(43): R  30 W  13 N   0 |
+     promptsweep  baseline_caut_E2             all: net +150 | WW(134): R  27 W  92 N  15 | RR(196): R 165 W  20 N  11 | RW(13): R   6 W   7 N   0 | WR(43): R  31 W  10 N   2 |
+     promptsweep  baseline_caut_M              all: net -128 | WW(134): R  12 W 121 N   1 | RR(196): R 138 W  55 N   3 | RW(13): R   2 W  11 N   0 | WR(43): R   6 W  36 N   1 |
+     promptsweep  baseline_conf_E1             all: net +102 | WW(134): R  16 W 117 N   1 | RR(196): R 174 W  20 N   2 | RW(13): R   8 W   5 N   0 | WR(43): R  23 W  20 N   0 |
+     promptsweep  baseline_conf_M              all: net -127 | WW(134): R  12 W 122 N   0 | RR(196): R 136 W  59 N   1 | RW(13): R   4 W   8 N   1 | WR(43): R   6 W  36 N   1 |
+     promptsweep  baseline_x_E1                all: net +149 | WW(134): R  14 W 117 N   3 | RR(196): R 188 W   7 N   1 | RW(13): R   7 W   6 N   0 | WR(43): R  30 W  12 N   1 |
+     promptsweep  baseline_x_F                 all: net +102 | WW(134): R  22 W 106 N   6 | RR(196): R 173 W  13 N  10 | RW(13): R  10 W   1 N   2 | WR(43): R  23 W  20 N   0 |
+  E. WW (134): right under at least one of the E + C doses: 8; blank under at least one: 0
+  E. WW (134): right under at least one of the other conditions: 75; blank under at least one: 125
+  F. questions answered under E: 401 (right 253, wrong 148). Share right when the E answer text equals the answer of another condition:
+     no write                       same text 217 (right  55.8%) | different text 169 (right  69.8%) | other is blank  15 (right  93.3%)
+     E + C 0-25                     same text 367 (right  61.6%) | different text  31 (right  77.4%) | other is blank   3 (right 100.0%)
+     E + C 0-5                      same text 333 (right  60.7%) | different text  67 (right  74.6%) | other is blank   1 (right 100.0%)
+     E + C 1                        same text 277 (right  61.7%) | different text 123 (right  65.9%) | other is blank   1 (right 100.0%)
+     E + C 2                        same text 189 (right  62.4%) | different text 206 (right  62.6%) | other is blank   6 (right 100.0%)
+     E_L28_conf_E2-w-p1             same text  81 (right  72.8%) | different text 308 (right  60.7%) | other is blank  12 (right  58.3%)
+     baseline_conf_E2               same text 124 (right  61.3%) | different text 265 (right  64.5%) | other is blank  12 (right  50.0%)
+     baseline_x_E2                  same text 149 (right  65.8%) | different text 234 (right  62.8%) | other is blank  18 (right  44.4%)
+     E_L28_x_E2-w-p1                same text 103 (right  68.9%) | different text 282 (right  62.1%) | other is blank  16 (right  43.8%)
+     E_L28_x_E2-w-p0-5              same text 134 (right  64.9%) | different text 251 (right  62.9%) | other is blank  16 (right  50.0%)
+     baseline_x_E1_E2               same text 165 (right  66.1%) | different text 221 (right  62.0%) | other is blank  15 (right  46.7%)
+     baseline_x_E2_H                same text  44 (right  68.2%) | different text  39 (right  64.1%) | other is blank 318 (right  62.3%)
+     baseline_x_H                   same text  30 (right  63.3%) | different text  10 (right  70.0%) | other is blank 361 (right  62.9%)
+     E_L28_conf-w-p1                same text 176 (right  56.8%) | different text 220 (right  67.7%) | other is blank   5 (right  80.0%)
+     baseline_conf                  same text 141 (right  55.3%) | different text 252 (right  66.7%) | other is blank   8 (right  87.5%)
+     baseline_caut                  same text 194 (right  53.6%) | different text 178 (right  69.7%) | other is blank  29 (right  86.2%)
+     baseline_caut_E1               same text 214 (right  59.3%) | different text 184 (right  67.4%) | other is blank   3 (right  66.7%)
+     baseline_caut_E2               same text 157 (right  64.3%) | different text 213 (right  63.8%) | other is blank  31 (right  51.6%)
+     baseline_caut_M                same text 140 (right  51.4%) | different text 252 (right  68.7%) | other is blank   9 (right  88.9%)
+     baseline_conf_E1               same text 145 (right  57.2%) | different text 252 (right  66.3%) | other is blank   4 (right  75.0%)
+     baseline_conf_M                same text 118 (right  54.2%) | different text 280 (right  66.8%) | other is blank   3 (right  66.7%)
+     baseline_x_E1                  same text 225 (right  61.3%) | different text 171 (right  66.1%) | other is blank   5 (right  40.0%)
+     baseline_x_F                   same text  10 (right  80.0%) | different text 364 (right  62.1%) | other is blank  27 (right  70.4%)
+## FIVE MODELS (sums, reference only)
+   ('C', 'RR=', '0-25') {'R': 540, 'W': 4}
+   ('C', 'RR=', '0-5') {'R': 537, 'W': 7}
+   ('C', 'RR=', '1') {'R': 533, 'W': 11}
+   ('C', 'RR=', '2') {'R': 517, 'W': 24, 'N': 3}
+   ('C', 'RR~', '0-25') {'R': 292, 'W': 5, 'N': 2}
+   ('C', 'RR~', '0-5') {'R': 293, 'W': 6}
+   ('C', 'RR~', '1') {'R': 290, 'W': 9}
+   ('C', 'RR~', '2') {'R': 281, 'W': 15, 'N': 3}
+   ('C', 'RW', '0-25') {'W': 109, 'R': 3, 'N': 1}
+   ('C', 'RW', '0-5') {'W': 108, 'R': 4, 'N': 1}
+   ('C', 'RW', '1') {'W': 101, 'R': 11, 'N': 1}
+   ('C', 'RW', '2') {'W': 85, 'R': 28}
+   ('C', 'WR', '0-25') {'R': 240, 'W': 6, 'N': 1}
+   ('C', 'WR', '0-5') {'R': 234, 'W': 12, 'N': 1}
+   ('C', 'WR', '1') {'R': 225, 'W': 21, 'N': 1}
+   ('C', 'WR', '2') {'R': 199, 'W': 47, 'N': 1}
+   ('C', 'WW=', '0-25') {'W': 284}
+   ('C', 'WW=', '0-5') {'W': 284}
+   ('C', 'WW=', '1') {'W': 280, 'R': 4}
+   ('C', 'WW=', '2') {'W': 273, 'R': 11}
+   ('C', 'WW~', '0-25') {'W': 193, 'N': 1, 'R': 2}
+   ('C', 'WW~', '0-5') {'W': 188, 'N': 1, 'R': 7}
+   ('C', 'WW~', '1') {'W': 184, 'R': 12}
+   ('C', 'WW~', '2') {'W': 177, 'R': 18, 'N': 1}
+   ('D', 'E_L_conf-w-pS', 'RR') {'R': 800, 'W': 35, 'N': 8}
+   ('D', 'E_L_conf-w-pS', 'RW') {'W': 89, 'R': 22, 'N': 2}
+   ('D', 'E_L_conf-w-pS', 'WR') {'R': 206, 'W': 41}
+   ('D', 'E_L_conf-w-pS', 'WW') {'W': 445, 'R': 34, 'N': 1}
+   ('D', 'E_L_conf_E2-w-p0-875', 'RR') {'R': 157, 'W': 14, 'N': 1}
+   ('D', 'E_L_conf_E2-w-p0-875', 'RW') {'W': 7, 'R': 8}
+   ('D', 'E_L_conf_E2-w-p0-875', 'WR') {'R': 37, 'W': 4}
+   ('D', 'E_L_conf_E2-w-p0-875', 'WW') {'W': 68, 'R': 12}
+   ('D', 'E_L_conf_E2-w-p1-25', 'RR') {'R': 125, 'W': 12, 'N': 1}
+   ('D', 'E_L_conf_E2-w-p1-25', 'RW') {'W': 21, 'R': 14}
+   ('D', 'E_L_conf_E2-w-p1-25', 'WR') {'R': 55, 'W': 8}
+   ('D', 'E_L_conf_E2-w-p1-25', 'WW') {'W': 57, 'R': 12}
+   ('D', 'E_L_conf_E2-w-pS', 'RR') {'R': 462, 'W': 65, 'N': 6}
+   ('D', 'E_L_conf_E2-w-pS', 'RW') {'W': 44, 'R': 18, 'N': 1}
+   ('D', 'E_L_conf_E2-w-pS', 'WR') {'W': 18, 'R': 121, 'N': 4}
+   ('D', 'E_L_conf_E2-w-pS', 'WW') {'W': 230, 'R': 96, 'N': 5}
+   ('D', 'E_L_x_E2-w-p0-5', 'RR') {'W': 22, 'R': 167, 'N': 7}
+   ('D', 'E_L_x_E2-w-p0-5', 'RW') {'R': 3, 'W': 10}
+   ('D', 'E_L_x_E2-w-p0-5', 'WR') {'W': 8, 'R': 34, 'N': 1}
+   ('D', 'E_L_x_E2-w-p0-5', 'WW') {'W': 80, 'N': 8, 'R': 46}
+   ('D', 'E_L_x_E2-w-p0-875', 'RR') {'R': 164, 'W': 6, 'N': 2}
+   ('D', 'E_L_x_E2-w-p0-875', 'RW') {'W': 8, 'R': 7}
+   ('D', 'E_L_x_E2-w-p0-875', 'WR') {'R': 36, 'W': 4, 'N': 1}
+   ('D', 'E_L_x_E2-w-p0-875', 'WW') {'W': 55, 'R': 14, 'N': 11}
+   ('D', 'E_L_x_E2-w-p1-25', 'RR') {'R': 127, 'W': 11}
+   ('D', 'E_L_x_E2-w-p1-25', 'RW') {'W': 23, 'R': 12}
+   ('D', 'E_L_x_E2-w-p1-25', 'WR') {'R': 58, 'W': 5}
+   ('D', 'E_L_x_E2-w-p1-25', 'WW') {'W': 57, 'R': 10, 'N': 2}
+   ('D', 'E_L_x_E2-w-p1-75', 'RR') {'R': 94, 'N': 2, 'W': 7}
+   ('D', 'E_L_x_E2-w-p1-75', 'RW') {'W': 24, 'R': 9, 'N': 2}
+   ('D', 'E_L_x_E2-w-p1-75', 'WR') {'R': 48, 'N': 4, 'W': 6}
+   ('D', 'E_L_x_E2-w-p1-75', 'WW') {'W': 62, 'R': 29, 'N': 5}
+   ('D', 'E_L_x_E2-w-pS', 'RR') {'R': 458, 'N': 20, 'W': 55}
+   ('D', 'E_L_x_E2-w-pS', 'RW') {'W': 47, 'R': 15, 'N': 1}
+   ('D', 'E_L_x_E2-w-pS', 'WR') {'R': 124, 'N': 9, 'W': 10}
+   ('D', 'E_L_x_E2-w-pS', 'WW') {'W': 193, 'R': 104, 'N': 34}
+   ('D', 'baseline_caut', 'RR') {'R': 763, 'N': 59, 'W': 21}
+   ('D', 'baseline_caut', 'RW') {'R': 101, 'W': 11, 'N': 1}
+   ('D', 'baseline_caut', 'WR') {'W': 228, 'N': 7, 'R': 12}
+   ('D', 'baseline_caut', 'WW') {'W': 453, 'R': 17, 'N': 10}
+   ('D', 'baseline_caut_E1', 'RR') {'R': 795, 'W': 28, 'N': 20}
+   ('D', 'baseline_caut_E1', 'RW') {'R': 78, 'W': 32, 'N': 3}
+   ('D', 'baseline_caut_E1', 'WR') {'R': 113, 'W': 117, 'N': 17}
+   ('D', 'baseline_caut_E1', 'WW') {'W': 415, 'R': 49, 'N': 16}
+   ('D', 'baseline_caut_E2', 'RR') {'R': 769, 'N': 33, 'W': 41}
+   ('D', 'baseline_caut_E2', 'RW') {'W': 42, 'R': 67, 'N': 4}
+   ('D', 'baseline_caut_E2', 'WR') {'R': 155, 'N': 25, 'W': 67}
+   ('D', 'baseline_caut_E2', 'WW') {'W': 377, 'R': 66, 'N': 37}
+   ('D', 'baseline_caut_M', 'RR') {'W': 208, 'R': 598, 'N': 37}
+   ('D', 'baseline_caut_M', 'RW') {'W': 49, 'R': 62, 'N': 2}
+   ('D', 'baseline_caut_M', 'WR') {'W': 222, 'R': 21, 'N': 4}
+   ('D', 'baseline_caut_M', 'WW') {'W': 444, 'R': 32, 'N': 4}
+   ('D', 'baseline_conf', 'RR') {'R': 766, 'W': 69, 'N': 8}
+   ('D', 'baseline_conf', 'RW') {'R': 93, 'W': 19, 'N': 1}
+   ('D', 'baseline_conf', 'WR') {'W': 224, 'R': 22, 'N': 1}
+   ('D', 'baseline_conf', 'WW') {'W': 447, 'R': 31, 'N': 2}
+   ('D', 'baseline_conf_E1', 'RR') {'R': 782, 'W': 56, 'N': 5}
+   ('D', 'baseline_conf_E1', 'RW') {'R': 83, 'W': 30}
+   ('D', 'baseline_conf_E1', 'WR') {'W': 144, 'R': 102, 'N': 1}
+   ('D', 'baseline_conf_E1', 'WW') {'W': 422, 'R': 54, 'N': 4}
+   ('D', 'baseline_conf_E2', 'RR') {'R': 779, 'W': 56, 'N': 8}
+   ('D', 'baseline_conf_E2', 'RW') {'W': 43, 'R': 69, 'N': 1}
+   ('D', 'baseline_conf_E2', 'WR') {'W': 92, 'R': 151, 'N': 4}
+   ('D', 'baseline_conf_E2', 'WW') {'W': 411, 'R': 62, 'N': 7}
+   ('D', 'baseline_conf_M', 'RR') {'W': 216, 'R': 624, 'N': 3}
+   ('D', 'baseline_conf_M', 'RW') {'W': 45, 'R': 67, 'N': 1}
+   ('D', 'baseline_conf_M', 'WR') {'W': 223, 'R': 23, 'N': 1}
+   ('D', 'baseline_conf_M', 'WW') {'W': 452, 'R': 28}
+   ('D', 'baseline_x_E1', 'RR') {'R': 807, 'N': 7, 'W': 29}
+   ('D', 'baseline_x_E1', 'RW') {'R': 77, 'W': 34, 'N': 2}
+   ('D', 'baseline_x_E1', 'WR') {'R': 113, 'W': 118, 'N': 16}
+   ('D', 'baseline_x_E1', 'WW') {'W': 414, 'R': 55, 'N': 11}
+   ('D', 'baseline_x_E1_E2', 'RR') {'R': 785, 'N': 12, 'W': 46}
+   ('D', 'baseline_x_E1_E2', 'RW') {'W': 48, 'R': 63, 'N': 2}
+   ('D', 'baseline_x_E1_E2', 'WR') {'R': 160, 'W': 80, 'N': 7}
+   ('D', 'baseline_x_E1_E2', 'WW') {'W': 372, 'R': 88, 'N': 20}
+   ('D', 'baseline_x_E2', 'RR') {'R': 789, 'N': 11, 'W': 43}
+   ('D', 'baseline_x_E2', 'RW') {'W': 46, 'R': 63, 'N': 4}
+   ('D', 'baseline_x_E2', 'WR') {'R': 171, 'N': 10, 'W': 66}
+   ('D', 'baseline_x_E2', 'WW') {'W': 384, 'R': 80, 'N': 16}
+   ('D', 'baseline_x_E2_H', 'RR') {'R': 589, 'N': 225, 'W': 29}
+   ('D', 'baseline_x_E2_H', 'RW') {'W': 27, 'R': 60, 'N': 26}
+   ('D', 'baseline_x_E2_H', 'WR') {'R': 87, 'N': 106, 'W': 54}
+   ('D', 'baseline_x_E2_H', 'WW') {'N': 161, 'W': 274, 'R': 45}
+   ('D', 'baseline_x_F', 'RR') {'R': 766, 'W': 53, 'N': 24}
+   ('D', 'baseline_x_F', 'RW') {'W': 25, 'R': 82, 'N': 6}
+   ('D', 'baseline_x_F', 'WR') {'W': 160, 'R': 82, 'N': 5}
+   ('D', 'baseline_x_F', 'WW') {'W': 381, 'R': 89, 'N': 10}
+   ('D', 'baseline_x_H', 'RR') {'R': 528, 'N': 290, 'W': 25}
+   ('D', 'baseline_x_H', 'RW') {'W': 19, 'R': 73, 'N': 21}
+   ('D', 'baseline_x_H', 'WR') {'W': 88, 'R': 52, 'N': 107}
+   ('D', 'baseline_x_H', 'WW') {'N': 170, 'W': 288, 'R': 22}
+   ('E', 'E + C doses') {'anyR': 35, 'anyN': 3, 'n': 480}
+   ('E', 'other conditions') {'anyR': 246, 'anyN': 224, 'n': 480}
+   ('F', 'E + C 0-25', 'agree') {'R': 1086, 'W': 571}
+   ('F', 'E + C 0-25', 'blank') {'W': 2, 'R': 5}
+   ('F', 'E + C 0-25', 'differ') {'R': 76, 'W': 36}
+   ('F', 'E + C 0-5', 'agree') {'R': 1028, 'W': 546}
+   ('F', 'E + C 0-5', 'blank') {'W': 2, 'R': 2}
+   ('F', 'E + C 0-5', 'differ') {'R': 137, 'W': 61}
+   ('F', 'E + C 1', 'agree') {'R': 929, 'W': 485}
+   ('F', 'E + C 1', 'blank') {'W': 1, 'R': 2}
+   ('F', 'E + C 1', 'differ') {'R': 236, 'W': 123}
+   ('F', 'E + C 2', 'agree') {'R': 765, 'W': 382}
+   ('F', 'E + C 2', 'blank') {'W': 1, 'R': 9}
+   ('F', 'E + C 2', 'differ') {'R': 393, 'W': 226}
+   ('F', 'E_L_conf-w-pS', 'agree') {'R': 757, 'W': 387}
+   ('F', 'E_L_conf-w-pS', 'blank') {'R': 11, 'W': 3}
+   ('F', 'E_L_conf-w-pS', 'differ') {'R': 399, 'W': 219}
+   ('F', 'E_L_conf_E2-w-p0-875', 'agree') {'R': 172, 'W': 68}
+   ('F', 'E_L_conf_E2-w-p0-875', 'blank') {'R': 1}
+   ('F', 'E_L_conf_E2-w-p0-875', 'differ') {'R': 73, 'W': 36}
+   ('F', 'E_L_conf_E2-w-p1-25', 'agree') {'R': 141, 'W': 51}
+   ('F', 'E_L_conf_E2-w-p1-25', 'blank') {'R': 1}
+   ('F', 'E_L_conf_E2-w-p1-25', 'differ') {'R': 69, 'W': 57}
+   ('F', 'E_L_conf_E2-w-pS', 'agree') {'R': 318, 'W': 113}
+   ('F', 'E_L_conf_E2-w-pS', 'blank') {'R': 12, 'W': 6}
+   ('F', 'E_L_conf_E2-w-pS', 'differ') {'R': 380, 'W': 278}
+   ('F', 'E_L_x_E2-w-p0-5', 'agree') {'R': 87, 'W': 47}
+   ('F', 'E_L_x_E2-w-p0-5', 'blank') {'W': 8, 'R': 8}
+   ('F', 'E_L_x_E2-w-p0-5', 'differ') {'R': 158, 'W': 93}
+   ('F', 'E_L_x_E2-w-p0-875', 'agree') {'W': 60, 'R': 181}
+   ('F', 'E_L_x_E2-w-p0-875', 'blank') {'W': 12, 'R': 9}
+   ('F', 'E_L_x_E2-w-p0-875', 'differ') {'R': 56, 'W': 32}
+   ('F', 'E_L_x_E2-w-p1-25', 'agree') {'R': 143, 'W': 54}
+   ('F', 'E_L_x_E2-w-p1-25', 'blank') {'W': 2}
+   ('F', 'E_L_x_E2-w-p1-25', 'differ') {'R': 68, 'W': 52}
+   ('F', 'E_L_x_E2-w-p1-75', 'agree') {'R': 49, 'W': 34}
+   ('F', 'E_L_x_E2-w-p1-75', 'blank') {'R': 7, 'W': 7}
+   ('F', 'E_L_x_E2-w-p1-75', 'differ') {'R': 116, 'W': 91}
+   ('F', 'E_L_x_E2-w-pS', 'agree') {'R': 333, 'W': 121}
+   ('F', 'E_L_x_E2-w-pS', 'blank') {'R': 30, 'W': 35}
+   ('F', 'E_L_x_E2-w-pS', 'differ') {'R': 347, 'W': 241}
+   ('F', 'baseline_caut', 'agree') {'R': 479, 'W': 261}
+   ('F', 'baseline_caut', 'blank') {'R': 131, 'W': 25}
+   ('F', 'baseline_caut', 'differ') {'R': 557, 'W': 323}
+   ('F', 'baseline_caut_E1', 'agree') {'R': 498, 'W': 243}
+   ('F', 'baseline_caut_E1', 'blank') {'R': 60, 'W': 29}
+   ('F', 'baseline_caut_E1', 'differ') {'R': 609, 'W': 337}
+   ('F', 'baseline_caut_E2', 'agree') {'R': 589, 'W': 266}
+   ('F', 'baseline_caut_E2', 'blank') {'R': 91, 'W': 49}
+   ('F', 'baseline_caut_E2', 'differ') {'R': 487, 'W': 294}
+   ('F', 'baseline_caut_M', 'agree') {'R': 398, 'W': 233}
+   ('F', 'baseline_caut_M', 'blank') {'R': 74, 'W': 13}
+   ('F', 'baseline_caut_M', 'differ') {'R': 695, 'W': 363}
+   ('F', 'baseline_conf', 'agree') {'R': 420, 'W': 238}
+   ('F', 'baseline_conf', 'blank') {'R': 24, 'W': 4}
+   ('F', 'baseline_conf', 'differ') {'R': 723, 'W': 367}
+   ('F', 'baseline_conf_E1', 'agree') {'R': 387, 'W': 223}
+   ('F', 'baseline_conf_E1', 'blank') {'R': 10, 'W': 7}
+   ('F', 'baseline_conf_E1', 'differ') {'R': 770, 'W': 379}
+   ('F', 'baseline_conf_E2', 'agree') {'R': 572, 'W': 253}
+   ('F', 'baseline_conf_E2', 'blank') {'R': 14, 'W': 8}
+   ('F', 'baseline_conf_E2', 'differ') {'R': 581, 'W': 348}
+   ('F', 'baseline_conf_M', 'agree') {'R': 377, 'W': 229}
+   ('F', 'baseline_conf_M', 'blank') {'R': 9, 'W': 2}
+   ('F', 'baseline_conf_M', 'differ') {'R': 781, 'W': 378}
+   ('F', 'baseline_x_E1', 'agree') {'R': 478, 'W': 237}
+   ('F', 'baseline_x_E1', 'blank') {'R': 31, 'W': 20}
+   ('F', 'baseline_x_E1', 'differ') {'R': 658, 'W': 352}
+   ('F', 'baseline_x_E1_E2', 'agree') {'R': 490, 'W': 220}
+   ('F', 'baseline_x_E1_E2', 'blank') {'R': 28, 'W': 28}
+   ('F', 'baseline_x_E1_E2', 'differ') {'R': 649, 'W': 361}
+   ('F', 'baseline_x_E2', 'agree') {'R': 624, 'W': 255}
+   ('F', 'baseline_x_E2', 'blank') {'R': 34, 'W': 24}
+   ('F', 'baseline_x_E2', 'differ') {'R': 509, 'W': 330}
+   ('F', 'baseline_x_E2_H', 'agree') {'R': 409, 'W': 170}
+   ('F', 'baseline_x_E2_H', 'blank') {'R': 387, 'W': 200}
+   ('F', 'baseline_x_E2_H', 'differ') {'R': 371, 'W': 239}
+   ('F', 'baseline_x_F', 'agree') {'R': 25, 'W': 13}
+   ('F', 'baseline_x_F', 'blank') {'W': 21, 'R': 60}
+   ('F', 'baseline_x_F', 'differ') {'R': 1082, 'W': 575}
+   ('F', 'baseline_x_H', 'agree') {'R': 344, 'W': 166}
+   ('F', 'baseline_x_H', 'blank') {'R': 463, 'W': 205}
+   ('F', 'baseline_x_H', 'differ') {'R': 360, 'W': 238}
+   ('F', 'no write', 'agree') {'R': 544, 'W': 284}
+   ('F', 'no write', 'blank') {'R': 77, 'W': 16}
+   ('F', 'no write', 'differ') {'R': 546, 'W': 309}
