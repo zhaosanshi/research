@@ -1,0 +1,64 @@
+bank Iteration_01/newsets/falseqa/falseqa_full_bank_20261123.jsonl (sha256 cb42cf131fed8ccf): 700 rows | dev {'false': 50, 'valid': 50} | held-out {'false': 300, 'valid': 300} | gold lengths {('dev', 'false', 1): 50, ('dev', 'valid', 1): 50, ('heldout', 'false', 3): 300, ('heldout', 'valid', 1): 300} | id file sha256 1a5c0df6b74c858e
+fqa_held llama3.1-8b ON 297 natural (net, issued) {'N1': (279, 519), 'E': (181, 392), 'Conly': (174, 568)}
+ counts ('N1', 'E', 'Conly') n 392 vs E (40, 20, 61)
+ counts ('N1', 'E', 'Conly') n 392 vs Conly (16, -2, 33)
+ counts ('N1', 'Conly') n 519 vs Conly (85, 58, 113)
+ counts ('N1', 'E') n 392 vs E (40, 20, 61)
+ vs random within false at same gate-open count: 13.199999999999989
+ vs random within valid at same gate-open count: 7.366666666666667
+ gate-shared two-pass TE False kept supplementary 127 net difference (3, -15, 22)
+identical-text conflicts count, delta: 0 0
+ gate-shared two-pass TE True kept supplementary 127 net difference (4, -9, 18)
+identical-text conflicts count, delta: 0 0
+fqa_held qwen3.5-9b ON 315 natural (net, issued) {'N1': (369, 540), 'E': (347, 504), 'Conly': (331, 582)}
+ counts ('N1', 'E', 'Conly') n 504 vs E (9, -5, 22)
+ counts ('N1', 'E', 'Conly') n 504 vs Conly (41, 18, 65)
+ counts ('N1', 'Conly') n 540 vs Conly (44, 18, 70)
+ counts ('N1', 'E') n 504 vs E (9, -5, 22)
+ vs random within false at same gate-open count: -3.2333333333333343
+ vs random within valid at same gate-open count: 4.04
+ gate-shared two-pass TE False kept supplementary 36 net difference (-5, -17, 7)
+identical-text conflicts count, delta: 0 0
+ gate-shared two-pass TE True kept supplementary 36 net difference (-3, -15, 9)
+identical-text conflicts count, delta: 0 0
+fqa_held qwen3.8-27b ON 312 natural (net, issued) {'N1': (379, 527), 'E': (251, 338), 'Conly': (285, 547)}
+ counts ('N1', 'E', 'Conly') n 338 vs E (17, -5, 37)
+ counts ('N1', 'E', 'Conly') n 338 vs Conly (5, -6, 16)
+ counts ('N1', 'Conly') n 527 vs Conly (77, 53, 103)
+ counts ('N1', 'E') n 338 vs E (17, -5, 37)
+ vs random within false at same gate-open count: 10.25666666666666
+ vs random within valid at same gate-open count: -5.583333333333333
+ gate-shared two-pass TE False kept supplementary 189 net difference (-5, -23, 13)
+identical-text conflicts count, delta: 0 0
+ gate-shared two-pass TE True kept supplementary 189 net difference (-1, -17, 15)
+identical-text conflicts count, delta: 0 0
+fqa_held gemma3-12b ON 305 natural (net, issued) {'N1': (273, 484), 'E': (215, 411), 'Conly': (204, 583)}
+ counts ('N1', 'E', 'Conly') n 411 vs E (44, 26, 62)
+ counts ('N1', 'E', 'Conly') n 411 vs Conly (31, 11, 50)
+ counts ('N1', 'Conly') n 484 vs Conly (31, 2, 59)
+ counts ('N1', 'E') n 411 vs E (44, 26, 62)
+ vs random within false at same gate-open count: -7.263333333333321
+ vs random within valid at same gate-open count: -11.899999999999999
+ gate-shared two-pass TE False kept supplementary 73 net difference (-4, -21, 14)
+identical-text conflicts count, delta: 0 0
+ gate-shared two-pass TE True kept supplementary 73 net difference (-6, -21, 10)
+identical-text conflicts count, delta: 0 0
+fqa_held gemma3-27b ON 320 natural (net, issued) {'N1': (325, 569), 'E': (269, 473), 'Conly': (191, 491)}
+ counts ('N1', 'E', 'Conly') n 473 vs E (43, 24, 63)
+ counts ('N1', 'E', 'Conly') n 473 vs Conly (107, 83, 131)
+ counts ('N1', 'Conly') n 491 vs Conly (127, 101, 152)
+ counts ('N1', 'E') n 473 vs E (43, 24, 63)
+ vs random within false at same gate-open count: -1.509999999999991
+ vs random within valid at same gate-open count: -3.8666666666666667
+ gate-shared two-pass TE False kept supplementary 96 net difference (1, -18, 20)
+identical-text conflicts count, delta: 0 0
+ gate-shared two-pass TE True kept supplementary 96 net difference (13, -5, 31)
+identical-text conflicts count, delta: 0 0
+FalseQA five models two_False (-10, -49, 32)
+FalseQA five models total_arms_('N1', 'E', 'Conly')_Conly (200, 151, 251)
+FalseQA five models two_exact_text_False (-10, -49, 32)
+FalseQA five models two_exact_text_True (7, -29, 43)
+FalseQA five models total_arms_('N1', 'Conly')_Conly (364, 294, 437)
+FalseQA five models total_arms_('N1', 'E')_E (153, 103, 203)
+FalseQA five models total_arms_('N1', 'E', 'Conly')_E (153, 103, 203)
+FalseQA five models two_True (7, -29, 43)

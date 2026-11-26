@@ -1,0 +1,19 @@
+--- a/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/run_gate_1126.sh
++++ b/Truth_Decoupling/Iteration_01/code/launchers/explore_20261120/run_gate_1126.sh
+@@ -108,8 +108,14 @@
+   dry)
+     NG=${2:?model}; setm $NG || exit 2
+     [ -e $OUT/draws_gate_1126.json ] || { echo "no draw file: run the draw first" >&2; exit 2; }
+-    dx "" $PYM -I $CAP capture $NG
+-    echo "dry exit=$?"
++    dry_status=0
++    dry_output=$(dx "" "$PYM" -I "$CAP" capture "$NG" 2>&1) || dry_status=$?
++    echo "$dry_output"
++    expected="RuntimeError: No CUDA GPUs are available (refusing to load $NG without a card)"
++    if [ "$dry_status" -ne 1 ] || [ "${dry_output##*$'\n'}" != "$expected" ]; then
++      echo "dry run did not reach the expected no-card check (exit $dry_status)" >&2
++      exit 1
++    fi
+     [ -e $OUT/$NG ] && { echo "dry run left $OUT/$NG: unexpected" >&2; exit 1; }
+     exit 0 ;;
+   draw)
