@@ -1,0 +1,48 @@
+
+## llama3.1-8b (display Llama-3.1-8B) tune 192 questions: E layer 16, main strength 3.5; N1 setting (('N1', '3-5', '1', '2'),)
+    no write -34 | single E +6 | N1 +27 (reproduced; answers 184) | reacted (answered both, text changed): 90 = RR 20, RW 19, WR 25, WW 26
+    second level 5    (judge_tune_pospromptl16_tune): reacted 90 | on them second level R 39 W 41 N 10, N1 R 45 W 45 N 0 | two-level net +25 (answers 175) | two-level minus N1 -2 [-19, +15] | single E 5 on all 192: net +3 (answers 106)
+        by (no write, main E) verdicts: RR->R 14 W 4 N 2; RW->R 1 W 16 N 2; WR->R 18 W 5 N 2; WW->R 6 W 16 N 4
+    second level 7    (judge_tune_pospromptl16_tune): reacted 90 | on them second level R 38 W 33 N 19, N1 R 45 W 45 N 0 | two-level net +32 (answers 167) | two-level minus N1 +5 [-14, +24] | single E 7 on all 192: net +12 (answers 105)
+        by (no write, main E) verdicts: RR->R 11 W 5 N 4; RW->R 3 W 12 N 4; WR->R 18 W 4 N 3; WW->R 6 W 12 N 8
+    MMLU 1000 items (no write 64.0%), change in points: single E 3.5 -1.3 | single E 5 -4.3 | two-level -1.6 (items switched to the 5 pick: 145)
+
+## qwen3.5-9b (display Qwen3.5-9B) tune 192 questions: E layer 15, main strength 2; N1 setting (('N1', '2', '0-25', '0-5'),)
+    no write +35 | single E +58 | N1 +63 (reproduced; answers 155) | reacted (answered both, text changed): 49 = RR 22, RW 6, WR 12, WW 9
+    second level 2.5  (judge_tune_depthE_tune): reacted 49 | on them second level R 32 W 15 N 2, N1 R 34 W 15 N 0 | two-level net +61 (answers 153) | two-level minus N1 -2 [-11, +6] | single E 2.5 on all 192: net +53 (answers 131)
+        by (no write, main E) verdicts: RR->R 19 W 3 N 0; RW->R 1 W 5 N 0; WR->R 12 W 0 N 0; WW->R 0 W 7 N 2
+    second level 3    (judge_tune_twolevel_1126_l15_tune): reacted 49 | on them second level R 34 W 12 N 3, N1 R 34 W 15 N 0 | two-level net +66 (answers 152) | two-level minus N1 +3 [-6, +11] | single E 3 on all 192: net +64 (answers 127)
+        by (no write, main E) verdicts: RR->R 20 W 2 N 0; RW->R 2 W 4 N 0; WR->R 12 W 0 N 0; WW->R 0 W 6 N 3
+    MMLU 1000 items (no write 77.6%), change in points: single E 2 -0.2 | single E 3 -1.7 | two-level -0.1 (items switched to the 3 pick: 68)
+
+## qwen3.8-27b (display Qwen3.8-27B) tune 192 questions: E layer 28, main strength 1.75; N1 setting (('N1', '1-75', '0-5', '1'),)
+    no write +15 | single E +56 | N1 +80 (reproduced; answers 182) | reacted (answered both, text changed): 40 = RR 21, RW 4, WR 14, WW 1
+    second level 2.5  (judge_tune_twolevel_1126_l28_tune): reacted 40 | on them second level R 35 W 5 N 0, N1 R 35 W 5 N 0 | two-level net +80 (answers 182) | two-level minus N1 +0 [-6, +6] | single E 2.5 on all 192: net +71 (answers 135)
+        by (no write, main E) verdicts: RR->R 21 W 0 N 0; RW->R 0 W 4 N 0; WR->R 13 W 1 N 0; WW->R 1 W 0 N 0
+    second level 3    (judge_tune_twolevel_1126_l28_tune): reacted 40 | on them second level R 31 W 8 N 1, N1 R 35 W 5 N 0 | two-level net +73 (answers 181) | two-level minus N1 -7 [-16, +1] | single E 3 on all 192: net +65 (answers 144)
+        by (no write, main E) verdicts: RR->R 18 W 2 N 1; RW->R 0 W 4 N 0; WR->R 12 W 2 N 0; WW->R 1 W 0 N 0
+    MMLU 1000 items (no write 82.1%), change in points: single E 1.75 -0.8 | single E 3 -2.7 | two-level -0.9 (items switched to the 3 pick: 48)
+
+## gemma3-12b (display Gemma-3-12B) tune 192 questions: E layer 24, main strength 2.5; N1 setting (('N1', '2-5', '2', '2'),)
+    no write -6 | single E +42 | N1 +74 (reproduced; answers 180) | reacted (answered both, text changed): 73 = RR 22, RW 7, WR 27, WW 17
+    second level 3    (judge_tune_twolevel_1126_l24_tune): reacted 73 | on them second level R 47 W 19 N 7, N1 R 49 W 24 N 0 | two-level net +77 (answers 173) | two-level minus N1 +3 [-6, +12] | single E 3 on all 192: net +44 (answers 103)
+        by (no write, main E) verdicts: RR->R 20 W 1 N 1; RW->R 0 W 6 N 1; WR->R 25 W 0 N 2; WW->R 2 W 12 N 3
+    second level 4    (judge_tune_pospromptl24_tune): reacted 73 | on them second level R 38 W 21 N 14, N1 R 49 W 24 N 0 | two-level net +66 (answers 166) | two-level minus N1 -8 [-19, +3] | single E 4 on all 192: net +31 (answers 107)
+        by (no write, main E) verdicts: RR->R 16 W 2 N 4; RW->R 0 W 5 N 2; WR->R 21 W 1 N 5; WW->R 1 W 13 N 3
+    MMLU 1000 items (no write 71.2%), change in points: single E 2.5 +0.2 | single E 4 -4.2 | two-level -0.3 (items switched to the 4 pick: 116)
+
+## gemma3-27b (display Gemma-3-27B) tune 192 questions: E layer 28, main strength 1; N1 setting (('N1', '1', '1', '2'),)
+    no write -2 | single E +38 | N1 +53 (reproduced; answers 185) | reacted (answered both, text changed): 72 = RR 31, RW 4, WR 19, WW 18
+    second level 1.5  (judge_tune_twolevel_1126_l28_tune): reacted 72 | on them second level R 48 W 14 N 10, N1 R 50 W 22 N 0 | two-level net +59 (answers 178) | two-level minus N1 +6 [-4, +17] | single E 1.5 on all 192: net +46 (answers 143)
+        by (no write, main E) verdicts: RR->R 27 W 0 N 4; RW->R 0 W 4 N 0; WR->R 17 W 1 N 1; WW->R 4 W 9 N 5
+    second level 2    (judge_tune_twolevel_1126_l28_tune): reacted 72 | on them second level R 44 W 17 N 11, N1 R 50 W 22 N 0 | two-level net +52 (answers 178) | two-level minus N1 -1 [-14, +12] | single E 2 on all 192: net +57 (answers 139)
+        by (no write, main E) verdicts: RR->R 24 W 2 N 5; RW->R 0 W 4 N 0; WR->R 15 W 2 N 2; WW->R 5 W 9 N 4
+    MMLU 1000 items (no write 77.1%), change in points: single E 1 +0.8 | single E 2 -1.4 | two-level +0.5 (items switched to the 2 pick: 67)
+
+## pre-registered reading (plan section 6): candidates whose two-level minus N1 interval is above 0
+    llama3.1-8b  candidates read 2, with the lower end above 0: 0 []
+    qwen3.5-9b   candidates read 2, with the lower end above 0: 0 []
+    qwen3.8-27b  candidates read 2, with the lower end above 0: 0 []
+    gemma3-12b   candidates read 2, with the lower end above 0: 0 []
+    gemma3-27b   candidates read 2, with the lower end above 0: 0 []
+    models with at least one such candidate: 0 of 5
