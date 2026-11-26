@@ -35,6 +35,38 @@ new cells on the ON questions: E2 315 | TE2 93 | EC2_0.25 93 | EC2_0.5 47 | EC2_
   N1 on ON questions: answered at s -> blank at s2 14; blank at s -> answered at s2 6; N1(s2) fills by rung {'0.25': 25, '0.5': 14}
 
 ==============================================================================================================
+## qwen3.8-27b: E28 s 1.75 -> s2 3, C33; caps N1 (E's blanks none, own blanks 1), Conly 1 (chosen on the 100 development questions at s); switch ON 312 / 600 (premise false 277, valid 35)
+checks: falseqa_read nets (197, 223, 341, 288); audit ON / natural {'N1': (379, 527), 'E': (251, 338), 'Conly': (285, 547)}; audit equal-count and two-pass lines at s [(17, -5, 37), (77, 53, 103), (-5, -23, 13), (-1, -17, 15)]; N1 rebuild at s = falseqa_read on 600; forced ON / OFF; judged cells = cells that can be handed in (786) -> PASS
+new cells on the ON questions: E2 312 | TE2 129 | EC2_0.25 115 | EC2_0.5 115 | EC2_1 115 | EC2_2 0
+-- 1 MAIN: gated N1(s2) - gated N1(s)
+  premise false  natural +32 [+18, +48] | s2 handed in 281, right 255, wrong 23 | s handed in 278, right 239, wrong 39
+                 equal   +31 [+17, +47] (ON answers 265 vs 262 -> 262 each) | s2 handed in 278, right 253, wrong 22 | s handed in 278, right 239, wrong 39
+  premise valid  natural -8 [-19, +2] | s2 handed in 249, right 208, wrong 37 | s handed in 249, right 212, wrong 33
+                 equal   -8 [-19, +2] (ON answers 28 vs 28 -> 28 each) | s2 handed in 249, right 208, wrong 37 | s handed in 249, right 212, wrong 33
+  all            natural +24 [+8, +41] | s2 handed in 530, right 463, wrong 60 | s handed in 527, right 451, wrong 72
+                 equal   +27 [+12, +44] (ON answers 293 vs 290 -> 290 each) | s2 handed in 527, right 463, wrong 57 | s handed in 527, right 451, wrong 72
+-- 2 gated N1(s2) minus: gated single E(s2); gated Conly; gated two-pass E(s2)
+  premise false  - E(s2)  natural +89 [+72, +107] (E(s2): handed in 176, right 159, wrong 16) | equal +11 [-10, +30] (ON answers 265 vs 160 -> 160 each) | N1(s2) handed in 176, right 165, wrong 11 | E(s2) handed in 176, right 159, wrong 16
+  premise false  - Conly  natural +130 [+102, +158] (Conly: handed in 291, right 196, wrong 94) | equal +121 [+94, +149] (ON answers 265 vs 275 -> 265 each) | N1(s2) handed in 281, right 255, wrong 23 | Conly handed in 281, right 196, wrong 85
+  premise false  - two-pass E(s2) with provenance classes + veto: natural (every passing fill, 128) -6 [-19, +7] (handed in 292, right 263, wrong 25) | same fill slots as N1 (110 kept) +3 [-9, +15] (handed in 281, right 253, wrong 24)
+  premise false  - two-pass E(s2) one pool, no veto: natural (every passing fill, 129) -5 [-18, +8] (handed in 293, right 263, wrong 26) | same fill slots as N1 (110 kept) +3 [-10, +15] (handed in 276, right 251, wrong 22)
+  premise valid  - E(s2)  natural -4 [-8, -1] (E(s2): handed in 244, right 208, wrong 33) | equal -1 [-7, +5] (ON answers 28 vs 23 -> 23 each) | N1(s2) handed in 244, right 207, wrong 33 | E(s2) handed in 244, right 208, wrong 33
+  premise valid  - Conly  natural -12 [-25, -1] (Conly: handed in 256, right 218, wrong 35) | equal -11 [-21, -2] (ON answers 28 vs 35 -> 28 each) | N1(s2) handed in 249, right 208, wrong 37 | Conly handed in 249, right 214, wrong 32
+  premise valid  - two-pass E(s2) with provenance classes + veto: natural (every passing fill, 128) +3 [-2, +8] (handed in 256, right 210, wrong 42) | same fill slots as N1 (110 kept) +0 [+0, +0] (handed in 249, right 208, wrong 37)
+  premise valid  - two-pass E(s2) one pool, no veto: natural (every passing fill, 129) +3 [-2, +8] (handed in 256, right 210, wrong 42) | same fill slots as N1 (110 kept) +1 [-3, +5] (handed in 254, right 210, wrong 40)
+  all            - E(s2)  natural +85 [+68, +102] (E(s2): handed in 420, right 367, wrong 49) | equal +24 [+3, +44] (ON answers 293 vs 183 -> 183 each) | N1(s2) handed in 420, right 379, wrong 37 | E(s2) handed in 420, right 367, wrong 49
+  all            - Conly  natural +118 [+90, +148] (Conly: handed in 547, right 414, wrong 129) | equal +104 [+77, +133] (ON answers 293 vs 310 -> 293 each) | N1(s2) handed in 530, right 463, wrong 60 | Conly handed in 530, right 413, wrong 114
+  all            - two-pass E(s2) with provenance classes + veto: natural (every passing fill, 128) -3 [-17, +11] (handed in 548, right 473, wrong 67) | same fill slots as N1 (110 kept) +3 [-9, +15] (handed in 530, right 461, wrong 61)
+  all            - two-pass E(s2) one pool, no veto: natural (every passing fill, 129) -2 [-16, +12] (handed in 549, right 473, wrong 68) | same fill slots as N1 (110 kept) +4 [-10, +17] (handed in 530, right 461, wrong 62)
+-- 3 reference: gated single E(s2) - gated single E(s); ON questions changing between s and s2
+  premise false  natural +78 [+62, +96] | E(s2) handed in 176, right 159, wrong 16 | E(s) handed in 97, right 81, wrong 16
+  premise valid  natural -11 [-22, -1] | E(s2) handed in 244, right 208, wrong 33 | E(s) handed in 241, right 212, wrong 26
+  all            natural +67 [+48, +87] | E(s2) handed in 420, right 367, wrong 49 | E(s) handed in 338, right 293, wrong 42
+  ON questions: answered at s -> blank at s2 1; blank at s -> answered at s2 83; blank at both 128; answered at both 100
+  N1 on ON questions: answered at s -> blank at s2 3; blank at s -> answered at s2 6; N1(s2) fills by rung {'0.25': 50, '0.5': 35, '1': 25}
+
+==============================================================================================================
 ## go/no-go counts (plan section 5): lower end of the MAIN reading (equal counts, all 600) above 0
   qwen3.5-9b   -13 [-30, +4] -> lower end above 0: no
-  models with the lower end above 0: 0 of 1 finished
+  qwen3.8-27b  +27 [+12, +44] -> lower end above 0: yes
+  models with the lower end above 0: 1 of 2 finished
