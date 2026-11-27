@@ -10,7 +10,9 @@
 #   judge_two_axis_run.py cells; Pro reply cache seeded with the caches the full run used (A: test_full700_heldout and the
 #   full-run work dir test_gate2_1127_heldout; B: judge_test_posprompt<tag>_test, judge_test_posprompt2<tag>_test and the
 #   full-run work dir judge_test_gate2b_1127_tqa_test when it has a cache): same text -> same verdict, sources untouched;
-#   conflicts must be none; off-peak only (weekdays 08:30-12:00 and 14:00-18:00 Beijing are peak; a pass is cut 2 minutes
+#   no cell of the work dir may use a request key that the merged caches answer in two ways (diag/q100_conflict_use_1127.py;
+#   changed 2026-11-27 08:32 from "no conflicting key at all", after the two TruthfulQA seed caches of gemma3-12b and
+#   llama3.1-8b turned out to disagree on 1 and 2 keys that none of their 100-question cells uses); off-peak only (weekdays 08:30-12:00 and 14:00-18:00 Beijing are peak; a pass is cut 2 minutes
 #   before a peak); no batch that could take these passes over CAP yuan in all (sum of the upper estimates of
 #   crow_pro_requests.py, read and written under a lock) or the balance under FLOOR yuan; llm then single (Pro), the
 #   container commands of run_gate2_1127.sh (A) and run_gate2b_1127.sh (B) unchanged; then
@@ -130,12 +132,9 @@ judge() {  # judge: DeepSeek Pro on $W, off-peak, within the cap and above the f
     [ -f $HOST/${s#$ROOT/}/judge2_cache_deepseek-v4-pro.jsonl ] || { say "$SEG $M: no Pro reply cache in $s"; return 1; }
   done
   st merge "${J[@]}" python3 scripts/review_checks/judge2_cache_merge.py $W/judge2/cache $SEEDS || { say "$SEG $M: cache merge FAILED"; return 1; }
-  st conflicts "${J[@]}" python3 -c "
-import json, os, sys
-p = sys.argv[1]
-k = json.load(open(p)).get('keys', {}) if os.path.exists(p) else {}
-n = sum(len(v) for v in k.values()) if isinstance(k, dict) else len(k)
-sys.exit('the merged caches give %d request keys different replies: stop' % n if n else 0)" $W/judge2/cache/conflicts.json || { say "$SEG $M: cache conflicts"; return 1; }
+  # 08:32 change: stop only when a cell of this work dir uses a request key the merged caches answer in two ways
+  # (diag/q100_conflict_use_1127.py); single leaves such a cell without a verdict anyway, and a cell without a verdict stops
+  st conflicts "${J[@]}" python3 -B $ROOT/Iteration_01/diag/q100_conflict_use_1127.py $W || { say "$SEG $M: a cell uses a request key with conflicting cached replies"; return 1; }
   while true; do
     secs=$(budget); until [ $secs -gt 0 ]; do sleep 120; secs=$(budget); done
     [ -e $L/Q100_COST_STOP ] && return 9
