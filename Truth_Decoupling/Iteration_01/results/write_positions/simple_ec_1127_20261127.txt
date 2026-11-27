@@ -11,6 +11,8 @@ bank Iteration_01/newsets/falseqa/falseqa_full_bank_20261123.jsonl (sha256 cb42c
    where EC(2) - E comes from (single E's answer by the rule): E answered 319 questions: +2 (E +40 -> EC +42) | E blank 204 questions: +26 (E +0 -> EC +26)
    two steps (E; E blank -> E+C(2), c chosen on tuning: 0.25:+10 0.5:+13 1:+16 2:+17): net +66 (270 / 204) | - E +26 [+1, +51] | - C(0.25) +159 [+109, +208] | - N1 (+62) +4 [-12, +21]
    reference N1 +62: - E +22 [-1, +45] | - C(0.25) +155 [+106, +204]
+   both blank -> E+C (c fixed 1): net +63 (197 / 134) | - E +23 [+14, +33] | - C(0.25) +156 [+111, +202] | - N1 +1 [-20, +22] | questions re-asked 55
+   both blank -> E+C (c chosen on tuning 2): net +70 (208 / 138) | - E +30 [+18, +43] | - C(0.25) +163 [+117, +209] | - N1 +8 [-12, +27] | questions re-asked 55
 
 ### Qwen3.5-9B (qwen3.5-9b): 523 test questions; E strength 2; known nets (n, O, E) (523, 73, 168) reproduced
    tuning nets: O +35 | E +58 | C 0.25:+23 0.5:+13 1:+8 2:-7 | EC 0.25:+66 0.5:+70 1:+64 2:+55 -> c for EC 0.5, c for C 0.25
@@ -20,6 +22,8 @@ bank Iteration_01/newsets/falseqa/falseqa_full_bank_20261123.jsonl (sha256 cb42c
    where EC(0.5) - E comes from (single E's answer by the rule): E answered 408 questions: -1 (E +167 -> EC +166) | E blank 115 questions: +1 (E +1 -> EC +2)
    two steps (E; E blank -> E+C(0.5), c chosen on tuning: 0.25:+62 0.5:+64 1:+62 2:+56): net +169 (318 / 149) | - E +1 [-14, +17] | - C(0.25) +96 [+61, +130] | - N1 (+186) -17 [-30, -5]
    reference N1 +186: - E +18 [+7, +30] | - C(0.25) +113 [+76, +149]
+   both blank -> E+C (c fixed 1): net +177 (302 / 125) | - E +9 [+0, +19] | - C(0.25) +104 [+67, +139] | - N1 -9 [-20, +1] | questions re-asked 41
+   both blank -> E+C (c chosen on tuning 0.5): net +179 (298 / 119) | - E +11 [+4, +19] | - C(0.25) +106 [+71, +141] | - N1 -7 [-15, +1] | questions re-asked 41
 
 ### Qwen3.8-27B (qwen3.8-27b): 521 test questions; E strength 1-75; known nets (n, O, E) (521, 47, 142) reproduced
    tuning nets: O +15 | E +56 | C 0.25:+23 0.5:+25 1:+18 2:+10 | EC 0.25:+66 0.5:+71 1:+79 2:+72 -> c for EC 1, c for C 0.5
@@ -29,6 +33,8 @@ bank Iteration_01/newsets/falseqa/falseqa_full_bank_20261123.jsonl (sha256 cb42c
    where EC(1) - E comes from (single E's answer by the rule): E answered 354 questions: -12 (E +142 -> EC +130) | E blank 167 questions: +18 (E +0 -> EC +18)
    two steps (E; E blank -> E+C(1), c chosen on tuning: 0.25:+68 0.5:+72 1:+81 2:+76): net +160 (329 / 169) | - E +18 [-5, +42] | - C(0.5) +126 [+86, +166] | - N1 (+175) -15 [-31, +0]
    reference N1 +175: - E +33 [+12, +55] | - C(0.5) +141 [+99, +183]
+   both blank -> E+C (c fixed 1): net +172 (311 / 139) | - E +30 [+10, +49] | - C(0.5) +138 [+98, +178] | - N1 -3 [-17, +11] | questions re-asked 118
+   both blank -> E+C (c chosen on tuning 1): net +172 (311 / 139) | - E +30 [+10, +49] | - C(0.5) +138 [+98, +178] | - N1 -3 [-17, +11] | questions re-asked 118
 
 ### Gemma-3-12B (gemma3-12b): 522 test questions; E strength 2-5; known nets (n, O, E) (522, 12, 103) reproduced
    tuning nets: O -6 | E +42 | C 0.25:-1 0.5:+1 1:-5 2:-18 | EC 0.25:+44 0.5:+51 1:+59 2:+68 -> c for EC 2, c for C 0.5
@@ -38,6 +44,8 @@ bank Iteration_01/newsets/falseqa/falseqa_full_bank_20261123.jsonl (sha256 cb42c
    where EC(2) - E comes from (single E's answer by the rule): E answered 323 questions: +0 (E +104 -> EC +104) | E blank 199 questions: +59 (E -1 -> EC +58)
    two steps (E; E blank -> E+C(2), c chosen on tuning: 0.25:+46 0.5:+51 1:+65 2:+77): net +162 (329 / 167) | - E +59 [+34, +85] | - C(0.5) +157 [+104, +210] | - N1 (+158) +4 [-14, +22]
    reference N1 +158: - E +55 [+31, +79] | - C(0.5) +153 [+100, +205]
+   both blank -> E+C (c fixed 1): net +127 (240 / 113) | - E +24 [+13, +36] | - C(0.5) +122 [+74, +170] | - N1 -31 [-52, -10] | questions re-asked 53
+   both blank -> E+C (c chosen on tuning 2): net +131 (246 / 115) | - E +28 [+16, +42] | - C(0.5) +126 [+77, +174] | - N1 -27 [-47, -7] | questions re-asked 53
 
 ### Gemma-3-27B (gemma3-27b): 523 test questions; E strength 1; known nets (n, O, E) (523, 3, 105) reproduced
    tuning nets: O -2 | E +38 | C 0.25:-5 0.5:-12 1:-12 2:-27 | EC 0.25:+37 0.5:+43 1:+34 2:+17 -> c for EC 0.5, c for C 0.25
@@ -47,6 +55,8 @@ bank Iteration_01/newsets/falseqa/falseqa_full_bank_20261123.jsonl (sha256 cb42c
    where EC(0.5) - E comes from (single E's answer by the rule): E answered 423 questions: -19 (E +105 -> EC +86) | E blank 100 questions: +18 (E +0 -> EC +18)
    two steps (E; E blank -> E+C(0.5), c chosen on tuning: 0.25:+40 0.5:+44 1:+44 2:+41): net +123 (292 / 169) | - E +18 [+3, +34] | - C(0.25) +124 [+87, +160] | - N1 (+144) -21 [-33, -9]
    reference N1 +144: - E +39 [+22, +57] | - C(0.25) +145 [+107, +182]
+   both blank -> E+C (c fixed 1): net +136 (291 / 155) | - E +31 [+19, +44] | - C(0.25) +137 [+100, +173] | - N1 -8 [-20, +4] | questions re-asked 57
+   both blank -> E+C (c chosen on tuning 2): net +140 (299 / 159) | - E +35 [+21, +50] | - C(0.25) +141 [+105, +176] | - N1 -4 [-17, +9] | questions re-asked 57
 
 ========================================================================================================================
 ## FalseQA: tuning set development 100, test set held-out 600; one pass each; nets = right - wrong
@@ -59,6 +69,8 @@ bank Iteration_01/newsets/falseqa/falseqa_full_bank_20261123.jsonl (sha256 cb42c
    where EC(2) - E comes from (single E's answer by the rule): E answered 363 questions: -39 (E +135 -> EC +96) | E blank 237 questions: +110 (E +2 -> EC +112)
    two steps (E; E blank -> E+C(2), c chosen on tuning: 0.25:+18 0.5:+23 1:+29 2:+35): net +247 (405 / 158) | - E +110 [+86, +134] | - C(2) +81 [+36, +125] | - N1 (+240) +7 [-10, +24]
    reference N1 +240: - E +103 [+84, +123] | - C(2) +74 [+30, +120]
+   both blank -> E+C (c fixed 1): net +215 (334 / 119) | - E +78 [+61, +96] | - C(2) +49 [+4, +95] | - N1 -25 [-37, -14] | questions re-asked 150
+   both blank -> E+C (c chosen on tuning 2): net +244 (367 / 123) | - E +107 [+88, +126] | - C(2) +78 [+34, +124] | - N1 +4 [-2, +11] | questions re-asked 150
 
 ### Qwen3.5-9B (qwen3.5-9b): 600 test questions; E strength 2; known nets (n, O, E) (600, 312, 313) reproduced
    tuning nets: O +36 | E +45 | C 0.25:+40 0.5:+45 1:+42 2:+41 | EC 0.25:+47 0.5:+47 1:+48 2:+47 -> c for EC 1, c for C 0.5
@@ -68,6 +80,8 @@ bank Iteration_01/newsets/falseqa/falseqa_full_bank_20261123.jsonl (sha256 cb42c
    where EC(1) - E comes from (single E's answer by the rule): E answered 474 questions: +7 (E +313 -> EC +320) | E blank 126 questions: +38 (E +0 -> EC +38)
    two steps (E; E blank -> E+C(2), c chosen on tuning: 0.25:+49 0.5:+47 1:+48 2:+50): net +349 (466 / 117) | - E +36 [+15, +57] | - C(0.5) +17 [-18, +54] | - N1 (+334) +15 [-5, +34]
    reference N1 +334: - E +21 [+8, +34] | - C(0.5) +2 [-32, +38]
+   both blank -> E+C (c fixed 1): net +342 (426 / 84) | - E +29 [+16, +42] | - C(0.5) +10 [-23, +46] | - N1 +8 [-3, +19] | questions re-asked 61
+   both blank -> E+C (c chosen on tuning 0.5): net +336 (415 / 79) | - E +23 [+13, +34] | - C(0.5) +4 [-30, +39] | - N1 +2 [-6, +10] | questions re-asked 61
 
 ### Qwen3.8-27B (qwen3.8-27b): 600 test questions; E strength 1.75; known nets (n, O, E) (600, 197, 223) reproduced
    tuning nets: O +36 | E +31 | C 0.25:+40 0.5:+38 1:+37 2:+28 | EC 0.25:+40 0.5:+45 1:+47 2:+46 -> c for EC 1, c for C 0.25
@@ -77,6 +91,8 @@ bank Iteration_01/newsets/falseqa/falseqa_full_bank_20261123.jsonl (sha256 cb42c
    where EC(1) - E comes from (single E's answer by the rule): E answered 313 questions: -1 (E +223 -> EC +222) | E blank 287 questions: +138 (E +0 -> EC +138)
    two steps (E; E blank -> E+C(0.5), c chosen on tuning: 0.25:+38 0.5:+43 1:+43 2:+40): net +323 (426 / 103) | - E +100 [+74, +125] | - C(0.25) +116 [+83, +149] | - N1 (+341) -18 [-37, +0]
    reference N1 +341: - E +118 [+93, +143] | - C(0.25) +134 [+100, +168]
+   both blank -> E+C (c fixed 1): net +346 (442 / 96) | - E +123 [+97, +148] | - C(0.25) +139 [+106, +173] | - N1 +5 [-5, +16] | questions re-asked 238
+   both blank -> E+C (c chosen on tuning 1): net +346 (442 / 96) | - E +123 [+97, +148] | - C(0.25) +139 [+106, +173] | - N1 +5 [-5, +16] | questions re-asked 238
 
 ### Gemma-3-12B (gemma3-12b): 600 test questions; E strength 2.5; known nets (n, O, E) (600, 152, 169) reproduced
    tuning nets: O +18 | E +17 | C 0.25:+14 0.5:+14 1:+18 2:+20 | EC 0.25:+19 0.5:+22 1:+33 2:+34 -> c for EC 2, c for C 2
@@ -86,6 +102,8 @@ bank Iteration_01/newsets/falseqa/falseqa_full_bank_20261123.jsonl (sha256 cb42c
    where EC(2) - E comes from (single E's answer by the rule): E answered 320 questions: -1 (E +169 -> EC +168) | E blank 280 questions: +128 (E +0 -> EC +128)
    two steps (E; E blank -> E+C(2), c chosen on tuning: 0.25:+19 0.5:+24 1:+31 2:+32): net +297 (435 / 138) | - E +128 [+102, +154] | - C(2) +140 [+98, +185] | - N1 (+228) +69 [+45, +93]
    reference N1 +228: - E +59 [+44, +74] | - C(2) +71 [+28, +114]
+   both blank -> E+C (c fixed 1): net +228 (311 / 83) | - E +59 [+44, +74] | - C(2) +71 [+28, +114] | - N1 +0 [+0, +0] | questions re-asked 124
+   both blank -> E+C (c chosen on tuning 1): net +228 (311 / 83) | - E +59 [+44, +74] | - C(2) +71 [+28, +114] | - N1 +0 [+0, +0] | questions re-asked 124
 
 ### Gemma-3-27B (gemma3-27b): 600 test questions; E strength 1; known nets (n, O, E) (600, 187, 275) reproduced
    tuning nets: O +19 | E +43 | C 0.25:+27 0.5:+25 1:+24 2:+8 | EC 0.25:+38 0.5:+38 1:+30 2:+33 -> c for EC 0.25, c for C 0.25
@@ -95,6 +113,8 @@ bank Iteration_01/newsets/falseqa/falseqa_full_bank_20261123.jsonl (sha256 cb42c
    where EC(0.25) - E comes from (single E's answer by the rule): E answered 461 questions: -4 (E +275 -> EC +271) | E blank 139 questions: +8 (E +0 -> EC +8)
    two steps (E; E blank -> E+C(0.5), c chosen on tuning: 0.25:+43 0.5:+44 1:+40 2:+41): net +294 (398 / 104) | - E +19 [+4, +35] | - C(0.25) +108 [+80, +137] | - N1 (+328) -34 [-53, -16]
    reference N1 +328: - E +53 [+35, +71] | - C(0.25) +142 [+113, +172]
+   both blank -> E+C (c fixed 1): net +327 (423 / 96) | - E +52 [+36, +68] | - C(0.25) +141 [+113, +168] | - N1 -1 [-13, +11] | questions re-asked 103
+   both blank -> E+C (c chosen on tuning 0.5): net +298 (388 / 90) | - E +23 [+12, +34] | - C(0.25) +112 [+85, +139] | - N1 -30 [-46, -14] | questions re-asked 103
 
 ========================================================================================================================
 ## summary, one row per model (no pooled row): one pass each, c chosen on the tuning questions
@@ -122,6 +142,29 @@ bank Iteration_01/newsets/falseqa/falseqa_full_bank_20261123.jsonl (sha256 cb42c
    FalseQA    Qwen3.8-27B   0.5     +323   +223   +341   +100 [+74, +125]   +116 [+83, +149]   -18 [-37, +0]     
    FalseQA    Gemma-3-12B   2       +297   +169   +228   +128 [+102, +154]  +140 [+98, +185]   +69 [+45, +93]    
    FalseQA    Gemma-3-27B   0.5     +294   +275   +328   +19 [+4, +35]      +108 [+80, +137]   -34 [-53, -16]    
+
+## 11-28: E; only where both the no-write answer and E are blank, E+C(c) (GPT's variant), natural answer counts
+   task       model         c     c rule      net   - E                - C                - N1              
+   TruthfulQA Llama-3.1-8B  1     fixed       +63   +23 [+14, +33]     +156 [+111, +202]  +1 [-20, +22]     
+   TruthfulQA Llama-3.1-8B  2     chosen      +70   +30 [+18, +43]     +163 [+117, +209]  +8 [-12, +27]     
+   TruthfulQA Qwen3.5-9B    1     fixed      +177   +9 [+0, +19]       +104 [+67, +139]   -9 [-20, +1]      
+   TruthfulQA Qwen3.5-9B    0.5   chosen     +179   +11 [+4, +19]      +106 [+71, +141]   -7 [-15, +1]      
+   TruthfulQA Qwen3.8-27B   1     fixed      +172   +30 [+10, +49]     +138 [+98, +178]   -3 [-17, +11]     
+   TruthfulQA Qwen3.8-27B   1     chosen     +172   +30 [+10, +49]     +138 [+98, +178]   -3 [-17, +11]     
+   TruthfulQA Gemma-3-12B   1     fixed      +127   +24 [+13, +36]     +122 [+74, +170]   -31 [-52, -10]    
+   TruthfulQA Gemma-3-12B   2     chosen     +131   +28 [+16, +42]     +126 [+77, +174]   -27 [-47, -7]     
+   TruthfulQA Gemma-3-27B   1     fixed      +136   +31 [+19, +44]     +137 [+100, +173]  -8 [-20, +4]      
+   TruthfulQA Gemma-3-27B   2     chosen     +140   +35 [+21, +50]     +141 [+105, +176]  -4 [-17, +9]      
+   FalseQA    Llama-3.1-8B  1     fixed      +215   +78 [+61, +96]     +49 [+4, +95]      -25 [-37, -14]    
+   FalseQA    Llama-3.1-8B  2     chosen     +244   +107 [+88, +126]   +78 [+34, +124]    +4 [-2, +11]      
+   FalseQA    Qwen3.5-9B    1     fixed      +342   +29 [+16, +42]     +10 [-23, +46]     +8 [-3, +19]      
+   FalseQA    Qwen3.5-9B    0.5   chosen     +336   +23 [+13, +34]     +4 [-30, +39]      +2 [-6, +10]      
+   FalseQA    Qwen3.8-27B   1     fixed      +346   +123 [+97, +148]   +139 [+106, +173]  +5 [-5, +16]      
+   FalseQA    Qwen3.8-27B   1     chosen     +346   +123 [+97, +148]   +139 [+106, +173]  +5 [-5, +16]      
+   FalseQA    Gemma-3-12B   1     fixed      +228   +59 [+44, +74]     +71 [+28, +114]    +0 [+0, +0]       
+   FalseQA    Gemma-3-12B   1     chosen     +228   +59 [+44, +74]     +71 [+28, +114]    +0 [+0, +0]       
+   FalseQA    Gemma-3-27B   1     fixed      +327   +52 [+36, +68]     +141 [+113, +168]  -1 [-13, +11]     
+   FalseQA    Gemma-3-27B   0.5   chosen     +298   +23 [+12, +34]     +112 [+85, +139]   -30 [-46, -14]    
 
 ## reference: the current N1 against the same single E and single C, one row per model
    task       model             N1   N1 - E             N1 - C            

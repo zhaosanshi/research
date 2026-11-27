@@ -60,6 +60,7 @@ def tqa_split(m, idx):
         if len(out["C" + k]) != len(ids):
             raise SystemExit("%s: single C %s has %d cells for %d questions" % (m, k, len(out["C" + k]), len(ids)))
     out["_eblank"] = {q: bool(sp.blank[(q, sp.cE(s))]) for q in ids}
+    out["_oblank"] = {q: bool(sp.blank[(q, "baseline_x")]) for q in ids}
     out["_n1"] = None
     if idx == 1:
         tune = MP.prompt_split(display, layer, 0, s)[0]
@@ -96,6 +97,7 @@ def fqa_split(m, rows, which):
         out["EC" + k] = [R.cell(R.ec(s, k), q) for q in ids]
         out["C" + k] = [R.cell(R.c(k), q) for q in ids]
     out["_eblank"] = {q: bool(R.blank(R.e(s), q)) for q in ids}
+    out["_oblank"] = {q: bool(R.blank("x", q)) for q in ids}
     out["_n1"] = None
     if which == "heldout":
         dev = {r["id"] for r in rows if r["set"] == "dev"}
@@ -123,6 +125,8 @@ def main():
     rows = fqa_rows()
     pair = {r["id"]: r["pair_id"] for r in rows}
     summary = []
+    global summary_b
+    summary_b = []
     for task in ("TruthfulQA", "FalseQA"):
         print("\n" + "=" * 120)
         print("## %s: tuning set %s, test set %s; one pass each; nets = right - wrong" % (
@@ -177,6 +181,19 @@ def main():
                 sum(n1), F.fmt_ci(r2n)))
             rne, rnc = ci(n1, e, ids), ci(n1, cc, ids)
             print("   reference N1 %+d: - E %s | - C(%s) %s" % (sum(n1), F.fmt_ci(rne), DOT[c_c], F.fmt_ci(rnc)))
+            # 11-28 addition: GPT's variant (2026-11-28_n1_single_retry.md): E; only where BOTH the no-write answer and E are
+            # blank by the rule, the one-pass E+C(c) answer; c fixed at 1 for every model (as GPT), and c chosen on tuning
+            ob, tob = out["_oblank"], tout["_oblank"]
+            both = lambda qq, eb, obk, ev, ecv: [ecv[i] if (eb[q] and obk[q]) else ev[i] for i, q in enumerate(qq)]  # noqa: E731
+            k1 = [k for k in lad if DOT[k] == "1"][0]
+            tb = {k: sum(both(tids, tout["_eblank"], tob, tout["E"], tout["EC" + k])) for k in lad}
+            c_b = pick(tb, lad)
+            for lab_b, kb in (("c fixed 1", k1), ("c chosen on tuning %s" % DOT[c_b], c_b)):
+                sb = both(ids, out["_eblank"], ob, e, out["EC" + kb])
+                print("   both blank -> E+C (%s): net %+d (%s) | - E %s | - C(%s) %s | - N1 %s | questions re-asked %d" % (
+                    lab_b, sum(sb), hrw(sb), F.fmt_ci(ci(sb, e, ids)), DOT[c_c], F.fmt_ci(ci(sb, cc, ids)), F.fmt_ci(ci(sb, n1, ids)),
+                    sum(1 for q in ids if out["_eblank"][q] and ob[q])))
+                summary_b.append((task, m, DOT[kb], lab_b.split(" ")[1], sum(sb), ci(sb, e, ids), ci(sb, cc, ids), ci(sb, n1, ids)))
             summary.append((task, m, s, DOT[c_ec], DOT[c_c], sum(o), sum(e), sum(cc), sum(ec), r_e, r_c, DOT[c_2], sum(s2), r2e, r2c, sum(n1), r2n,
                             rne, rnc))
     print("\n" + "=" * 120)
@@ -190,6 +207,10 @@ def main():
     for t in summary:
         print("   %-10s %-13s %-5s %+6d %+6d %+6d   %-18s %-18s %-18s" % (t[0], SHOW[t[1]], t[11], t[12], t[6], t[15], F.fmt_ci(t[13]),
                                                                        F.fmt_ci(t[14]), F.fmt_ci(t[16])))
+    print("\n## 11-28: E; only where both the no-write answer and E are blank, E+C(c) (GPT's variant), natural answer counts")
+    print("   %-10s %-13s %-5s %-8s %6s   %-18s %-18s %-18s" % ("task", "model", "c", "c rule", "net", "- E", "- C", "- N1"))
+    for t in summary_b:
+        print("   %-10s %-13s %-5s %-8s %+6d   %-18s %-18s %-18s" % (t[0], SHOW[t[1]], t[2], t[3], t[4], F.fmt_ci(t[5]), F.fmt_ci(t[6]), F.fmt_ci(t[7])))
     print("\n## reference: the current N1 against the same single E and single C, one row per model")
     print("   %-10s %-13s %6s   %-18s %-18s" % ("task", "model", "N1", "N1 - E", "N1 - C"))
     for t in summary:
