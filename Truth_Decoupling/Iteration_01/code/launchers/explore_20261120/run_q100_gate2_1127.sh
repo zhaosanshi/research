@@ -199,7 +199,59 @@ final() {  # the 100-question readings of every model: full-run verdicts where t
   mv $OUT.tmp $OUT
 }
 
+expand_lane() {  # expand_lane SEG MODEL: finish the FULL-run judging of one model (its full-run work dir), seeded also with its
+  # 100-question cache; then the original table of that segment over the models judged in full (12:5x addition: the
+  # 100-question reading of gemma3-27b was the one with a positive sign on both segments)
+  setm $1 $2 || return 1
+  local qw=$W rc
+  [ -e $FULLDONE ] && { say "$SEG $M: the full-run judging is already done"; return 0; }
+  if [ $SEG = a ]; then
+    W=$NS/judge/falseqa/$M/test_gate2_1127_heldout
+    SEEDS="$NS/judge/falseqa/$M/test_full700_heldout/judge2/cache $qw/judge2/cache"
+  else
+    W=$ROOT/$run/eval_extra/judge_test_gate2b_1127_tqa_test
+    SEEDS="$ROOT/$run/eval_extra/judge_test_posprompt${TAG}_test/judge2/cache $ROOT/$run/eval_extra/judge_test_posprompt2${TAG}_test/judge2/cache $qw/judge2/cache"
+  fi
+  MLOG=$L/q100_1127_expand_${SEG}_$M.log
+  [ -f $HOST/${W#$ROOT/}/judge2/cells.jsonl ] || { say "$SEG $M: no cells in the full-run work dir $W"; return 1; }
+  say "$SEG $M: expand to the full run ($W)"
+  judge; rc=$?
+  [ $rc = 0 ] || { [ $rc = 9 ] || failed "expand judging of $SEG $M (rc $rc)"; return 1; }
+  touch $FULLDONE; say "$SEG $M: full-run judging finished (expand)"
+}
+orig_tables() {  # the original tables over the models judged in full (as the full-run launchers' table steps)
+  local m a="" b=""
+  for m in qwen3.5-9b qwen3.8-27b gemma3-12b gemma3-27b llama3.1-8b; do
+    [ -e $L/GATE2_JUDGE_${m}_DONE ] && [ -e $L/GATE2_SCORE_${m}_full_DONE ] && a="$a $m"
+    [ -e $L/GATE2B_JUDGE_${m}_DONE ] && b="$b $m"
+  done
+  "${RD[@]}" Iteration_01/diag/table_gate2_1127.py $a > Iteration_01/diag/out_gate2_1127_falseqa_20261127.txt.tmp 2>> $L/q100_1127_final.err &&
+    mv Iteration_01/diag/out_gate2_1127_falseqa_20261127.txt.tmp Iteration_01/diag/out_gate2_1127_falseqa_20261127.txt || return 1
+  "${RD[@]}" Iteration_01/diag/table_gate2b_1127.py $b > Iteration_01/diag/out_gate2b_1127_tqa_20261127.txt.tmp 2>> $L/q100_1127_final.err &&
+    mv Iteration_01/diag/out_gate2b_1127_tqa_20261127.txt.tmp Iteration_01/diag/out_gate2b_1127_tqa_20261127.txt || return 1
+  say "original tables refreshed: A$a | B$b"
+}
+
 case ${1:-} in
+  more)  # 12:5x: A llama3.1-8b 100 questions; A and B gemma3-27b expanded to the full run; then all tables
+    mkdir $L/.q100_1127_more_running 2>/dev/null || { echo "already running ($L/.q100_1127_more_running)"; exit 3; }
+    trap 'rmdir $L/.q100_1127_more_running 2>/dev/null' EXIT
+    rm -f $L/Q100_FAILED
+    say "more start (pid $$): launcher $(sha256sum $0 | cut -c1-16)"
+    ( lane a llama3.1-8b ) & P1=$!
+    ( expand_lane a gemma3-27b ) & P2=$!
+    ( expand_lane b gemma3-27b ) & P3=$!
+    BAD=0
+    for p in $P1 $P2 $P3; do wait $p || BAD=$((BAD + 1)); done
+    final || { failed "final table (see $L/q100_1127_final.err)"; exit 1; }
+    orig_tables || { failed "original tables (see $L/q100_1127_final.err)"; exit 1; }
+    say "final table $OUT $(sha256sum $OUT | cut -c1-16)"
+    if [ $BAD -gt 0 ]; then
+      [ -e $L/Q100_COST_STOP ] && say "more: stopped by the cost guard ($BAD lanes)" || failed "more: $BAD lanes"
+      exit 1
+    fi
+    touch $L/Q100_MORE_DONE; say "more done"
+    exit 0 ;;
   full)
     for f in $QH $TQ Iteration_01/diag/crow_pro_requests.py $L/balance.sh Iteration_01/diag/table_gate2_1127.py Iteration_01/diag/table_gate2b_1127.py; do
       [ -s $f ] || { echo "missing $f" >&2; exit 2; }
@@ -223,5 +275,5 @@ case ${1:-} in
     fi
     touch $L/Q100_DONE; say "done: $OUT"
     exit 0 ;;
-  *) echo "usage: run_q100_gate2_1127.sh full" >&2; exit 2 ;;
+  *) echo "usage: run_q100_gate2_1127.sh full | more" >&2; exit 2 ;;
 esac
