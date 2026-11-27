@@ -1,0 +1,137 @@
+bank Iteration_01/newsets/falseqa/falseqa_full_bank_20261123.jsonl (sha256 cb42cf131fed8ccf): 700 rows | dev {'false': 50, 'valid': 50} | held-out {'false': 300, 'valid': 300} | gold lengths {('dev', 'false', 1): 50, ('dev', 'valid', 1): 50, ('heldout', 'false', 3): 300, ('heldout', 'valid', 1): 300} | id file sha256 1a5c0df6b74c858e
+
+========================================================================================================================
+## TruthfulQA: tuning set tune 192, test set test main list; one pass each; nets = right - wrong
+
+### Llama-3.1-8B (llama3.1-8b): 523 test questions; E strength 3-5; known nets (n, O, E) (523, -86, 40) reproduced
+   tuning nets: O -34 | E +6 | C 0.25:-32 0.5:-32 1:-34 2:-40 | EC 0.25:+12 0.5:+17 1:+20 2:+29 -> c for EC 2, c for C 0.25
+   test nets (right / wrong): O -86 (181 / 267) | E +40 (172 / 132) | C(0.25) -93 (182 / 275) | EC(2) +68 (272 / 204)
+   EC(2) - E +28 [-5, +62] | EC(2) - C(0.25) +161 [+110, +210] | EC(2) - O +154 [+103, +203]
+   every c on the test questions: c 0.25: C -93, EC +39, EC - C +132 [+87, +178], EC - E -1 [-19, +16] | c 0.5: C -87, EC +41, EC - C +128 [+80, +176], EC - E +1 [-21, +24] | c 1: C -88, EC +61, EC - C +149 [+99, +197], EC - E +21 [-8, +50] | c 2: C -102, EC +68, EC - C +170 [+118, +220], EC - E +28 [-5, +62]
+   where EC(2) - E comes from (single E's answer by the rule): E answered 319 questions: +2 (E +40 -> EC +42) | E blank 204 questions: +26 (E +0 -> EC +26)
+   two steps (E; E blank -> E+C(2), c chosen on tuning: 0.25:+10 0.5:+13 1:+16 2:+17): net +66 (270 / 204) | - E +26 [+1, +51] | - C(0.25) +159 [+109, +208] | - N1 (+62) +4 [-12, +21]
+   reference N1 +62: - E +22 [-1, +45] | - C(0.25) +155 [+106, +204]
+
+### Qwen3.5-9B (qwen3.5-9b): 523 test questions; E strength 2; known nets (n, O, E) (523, 73, 168) reproduced
+   tuning nets: O +35 | E +58 | C 0.25:+23 0.5:+13 1:+8 2:-7 | EC 0.25:+66 0.5:+70 1:+64 2:+55 -> c for EC 0.5, c for C 0.25
+   test nets (right / wrong): O +73 (268 / 195) | E +168 (285 / 117) | C(0.25) +73 (279 / 206) | EC(0.5) +168 (318 / 150)
+   EC(0.5) - E +0 [-18, +19] | EC(0.5) - C(0.25) +95 [+60, +130] | EC(0.5) - O +95 [+61, +129]
+   every c on the test questions: c 0.25: C +73, EC +174, EC - C +101 [+65, +136], EC - E +6 [-8, +21] | c 0.5: C +80, EC +168, EC - C +88 [+51, +124], EC - E +0 [-18, +19] | c 1: C +75, EC +156, EC - C +81 [+43, +119], EC - E -12 [-34, +11] | c 2: C +40, EC +140, EC - C +100 [+65, +137], EC - E -28 [-56, -1]
+   where EC(0.5) - E comes from (single E's answer by the rule): E answered 408 questions: -1 (E +167 -> EC +166) | E blank 115 questions: +1 (E +1 -> EC +2)
+   two steps (E; E blank -> E+C(0.5), c chosen on tuning: 0.25:+62 0.5:+64 1:+62 2:+56): net +169 (318 / 149) | - E +1 [-14, +17] | - C(0.25) +96 [+61, +130] | - N1 (+186) -17 [-30, -5]
+   reference N1 +186: - E +18 [+7, +30] | - C(0.25) +113 [+76, +149]
+
+### Qwen3.8-27B (qwen3.8-27b): 521 test questions; E strength 1-75; known nets (n, O, E) (521, 47, 142) reproduced
+   tuning nets: O +15 | E +56 | C 0.25:+23 0.5:+25 1:+18 2:+10 | EC 0.25:+66 0.5:+71 1:+79 2:+72 -> c for EC 1, c for C 0.5
+   test nets (right / wrong): O +47 (202 / 155) | E +142 (246 / 104) | C(0.5) +34 (260 / 226) | EC(1) +148 (324 / 176)
+   EC(1) - E +6 [-21, +33] | EC(1) - C(0.5) +114 [+74, +154] | EC(1) - O +101 [+62, +141]
+   every c on the test questions: c 0.25: C +35, EC +159, EC - C +124 [+85, +163], EC - E +17 [-4, +38] | c 0.5: C +34, EC +160, EC - C +126 [+86, +166], EC - E +18 [-7, +44] | c 1: C +32, EC +148, EC - C +116 [+75, +157], EC - E +6 [-21, +33] | c 2: C +24, EC +141, EC - C +117 [+78, +157], EC - E -1 [-33, +31]
+   where EC(1) - E comes from (single E's answer by the rule): E answered 354 questions: -12 (E +142 -> EC +130) | E blank 167 questions: +18 (E +0 -> EC +18)
+   two steps (E; E blank -> E+C(1), c chosen on tuning: 0.25:+68 0.5:+72 1:+81 2:+76): net +160 (329 / 169) | - E +18 [-5, +42] | - C(0.5) +126 [+86, +166] | - N1 (+175) -15 [-31, +0]
+   reference N1 +175: - E +33 [+12, +55] | - C(0.5) +141 [+99, +183]
+
+### Gemma-3-12B (gemma3-12b): 522 test questions; E strength 2-5; known nets (n, O, E) (522, 12, 103) reproduced
+   tuning nets: O -6 | E +42 | C 0.25:-1 0.5:+1 1:-5 2:-18 | EC 0.25:+44 0.5:+51 1:+59 2:+68 -> c for EC 2, c for C 0.5
+   test nets (right / wrong): O +12 (228 / 216) | E +103 (211 / 108) | C(0.5) +5 (243 / 238) | EC(2) +162 (330 / 168)
+   EC(2) - E +59 [+27, +92] | EC(2) - C(0.5) +157 [+104, +209] | EC(2) - O +150 [+99, +201]
+   every c on the test questions: c 0.25: C +11, EC +139, EC - C +128 [+81, +176], EC - E +36 [+18, +54] | c 0.5: C +5, EC +151, EC - C +146 [+95, +195], EC - E +48 [+26, +70] | c 1: C -11, EC +162, EC - C +173 [+123, +224], EC - E +59 [+32, +87] | c 2: C -51, EC +162, EC - C +213 [+163, +264], EC - E +59 [+27, +92]
+   where EC(2) - E comes from (single E's answer by the rule): E answered 323 questions: +0 (E +104 -> EC +104) | E blank 199 questions: +59 (E -1 -> EC +58)
+   two steps (E; E blank -> E+C(2), c chosen on tuning: 0.25:+46 0.5:+51 1:+65 2:+77): net +162 (329 / 167) | - E +59 [+34, +85] | - C(0.5) +157 [+104, +210] | - N1 (+158) +4 [-14, +22]
+   reference N1 +158: - E +55 [+31, +79] | - C(0.5) +153 [+100, +205]
+
+### Gemma-3-27B (gemma3-27b): 523 test questions; E strength 1; known nets (n, O, E) (523, 3, 105) reproduced
+   tuning nets: O -2 | E +38 | C 0.25:-5 0.5:-12 1:-12 2:-27 | EC 0.25:+37 0.5:+43 1:+34 2:+17 -> c for EC 0.5, c for C 0.25
+   test nets (right / wrong): O +3 (221 / 218) | E +105 (253 / 148) | C(0.25) -1 (232 / 233) | EC(0.5) +104 (285 / 181)
+   EC(0.5) - E -1 [-22, +20] | EC(0.5) - C(0.25) +105 [+68, +142] | EC(0.5) - O +101 [+66, +137]
+   every c on the test questions: c 0.25: C -1, EC +97, EC - C +98 [+61, +134], EC - E -8 [-24, +8] | c 0.5: C -3, EC +104, EC - C +107 [+71, +143], EC - E -1 [-22, +20] | c 1: C -24, EC +112, EC - C +136 [+100, +173], EC - E +7 [-19, +33] | c 2: C -65, EC +78, EC - C +143 [+106, +180], EC - E -27 [-61, +9]
+   where EC(0.5) - E comes from (single E's answer by the rule): E answered 423 questions: -19 (E +105 -> EC +86) | E blank 100 questions: +18 (E +0 -> EC +18)
+   two steps (E; E blank -> E+C(0.5), c chosen on tuning: 0.25:+40 0.5:+44 1:+44 2:+41): net +123 (292 / 169) | - E +18 [+3, +34] | - C(0.25) +124 [+87, +160] | - N1 (+144) -21 [-33, -9]
+   reference N1 +144: - E +39 [+22, +57] | - C(0.25) +145 [+107, +182]
+
+========================================================================================================================
+## FalseQA: tuning set development 100, test set held-out 600; one pass each; nets = right - wrong
+
+### Llama-3.1-8B (llama3.1-8b): 600 test questions; E strength 3.5; known nets (n, O, E) (600, 100, 137) reproduced
+   tuning nets: O +14 | E +22 | C 0.25:+13 0.5:+13 1:+16 2:+24 | EC 0.25:+18 0.5:+23 1:+29 2:+33 -> c for EC 2, c for C 2
+   test nets (right / wrong): O +100 (260 / 160) | E +137 (243 / 106) | C(2) +166 (372 / 206) | EC(2) +208 (386 / 178)
+   EC(2) - E +71 [+38, +104] | EC(2) - C(2) +42 [-3, +87] | EC(2) - O +108 [+63, +152]
+   every c on the test questions: c 0.25: C +104, EC +152, EC - C +48 [+6, +89], EC - E +15 [-4, +34] | c 0.5: C +113, EC +174, EC - C +61 [+18, +106], EC - E +37 [+12, +62] | c 1: C +140, EC +195, EC - C +55 [+11, +99], EC - E +58 [+29, +87] | c 2: C +166, EC +208, EC - C +42 [-3, +87], EC - E +71 [+38, +104]
+   where EC(2) - E comes from (single E's answer by the rule): E answered 363 questions: -39 (E +135 -> EC +96) | E blank 237 questions: +110 (E +2 -> EC +112)
+   two steps (E; E blank -> E+C(2), c chosen on tuning: 0.25:+18 0.5:+23 1:+29 2:+35): net +247 (405 / 158) | - E +110 [+86, +134] | - C(2) +81 [+36, +125] | - N1 (+240) +7 [-10, +24]
+   reference N1 +240: - E +103 [+84, +123] | - C(2) +74 [+30, +120]
+
+### Qwen3.5-9B (qwen3.5-9b): 600 test questions; E strength 2; known nets (n, O, E) (600, 312, 313) reproduced
+   tuning nets: O +36 | E +45 | C 0.25:+40 0.5:+45 1:+42 2:+41 | EC 0.25:+47 0.5:+47 1:+48 2:+47 -> c for EC 1, c for C 0.5
+   test nets (right / wrong): O +312 (419 / 107) | E +313 (389 / 76) | C(0.5) +332 (453 / 121) | EC(1) +358 (466 / 108)
+   EC(1) - E +45 [+21, +68] | EC(1) - C(0.5) +26 [-8, +61] | EC(1) - O +46 [+12, +81]
+   every c on the test questions: c 0.25: C +328, EC +333, EC - C +5 [-28, +39], EC - E +20 [+4, +36] | c 0.5: C +332, EC +346, EC - C +14 [-20, +50], EC - E +33 [+15, +52] | c 1: C +336, EC +358, EC - C +22 [-12, +58], EC - E +45 [+21, +68] | c 2: C +334, EC +358, EC - C +24 [-9, +59], EC - E +45 [+19, +72]
+   where EC(1) - E comes from (single E's answer by the rule): E answered 474 questions: +7 (E +313 -> EC +320) | E blank 126 questions: +38 (E +0 -> EC +38)
+   two steps (E; E blank -> E+C(2), c chosen on tuning: 0.25:+49 0.5:+47 1:+48 2:+50): net +349 (466 / 117) | - E +36 [+15, +57] | - C(0.5) +17 [-18, +54] | - N1 (+334) +15 [-5, +34]
+   reference N1 +334: - E +21 [+8, +34] | - C(0.5) +2 [-32, +38]
+
+### Qwen3.8-27B (qwen3.8-27b): 600 test questions; E strength 1.75; known nets (n, O, E) (600, 197, 223) reproduced
+   tuning nets: O +36 | E +31 | C 0.25:+40 0.5:+38 1:+37 2:+28 | EC 0.25:+40 0.5:+45 1:+47 2:+46 -> c for EC 1, c for C 0.25
+   test nets (right / wrong): O +197 (257 / 60) | E +223 (267 / 44) | C(0.25) +207 (321 / 114) | EC(1) +360 (473 / 113)
+   EC(1) - E +137 [+107, +167] | EC(1) - C(0.25) +153 [+120, +186] | EC(1) - O +163 [+130, +196]
+   every c on the test questions: c 0.25: C +207, EC +283, EC - C +76 [+46, +106], EC - E +60 [+38, +82] | c 0.5: C +245, EC +322, EC - C +77 [+45, +111], EC - E +99 [+71, +127] | c 1: C +268, EC +360, EC - C +92 [+58, +126], EC - E +137 [+107, +167] | c 2: C +257, EC +356, EC - C +99 [+67, +133], EC - E +133 [+98, +168]
+   where EC(1) - E comes from (single E's answer by the rule): E answered 313 questions: -1 (E +223 -> EC +222) | E blank 287 questions: +138 (E +0 -> EC +138)
+   two steps (E; E blank -> E+C(0.5), c chosen on tuning: 0.25:+38 0.5:+43 1:+43 2:+40): net +323 (426 / 103) | - E +100 [+74, +125] | - C(0.25) +116 [+83, +149] | - N1 (+341) -18 [-37, +0]
+   reference N1 +341: - E +118 [+93, +143] | - C(0.25) +134 [+100, +168]
+
+### Gemma-3-12B (gemma3-12b): 600 test questions; E strength 2.5; known nets (n, O, E) (600, 152, 169) reproduced
+   tuning nets: O +18 | E +17 | C 0.25:+14 0.5:+14 1:+18 2:+20 | EC 0.25:+19 0.5:+22 1:+33 2:+34 -> c for EC 2, c for C 2
+   test nets (right / wrong): O +152 (299 / 147) | E +169 (243 / 74) | C(2) +157 (369 / 212) | EC(2) +296 (433 / 137)
+   EC(2) - E +127 [+94, +161] | EC(2) - C(2) +139 [+98, +182] | EC(2) - O +144 [+106, +182]
+   every c on the test questions: c 0.25: C +160, EC +204, EC - C +44 [+4, +83], EC - E +35 [+19, +53] | c 0.5: C +170, EC +229, EC - C +59 [+19, +100], EC - E +60 [+39, +82] | c 1: C +173, EC +270, EC - C +97 [+56, +140], EC - E +101 [+71, +132] | c 2: C +157, EC +296, EC - C +139 [+98, +182], EC - E +127 [+94, +161]
+   where EC(2) - E comes from (single E's answer by the rule): E answered 320 questions: -1 (E +169 -> EC +168) | E blank 280 questions: +128 (E +0 -> EC +128)
+   two steps (E; E blank -> E+C(2), c chosen on tuning: 0.25:+19 0.5:+24 1:+31 2:+32): net +297 (435 / 138) | - E +128 [+102, +154] | - C(2) +140 [+98, +185] | - N1 (+228) +69 [+45, +93]
+   reference N1 +228: - E +59 [+44, +74] | - C(2) +71 [+28, +114]
+
+### Gemma-3-27B (gemma3-27b): 600 test questions; E strength 1; known nets (n, O, E) (600, 187, 275) reproduced
+   tuning nets: O +19 | E +43 | C 0.25:+27 0.5:+25 1:+24 2:+8 | EC 0.25:+38 0.5:+38 1:+30 2:+33 -> c for EC 0.25, c for C 0.25
+   test nets (right / wrong): O +187 (321 / 134) | E +275 (360 / 85) | C(0.25) +186 (335 / 149) | EC(0.25) +279 (375 / 96)
+   EC(0.25) - E +4 [-8, +16] | EC(0.25) - C(0.25) +93 [+65, +121] | EC(0.25) - O +92 [+64, +119]
+   every c on the test questions: c 0.25: C +186, EC +279, EC - C +93 [+65, +121], EC - E +4 [-8, +16] | c 0.5: C +186, EC +284, EC - C +98 [+67, +128], EC - E +9 [-10, +28] | c 1: C +195, EC +303, EC - C +108 [+76, +140], EC - E +28 [+0, +55] | c 2: C +154, EC +259, EC - C +105 [+71, +139], EC - E -16 [-51, +19]
+   where EC(0.25) - E comes from (single E's answer by the rule): E answered 461 questions: -4 (E +275 -> EC +271) | E blank 139 questions: +8 (E +0 -> EC +8)
+   two steps (E; E blank -> E+C(0.5), c chosen on tuning: 0.25:+43 0.5:+44 1:+40 2:+41): net +294 (398 / 104) | - E +19 [+4, +35] | - C(0.25) +108 [+80, +137] | - N1 (+328) -34 [-53, -16]
+   reference N1 +328: - E +53 [+35, +71] | - C(0.25) +142 [+113, +172]
+
+========================================================================================================================
+## summary, one row per model (no pooled row): one pass each, c chosen on the tuning questions
+   task       model         E s   EC c   C c        O      E      C     EC   EC - E             EC - C            
+   TruthfulQA Llama-3.1-8B  3-5   2      0.25     -86    +40    -93    +68   +28 [-5, +62]      +161 [+110, +210] 
+   TruthfulQA Qwen3.5-9B    2     0.5    0.25     +73   +168    +73   +168   +0 [-18, +19]      +95 [+60, +130]   
+   TruthfulQA Qwen3.8-27B   1-75  1      0.5      +47   +142    +34   +148   +6 [-21, +33]      +114 [+74, +154]  
+   TruthfulQA Gemma-3-12B   2-5   2      0.5      +12   +103     +5   +162   +59 [+27, +92]     +157 [+104, +209] 
+   TruthfulQA Gemma-3-27B   1     0.5    0.25      +3   +105     -1   +104   -1 [-22, +20]      +105 [+68, +142]  
+   FalseQA    Llama-3.1-8B  3.5   2      2       +100   +137   +166   +208   +71 [+38, +104]    +42 [-3, +87]     
+   FalseQA    Qwen3.5-9B    2     1      0.5     +312   +313   +332   +358   +45 [+21, +68]     +26 [-8, +61]     
+   FalseQA    Qwen3.8-27B   1.75  1      0.25    +197   +223   +207   +360   +137 [+107, +167]  +153 [+120, +186] 
+   FalseQA    Gemma-3-12B   2.5   2      2       +152   +169   +157   +296   +127 [+94, +161]   +139 [+98, +182]  
+   FalseQA    Gemma-3-27B   1     0.25   0.25    +187   +275   +186   +279   +4 [-8, +16]       +93 [+65, +121]   
+
+## summary of the two steps (E; E blank -> E+C(c)), one row per model
+   task       model         c      2step      E     N1   2step - E          2step - C          2step - N1        
+   TruthfulQA Llama-3.1-8B  2        +66    +40    +62   +26 [+1, +51]      +159 [+109, +208]  +4 [-12, +21]     
+   TruthfulQA Qwen3.5-9B    0.5     +169   +168   +186   +1 [-14, +17]      +96 [+61, +130]    -17 [-30, -5]     
+   TruthfulQA Qwen3.8-27B   1       +160   +142   +175   +18 [-5, +42]      +126 [+86, +166]   -15 [-31, +0]     
+   TruthfulQA Gemma-3-12B   2       +162   +103   +158   +59 [+34, +85]     +157 [+104, +210]  +4 [-14, +22]     
+   TruthfulQA Gemma-3-27B   0.5     +123   +105   +144   +18 [+3, +34]      +124 [+87, +160]   -21 [-33, -9]     
+   FalseQA    Llama-3.1-8B  2       +247   +137   +240   +110 [+86, +134]   +81 [+36, +125]    +7 [-10, +24]     
+   FalseQA    Qwen3.5-9B    2       +349   +313   +334   +36 [+15, +57]     +17 [-18, +54]     +15 [-5, +34]     
+   FalseQA    Qwen3.8-27B   0.5     +323   +223   +341   +100 [+74, +125]   +116 [+83, +149]   -18 [-37, +0]     
+   FalseQA    Gemma-3-12B   2       +297   +169   +228   +128 [+102, +154]  +140 [+98, +185]   +69 [+45, +93]    
+   FalseQA    Gemma-3-27B   0.5     +294   +275   +328   +19 [+4, +35]      +108 [+80, +137]   -34 [-53, -16]    
+
+## reference: the current N1 against the same single E and single C, one row per model
+   task       model             N1   N1 - E             N1 - C            
+   TruthfulQA Llama-3.1-8B     +62   +22 [-1, +45]      +155 [+106, +204] 
+   TruthfulQA Qwen3.5-9B      +186   +18 [+7, +30]      +113 [+76, +149]  
+   TruthfulQA Qwen3.8-27B     +175   +33 [+12, +55]     +141 [+99, +183]  
+   TruthfulQA Gemma-3-12B     +158   +55 [+31, +79]     +153 [+100, +205] 
+   TruthfulQA Gemma-3-27B     +144   +39 [+22, +57]     +145 [+107, +182] 
+   FalseQA    Llama-3.1-8B    +240   +103 [+84, +123]   +74 [+30, +120]   
+   FalseQA    Qwen3.5-9B      +334   +21 [+8, +34]      +2 [-32, +38]     
+   FalseQA    Qwen3.8-27B     +341   +118 [+93, +143]   +134 [+100, +168] 
+   FalseQA    Gemma-3-12B     +228   +59 [+44, +74]     +71 [+28, +114]   
+   FalseQA    Gemma-3-27B     +328   +53 [+35, +71]     +142 [+113, +172] 
