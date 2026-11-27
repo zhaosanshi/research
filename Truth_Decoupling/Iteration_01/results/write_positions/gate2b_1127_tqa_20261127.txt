@@ -1,0 +1,38 @@
+# gate2b_1127 (work queue 2026-11-26_queue_p section 5, segment B): TruthfulQA test, main list; N1 and single E at s and at s2, with and without the frozen switch (pool B, chosen layer, p > 0.5); natural answer counts; intervals: questions resampled (gate_sim_1126.tq_ci)
+# exploration, not reviewed by GPT; the test split had been read before in other comparisons
+## Qwen3.5-9B (qwen3.5-9b): main list 523 questions; E layer 15, s 2 -> s2 3; C layer 16; caps E's / own 0.25 / 0.5; switch ON 385
+   checks passed: known nets n / O / E / N1 (523, 73, 168, 186); stage 1 switch on 385, gated N1 - N1 at s -3 [-18, +12]; N1(s) rebuilt by the rule = S.system on 523 / 523 questions; judged cells = cells that can be handed in (713); judged text = generation text
+   qwen3.5-9b N1(s2): forced on = system at 523 / 523 cells, forced off = original at 523 / 523 cells
+   qwen3.5-9b E(s2): forced on = system at 523 / 523 cells, forced off = original at 523 / 523 cells
+   new cells judged: x:E15.w.p3 523, x:E15.w.p3+C16.w.m0.25 150, x:E15.w.p3+C16.w.m0.5 40, x:E15.w.p3+C16.w.m1 0, x:E15.w.p3+C16.w.m2 0
+   nets: no write +73 | E(s) +168 | E(s2) +165 | N1(s) +186 | N1(s2) +183 | gated: E(s) +168, E(s2) +176, N1(s) +183, N1(s2) +189
+   R1   gated N1(s2) - N1(s) [main]                  +3 [-21, +27]    | left: handed in / right / wrong 444 / 311 / 122 | right side 444 / 310 / 124
+   R2   gated N1(s2) - gated N1(s)                   +6 [-13, +25]    | left: handed in / right / wrong 444 / 311 / 122 | right side 461 / 316 / 133
+   R3a  N1(s2) - N1(s), ungated [reference]          -3 [-25, +20]    | left: handed in / right / wrong 414 / 294 / 111 | right side 444 / 310 / 124
+   R3b  E(s2) - E(s), ungated [reference]            -3 [-24, +19]    | left: handed in / right / wrong 373 / 266 / 101 | right side 408 / 285 / 117
+   R4g  gated N1(s2) - gated E(s2)                   +13 [+2, +24]    | left: handed in / right / wrong 444 / 311 / 122 | right side 408 / 288 / 112
+   R4u  N1(s2) - E(s2), ungated                      +18 [+6, +30]    | left: handed in / right / wrong 414 / 294 / 111 | right side 373 / 266 / 101
+   R5   'wrong with no write and wrong under E(s)': 101 questions | N1(s) [baseline]: right 0, wrong 101, hedge 0, not handed in 0 | gated N1(s2): right 5, wrong 80, hedge 0, not handed in 16 | N1(s2): right 7, wrong 75, hedge 0, not handed in 19
+   flow of N1(s2) by the rule: pass 1 answered 474, blank 49 | pass 2 E(s2) answered 373 (handed in; right 266 wrong 100 hedge 4 judged-no-answer 3), blank 150 = own 40 + E's 110 | pass 3 notes {'blank at every dose': 3, 'released': 41, 'above the cap': 95, 'vetoed': 11} | released own 18 (right 12 wrong 3 hedge 0 judged-no-answer 3), E's 23 (right 16 wrong 7 hedge 0 judged-no-answer 0) | vetoed 11 | still blank 109 | handed in 414, not handed in 109 | net +183
+   gated N1(s2): switch ON 385 (handed in 311), OFF 138 (handed in 133, the no-write answers)
+## Gemma-3-27B (gemma3-27b): main list 523 questions; E layer 28, s 1 -> s2 2; C layer 31; caps E's / own 1 / 2; switch ON 403
+   checks passed: known nets n / O / E / N1 (523, 3, 105, 144); stage 1 switch on 403, gated N1 - N1 at s -21 [-37, -7]; N1(s) rebuilt by the rule = S.system on 523 / 523 questions; judged cells = cells that can be handed in (904); judged text = generation text
+   gemma3-27b N1(s2): forced on = system at 523 / 523 cells, forced off = original at 523 / 523 cells
+   gemma3-27b E(s2): forced on = system at 523 / 523 cells, forced off = original at 523 / 523 cells
+   new cells judged: x:E28.w.p2 523, x:E28.w.p2+C31.w.m0.25 114, x:E28.w.p2+C31.w.m0.5 114, x:E28.w.p2+C31.w.m1 114, x:E28.w.p2+C31.w.m2 39
+   nets: no write +3 | E(s) +105 | E(s2) +163 | N1(s) +144 | N1(s2) +204 | gated: E(s) +86, E(s2) +145, N1(s) +123, N1(s2) +187
+   R1   gated N1(s2) - N1(s) [main]                  +43 [+8, +78]    | left: handed in / right / wrong 506 / 339 / 152 | right side 510 / 313 / 169
+   R2   gated N1(s2) - gated N1(s)                   +64 [+31, +96]   | left: handed in / right / wrong 506 / 339 / 152 | right side 511 / 305 / 182
+   R3a  N1(s2) - N1(s), ungated [reference]          +60 [+22, +98]   | left: handed in / right / wrong 503 / 341 / 137 | right side 510 / 313 / 169
+   R3b  E(s2) - E(s), ungated [reference]            +58 [+24, +92]   | left: handed in / right / wrong 409 / 277 / 114 | right side 423 / 253 / 148
+   R4g  gated N1(s2) - gated E(s2)                   +42 [+26, +58]   | left: handed in / right / wrong 506 / 339 / 152 | right side 423 / 279 / 134
+   R4u  N1(s2) - E(s2), ungated                      +41 [+24, +59]   | left: handed in / right / wrong 503 / 341 / 137 | right side 409 / 277 / 114
+   R5   'wrong with no write and wrong under E(s)': 134 questions | N1(s) [baseline]: right 0, wrong 134, hedge 0, not handed in 0 | gated N1(s2): right 30, wrong 94, hedge 3, not handed in 7 | N1(s2): right 36, wrong 82, hedge 5, not handed in 11
+   flow of N1(s2) by the rule: pass 1 answered 456, blank 67 | pass 2 E(s2) answered 409 (handed in; right 277 wrong 114 hedge 12 judged-no-answer 6), blank 114 = own 39 + E's 75 | pass 3 notes {'released': 94, 'vetoed': 17, 'blank at every dose': 1, 'above the cap': 2} | released own 38 (right 32 wrong 4 hedge 1 judged-no-answer 1), E's 56 (right 32 wrong 19 hedge 5 judged-no-answer 0) | vetoed 17 | still blank 20 | handed in 503, not handed in 20 | net +204
+   gated N1(s2): switch ON 403 (handed in 389), OFF 120 (handed in 117, the no-write answers)
+
+## summary (one row per model; no pooled row): difference [95%]
+   model         R1 gN1(s2)-N1(s)   R2 gN1(s2)-gN1(s)  R3 N1(s2)-N1(s)    R3 E(s2)-E(s)      R4 gN1(s2)-gE(s2)  R4 N1(s2)-E(s2)   
+   Qwen3.5-9B    +3 [-21, +27]      +6 [-13, +25]      -3 [-25, +20]      -3 [-24, +19]      +13 [+2, +24]      +18 [+6, +30]     
+   Gemma-3-27B   +43 [+8, +78]      +64 [+31, +96]     +60 [+22, +98]     +58 [+24, +92]     +42 [+26, +58]     +41 [+24, +59]    
+   not judged yet: Llama-3.1-8B, Qwen3.8-27B, Gemma-3-12B
