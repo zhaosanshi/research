@@ -1,0 +1,455 @@
+
+== TruthfulQA llama3.1-8b: n 523 | single C strength chosen on tuning 0.25 | tuned {'At': '2', 'R1_t': '2', 'D_t': '2', 'R1L_t': '2', 'DL_t': '2'} | cross-check with GPT's table: mine ((352, 63), (476, 62)), GPT ((352, 63), (476, 62)) -> SAME
+   O       net  -86 handed in 467 (right 181 wrong 267) | - E -126 [-173, -80] | - C   +7 [-4, +18] | - N1 -148 [-197, -98] | generations 523
+   E       net  +40 handed in 319 (right 172 wrong 132) | - E   +0 [+0, +0] | - C +133 [+88, +178] | - N1  -22 [-45, +1] | generations 523
+   C0.25   net  -93 handed in 475 (right 182 wrong 275) | - E -133 [-178, -88] | - C   +0 [+0, +0] | - N1 -155 [-204, -106] | generations 523
+   A0.25   net  +39 handed in 378 (right 199 wrong 160) | - E   -1 [-19, +16] | - C +132 [+87, +178] | - N1  -23 [-45, -1] | generations 523
+   A0.5    net  +41 handed in 430 (right 225 wrong 184) | - E   +1 [-21, +24] | - C +134 [+86, +181] | - N1  -21 [-42, +0] | generations 523
+   A1      net  +61 handed in 490 (right 261 wrong 200) | - E  +21 [-8, +50] | - C +154 [+104, +203] | - N1   -1 [-24, +22] | generations 523
+   A2      net  +68 handed in 518 (right 272 wrong 204) | - E  +28 [-5, +62] | - C +161 [+110, +210] | - N1   +6 [-22, +34] | generations 523
+   At      net  +68 handed in 518 (right 272 wrong 204) | - E  +28 [-5, +62] | - C +161 [+110, +210] | - N1   +6 [-22, +34] | generations 523
+   R1_0.25 net  +44 handed in 325 (right 176 wrong 132) | - E   +4 [+1, +8] | - C +137 [+92, +183] | - N1  -18 [-41, +5] | generations 782
+   R1_0.5  net  +49 handed in 330 (right 181 wrong 132) | - E   +9 [+4, +15] | - C +142 [+96, +188] | - N1  -13 [-36, +10] | generations 782
+   R1_1    net  +63 handed in 352 (right 197 wrong 134) | - E  +23 [+14, +33] | - C +156 [+111, +202] | - N1   +1 [-20, +22] | generations 782
+   R1_2    net  +70 handed in 369 (right 208 wrong 138) | - E  +30 [+18, +43] | - C +163 [+117, +209] | - N1   +8 [-12, +27] | generations 782
+   R1_t    net  +70 handed in 369 (right 208 wrong 138) | - E  +30 [+18, +43] | - C +163 [+117, +209] | - N1   +8 [-12, +27] | generations 782
+   R1L_0.25 net  +44 handed in 325 (right 176 wrong 132) | - E   +4 [+1, +8] | - C +137 [+92, +183] | - N1  -18 [-41, +5] | generations 782
+   R1L_0.5 net  +49 handed in 330 (right 181 wrong 132) | - E   +9 [+4, +15] | - C +142 [+96, +188] | - N1  -13 [-36, +10] | generations 831
+   R1L_1   net  +62 handed in 352 (right 196 wrong 134) | - E  +22 [+13, +32] | - C +155 [+110, +201] | - N1   +0 [-21, +21] | generations 875
+   R1L_2   net  +69 handed in 369 (right 207 wrong 138) | - E  +29 [+17, +42] | - C +162 [+116, +208] | - N1   +7 [-13, +26] | generations 897
+   R1L_t   net  +69 handed in 369 (right 207 wrong 138) | - E  +29 [+17, +42] | - C +162 [+116, +208] | - N1   +7 [-13, +26] | generations 897
+   D_0.25  net  +40 handed in 378 (right 200 wrong 160) | - E   +0 [-14, +15] | - C +133 [+87, +179] | - N1  -22 [-42, -2] | generations 727
+   D_0.5   net  +41 handed in 430 (right 225 wrong 184) | - E   +1 [-18, +21] | - C +134 [+87, +182] | - N1  -21 [-39, -4] | generations 727
+   D_1     net  +53 handed in 490 (right 256 wrong 203) | - E  +13 [-11, +37] | - C +146 [+98, +194] | - N1   -9 [-24, +6] | generations 727
+   D_2     net  +66 handed in 518 (right 270 wrong 204) | - E  +26 [+1, +51] | - C +159 [+109, +208] | - N1   +4 [-12, +21] | generations 727
+   D_t     net  +66 handed in 518 (right 270 wrong 204) | - E  +26 [+1, +51] | - C +159 [+109, +208] | - N1   +4 [-12, +21] | generations 727
+   DL_0.25 net  +40 handed in 378 (right 200 wrong 160) | - E   +0 [-14, +15] | - C +133 [+87, +179] | - N1  -22 [-42, -2] | generations 727
+   DL_0.5  net  +41 handed in 430 (right 226 wrong 185) | - E   +1 [-18, +22] | - C +134 [+86, +181] | - N1  -21 [-38, -4] | generations 872
+   DL_1    net  +48 handed in 490 (right 254 wrong 206) | - E   +8 [-16, +32] | - C +141 [+93, +189] | - N1  -14 [-27, -1] | generations 965
+   DL_2    net  +53 handed in 518 (right 267 wrong 214) | - E  +13 [-12, +40] | - C +146 [+98, +194] | - N1   -9 [-21, +2] | generations 998
+   DL_t    net  +53 handed in 518 (right 267 wrong 214) | - E  +13 [-12, +40] | - C +146 [+98, +194] | - N1   -9 [-21, +2] | generations 998
+   R2u     net  +53 handed in 518 (right 266 wrong 213) | - E  +13 [-15, +41] | - C +146 [+98, +195] | - N1   -9 [-26, +8] | generations 742
+   R2L     net  +52 handed in 518 (right 266 wrong 214) | - E  +12 [-16, +40] | - C +145 [+97, +193] | - N1  -10 [-25, +5] | generations 794
+   N1      net  +62 handed in 476 (right 253 wrong 191) | - E  +22 [-1, +45] | - C +155 [+106, +204] | - N1   +0 [+0, +0] | generations None
+   R1orc   net  +76 handed in 356 (right 208 wrong 132) | - E  +36 [+25, +48] | - C +169 [+123, +215] | - N1  +14 [-6, +34] | generations None
+   cell O answered / E answered  n 318 | (net, handed in, right, wrong): O (-15, 318, 144, 159) | E (40, 318, 172, 132) | C (-20, 318, 142, 162) | EC(1) (48, 318, 177, 129)
+   cell O answered / E blank     n 149 | (net, handed in, right, wrong): O (-71, 149, 37, 108) | E (0, 0, 0, 0) | C (-72, 149, 37, 109) | EC(1) (-10, 138, 59, 69)
+   cell O blank / E answered     n   1 | (net, handed in, right, wrong): O (0, 0, 0, 0) | E (0, 1, 0, 0) | C (0, 0, 0, 0) | EC(1) (0, 1, 0, 0)
+   cell O blank / E blank        n  55 | (net, handed in, right, wrong): O (0, 0, 0, 0) | E (0, 0, 0, 0) | C (-1, 8, 3, 4) | EC(1) (23, 33, 25, 2)
+   cell O answered / E answered  differences inside the cell: E - O [55, 16, 95] | EC(1) - E [8, -9, 25] | EC(1) - C [68, 28, 108] | C - O [-5, -13, 2]
+   cell O answered / E blank     differences inside the cell: E - O [71, 48, 94] | EC(1) - E [-10, -32, 12] | EC(1) - C [62, 36, 89] | C - O [-1, -7, 5]
+   cell O blank / E answered     differences inside the cell: E - O [0, 0, 0] | EC(1) - E [0, 0, 0] | EC(1) - C [0, 0, 0] | C - O [0, 0, 0]
+   cell O blank / E blank        differences inside the cell: E - O [0, 0, 0] | EC(1) - E [23, 14, 33] | EC(1) - C [24, 14, 35] | C - O [-1, -6, 4]
+   scheme minus scheme: R1L_2-R1_2 [-1, -3, 0] | R1L_2-R1_1 [6, -2, 14] | R1L_1-R1_1 [-1, -3, 0] | R1_1-D_1 [10, -12, 32] | R1L_2-DL_2 [16, -7, 38] | R1L_2-R2L [17, -7, 41] | R1L_2-R2u [16, -9, 41] | R1_1-A1 [2, -25, 29] | R1L_t-R1_1 [6, -2, 14] | R1L_t-R1L_2 [0, 0, 0]
+   tuning questions (n 192): E +6, C -32 | R1_1 +12: - E [6, 2, 11], - C [44, 14, 73] | R1L_2 +15: - E [9, 3, 16], - C [47, 17, 76] | R2u +26: - E [20, 2, 37], - C [58, 25, 89] | D_1 +16: - E [10, -4, 24], - C [48, 16, 78]
+   answering along the C strength (answered at the smaller and blank at the larger, blank at the smaller and answered at the larger): {'0.25->0.5': (0, 52), '0.5->1': (0, 60), '1->2': (0, 28)}
+
+== TruthfulQA qwen3.5-9b: n 523 | single C strength chosen on tuning 0.25 | tuned {'At': '0.5', 'R1_t': '0.5', 'D_t': '0.5', 'R1L_t': '0.5', 'DL_t': '0.5'} | cross-check with GPT's table: mine ((437, 177), (444, 186)), GPT ((437, 177), (444, 186)) -> SAME
+   O       net  +72 handed in 474 (right 267 wrong 195) | - E  -95 [-128, -61] | - C   +0 [-16, +16] | - N1 -114 [-149, -78] | generations 523
+   E       net +167 handed in 408 (right 284 wrong 117) | - E   +0 [+0, +0] | - C  +95 [+60, +130] | - N1  -19 [-31, -8] | generations 523
+   C0.25   net  +72 handed in 494 (right 278 wrong 206) | - E  -95 [-130, -60] | - C   +0 [+0, +0] | - N1 -114 [-150, -77] | generations 523
+   A0.25   net +173 handed in 448 (right 306 wrong 133) | - E   +6 [-8, +21] | - C +101 [+65, +136] | - N1  -13 [-26, +0] | generations 523
+   A0.5    net +168 handed in 478 (right 318 wrong 150) | - E   +1 [-17, +20] | - C  +96 [+60, +132] | - N1  -18 [-34, -2] | generations 523
+   A1      net +156 handed in 508 (right 327 wrong 171) | - E  -11 [-33, +12] | - C  +84 [+48, +120] | - N1  -30 [-51, -10] | generations 523
+   A2      net +140 handed in 520 (right 325 wrong 185) | - E  -27 [-55, +0] | - C  +68 [+32, +103] | - N1  -46 [-73, -20] | generations 523
+   At      net +168 handed in 478 (right 318 wrong 150) | - E   +1 [-17, +20] | - C  +96 [+60, +132] | - N1  -18 [-34, -2] | generations 523
+   R1_0.25 net +168 handed in 415 (right 287 wrong 119) | - E   +1 [-4, +5] | - C  +96 [+61, +131] | - N1  -18 [-29, -8] | generations 679
+   R1_0.5  net +179 handed in 427 (right 298 wrong 119) | - E  +12 [+4, +20] | - C +107 [+72, +141] | - N1   -7 [-15, +1] | generations 679
+   R1_1    net +177 handed in 437 (right 302 wrong 125) | - E  +10 [+1, +20] | - C +105 [+69, +140] | - N1   -9 [-20, +1] | generations 679
+   R1_2    net +172 handed in 446 (right 303 wrong 131) | - E   +5 [-6, +16] | - C +100 [+64, +136] | - N1  -14 [-27, -2] | generations 679
+   R1_t    net +179 handed in 427 (right 298 wrong 119) | - E  +12 [+4, +20] | - C +107 [+72, +141] | - N1   -7 [-15, +1] | generations 679
+   R1L_0.25 net +168 handed in 415 (right 287 wrong 119) | - E   +1 [-4, +5] | - C  +96 [+61, +131] | - N1  -18 [-29, -8] | generations 679
+   R1L_0.5 net +179 handed in 427 (right 298 wrong 119) | - E  +12 [+4, +20] | - C +107 [+72, +141] | - N1   -7 [-15, +1] | generations 713
+   R1L_1   net +177 handed in 437 (right 302 wrong 125) | - E  +10 [+1, +20] | - C +105 [+69, +140] | - N1   -9 [-20, +1] | generations 735
+   R1L_2   net +175 handed in 446 (right 305 wrong 130) | - E   +8 [-3, +19] | - C +103 [+66, +139] | - N1  -11 [-23, +0] | generations 747
+   R1L_t   net +179 handed in 427 (right 298 wrong 119) | - E  +12 [+4, +20] | - C +107 [+72, +141] | - N1   -7 [-15, +1] | generations 713
+   D_0.25  net +172 handed in 448 (right 305 wrong 133) | - E   +5 [-7, +17] | - C +100 [+64, +135] | - N1  -14 [-24, -4] | generations 638
+   D_0.5   net +169 handed in 478 (right 318 wrong 149) | - E   +2 [-14, +18] | - C  +97 [+62, +131] | - N1  -17 [-30, -5] | generations 638
+   D_1     net +157 handed in 508 (right 327 wrong 170) | - E  -10 [-30, +9] | - C  +85 [+48, +121] | - N1  -29 [-45, -13] | generations 638
+   D_2     net +149 handed in 520 (right 328 wrong 179) | - E  -18 [-38, +2] | - C  +77 [+40, +113] | - N1  -37 [-55, -19] | generations 638
+   D_t     net +169 handed in 478 (right 318 wrong 149) | - E   +2 [-14, +18] | - C  +97 [+62, +131] | - N1  -17 [-30, -5] | generations 638
+   DL_0.25 net +172 handed in 448 (right 305 wrong 133) | - E   +5 [-7, +17] | - C +100 [+64, +135] | - N1  -14 [-24, -4] | generations 638
+   DL_0.5  net +173 handed in 478 (right 320 wrong 147) | - E   +6 [-10, +22] | - C +101 [+65, +136] | - N1  -13 [-24, -2] | generations 713
+   DL_1    net +159 handed in 508 (right 328 wrong 169) | - E   -8 [-27, +11] | - C  +87 [+50, +123] | - N1  -27 [-43, -12] | generations 758
+   DL_2    net +154 handed in 520 (right 331 wrong 177) | - E  -13 [-33, +7] | - C  +82 [+44, +119] | - N1  -32 [-49, -15] | generations 773
+   DL_t    net +173 handed in 478 (right 320 wrong 147) | - E   +6 [-10, +22] | - C +101 [+65, +136] | - N1  -13 [-24, -2] | generations 713
+   R2u     net +149 handed in 520 (right 329 wrong 180) | - E  -18 [-40, +5] | - C  +77 [+40, +113] | - N1  -37 [-58, -17] | generations 628
+   R2L     net +155 handed in 520 (right 332 wrong 177) | - E  -12 [-33, +10] | - C  +83 [+46, +120] | - N1  -31 [-49, -12] | generations 658
+   N1      net +186 handed in 444 (right 310 wrong 124) | - E  +19 [+8, +31] | - C +114 [+77, +150] | - N1   +0 [+0, +0] | generations None
+   R1orc   net +186 handed in 433 (right 305 wrong 119) | - E  +19 [+10, +29] | - C +114 [+78, +149] | - N1   +0 [-9, +10] | generations None
+   cell O answered / E answered  n 400 | (net, handed in, right, wrong): O (107, 400, 250, 143) | E (161, 400, 277, 116) | C (104, 400, 249, 145) | EC(1) (160, 400, 277, 117)
+   cell O answered / E blank     n  74 | (net, handed in, right, wrong): O (-35, 74, 17, 52) | E (0, 0, 0, 0) | C (-38, 74, 16, 54) | EC(1) (-20, 71, 25, 45)
+   cell O blank / E answered     n   8 | (net, handed in, right, wrong): O (0, 0, 0, 0) | E (6, 8, 7, 1) | C (7, 7, 7, 0) | EC(1) (6, 8, 7, 1)
+   cell O blank / E blank        n  41 | (net, handed in, right, wrong): O (0, 0, 0, 0) | E (0, 0, 0, 0) | C (-1, 13, 6, 7) | EC(1) (10, 29, 18, 8)
+   cell O answered / E answered  differences inside the cell: E - O [54, 24, 83] | EC(1) - E [-1, -14, 12] | EC(1) - C [56, 26, 86] | C - O [-3, -15, 9]
+   cell O answered / E blank     differences inside the cell: E - O [35, 19, 51] | EC(1) - E [-20, -36, -4] | EC(1) - C [18, 1, 35] | C - O [-3, -8, 0]
+   cell O blank / E answered     differences inside the cell: E - O [6, 1, 12] | EC(1) - E [0, 0, 0] | EC(1) - C [-1, -6, 3] | C - O [7, 2, 12]
+   cell O blank / E blank        differences inside the cell: E - O [0, 0, 0] | EC(1) - E [10, 1, 20] | EC(1) - C [11, 1, 22] | C - O [-1, -8, 6]
+   scheme minus scheme: R1L_2-R1_2 [3, 0, 8] | R1L_2-R1_1 [-2, -8, 3] | R1L_1-R1_1 [0, 0, 0] | R1_1-D_1 [20, 4, 36] | R1L_2-DL_2 [21, 5, 37] | R1L_2-R2L [20, 2, 38] | R1L_2-R2u [26, 6, 45] | R1_1-A1 [21, 1, 41] | R1L_t-R1_1 [2, -4, 8] | R1L_t-R1L_2 [4, -4, 12]
+   tuning questions (n 192): E +58, C +23 | R1_1 +61: - E [3, -5, 11], - C [38, 16, 61] | R1L_2 +61: - E [3, -6, 12], - C [38, 16, 61] | R2u +66: - E [8, -6, 23], - C [43, 23, 65] | D_1 +62: - E [4, -8, 17], - C [39, 17, 62]
+   answering along the C strength (answered at the smaller and blank at the larger, blank at the smaller and answered at the larger): {'0.25->0.5': (0, 30), '0.5->1': (0, 30), '1->2': (0, 12)}
+
+== TruthfulQA qwen3.8-27b: n 521 | single C strength chosen on tuning 0.5 | tuned {'At': '1', 'R1_t': '1', 'D_t': '1', 'R1L_t': '1', 'DL_t': '1'} | cross-check with GPT's table: mine ((463, 171), (490, 175)), GPT ((463, 171), (490, 175)) -> SAME
+   O       net  +47 handed in 361 (right 202 wrong 155) | - E  -95 [-128, -61] | - C  +14 [-10, +38] | - N1 -128 [-167, -89] | generations 521
+   E       net +142 handed in 354 (right 246 wrong 104) | - E   +0 [+0, +0] | - C +109 [+71, +147] | - N1  -33 [-55, -12] | generations 521
+   C0.5    net  +33 handed in 494 (right 259 wrong 226) | - E -109 [-147, -71] | - C   +0 [+0, +0] | - N1 -142 [-184, -100] | generations 521
+   A0.25   net +158 handed in 455 (right 302 wrong 144) | - E  +16 [-5, +37] | - C +125 [+86, +163] | - N1  -17 [-35, -1] | generations 521
+   A0.5    net +159 handed in 497 (right 322 wrong 163) | - E  +17 [-8, +43] | - C +126 [+86, +166] | - N1  -16 [-33, +0] | generations 521
+   A1      net +147 handed in 512 (right 323 wrong 176) | - E   +5 [-22, +32] | - C +114 [+74, +154] | - N1  -28 [-48, -9] | generations 521
+   A2      net +141 handed in 520 (right 325 wrong 184) | - E   -1 [-33, +31] | - C +108 [+72, +146] | - N1  -34 [-62, -6] | generations 521
+   At      net +147 handed in 512 (right 323 wrong 176) | - E   +5 [-22, +32] | - C +114 [+74, +154] | - N1  -28 [-48, -9] | generations 521
+   R1_0.25 net +174 handed in 414 (right 290 wrong 116) | - E  +32 [+18, +47] | - C +141 [+102, +179] | - N1   -1 [-17, +15] | generations 806
+   R1_0.5  net +175 handed in 448 (right 306 wrong 131) | - E  +33 [+15, +51] | - C +142 [+103, +182] | - N1   +0 [-13, +14] | generations 806
+   R1_1    net +171 handed in 463 (right 310 wrong 139) | - E  +29 [+10, +49] | - C +138 [+98, +178] | - N1   -4 [-18, +10] | generations 806
+   R1_2    net +159 handed in 471 (right 309 wrong 150) | - E  +17 [-3, +38] | - C +126 [+87, +166] | - N1  -16 [-34, +2] | generations 806
+   R1_t    net +171 handed in 463 (right 310 wrong 139) | - E  +29 [+10, +49] | - C +138 [+98, +178] | - N1   -4 [-18, +10] | generations 806
+   R1L_0.25 net +174 handed in 414 (right 290 wrong 116) | - E  +32 [+18, +47] | - C +141 [+102, +179] | - N1   -1 [-17, +15] | generations 806
+   R1L_0.5 net +178 handed in 448 (right 307 wrong 129) | - E  +36 [+19, +54] | - C +145 [+106, +184] | - N1   +3 [-9, +15] | generations 864
+   R1L_1   net +176 handed in 463 (right 312 wrong 136) | - E  +34 [+15, +53] | - C +143 [+103, +183] | - N1   +1 [-9, +11] | generations 888
+   R1L_2   net +177 handed in 471 (right 316 wrong 139) | - E  +35 [+15, +55] | - C +144 [+104, +184] | - N1   +2 [-9, +13] | generations 897
+   R1L_t   net +176 handed in 463 (right 312 wrong 136) | - E  +34 [+15, +53] | - C +143 [+103, +183] | - N1   +1 [-9, +11] | generations 888
+   D_0.25  net +162 handed in 455 (right 304 wrong 142) | - E  +20 [+1, +39] | - C +129 [+89, +167] | - N1  -13 [-28, +2] | generations 688
+   D_0.5   net +161 handed in 497 (right 323 wrong 162) | - E  +19 [-3, +42] | - C +128 [+88, +168] | - N1  -14 [-27, -2] | generations 688
+   D_1     net +159 handed in 512 (right 328 wrong 169) | - E  +17 [-6, +41] | - C +126 [+86, +166] | - N1  -16 [-32, -1] | generations 688
+   D_2     net +151 handed in 520 (right 329 wrong 178) | - E   +9 [-16, +35] | - C +118 [+80, +157] | - N1  -24 [-44, -3] | generations 688
+   D_t     net +159 handed in 512 (right 328 wrong 169) | - E  +17 [-6, +41] | - C +126 [+86, +166] | - N1  -16 [-32, -1] | generations 688
+   DL_0.25 net +162 handed in 455 (right 304 wrong 142) | - E  +20 [+1, +39] | - C +129 [+89, +167] | - N1  -13 [-28, +2] | generations 688
+   DL_0.5  net +164 handed in 497 (right 324 wrong 160) | - E  +22 [+0, +45] | - C +131 [+90, +171] | - N1  -11 [-23, +0] | generations 754
+   DL_1    net +162 handed in 512 (right 329 wrong 167) | - E  +20 [-3, +44] | - C +129 [+88, +170] | - N1  -13 [-22, -4] | generations 778
+   DL_2    net +163 handed in 520 (right 333 wrong 170) | - E  +21 [-3, +46] | - C +130 [+89, +171] | - N1  -12 [-23, -2] | generations 787
+   DL_t    net +162 handed in 512 (right 329 wrong 167) | - E  +20 [-3, +44] | - C +129 [+88, +170] | - N1  -13 [-22, -4] | generations 778
+   R2u     net +158 handed in 520 (right 331 wrong 173) | - E  +16 [-11, +44] | - C +125 [+84, +165] | - N1  -17 [-33, -1] | generations 578
+   R2L     net +159 handed in 520 (right 331 wrong 172) | - E  +17 [-9, +43] | - C +126 [+85, +167] | - N1  -16 [-30, -3] | generations 620
+   N1      net +175 handed in 490 (right 325 wrong 150) | - E  +33 [+12, +55] | - C +142 [+100, +184] | - N1   +0 [+0, +0] | generations None
+   R1orc   net +206 handed in 443 (right 321 wrong 115) | - E  +64 [+47, +82] | - C +173 [+132, +212] | - N1  +31 [+16, +46] | generations None
+   cell O answered / E answered  n 312 | (net, handed in, right, wrong): O (65, 312, 187, 122) | E (118, 312, 213, 95) | C (59, 312, 184, 125) | EC(1) (104, 312, 207, 103)
+   cell O answered / E blank     n  49 | (net, handed in, right, wrong): O (-18, 49, 15, 33) | E (0, 0, 0, 0) | C (-18, 49, 15, 33) | EC(1) (-12, 49, 18, 30)
+   cell O blank / E answered     n  42 | (net, handed in, right, wrong): O (0, 0, 0, 0) | E (24, 42, 33, 9) | C (21, 42, 31, 10) | EC(1) (26, 42, 34, 8)
+   cell O blank / E blank        n 118 | (net, handed in, right, wrong): O (0, 0, 0, 0) | E (0, 0, 0, 0) | C (-29, 91, 29, 58) | EC(1) (29, 109, 64, 35)
+   cell O answered / E answered  differences inside the cell: E - O [53, 23, 82] | EC(1) - E [-14, -27, -2] | EC(1) - C [45, 16, 74] | C - O [-6, -16, 2]
+   cell O answered / E blank     differences inside the cell: E - O [18, 4, 32] | EC(1) - E [-12, -26, 1] | EC(1) - C [6, -8, 20] | C - O [0, 0, 0]
+   cell O blank / E answered     differences inside the cell: E - O [24, 11, 37] | EC(1) - E [2, 0, 6] | EC(1) - C [5, -2, 14] | C - O [21, 9, 34]
+   cell O blank / E blank        differences inside the cell: E - O [0, 0, 0] | EC(1) - E [29, 10, 49] | EC(1) - C [58, 36, 80] | C - O [-29, -47, -10]
+   scheme minus scheme: R1L_2-R1_2 [18, 4, 33] | R1L_2-R1_1 [6, -5, 17] | R1L_1-R1_1 [5, -4, 15] | R1_1-D_1 [12, -1, 26] | R1L_2-DL_2 [14, 0, 28] | R1L_2-R2L [18, 3, 35] | R1L_2-R2u [19, 1, 38] | R1_1-A1 [24, 6, 43] | R1L_t-R1_1 [5, -4, 15] | R1L_t-R1L_2 [-1, -6, 4]
+   tuning questions (n 192): E +56, C +25 | R1_1 +80: - E [24, 11, 37], - C [55, 33, 78] | R1L_2 +75: - E [19, 6, 32], - C [50, 26, 74] | R2u +75: - E [19, 2, 36], - C [50, 26, 74] | D_1 +81: - E [25, 9, 40], - C [56, 33, 79]
+   answering along the C strength (answered at the smaller and blank at the larger, blank at the smaller and answered at the larger): {'0.25->0.5': (0, 42), '0.5->1': (0, 15), '1->2': (0, 8)}
+
+== TruthfulQA gemma3-12b: n 522 | single C strength chosen on tuning 0.5 | tuned {'At': '2', 'R1_t': '2', 'D_t': '2', 'R1L_t': '2', 'DL_t': '2'} | cross-check with GPT's table: mine ((358, 128), (489, 159)), GPT ((358, 128), (489, 159)) -> SAME
+   O       net  +12 handed in 460 (right 228 wrong 216) | - E  -92 [-137, -46] | - C   +7 [-9, +23] | - N1 -147 [-198, -96] | generations 522
+   E       net +104 handed in 323 (right 211 wrong 107) | - E   +0 [+0, +0] | - C  +99 [+52, +146] | - N1  -55 [-79, -31] | generations 522
+   C0.5    net   +5 handed in 498 (right 243 wrong 238) | - E  -99 [-146, -52] | - C   +0 [+0, +0] | - N1 -154 [-206, -101] | generations 522
+   A0.25   net +139 handed in 403 (right 266 wrong 127) | - E  +35 [+18, +53] | - C +134 [+86, +182] | - N1  -20 [-41, +1] | generations 522
+   A0.5    net +151 handed in 446 (right 292 wrong 141) | - E  +47 [+25, +69] | - C +146 [+96, +195] | - N1   -8 [-28, +12] | generations 522
+   A1      net +162 handed in 493 (right 320 wrong 158) | - E  +58 [+31, +87] | - C +157 [+105, +207] | - N1   +3 [-16, +22] | generations 522
+   A2      net +164 handed in 514 (right 330 wrong 166) | - E  +60 [+28, +92] | - C +159 [+107, +210] | - N1   +5 [-22, +32] | generations 522
+   At      net +164 handed in 514 (right 330 wrong 166) | - E  +60 [+28, +92] | - C +159 [+107, +210] | - N1   +5 [-22, +32] | generations 522
+   R1_0.25 net +111 handed in 331 (right 218 wrong 107) | - E   +7 [+2, +13] | - C +106 [+58, +153] | - N1  -48 [-72, -25] | generations 774
+   R1_0.5  net +116 handed in 338 (right 224 wrong 108) | - E  +12 [+5, +20] | - C +111 [+64, +157] | - N1  -43 [-66, -21] | generations 774
+   R1_1    net +128 handed in 358 (right 240 wrong 112) | - E  +24 [+13, +36] | - C +123 [+75, +171] | - N1  -31 [-52, -10] | generations 774
+   R1_2    net +132 handed in 371 (right 246 wrong 114) | - E  +28 [+16, +42] | - C +127 [+78, +175] | - N1  -27 [-47, -7] | generations 774
+   R1_t    net +132 handed in 371 (right 246 wrong 114) | - E  +28 [+16, +42] | - C +127 [+78, +175] | - N1  -27 [-47, -7] | generations 774
+   R1L_0.25 net +111 handed in 331 (right 218 wrong 107) | - E   +7 [+2, +13] | - C +106 [+58, +153] | - N1  -48 [-72, -25] | generations 774
+   R1L_0.5 net +116 handed in 338 (right 224 wrong 108) | - E  +12 [+5, +20] | - C +111 [+64, +157] | - N1  -43 [-66, -21] | generations 819
+   R1L_1   net +128 handed in 358 (right 240 wrong 112) | - E  +24 [+13, +36] | - C +123 [+75, +171] | - N1  -31 [-52, -10] | generations 857
+   R1L_2   net +132 handed in 371 (right 246 wrong 114) | - E  +28 [+16, +42] | - C +127 [+78, +175] | - N1  -27 [-47, -7] | generations 875
+   R1L_t   net +132 handed in 371 (right 246 wrong 114) | - E  +28 [+16, +42] | - C +127 [+78, +175] | - N1  -27 [-47, -7] | generations 875
+   D_0.25  net +136 handed in 403 (right 265 wrong 129) | - E  +32 [+16, +49] | - C +131 [+83, +179] | - N1  -23 [-43, -3] | generations 721
+   D_0.5   net +147 handed in 446 (right 290 wrong 143) | - E  +43 [+22, +63] | - C +142 [+92, +191] | - N1  -12 [-30, +5] | generations 721
+   D_1     net +163 handed in 493 (right 320 wrong 157) | - E  +59 [+36, +83] | - C +158 [+107, +210] | - N1   +4 [-9, +18] | generations 721
+   D_2     net +164 handed in 514 (right 329 wrong 165) | - E  +60 [+35, +86] | - C +159 [+106, +212] | - N1   +5 [-13, +23] | generations 721
+   D_t     net +164 handed in 514 (right 329 wrong 165) | - E  +60 [+35, +86] | - C +159 [+106, +212] | - N1   +5 [-13, +23] | generations 721
+   DL_0.25 net +136 handed in 403 (right 265 wrong 129) | - E  +32 [+16, +49] | - C +131 [+83, +179] | - N1  -23 [-43, -3] | generations 721
+   DL_0.5  net +145 handed in 446 (right 289 wrong 144) | - E  +41 [+21, +61] | - C +140 [+90, +189] | - N1  -14 [-31, +3] | generations 840
+   DL_1    net +161 handed in 493 (right 319 wrong 158) | - E  +57 [+33, +81] | - C +156 [+105, +207] | - N1   +2 [-10, +14] | generations 916
+   DL_2    net +162 handed in 514 (right 326 wrong 164) | - E  +58 [+33, +83] | - C +157 [+105, +208] | - N1   +3 [-7, +13] | generations 945
+   DL_t    net +162 handed in 514 (right 326 wrong 164) | - E  +58 [+33, +83] | - C +157 [+105, +208] | - N1   +3 [-7, +13] | generations 945
+   R2u     net +168 handed in 514 (right 329 wrong 161) | - E  +64 [+38, +91] | - C +163 [+111, +214] | - N1   +9 [-4, +23] | generations 703
+   R2L     net +165 handed in 514 (right 327 wrong 162) | - E  +61 [+35, +87] | - C +160 [+108, +211] | - N1   +6 [-5, +18] | generations 746
+   N1      net +159 handed in 489 (right 312 wrong 153) | - E  +55 [+31, +79] | - C +154 [+101, +206] | - N1   +0 [+0, +0] | generations None
+   R1orc   net +139 handed in 359 (right 246 wrong 107) | - E  +35 [+24, +47] | - C +134 [+87, +182] | - N1  -20 [-41, +0] | generations None
+   cell O answered / E answered  n 314 | (net, handed in, right, wrong): O (37, 314, 173, 136) | E (97, 314, 203, 106) | C (36, 314, 173, 137) | EC(1) (96, 314, 203, 107)
+   cell O answered / E blank     n 146 | (net, handed in, right, wrong): O (-25, 146, 55, 80) | E (0, 0, 0, 0) | C (-26, 146, 55, 81) | EC(1) (35, 135, 80, 45)
+   cell O blank / E answered     n   9 | (net, handed in, right, wrong): O (0, 0, 0, 0) | E (7, 9, 8, 1) | C (1, 9, 5, 4) | EC(1) (7, 9, 8, 1)
+   cell O blank / E blank        n  53 | (net, handed in, right, wrong): O (0, 0, 0, 0) | E (0, 0, 0, 0) | C (-6, 29, 10, 16) | EC(1) (24, 35, 29, 5)
+   cell O answered / E answered  differences inside the cell: E - O [60, 21, 99] | EC(1) - E [-1, -15, 13] | EC(1) - C [60, 22, 99] | C - O [-1, -10, 9]
+   cell O answered / E blank     differences inside the cell: E - O [25, 3, 48] | EC(1) - E [35, 13, 57] | EC(1) - C [61, 32, 91] | C - O [-1, -8, 6]
+   cell O blank / E answered     differences inside the cell: E - O [7, 2, 13] | EC(1) - E [0, 0, 0] | EC(1) - C [6, 0, 14] | C - O [1, -5, 7]
+   cell O blank / E blank        differences inside the cell: E - O [0, 0, 0] | EC(1) - E [24, 13, 36] | EC(1) - C [30, 16, 46] | C - O [-6, -16, 4]
+   scheme minus scheme: R1L_2-R1_2 [0, 0, 0] | R1L_2-R1_1 [4, -1, 10] | R1L_1-R1_1 [0, 0, 0] | R1_1-D_1 [-35, -57, -13] | R1L_2-DL_2 [-30, -52, -8] | R1L_2-R2L [-33, -56, -10] | R1L_2-R2u [-36, -60, -13] | R1_1-A1 [-34, -60, -9] | R1L_t-R1_1 [4, -1, 10] | R1L_t-R1L_2 [0, 0, 0]
+   tuning questions (n 192): E +42, C +1 | R1_1 +54: - E [12, 5, 19], - C [53, 25, 80] | R1L_2 +59: - E [17, 9, 25], - C [58, 29, 86] | R2u +73: - E [31, 14, 47], - C [72, 42, 101] | D_1 +66: - E [24, 9, 38], - C [65, 35, 94]
+   answering along the C strength (answered at the smaller and blank at the larger, blank at the smaller and answered at the larger): {'0.25->0.5': (0, 43), '0.5->1': (0, 47), '1->2': (0, 21)}
+
+== TruthfulQA gemma3-27b: n 523 | single C strength chosen on tuning 0.25 | tuned {'At': '0.5', 'R1_t': '2', 'D_t': '0.5', 'R1L_t': '2', 'DL_t': '2'} | cross-check with GPT's table: mine ((469, 135), (510, 144)), GPT ((469, 135), (510, 144)) -> SAME
+   O       net   +4 handed in 456 (right 221 wrong 217) | - E -101 [-134, -68] | - C   +4 [-11, +20] | - N1 -140 [-175, -103] | generations 523
+   E       net +105 handed in 423 (right 253 wrong 148) | - E   +0 [+0, +0] | - C +105 [+69, +139] | - N1  -39 [-57, -22] | generations 523
+   C0.25   net   +0 handed in 485 (right 232 wrong 232) | - E -105 [-139, -69] | - C   +0 [+0, +0] | - N1 -144 [-181, -105] | generations 523
+   A0.25   net  +98 handed in 457 (right 265 wrong 167) | - E   -7 [-23, +9] | - C  +98 [+61, +134] | - N1  -46 [-64, -28] | generations 523
+   A0.5    net +105 handed in 487 (right 285 wrong 180) | - E   +0 [-20, +21] | - C +105 [+68, +142] | - N1  -39 [-57, -21] | generations 523
+   A1      net +111 handed in 510 (right 302 wrong 191) | - E   +6 [-20, +32] | - C +111 [+76, +147] | - N1  -33 [-55, -12] | generations 523
+   A2      net  +77 handed in 522 (right 292 wrong 215) | - E  -28 [-62, +7] | - C  +77 [+42, +113] | - N1  -67 [-100, -35] | generations 523
+   At      net +105 handed in 487 (right 285 wrong 180) | - E   +0 [-20, +21] | - C +105 [+68, +142] | - N1  -39 [-57, -21] | generations 523
+   R1_0.25 net +114 handed in 436 (right 264 wrong 150) | - E   +9 [+3, +16] | - C +114 [+78, +149] | - N1  -30 [-47, -15] | generations 680
+   R1_0.5  net +121 handed in 450 (right 274 wrong 153) | - E  +16 [+7, +27] | - C +121 [+85, +156] | - N1  -23 [-38, -9] | generations 680
+   R1_1    net +135 handed in 469 (right 290 wrong 155) | - E  +30 [+18, +43] | - C +135 [+98, +170] | - N1   -9 [-22, +3] | generations 680
+   R1_2    net +139 handed in 479 (right 298 wrong 159) | - E  +34 [+20, +49] | - C +139 [+102, +175] | - N1   -5 [-18, +8] | generations 680
+   R1_t    net +139 handed in 479 (right 298 wrong 159) | - E  +34 [+20, +49] | - C +139 [+102, +175] | - N1   -5 [-18, +8] | generations 680
+   R1L_0.25 net +114 handed in 436 (right 264 wrong 150) | - E   +9 [+3, +16] | - C +114 [+78, +149] | - N1  -30 [-47, -15] | generations 680
+   R1L_0.5 net +121 handed in 450 (right 274 wrong 153) | - E  +16 [+7, +27] | - C +121 [+85, +156] | - N1  -23 [-38, -9] | generations 724
+   R1L_1   net +135 handed in 469 (right 290 wrong 155) | - E  +30 [+18, +43] | - C +135 [+98, +170] | - N1   -9 [-22, +3] | generations 754
+   R1L_2   net +137 handed in 479 (right 296 wrong 159) | - E  +32 [+18, +47] | - C +137 [+100, +173] | - N1   -7 [-17, +3] | generations 765
+   R1L_t   net +137 handed in 479 (right 296 wrong 159) | - E  +32 [+18, +47] | - C +137 [+100, +173] | - N1   -7 [-17, +3] | generations 765
+   D_0.25  net +115 handed in 458 (right 274 wrong 159) | - E  +10 [+0, +21] | - C +115 [+79, +151] | - N1  -29 [-44, -15] | generations 623
+   D_0.5   net +124 handed in 487 (right 292 wrong 168) | - E  +19 [+4, +34] | - C +124 [+87, +160] | - N1  -20 [-32, -8] | generations 623
+   D_1     net +130 handed in 510 (right 307 wrong 177) | - E  +25 [+7, +43] | - C +130 [+93, +166] | - N1  -14 [-25, -4] | generations 623
+   D_2     net +129 handed in 522 (right 314 wrong 185) | - E  +24 [+4, +44] | - C +129 [+93, +165] | - N1  -15 [-30, +0] | generations 623
+   D_t     net +124 handed in 487 (right 292 wrong 168) | - E  +19 [+4, +34] | - C +124 [+87, +160] | - N1  -20 [-32, -8] | generations 623
+   DL_0.25 net +115 handed in 458 (right 274 wrong 159) | - E  +10 [+0, +21] | - C +115 [+79, +151] | - N1  -29 [-44, -15] | generations 623
+   DL_0.5  net +124 handed in 487 (right 292 wrong 168) | - E  +19 [+4, +34] | - C +124 [+87, +160] | - N1  -20 [-32, -8] | generations 688
+   DL_1    net +134 handed in 510 (right 308 wrong 174) | - E  +29 [+12, +46] | - C +134 [+96, +171] | - N1  -10 [-19, -2] | generations 724
+   DL_2    net +138 handed in 522 (right 316 wrong 178) | - E  +33 [+14, +52] | - C +138 [+100, +175] | - N1   -6 [-13, +0] | generations 737
+   DL_t    net +138 handed in 522 (right 316 wrong 178) | - E  +33 [+14, +52] | - C +138 [+100, +175] | - N1   -6 [-13, +0] | generations 737
+   R2u     net +119 handed in 522 (right 309 wrong 190) | - E  +14 [-9, +38] | - C +119 [+81, +157] | - N1  -25 [-41, -10] | generations 608
+   R2L     net +122 handed in 522 (right 308 wrong 186) | - E  +17 [-5, +39] | - C +122 [+84, +159] | - N1  -22 [-36, -10] | generations 638
+   N1      net +144 handed in 510 (right 313 wrong 169) | - E  +39 [+22, +57] | - C +144 [+105, +181] | - N1   +0 [+0, +0] | generations None
+   R1orc   net +150 handed in 472 (right 300 wrong 150) | - E  +45 [+32, +59] | - C +150 [+114, +186] | - N1   +6 [-7, +19] | generations None
+   cell O answered / E answered  n 413 | (net, handed in, right, wrong): O (29, 413, 212, 183) | E (96, 413, 244, 148) | C (28, 413, 213, 185) | EC(1) (77, 413, 239, 162)
+   cell O answered / E blank     n  43 | (net, handed in, right, wrong): O (-25, 43, 9, 34) | E (0, 0, 0, 0) | C (-25, 43, 9, 34) | EC(1) (-5, 41, 17, 22)
+   cell O blank / E answered     n  10 | (net, handed in, right, wrong): O (0, 0, 0, 0) | E (9, 10, 9, 0) | C (2, 8, 4, 2) | EC(1) (9, 10, 9, 0)
+   cell O blank / E blank        n  57 | (net, handed in, right, wrong): O (0, 0, 0, 0) | E (0, 0, 0, 0) | C (-5, 21, 6, 11) | EC(1) (30, 46, 37, 7)
+   cell O answered / E answered  differences inside the cell: E - O [67, 37, 97] | EC(1) - E [-19, -38, -1] | EC(1) - C [49, 19, 79] | C - O [-1, -13, 11]
+   cell O answered / E blank     differences inside the cell: E - O [25, 12, 38] | EC(1) - E [-5, -17, 7] | EC(1) - C [20, 7, 34] | C - O [0, 0, 0]
+   cell O blank / E answered     differences inside the cell: E - O [9, 4, 15] | EC(1) - E [0, 0, 0] | EC(1) - C [7, 1, 14] | C - O [2, -2, 7]
+   cell O blank / E blank        differences inside the cell: E - O [0, 0, 0] | EC(1) - E [30, 18, 43] | EC(1) - C [35, 21, 51] | C - O [-5, -13, 3]
+   scheme minus scheme: R1L_2-R1_2 [-2, -11, 6] | R1L_2-R1_1 [2, -4, 8] | R1L_1-R1_1 [0, 0, 0] | R1_1-D_1 [5, -7, 17] | R1L_2-DL_2 [-1, -13, 11] | R1L_2-R2L [15, -1, 31] | R1L_2-R2u [18, 0, 36] | R1_1-A1 [24, 2, 47] | R1L_t-R1_1 [2, -4, 8] | R1L_t-R1L_2 [0, 0, 0]
+   tuning questions (n 192): E +38, C -5 | R1_1 +43: - E [5, -1, 11], - C [48, 27, 69] | R1L_2 +48: - E [10, 2, 18], - C [53, 32, 74] | R2u +50: - E [12, -1, 25], - C [55, 33, 76] | D_1 +44: - E [6, -4, 16], - C [49, 28, 70]
+   answering along the C strength (answered at the smaller and blank at the larger, blank at the smaller and answered at the larger): {'0.25->0.5': (0, 30), '0.5->1': (0, 23), '1->2': (0, 12)}
+
+== FalseQA llama3.1-8b: n 600 | single C strength chosen on tuning 2 | tuned {'At': '2', 'R1_t': '2', 'D_t': '2', 'R1L_t': '2', 'DL_t': '2'} | cross-check with GPT's table: mine ((468, 212), (509, 239)), GPT ((468, 212), (509, 239)) -> SAME
+   O       net +100 handed in 428 (right 260 wrong 160) | - E  -35 [-75, +6] | - C  -64 [-92, -37] | - N1 -139 [-181, -97] | generations 600
+   E       net +135 handed in 363 (right 241 wrong 106) | - E   +0 [+0, +0] | - C  -29 [-76, +19] | - N1 -104 [-124, -85] | generations 600
+   C2      net +164 handed in 589 (right 370 wrong 206) | - E  +29 [-19, +76] | - C   +0 [+0, +0] | - N1  -75 [-121, -31] | generations 600
+   A0.25   net +151 handed in 425 (right 279 wrong 128) | - E  +16 [-3, +35] | - C  -13 [-60, +34] | - N1  -88 [-112, -64] | generations 600
+   A0.5    net +173 handed in 480 (right 316 wrong 143) | - E  +38 [+13, +63] | - C   +9 [-37, +57] | - N1  -66 [-92, -40] | generations 600
+   A1      net +193 handed in 549 (right 357 wrong 164) | - E  +58 [+30, +87] | - C  +29 [-16, +74] | - N1  -46 [-73, -20] | generations 600
+   A2      net +205 handed in 594 (right 383 wrong 178) | - E  +70 [+36, +104] | - C  +41 [-4, +85] | - N1  -34 [-63, -6] | generations 600
+   At      net +205 handed in 594 (right 383 wrong 178) | - E  +70 [+36, +104] | - C  +41 [-4, +85] | - N1  -34 [-63, -6] | generations 600
+   R1_0.25 net +154 handed in 386 (right 262 wrong 108) | - E  +19 [+11, +28] | - C  -10 [-58, +37] | - N1  -85 [-103, -67] | generations 987
+   R1_0.5  net +181 handed in 421 (right 293 wrong 112) | - E  +46 [+33, +60] | - C  +17 [-29, +64] | - N1  -58 [-74, -42] | generations 987
+   R1_1    net +212 handed in 468 (right 331 wrong 119) | - E  +77 [+60, +95] | - C  +48 [+3, +94] | - N1  -27 [-39, -16] | generations 987
+   R1_2    net +241 handed in 509 (right 364 wrong 123) | - E +106 [+87, +125] | - C  +77 [+33, +122] | - N1   +2 [-4, +9] | generations 987
+   R1_t    net +241 handed in 509 (right 364 wrong 123) | - E +106 [+87, +125] | - C  +77 [+33, +122] | - N1   +2 [-4, +9] | generations 987
+   R1L_0.25 net +154 handed in 386 (right 262 wrong 108) | - E  +19 [+11, +28] | - C  -10 [-58, +37] | - N1  -85 [-103, -67] | generations 987
+   R1L_0.5 net +181 handed in 421 (right 293 wrong 112) | - E  +46 [+33, +60] | - C  +17 [-29, +64] | - N1  -58 [-74, -42] | generations 1114
+   R1L_1   net +212 handed in 468 (right 331 wrong 119) | - E  +77 [+60, +95] | - C  +48 [+3, +94] | - N1  -27 [-39, -16] | generations 1206
+   R1L_2   net +239 handed in 509 (right 363 wrong 124) | - E +104 [+85, +124] | - C  +75 [+31, +121] | - N1   +0 [+0, +0] | generations 1251
+   R1L_t   net +239 handed in 509 (right 363 wrong 124) | - E +104 [+85, +124] | - C  +75 [+31, +121] | - N1   +0 [+0, +0] | generations 1251
+   D_0.25  net +161 handed in 425 (right 283 wrong 122) | - E  +26 [+12, +40] | - C   -3 [-50, +43] | - N1  -78 [-100, -56] | generations 837
+   D_0.5   net +195 handed in 480 (right 327 wrong 132) | - E  +60 [+42, +79] | - C  +31 [-15, +78] | - N1  -44 [-65, -23] | generations 837
+   D_1     net +223 handed in 549 (right 372 wrong 149) | - E  +88 [+65, +111] | - C  +59 [+15, +105] | - N1  -16 [-36, +4] | generations 837
+   D_2     net +245 handed in 595 (right 403 wrong 158) | - E +110 [+86, +134] | - C  +81 [+36, +125] | - N1   +6 [-11, +23] | generations 837
+   D_t     net +245 handed in 595 (right 403 wrong 158) | - E +110 [+86, +134] | - C  +81 [+36, +125] | - N1   +6 [-11, +23] | generations 837
+   DL_0.25 net +161 handed in 425 (right 283 wrong 122) | - E  +26 [+12, +40] | - C   -3 [-50, +43] | - N1  -78 [-100, -56] | generations 837
+   DL_0.5  net +196 handed in 480 (right 328 wrong 132) | - E  +61 [+43, +80] | - C  +32 [-14, +79] | - N1  -43 [-64, -22] | generations 1012
+   DL_1    net +226 handed in 549 (right 374 wrong 148) | - E  +91 [+69, +114] | - C  +62 [+18, +108] | - N1  -13 [-33, +7] | generations 1132
+   DL_2    net +254 handed in 595 (right 408 wrong 154) | - E +119 [+96, +143] | - C  +90 [+45, +135] | - N1  +15 [+0, +31] | generations 1183
+   DL_t    net +254 handed in 595 (right 408 wrong 154) | - E +119 [+96, +143] | - C  +90 [+45, +135] | - N1  +15 [+0, +31] | generations 1183
+   R2u     net +231 handed in 595 (right 396 wrong 165) | - E  +96 [+66, +125] | - C  +67 [+22, +113] | - N1   -8 [-31, +14] | generations 891
+   R2L     net +244 handed in 595 (right 404 wrong 160) | - E +109 [+82, +136] | - C  +80 [+34, +126] | - N1   +5 [-16, +24] | generations 946
+   N1      net +239 handed in 509 (right 363 wrong 124) | - E +104 [+85, +124] | - C  +75 [+31, +121] | - N1   +0 [+0, +0] | generations None
+   R1orc   net +257 handed in 489 (right 365 wrong 108) | - E +122 [+105, +139] | - C  +93 [+49, +138] | - N1  +18 [+9, +28] | generations None
+   cell O answered / E answered  n 341 | (net, handed in, right, wrong): O (127, 341, 232, 105) | E (115, 341, 220, 105) | C (115, 341, 226, 111) | EC(1) (85, 341, 205, 120)
+   cell O answered / E blank     n  87 | (net, handed in, right, wrong): O (-27, 87, 28, 55) | E (0, 0, 0, 0) | C (-26, 87, 30, 56) | EC(1) (11, 81, 41, 30)
+   cell O blank / E answered     n  22 | (net, handed in, right, wrong): O (0, 0, 0, 0) | E (20, 22, 21, 1) | C (15, 22, 18, 3) | EC(1) (20, 22, 21, 1)
+   cell O blank / E blank        n 150 | (net, handed in, right, wrong): O (0, 0, 0, 0) | E (0, 0, 0, 0) | C (60, 139, 96, 36) | EC(1) (77, 105, 90, 13)
+   cell O answered / E answered  differences inside the cell: E - O [-12, -47, 24] | EC(1) - E [-30, -47, -14] | EC(1) - C [-30, -66, 6] | C - O [-12, -27, 3]
+   cell O answered / E blank     differences inside the cell: E - O [27, 8, 46] | EC(1) - E [11, -4, 26] | EC(1) - C [37, 15, 59] | C - O [1, -5, 7]
+   cell O blank / E answered     differences inside the cell: E - O [20, 12, 29] | EC(1) - E [0, 0, 0] | EC(1) - C [5, -1, 12] | C - O [15, 7, 24]
+   cell O blank / E blank        differences inside the cell: E - O [0, 0, 0] | EC(1) - E [77, 60, 95] | EC(1) - C [17, -4, 37] | C - O [60, 39, 82]
+   by premise (nets): false: {'n': 300, 'O': -60, 'E': 41, 'Cdev': 20, 'R1_1': 122, 'R1L_t': 150, 'R1L_2': 150, 'R2u': 170, 'N1': 150} | valid: {'n': 300, 'O': 160, 'E': 94, 'Cdev': 144, 'R1_1': 90, 'R1L_t': 89, 'R1L_2': 89, 'R2u': 61, 'N1': 89}
+   scheme minus scheme: R1L_2-R1_2 [-2, -9, 4] | R1L_2-R1_1 [27, 16, 39] | R1L_1-R1_1 [0, 0, 0] | R1_1-D_1 [-11, -26, 4] | R1L_2-DL_2 [-15, -31, 0] | R1L_2-R2L [-5, -24, 16] | R1L_2-R2u [8, -14, 31] | R1_1-A1 [19, -4, 43] | R1L_t-R1_1 [27, 16, 39] | R1L_t-R1L_2 [0, 0, 0]
+   tuning questions (n 100): E +20, C +24 | R1_1 +33: - E [13, 4, 21], - C [9, -9, 27] | R1L_2 +35: - E [15, 6, 24], - C [11, -7, 29] | R2u +31: - E [11, -1, 22], - C [7, -12, 26] | D_1 +29: - E [9, -1, 18], - C [5, -14, 23]
+   answering along the C strength (answered at the smaller and blank at the larger, blank at the smaller and answered at the larger): {'0.25->0.5': (0, 55), '0.5->1': (0, 69), '1->2': (1, 46)}
+
+== FalseQA qwen3.5-9b: n 600 | single C strength chosen on tuning 0.5 | tuned {'At': '1', 'R1_t': '0.5', 'D_t': '2', 'R1L_t': '0.5', 'DL_t': '0.25'} | cross-check with GPT's table: mine ((523, 342), (523, 334)), GPT ((523, 342), (523, 334)) -> SAME
+   O       net +311 handed in 532 (right 418 wrong 107) | - E   -2 [-34, +29] | - C  -21 [-35, -7] | - N1  -23 [-58, +10] | generations 600
+   E       net +313 handed in 474 (right 389 wrong  76) | - E   +0 [+0, +0] | - C  -19 [-52, +15] | - N1  -21 [-34, -8] | generations 600
+   C0.5    net +332 handed in 577 (right 453 wrong 121) | - E  +19 [-15, +52] | - C   +0 [+0, +0] | - N1   -2 [-38, +32] | generations 600
+   A0.25   net +333 handed in 523 (right 422 wrong  89) | - E  +20 [+4, +36] | - C   +1 [-33, +35] | - N1   -1 [-14, +12] | generations 600
+   A0.5    net +346 handed in 554 (right 444 wrong  98) | - E  +33 [+15, +52] | - C  +14 [-20, +50] | - N1  +12 [+0, +25] | generations 600
+   A1      net +358 handed in 587 (right 466 wrong 108) | - E  +45 [+21, +68] | - C  +26 [-8, +61] | - N1  +24 [+4, +45] | generations 600
+   A2      net +358 handed in 600 (right 473 wrong 115) | - E  +45 [+19, +72] | - C  +26 [-8, +61] | - N1  +24 [-1, +50] | generations 600
+   At      net +358 handed in 587 (right 466 wrong 108) | - E  +45 [+21, +68] | - C  +26 [-8, +61] | - N1  +24 [+4, +45] | generations 600
+   R1_0.25 net +322 handed in 488 (right 400 wrong  78) | - E   +9 [+2, +16] | - C  -10 [-43, +25] | - N1  -12 [-23, -1] | generations 787
+   R1_0.5  net +336 handed in 505 (right 415 wrong  79) | - E  +23 [+13, +34] | - C   +4 [-30, +39] | - N1   +2 [-6, +10] | generations 787
+   R1_1    net +342 handed in 523 (right 426 wrong  84) | - E  +29 [+16, +42] | - C  +10 [-23, +46] | - N1   +8 [-3, +19] | generations 787
+   R1_2    net +340 handed in 535 (right 430 wrong  90) | - E  +27 [+13, +41] | - C   +8 [-26, +44] | - N1   +6 [-9, +20] | generations 787
+   R1_t    net +336 handed in 505 (right 415 wrong  79) | - E  +23 [+13, +34] | - C   +4 [-30, +39] | - N1   +2 [-6, +10] | generations 787
+   R1L_0.25 net +322 handed in 488 (right 400 wrong  78) | - E   +9 [+2, +16] | - C  -10 [-43, +25] | - N1  -12 [-23, -1] | generations 787
+   R1L_0.5 net +336 handed in 505 (right 415 wrong  79) | - E  +23 [+13, +34] | - C   +4 [-30, +39] | - N1   +2 [-6, +10] | generations 834
+   R1L_1   net +342 handed in 523 (right 426 wrong  84) | - E  +29 [+16, +42] | - C  +10 [-23, +46] | - N1   +8 [-3, +19] | generations 864
+   R1L_2   net +342 handed in 535 (right 431 wrong  89) | - E  +29 [+15, +43] | - C  +10 [-23, +46] | - N1   +8 [-5, +21] | generations 876
+   R1L_t   net +336 handed in 505 (right 415 wrong  79) | - E  +23 [+13, +34] | - C   +4 [-30, +39] | - N1   +2 [-6, +10] | generations 834
+   D_0.25  net +334 handed in 523 (right 422 wrong  88) | - E  +21 [+8, +35] | - C   +2 [-32, +36] | - N1   +0 [-11, +11] | generations 726
+   D_0.5   net +346 handed in 554 (right 443 wrong  97) | - E  +33 [+17, +50] | - C  +14 [-20, +49] | - N1  +12 [+1, +23] | generations 726
+   D_1     net +351 handed in 587 (right 461 wrong 110) | - E  +38 [+19, +57] | - C  +19 [-14, +55] | - N1  +17 [+2, +33] | generations 726
+   D_2     net +349 handed in 600 (right 466 wrong 117) | - E  +36 [+15, +57] | - C  +17 [-18, +54] | - N1  +15 [-5, +34] | generations 726
+   D_t     net +349 handed in 600 (right 466 wrong 117) | - E  +36 [+15, +57] | - C  +17 [-18, +54] | - N1  +15 [-5, +34] | generations 726
+   DL_0.25 net +334 handed in 523 (right 422 wrong  88) | - E  +21 [+8, +35] | - C   +2 [-32, +36] | - N1   +0 [-11, +11] | generations 726
+   DL_0.5  net +346 handed in 554 (right 443 wrong  97) | - E  +33 [+16, +50] | - C  +14 [-20, +49] | - N1  +12 [+1, +23] | generations 803
+   DL_1    net +353 handed in 587 (right 462 wrong 109) | - E  +40 [+20, +60] | - C  +21 [-13, +56] | - N1  +19 [+4, +34] | generations 849
+   DL_2    net +354 handed in 600 (right 468 wrong 114) | - E  +41 [+21, +62] | - C  +22 [-12, +58] | - N1  +20 [+4, +37] | generations 862
+   DL_t    net +334 handed in 523 (right 422 wrong  88) | - E  +21 [+8, +35] | - C   +2 [-32, +36] | - N1   +0 [-11, +11] | generations 726
+   R2u     net +354 handed in 600 (right 469 wrong 115) | - E  +41 [+20, +63] | - C  +22 [-12, +58] | - N1  +20 [+3, +38] | generations 705
+   R2L     net +353 handed in 600 (right 468 wrong 115) | - E  +40 [+18, +63] | - C  +21 [-14, +57] | - N1  +19 [+1, +37] | generations 736
+   N1      net +334 handed in 523 (right 422 wrong  88) | - E  +21 [+8, +34] | - C   +2 [-32, +38] | - N1   +0 [+0, +0] | generations None
+   R1orc   net +355 handed in 519 (right 432 wrong  77) | - E  +42 [+30, +55] | - C  +23 [-11, +58] | - N1  +21 [+10, +33] | generations None
+   cell O answered / E answered  n 467 | (net, handed in, right, wrong): O (306, 467, 385, 79) | E (306, 467, 382, 76) | C (311, 467, 388, 77) | EC(1) (315, 467, 388, 73)
+   cell O answered / E blank     n  65 | (net, handed in, right, wrong): O (5, 65, 33, 28) | E (0, 0, 0, 0) | C (6, 65, 35, 29) | EC(1) (9, 64, 35, 26)
+   cell O blank / E answered     n   7 | (net, handed in, right, wrong): O (0, 0, 0, 0) | E (7, 7, 7, 0) | C (3, 7, 5, 2) | EC(1) (5, 7, 6, 1)
+   cell O blank / E blank        n  61 | (net, handed in, right, wrong): O (0, 0, 0, 0) | E (0, 0, 0, 0) | C (12, 38, 25, 13) | EC(1) (29, 49, 37, 8)
+   cell O answered / E answered  differences inside the cell: E - O [0, -28, 27] | EC(1) - E [9, -4, 22] | EC(1) - C [4, -23, 32] | C - O [5, 0, 12]
+   cell O answered / E blank     differences inside the cell: E - O [-5, -19, 9] | EC(1) - E [9, -5, 23] | EC(1) - C [3, -12, 19] | C - O [1, -2, 5]
+   cell O blank / E answered     differences inside the cell: E - O [7, 2, 13] | EC(1) - E [-2, -6, 0] | EC(1) - C [2, 0, 6] | C - O [3, -2, 8]
+   cell O blank / E blank        differences inside the cell: E - O [0, 0, 0] | EC(1) - E [29, 16, 42] | EC(1) - C [17, 4, 31] | C - O [12, 0, 24]
+   by premise (nets): false: {'n': 300, 'O': 131, 'E': 176, 'Cdev': 148, 'R1_1': 208, 'R1L_t': 199, 'R1L_2': 212, 'R2u': 225, 'N1': 202} | valid: {'n': 300, 'O': 180, 'E': 137, 'Cdev': 184, 'R1_1': 134, 'R1L_t': 137, 'R1L_2': 130, 'R2u': 129, 'N1': 132}
+   scheme minus scheme: R1L_2-R1_2 [2, -4, 10] | R1L_2-R1_1 [0, -6, 6] | R1L_1-R1_1 [0, 0, 0] | R1_1-D_1 [-9, -23, 5] | R1L_2-DL_2 [-12, -27, 2] | R1L_2-R2L [-11, -28, 6] | R1L_2-R2u [-12, -28, 4] | R1_1-A1 [-16, -35, 3] | R1L_t-R1_1 [-6, -14, 2] | R1L_t-R1L_2 [-6, -16, 4]
+   tuning questions (n 100): E +45, C +45 | R1_1 +48: - E [3, -2, 8], - C [3, -9, 16] | R1L_2 +47: - E [2, -3, 8], - C [2, -11, 15] | R2u +46: - E [1, -8, 9], - C [1, -12, 14] | D_1 +48: - E [3, -5, 11], - C [3, -9, 16]
+   answering along the C strength (answered at the smaller and blank at the larger, blank at the smaller and answered at the larger): {'0.25->0.5': (0, 31), '0.5->1': (0, 33), '1->2': (0, 13)}
+
+== FalseQA qwen3.8-27b: n 600 | single C strength chosen on tuning 0.25 | tuned {'At': '1', 'R1_t': '1', 'D_t': '0.5', 'R1L_t': '1', 'DL_t': '1'} | cross-check with GPT's table: mine ((544, 346), (544, 341)), GPT ((544, 346), (544, 341)) -> SAME
+   O       net +197 handed in 320 (right 257 wrong  60) | - E  -26 [-52, +0] | - C  -10 [-32, +12] | - N1 -144 [-179, -109] | generations 600
+   E       net +223 handed in 313 (right 267 wrong  44) | - E   +0 [+0, +0] | - C  +16 [-13, +45] | - N1 -118 [-143, -93] | generations 600
+   C0.25   net +207 handed in 437 (right 321 wrong 114) | - E  -16 [-45, +13] | - C   +0 [+0, +0] | - N1 -134 [-168, -100] | generations 600
+   A0.25   net +283 handed in 450 (right 363 wrong  80) | - E  +60 [+38, +82] | - C  +76 [+46, +106] | - N1  -58 [-84, -32] | generations 600
+   A0.5    net +322 handed in 537 (right 425 wrong 103) | - E  +99 [+71, +127] | - C +115 [+82, +148] | - N1  -19 [-41, +2] | generations 600
+   A1      net +360 handed in 593 (right 473 wrong 113) | - E +137 [+107, +167] | - C +153 [+120, +186] | - N1  +19 [-3, +40] | generations 600
+   A2      net +356 handed in 600 (right 476 wrong 120) | - E +133 [+98, +168] | - C +149 [+118, +183] | - N1  +15 [-13, +44] | generations 600
+   At      net +360 handed in 593 (right 473 wrong 113) | - E +137 [+107, +167] | - C +153 [+120, +186] | - N1  +19 [-3, +40] | generations 600
+   R1_0.25 net +271 handed in 408 (right 338 wrong  67) | - E  +48 [+31, +66] | - C  +64 [+34, +94] | - N1  -70 [-90, -50] | generations 1125
+   R1_0.5  net +303 handed in 489 (right 393 wrong  90) | - E  +80 [+57, +104] | - C  +96 [+63, +130] | - N1  -38 [-52, -25] | generations 1125
+   R1_1    net +346 handed in 544 (right 442 wrong  96) | - E +123 [+97, +148] | - C +139 [+106, +173] | - N1   +5 [-5, +16] | generations 1125
+   R1_2    net +341 handed in 551 (right 444 wrong 103) | - E +118 [+91, +145] | - C +134 [+101, +169] | - N1   +0 [-19, +19] | generations 1125
+   R1_t    net +346 handed in 544 (right 442 wrong  96) | - E +123 [+97, +148] | - C +139 [+106, +173] | - N1   +5 [-5, +16] | generations 1125
+   R1L_0.25 net +271 handed in 408 (right 338 wrong  67) | - E  +48 [+31, +66] | - C  +64 [+34, +94] | - N1  -70 [-90, -50] | generations 1125
+   R1L_0.5 net +304 handed in 489 (right 394 wrong  90) | - E  +81 [+58, +105] | - C  +97 [+64, +131] | - N1  -37 [-51, -24] | generations 1268
+   R1L_1   net +341 handed in 544 (right 440 wrong  99) | - E +118 [+93, +143] | - C +134 [+100, +168] | - N1   +0 [+0, +0] | generations 1330
+   R1L_2   net +344 handed in 551 (right 445 wrong 101) | - E +121 [+95, +146] | - C +137 [+103, +172] | - N1   +3 [-2, +8] | generations 1337
+   R1L_t   net +341 handed in 544 (right 440 wrong  99) | - E +118 [+93, +143] | - C +134 [+100, +168] | - N1   +0 [+0, +0] | generations 1330
+   D_0.25  net +288 handed in 450 (right 366 wrong  78) | - E  +65 [+44, +86] | - C  +81 [+51, +112] | - N1  -53 [-77, -29] | generations 887
+   D_0.5   net +323 handed in 537 (right 426 wrong 103) | - E +100 [+74, +125] | - C +116 [+83, +149] | - N1  -18 [-37, +0] | generations 887
+   D_1     net +361 handed in 593 (right 474 wrong 113) | - E +138 [+110, +166] | - C +154 [+122, +187] | - N1  +20 [+3, +37] | generations 887
+   D_2     net +356 handed in 600 (right 476 wrong 120) | - E +133 [+102, +163] | - C +149 [+117, +182] | - N1  +15 [-8, +40] | generations 887
+   D_t     net +323 handed in 537 (right 426 wrong 103) | - E +100 [+74, +125] | - C +116 [+83, +149] | - N1  -18 [-37, +0] | generations 887
+   DL_0.25 net +288 handed in 450 (right 366 wrong  78) | - E  +65 [+44, +86] | - C  +81 [+51, +112] | - N1  -53 [-77, -29] | generations 887
+   DL_0.5  net +325 handed in 537 (right 427 wrong 102) | - E +102 [+76, +128] | - C +118 [+85, +152] | - N1  -16 [-34, +2] | generations 1037
+   DL_1    net +363 handed in 593 (right 474 wrong 111) | - E +140 [+112, +168] | - C +156 [+122, +190] | - N1  +22 [+10, +35] | generations 1100
+   DL_2    net +366 handed in 600 (right 479 wrong 113) | - E +143 [+115, +170] | - C +159 [+125, +194] | - N1  +25 [+12, +38] | generations 1107
+   DL_t    net +363 handed in 593 (right 474 wrong 111) | - E +140 [+112, +168] | - C +156 [+122, +190] | - N1  +22 [+10, +35] | generations 1100
+   R2u     net +363 handed in 600 (right 477 wrong 114) | - E +140 [+110, +170] | - C +156 [+122, +189] | - N1  +22 [+5, +40] | generations 733
+   R2L     net +361 handed in 600 (right 476 wrong 115) | - E +138 [+109, +166] | - C +154 [+120, +188] | - N1  +20 [+4, +35] | generations 820
+   N1      net +341 handed in 544 (right 440 wrong  99) | - E +118 [+93, +143] | - C +134 [+100, +168] | - N1   +0 [+0, +0] | generations None
+   R1orc   net +393 handed in 522 (right 456 wrong  63) | - E +170 [+148, +192] | - C +186 [+155, +218] | - N1  +52 [+37, +69] | generations None
+   cell O answered / E answered  n 271 | (net, handed in, right, wrong): O (179, 271, 224, 45) | E (190, 271, 230, 40) | C (177, 271, 223, 46) | EC(1) (189, 271, 229, 40)
+   cell O answered / E blank     n  49 | (net, handed in, right, wrong): O (18, 49, 33, 15) | E (0, 0, 0, 0) | C (17, 49, 33, 16) | EC(1) (15, 49, 32, 17)
+   cell O blank / E answered     n  42 | (net, handed in, right, wrong): O (0, 0, 0, 0) | E (33, 42, 37, 4) | C (25, 35, 30, 5) | EC(1) (33, 42, 37, 4)
+   cell O blank / E blank        n 238 | (net, handed in, right, wrong): O (0, 0, 0, 0) | E (0, 0, 0, 0) | C (-12, 82, 35, 47) | EC(1) (123, 231, 175, 52)
+   cell O answered / E answered  differences inside the cell: E - O [11, -9, 32] | EC(1) - E [-1, -14, 12] | EC(1) - C [12, -6, 30] | C - O [-2, -9, 5]
+   cell O answered / E blank     differences inside the cell: E - O [-18, -31, -5] | EC(1) - E [15, 2, 28] | EC(1) - C [-2, -14, 10] | C - O [-1, -3, 0]
+   cell O blank / E answered     differences inside the cell: E - O [33, 22, 45] | EC(1) - E [0, 0, 0] | EC(1) - C [8, 0, 17] | C - O [25, 15, 36]
+   cell O blank / E blank        differences inside the cell: E - O [0, 0, 0] | EC(1) - E [123, 97, 148] | EC(1) - C [135, 111, 160] | C - O [-12, -30, 6]
+   by premise (nets): false: {'n': 300, 'O': 6, 'E': 69, 'Cdev': 21, 'R1_1': 205, 'R1L_t': 205, 'R1L_2': 209, 'R2u': 210, 'N1': 205} | valid: {'n': 300, 'O': 191, 'E': 154, 'Cdev': 186, 'R1_1': 141, 'R1L_t': 136, 'R1L_2': 135, 'R2u': 153, 'N1': 136}
+   scheme minus scheme: R1L_2-R1_2 [3, -16, 21] | R1L_2-R1_1 [-2, -14, 10] | R1L_1-R1_1 [-5, -16, 5] | R1_1-D_1 [-15, -28, -2] | R1L_2-DL_2 [-22, -35, -10] | R1L_2-R2L [-17, -32, -2] | R1L_2-R2u [-19, -36, -2] | R1_1-A1 [-14, -32, 4] | R1L_t-R1_1 [-5, -16, 5] | R1L_t-R1L_2 [-3, -8, 2]
+   tuning questions (n 100): E +31, C +40 | R1_1 +42: - E [11, -1, 22], - C [2, -13, 17] | R1L_2 +43: - E [12, 1, 23], - C [3, -12, 18] | R2u +46: - E [15, 2, 28], - C [6, -8, 20] | D_1 +43: - E [12, -1, 25], - C [3, -11, 17]
+   answering along the C strength (answered at the smaller and blank at the larger, blank at the smaller and answered at the larger): {'0.25->0.5': (0, 87), '0.5->1': (0, 56), '1->2': (0, 7)}
+
+== FalseQA gemma3-12b: n 600 | single C strength chosen on tuning 2 | tuned {'At': '2', 'R1_t': '1', 'D_t': '2', 'R1L_t': '1', 'DL_t': '1'} | cross-check with GPT's table: mine ((398, 228), (398, 228)), GPT ((398, 228), (398, 228)) -> SAME
+   O       net +152 handed in 457 (right 299 wrong 147) | - E  -17 [-55, +22] | - C   -5 [-33, +23] | - N1  -76 [-115, -38] | generations 600
+   E       net +169 handed in 320 (right 243 wrong  74) | - E   +0 [+0, +0] | - C  +12 [-34, +56] | - N1  -59 [-74, -44] | generations 600
+   C2      net +157 handed in 595 (right 369 wrong 212) | - E  -12 [-56, +34] | - C   +0 [+0, +0] | - N1  -71 [-114, -28] | generations 600
+   A0.25   net +204 handed in 387 (right 291 wrong  87) | - E  +35 [+19, +53] | - C  +47 [+1, +92] | - N1  -24 [-45, -2] | generations 600
+   A0.5    net +229 handed in 443 (right 331 wrong 102) | - E  +60 [+39, +82] | - C  +72 [+27, +116] | - N1   +1 [-22, +25] | generations 600
+   A1      net +270 handed in 536 (right 397 wrong 127) | - E +101 [+71, +132] | - C +113 [+69, +158] | - N1  +42 [+15, +69] | generations 600
+   A2      net +296 handed in 594 (right 433 wrong 137) | - E +127 [+94, +161] | - C +139 [+98, +182] | - N1  +68 [+36, +100] | generations 600
+   At      net +296 handed in 594 (right 433 wrong 137) | - E +127 [+94, +161] | - C +139 [+98, +182] | - N1  +68 [+36, +100] | generations 600
+   R1_0.25 net +178 handed in 333 (right 254 wrong  76) | - E   +9 [+2, +16] | - C  +21 [-24, +66] | - N1  -50 [-65, -36] | generations 1004
+   R1_0.5  net +194 handed in 353 (right 272 wrong  78) | - E  +25 [+15, +36] | - C  +37 [-7, +81] | - N1  -34 [-47, -22] | generations 1004
+   R1_1    net +228 handed in 398 (right 311 wrong  83) | - E  +59 [+44, +74] | - C  +71 [+28, +114] | - N1   +0 [+0, +0] | generations 1004
+   R1_2    net +253 handed in 438 (right 341 wrong  88) | - E  +84 [+67, +101] | - C  +96 [+54, +138] | - N1  +25 [+14, +36] | generations 1004
+   R1_t    net +228 handed in 398 (right 311 wrong  83) | - E  +59 [+44, +74] | - C  +71 [+28, +114] | - N1   +0 [+0, +0] | generations 1004
+   R1L_0.25 net +178 handed in 333 (right 254 wrong  76) | - E   +9 [+2, +16] | - C  +21 [-24, +66] | - N1  -50 [-65, -36] | generations 1004
+   R1L_0.5 net +194 handed in 353 (right 272 wrong  78) | - E  +25 [+15, +36] | - C  +37 [-7, +81] | - N1  -34 [-47, -22] | generations 1115
+   R1L_1   net +228 handed in 398 (right 311 wrong  83) | - E  +59 [+44, +74] | - C  +71 [+28, +114] | - N1   +0 [+0, +0] | generations 1206
+   R1L_2   net +253 handed in 438 (right 341 wrong  88) | - E  +84 [+67, +101] | - C  +96 [+54, +138] | - N1  +25 [+14, +36] | generations 1252
+   R1L_t   net +228 handed in 398 (right 311 wrong  83) | - E  +59 [+44, +74] | - C  +71 [+28, +114] | - N1   +0 [+0, +0] | generations 1206
+   D_0.25  net +202 handed in 387 (right 290 wrong  88) | - E  +33 [+18, +48] | - C  +45 [-1, +90] | - N1  -26 [-46, -6] | generations 880
+   D_0.5   net +228 handed in 443 (right 330 wrong 102) | - E  +59 [+40, +79] | - C  +71 [+25, +117] | - N1   +0 [-22, +22] | generations 880
+   D_1     net +272 handed in 536 (right 397 wrong 125) | - E +103 [+78, +129] | - C +115 [+69, +160] | - N1  +44 [+24, +66] | generations 880
+   D_2     net +297 handed in 594 (right 435 wrong 138) | - E +128 [+102, +154] | - C +140 [+98, +185] | - N1  +69 [+45, +93] | generations 880
+   D_t     net +297 handed in 594 (right 435 wrong 138) | - E +128 [+102, +154] | - C +140 [+98, +185] | - N1  +69 [+45, +93] | generations 880
+   DL_0.25 net +202 handed in 387 (right 290 wrong  88) | - E  +33 [+18, +48] | - C  +45 [-1, +90] | - N1  -26 [-46, -6] | generations 880
+   DL_0.5  net +232 handed in 443 (right 331 wrong  99) | - E  +63 [+44, +82] | - C  +75 [+29, +120] | - N1   +4 [-18, +26] | generations 1093
+   DL_1    net +273 handed in 536 (right 394 wrong 121) | - E +104 [+81, +128] | - C +116 [+71, +161] | - N1  +45 [+26, +65] | generations 1250
+   DL_2    net +298 handed in 594 (right 431 wrong 133) | - E +129 [+105, +154] | - C +141 [+98, +185] | - N1  +70 [+48, +92] | generations 1314
+   DL_t    net +273 handed in 536 (right 394 wrong 121) | - E +104 [+81, +128] | - C +116 [+71, +161] | - N1  +45 [+26, +65] | generations 1250
+   R2u     net +295 handed in 594 (right 431 wrong 136) | - E +126 [+98, +154] | - C +138 [+97, +182] | - N1  +67 [+42, +93] | generations 978
+   R2L     net +300 handed in 594 (right 432 wrong 132) | - E +131 [+106, +157] | - C +143 [+100, +186] | - N1  +72 [+48, +96] | generations 1034
+   N1      net +228 handed in 398 (right 311 wrong  83) | - E  +59 [+44, +74] | - C  +71 [+28, +114] | - N1   +0 [+0, +0] | generations None
+   R1orc   net +265 handed in 420 (right 341 wrong  76) | - E  +96 [+80, +112] | - C +108 [+66, +150] | - N1  +37 [+26, +49] | generations None
+   cell O answered / E answered  n 301 | (net, handed in, right, wrong): O (147, 301, 223, 76) | E (154, 301, 226, 72) | C (122, 301, 210, 88) | EC(1) (152, 301, 226, 74)
+   cell O answered / E blank     n 156 | (net, handed in, right, wrong): O (5, 156, 76, 71) | E (0, 0, 0, 0) | C (7, 156, 78, 71) | EC(1) (44, 138, 86, 42)
+   cell O blank / E answered     n  19 | (net, handed in, right, wrong): O (0, 0, 0, 0) | E (15, 19, 17, 2) | C (5, 19, 12, 7) | EC(1) (15, 19, 17, 2)
+   cell O blank / E blank        n 124 | (net, handed in, right, wrong): O (0, 0, 0, 0) | E (0, 0, 0, 0) | C (23, 119, 69, 46) | EC(1) (59, 78, 68, 9)
+   cell O answered / E answered  differences inside the cell: E - O [7, -25, 39] | EC(1) - E [-2, -19, 14] | EC(1) - C [30, -2, 62] | C - O [-25, -42, -10]
+   cell O answered / E blank     differences inside the cell: E - O [-5, -28, 17] | EC(1) - E [44, 24, 66] | EC(1) - C [37, 10, 65] | C - O [2, -7, 12]
+   cell O blank / E answered     differences inside the cell: E - O [15, 7, 24] | EC(1) - E [0, 0, 0] | EC(1) - C [10, 2, 20] | C - O [5, -3, 13]
+   cell O blank / E blank        differences inside the cell: E - O [0, 0, 0] | EC(1) - E [59, 44, 74] | EC(1) - C [36, 14, 59] | C - O [23, 3, 43]
+   by premise (nets): false: {'n': 300, 'O': -43, 'E': 75, 'Cdev': -25, 'R1_1': 138, 'R1L_t': 138, 'R1L_2': 166, 'R2u': 197, 'N1': 138} | valid: {'n': 300, 'O': 195, 'E': 94, 'Cdev': 182, 'R1_1': 90, 'R1L_t': 90, 'R1L_2': 87, 'R2u': 98, 'N1': 90}
+   scheme minus scheme: R1L_2-R1_2 [0, 0, 0] | R1L_2-R1_1 [25, 14, 36] | R1L_1-R1_1 [0, 0, 0] | R1_1-D_1 [-44, -66, -24] | R1L_2-DL_2 [-45, -66, -24] | R1L_2-R2L [-47, -69, -25] | R1L_2-R2u [-42, -66, -19] | R1_1-A1 [-42, -69, -15] | R1L_t-R1_1 [0, 0, 0] | R1L_t-R1L_2 [-25, -36, -14]
+   tuning questions (n 100): E +17, C +20 | R1_1 +29: - E [12, 6, 19], - C [9, -8, 26] | R1L_2 +27: - E [10, 2, 18], - C [7, -10, 24] | R2u +29: - E [12, -1, 25], - C [9, -9, 27] | D_1 +31: - E [14, 3, 26], - C [11, -7, 29]
+   answering along the C strength (answered at the smaller and blank at the larger, blank at the smaller and answered at the larger): {'0.25->0.5': (0, 56), '0.5->1': (0, 93), '1->2': (0, 58)}
+
+== FalseQA gemma3-27b: n 600 | single C strength chosen on tuning 0.25 | tuned {'At': '0.25', 'R1_t': '0.5', 'D_t': '0.5', 'R1L_t': '2', 'DL_t': '0.5'} | cross-check with GPT's table: mine ((537, 326), (563, 328)), GPT ((537, 326), (563, 328)) -> SAME
+   O       net +187 handed in 463 (right 321 wrong 134) | - E  -88 [-114, -62] | - C   +1 [-11, +13] | - N1 -141 [-170, -112] | generations 600
+   E       net +275 handed in 461 (right 360 wrong  85) | - E   +0 [+0, +0] | - C  +89 [+62, +115] | - N1  -53 [-71, -35] | generations 600
+   C0.25   net +186 handed in 492 (right 335 wrong 149) | - E  -89 [-115, -62] | - C   +0 [+0, +0] | - N1 -142 [-172, -113] | generations 600
+   A0.25   net +279 handed in 486 (right 375 wrong  96) | - E   +4 [-8, +16] | - C  +93 [+65, +121] | - N1  -49 [-68, -31] | generations 600
+   A0.5    net +284 handed in 520 (right 395 wrong 111) | - E   +9 [-10, +28] | - C  +98 [+69, +127] | - N1  -44 [-65, -23] | generations 600
+   A1      net +302 handed in 572 (right 431 wrong 129) | - E  +27 [-1, +54] | - C +116 [+87, +145] | - N1  -26 [-50, -2] | generations 600
+   A2      net +259 handed in 599 (right 424 wrong 165) | - E  -16 [-51, +19] | - C  +73 [+41, +107] | - N1  -69 [-99, -39] | generations 600
+   At      net +279 handed in 486 (right 375 wrong  96) | - E   +4 [-8, +16] | - C  +93 [+65, +121] | - N1  -49 [-68, -31] | generations 600
+   R1_0.25 net +283 handed in 473 (right 370 wrong  87) | - E   +8 [+1, +15] | - C  +97 [+69, +125] | - N1  -45 [-63, -28] | generations 842
+   R1_0.5  net +298 handed in 495 (right 388 wrong  90) | - E  +23 [+12, +34] | - C +112 [+85, +139] | - N1  -30 [-46, -14] | generations 842
+   R1_1    net +326 handed in 537 (right 422 wrong  96) | - E  +51 [+35, +67] | - C +140 [+113, +166] | - N1   -2 [-13, +9] | generations 842
+   R1_2    net +307 handed in 563 (right 425 wrong 118) | - E  +32 [+15, +51] | - C +121 [+91, +151] | - N1  -21 [-35, -8] | generations 842
+   R1_t    net +298 handed in 495 (right 388 wrong  90) | - E  +23 [+12, +34] | - C +112 [+85, +139] | - N1  -30 [-46, -14] | generations 842
+   R1L_0.25 net +283 handed in 473 (right 370 wrong  87) | - E   +8 [+1, +15] | - C  +97 [+69, +125] | - N1  -45 [-63, -28] | generations 842
+   R1L_0.5 net +298 handed in 495 (right 388 wrong  90) | - E  +23 [+13, +34] | - C +112 [+85, +139] | - N1  -30 [-45, -15] | generations 933
+   R1L_1   net +328 handed in 537 (right 423 wrong  95) | - E  +53 [+38, +69] | - C +142 [+115, +169] | - N1   +0 [-9, +9] | generations 1002
+   R1L_2   net +328 handed in 563 (right 435 wrong 107) | - E  +53 [+35, +71] | - C +142 [+113, +172] | - N1   +0 [+0, +0] | generations 1029
+   R1L_t   net +328 handed in 563 (right 435 wrong 107) | - E  +53 [+35, +71] | - C +142 [+113, +172] | - N1   +0 [+0, +0] | generations 1029
+   D_0.25  net +283 handed in 486 (right 376 wrong  93) | - E   +8 [-1, +18] | - C  +97 [+69, +125] | - N1  -45 [-63, -27] | generations 739
+   D_0.5   net +294 handed in 520 (right 398 wrong 104) | - E  +19 [+4, +35] | - C +108 [+80, +137] | - N1  -34 [-53, -16] | generations 739
+   D_1     net +321 handed in 572 (right 437 wrong 116) | - E  +46 [+25, +66] | - C +135 [+107, +163] | - N1   -7 [-24, +9] | generations 739
+   D_2     net +293 handed in 599 (right 436 wrong 143) | - E  +18 [-5, +42] | - C +107 [+77, +137] | - N1  -35 [-53, -18] | generations 739
+   D_t     net +294 handed in 520 (right 398 wrong 104) | - E  +19 [+4, +35] | - C +108 [+80, +137] | - N1  -34 [-53, -16] | generations 739
+   DL_0.25 net +283 handed in 486 (right 376 wrong  93) | - E   +8 [-1, +18] | - C  +97 [+69, +125] | - N1  -45 [-63, -27] | generations 739
+   DL_0.5  net +295 handed in 520 (right 398 wrong 103) | - E  +20 [+5, +35] | - C +109 [+81, +138] | - N1  -33 [-51, -16] | generations 853
+   DL_1    net +329 handed in 572 (right 440 wrong 111) | - E  +54 [+34, +74] | - C +143 [+115, +171] | - N1   +1 [-14, +15] | generations 933
+   DL_2    net +330 handed in 599 (right 453 wrong 123) | - E  +55 [+33, +78] | - C +144 [+114, +174] | - N1   +2 [-10, +13] | generations 961
+   DL_t    net +295 handed in 520 (right 398 wrong 103) | - E  +20 [+5, +35] | - C +109 [+81, +138] | - N1  -33 [-51, -16] | generations 853
+   R2u     net +319 handed in 599 (right 450 wrong 131) | - E  +44 [+19, +70] | - C +133 [+103, +164] | - N1   -9 [-26, +8] | generations 788
+   R2L     net +326 handed in 599 (right 452 wrong 126) | - E  +51 [+28, +75] | - C +140 [+110, +170] | - N1   -2 [-16, +11] | generations 822
+   N1      net +328 handed in 563 (right 435 wrong 107) | - E  +53 [+35, +71] | - C +142 [+113, +172] | - N1   +0 [+0, +0] | generations None
+   R1orc   net +350 handed in 538 (right 436 wrong  86) | - E  +75 [+60, +91] | - C +164 [+137, +192] | - N1  +22 [+13, +32] | generations None
+   cell O answered / E answered  n 427 | (net, handed in, right, wrong): O (209, 427, 314, 105) | E (243, 427, 327, 84) | C (205, 427, 312, 107) | EC(1) (224, 427, 321, 97)
+   cell O answered / E blank     n  36 | (net, handed in, right, wrong): O (-22, 36, 7, 29) | E (0, 0, 0, 0) | C (-22, 36, 7, 29) | EC(1) (-5, 35, 15, 20)
+   cell O blank / E answered     n  34 | (net, handed in, right, wrong): O (0, 0, 0, 0) | E (32, 34, 33, 1) | C (9, 15, 12, 3) | EC(1) (32, 34, 33, 1)
+   cell O blank / E blank        n 103 | (net, handed in, right, wrong): O (0, 0, 0, 0) | E (0, 0, 0, 0) | C (-6, 14, 4, 10) | EC(1) (51, 76, 62, 11)
+   cell O answered / E answered  differences inside the cell: E - O [34, 11, 57] | EC(1) - E [-19, -37, -2] | EC(1) - C [19, -3, 42] | C - O [-4, -11, 1]
+   cell O answered / E blank     differences inside the cell: E - O [22, 11, 34] | EC(1) - E [-5, -17, 7] | EC(1) - C [17, 6, 30] | C - O [0, 0, 0]
+   cell O blank / E answered     differences inside the cell: E - O [32, 22, 43] | EC(1) - E [0, 0, 0] | EC(1) - C [23, 14, 33] | C - O [9, 2, 17]
+   cell O blank / E blank        differences inside the cell: E - O [0, 0, 0] | EC(1) - E [51, 35, 67] | EC(1) - C [57, 41, 74] | C - O [-6, -13, 1]
+   by premise (nets): false: {'n': 300, 'O': -12, 'E': 91, 'Cdev': -8, 'R1_1': 144, 'R1L_t': 149, 'R1L_2': 149, 'R2u': 141, 'N1': 149} | valid: {'n': 300, 'O': 199, 'E': 184, 'Cdev': 194, 'R1_1': 182, 'R1L_t': 179, 'R1L_2': 179, 'R2u': 178, 'N1': 179}
+   scheme minus scheme: R1L_2-R1_2 [21, 8, 35] | R1L_2-R1_1 [2, -9, 13] | R1L_1-R1_1 [2, -4, 10] | R1_1-D_1 [5, -7, 17] | R1L_2-DL_2 [-2, -13, 10] | R1L_2-R2L [2, -11, 16] | R1L_2-R2u [9, -8, 26] | R1_1-A1 [24, 3, 46] | R1L_t-R1_1 [2, -9, 13] | R1L_t-R1L_2 [0, 0, 0]
+   tuning questions (n 100): E +43, C +27 | R1_1 +45: - E [2, -3, 8], - C [18, 5, 31] | R1L_2 +49: - E [6, 0, 13], - C [22, 11, 34] | R2u +37: - E [-6, -17, 5], - C [10, 0, 21] | D_1 +40: - E [-3, -12, 6], - C [13, 1, 25]
+   answering along the C strength (answered at the smaller and blank at the larger, blank at the smaller and answered at the larger): {'0.25->0.5': (0, 34), '0.5->1': (0, 52), '1->2': (0, 27)}
