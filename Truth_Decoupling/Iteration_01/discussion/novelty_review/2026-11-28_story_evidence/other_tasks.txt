@@ -1,0 +1,159 @@
+SOURCE target tune pure C popqa llama3.1-8b 0-25
+SOURCE target tune pure C popqa qwen3.5-9b 0-25
+SOURCE target tune pure C popqa qwen3.8-27b 0-25
+SOURCE target tune pure C popqa gemma3-12b 0-25
+SOURCE target tune pure C popqa gemma3-27b 0-25
+SOURCE target tune pure C triviaqa llama3.1-8b 0-25
+SOURCE target tune pure C triviaqa qwen3.5-9b 2
+SOURCE target tune pure C triviaqa qwen3.8-27b 2
+SOURCE target tune pure C triviaqa gemma3-12b 0-25
+SOURCE target tune pure C triviaqa gemma3-27b 0-25
+RESULT popqa_test llama3.1-8b n 500 double 135 fill (submitted,R,W,net) (5, 1, 4, -3) natural {'O': (365, 127, 238, -111), 'E': (99, 57, 42, 15), 'C1': (435, 129, 306, -177), 'Csrc': (386, 126, 260, -134), 'Cdev': (386, 126, 260, -134), 'rule': (104, 58, 46, 12)} differences (net,95lo,95hi) {'E': [-3, -8, 1], 'C1': [189, 155, 223], 'Csrc': [146, 114, 178], 'Cdev': [146, 114, 178]}
+FORMAL_SUBSET popqa test llama3.1-8b E ever-graded subset 100 scorable-ref 100 both absolute scores known 96 paired difference known incl identical 100 known part 0 whole-subset paired bounds 0 0
+FORMAL_SUBSET popqa test llama3.1-8b C1 ever-graded subset 100 scorable-ref 100 both absolute scores known 90 paired difference known incl identical 90 known part 30 whole-subset paired bounds 20 40
+FORMAL_SUBSET popqa test llama3.1-8b Csrc ever-graded subset 100 scorable-ref 100 both absolute scores known 95 paired difference known incl identical 95 known part 27 whole-subset paired bounds 22 32
+FORMAL_SUBSET popqa test llama3.1-8b Cdev ever-graded subset 100 scorable-ref 100 both absolute scores known 95 paired difference known incl identical 95 known part 27 whole-subset paired bounds 22 32
+RESULT popqa_test qwen3.5-9b n 500 double 82 fill (submitted,R,W,net) (37, 3, 34, -31) natural {'O': (417, 109, 308, -199), 'E': (189, 66, 123, -57), 'C1': (497, 111, 386, -275), 'Csrc': (457, 113, 344, -231), 'Cdev': (457, 113, 344, -231), 'rule': (226, 69, 157, -88)} differences (net,95lo,95hi) {'E': [-31, -43, -19], 'C1': [187, 158, 216], 'Csrc': [143, 113, 173], 'Cdev': [143, 113, 173]}
+FORMAL_SUBSET popqa test qwen3.5-9b E ever-graded subset 100 scorable-ref 100 both absolute scores known 98 paired difference known incl identical 98 known part -3 whole-subset paired bounds -5 -1
+FORMAL_SUBSET popqa test qwen3.5-9b C1 ever-graded subset 100 scorable-ref 100 both absolute scores known 84 paired difference known incl identical 84 known part 27 whole-subset paired bounds 12 44
+FORMAL_SUBSET popqa test qwen3.5-9b Csrc ever-graded subset 100 scorable-ref 100 both absolute scores known 97 paired difference known incl identical 97 known part 29 whole-subset paired bounds 25 31
+FORMAL_SUBSET popqa test qwen3.5-9b Cdev ever-graded subset 100 scorable-ref 100 both absolute scores known 97 paired difference known incl identical 97 known part 29 whole-subset paired bounds 25 31
+RESULT popqa_test qwen3.8-27b n 500 double 183 fill (submitted,R,W,net) (182, 12, 170, -158) natural {'O': (316, 94, 222, -128), 'E': (227, 79, 148, -69), 'C1': (500, 101, 399, -298), 'Csrc': (497, 107, 390, -283), 'Cdev': (452, 104, 348, -244), 'rule': (409, 91, 318, -227)} differences (net,95lo,95hi) {'E': [-158, -181, -136], 'C1': [71, 49, 93], 'Csrc': [56, 36, 77], 'Cdev': [17, -7, 41]}
+FORMAL_SUBSET popqa test qwen3.8-27b E ever-graded subset 100 scorable-ref 100 both absolute scores known 94 paired difference known incl identical 96 known part -17 whole-subset paired bounds -21 -13
+FORMAL_SUBSET popqa test qwen3.8-27b C1 ever-graded subset 100 scorable-ref 100 both absolute scores known 87 paired difference known incl identical 87 known part 14 whole-subset paired bounds -1 27
+FORMAL_SUBSET popqa test qwen3.8-27b Csrc ever-graded subset 100 scorable-ref 100 both absolute scores known 89 paired difference known incl identical 89 known part 12 whole-subset paired bounds 0 26
+FORMAL_SUBSET popqa test qwen3.8-27b Cdev ever-graded subset 100 scorable-ref 100 both absolute scores known 94 paired difference known incl identical 95 known part 9 whole-subset paired bounds 6 16
+RESULT popqa_test gemma3-12b n 500 double 50 fill (submitted,R,W,net) (18, 0, 18, -18) natural {'O': (449, 113, 336, -223), 'E': (139, 58, 81, -23), 'C1': (495, 109, 386, -277), 'Csrc': (488, 113, 375, -262), 'Cdev': (469, 113, 356, -243), 'rule': (157, 58, 99, -41)} differences (net,95lo,95hi) {'E': [-18, -27, -11], 'C1': [236, 203, 269], 'Csrc': [221, 187, 255], 'Cdev': [202, 168, 237]}
+FORMAL_SUBSET popqa test gemma3-12b E ever-graded subset 100 scorable-ref 100 both absolute scores known 97 paired difference known incl identical 99 known part -3 whole-subset paired bounds -4 -2
+FORMAL_SUBSET popqa test gemma3-12b C1 ever-graded subset 100 scorable-ref 100 both absolute scores known 80 paired difference known incl identical 80 known part 20 whole-subset paired bounds -1 41
+FORMAL_SUBSET popqa test gemma3-12b Csrc ever-graded subset 100 scorable-ref 100 both absolute scores known 87 paired difference known incl identical 87 known part 26 whole-subset paired bounds 12 40
+FORMAL_SUBSET popqa test gemma3-12b Cdev ever-graded subset 100 scorable-ref 100 both absolute scores known 97 paired difference known incl identical 97 known part 34 whole-subset paired bounds 33 39
+RESULT popqa_test gemma3-27b n 500 double 48 fill (submitted,R,W,net) (30, 1, 29, -28) natural {'O': (449, 143, 306, -163), 'E': (385, 130, 255, -125), 'C1': (495, 140, 355, -215), 'Csrc': (468, 141, 327, -186), 'Cdev': (468, 141, 327, -186), 'rule': (415, 131, 284, -153)} differences (net,95lo,95hi) {'E': [-28, -39, -18], 'C1': [62, 39, 85], 'Csrc': [33, 9, 57], 'Cdev': [33, 9, 57]}
+FORMAL_SUBSET popqa test gemma3-27b E ever-graded subset 100 scorable-ref 100 both absolute scores known 83 paired difference known incl identical 96 known part -2 whole-subset paired bounds -6 2
+FORMAL_SUBSET popqa test gemma3-27b C1 ever-graded subset 100 scorable-ref 100 both absolute scores known 75 paired difference known incl identical 75 known part 2 whole-subset paired bounds -29 33
+FORMAL_SUBSET popqa test gemma3-27b Csrc ever-graded subset 100 scorable-ref 100 both absolute scores known 83 paired difference known incl identical 83 known part 4 whole-subset paired bounds -6 28
+FORMAL_SUBSET popqa test gemma3-27b Cdev ever-graded subset 100 scorable-ref 100 both absolute scores known 83 paired difference known incl identical 83 known part 4 whole-subset paired bounds -6 28
+RESULT popqa_test2 llama3.1-8b n 500 double 125 fill (submitted,R,W,net) (5, 0, 5, -5) natural {'O': (375, 139, 236, -97), 'E': (99, 59, 40, 19), 'C1': (438, 139, 299, -160), 'Csrc': (394, 139, 255, -116), 'Cdev': (394, 139, 255, -116), 'rule': (104, 59, 45, 14)} differences (net,95lo,95hi) {'E': [-5, -10, -1], 'C1': [174, 140, 207], 'Csrc': [130, 96, 164], 'Cdev': [130, 96, 164]}
+FORMAL_SUBSET popqa test2 llama3.1-8b E ever-graded subset 100 scorable-ref 100 both absolute scores known 91 paired difference known incl identical 99 known part 0 whole-subset paired bounds -1 1
+FORMAL_SUBSET popqa test2 llama3.1-8b C1 ever-graded subset 100 scorable-ref 100 both absolute scores known 64 paired difference known incl identical 64 known part 12 whole-subset paired bounds -29 45
+FORMAL_SUBSET popqa test2 llama3.1-8b Csrc ever-graded subset 100 scorable-ref 100 both absolute scores known 83 paired difference known incl identical 83 known part 24 whole-subset paired bounds 3 37
+FORMAL_SUBSET popqa test2 llama3.1-8b Cdev ever-graded subset 100 scorable-ref 100 both absolute scores known 83 paired difference known incl identical 83 known part 24 whole-subset paired bounds 3 37
+RESULT popqa_test2 qwen3.5-9b n 500 double 88 fill (submitted,R,W,net) (39, 1, 38, -37) natural {'O': (412, 98, 314, -216), 'E': (200, 83, 117, -34), 'C1': (498, 99, 399, -300), 'Csrc': (449, 99, 350, -251), 'Cdev': (449, 99, 350, -251), 'rule': (239, 84, 155, -71)} differences (net,95lo,95hi) {'E': [-37, -50, -25], 'C1': [229, 201, 255], 'Csrc': [180, 151, 207], 'Cdev': [180, 151, 207]}
+FORMAL_SUBSET popqa test2 qwen3.5-9b E ever-graded subset 100 scorable-ref 100 both absolute scores known 90 paired difference known incl identical 92 known part 0 whole-subset paired bounds -8 8
+FORMAL_SUBSET popqa test2 qwen3.5-9b C1 ever-graded subset 100 scorable-ref 100 both absolute scores known 59 paired difference known incl identical 59 known part 16 whole-subset paired bounds -36 60
+FORMAL_SUBSET popqa test2 qwen3.5-9b Csrc ever-graded subset 100 scorable-ref 100 both absolute scores known 78 paired difference known incl identical 78 known part 20 whole-subset paired bounds -10 46
+FORMAL_SUBSET popqa test2 qwen3.5-9b Cdev ever-graded subset 100 scorable-ref 100 both absolute scores known 78 paired difference known incl identical 78 known part 20 whole-subset paired bounds -10 46
+RESULT popqa_test2 qwen3.8-27b n 500 double 175 fill (submitted,R,W,net) (175, 7, 168, -161) natural {'O': (324, 104, 220, -116), 'E': (231, 89, 142, -53), 'C1': (500, 109, 391, -282), 'Csrc': (497, 110, 387, -277), 'Cdev': (450, 110, 340, -230), 'rule': (406, 96, 310, -214)} differences (net,95lo,95hi) {'E': [-161, -183, -139], 'C1': [68, 48, 88], 'Csrc': [63, 43, 84], 'Cdev': [16, -9, 41]}
+FORMAL_SUBSET popqa test2 qwen3.8-27b E ever-graded subset 100 scorable-ref 100 both absolute scores known 78 paired difference known incl identical 78 known part -9 whole-subset paired bounds -31 13
+FORMAL_SUBSET popqa test2 qwen3.8-27b C1 ever-graded subset 100 scorable-ref 100 both absolute scores known 67 paired difference known incl identical 78 known part 5 whole-subset paired bounds -32 34
+FORMAL_SUBSET popqa test2 qwen3.8-27b Csrc ever-graded subset 100 scorable-ref 100 both absolute scores known 67 paired difference known incl identical 73 known part 5 whole-subset paired bounds -42 40
+FORMAL_SUBSET popqa test2 qwen3.8-27b Cdev ever-graded subset 100 scorable-ref 100 both absolute scores known 71 paired difference known incl identical 75 known part 9 whole-subset paired bounds -34 38
+RESULT popqa_test2 gemma3-12b n 500 double 54 fill (submitted,R,W,net) (24, 0, 24, -24) natural {'O': (445, 103, 342, -239), 'E': (139, 69, 70, -1), 'C1': (494, 103, 391, -288), 'Csrc': (484, 103, 381, -278), 'Cdev': (471, 102, 369, -267), 'rule': (163, 69, 94, -25)} differences (net,95lo,95hi) {'E': [-24, -34, -15], 'C1': [263, 233, 291], 'Csrc': [253, 224, 281], 'Cdev': [242, 211, 272]}
+FORMAL_SUBSET popqa test2 gemma3-12b E ever-graded subset 100 scorable-ref 100 both absolute scores known 88 paired difference known incl identical 96 known part 0 whole-subset paired bounds -4 4
+FORMAL_SUBSET popqa test2 gemma3-12b C1 ever-graded subset 100 scorable-ref 100 both absolute scores known 60 paired difference known incl identical 62 known part 18 whole-subset paired bounds -24 58
+FORMAL_SUBSET popqa test2 gemma3-12b Csrc ever-graded subset 100 scorable-ref 100 both absolute scores known 66 paired difference known incl identical 66 known part 23 whole-subset paired bounds -15 59
+FORMAL_SUBSET popqa test2 gemma3-12b Cdev ever-graded subset 100 scorable-ref 100 both absolute scores known 74 paired difference known incl identical 74 known part 28 whole-subset paired bounds 2 56
+RESULT popqa_test2 gemma3-27b n 500 double 28 fill (submitted,R,W,net) (19, 1, 18, -17) natural {'O': (470, 150, 320, -170), 'E': (398, 147, 251, -104), 'C1': (497, 152, 345, -193), 'Csrc': (484, 150, 334, -184), 'Cdev': (484, 150, 334, -184), 'rule': (417, 148, 269, -121)} differences (net,95lo,95hi) {'E': [-17, -25, -9], 'C1': [72, 51, 94], 'Csrc': [63, 42, 86], 'Cdev': [63, 42, 86]}
+FORMAL_SUBSET popqa test2 gemma3-27b E ever-graded subset 100 scorable-ref 100 both absolute scores known 78 paired difference known incl identical 98 known part 0 whole-subset paired bounds -2 2
+FORMAL_SUBSET popqa test2 gemma3-27b C1 ever-graded subset 100 scorable-ref 100 both absolute scores known 61 paired difference known incl identical 62 known part 6 whole-subset paired bounds -39 57
+FORMAL_SUBSET popqa test2 gemma3-27b Csrc ever-graded subset 100 scorable-ref 100 both absolute scores known 75 paired difference known incl identical 77 known part 11 whole-subset paired bounds -5 51
+FORMAL_SUBSET popqa test2 gemma3-27b Cdev ever-graded subset 100 scorable-ref 100 both absolute scores known 75 paired difference known incl identical 77 known part 11 whole-subset paired bounds -5 51
+RESULT triviaqa_test llama3.1-8b n 500 double 10 fill (submitted,R,W,net) (1, 0, 1, -1) natural {'O': (490, 315, 175, 140), 'E': (263, 195, 68, 127), 'C1': (497, 317, 180, 137), 'Csrc': (493, 318, 175, 143), 'Cdev': (493, 318, 175, 143), 'rule': (264, 195, 69, 126)} differences (net,95lo,95hi) {'E': [-1, -3, 0], 'C1': [-11, -48, 26], 'Csrc': [-17, -53, 21], 'Cdev': [-17, -53, 21]}
+FORMAL_SUBSET triviaqa test llama3.1-8b E ever-graded subset 100 scorable-ref 100 both absolute scores known 77 paired difference known incl identical 99 known part 0 whole-subset paired bounds -1 1
+FORMAL_SUBSET triviaqa test llama3.1-8b C1 ever-graded subset 100 scorable-ref 100 both absolute scores known 73 paired difference known incl identical 73 known part -16 whole-subset paired bounds -55 3
+FORMAL_SUBSET triviaqa test llama3.1-8b Csrc ever-graded subset 100 scorable-ref 100 both absolute scores known 75 paired difference known incl identical 75 known part -18 whole-subset paired bounds -52 -2
+FORMAL_SUBSET triviaqa test llama3.1-8b Cdev ever-graded subset 100 scorable-ref 100 both absolute scores known 75 paired difference known incl identical 75 known part -18 whole-subset paired bounds -52 -2
+RESULT triviaqa_test qwen3.5-9b n 500 double 8 fill (submitted,R,W,net) (8, 0, 8, -8) natural {'O': (492, 283, 209, 74), 'E': (376, 252, 124, 128), 'C1': (500, 284, 216, 68), 'Csrc': (495, 280, 215, 65), 'Cdev': (500, 284, 216, 68), 'rule': (384, 252, 132, 120)} differences (net,95lo,95hi) {'E': [-8, -14, -3], 'C1': [52, 25, 79], 'Csrc': [55, 28, 80], 'Cdev': [52, 23, 80]}
+FORMAL_SUBSET triviaqa test qwen3.5-9b E ever-graded subset 100 scorable-ref 100 both absolute scores known 100 paired difference known incl identical 100 known part 0 whole-subset paired bounds 0 0
+FORMAL_SUBSET triviaqa test qwen3.5-9b C1 ever-graded subset 100 scorable-ref 100 both absolute scores known 92 paired difference known incl identical 92 known part 12 whole-subset paired bounds 5 21
+FORMAL_SUBSET triviaqa test qwen3.5-9b Csrc ever-graded subset 100 scorable-ref 100 both absolute scores known 100 paired difference known incl identical 100 known part 17 whole-subset paired bounds 17 17
+FORMAL_SUBSET triviaqa test qwen3.5-9b Cdev ever-graded subset 100 scorable-ref 100 both absolute scores known 82 paired difference known incl identical 82 known part 10 whole-subset paired bounds -5 31
+RESULT triviaqa_test qwen3.8-27b n 500 double 20 fill (submitted,R,W,net) (20, 0, 20, -20) natural {'O': (477, 299, 178, 121), 'E': (436, 288, 148, 140), 'C1': (500, 300, 200, 100), 'Csrc': (500, 303, 197, 106), 'Cdev': (500, 300, 200, 100), 'rule': (456, 288, 168, 120)} differences (net,95lo,95hi) {'E': [-20, -29, -12], 'C1': [20, -3, 43], 'Csrc': [14, -6, 33], 'Cdev': [20, -5, 43]}
+FORMAL_SUBSET triviaqa test qwen3.8-27b E ever-graded subset 100 scorable-ref 100 both absolute scores known 99 paired difference known incl identical 99 known part -2 whole-subset paired bounds -3 -1
+FORMAL_SUBSET triviaqa test qwen3.8-27b C1 ever-graded subset 100 scorable-ref 100 both absolute scores known 96 paired difference known incl identical 96 known part 8 whole-subset paired bounds 7 15
+FORMAL_SUBSET triviaqa test qwen3.8-27b Csrc ever-graded subset 100 scorable-ref 100 both absolute scores known 99 paired difference known incl identical 99 known part 7 whole-subset paired bounds 7 9
+FORMAL_SUBSET triviaqa test qwen3.8-27b Cdev ever-graded subset 100 scorable-ref 100 both absolute scores known 92 paired difference known incl identical 92 known part 10 whole-subset paired bounds 5 21
+RESULT triviaqa_test gemma3-12b n 500 double 2 fill (submitted,R,W,net) (2, 1, 1, 0) natural {'O': (497, 328, 169, 159), 'E': (356, 241, 115, 126), 'C1': (500, 332, 168, 164), 'Csrc': (500, 333, 167, 166), 'Cdev': (499, 330, 169, 161), 'rule': (358, 242, 116, 126)} differences (net,95lo,95hi) {'E': [0, -3, 3], 'C1': [-38, -73, -3], 'Csrc': [-40, -75, -5], 'Cdev': [-35, -70, 1]}
+FORMAL_SUBSET triviaqa test gemma3-12b E ever-graded subset 100 scorable-ref 100 both absolute scores known 86 paired difference known incl identical 100 known part 0 whole-subset paired bounds 0 0
+FORMAL_SUBSET triviaqa test gemma3-12b C1 ever-graded subset 100 scorable-ref 100 both absolute scores known 84 paired difference known incl identical 85 known part 4 whole-subset paired bounds -12 18
+FORMAL_SUBSET triviaqa test gemma3-12b Csrc ever-graded subset 100 scorable-ref 100 both absolute scores known 86 paired difference known incl identical 86 known part 6 whole-subset paired bounds -8 20
+FORMAL_SUBSET triviaqa test gemma3-12b Cdev ever-graded subset 100 scorable-ref 100 both absolute scores known 86 paired difference known incl identical 86 known part 6 whole-subset paired bounds -8 20
+RESULT triviaqa_test gemma3-27b n 500 double 3 fill (submitted,R,W,net) (2, 0, 2, -2) natural {'O': (497, 378, 119, 259), 'E': (488, 374, 114, 260), 'C1': (500, 381, 119, 262), 'Csrc': (498, 376, 122, 254), 'Cdev': (498, 376, 122, 254), 'rule': (490, 374, 116, 258)} differences (net,95lo,95hi) {'E': [-2, -5, 0], 'C1': [-4, -22, 15], 'Csrc': [4, -12, 21], 'Cdev': [4, -12, 21]}
+FORMAL_SUBSET triviaqa test gemma3-27b E ever-graded subset 100 scorable-ref 100 both absolute scores known 93 paired difference known incl identical 100 known part 0 whole-subset paired bounds 0 0
+FORMAL_SUBSET triviaqa test gemma3-27b C1 ever-graded subset 100 scorable-ref 100 both absolute scores known 90 paired difference known incl identical 91 known part 7 whole-subset paired bounds 3 21
+FORMAL_SUBSET triviaqa test gemma3-27b Csrc ever-graded subset 100 scorable-ref 100 both absolute scores known 93 paired difference known incl identical 94 known part 9 whole-subset paired bounds 5 17
+FORMAL_SUBSET triviaqa test gemma3-27b Cdev ever-graded subset 100 scorable-ref 100 both absolute scores known 93 paired difference known incl identical 94 known part 9 whole-subset paired bounds 5 17
+RESULT triviaqa_test2 llama3.1-8b n 500 double 8 fill (submitted,R,W,net) (3, 1, 2, -1) natural {'O': (492, 344, 148, 196), 'E': (251, 200, 51, 149), 'C1': (496, 341, 155, 186), 'Csrc': (493, 342, 151, 191), 'Cdev': (493, 342, 151, 191), 'rule': (254, 201, 53, 148)} differences (net,95lo,95hi) {'E': [-1, -5, 2], 'C1': [-38, -73, -1], 'Csrc': [-43, -80, -5], 'Cdev': [-43, -80, -5]}
+FORMAL_SUBSET triviaqa test2 llama3.1-8b E ever-graded subset 100 scorable-ref 100 both absolute scores known 85 paired difference known incl identical 99 known part 0 whole-subset paired bounds -1 1
+FORMAL_SUBSET triviaqa test2 llama3.1-8b C1 ever-graded subset 100 scorable-ref 100 both absolute scores known 76 paired difference known incl identical 76 known part -14 whole-subset paired bounds -49 5
+FORMAL_SUBSET triviaqa test2 llama3.1-8b Csrc ever-graded subset 100 scorable-ref 100 both absolute scores known 82 paired difference known incl identical 82 known part -12 whole-subset paired bounds -38 -2
+FORMAL_SUBSET triviaqa test2 llama3.1-8b Cdev ever-graded subset 100 scorable-ref 100 both absolute scores known 82 paired difference known incl identical 82 known part -12 whole-subset paired bounds -38 -2
+RESULT triviaqa_test2 qwen3.5-9b n 500 double 10 fill (submitted,R,W,net) (9, 3, 6, -3) natural {'O': (490, 303, 187, 116), 'E': (386, 268, 118, 150), 'C1': (500, 311, 189, 122), 'Csrc': (494, 304, 190, 114), 'Cdev': (500, 313, 187, 126), 'rule': (395, 271, 124, 147)} differences (net,95lo,95hi) {'E': [-3, -9, 3], 'C1': [25, -6, 55], 'Csrc': [33, 4, 63], 'Cdev': [21, -12, 54]}
+FORMAL_SUBSET triviaqa test2 qwen3.5-9b E ever-graded subset 100 scorable-ref 100 both absolute scores known 98 paired difference known incl identical 98 known part 0 whole-subset paired bounds -2 2
+FORMAL_SUBSET triviaqa test2 qwen3.5-9b C1 ever-graded subset 100 scorable-ref 100 both absolute scores known 77 paired difference known incl identical 79 known part 6 whole-subset paired bounds -11 31
+FORMAL_SUBSET triviaqa test2 qwen3.5-9b Csrc ever-graded subset 100 scorable-ref 100 both absolute scores known 88 paired difference known incl identical 89 known part 9 whole-subset paired bounds 0 22
+FORMAL_SUBSET triviaqa test2 qwen3.5-9b Cdev ever-graded subset 100 scorable-ref 100 both absolute scores known 68 paired difference known incl identical 69 known part 2 whole-subset paired bounds -21 43
+RESULT triviaqa_test2 qwen3.8-27b n 500 double 19 fill (submitted,R,W,net) (18, 2, 16, -14) natural {'O': (475, 312, 163, 149), 'E': (453, 299, 154, 145), 'C1': (500, 308, 192, 116), 'Csrc': (498, 309, 189, 120), 'Cdev': (500, 305, 195, 110), 'rule': (471, 301, 170, 131)} differences (net,95lo,95hi) {'E': [-14, -23, -6], 'C1': [15, -7, 38], 'Csrc': [11, -10, 33], 'Cdev': [21, -3, 47]}
+FORMAL_SUBSET triviaqa test2 qwen3.8-27b E ever-graded subset 100 scorable-ref 100 both absolute scores known 92 paired difference known incl identical 97 known part -1 whole-subset paired bounds -4 2
+FORMAL_SUBSET triviaqa test2 qwen3.8-27b C1 ever-graded subset 100 scorable-ref 100 both absolute scores known 81 paired difference known incl identical 82 known part 2 whole-subset paired bounds -17 25
+FORMAL_SUBSET triviaqa test2 qwen3.8-27b Csrc ever-graded subset 100 scorable-ref 100 both absolute scores known 84 paired difference known incl identical 86 known part 1 whole-subset paired bounds -14 18
+FORMAL_SUBSET triviaqa test2 qwen3.8-27b Cdev ever-graded subset 100 scorable-ref 100 both absolute scores known 74 paired difference known incl identical 75 known part 4 whole-subset paired bounds -19 37
+RESULT triviaqa_test2 gemma3-12b n 500 double 0 fill (submitted,R,W,net) (0, 0, 0, 0) natural {'O': (500, 333, 167, 166), 'E': (377, 243, 134, 109), 'C1': (500, 336, 164, 172), 'Csrc': (500, 334, 166, 168), 'Cdev': (500, 332, 168, 164), 'rule': (377, 243, 134, 109)} differences (net,95lo,95hi) {'E': [0, 0, 0], 'C1': [-63, -98, -27], 'Csrc': [-59, -93, -23], 'Cdev': [-55, -89, -20]}
+FORMAL_SUBSET triviaqa test2 gemma3-12b E ever-graded subset 100 scorable-ref 100 both absolute scores known 84 paired difference known incl identical 100 known part 0 whole-subset paired bounds 0 0
+FORMAL_SUBSET triviaqa test2 gemma3-12b C1 ever-graded subset 100 scorable-ref 100 both absolute scores known 70 paired difference known incl identical 71 known part 1 whole-subset paired bounds -33 27
+FORMAL_SUBSET triviaqa test2 gemma3-12b Csrc ever-graded subset 100 scorable-ref 100 both absolute scores known 73 paired difference known incl identical 74 known part 4 whole-subset paired bounds -25 27
+FORMAL_SUBSET triviaqa test2 gemma3-12b Cdev ever-graded subset 100 scorable-ref 100 both absolute scores known 77 paired difference known incl identical 78 known part 4 whole-subset paired bounds -23 21
+RESULT triviaqa_test2 gemma3-27b n 500 double 1 fill (submitted,R,W,net) (0, 0, 0, 0) natural {'O': (499, 388, 111, 277), 'E': (494, 387, 107, 280), 'C1': (499, 381, 118, 263), 'Csrc': (499, 387, 112, 275), 'Cdev': (499, 387, 112, 275), 'rule': (494, 387, 107, 280)} differences (net,95lo,95hi) {'E': [0, 0, 0], 'C1': [17, -3, 38], 'Csrc': [5, -13, 23], 'Cdev': [5, -13, 23]}
+FORMAL_SUBSET triviaqa test2 gemma3-27b E ever-graded subset 100 scorable-ref 100 both absolute scores known 89 paired difference known incl identical 100 known part 0 whole-subset paired bounds 0 0
+FORMAL_SUBSET triviaqa test2 gemma3-27b C1 ever-graded subset 100 scorable-ref 100 both absolute scores known 81 paired difference known incl identical 84 known part -2 whole-subset paired bounds -20 20
+FORMAL_SUBSET triviaqa test2 gemma3-27b Csrc ever-graded subset 100 scorable-ref 100 both absolute scores known 86 paired difference known incl identical 87 known part -4 whole-subset paired bounds -14 12
+FORMAL_SUBSET triviaqa test2 gemma3-27b Cdev ever-graded subset 100 scorable-ref 100 both absolute scores known 86 paired difference known incl identical 87 known part -4 whole-subset paired bounds -14 12
+QAQA missing C1 llama3.1-8b complete scored arm unavailable
+RESULT qaqa_held_Pro llama3.1-8b n 470 double 87 fill (submitted,R,W,net) (60, 38, 20, 18) natural {'O': (376, 133, 239, -106), 'E': (235, 124, 108, 16), 'Csrc': (402, 141, 256, -115), 'Cdev': (402, 141, 256, -115), 'rule': (295, 162, 128, 34)} differences (net,95lo,95hi) {'E': [18, 3, 33], 'Csrc': [149, 111, 189], 'Cdev': [149, 111, 189]}
+  branch failure 47 (35, 26, 8, 18)
+  branch no_failure 24 (14, 5, 9, -4)
+  branch unverifiable 16 (11, 7, 3, 4)
+SOURCE target tune pure C qaqa llama3.1-8b 0.25
+RESULT qaqa_held_Pro qwen3.5-9b n 470 double 26 fill (submitted,R,W,net) (23, 7, 14, -7) natural {'O': (440, 207, 231, -24), 'E': (353, 206, 143, 63), 'Csrc': (458, 213, 243, -30), 'Cdev': (468, 206, 259, -53), 'C1': (468, 206, 259, -53), 'rule': (376, 213, 157, 56)} differences (net,95lo,95hi) {'E': [-7, -16, 2], 'Csrc': [86, 54, 118], 'Cdev': [109, 73, 144], 'C1': [109, 73, 144]}
+  branch failure 8 (7, 4, 3, 1)
+  branch no_failure 13 (13, 0, 11, -11)
+  branch unverifiable 5 (3, 3, 0, 3)
+SOURCE target tune pure C qaqa qwen3.5-9b 1
+QAQA missing C1 qwen3.8-27b complete scored arm unavailable
+RESULT qaqa_held_Pro qwen3.8-27b n 470 double 120 fill (submitted,R,W,net) (120, 56, 62, -6) natural {'O': (276, 135, 140, -5), 'E': (338, 199, 136, 63), 'Csrc': (456, 208, 244, -36), 'Cdev': (395, 183, 210, -27), 'rule': (458, 255, 198, 57)} differences (net,95lo,95hi) {'E': [-6, -28, 15], 'Csrc': [93, 58, 127], 'Cdev': [84, 48, 119]}
+  branch failure 58 (58, 39, 18, 21)
+  branch no_failure 44 (44, 7, 36, -29)
+  branch unverifiable 18 (18, 10, 8, 2)
+SOURCE target tune pure C qaqa qwen3.8-27b 0.25
+QAQA missing C1 gemma3-12b complete scored arm unavailable
+RESULT qaqa_held_Pro gemma3-12b n 470 double 32 fill (submitted,R,W,net) (25, 17, 8, 9) natural {'O': (432, 183, 242, -59), 'E': (295, 177, 112, 65), 'Csrc': (458, 186, 266, -80), 'Cdev': (445, 185, 254, -69), 'rule': (320, 194, 120, 74)} differences (net,95lo,95hi) {'E': [9, -1, 19], 'Csrc': [154, 109, 197], 'Cdev': [143, 99, 186]}
+  branch failure 12 (11, 11, 0, 11)
+  branch no_failure 11 (5, 0, 5, -5)
+  branch unverifiable 9 (9, 6, 3, 3)
+SOURCE target tune pure C qaqa gemma3-12b 0.25
+QAQA missing C1 gemma3-27b complete scored arm unavailable
+RESULT qaqa_held_Pro gemma3-27b n 470 double 26 fill (submitted,R,W,net) (20, 11, 8, 3) natural {'O': (430, 197, 227, -30), 'E': (411, 223, 182, 41), 'Csrc': (444, 203, 234, -31), 'Cdev': (444, 203, 234, -31), 'rule': (431, 234, 190, 44)} differences (net,95lo,95hi) {'E': [3, -5, 12], 'Csrc': [75, 45, 105], 'Cdev': [75, 45, 105]}
+  branch failure 8 (7, 6, 1, 5)
+  branch no_failure 8 (5, 2, 3, -1)
+  branch unverifiable 10 (8, 3, 4, -1)
+SOURCE target tune pure C qaqa gemma3-27b 0.25
+QAQA aggregate failure distinct questions 190 five-model net delta 56 joint 95% [33, 80] mean per model per 100 questions 5.895
+QAQA aggregate no_failure distinct questions 235 five-model net delta -50 joint 95% [-70, -31] mean per model per 100 questions -4.255
+QAQA aggregate unverifiable distinct questions 45 five-model net delta 11 joint 95% [-7, 29] mean per model per 100 questions 4.889
+QAQA aggregate all distinct questions 470 five-model net delta 17 joint 95% [-20, 55] mean per model per 100 questions 0.723
+QAQA exploratory per100 mean-model interaction false-premise less valid-premise 10.15 stratified paired-model bootstrap 95% [7.22, 13.19]
+GSM missing full matching pure C1 llama3.1-8b possible other paths []
+RESULT gsm8k_frozen_numeric llama3.1-8b n 1319 double 1 fill (submitted,R,W,net) (0, 0, 0, 0) natural {'O': (1316, 1126, 163, 963), 'E': (1317, 1141, 147, 994), 'rule': (1317, 1141, 147, 994)} differences (net,95lo,95hi) {'E': [0, 0, 0]}
+  correct and blank counts for historical accuracy cross-check 1126 1141 2
+GSM missing full matching pure C1 qwen3.5-9b possible other paths []
+RESULT gsm8k_frozen_numeric qwen3.5-9b n 1319 double 3 fill (submitted,R,W,net) (0, 0, 0, 0) natural {'O': (1316, 1237, 63, 1174), 'E': (1315, 1233, 64, 1169), 'rule': (1315, 1233, 64, 1169)} differences (net,95lo,95hi) {'E': [0, 0, 0]}
+  correct and blank counts for historical accuracy cross-check 1237 1233 4
+GSM missing full matching pure C1 qwen3.8-27b possible other paths []
+RESULT gsm8k_frozen_numeric qwen3.8-27b n 1319 double 1 fill (submitted,R,W,net) (1, 1, 0, 1) natural {'O': (1317, 1259, 38, 1221), 'E': (1318, 1256, 38, 1218), 'rule': (1319, 1257, 38, 1219)} differences (net,95lo,95hi) {'E': [1, 0, 3]}
+  correct and blank counts for historical accuracy cross-check 1259 1256 1
+GSM missing full matching pure C1 gemma3-12b possible other paths []
+RESULT gsm8k_frozen_numeric gemma3-12b n 1319 double 0 fill (submitted,R,W,net) (0, 0, 0, 0) natural {'O': (1319, 1222, 93, 1129), 'E': (1319, 1224, 81, 1143), 'rule': (1319, 1224, 81, 1143)} differences (net,95lo,95hi) {'E': [0, 0, 0]}
+  correct and blank counts for historical accuracy cross-check 1222 1224 0
+GSM missing full matching pure C1 gemma3-27b possible other paths []
+RESULT gsm8k_frozen_numeric gemma3-27b n 1319 double 1 fill (submitted,R,W,net) (0, 0, 0, 0) natural {'O': (1318, 1247, 67, 1180), 'E': (1318, 1247, 65, 1182), 'rule': (1318, 1247, 65, 1182)} differences (net,95lo,95hi) {'E': [0, 0, 0]}
+  correct and blank counts for historical accuracy cross-check 1247 1247 1
