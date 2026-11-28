@@ -95,11 +95,16 @@ poll_start() {  # highest memory in use on the card every 5 s, to $1
 }
 poll_stop() { [ -n "$POLL" ] && kill $POLL 2>/dev/null; wait $POLL 2>/dev/null; POLL=""; }
 layers_of() {  # layers_of SPEC NL: all | hi | lo, deepest first
+  # 2026-11-29 (main session, queue R section 4): only the middle 50% of the layers are candidates. Layer l (counted
+  # from 0) is kept when 0.3 * NL < l + 1 <= 0.8 * NL, i.e. 10 (l + 1) > 3 NL and 10 (l + 1) <= 8 NL.
+  local l
   case $1 in
     all) seq $(($2 - 1)) -1 0 ;;
     hi)  seq $(($2 - 1)) -1 31 ;;
     lo)  seq 30 -1 0 ;;
-  esac | tr '\n' ' '
+  esac | while read -r l; do
+    [ $((10 * (l + 1))) -gt $((3 * $2)) ] && [ $((10 * (l + 1))) -le $((8 * $2)) ] && echo $l
+  done | tr '\n' ' '
 }
 done_layers() {  # done_layers FAMILY LAYERS: the layers with a direction and a training log
   local l out=""
