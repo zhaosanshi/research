@@ -1,0 +1,16 @@
+bank Iteration_01/newsets/falseqa/falseqa_full_bank_20261123.jsonl (sha256 cb42cf131fed8ccf): 700 rows | dev {'false': 50, 'valid': 50} | held-out {'false': 300, 'valid': 300} | gold lengths {('dev', 'false', 1): 50, ('dev', 'valid', 1): 50, ('heldout', 'false', 3): 300, ('heldout', 'valid', 1): 300} | id file sha256 1a5c0df6b74c858e
+regression llama3.1-8b  c 2    cC 2    | R1 net +241 handed 509 dE [106, 87, 125] dC [77, 33, 122] | E +135 C +164 O +100 -> EQUAL
+regression qwen3.5-9b   c 0.5  cC 0.5  | R1 net +336 handed 505 dE [23, 13, 34] dC [4, -30, 39] | E +313 C +332 O +311 -> EQUAL
+regression qwen3.8-27b  c 1    cC 0.25 | R1 net +346 handed 544 dE [123, 97, 148] dC [139, 106, 173] | E +223 C +207 O +197 -> EQUAL
+regression gemma3-12b   c 2    cC 2    | R1 net +253 handed 438 dE [84, 67, 101] dC [96, 54, 138] | E +169 C +157 O +152 -> EQUAL
+regression gemma3-27b   c 2    cC 0.25 | R1 net +307 handed 563 dE [32, 15, 51] dC [121, 91, 151] | E +275 C +186 O +187 -> EQUAL
+REGRESSION OK (5 models equal the routes_1128 JSON)
+smoke qwen3.5-9b: 3 questions, judged cells 9, declined 0
+   fqt0000f | O=ans/1 E=ans/1 C0.5=ans/1 EC0.25=ans/na EC0.5=ans/na EC1=ans/na EC2=ans/na || R1_0.5=(1, True) R1L_0.5=(1, True) E=(1, True) C0.5=(1, True) O=(1, True)
+   fqt0002f | O=ans/1 E=ans/1 C0.5=ans/1 EC0.25=ans/na EC0.5=ans/na EC1=ans/na EC2=ans/na || R1_0.5=(1, True) R1L_0.5=(1, True) E=(1, True) C0.5=(1, True) O=(1, True)
+   fqt0000v | O=ans/1 E=ans/1 C0.5=ans/1 EC0.25=ans/na EC0.5=ans/na EC1=ans/na EC2=ans/na || R1_0.5=(1, True) R1L_0.5=(1, True) E=(1, True) C0.5=(1, True) O=(1, True)
+   R1_0.5 net +3 handed 3
+   R1L_0.5 net +3 handed 3
+   E net +3 handed 3
+   C0.5 net +3 handed 3
+   O net +3 handed 3
