@@ -1,0 +1,76 @@
+# R2 TruthfulQA test at the prompt rule: the method against ITI, CAA and the mean difference; handed in only
+  llama3.1-8b  M net +70 handed 369 (right 208 wrong 138) | routes_1128_20261128.json M: net +70 handed 369 -> SAME
+  qwen3.5-9b   M net +179 handed 427 (right 298 wrong 119) | routes_1128_20261128.json M: net +179 handed 427 -> SAME
+  qwen3.8-27b  M net +171 handed 463 (right 310 wrong 139) | routes_1128_20261128.json M: net +171 handed 463 -> SAME
+  gemma3-12b   M net +132 handed 371 (right 246 wrong 114) | routes_1128_20261128.json M: net +132 handed 371 -> SAME
+  gemma3-27b   M net +139 handed 479 (right 298 wrong 159) | routes_1128_20261128.json M: net +139 handed 479 -> SAME
+REGRESSION iti_table.py test llama3.1-8b faithful_seed42 vs iti_llama_faithful_seed42_test_20261122.txt: EQUAL, 5 of 5 lines identical
+REGRESSION iti_table.py test gemma3-12b faithful_seed42 vs iti_gemma3-12b_faithful_seed42_test_20261122.txt: EQUAL, 5 of 5 lines identical
+REGRESSION iti_table.py test gemma3-27b faithful_seed42 vs iti_gemma3-27b_faithful_seed42_test_20261122.txt: EQUAL, 5 of 5 lines identical
+  glue check llama3.1-8b ITI                                                  found in the original output
+  glue check gemma3-12b ITI                                                   found in the original output
+  glue check gemma3-27b ITI                                                   found in the original output
+
+## R2 M minus ITI (handed in only), questions resampled
+  llama3.1-8b  523 q | net (handed in): M +70 (369) | ITI -108 (468)
+               M - ITI +178 [+133, +224]
+  gemma3-12b   522 q | net (handed in): M +132 (371) | ITI +28 (469)
+               M - ITI +104 [+60, +148]
+  gemma3-27b   523 q | net (handed in): M +139 (479) | ITI -5 (459)
+               M - ITI +144 [+108, +179]
+  llama3.1-8b  M minus ITI with both keeping 369 answers: between +79 and +277 (M 369 answers, ITI 468)
+  gemma3-12b   M minus ITI with both keeping 371 answers: between +6 and +202 (M 371 answers, ITI 469)
+  gemma3-27b   M minus ITI with both keeping 459 answers: between +124 and +164 (M 479 answers, ITI 459)
+REGRESSION caa_table.py test llama3.1-8b vs caa_llama3.1-8b_test_*.txt: EQUAL, 7 of 7 lines identical
+REGRESSION caa_table.py test qwen3.5-9b vs caa_qwen3.5-9b_test_*.txt: EQUAL, 7 of 7 lines identical
+REGRESSION caa_table.py test qwen3.8-27b vs caa_qwen3.8-27b_test_*.txt: EQUAL, 7 of 7 lines identical
+REGRESSION caa_table.py test gemma3-12b vs caa_gemma3-12b_test_*.txt: EQUAL, 7 of 7 lines identical
+REGRESSION caa_table.py test gemma3-27b vs caa_gemma3-27b_test_*.txt: EQUAL, 7 of 7 lines identical
+  glue check llama3.1-8b CAA                                                  found in the original output
+  glue check qwen3.5-9b CAA                                                   found in the original output
+  glue check qwen3.8-27b CAA                                                  found in the original output
+  glue check gemma3-12b CAA                                                   found in the original output
+  glue check gemma3-27b CAA                                                   found in the original output
+
+## R2 M minus CAA (handed in only), questions resampled
+  llama3.1-8b  523 q | net (handed in): M +70 (369) | CAA -92 (463)
+               M - CAA +162 [+115, +210]
+  qwen3.5-9b   523 q | net (handed in): M +179 (427) | CAA +63 (445)
+               M - CAA +116 [+81, +151]
+  qwen3.8-27b  521 q | net (handed in): M +171 (463) | CAA +41 (360)
+               M - CAA +130 [+91, +168]
+  gemma3-12b   522 q | net (handed in): M +132 (371) | CAA +5 (459)
+               M - CAA +127 [+80, +175]
+  gemma3-27b   523 q | net (handed in): M +139 (479) | CAA -1 (450)
+               M - CAA +140 [+104, +175]
+  five models  520 q (reference only): M - CAA +668 [+539, +794]
+  llama3.1-8b  M minus CAA with both keeping 369 answers: between +68 and +256 (M 369 answers, CAA 463)
+  qwen3.5-9b   M minus CAA with both keeping 427 answers: between +98 and +134 (M 427 answers, CAA 445)
+  qwen3.8-27b  M minus CAA with both keeping 360 answers: between +27 and +233 (M 463 answers, CAA 360)
+  gemma3-12b   M minus CAA with both keeping 371 answers: between +39 and +215 (M 371 answers, CAA 459)
+  gemma3-27b   M minus CAA with both keeping 450 answers: between +111 and +169 (M 479 answers, CAA 450)
+REGRESSION posm_table.py vs posm_five_models_20261122.txt: EQUAL, 25 of 25 lines identical
+  glue check llama3.1-8b mean difference                                      found in the original output
+  glue check qwen3.5-9b mean difference                                       found in the original output
+  glue check qwen3.8-27b mean difference                                      found in the original output
+  glue check gemma3-12b mean difference                                       found in the original output
+  glue check gemma3-27b mean difference                                       found in the original output
+
+## R2 M minus mean difference (handed in only), questions resampled
+  llama3.1-8b  523 q | net (handed in): M +70 (369) | mean difference -17 (347)
+               M - mean difference +87 [+53, +122]
+  qwen3.5-9b   523 q | net (handed in): M +179 (427) | mean difference +106 (462)
+               M - mean difference +73 [+40, +106]
+  qwen3.8-27b  521 q | net (handed in): M +171 (463) | mean difference +46 (408)
+               M - mean difference +125 [+86, +163]
+  gemma3-12b   522 q | net (handed in): M +132 (371) | mean difference +30 (481)
+               M - mean difference +102 [+58, +147]
+  gemma3-27b   523 q | net (handed in): M +139 (479) | mean difference +3 (440)
+               M - mean difference +136 [+104, +168]
+  five models  520 q (reference only): M - mean difference +519 [+413, +625]
+  llama3.1-8b  M minus mean difference with both keeping 347 answers: between +65 and +109 (M 369 answers, mean difference 347)
+  qwen3.5-9b   M minus mean difference with both keeping 427 answers: between +38 and +108 (M 427 answers, mean difference 462)
+  qwen3.8-27b  M minus mean difference with both keeping 408 answers: between +70 and +180 (M 463 answers, mean difference 408)
+  gemma3-12b   M minus mean difference with both keeping 371 answers: between -8 and +212 (M 371 answers, mean difference 481)
+  gemma3-27b   M minus mean difference with both keeping 440 answers: between +97 and +175 (M 479 answers, mean difference 440)
+JSON {"R2": {"## R2 M minus CAA (handed in only), questions resampled": {"five models (reference only)": {"M-CAA": [668, 539, 794], "n": 520}, "gemma3-12b": {"CAA": {"handed": 459, "net": 5, "right": 222, "wrong": 217}, "M": {"handed": 371, "net": 132, "right": 246, "wrong": 114}, "M-CAA": [127, 80, 175], "equal_count": {"M_answers": 371, "high": 215, "kept": 371, "low": 39, "opp_answers": 459}, "n": 522}, "gemma3-27b": {"CAA": {"handed": 450, "net": -1, "right": 215, "wrong": 216}, "M": {"handed": 479, "net": 139, "right": 298, "wrong": 159}, "M-CAA": [140, 104, 175], "equal_count": {"M_answers": 479, "high": 169, "kept": 450, "low": 111, "opp_answers": 450}, "n": 523}, "llama3.1-8b": {"CAA": {"handed": 463, "net": -92, "right": 176, "wrong": 268}, "M": {"handed": 369, "net": 70, "right": 208, "wrong": 138}, "M-CAA": [162, 115, 210], "equal_count": {"M_answers": 369, "high": 256, "kept": 369, "low": 68, "opp_answers": 463}, "n": 523}, "qwen3.5-9b": {"CAA": {"handed": 445, "net": 63, "right": 251, "wrong": 188}, "M": {"handed": 427, "net": 179, "right": 298, "wrong": 119}, "M-CAA": [116, 81, 151], "equal_count": {"M_answers": 427, "high": 134, "kept": 427, "low": 98, "opp_answers": 445}, "n": 523}, "qwen3.8-27b": {"CAA": {"handed": 360, "net": 41, "right": 199, "wrong": 158}, "M": {"handed": 463, "net": 171, "right": 310, "wrong": 139}, "M-CAA": [130, 91, 168], "equal_count": {"M_answers": 463, "high": 233, "kept": 360, "low": 27, "opp_answers": 360}, "n": 521}}, "## R2 M minus ITI (handed in only), questions resampled": {"gemma3-12b": {"ITI": {"handed": 469, "net": 28, "right": 226, "wrong": 198}, "M": {"handed": 371, "net": 132, "right": 246, "wrong": 114}, "M-ITI": [104, 60, 148], "equal_count": {"M_answers": 371, "high": 202, "kept": 371, "low": 6, "opp_answers": 469}, "n": 522}, "gemma3-27b": {"ITI": {"handed": 459, "net": -5, "right": 219, "wrong": 224}, "M": {"handed": 479, "net": 139, "right": 298, "wrong": 159}, "M-ITI": [144, 108, 179], "equal_count": {"M_answers": 479, "high": 164, "kept": 459, "low": 124, "opp_answers": 459}, "n": 523}, "llama3.1-8b": {"ITI": {"handed": 468, "net": -108, "right": 168, "wrong": 276}, "M": {"handed": 369, "net": 70, "right": 208, "wrong": 138}, "M-ITI": [178, 133, 224], "equal_count": {"M_answers": 369, "high": 277, "kept": 369, "low": 79, "opp_answers": 468}, "n": 523}}, "## R2 M minus mean difference (handed in only), questions resampled": {"five models (reference only)": {"M-mean difference": [519, 413, 625], "n": 520}, "gemma3-12b": {"M": {"handed": 371, "net": 132, "right": 246, "wrong": 114}, "M-mean difference": [102, 58, 147], "equal_count": {"M_answers": 371, "high": 212, "kept": 371, "low": -8, "opp_answers": 481}, "mean difference": {"handed": 481, "net": 30, "right": 252, "wrong": 222}, "n": 522}, "gemma3-27b": {"M": {"handed": 479, "net": 139, "right": 298, "wrong": 159}, "M-mean difference": [136, 104, 168], "equal_count": {"M_answers": 479, "high": 175, "kept": 440, "low": 97, "opp_answers": 440}, "mean difference": {"handed": 440, "net": 3, "right": 215, "wrong": 212}, "n": 523}, "llama3.1-8b": {"M": {"handed": 369, "net": 70, "right": 208, "wrong": 138}, "M-mean difference": [87, 53, 122], "equal_count": {"M_answers": 369, "high": 109, "kept": 347, "low": 65, "opp_answers": 347}, "mean difference": {"handed": 347, "net": -17, "right": 159, "wrong": 176}, "n": 523}, "qwen3.5-9b": {"M": {"handed": 427, "net": 179, "right": 298, "wrong": 119}, "M-mean difference": [73, 40, 106], "equal_count": {"M_answers": 427, "high": 108, "kept": 427, "low": 38, "opp_answers": 462}, "mean difference": {"handed": 462, "net": 106, "right": 280, "wrong": 174}, "n": 523}, "qwen3.8-27b": {"M": {"handed": 463, "net": 171, "right": 310, "wrong": 139}, "M-mean difference": [125, 86, 163], "equal_count": {"M_answers": 463, "high": 180, "kept": 408, "low": 70, "opp_answers": 408}, "mean difference": {"handed": 408, "net": 46, "right": 224, "wrong": 178}, "n": 521}}, "glue_checks": [["llama3.1-8b ITI", true], ["gemma3-12b ITI", true], ["gemma3-27b ITI", true], ["llama3.1-8b CAA", true], ["qwen3.5-9b CAA", true], ["qwen3.8-27b CAA", true], ["gemma3-12b CAA", true], ["gemma3-27b CAA", true], ["llama3.1-8b mean difference", true], ["qwen3.5-9b mean difference", true], ["qwen3.8-27b mean difference", true], ["gemma3-12b mean difference", true], ["gemma3-27b mean difference", true]], "regression": {"caa_table.py test gemma3-12b vs caa_gemma3-12b_test_*.txt": {"archived_lines": 7, "differing_lines": 0, "equal": true, "printed_lines": 7}, "caa_table.py test gemma3-27b vs caa_gemma3-27b_test_*.txt": {"archived_lines": 7, "differing_lines": 0, "equal": true, "printed_lines": 7}, "caa_table.py test llama3.1-8b vs caa_llama3.1-8b_test_*.txt": {"archived_lines": 7, "differing_lines": 0, "equal": true, "printed_lines": 7}, "caa_table.py test qwen3.5-9b vs caa_qwen3.5-9b_test_*.txt": {"archived_lines": 7, "differing_lines": 0, "equal": true, "printed_lines": 7}, "caa_table.py test qwen3.8-27b vs caa_qwen3.8-27b_test_*.txt": {"archived_lines": 7, "differing_lines": 0, "equal": true, "printed_lines": 7}, "iti_table.py test gemma3-12b faithful_seed42 vs iti_gemma3-12b_faithful_seed42_test_20261122.txt": {"archived_lines": 5, "differing_lines": 0, "equal": true, "printed_lines": 5}, "iti_table.py test gemma3-27b faithful_seed42 vs iti_gemma3-27b_faithful_seed42_test_20261122.txt": {"archived_lines": 5, "differing_lines": 0, "equal": true, "printed_lines": 5}, "iti_table.py test llama3.1-8b faithful_seed42 vs iti_llama_faithful_seed42_test_20261122.txt": {"archived_lines": 5, "differing_lines": 0, "equal": true, "printed_lines": 5}, "posm_table.py vs posm_five_models_20261122.txt": {"archived_lines": 25, "differing_lines": 0, "equal": true, "printed_lines": 25}}, "routes_check": {"gemma3-12b": [{"handed": 371, "net": 132, "right": 246, "wrong": 114}, {"handed": 371, "net": 132, "right": 246, "wrong": 114}, true], "gemma3-27b": [{"handed": 479, "net": 139, "right": 298, "wrong": 159}, {"handed": 479, "net": 139, "right": 298, "wrong": 159}, true], "llama3.1-8b": [{"handed": 369, "net": 70, "right": 208, "wrong": 138}, {"handed": 369, "net": 70, "right": 208, "wrong": 138}, true], "qwen3.5-9b": [{"handed": 427, "net": 179, "right": 298, "wrong": 119}, {"handed": 427, "net": 179, "right": 298, "wrong": 119}, true], "qwen3.8-27b": [{"handed": 463, "net": 171, "right": 310, "wrong": 139}, {"handed": 463, "net": 171, "right": 310, "wrong": 139}, true]}}}
