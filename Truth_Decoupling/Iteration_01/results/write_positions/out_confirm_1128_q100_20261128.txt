@@ -1,0 +1,94 @@
+bank Iteration_01/newsets/falseqa/falseqa_full_bank_20261123.jsonl (sha256 cb42cf131fed8ccf): 700 rows | dev {'false': 50, 'valid': 50} | held-out {'false': 300, 'valid': 300} | gold lengths {('dev', 'false', 1): 50, ('dev', 'valid', 1): 50, ('heldout', 'false', 3): 300, ('heldout', 'valid', 1): 300} | id file sha256 1a5c0df6b74c858e
+regression llama3.1-8b  c 2    cC 2    | R1 net +241 handed 509 dE [106, 87, 125] dC [77, 33, 122] | E +135 C +164 O +100 -> EQUAL
+regression qwen3.5-9b   c 0.5  cC 0.5  | R1 net +336 handed 505 dE [23, 13, 34] dC [4, -30, 39] | E +313 C +332 O +311 -> EQUAL
+regression qwen3.8-27b  c 1    cC 0.25 | R1 net +346 handed 544 dE [123, 97, 148] dC [139, 106, 173] | E +223 C +207 O +197 -> EQUAL
+regression gemma3-12b   c 2    cC 2    | R1 net +253 handed 438 dE [84, 67, 101] dC [96, 54, 138] | E +169 C +157 O +152 -> EQUAL
+regression gemma3-27b   c 2    cC 0.25 | R1 net +307 handed 563 dE [32, 15, 51] dC [121, 91, 151] | E +275 C +186 O +187 -> EQUAL
+REGRESSION OK (5 models equal the routes_1128 JSON)
+
+# confirm bank Iteration_01/newsets/falseqa/falseqa_confirm_bank_20261128.jsonl: 386 pairs, 772 questions; stage q100
+
+== llama3.1-8b (c 2, single C 2): 100 questions, 50 pairs, judged cells 292, declined 0
+   method  handed in  85  right  61  wrong  23  net  +38  generations 157
+   E       handed in  64  right  43  wrong  20  net  +23  generations 100
+   C       handed in  99  right  65  wrong  30  net  +35  generations 100
+   O       handed in  77  right  50  wrong  25  net  +25  generations 100
+   ladder  handed in  85  right  62  wrong  22  net  +40  generations 189
+   1 method - single E +15 [+7, +22] | method - single C +3 [-13, +19]
+   2 premise false (50): method - E +16 [+8, +24] | method - C +22 [+9, +36] | nets method +28 E +12 C +6 O -6
+   2 premise valid (50): method - E -1 [-3, +0] | method - C -19 [-31, -7] | nets method +10 E +11 C +29 O +31
+   3 cell O answered / E answered  n  62
+   3 cell O answered / E blank     n  15
+   3 cell O blank / E answered     n   2
+   3 cell O blank / E blank        n  21 | EC(c) net +15 (handed 21, right 18, wrong 3) | single C net +10 (handed 20, right 14, wrong 4)
+   4 ladder R1L_2 net +40 | - single E +17 [+10, +24] | - single C +5 [-12, +22]
+
+== qwen3.5-9b (c 0.5, single C 0.5): 100 questions, 50 pairs, judged cells 272, declined 0
+   method  handed in  82  right  68  wrong  11  net  +57  generations 133
+   E       handed in  76  right  63  wrong  11  net  +52  generations 100
+   C       handed in  96  right  73  wrong  21  net  +52  generations 100
+   O       handed in  89  right  70  wrong  17  net  +53  generations 100
+   ladder  handed in  82  right  68  wrong  11  net  +57  generations 137
+   1 method - single E +5 [+1, +10] | method - single C +5 [-9, +19]
+   2 premise false (50): method - E +5 [+1, +10] | method - C +16 [+6, +27] | nets method +38 E +33 C +22 O +22
+   2 premise valid (50): method - E +0 [+0, +0] | method - C -11 [-20, -3] | nets method +19 E +19 C +30 O +31
+   3 cell O answered / E answered  n  74
+   3 cell O answered / E blank     n  15
+   3 cell O blank / E answered     n   2
+   3 cell O blank / E blank        n   9 | EC(c) net +5 (handed 6, right 5, wrong 0) | single C net +1 (handed 5, right 3, wrong 2)
+   4 ladder R1L_0.5 net +57 | - single E +5 [+1, +10] | - single C +5 [-9, +19]
+
+== qwen3.8-27b (c 1, single C 0.25): 100 questions, 50 pairs, judged cells 265, declined 0
+   method  handed in  93  right  70  wrong  20  net  +50  generations 170
+   E       handed in  62  right  45  wrong  15  net  +30  generations 100
+   C       handed in  78  right  54  wrong  23  net  +31  generations 100
+   O       handed in  60  right  45  wrong  15  net  +30  generations 100
+   ladder  handed in  93  right  71  wrong  19  net  +52  generations 200
+   1 method - single E +20 [+10, +29] | method - single C +19 [+4, +33]
+   2 premise false (50): method - E +21 [+13, +29] | method - C +28 [+18, +38] | nets method +30 E +9 C +2 O -1
+   2 premise valid (50): method - E -1 [-5, +3] | method - C -9 [-19, +0] | nets method +20 E +21 C +29 O +31
+   3 cell O answered / E answered  n  54
+   3 cell O answered / E blank     n   6
+   3 cell O blank / E answered     n   8
+   3 cell O blank / E blank        n  32 | EC(c) net +20 (handed 31, right 25, wrong 5) | single C net -4 (handed 12, right 4, wrong 8)
+   4 ladder R1L_1 net +52 | - single E +22 [+13, +31] | - single C +21 [+5, +36]
+
+== gemma3-12b (c 2, single C 2): 100 questions, 50 pairs, judged cells 265, declined 0
+   method  handed in  66  right  57  wrong   7  net  +50  generations 168
+   E       handed in  49  right  42  wrong   6  net  +36  generations 100
+   C       handed in 100  right  62  wrong  36  net  +26  generations 100
+   O       handed in  83  right  52  wrong  26  net  +26  generations 100
+   ladder  handed in  66  right  57  wrong   7  net  +50  generations 203
+   1 method - single E +14 [+8, +20] | method - single C +24 [+8, +39]
+   2 premise false (50): method - E +15 [+9, +22] | method - C +40 [+27, +53] | nets method +30 E +15 C -10 O -7
+   2 premise valid (50): method - E -1 [-3, +0] | method - C -16 [-27, -5] | nets method +20 E +21 C +36 O +33
+   3 cell O answered / E answered  n  49
+   3 cell O answered / E blank     n  34
+   3 cell O blank / E answered     n   0
+   3 cell O blank / E blank        n  17 | EC(c) net +14 (handed 17, right 15, wrong 1) | single C net +1 (handed 17, right 9, wrong 8)
+   4 ladder R1L_2 net +50 | - single E +14 [+8, +20] | - single C +24 [+8, +39]
+
+== gemma3-27b (c 2, single C 0.25): 100 questions, 50 pairs, judged cells 281, declined 0
+   method  handed in  90  right  65  wrong  22  net  +43  generations 148
+   E       handed in  71  right  53  wrong  15  net  +38  generations 100
+   C       handed in  84  right  58  wrong  24  net  +34  generations 100
+   O       handed in  78  right  56  wrong  21  net  +35  generations 100
+   ladder  handed in  90  right  66  wrong  20  net  +46  generations 176
+   1 method - single E +5 [-3, +13] | method - single C +9 [-4, +23]
+   2 premise false (50): method - E +6 [-2, +14] | method - C +14 [+2, +26] | nets method +15 E +9 C +1 O +1
+   2 premise valid (50): method - E -1 [-3, +0] | method - C -5 [-14, +5] | nets method +28 E +29 C +33 O +34
+   3 cell O answered / E answered  n  68
+   3 cell O answered / E blank     n  10
+   3 cell O blank / E answered     n   3
+   3 cell O blank / E blank        n  19 | EC(c) net +5 (handed 19, right 12, wrong 7) | single C net +0 (handed 5, right 2, wrong 2)
+   4 ladder R1L_2 net +46 | - single E +8 [+0, +16] | - single C +12 [-3, +28]
+
+# summary (one row per model; no pooled row)
+   model           n | method - single E      | method - single C      | method h/r/w/net | E h/r/w/net | C h/r/w/net | O h/r/w/net | ladder - E
+   llama3.1-8b   100 | +15 [+7, +22]          | +3 [-13, +19]          | 85/61/23/+38 | 64/43/20/+23 | 99/65/30/+35 | 77/50/25/+25 | +17 [+10, +24]
+   qwen3.5-9b    100 | +5 [+1, +10]           | +5 [-9, +19]           | 82/68/11/+57 | 76/63/11/+52 | 96/73/21/+52 | 89/70/17/+53 | +5 [+1, +10]
+   qwen3.8-27b   100 | +20 [+10, +29]         | +19 [+4, +33]          | 93/70/20/+50 | 62/45/15/+30 | 78/54/23/+31 | 60/45/15/+30 | +22 [+13, +31]
+   gemma3-12b    100 | +14 [+8, +20]          | +24 [+8, +39]          | 66/57/7/+50 | 49/42/6/+36 | 100/62/36/+26 | 83/52/26/+26 | +14 [+8, +20]
+   gemma3-27b    100 | +5 [-3, +13]           | +9 [-4, +23]           | 90/65/22/+43 | 71/53/15/+38 | 84/58/24/+34 | 78/56/21/+35 | +8 [+0, +16]
+EXPAND_DECISION positive_models 5 of 5 (method - single E > 0) -> EXPAND yes
+JSON {"gemma3-12b": {"cells": {"O answered / E answered": {"n": 49}, "O answered / E blank": {"n": 34}, "O blank / E answered": {"n": 0}, "O blank / E blank": {"C": {"handed": 17, "net": 1, "right": 9, "wrong": 8}, "EC_c": {"handed": 17, "net": 14, "right": 15, "wrong": 1}, "n": 17}}, "dC": [24, 8, 39], "dE": [14, 8, 20], "declined": 0, "gens": {"C": 100, "E": 100, "O": 100, "ladder": 203, "method": 168}, "judged_cells": 265, "ladder_dC": [24, 8, 39], "ladder_dE": [14, 8, 20], "n": 100, "pairs": 50, "premise": {"false": {"dC": [40, 27, 53], "dE": [15, 9, 22], "n": 50, "net": {"C": -10, "E": 15, "O": -7, "method": 30}}, "valid": {"dC": [-16, -27, -5], "dE": [-1, -3, 0], "n": 50, "net": {"C": 36, "E": 21, "O": 33, "method": 20}}}, "stats": {"C": {"handed": 100, "net": 26, "right": 62, "wrong": 36}, "E": {"handed": 49, "net": 36, "right": 42, "wrong": 6}, "O": {"handed": 83, "net": 26, "right": 52, "wrong": 26}, "ladder": {"handed": 66, "net": 50, "right": 57, "wrong": 7}, "method": {"handed": 66, "net": 50, "right": 57, "wrong": 7}}}, "gemma3-27b": {"cells": {"O answered / E answered": {"n": 68}, "O answered / E blank": {"n": 10}, "O blank / E answered": {"n": 3}, "O blank / E blank": {"C": {"handed": 5, "net": 0, "right": 2, "wrong": 2}, "EC_c": {"handed": 19, "net": 5, "right": 12, "wrong": 7}, "n": 19}}, "dC": [9, -4, 23], "dE": [5, -3, 13], "declined": 0, "gens": {"C": 100, "E": 100, "O": 100, "ladder": 176, "method": 148}, "judged_cells": 281, "ladder_dC": [12, -3, 28], "ladder_dE": [8, 0, 16], "n": 100, "pairs": 50, "premise": {"false": {"dC": [14, 2, 26], "dE": [6, -2, 14], "n": 50, "net": {"C": 1, "E": 9, "O": 1, "method": 15}}, "valid": {"dC": [-5, -14, 5], "dE": [-1, -3, 0], "n": 50, "net": {"C": 33, "E": 29, "O": 34, "method": 28}}}, "stats": {"C": {"handed": 84, "net": 34, "right": 58, "wrong": 24}, "E": {"handed": 71, "net": 38, "right": 53, "wrong": 15}, "O": {"handed": 78, "net": 35, "right": 56, "wrong": 21}, "ladder": {"handed": 90, "net": 46, "right": 66, "wrong": 20}, "method": {"handed": 90, "net": 43, "right": 65, "wrong": 22}}}, "llama3.1-8b": {"cells": {"O answered / E answered": {"n": 62}, "O answered / E blank": {"n": 15}, "O blank / E answered": {"n": 2}, "O blank / E blank": {"C": {"handed": 20, "net": 10, "right": 14, "wrong": 4}, "EC_c": {"handed": 21, "net": 15, "right": 18, "wrong": 3}, "n": 21}}, "dC": [3, -13, 19], "dE": [15, 7, 22], "declined": 0, "gens": {"C": 100, "E": 100, "O": 100, "ladder": 189, "method": 157}, "judged_cells": 292, "ladder_dC": [5, -12, 22], "ladder_dE": [17, 10, 24], "n": 100, "pairs": 50, "premise": {"false": {"dC": [22, 9, 36], "dE": [16, 8, 24], "n": 50, "net": {"C": 6, "E": 12, "O": -6, "method": 28}}, "valid": {"dC": [-19, -31, -7], "dE": [-1, -3, 0], "n": 50, "net": {"C": 29, "E": 11, "O": 31, "method": 10}}}, "stats": {"C": {"handed": 99, "net": 35, "right": 65, "wrong": 30}, "E": {"handed": 64, "net": 23, "right": 43, "wrong": 20}, "O": {"handed": 77, "net": 25, "right": 50, "wrong": 25}, "ladder": {"handed": 85, "net": 40, "right": 62, "wrong": 22}, "method": {"handed": 85, "net": 38, "right": 61, "wrong": 23}}}, "qwen3.5-9b": {"cells": {"O answered / E answered": {"n": 74}, "O answered / E blank": {"n": 15}, "O blank / E answered": {"n": 2}, "O blank / E blank": {"C": {"handed": 5, "net": 1, "right": 3, "wrong": 2}, "EC_c": {"handed": 6, "net": 5, "right": 5, "wrong": 0}, "n": 9}}, "dC": [5, -9, 19], "dE": [5, 1, 10], "declined": 0, "gens": {"C": 100, "E": 100, "O": 100, "ladder": 137, "method": 133}, "judged_cells": 272, "ladder_dC": [5, -9, 19], "ladder_dE": [5, 1, 10], "n": 100, "pairs": 50, "premise": {"false": {"dC": [16, 6, 27], "dE": [5, 1, 10], "n": 50, "net": {"C": 22, "E": 33, "O": 22, "method": 38}}, "valid": {"dC": [-11, -20, -3], "dE": [0, 0, 0], "n": 50, "net": {"C": 30, "E": 19, "O": 31, "method": 19}}}, "stats": {"C": {"handed": 96, "net": 52, "right": 73, "wrong": 21}, "E": {"handed": 76, "net": 52, "right": 63, "wrong": 11}, "O": {"handed": 89, "net": 53, "right": 70, "wrong": 17}, "ladder": {"handed": 82, "net": 57, "right": 68, "wrong": 11}, "method": {"handed": 82, "net": 57, "right": 68, "wrong": 11}}}, "qwen3.8-27b": {"cells": {"O answered / E answered": {"n": 54}, "O answered / E blank": {"n": 6}, "O blank / E answered": {"n": 8}, "O blank / E blank": {"C": {"handed": 12, "net": -4, "right": 4, "wrong": 8}, "EC_c": {"handed": 31, "net": 20, "right": 25, "wrong": 5}, "n": 32}}, "dC": [19, 4, 33], "dE": [20, 10, 29], "declined": 0, "gens": {"C": 100, "E": 100, "O": 100, "ladder": 200, "method": 170}, "judged_cells": 265, "ladder_dC": [21, 5, 36], "ladder_dE": [22, 13, 31], "n": 100, "pairs": 50, "premise": {"false": {"dC": [28, 18, 38], "dE": [21, 13, 29], "n": 50, "net": {"C": 2, "E": 9, "O": -1, "method": 30}}, "valid": {"dC": [-9, -19, 0], "dE": [-1, -5, 3], "n": 50, "net": {"C": 29, "E": 21, "O": 31, "method": 20}}}, "stats": {"C": {"handed": 78, "net": 31, "right": 54, "wrong": 23}, "E": {"handed": 62, "net": 30, "right": 45, "wrong": 15}, "O": {"handed": 60, "net": 30, "right": 45, "wrong": 15}, "ladder": {"handed": 93, "net": 52, "right": 71, "wrong": 19}, "method": {"handed": 93, "net": 50, "right": 70, "wrong": 20}}}}
