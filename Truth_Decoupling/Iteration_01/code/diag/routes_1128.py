@@ -25,6 +25,9 @@
 # Opponents: single E; single C at the strength chosen on the tuning questions (highest tuning net, ties -> smaller).
 # Intervals: TruthfulQA questions resampled (gate_sim_1126.tq_ci), FalseQA pairs resampled (falseqa_read.pair_ci).
 # Cross-check: R1(1) and N1 against the nets and handed-in counts of GPT's table (2026-11-28_simple_n1_claude_review.md).
+# Added 2026-11-28 18:3x (Zhao Lei 18:20: one method only): "M" = R1 with the C strength of the model chosen on the
+#   TruthfulQA tuning questions and used unchanged on FalseQA (R1_<CM[model]>); "ML" = the same with the ladder up to
+#   that strength; the within-cell intervals also with E+C at that strength ("ECm").
 # Output: a text report, then one line "JSON <dump>" with every number.
 # usage (container, from /workspace/Truth_Decoupling): python3 -B Iteration_01/diag/routes_1128.py
 import json
@@ -40,6 +43,7 @@ MP, ML, S, ps = A.MP, A.ML, A.S, A.ps
 ORDER = ("llama3.1-8b", "qwen3.5-9b", "qwen3.8-27b", "gemma3-12b", "gemma3-27b")
 VAL = {"R": 1, "W": -1, "X": 0, "H": 0}
 KS = ("0.25", "0.5", "1", "2")
+CM = {}     # model -> the C strength of the method, chosen on the TruthfulQA tuning questions (filled while TruthfulQA is read)
 # GPT's table: (R1(1) handed in, net), (N1 handed in, net)
 GPT = {("TruthfulQA", "llama3.1-8b"): ((352, 63), (476, 62)), ("TruthfulQA", "qwen3.5-9b"): ((437, 177), (444, 186)),
        ("TruthfulQA", "qwen3.8-27b"): ((463, 171), (490, 175)), ("TruthfulQA", "gemma3-12b"): ((358, 128), (489, 159)),
@@ -227,14 +231,18 @@ def main():
                      "DL_t": best(["DL_" + k for k in KS], T, tids)}
             for name, src in tuned.items():
                 X[name] = X[src]
+            if task == "TruthfulQA":
+                CM[m] = tuned["R1_t"].split("_")[-1]
+            cm = CM[m]
+            X["M"], X["ML"] = X["R1_" + cm], X["R1L_" + cm]
             e, c, n1d = X["E"][0], X[ck][0], X["N1"][0]
             got = ((sum(X["R1_1"][0][q][1] for q in ids), net(X["R1_1"][0], ids)), (sum(n1d[q][1] for q in ids), net(n1d, ids)))
-            rec = {"n": len(ids), "c_single": ck[1:], "tuned": {k: v.split("_")[-1].lstrip("A") for k, v in tuned.items()},
+            rec = {"n": len(ids), "cm": cm, "c_single": ck[1:], "tuned": {k: v.split("_")[-1].lstrip("A") for k, v in tuned.items()},
                    "gpt_check": {"mine": got, "gpt": GPT[(task, m)], "same": got == GPT[(task, m)]}, "schemes": {}}
             print("\n== %s %s: n %d | single C strength chosen on tuning %s | tuned %s | cross-check with GPT's table: mine %s, GPT %s -> %s" % (
                 task, m, len(ids), ck[1:], rec["tuned"], got, GPT[(task, m)], "SAME" if got == GPT[(task, m)] else "DIFFERENT"))
             names = (["O", "E", ck] + ["A" + k for k in KS] + ["At"] + ["R1_" + k for k in KS] + ["R1_t"] + ["R1L_" + k for k in KS] + ["R1L_t"]
-                     + ["D_" + k for k in KS] + ["D_t"] + ["DL_" + k for k in KS] + ["DL_t", "R2u", "R2L", "N1", "R1orc"])
+                     + ["D_" + k for k in KS] + ["D_t"] + ["DL_" + k for k in KS] + ["DL_t", "R2u", "R2L", "N1", "R1orc", "M", "ML"])
             for name in names:
                 d, g = X[name]
                 h = sum(d[q][1] for q in ids)
@@ -252,7 +260,7 @@ def main():
                     key = ("O answered" if oa else "O blank") + " / " + ("E answered" if ea else "E blank")
                     f = lambda a: (sum(sc(a[q])[0] for q in qq), sum(a[q][1] for q in qq), sum(a[q][1] and a[q][0] == 1 for q in qq),  # noqa: E731
                                    sum(a[q][1] and a[q][0] == -1 for q in qq))
-                    cells[key] = {"n": len(qq), "O": f(O), "E": f(E), "C": f(arm[ck]), "EC1": f(arm["EC1"]),
+                    cells[key] = {"n": len(qq), "O": f(O), "E": f(E), "C": f(arm[ck]), "EC1": f(arm["EC1"]), "ECm": f(arm["EC" + cm]),
                                   "EC_by_k": {k: f(arm["EC" + k]) for k in KS}}
                     print("   cell %-24s n %3d | (net, handed in, right, wrong): O %s | E %s | C %s | EC(1) %s" % (
                         key, len(qq), cells[key]["O"], cells[key]["E"], cells[key]["C"], cells[key]["EC1"]))
@@ -269,6 +277,7 @@ def main():
                     qq = [q for q in ids if O[q][1] == oa and E[q][1] == ea]
                     key = ("O answered" if oa else "O blank") + " / " + ("E answered" if ea else "E blank")
                     cci[key] = {"E-O": cid(E, O, qq), "EC1-E": cid(arm["EC1"], E, qq), "EC1-C": cid(arm["EC1"], arm[ck], qq),
+                                "ECm-E": cid(arm["EC" + cm], E, qq), "ECm-C": cid(arm["EC" + cm], arm[ck], qq),
                                 "C-O": cid(arm[ck], O, qq), "EC1-O": cid(arm["EC1"], O, qq)}
                     print("   cell %-24s differences inside the cell: E - O %s | EC(1) - E %s | EC(1) - C %s | C - O %s" % (
                         key, cci[key]["E-O"], cci[key]["EC1-E"], cci[key]["EC1-C"], cci[key]["C-O"]))
@@ -276,7 +285,7 @@ def main():
             # scheme against scheme
             ex = {}
             for a, b in (("R1L_2", "R1_2"), ("R1L_2", "R1_1"), ("R1L_1", "R1_1"), ("R1_1", "D_1"), ("R1L_2", "DL_2"), ("R1L_2", "R2L"),
-                         ("R1L_2", "R2u"), ("R1_1", "A1"), ("R1L_t", "R1_1"), ("R1L_t", "R1L_2")):
+                         ("R1L_2", "R2u"), ("R1_1", "A1"), ("R1L_t", "R1_1"), ("R1L_t", "R1L_2"), ("ML", "M"), ("M", "R1_1")):
                 ex[a + "-" + b] = ci(X[a][0], X[b][0])
             rec["extra"] = ex
             if task == "FalseQA":       # the two halves of every pair: premise false / premise valid
@@ -285,7 +294,7 @@ def main():
                 for g in ("false", "valid"):
                     qq = [q for q in ids if prem[q] == g]
                     pr[g] = {"n": len(qq)}
-                    for name in ("O", "E", ck, "R1_1", "R1L_t", "R1L_2", "R2u", "N1"):
+                    for name in ("O", "E", ck, "R1_1", "R1L_t", "R1L_2", "R2u", "N1", "M", "ML"):
                         pr[g]["Cdev" if name == ck else name] = net(X[name][0], qq)
                 rec["premise"] = pr
                 print("   by premise (nets): " + " | ".join("%s: %s" % (g, {k: v for k, v in pr[g].items()}) for g in ("false", "valid")))
@@ -298,7 +307,8 @@ def main():
                 def cit(a, b):
                     return [int(x) for x in F.pair_ci({q: a[q][0] - b[q][0] for q in tids}, pair, tids)]
             tu = {"n": len(tids)}
-            for name in ("R1_1", "R1L_2", "R1L_1", "R2u", "R2L", "D_1", "A1"):
+            T["M"], T["ML"] = T["R1_" + cm], T["R1L_" + cm]
+            for name in ("R1_1", "R1L_2", "R1L_1", "R2u", "R2L", "D_1", "A1", "M", "ML"):
                 tu[name] = {"net": net(T[name][0], tids), "dE": cit(T[name][0], T["E"][0]), "dC": cit(T[name][0], T[ck][0])}
             tu["E"] = net(T["E"][0], tids)
             tu["Cdev"] = net(T[ck][0], tids)
